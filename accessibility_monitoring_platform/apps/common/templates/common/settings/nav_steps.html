@@ -1,118 +1,126 @@
 <nav role="navigation">
-    <h3 class="govuk-heading-m">Platform metrics</h3>
-    <p class="govuk-body-m">
-        {% if current == 'common:metrics-case' %}
-            Case metrics
-        {% else %}
-            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:metrics-case' %}">
-                Case metrics</a>
-        {% endif %}
-    </p>
-    <p class="govuk-body-m">
-        {% if current == 'common:metrics-policy' %}
-            Policy metrics
-        {% else %}
-            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:metrics-policy' %}">
-                Policy metrics</a>
-        {% endif %}
-    </p>
-    <p class="govuk-body-m">
-        {% if current == 'common:metrics-report' %}
-            Report metrics
-        {% else %}
-            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:metrics-report' %}">
-                Report metrics</a>
-        {% endif %}
-    </p>
-    <h3 class="govuk-heading-m">Platform settings</h3>
-    <p class="govuk-body-m">
-        {% if current == 'users:edit-user' %}
-            Account details
-        {% else %}
-            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:edit-user' request.user.id %}">
-                Account details</a>
-        {% endif %}
-    </p>
-    <p class="govuk-body-m">
-        {% if current == 'common:edit-active-qa-auditor' %}
-            Active QA auditor
-        {% else %}
-            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:edit-active-qa-auditor' %}">
-                Active QA auditor</a>
-        {% endif %}
-    </p>
-    <p class="govuk-body-m">
-        {% if current == 'common:platform-history' %}
-            Platform version history
-        {% else %}
-            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:platform-history' %}">
-                Platform version history</a>
-        {% endif %}
-    </p>
-    <p class="govuk-body-m">
-        {% if current == 'common:markdown-cheatsheet' %}
-            Markdown cheatsheet
-        {% else %}
-            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:markdown-cheatsheet' %}">
-                Markdown cheatsheet</a>
-        {% endif %}
-    </p>
-    <p class="govuk-body-m">
-        {% if current == 'common:edit-frequently-used-links' %}
-            Edit frequently used links
-        {% else %}
-            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:edit-frequently-used-links' %}">
-                Edit frequently used links</a>
-        {% endif %}
-    </p>
-    <p class="govuk-body-m">
-        {% if current == 'common:edit-footer-links' %}
-            Edit footer links
-        {% else %}
-            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:edit-footer-links' %}">
-                Edit footer links</a>
-        {% endif %}
-    </p>
-    <h3 class="govuk-heading-m">Content settings</h3>
-    <p class="govuk-body-m">
-        {% if current == 'reports:edit-report-wrapper' %}
-            Report viewer editor
-        {% else %}
-            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'reports:edit-report-wrapper' %}">
-                Report viewer editor</a>
-        {% endif %}
-    </p>
-    <p class="govuk-body-m">
-        {% if current == 'audits:wcag-definition-list' %}
-            WCAG errors editor
-        {% else %}
-            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'audits:wcag-definition-list' %}">
-                WCAG errors editor</a>
-        {% endif %}
-    </p>
-    <p class="govuk-body-m">
-        {% if current == 'audits:statement-check-list' %}
-            Statement issues editor
-        {% else %}
-            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'audits:statement-check-list' %}">
-                Statement issues editor</a>
-        {% endif %}
-    </p>
-    <p class="govuk-body-m">
-        {% if current == 'common:more-information' %}
-            More information
-        {% else %}
-            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:more-information' %}">
-                More information</a>
-        {% endif %}
-    </p>
-    <h3 class="govuk-heading-m">Tool</h3>
-    <p class="govuk-body-m">
-        {% if current == 'common:bulk-url-search' %}
-            Bulk URL search
-        {% else %}
-            <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:bulk-url-search' %}">
-                Bulk URL search</a>
-        {% endif %}
-    </p>
+    <div class="amp-margin-bottom-40">
+        <h3 class="govuk-heading-s">Platform metrics</h3>
+        <p class="govuk-body-s">
+            {% if current == 'common:metrics-case' %}
+                Case metrics
+            {% else %}
+                <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:metrics-case' %}">
+                    Case metrics</a>
+            {% endif %}
+        </p>
+        <p class="govuk-body-s">
+            {% if current == 'common:metrics-policy' %}
+                Policy metrics
+            {% else %}
+                <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:metrics-policy' %}">
+                    Policy metrics</a>
+            {% endif %}
+        </p>
+        <p class="govuk-body-s">
+            {% if current == 'common:metrics-report' %}
+                Report metrics
+            {% else %}
+                <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:metrics-report' %}">
+                    Report metrics</a>
+            {% endif %}
+        </p>
+    </div>
+    <div class="amp-margin-bottom-40">
+        <h3 class="govuk-heading-s">Platform settings</h3>
+        <p class="govuk-body-s">
+            {% if current == 'users:edit-user' %}
+                Account details
+            {% else %}
+                <a class="govuk-link govuk-link--no-visited-state" href="{% url 'users:edit-user' request.user.id %}">
+                    Account details</a>
+            {% endif %}
+        </p>
+        <p class="govuk-body-s">
+            {% if current == 'common:edit-active-qa-auditor' %}
+                Active QA auditor
+            {% else %}
+                <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:edit-active-qa-auditor' %}">
+                    Active QA auditor</a>
+            {% endif %}
+        </p>
+        <p class="govuk-body-s">
+            {% if current == 'common:platform-history' %}
+                Platform version history
+            {% else %}
+                <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:platform-history' %}">
+                    Platform version history</a>
+            {% endif %}
+        </p>
+        <p class="govuk-body-s">
+            {% if current == 'common:markdown-cheatsheet' %}
+                Markdown cheatsheet
+            {% else %}
+                <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:markdown-cheatsheet' %}">
+                    Markdown cheatsheet</a>
+            {% endif %}
+        </p>
+        <p class="govuk-body-s">
+            {% if current == 'common:edit-frequently-used-links' %}
+                Edit frequently used links
+            {% else %}
+                <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:edit-frequently-used-links' %}">
+                    Edit frequently used links</a>
+            {% endif %}
+        </p>
+        <p class="govuk-body-s">
+            {% if current == 'common:edit-footer-links' %}
+                Edit footer links
+            {% else %}
+                <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:edit-footer-links' %}">
+                    Edit footer links</a>
+            {% endif %}
+        </p>
+    </div>
+    <div class="amp-margin-bottom-40">
+        <h3 class="govuk-heading-s">Content settings</h3>
+        <p class="govuk-body-s">
+            {% if current == 'reports:edit-report-wrapper' %}
+                Report viewer editor
+            {% else %}
+                <a class="govuk-link govuk-link--no-visited-state" href="{% url 'reports:edit-report-wrapper' %}">
+                    Report viewer editor</a>
+            {% endif %}
+        </p>
+        <p class="govuk-body-s">
+            {% if current == 'audits:wcag-definition-list' %}
+                WCAG errors editor
+            {% else %}
+                <a class="govuk-link govuk-link--no-visited-state" href="{% url 'audits:wcag-definition-list' %}">
+                    WCAG errors editor</a>
+            {% endif %}
+        </p>
+        <p class="govuk-body-s">
+            {% if current == 'audits:statement-check-list' %}
+                Statement issues editor
+            {% else %}
+                <a class="govuk-link govuk-link--no-visited-state" href="{% url 'audits:statement-check-list' %}">
+                    Statement issues editor</a>
+            {% endif %}
+        </p>
+        <p class="govuk-body-s">
+            {% if current == 'common:more-information' %}
+                More information
+            {% else %}
+                <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:more-information' %}">
+                    More information</a>
+            {% endif %}
+        </p>
+    </div>
+    <div class="amp-margin-bottom-40">
+        <h3 class="govuk-heading-s">Tool</h3>
+        <p class="govuk-body-s">
+            {% if current == 'common:bulk-url-search' %}
+                Bulk URL search
+            {% else %}
+                <a class="govuk-link govuk-link--no-visited-state" href="{% url 'common:bulk-url-search' %}">
+                    Bulk URL search</a>
+            {% endif %}
+        </p>
+    </div>
 </nav>
