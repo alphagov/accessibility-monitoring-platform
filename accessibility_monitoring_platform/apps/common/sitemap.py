@@ -608,7 +608,32 @@ TEST_TYPE_TO_CASE_NAV: dict[BaseCase.TestType, PlatformPageGroup.Type] = {
     BaseCase.TestType.MOBILE: PlatformPageGroup.Type.MOBILE_CASE_NAV,
 }
 
-SITE_MAP: list[PlatformPageGroup] = [
+SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
+    SimplifiedCasePlatformPageGroup(
+        name="Simplified testing case",
+        case_nav_group=False,
+        pages=[
+            SimplifiedCasePlatformPage(
+                name="Simplified case overview", url_name="simplified:case-detail"
+            ),
+            SimplifiedCasePlatformPage(
+                name="Deactivate case", url_name="simplified:deactivate-case"
+            ),
+            SimplifiedCasePlatformPage(
+                name="Post case summary", url_name="simplified:edit-post-case"
+            ),
+            SimplifiedCasePlatformPage(
+                name="Reactivate case", url_name="simplified:reactivate-case"
+            ),
+            SimplifiedCasePlatformPage(
+                name="Cannot start new retest",
+                url_name="simplified:retest-create-error",
+            ),
+            SimplifiedCasePlatformPage(
+                name="Status workflow", url_name="simplified:status-workflow"
+            ),
+        ],
+    ),
     SimplifiedCasePlatformPageGroup(
         name="Case details",
         show_flag_name="not_archived",
@@ -860,22 +885,6 @@ SITE_MAP: list[PlatformPageGroup] = [
                     ),
                 ],
                 next_page_url_name="simplified:manage-contact-details",
-            ),
-        ],
-    ),
-    # Reports
-    PlatformPageGroup(
-        name="",
-        pages=[
-            ReportPlatformPage(
-                name="Report preview",
-                url_name="reports:report-preview",
-                instance_class=Report,
-            ),
-            ReportPlatformPage(
-                name="Report visit logs",
-                url_name="reports:report-metrics-view",
-                instance_class=Report,
             ),
         ],
     ),
@@ -1421,169 +1430,8 @@ SITE_MAP: list[PlatformPageGroup] = [
             ),
         ],
     ),
-    DetailedCasePlatformPageGroup(
-        name="Case tools",
-        type=PlatformPageGroup.Type.DETAILED_CASE_TOOLS,
-        pages=[
-            DetailedCasePlatformPage(
-                name="PSB Zendesk tickets",
-                url_name="detailed:zendesk-tickets",
-                # case_details_template_name="detailed/details/details_psb_zendesk_tickets.html",
-                subpages=[
-                    DetailedCasePlatformPage(
-                        name="Add PSB Zendesk ticket",
-                        url_name="detailed:create-zendesk-ticket",
-                        url_kwarg_key="case_id",
-                    ),
-                    PlatformPage(
-                        name="Edit PSB Zendesk ticket #{instance.id_within_case}",
-                        url_name="detailed:update-zendesk-ticket",
-                        url_kwarg_key="pk",
-                        instance_class=DetailedZendeskTicket,
-                    ),
-                    PlatformPage(
-                        name="Remove PSB Zendesk ticket #{instance.id_within_case}",
-                        url_name="detailed:confirm-delete-zendesk-ticket",
-                        url_kwarg_key="pk",
-                        instance_class=DetailedZendeskTicket,
-                    ),
-                ],
-            ),
-            DetailedCasePlatformPage(
-                name="Unresponsive PSB", url_name="detailed:edit-unresponsive-psb"
-            ),
-        ],
-    ),
-    SimplifiedCasePlatformPageGroup(
-        name="Simplified case",
-        case_nav_group=False,
-        pages=[
-            SimplifiedCasePlatformPage(
-                name="Simplified case overview", url_name="simplified:case-detail"
-            ),
-            BaseCasePlatformPage(
-                name="Create reminder",
-                url_name="notifications:reminder-create",
-                url_kwarg_key="case_id",
-            ),
-            SimplifiedCasePlatformPage(
-                name="Deactivate case", url_name="simplified:deactivate-case"
-            ),
-            SimplifiedCasePlatformPage(
-                name="Post case summary", url_name="simplified:edit-post-case"
-            ),
-            SimplifiedCasePlatformPage(
-                name="Reactivate case", url_name="simplified:reactivate-case"
-            ),
-            SimplifiedCasePlatformPage(
-                name="Cannot start new retest",
-                url_name="simplified:retest-create-error",
-            ),
-            SimplifiedCasePlatformPage(
-                name="Status workflow", url_name="simplified:status-workflow"
-            ),
-        ],
-    ),
-    PlatformPageGroup(
-        name="Exports",
-        pages=[
-            ExportPlatformPage(
-                name="{enforcement_body} CSV export manager",
-                url_name="exports:export-list",
-            ),
-            PlatformPage(
-                name="Delete {instance}",
-                url_name="exports:export-confirm-delete",
-                url_kwarg_key="pk",
-                instance_class=Export,
-            ),
-            PlatformPage(
-                name="Confirm {instance}",
-                url_name="exports:export-confirm-export",
-                url_kwarg_key="pk",
-                instance_class=Export,
-            ),
-            ExportPlatformPage(
-                name="New {enforcement_body} CSV export",
-                url_name="exports:export-create",
-            ),
-            PlatformPage(
-                name="{instance}",
-                url_name="exports:export-detail",
-                url_kwarg_key="pk",
-                instance_class=Export,
-            ),
-            SimplifiedCasePlatformPage(
-                name="Export Case as email for #{instance.case_number}",
-                url_name="exports:export-case-as-email",
-            ),
-        ],
-    ),
-    PlatformPageGroup(
-        name="Settings",
-        pages=[
-            PlatformPage(name="Case metrics", url_name="common:metrics-case"),
-            PlatformPage(name="Policy metrics", url_name="common:metrics-policy"),
-            PlatformPage(name="Report metrics", url_name="common:metrics-report"),
-            PlatformPage(
-                name="Account details", url_name="users:edit-user", instance_class=User
-            ),
-            PlatformPage(
-                name="Active QA auditor", url_name="common:edit-active-qa-auditor"
-            ),
-            PlatformPage(
-                name="Platform version history", url_name="common:platform-history"
-            ),
-            PlatformPage(
-                name="Markdown cheatsheet", url_name="common:markdown-cheatsheet"
-            ),
-            PlatformPage(
-                name="Edit frequently used links",
-                url_name="common:edit-frequently-used-links",
-            ),
-            PlatformPage(name="Edit footer links", url_name="common:edit-footer-links"),
-            PlatformPage(
-                name="Report viewer editor",
-                url_name="reports:edit-report-wrapper",
-                instance_class=Report,
-            ),
-            PlatformPage(
-                name="WCAG errors editor",
-                url_name="audits:wcag-definition-list",
-                subpages=[
-                    PlatformPage(
-                        name="Create WCAG error",
-                        url_name="audits:wcag-definition-create",
-                    ),
-                    PlatformPage(
-                        name="Update WCAG definition",
-                        url_name="audits:wcag-definition-update",
-                        url_kwarg_key="pk",
-                    ),
-                ],
-            ),
-            PlatformPage(
-                name="Statement issues editor",
-                url_name="audits:statement-check-list",
-                subpages=[
-                    PlatformPage(
-                        name="Create statement issue",
-                        url_name="audits:statement-check-create",
-                    ),
-                    PlatformPage(
-                        name="Update statement issue",
-                        url_name="audits:statement-check-update",
-                        url_kwarg_key="pk",
-                    ),
-                ],
-            ),
-            PlatformPage(
-                name="More information about monitoring",
-                url_name="common:more-information",
-            ),
-            PlatformPage(name="Bulk URL search", url_name="common:bulk-url-search"),
-        ],
-    ),
+]
+DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
     DetailedCasePlatformPageGroup(
         name="Detailed testing case",
         case_nav_group=False,
@@ -1779,6 +1627,41 @@ SITE_MAP: list[PlatformPageGroup] = [
             ),
         ],
     ),
+    DetailedCasePlatformPageGroup(
+        name="Case tools",
+        type=PlatformPageGroup.Type.DETAILED_CASE_TOOLS,
+        pages=[
+            DetailedCasePlatformPage(
+                name="PSB Zendesk tickets",
+                url_name="detailed:zendesk-tickets",
+                # case_details_template_name="detailed/details/details_psb_zendesk_tickets.html",
+                subpages=[
+                    DetailedCasePlatformPage(
+                        name="Add PSB Zendesk ticket",
+                        url_name="detailed:create-zendesk-ticket",
+                        url_kwarg_key="case_id",
+                    ),
+                    PlatformPage(
+                        name="Edit PSB Zendesk ticket #{instance.id_within_case}",
+                        url_name="detailed:update-zendesk-ticket",
+                        url_kwarg_key="pk",
+                        instance_class=DetailedZendeskTicket,
+                    ),
+                    PlatformPage(
+                        name="Remove PSB Zendesk ticket #{instance.id_within_case}",
+                        url_name="detailed:confirm-delete-zendesk-ticket",
+                        url_kwarg_key="pk",
+                        instance_class=DetailedZendeskTicket,
+                    ),
+                ],
+            ),
+            DetailedCasePlatformPage(
+                name="Unresponsive PSB", url_name="detailed:edit-unresponsive-psb"
+            ),
+        ],
+    ),
+]
+MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
     MobileCasePlatformPageGroup(
         name="Mobile testing case",
         case_nav_group=False,
@@ -1800,57 +1683,195 @@ SITE_MAP: list[PlatformPageGroup] = [
             )
         ],
     ),
-    PlatformPageGroup(
-        name="",
-        pages=[
-            PlatformPage(name="Search cases", url_name="cases:case-list"),
-            PlatformPage(
-                name="Create simplified case", url_name="simplified:case-create"
-            ),
-            PlatformPage(name="Create detailed case", url_name="detailed:case-create"),
-            PlatformPage(name="Create mobile case", url_name="mobile:case-create"),
-            PlatformPage(
-                name="Accessibility statement",
-                url_name="common:accessibility-statement",
-            ),
-            PlatformPage(name="Report an issue", url_name="common:issue-report"),
-            PlatformPage(name="Contact admin", url_name="common:contact-admin"),
-            PlatformPage(name="Dashboard", url_name="dashboard:home"),
-            PlatformPage(name="Tasks", url_name="notifications:task-list"),
-            PlatformPage(
-                name="Reminder",
-                url_name="notifications:edit-reminder-task",
-                url_kwarg_key="pk",
-                instance_class=Task,
-            ),
-            PlatformPage(name="Privacy notice", url_name="common:privacy-notice"),
-        ],
-    ),
-    PlatformPageGroup(
-        name="Tech team",
-        pages=[
-            SimplifiedCasePlatformPage(
-                name="Simplified case history", url_name="simplified:case-history"
-            ),
-            DetailedCasePlatformPage(
-                name="Detailed case history", url_name="detailed:case-history"
-            ),
-            PlatformPage(name="Issue reports", url_name="tech:issue-reports-list"),
-            PlatformPage(
-                name="Reference implementation",
-                url_name="tech:reference-implementation",
-            ),
-            PlatformPage(name="Tools and sitemap", url_name="tech:platform-checking"),
-            PlatformPage(
-                name="Reset detailed or mobile case data", url_name="tech:import-csv"
-            ),
-            PlatformPage(
-                name="Import detailed Trello comments",
-                url_name="tech:import-trello-comments",
-            ),
-        ],
-    ),
 ]
+SITE_MAP: list[PlatformPageGroup] = (
+    SIMPLIFIED_CASE_PAGE_GROUPS
+    + DETAILED_CASE_PAGE_GROUPS
+    + MOBILE_CASE_PAGE_GROUPS
+    + [
+        PlatformPageGroup(
+            name="Exports",
+            pages=[
+                ExportPlatformPage(
+                    name="{enforcement_body} CSV export manager",
+                    url_name="exports:export-list",
+                ),
+                PlatformPage(
+                    name="Delete {instance}",
+                    url_name="exports:export-confirm-delete",
+                    url_kwarg_key="pk",
+                    instance_class=Export,
+                ),
+                PlatformPage(
+                    name="Confirm {instance}",
+                    url_name="exports:export-confirm-export",
+                    url_kwarg_key="pk",
+                    instance_class=Export,
+                ),
+                ExportPlatformPage(
+                    name="New {enforcement_body} CSV export",
+                    url_name="exports:export-create",
+                ),
+                PlatformPage(
+                    name="{instance}",
+                    url_name="exports:export-detail",
+                    url_kwarg_key="pk",
+                    instance_class=Export,
+                ),
+                SimplifiedCasePlatformPage(
+                    name="Export Case as email for #{instance.case_number}",
+                    url_name="exports:export-case-as-email",
+                ),
+            ],
+        ),
+        PlatformPageGroup(
+            name="Settings",
+            pages=[
+                PlatformPage(name="Case metrics", url_name="common:metrics-case"),
+                PlatformPage(name="Policy metrics", url_name="common:metrics-policy"),
+                PlatformPage(name="Report metrics", url_name="common:metrics-report"),
+                PlatformPage(
+                    name="Account details",
+                    url_name="users:edit-user",
+                    instance_class=User,
+                ),
+                PlatformPage(
+                    name="Active QA auditor", url_name="common:edit-active-qa-auditor"
+                ),
+                PlatformPage(
+                    name="Platform version history", url_name="common:platform-history"
+                ),
+                PlatformPage(
+                    name="Markdown cheatsheet", url_name="common:markdown-cheatsheet"
+                ),
+                PlatformPage(
+                    name="Edit frequently used links",
+                    url_name="common:edit-frequently-used-links",
+                ),
+                PlatformPage(
+                    name="Edit footer links", url_name="common:edit-footer-links"
+                ),
+                PlatformPage(
+                    name="Report viewer editor",
+                    url_name="reports:edit-report-wrapper",
+                    instance_class=Report,
+                ),
+                PlatformPage(
+                    name="WCAG errors editor",
+                    url_name="audits:wcag-definition-list",
+                    subpages=[
+                        PlatformPage(
+                            name="Create WCAG error",
+                            url_name="audits:wcag-definition-create",
+                        ),
+                        PlatformPage(
+                            name="Update WCAG definition",
+                            url_name="audits:wcag-definition-update",
+                            url_kwarg_key="pk",
+                        ),
+                    ],
+                ),
+                PlatformPage(
+                    name="Statement issues editor",
+                    url_name="audits:statement-check-list",
+                    subpages=[
+                        PlatformPage(
+                            name="Create statement issue",
+                            url_name="audits:statement-check-create",
+                        ),
+                        PlatformPage(
+                            name="Update statement issue",
+                            url_name="audits:statement-check-update",
+                            url_kwarg_key="pk",
+                        ),
+                    ],
+                ),
+                PlatformPage(
+                    name="More information about monitoring",
+                    url_name="common:more-information",
+                ),
+                PlatformPage(name="Bulk URL search", url_name="common:bulk-url-search"),
+            ],
+        ),
+        PlatformPageGroup(
+            name="Tech team",
+            pages=[
+                SimplifiedCasePlatformPage(
+                    name="Simplified case history", url_name="simplified:case-history"
+                ),
+                DetailedCasePlatformPage(
+                    name="Detailed case history", url_name="detailed:case-history"
+                ),
+                PlatformPage(name="Issue reports", url_name="tech:issue-reports-list"),
+                PlatformPage(
+                    name="Reference implementation",
+                    url_name="tech:reference-implementation",
+                ),
+                PlatformPage(
+                    name="Tools and sitemap", url_name="tech:platform-checking"
+                ),
+                PlatformPage(
+                    name="Reset detailed or mobile case data",
+                    url_name="tech:import-csv",
+                ),
+                PlatformPage(
+                    name="Import detailed Trello comments",
+                    url_name="tech:import-trello-comments",
+                ),
+            ],
+        ),
+        # Reports
+        PlatformPageGroup(
+            name="",
+            pages=[
+                ReportPlatformPage(
+                    name="Report preview",
+                    url_name="reports:report-preview",
+                    instance_class=Report,
+                ),
+                ReportPlatformPage(
+                    name="Report visit logs",
+                    url_name="reports:report-metrics-view",
+                    instance_class=Report,
+                ),
+            ],
+        ),
+        # Miscellaneous
+        PlatformPageGroup(
+            name="",
+            pages=[
+                PlatformPage(name="Search cases", url_name="cases:case-list"),
+                PlatformPage(
+                    name="Create simplified case", url_name="simplified:case-create"
+                ),
+                PlatformPage(
+                    name="Create detailed case", url_name="detailed:case-create"
+                ),
+                PlatformPage(name="Create mobile case", url_name="mobile:case-create"),
+                PlatformPage(
+                    name="Accessibility statement",
+                    url_name="common:accessibility-statement",
+                ),
+                PlatformPage(name="Report an issue", url_name="common:issue-report"),
+                PlatformPage(name="Contact admin", url_name="common:contact-admin"),
+                PlatformPage(name="Dashboard", url_name="dashboard:home"),
+                PlatformPage(name="Tasks", url_name="notifications:task-list"),
+                BaseCasePlatformPage(
+                    name="Create reminder",
+                    url_name="notifications:reminder-create",
+                    url_kwarg_key="case_id",
+                ),
+                PlatformPage(
+                    name="Reminder",
+                    url_name="notifications:edit-reminder-task",
+                    url_kwarg_key="pk",
+                    instance_class=Task,
+                ),
+                PlatformPage(name="Privacy notice", url_name="common:privacy-notice"),
+            ],
+        ),
+    ]
+)
 
 
 def build_sitemap_by_url_name(
