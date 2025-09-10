@@ -110,7 +110,7 @@ describe('Create simplified case, tests and report', () => {
     cy.get('#id_reviewer').select('QA Auditor')
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Comments (0)`)
+    cy.title().should('eq', `${newOrganisationName} | QA comments (0)`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | QA approval`)

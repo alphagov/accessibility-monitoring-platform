@@ -1844,8 +1844,8 @@ def test_update_case_status():
         ),
         (
             CaseStatus.Status.COMPLETE,
-            "Go to post case summary",
-            "simplified:edit-post-case",
+            "Go to statement enforcement",
+            "simplified:edit-statement-enforcement",
         ),
         (
             CaseStatus.Status.DEACTIVATED,

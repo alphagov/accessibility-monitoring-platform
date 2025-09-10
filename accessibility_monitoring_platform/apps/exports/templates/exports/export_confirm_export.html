@@ -6,21 +6,7 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    <div class="govuk-breadcrumbs">
-        <ol class="govuk-breadcrumbs__list">
-            {% include 'common/breadcrumb_home.html' %}
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'cases:case-list' %}">Search</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'exports:export-list' %}{% if export.enforcement_body != 'ehrc' %}?enforcement_body={{ export.enforcement_body }}{% endif %}">{{ export.enforcement_body|upper }} CSV export manager</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'exports:export-detail' export.id %}">{{ export }}</a>
-            </li>
-            <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
-        </ol>
-    </div>
+    {% include 'exports/breadcrumbs.html' %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">

@@ -542,15 +542,22 @@ class RetestResultUpdateForm(VersionForm):
 class CaseCloseUpdateForm(VersionForm):
     """Form for updating closing the case page"""
 
+    psb_progress_info = AMPTextField(
+        label="Progress summary and PSB response | Included in export"
+    )
     recommendation_for_enforcement = AMPChoiceRadioField(
-        label="Enforcement recommendation",
+        label="Enforcement recommendation | Included in export",
         choices=DetailedCase.RecommendationForEnforcement.choices,
     )
-    recommendation_notes = AMPTextField(
-        label="Enforcement recommendation details (included in EB export)"
+    recommendation_info = AMPTextField(
+        label="Enforcement recommendation details | Included in export"
     )
-    recommendation_decision_sent_date = AMPDateField(label="Date decision email sent")
-    recommendation_decision_sent_to = AMPCharFieldWide(label="Decision sent to")
+    recommendation_decision_sent_date = AMPDateField(
+        label="Date decision email sent | Included in export"
+    )
+    recommendation_decision_sent_to = AMPCharFieldWide(
+        label="Decision sent to | Included in export"
+    )
     case_close_decision_state = AMPChoiceRadioField(
         label="Case completed",
         choices=DetailedCase.CaseCloseDecision,
@@ -573,8 +580,9 @@ class CaseCloseUpdateForm(VersionForm):
         model = DetailedCase
         fields = [
             "version",
+            "psb_progress_info",
             "recommendation_for_enforcement",
-            "recommendation_notes",
+            "recommendation_info",
             "recommendation_decision_sent_date",
             "recommendation_decision_sent_to",
             "case_close_decision_state",
@@ -651,7 +659,6 @@ class UnresponsivePSBUpdateForm(VersionForm):
     no_psb_contact = AMPChoiceCheckboxField(
         label="Do you want to mark the PSB as unresponsive to this case?",
         choices=Boolean.choices,
-        help_text="This field affects the case status",
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Mark the PSB as unresponsive to this case"}
         ),

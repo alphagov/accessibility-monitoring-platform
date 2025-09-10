@@ -1103,8 +1103,10 @@ class SimplifiedCase(BaseCase):
                 ),
             ),
             CaseStatus.Status.COMPLETE: Link(
-                label="Go to post case summary",
-                url=reverse("simplified:edit-post-case", kwargs={"pk": self.id}),
+                label="Go to statement enforcement",
+                url=reverse(
+                    "simplified:edit-statement-enforcement", kwargs={"pk": self.id}
+                ),
             ),
             CaseStatus.Status.DEACTIVATED: Link(
                 label="Go to case metadata",

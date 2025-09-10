@@ -2,11 +2,6 @@
 
 {% load static %}
 
-{% block breadcrumbs %}
-{% include 'detailed/helpers/breadcrumbs.html' %}
-{% endblock %}
-
-
 {% block form %}
 <form method="post" action="{% url sitemap.current_platform_page.url_name case.id %}">
     {% csrf_token %}

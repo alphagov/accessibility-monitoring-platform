@@ -206,7 +206,8 @@ def create_detailed_case_from_dict(
                 row["Disproportionate Burden Claimed?"],
                 DetailedCase.DisproportionateBurden.NOT_CHECKED,
             ),
-            recommendation_notes=row["Enforcement Recommendation Notes"],
+            psb_progress_info=row["Summary of progress made / response from PSB"],
+            recommendation_info=row["Enforcement Recommendation Notes"],
             parental_organisation_name=row["Parent org (if relevant)"],
             status=status,
             case_folder_url=row["Link to case folder"],
@@ -234,7 +235,6 @@ def create_detailed_case_from_dict(
 
     for column_name in [
         "Related case notes (if applicable)",
-        "Summary of progress made / response from PSB",
     ]:
         if row[column_name]:
             add_note_to_history(

@@ -3,10 +3,6 @@
         <span class="govuk-details__summary-text">View PSB Zendesk tickets ({{ case.zendesk_tickets|length }})</span>
     </summary>
     <div class="govuk-details__text">
-        <p class="govuk-body">
-            <a href="{% url 'detailed:zendesk-tickets' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                Edit PSB Zendesk tickets</a>
-        </p>
         {% if case.zendesk_tickets %}
             <table class="govuk-table">
                 <thead class="govuk-table__head">
@@ -27,5 +23,9 @@
                 </tbody>
             </table>
         {% endif %}
+        <p class="govuk-body">
+            <a href="{% url 'detailed:zendesk-tickets' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Edit PSB Zendesk tickets</a>
+        </p>
     </div>
 </details>

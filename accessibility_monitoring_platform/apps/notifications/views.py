@@ -11,7 +11,6 @@ from django.views.generic import ListView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
 from ..cases.models import BaseCase
-from ..simplified.models import SimplifiedCase
 from .forms import ReminderForm
 from .models import Task
 from .utils import (
@@ -85,7 +84,7 @@ class TaskMarkAsReadView(ListView):
                     f"{task.base_case} {task.get_type_display()} task marked as read",
                 )
         else:
-            messages.error(request, "An error occured")
+            messages.error(request, "Not allowed to mark other people's tasks as read")
 
         return HttpResponseRedirect(reverse_lazy("notifications:task-list"))
 
@@ -99,16 +98,16 @@ class CommentsMarkAsReadView(ListView):
 
     def get(self, request, case_id):
         """Hides a task"""
-        simplified_case: SimplifiedCase = SimplifiedCase.objects.get(id=case_id)
+        base_case: BaseCase = BaseCase.objects.get(id=case_id)
         mark_tasks_as_read(
-            user=self.request.user, base_case=simplified_case, type=Task.Type.QA_COMMENT
+            user=self.request.user, base_case=base_case, type=Task.Type.QA_COMMENT
         )
         mark_tasks_as_read(
             user=self.request.user,
-            base_case=simplified_case,
+            base_case=base_case,
             type=Task.Type.REPORT_APPROVED,
         )
-        messages.success(request, f"{simplified_case} comments marked as read")
+        messages.success(request, f"{base_case} comments marked as read")
         return HttpResponseRedirect(reverse_lazy("notifications:task-list"))
 
 
