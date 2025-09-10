@@ -825,7 +825,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                 next_page_url_name="simplified:edit-qa-comments",
             ),
             CaseCommentsPlatformPage(
-                name="Comments ({instance.qa_comments_count})",
+                name="QA comments ({instance.qa_comments_count})",
                 url_name="simplified:edit-qa-comments",
                 subpages=[
                     PlatformPage(
@@ -1687,7 +1687,7 @@ SITE_MAP: list[PlatformPageGroup] = [
                 next_page_url_name="detailed:edit-qa-comments",
             ),
             DetailedCasePlatformPage(
-                name="QA Comments",
+                name="QA comments",
                 url_name="detailed:edit-qa-comments",
                 next_page_url_name="detailed:edit-qa-approval",
             ),

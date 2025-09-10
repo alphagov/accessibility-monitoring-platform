@@ -60,7 +60,7 @@ describe('Case overview', () => {
 
   it('can edit QA comments', () => {
     cy.contains(/^ Report QA/).click()
-    cy.contains(/^Comments \(0\)$/).click()
+    cy.contains(/^QA comments \(0\)$/).click()
     cy.get('[name="body"]').clear().type(qaComment)
     cy.contains('Save').click()
     cy.contains('li', /#S-1\b/).click()

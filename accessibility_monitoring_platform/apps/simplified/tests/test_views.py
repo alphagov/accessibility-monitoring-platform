@@ -630,7 +630,7 @@ def test_case_page_with_case_nav_no_form_and_no_go_back(admin_client):
         ),
         (
             "simplified:edit-qa-comments",
-            "<b>Comments (0)</b>",
+            "<b>QA comments (0)</b>",
         ),
         (
             "simplified:edit-qa-approval",
@@ -2979,7 +2979,7 @@ def test_navigation_links_shown(
         ),
         (
             "simplified:edit-qa-comments",
-            "Comments (0)",
+            "QA comments (0)",
         ),
         (
             "simplified:edit-qa-approval",
