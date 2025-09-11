@@ -267,6 +267,10 @@ class DetailedCase(BaseCase):
     def contacts(self) -> QuerySet["Contact"]:
         return self.contact_set.filter(is_deleted=False)
 
+    @property
+    def preferred_contacts(self) -> QuerySet["Contact"]:
+        return self.contacts.filter(preferred=Contact.Preferred.YES)
+
 
 class DetailedEventHistory(models.Model):
     """Model to record events on platform"""

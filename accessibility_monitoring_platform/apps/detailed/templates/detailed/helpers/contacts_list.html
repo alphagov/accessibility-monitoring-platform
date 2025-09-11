@@ -1,9 +1,9 @@
 <details class="govuk-details amp-margin-bottom-10" data-module="govuk-details">
    <summary class="govuk-details__summary">
-        <span class="govuk-details__summary-text">List of contacts ({{ detailed_case.contacts.count }})</span>
+        <span class="govuk-details__summary-text">List of preferred contacts ({{ detailed_case.preferred_contacts.count }})</span>
     </summary>
     <div class="govuk-details__text">
-        {% for contact in detailed_case.contacts %}
+        {% for contact in detailed_case.preferred_contacts %}
             <p class="govuk-body amp-margin-bottom-0"><b>Contact {{ forloop.counter }}</b></p>
             <p class="govuk-body amp-margin-bottom-0">{{ contact.name }}</p>
             <p class="govuk-body amp-margin-bottom-0">{{ contact.job_title }}</p>

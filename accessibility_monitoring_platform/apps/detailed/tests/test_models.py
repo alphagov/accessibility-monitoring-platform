@@ -107,6 +107,31 @@ def test_detailed_case_most_recent_history():
 
 
 @pytest.mark.django_db
+def test_detailed_case_contacts():
+    """Test DetailedCase.contacts returns the contacts"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+    user: User = User.objects.create()
+    contact: Contact = Contact.objects.create(
+        detailed_case=detailed_case, created_by=user
+    )
+
+    assert list(detailed_case.contacts) == [contact]
+
+
+@pytest.mark.django_db
+def test_detailed_case_preferred_contacts():
+    """Test DetailedCase.preferred_contacts returns the preferred contacts"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+    user: User = User.objects.create()
+    Contact.objects.create(detailed_case=detailed_case, created_by=user)
+    preferred_contact: Contact = Contact.objects.create(
+        detailed_case=detailed_case, created_by=user, preferred=Contact.Preferred.YES
+    )
+
+    assert list(detailed_case.preferred_contacts) == [preferred_contact]
+
+
+@pytest.mark.django_db
 def test_detailed_case_history_saves_detailed_case_status():
     """Test DetailedCaseiHistory saves the current DetailedCase status"""
     detailed_case: DetailedCase = DetailedCase.objects.create(

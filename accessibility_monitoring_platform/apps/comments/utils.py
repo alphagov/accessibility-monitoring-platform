@@ -37,7 +37,7 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
     if platform.active_qa_auditor:
         user_ids.add(platform.active_qa_auditor.id)
 
-    # If a detailed case has not auditor then add all QA auditors' ids
+    # If a detailed case has no auditor then add all QA auditors' ids
     if (
         comment.base_case.auditor is None
         and comment.base_case.test_type == BaseCase.TestType.DETAILED
