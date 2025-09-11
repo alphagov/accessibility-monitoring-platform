@@ -5,7 +5,7 @@ Tests for detailed models
 import pytest
 from django.contrib.auth.models import User
 
-from ..models import Contact, DetailedCase, DetailedCaseHistory
+from ..models import Contact, DetailedCase, DetailedCaseHistory, ZendeskTicket
 
 ORGANISATION_NAME: str = "Organisation Name"
 WEBSITE_NAME: str = "Website Name"
@@ -155,3 +155,22 @@ def test_contact_str():
     contact: Contact = Contact(name="Contact Name", contact_details="name@example.com")
 
     assert str(contact) == "Contact Name name@example.com"
+
+
+@pytest.mark.django_db
+def test_zendesk_id_within_case():
+    """
+    Test that ZendeskTicket.id_within_case is set to number of Zendesk tickets in case
+    or id from Zendesk URL
+    """
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+    zendesk_ticket: ZendeskTicket = ZendeskTicket.objects.create(
+        detailed_case=detailed_case, url="https://non-zendesk-url"
+    )
+
+    assert zendesk_ticket.id_within_case == 1
+
+    zendesk_ticket.url = "https://govuk.zendesk.com/agent/tickets/1234567"
+    zendesk_ticket.save()
+
+    assert zendesk_ticket.id_within_case == 1234567

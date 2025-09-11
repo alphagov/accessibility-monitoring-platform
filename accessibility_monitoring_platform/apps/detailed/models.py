@@ -16,6 +16,8 @@ from ..cases.models import UPDATE_SEPARATOR, BaseCase, DetailedCaseStatus
 from ..common.models import Boolean, VersionModel
 from ..common.utils import extract_domain_from_url
 
+ZENDESK_URL_PREFIX: str = "https://govuk.zendesk.com/agent/tickets/"
+
 
 class DetailedCase(BaseCase):
     """
@@ -431,4 +433,8 @@ class ZendeskTicket(models.Model):
     def save(self, *args, **kwargs) -> None:
         if not self.id:
             self.id_within_case = self.detailed_case.zendeskticket_set.all().count() + 1
+        if self.url.startswith(ZENDESK_URL_PREFIX):
+            zendesk_id: str = self.url.replace(ZENDESK_URL_PREFIX, "").replace("/", "")
+            if zendesk_id.isdigit():
+                self.id_within_case = int(zendesk_id)
         super().save(*args, **kwargs)
