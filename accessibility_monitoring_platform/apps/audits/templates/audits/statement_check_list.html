@@ -9,11 +9,11 @@
     {% include 'common/breadcrumbs.html' %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
+            <div class="govuk-grid-column-one-quarter">
                 {% include 'common/settings/nav_steps.html' with current='audits:statement-check-list' %}
             </div>
-            <div class="govuk-grid-column-two-thirds">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ sitemap.current_platform_page.get_name }}</h1>
+            <div class="govuk-grid-column-three-quarters">
+                <h1 class="govuk-heading-xl amp-margin-bottom-25">{{ sitemap.current_platform_page.get_name }}</h1>
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-three-quarters">
                         <p class="govuk-body-m">
@@ -26,7 +26,7 @@
                             href="{% url 'audits:statement-check-create' %}"
                             role="button"
                             draggable="false"
-                            class="govuk-button float-right"
+                            class="govuk-button govuk-button--secondary float-right"
                             data-module="govuk-button"
                         >
                             Create
@@ -70,9 +70,9 @@
                             <td class="govuk-table__cell">
                                 <div class="govuk-grid-row">
                                     <div class="govuk-grid-column-three-quarters">
-                                        <h2 class="govuk-heading-m">{{ statement_check.label }}</h2>
+                                        <h2 class="govuk-heading-m amp-margin-top-20">{{ statement_check.label }}</h2>
                                     </div>
-                                    <div class="govuk-grid-column-one-quarter">
+                                    <div class="govuk-grid-column-one-quarter amp-margin-top-20">
                                         <div class="govuk-button-group amp-flex-end">
                                             <a
                                                 href="{{ statement_check.get_absolute_url }}"

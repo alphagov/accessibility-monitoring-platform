@@ -9,11 +9,11 @@
     {% include 'common/breadcrumbs.html' %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
+            <div class="govuk-grid-column-one-quarter">
                 {% include 'common/settings/nav_steps.html' with current='common:markdown-cheatsheet' %}
             </div>
-            <div class="govuk-grid-column-two-thirds amp-report-wrapper">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ sitemap.current_platform_page.get_name }}</h1>
+            <div class="govuk-grid-column-three-quarters amp-report-wrapper">
+                <h1 class="govuk-heading-xl amp-margin-bottom-25">{{ sitemap.current_platform_page.get_name }}</h1>
                 {{ platform.markdown_cheatsheet|markdown_to_html }}
             </div>
         </div>

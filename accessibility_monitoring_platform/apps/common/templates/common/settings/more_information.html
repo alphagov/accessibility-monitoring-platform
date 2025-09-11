@@ -9,10 +9,10 @@
     {% include 'common/breadcrumbs.html' %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
+            <div class="govuk-grid-column-one-quarter">
                 {% include 'common/settings/nav_steps.html' with current='common:more-information' %}
             </div>
-            <div class="govuk-grid-column-two-thirds amp-report-wrapper">
+            <div class="govuk-grid-column-three-quarters amp-report-wrapper">
                 {{ platform.more_information_about_monitoring|markdown_to_html }}
             </div>
         </div>
