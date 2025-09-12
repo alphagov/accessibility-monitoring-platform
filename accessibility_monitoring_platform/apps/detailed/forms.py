@@ -484,14 +484,14 @@ class TwelveWeekAcknowledgedUpdateForm(VersionForm):
         ]
 
 
-class RetestingUpdateForm(VersionForm):
+class RetestResultUpdateForm(VersionForm):
     """Form for updating reviewing changes retesting page"""
 
     retest_start_date = AMPDateField(label="Retest date")
     retest_total_number_of_issues = AMPIntegerField(
         label="Total number of remaining issues"
     )
-    retesting_complete_date = AMPDatePageCompleteField()
+    retest_result_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = DetailedCase
@@ -499,11 +499,11 @@ class RetestingUpdateForm(VersionForm):
             "version",
             "retest_start_date",
             "retest_total_number_of_issues",
-            "retesting_complete_date",
+            "retest_result_complete_date",
         ]
 
 
-class RetestResultUpdateForm(VersionForm):
+class RetestComplianceDecisionsUpdateForm(VersionForm):
     """Form for updating reviewing changes retest result page"""
 
     retest_website_compliance_state = AMPChoiceRadioField(
@@ -527,7 +527,7 @@ class RetestResultUpdateForm(VersionForm):
     retest_disproportionate_burden_information = AMPTextField(
         label="Retest disproportionate burden information"
     )
-    retest_result_complete_date = AMPDatePageCompleteField()
+    retest_compliance_decisions_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = DetailedCase
@@ -539,7 +539,7 @@ class RetestResultUpdateForm(VersionForm):
             "retest_statement_compliance_information",
             "retest_disproportionate_burden_claim",
             "retest_disproportionate_burden_information",
-            "retest_result_complete_date",
+            "retest_compliance_decisions_complete_date",
         ]
 
 

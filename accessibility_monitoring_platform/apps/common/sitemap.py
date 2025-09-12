@@ -1560,18 +1560,18 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 name="Report sent",
                 url_name="detailed:edit-report-sent",
                 complete_flag_name="report_sent_complete_date",
-                next_page_url_name="detailed:edit-report-acknowledged",
-            ),
-            DetailedCasePlatformPage(
-                name="Report acknowledged",
-                url_name="detailed:edit-report-acknowledged",
-                complete_flag_name="report_acknowledged_complete_date",
                 next_page_url_name="detailed:edit-12-week-deadline",
             ),
             DetailedCasePlatformPage(
                 name="12-week deadline",
                 url_name="detailed:edit-12-week-deadline",
                 complete_flag_name="twelve_week_deadline_complete_date",
+                next_page_url_name="detailed:edit-report-acknowledged",
+            ),
+            DetailedCasePlatformPage(
+                name="Report acknowledged",
+                url_name="detailed:edit-report-acknowledged",
+                complete_flag_name="report_acknowledged_complete_date",
                 next_page_url_name="detailed:edit-12-week-request-update",
             ),
             DetailedCasePlatformPage(
@@ -1584,7 +1584,7 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 name="12-week acknowledged",
                 url_name="detailed:edit-12-week-acknowledged",
                 complete_flag_name="twelve_week_acknowledged_complete_date",
-                next_page_url_name="detailed:edit-retesting",
+                next_page_url_name="detailed:edit-retest-result",
             ),
         ],
     ),
@@ -1592,15 +1592,15 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
         name="Reviewing changes",
         pages=[
             DetailedCasePlatformPage(
-                name="Retesting",
-                url_name="detailed:edit-retesting",
-                complete_flag_name="retesting_complete_date",
-                next_page_url_name="detailed:edit-retest-result",
-            ),
-            DetailedCasePlatformPage(
                 name="Retest result",
                 url_name="detailed:edit-retest-result",
                 complete_flag_name="retest_result_complete_date",
+                next_page_url_name="detailed:edit-retest-compliance-decisions",
+            ),
+            DetailedCasePlatformPage(
+                name="Compliance decisions",
+                url_name="detailed:edit-retest-compliance-decisions",
+                complete_flag_name="retest_compliance_decisions_complete_date",
                 next_page_url_name="detailed:edit-case-close",
             ),
         ],

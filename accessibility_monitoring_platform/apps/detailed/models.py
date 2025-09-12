@@ -160,12 +160,12 @@ class DetailedCase(BaseCase):
     twelve_week_acknowledged_date = models.DateField(null=True, blank=True)
     twelve_week_acknowledged_complete_date = models.DateField(null=True, blank=True)
 
-    # Reviewing changes - Retesting
+    # Reviewing changes - Retest result
     retest_start_date = models.DateField(null=True, blank=True)
     retest_total_number_of_issues = models.IntegerField(null=True, blank=True)
-    retesting_complete_date = models.DateField(null=True, blank=True)
+    retest_result_complete_date = models.DateField(null=True, blank=True)
 
-    # Reviewing changes - Retest result
+    # Reviewing changes - Retest compliance decisions
     retest_website_compliance_state = models.CharField(
         max_length=20,
         choices=WebsiteCompliance.choices,
@@ -186,7 +186,7 @@ class DetailedCase(BaseCase):
     retest_disproportionate_burden_information = models.TextField(
         default="", blank=True
     )
-    retest_result_complete_date = models.DateField(null=True, blank=True)
+    retest_compliance_decisions_complete_date = models.DateField(null=True, blank=True)
 
     # Closing the case - Closing the case
     psb_progress_info = models.TextField(default="", blank=True)

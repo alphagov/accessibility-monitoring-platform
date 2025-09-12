@@ -33,7 +33,7 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     QAAuditorUpdateView,
     QACommentsUpdateView,
     ReportReadyForQAUpdateView,
-    RetestingUpdateView,
+    RetestComplianceDecisionsUpdateView,
     RetestResultUpdateView,
     UnresponsivePSBUpdateView,
     ZendeskTicketConfirmDeleteUpdateView,
@@ -160,14 +160,14 @@ urlpatterns: list[URLPattern] = [
         name="edit-12-week-acknowledged",
     ),
     path(
-        "<int:pk>/edit-retesting/",
-        login_required(RetestingUpdateView.as_view()),
-        name="edit-retesting",
-    ),
-    path(
         "<int:pk>/edit-retest-result/",
         login_required(RetestResultUpdateView.as_view()),
         name="edit-retest-result",
+    ),
+    path(
+        "<int:pk>/edit-retest-compliance-decisions/",
+        login_required(RetestComplianceDecisionsUpdateView.as_view()),
+        name="edit-retest-compliance-decisions",
     ),
     path(
         "<int:pk>/edit-case-close/",
