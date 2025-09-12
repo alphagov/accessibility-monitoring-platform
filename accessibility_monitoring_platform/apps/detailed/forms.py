@@ -226,7 +226,7 @@ class ContactCreateForm(forms.ModelForm):
         choices=Contact.Preferred.choices,
         initial=Contact.Preferred.UNKNOWN,
     )
-    information = AMPTextField(label="Contact information")
+    information = AMPTextField(label="Information about contact")
 
     class Meta:
         model = Contact
