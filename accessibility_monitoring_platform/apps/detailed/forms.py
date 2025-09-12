@@ -252,9 +252,10 @@ class ContactInformationRequestUpdateForm(VersionForm):
     """Form for updating contact information request page"""
 
     contact_information_request_start_date = AMPDateField(
-        label="Information request process started"
+        label="Information request process started",
+        help_text="This is when we first reach out to an organisation via any method regardless of whether we have a contact or not",
     )
-    contact_information_request_end_date = AMPDateField(label="Information delivered")
+    contact_information_request_end_date = AMPDateField(label="Information received")
     contact_information_request_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -288,8 +289,11 @@ class InitialTestingOutcomeUpdateForm(VersionForm):
     """Form for updating initial testing outcome page"""
 
     initial_test_end_date = AMPDateField(label="Test end date")
-    initial_total_number_of_pages = AMPIntegerField(label="Pages tested")
-    initial_total_number_of_issues = AMPIntegerField(label="Number of issues")
+    initial_total_number_of_pages = AMPIntegerField(label="Number of pages tested")
+    initial_total_number_of_issues = AMPIntegerField(
+        label="Number of issues found",
+        help_text="This does not include best practice issues",
+    )
     initial_website_compliance_state = AMPChoiceRadioField(
         label="Initial website compliance decision",
         choices=DetailedCase.WebsiteCompliance.choices,
