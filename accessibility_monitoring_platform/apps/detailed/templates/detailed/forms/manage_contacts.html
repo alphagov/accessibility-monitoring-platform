@@ -3,7 +3,8 @@
 {% block preform %}
 <p class="govuk-body amp-margin-bottom-30">
     <a href="{% url 'detailed:edit-contact-create' detailed_case.id %}" class="govuk-link govuk-link--no-visited-state">
-        + Add contact</a>
+        + Add contact
+    </a>
 </p>
 <div class="amp-margin-bottom-40">
     {% for contact in detailed_case.contacts %}
@@ -11,85 +12,44 @@
             <div class="govuk-grid-column-full">
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-full">
-                        <p class="govuk-body-l amp-margin-bottom-10">
-                            <b>Contact {{ forloop.counter }}</b>
+                        <h3 class="govuk-heading-m amp-margin-bottom-10">
+                            Contact {{ forloop.counter }}
                             &nbsp;
                             <a href="{% url 'detailed:edit-contact-update' contact.id %}" class="govuk-link govuk-link--no-visited-state govuk-body-m">
                                 Edit
                             </a>
-                        </p>
                     </div>
                 </div>
-                <div class="govuk-grid-row amp-margin-bottom-10">
-                    <div class="govuk-grid-column-one-third">
-                        <p class="govuk-body amp-margin-bottom-0">
-                            <b>Name</b>
-                        </p>
-                    </div>
-                    <div class="govuk-grid-column-two-thirds">
-                        <p class="govuk-body amp-margin-bottom-0">{{ contact.name }}</p>
-                    </div>
-                </div>
-                <div class="govuk-grid-row  amp-margin-bottom-10">
-                    <div class="govuk-grid-column-one-third">
-                        <p class="govuk-body amp-margin-bottom-0">
-                            <b>Job title</b>
-                        </p>
-                    </div>
-                    <div class="govuk-grid-column-two-thirds">
-                        <p class="govuk-body amp-margin-bottom-0">{{ contact.job_title }}</p>
-                    </div>
-                </div>
-                <div class="govuk-grid-row  amp-margin-bottom-10">
-                    <div class="govuk-grid-column-one-third">
-                        <p class="govuk-body amp-margin-bottom-0">
-                            <b>Contact details</b>
-                    </p>
-                    </div>
-                    <div class="govuk-grid-column-two-thirds">
-                        <p class="govuk-body amp-margin-bottom-0">{{ contact.contact_details }}</p>
-                    </div>
-                </div>
-                <div class="govuk-grid-row  amp-margin-bottom-10">
-                    <div class="govuk-grid-column-one-third">
-                        <p class="govuk-body amp-margin-bottom-0">
-                            <b>Preferred contact</b>
-                        </p>
-                    </div>
-                    <div class="govuk-grid-column-two-thirds">
-                        <p class="govuk-body amp-margin-bottom-0">{{ contact.get_preferred_display }}</p>
-                    </div>
-                </div>
-                <div class="govuk-grid-row  amp-margin-bottom-10">
-                    <div class="govuk-grid-column-one-third">
-                        <p class="govuk-body amp-margin-bottom-0">
-                            <b>Added by</b>
-                    </p>
-                    </div>
-                    <div class="govuk-grid-column-two-thirds">
-                        <p class="govuk-body amp-margin-bottom-0">{{ contact.created_by.get_full_name }}</p>
-                    </div>
-                </div>
-                <div class="govuk-grid-row  amp-margin-bottom-10">
-                    <div class="govuk-grid-column-one-third">
-                        <p class="govuk-body amp-margin-bottom-0">
-                            <b>Date added</b>
-                        </p>
-                    </div>
-                    <div class="govuk-grid-column-two-thirds">
-                        <p class="govuk-body amp-margin-bottom-0">{{ contact.created|amp_date }}</p>
-                    </div>
-                </div>
-                <div class="govuk-grid-row  amp-margin-bottom-10">
-                    <div class="govuk-grid-column-one-third">
-                        <p class="govuk-body  amp-margin-bottom-0">
-                            <b>Contact information</b>
-                        </p>
-                    </div>
-                    <div class="govuk-grid-column-two-thirds govuk-body amp-notes">
-                        {{ contact.information|markdown_to_html }}
-                    </div>
-                </div>
+                <table class="govuk-body">
+                    <tr>
+                        <td class="amp-padding-bottom-10 amp-padding-right-25"><b>Name</b></td>
+                        <td class="amp-padding-bottom-10">{{ contact.name }}</td>
+                    </tr>
+                    <tr>
+                        <td class="amp-padding-bottom-10 amp-padding-right-25"><b>Job title</b></td>
+                        <td class="amp-padding-bottom-10">{{ contact.job_title }}</td>
+                    </tr>
+                    <tr>
+                        <td class="amp-padding-bottom-10 amp-padding-right-25"><b>Contact details</b></td>
+                        <td class="amp-padding-bottom-10">{{ contact.contact_details }}</td>
+                    </tr>
+                    <tr>
+                        <td class="amp-padding-bottom-10 amp-padding-right-25"><b>Preferred contact</b></td>
+                        <td class="amp-padding-bottom-10">{{ contact.get_preferred_display }}</td>
+                    </tr>
+                    <tr>
+                        <td class="amp-padding-bottom-10 amp-padding-right-25"><b>Added by</b></td>
+                        <td class="amp-padding-bottom-10">{{ contact.created_by.get_full_name }}</td>
+                    </tr>
+                    <tr>
+                        <td class="amp-padding-bottom-10 amp-padding-right-25"><b>Date added</b></td>
+                        <td class="amp-padding-bottom-10">{{ contact.created|amp_date }}</td>
+                    </tr>
+                    <tr class="govuk-body">
+                        <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180"><b>Contact information</b></td>
+                        <td class="amp-padding-bottom-10 amp-notes">{{ contact.information|markdown_to_html }}</td>
+                    </tr>
+                </table>
             </div>
         </div>
         <hr class="amp-width-100 amp-margin-bottom-30 hr-grey" />
