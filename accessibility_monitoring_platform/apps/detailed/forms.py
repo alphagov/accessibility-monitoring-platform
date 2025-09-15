@@ -487,7 +487,7 @@ class TwelveWeekAcknowledgedUpdateForm(VersionForm):
 class RetestResultUpdateForm(VersionForm):
     """Form for updating reviewing changes retesting page"""
 
-    retest_start_date = AMPDateField(label="Retest date")
+    retest_start_date = AMPDateField(label="Latest retest date")
     retest_total_number_of_issues = AMPIntegerField(
         label="Total number of remaining issues"
     )
@@ -662,6 +662,7 @@ class UnresponsivePSBUpdateForm(VersionForm):
 
     no_psb_contact = AMPChoiceCheckboxField(
         label="Do you want to mark the PSB as unresponsive to this case?",
+        help_text="Also add a case note with more information",
         choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Mark the PSB as unresponsive to this case"}
