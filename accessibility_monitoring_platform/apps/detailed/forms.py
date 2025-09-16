@@ -34,19 +34,19 @@ class DetailedCaseCreateForm(forms.ModelForm):
     Form for creating a case
     """
 
-    home_page_url = AMPURLField(label="Full URL")
+    home_page_url = AMPURLField(label="Full URL · Included in export")
     organisation_name = AMPCharFieldWide(
-        label="Organisation name",
+        label="Organisation name · Included in export",
     )
-    parental_organisation_name = AMPCharFieldWide(label="Parent organisation name")
-    website_name = AMPCharFieldWide(label="Website name")
+    parental_organisation_name = AMPCharFieldWide(label="Parent organisation name · Included in export")
+    website_name = AMPCharFieldWide(label="Website name · Included in export")
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     subcategory = AMPModelChoiceField(
-        label="Sub-category",
+        label="Sub-category · Included in export",
         queryset=SubCategory.objects.all(),
     )
     enforcement_body = AMPChoiceRadioField(
-        label="Which equalities body will check the case?",
+        label="Which equalities body will check the case? · Included in export",
         choices=DetailedCase.EnforcementBody.choices,
         initial=DetailedCase.EnforcementBody.EHRC,
     )
@@ -61,11 +61,11 @@ class DetailedCaseCreateForm(forms.ModelForm):
         initial=DetailedCase.PsbLocation.ENGLAND,
     )
     previous_case_url = AMPURLField(
-        label="URL to previous case",
+        label="URL to previous case · Included in export",
         help_text="If the website has been previously audited, include a link to the case below",
     )
     is_complaint = AMPChoiceCheckboxField(
-        label="Complaint?",
+        label="Complaint? · Included in export",
         choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Did this case originate from a complaint?"}
@@ -291,7 +291,7 @@ class InitialTestingOutcomeUpdateForm(VersionForm):
     initial_test_end_date = AMPDateField(label="Test end date")
     initial_total_number_of_pages = AMPIntegerField(label="Number of pages tested")
     initial_total_number_of_issues = AMPIntegerField(
-        label="Number of issues found",
+        label="Number of issues found · Included in export",
         help_text="This does not include best practice issues",
     )
     initial_website_compliance_state = AMPChoiceRadioField(
@@ -394,7 +394,7 @@ class QAApprovalUpdateForm(VersionForm):
 class FinalReportUpdateForm(VersionForm):
     """Form for updating publish report page"""
 
-    equality_body_report_url = AMPURLField(label="Link to equality body PDF report")
+    equality_body_report_url = AMPURLField(label="Link to equality body PDF report · Included in export")
     final_report_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -409,7 +409,7 @@ class FinalReportUpdateForm(VersionForm):
 class ReportSentUpdateForm(VersionForm):
     """Form for updating correspondence report sent page"""
 
-    report_sent_date = AMPDateField(label="Report sent on")
+    report_sent_date = AMPDateField(label="Report sent on · Included in export")
     report_sent_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -424,7 +424,7 @@ class ReportSentUpdateForm(VersionForm):
 class ReportAcknowledgedUpdateForm(VersionForm):
     """Form for updating correspondence report acknowledged page"""
 
-    report_acknowledged_date = AMPDateField(label="Report acknowledged on")
+    report_acknowledged_date = AMPDateField(label="Report acknowledged on · Included in export")
     report_acknowledged_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -440,7 +440,7 @@ class TwelveWeekDeadlineUpdateForm(VersionForm):
     """Form for updating correspondence 12-week deadline page"""
 
     twelve_week_deadline_date = AMPDateField(
-        label="12-week deadline",
+        label="12-week deadline · Included in export",
         widget=AMPDateWidget(attrs={"populate_with_12_week_only": True}),
     )
     twelve_week_deadline_complete_date = AMPDatePageCompleteField()
@@ -487,9 +487,9 @@ class TwelveWeekAcknowledgedUpdateForm(VersionForm):
 class RetestResultUpdateForm(VersionForm):
     """Form for updating reviewing changes retesting page"""
 
-    retest_start_date = AMPDateField(label="Latest retest date")
+    retest_start_date = AMPDateField(label="Latest retest date · Included in export")
     retest_total_number_of_issues = AMPIntegerField(
-        label="Total number of remaining issues"
+        label="Total number of remaining issues · Included in export"
     )
     retest_result_complete_date = AMPDatePageCompleteField()
 
@@ -507,25 +507,25 @@ class RetestComplianceDecisionsUpdateForm(VersionForm):
     """Form for updating reviewing changes retest result page"""
 
     retest_website_compliance_state = AMPChoiceRadioField(
-        label="Retest website compliance decision",
+        label="Retest website compliance decision · Included in export",
         choices=DetailedCase.WebsiteCompliance.choices,
     )
     retest_website_compliance_information = AMPTextField(
         label="Retest website compliance decision information"
     )
     retest_statement_compliance_state = AMPChoiceRadioField(
-        label="Retest statement compliance decision",
+        label="Retest statement compliance decision · Included in export",
         choices=DetailedCase.StatementCompliance.choices,
     )
     retest_statement_compliance_information = AMPTextField(
         label="Retest statement compliance decision information"
     )
     retest_disproportionate_burden_claim = AMPChoiceRadioField(
-        label="Retest disproportionate burden claim",
+        label="Retest disproportionate burden claim · Included in export",
         choices=DetailedCase.DisproportionateBurden.choices,
     )
     retest_disproportionate_burden_information = AMPTextField(
-        label="Retest disproportionate burden information"
+        label="Retest disproportionate burden information · Included in export"
     )
     retest_compliance_decisions_complete_date = AMPDatePageCompleteField()
 
@@ -547,20 +547,20 @@ class CaseCloseUpdateForm(VersionForm):
     """Form for updating closing the case page"""
 
     psb_progress_info = AMPTextField(
-        label="Progress summary and PSB response | Included in export"
+        label="Progress summary and PSB response · Included in export"
     )
     recommendation_for_enforcement = AMPChoiceRadioField(
-        label="Enforcement recommendation | Included in export",
+        label="Enforcement recommendation · Included in export",
         choices=DetailedCase.RecommendationForEnforcement.choices,
     )
     recommendation_info = AMPTextField(
-        label="Enforcement recommendation details | Included in export"
+        label="Enforcement recommendation details · Included in export"
     )
     recommendation_decision_sent_date = AMPDateField(
-        label="Date decision email sent | Included in export"
+        label="Date decision email sent · Included in export"
     )
     recommendation_decision_sent_to = AMPCharFieldWide(
-        label="Decision sent to | Included in export"
+        label="Decision sent to · Included in export"
     )
     case_close_decision_state = AMPChoiceRadioField(
         label="Case completed",
