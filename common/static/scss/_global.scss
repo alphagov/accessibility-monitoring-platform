@@ -275,7 +275,10 @@ img, .amp-max-width-100 {
 
 .amp-min-width-180 {
     min-width: 180px;
-    vertical-align: bottom;
+}
+
+.amp-vertically-align-top {
+    vertical-align: top;
 }
 
 .amp-margin-top-0 {
