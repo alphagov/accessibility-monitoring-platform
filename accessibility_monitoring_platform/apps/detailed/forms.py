@@ -596,6 +596,25 @@ class CaseCloseUpdateForm(VersionForm):
         ]
 
 
+class StatementEnforcementUpdateForm(VersionForm):
+    """Form for updating the statement enforcement page"""
+
+    post_case_information = AMPTextField(
+        label="Summary of events after the case was closed"
+    )
+    psb_appeal_information = AMPTextField(label="Public sector body appeal information")
+    statement_enforcement_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "post_case_information",
+            "psb_appeal_information",
+            "statement_enforcement_complete_date",
+        ]
+
+
 class EnforcementBodyMetadataUpdateForm(VersionForm):
     """Form for updating closing the case page"""
 

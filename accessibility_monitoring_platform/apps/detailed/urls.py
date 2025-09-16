@@ -35,6 +35,7 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     ReportReadyForQAUpdateView,
     RetestComplianceDecisionsUpdateView,
     RetestResultUpdateView,
+    StatementEnforcementUpdateView,
     UnresponsivePSBUpdateView,
     ZendeskTicketConfirmDeleteUpdateView,
     ZendeskTicketCreateView,
@@ -173,6 +174,11 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-case-close/",
         login_required(CaseCloseUpdateView.as_view()),
         name="edit-case-close",
+    ),
+    path(
+        "<int:pk>/edit-statement-enforcement/",
+        login_required(StatementEnforcementUpdateView.as_view()),
+        name="edit-statement-enforcement",
     ),
     path(
         "<int:pk>/edit-equality-body-metadata/",

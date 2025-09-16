@@ -49,6 +49,7 @@ from .forms import (
     ReportSentUpdateForm,
     RetestComplianceDecisionsUpdateForm,
     RetestResultUpdateForm,
+    StatementEnforcementUpdateForm,
     TwelveWeekAcknowledgedUpdateForm,
     TwelveWeekDeadlineUpdateForm,
     TwelveWeekRequestUpdateForm,
@@ -489,6 +490,12 @@ class CaseCloseUpdateView(DetailedCaseUpdateView):
 
     template_name: str = "detailed/forms/close_case.html"
     form_class: type[CaseCloseUpdateForm] = CaseCloseUpdateForm
+
+
+class StatementEnforcementUpdateView(DetailedCaseUpdateView):
+    """View to update post case statement enforcement"""
+
+    form_class: type[StatementEnforcementUpdateForm] = StatementEnforcementUpdateForm
 
 
 class EnforcementBodyMetadataUpdateView(DetailedCaseUpdateView):

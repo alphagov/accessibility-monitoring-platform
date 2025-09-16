@@ -1612,13 +1612,19 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 name="Closing the case",
                 url_name="detailed:edit-case-close",
                 complete_flag_name="case_close_complete_date",
-                next_page_url_name="detailed:edit-equality-body-metadata",
+                next_page_url_name="detailed:edit-statement-enforcement",
             ),
         ],
     ),
     DetailedCasePlatformPageGroup(
         name="Post case",
         pages=[
+            DetailedCasePlatformPage(
+                name="Statement enforcement",
+                url_name="detailed:edit-statement-enforcement",
+                complete_flag_name="statement_enforcement_complete_date",
+                next_page_url_name="detailed:edit-equality-body-metadata",
+            ),
             DetailedCasePlatformPage(
                 name="Equality body metadata",
                 url_name="detailed:edit-equality-body-metadata",
