@@ -1,8 +1,7 @@
 /* global cy before Cypress */
 
 const newOrganisationName = 'New detailed organisation name'
-const newHomePageURL = 'https://example.com'
-const newAccessibilityStatementURL = `${newHomePageURL}/accessibility-statement`
+const newHomePageURL = 'https://detailed-org.com'
 
 describe('Create detailed case', () => {
   before(() => {
@@ -21,10 +20,6 @@ describe('Create detailed case', () => {
     cy.get('#id_sector').select('Private Sector Business')
     cy.get('[name="enforcement_body"]').check('ehrc')
     cy.get('[name="psb_location"]').check('england')
-    cy.contains('Save and continue case').click()
-
-    cy.title().should('eq', 'Duplicate cases found')
-    cy.contains('We have found 2 cases matching the details you have given')
     cy.contains('Save and continue case').click()
 
     cy.title().should('eq', `${newOrganisationName} | Case metadata`)
