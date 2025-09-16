@@ -207,8 +207,7 @@ class DetailedCase(BaseCase):
     case_close_complete_date = models.DateField(null=True, blank=True)
 
     # Post case - statement enforcement
-    post_case_information = models.TextField(default="", blank=True)
-    psb_appeal_information = models.TextField(default="", blank=True)
+    psb_statement_appeal_information = models.TextField(default="", blank=True)
     statement_enforcement_complete_date = models.DateField(null=True, blank=True)
 
     # Post case - Equality body metadata

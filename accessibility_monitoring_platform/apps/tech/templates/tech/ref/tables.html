@@ -14,7 +14,12 @@
             </li>
             <li>
                 2-column (real):
-                <span class="amp-todo">TODO: Detailed case update status</span>
+                {% if detailed_case %}
+                    <a href="{% url 'detailed:edit-case-status' detailed_case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        Detailed case update status</a>
+                {% else %}
+                    <span class="amp-todo">TODO: Detailed case update status</span>
+                {% endif %}
             </li>
             <li>
                 2-column (row headers):
