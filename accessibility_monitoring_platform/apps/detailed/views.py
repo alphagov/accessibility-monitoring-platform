@@ -47,8 +47,9 @@ from .forms import (
     ReportAcknowledgedUpdateForm,
     ReportReadyForQAUpdateForm,
     ReportSentUpdateForm,
-    RetestingUpdateForm,
+    RetestComplianceDecisionsUpdateForm,
     RetestResultUpdateForm,
+    StatementEnforcementUpdateForm,
     TwelveWeekAcknowledgedUpdateForm,
     TwelveWeekDeadlineUpdateForm,
     TwelveWeekRequestUpdateForm,
@@ -469,17 +470,19 @@ class CorrespondenceTwelveWeekAcknowledgedUpdateView(CorrespondenceUpdateView):
     )
 
 
-class RetestingUpdateView(DetailedCaseUpdateView):
+class RetestResultUpdateView(DetailedCaseUpdateView):
     """View to update reviewing changes retesting"""
 
-    form_class: type[RetestingUpdateForm] = RetestingUpdateForm
+    form_class: type[RetestResultUpdateForm] = RetestResultUpdateForm
     template_name: str = "detailed/forms/retesting.html"
 
 
-class RetestResultUpdateView(DetailedCaseUpdateView):
+class RetestComplianceDecisionsUpdateView(DetailedCaseUpdateView):
     """View to update reviewing changes retest result"""
 
-    form_class: type[RetestResultUpdateForm] = RetestResultUpdateForm
+    form_class: type[RetestComplianceDecisionsUpdateForm] = (
+        RetestComplianceDecisionsUpdateForm
+    )
 
 
 class CaseCloseUpdateView(DetailedCaseUpdateView):
@@ -487,6 +490,12 @@ class CaseCloseUpdateView(DetailedCaseUpdateView):
 
     template_name: str = "detailed/forms/close_case.html"
     form_class: type[CaseCloseUpdateForm] = CaseCloseUpdateForm
+
+
+class StatementEnforcementUpdateView(DetailedCaseUpdateView):
+    """View to update post case statement enforcement"""
+
+    form_class: type[StatementEnforcementUpdateForm] = StatementEnforcementUpdateForm
 
 
 class EnforcementBodyMetadataUpdateView(DetailedCaseUpdateView):

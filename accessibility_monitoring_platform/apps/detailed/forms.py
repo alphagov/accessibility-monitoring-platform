@@ -226,7 +226,7 @@ class ContactCreateForm(forms.ModelForm):
         choices=Contact.Preferred.choices,
         initial=Contact.Preferred.UNKNOWN,
     )
-    information = AMPTextField(label="Contact information")
+    information = AMPTextField(label="Information about contact")
 
     class Meta:
         model = Contact
@@ -252,9 +252,10 @@ class ContactInformationRequestUpdateForm(VersionForm):
     """Form for updating contact information request page"""
 
     contact_information_request_start_date = AMPDateField(
-        label="Information request process started"
+        label="Information request process started",
+        help_text="This is when we first reach out to an organisation via any method regardless of whether we have a contact or not",
     )
-    contact_information_request_end_date = AMPDateField(label="Information delivered")
+    contact_information_request_end_date = AMPDateField(label="Information received")
     contact_information_request_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -288,8 +289,11 @@ class InitialTestingOutcomeUpdateForm(VersionForm):
     """Form for updating initial testing outcome page"""
 
     initial_test_end_date = AMPDateField(label="Test end date")
-    initial_total_number_of_pages = AMPIntegerField(label="Pages tested")
-    initial_total_number_of_issues = AMPIntegerField(label="Number of issues")
+    initial_total_number_of_pages = AMPIntegerField(label="Number of pages tested")
+    initial_total_number_of_issues = AMPIntegerField(
+        label="Number of issues found",
+        help_text="This does not include best practice issues",
+    )
     initial_website_compliance_state = AMPChoiceRadioField(
         label="Initial website compliance decision",
         choices=DetailedCase.WebsiteCompliance.choices,
@@ -480,14 +484,14 @@ class TwelveWeekAcknowledgedUpdateForm(VersionForm):
         ]
 
 
-class RetestingUpdateForm(VersionForm):
+class RetestResultUpdateForm(VersionForm):
     """Form for updating reviewing changes retesting page"""
 
-    retest_start_date = AMPDateField(label="Retest date")
+    retest_start_date = AMPDateField(label="Latest retest date")
     retest_total_number_of_issues = AMPIntegerField(
         label="Total number of remaining issues"
     )
-    retesting_complete_date = AMPDatePageCompleteField()
+    retest_result_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = DetailedCase
@@ -495,11 +499,11 @@ class RetestingUpdateForm(VersionForm):
             "version",
             "retest_start_date",
             "retest_total_number_of_issues",
-            "retesting_complete_date",
+            "retest_result_complete_date",
         ]
 
 
-class RetestResultUpdateForm(VersionForm):
+class RetestComplianceDecisionsUpdateForm(VersionForm):
     """Form for updating reviewing changes retest result page"""
 
     retest_website_compliance_state = AMPChoiceRadioField(
@@ -523,7 +527,7 @@ class RetestResultUpdateForm(VersionForm):
     retest_disproportionate_burden_information = AMPTextField(
         label="Retest disproportionate burden information"
     )
-    retest_result_complete_date = AMPDatePageCompleteField()
+    retest_compliance_decisions_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = DetailedCase
@@ -535,7 +539,7 @@ class RetestResultUpdateForm(VersionForm):
             "retest_statement_compliance_information",
             "retest_disproportionate_burden_claim",
             "retest_disproportionate_burden_information",
-            "retest_result_complete_date",
+            "retest_compliance_decisions_complete_date",
         ]
 
 
@@ -589,6 +593,25 @@ class CaseCloseUpdateForm(VersionForm):
             "is_case_added_to_stats",
             "is_feedback_survey_sent",
             "case_close_complete_date",
+        ]
+
+
+class StatementEnforcementUpdateForm(VersionForm):
+    """Form for updating the statement enforcement page"""
+
+    post_case_information = AMPTextField(
+        label="Summary of events after the case was closed"
+    )
+    psb_appeal_information = AMPTextField(label="Public sector body appeal information")
+    statement_enforcement_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
+            "post_case_information",
+            "psb_appeal_information",
+            "statement_enforcement_complete_date",
         ]
 
 
@@ -658,6 +681,7 @@ class UnresponsivePSBUpdateForm(VersionForm):
 
     no_psb_contact = AMPChoiceCheckboxField(
         label="Do you want to mark the PSB as unresponsive to this case?",
+        help_text="Also add a case note with more information",
         choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Mark the PSB as unresponsive to this case"}

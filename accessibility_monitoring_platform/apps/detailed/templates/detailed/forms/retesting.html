@@ -4,23 +4,11 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
         <div class="govuk-body amp-margin-bottom-40">
-            <p class="govuk-body amp-margin-bottom-5"><b>Initial test | Link to case folder</b></p>
-            <p class="govuk-body">
-                {% if case.case_folder_url %}
-                    <a href="{{ case.case_folder_url }}" rel="noreferrer noopener"
-                        target="_blank" class="govuk-link">google.drive.com/doc</a>
-                    <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span>
-                {% else %}
-                    None
-                {% endif %}
-            </p>
-        </div>
-        <div class="govuk-body amp-margin-bottom-40">
-            <p class="govuk-body amp-margin-bottom-5"><b>Initial test | Number of pages</b></p>
+            <p class="govuk-body amp-margin-bottom-5"><b>Initial test | Number of pages tested</b></p>
             <p class="govuk-body">{{ case.initial_total_number_of_pages }}</p>
         </div>
         <div class="govuk-body amp-margin-bottom-40">
-            <p class="govuk-body amp-margin-bottom-5"><b>Initial test | Number of issues</b></p>
+            <p class="govuk-body amp-margin-bottom-5"><b>Initial test | Number of issues found</b></p>
             <p class="govuk-body">{{ case.initial_total_number_of_issues }}</p>
         </div>
     </div>

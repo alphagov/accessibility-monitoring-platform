@@ -270,7 +270,7 @@ class BaseCase(VersionModel):
 
     class EnforcementBody(models.TextChoices):
         EHRC = "ehrc", "Equality and Human Rights Commission"
-        ECNI = "ecni", "Equality Commission Northern Ireland"
+        ECNI = "ecni", "Equality Commission for Northern Ireland"
 
     class RecommendationForEnforcement(models.TextChoices):
         NO_FURTHER_ACTION = "no-further-action", "No further action"

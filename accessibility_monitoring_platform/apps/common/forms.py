@@ -471,12 +471,18 @@ class FrequentlyUsedLinkUpdateForm(forms.ModelForm):
 
     label = AMPCharFieldWide(label="Label")
     url = AMPURLField(label="URL")
+    case_type = AMPChoiceRadioField(
+        label="Type of case",
+        choices=FrequentlyUsedLink.CaseType.choices,
+        initial=FrequentlyUsedLink.CaseType.ALL,
+    )
 
     class Meta:
         model = FrequentlyUsedLink
         fields = [
             "label",
             "url",
+            "case_type",
         ]
 
 

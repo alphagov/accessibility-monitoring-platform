@@ -1,7 +1,7 @@
 /* global cy before Cypress */
 
-const newOrganisationName = 'New organisation name'
-const newHomePageURL = 'https://example.com'
+const newOrganisationName = 'New simplified organisation name'
+const newHomePageURL = 'https://simplified-org.com'
 const newAccessibilityStatementURL = `${newHomePageURL}/accessibility-statement`
 
 describe('Create simplified case, tests and report', () => {
@@ -22,10 +22,6 @@ describe('Create simplified case, tests and report', () => {
     cy.get('[name="psb_location"]').check('england')
     cy.get('#id_psb_location_0').click()
     cy.get('#id_sector').select('Private Sector Business')
-    cy.contains('Save and continue case').click()
-
-    cy.title().should('eq', 'Create simplified case')
-    cy.contains('We have found 1 cases matching the details you have given')
     cy.contains('Save and continue case').click()
 
     cy.title().should('eq', `${newOrganisationName} | Case metadata`)

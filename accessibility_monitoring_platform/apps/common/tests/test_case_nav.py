@@ -563,7 +563,7 @@ def test_frequently_used_links_shown_for_simplified_case(admin_client):
 
     assertContains(
         response,
-        '<h2 class="govuk-heading-s amp-margin-bottom-10">Links</h2>',
+        '<h2 class="govuk-heading-s amp-margin-bottom-10">Frequently used links</h2>',
         html=True,
     )
     assertContains(

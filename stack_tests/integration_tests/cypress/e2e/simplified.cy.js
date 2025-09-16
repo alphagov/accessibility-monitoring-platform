@@ -1,6 +1,6 @@
 /* global cy before Cypress */
 
-const organisationName = 'ExampleCorp'
+const organisationName = 'Simplified Organisation'
 const caseDetailsNote = 'Case details note'
 const qaComment = 'QA comment'
 const contactName = 'Example Contact 2'
