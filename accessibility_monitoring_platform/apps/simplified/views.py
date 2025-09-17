@@ -812,6 +812,7 @@ class CaseDeactivateUpdateView(CaseUpdateView):
             simplified_case=simplified_case,
         )
         simplified_case.save()
+        simplified_case.update_case_status()
         return HttpResponseRedirect(simplified_case.get_absolute_url())
 
 
