@@ -392,3 +392,11 @@ class BaseCase(VersionModel):
     @property
     def qa_comments(self):
         return self.comment_basecase.filter(hidden=False).order_by("-created_date")
+
+    def get_case(self):
+        if self.test_type == TestType.SIMPLIFIED:
+            return self.simplifiedcase
+        if self.test_type == TestType.DETAILED:
+            return self.detailedcase
+        if self.test_type == TestType.MOBILE:
+            return self.mobilecase

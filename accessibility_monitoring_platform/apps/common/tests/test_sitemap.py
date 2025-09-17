@@ -283,11 +283,12 @@ def test_platform_page_get_name():
     )
 
 
+@pytest.mark.django_db
 def test_platform_page_get_case():
     """Test PlatformPage.get_case()"""
     assert PlatformPage(name=PLATFORM_PAGE_NAME).get_case() is None
 
-    simplified_case: SimplifiedCase = SimplifiedCase()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     assert (
         PlatformPage(name=PLATFORM_PAGE_NAME, instance=simplified_case).get_case()

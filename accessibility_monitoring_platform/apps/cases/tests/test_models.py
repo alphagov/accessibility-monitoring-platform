@@ -7,7 +7,10 @@ from datetime import date, datetime
 import pytest
 from django.contrib.auth.models import User
 
+from ...detailed.models import DetailedCase
+from ...mobile.models import MobileCase
 from ...notifications.models import Task
+from ...simplified.models import SimplifiedCase
 from ..models import (
     ALL_CASE_STATUS_CHOICES,
     BaseCase,
@@ -171,6 +174,22 @@ def test_case_identifier():
     base_case: BaseCase = BaseCase.objects.create()
 
     assert base_case.case_identifier == "#S-1"
+
+
+@pytest.mark.django_db
+def test_case_get_case():
+    """Test the BaseCase.get_case returns the correct subclass object"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+
+    assert isinstance(detailed_case.get_case(), DetailedCase) is True
+
+    mobile_case: MobileCase = MobileCase.objects.create()
+
+    assert isinstance(mobile_case.get_case(), MobileCase) is True
+
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+
+    assert isinstance(simplified_case.get_case(), SimplifiedCase) is True
 
 
 @pytest.mark.django_db

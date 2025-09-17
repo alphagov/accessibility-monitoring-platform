@@ -215,9 +215,9 @@ class PlatformPage:
     def get_case(self) -> BaseCase | None:
         if self.instance is not None:
             if isinstance(self.instance, BaseCase):
-                return self.instance
+                return self.instance.get_case()
             if hasattr(self.instance, "base_case"):
-                return self.instance.base_case
+                return self.instance.base_case.get_case()
             if hasattr(self.instance, "simplified_case"):
                 return self.instance.simplified_case
             if hasattr(self.instance, "detailed_case"):
@@ -253,13 +253,6 @@ class BaseCasePlatformPage(PlatformPage):
         self.set_instance(instance=case)
         super().populate_from_case(case=case)
 
-    def get_case(self) -> BaseCase | None:
-        if self.instance is not None:
-            if isinstance(self.instance, BaseCase):
-                return self.instance
-            if hasattr(self.instance, "base_case"):
-                return self.instance.base_case
-
 
 class SimplifiedCasePlatformPage(BaseCasePlatformPage):
     def __init__(self, **kwargs):
@@ -270,31 +263,11 @@ class SimplifiedCasePlatformPage(BaseCasePlatformPage):
         self.set_instance(instance=case)
         super().populate_from_case(case=case)
 
-    def get_case(self) -> SimplifiedCase | None:
-        if self.instance is not None:
-            if isinstance(self.instance, SimplifiedCase):
-                return self.instance
-            if hasattr(self.instance, "simplified_case"):
-                return self.instance.simplified_case
-            if hasattr(self.instance, "audit"):
-                return self.instance.audit.simplified_case
-            if hasattr(self.instance, "retest"):
-                return self.instance.retest.simplified_case
-            if hasattr(self.instance, "base_case"):
-                return self.instance.base_case
-
 
 class DetailedCasePlatformPage(BaseCasePlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.instance_class: ClassVar[DetailedCase] = DetailedCase
-
-    def get_case(self) -> DetailedCase | None:
-        if self.instance is not None:
-            if isinstance(self.instance, DetailedCase):
-                return self.instance
-            if hasattr(self.instance, "detailed_case"):
-                return self.instance.detailed_case
 
     def populate_from_case(self, case: BaseCase | DetailedCase):
         if hasattr(case, "detailedcase"):
@@ -306,11 +279,6 @@ class MobileCasePlatformPage(SimplifiedCasePlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.instance_class: ClassVar[MobileCase] = MobileCase
-
-    def get_case(self) -> MobileCase | None:
-        if self.instance is not None:
-            if isinstance(self.instance, MobileCase):
-                return self.instance
 
     def populate_from_case(self, case: MobileCase):
         self.set_instance(instance=case)
