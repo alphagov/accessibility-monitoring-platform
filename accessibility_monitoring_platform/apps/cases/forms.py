@@ -18,6 +18,7 @@ from ..common.forms import (
     AMPChoiceField,
     AMPDateField,
     AMPDateRangeForm,
+    AMPIntegerField,
     AMPModelChoiceField,
 )
 from ..common.models import Sector, SubCategory
@@ -77,6 +78,7 @@ class CaseSearchForm(AMPDateRangeForm):
         label="Sub-category", queryset=SubCategory.objects.all()
     )
     test_type = AMPChoiceField(label="Testing type", choices=TEST_TYPE_CHOICES)
+    case_number = AMPIntegerField(label="Case number")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

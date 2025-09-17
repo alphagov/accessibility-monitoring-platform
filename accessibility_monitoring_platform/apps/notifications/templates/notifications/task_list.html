@@ -7,12 +7,12 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    <div class="govuk-breadcrumbs">
+     <div class="govuk-breadcrumbs amp-margin-bottom-20">
         <ol class="govuk-breadcrumbs__list">
             {% include 'common/breadcrumb_home.html' %}
             <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
         </ol>
-    </div>
+     </div>
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
@@ -24,90 +24,121 @@
                 {{ message }}
             </div>
         {% endfor %}
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-half">
+        <div class="govuk-grid-row amp-margin-bottom-30">
+            <div class="govuk-grid-column-full">
                 <ul class="govuk-list">
-                    <li>
-                        {% if type or show_all_users %}
-                            <a href="{% url 'notifications:task-list' %}" class="govuk-link govuk-link--no-visited-state">All</a>
-                        {% else %}
-                            <b>All</b>
-                        {% endif %}
+                    <li class="amp-custom-nav-bar amp-margin-right-25 {% if not type %} amp-custom-nav-bar-selected {% endif %}">
+                        <div class="amp-margin-bottom-15">
+                            <a href="{% url 'notifications:task-list' %}" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">All</a>
+                        </div>
                     </li>
-                    <li>
-                        {% if type == 'qa-comment' and not read %}
-                            <b>QA comment ({{ task_type_counts.qa_comment }})</b>
-                        {% else %}
-                            <a href="?type=qa-comment" class="govuk-link govuk-link--no-visited-state">QA comment ({{ task_type_counts.qa_comment }})</a>
-                        {% endif %}
-                        |
-                        {% if type == 'qa-comment' and read %}
-                            <b>View read</b>
-                        {% else %}
-                            <a href="?type=qa-comment&read=true" class="govuk-link govuk-link--no-visited-state">View read</a>
-                        {% endif %}
+                    <li class="amp-custom-nav-bar amp-margin-right-25 {% if type == 'qa-comment' %} amp-custom-nav-bar-selected {% endif %}">
+                        <div class="amp-margin-bottom-15">
+                            <a href="?type=qa-comment" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">QA comment ({{ task_type_counts.qa_comment }})</a>
+                        </div>
                     </li>
-                    <li>
-                        {% if type == 'report-approved' and not read %}
-                            <b>Report approved ({{ task_type_counts.report_approved }})</b>
-                        {% else %}
-                            <a href="?type=report-approved" class="govuk-link govuk-link--no-visited-state">Report approved ({{ task_type_counts.report_approved }})</a>
-                        {% endif %}
-                        |
-                        {% if type == 'report-approved' and read %}
-                            <b>View read</b>
-                        {% else %}
-                            <a href="?type=report-approved&read=true" class="govuk-link govuk-link--no-visited-state">View read</a>
-                        {% endif %}
+                    <li class="amp-custom-nav-bar amp-margin-right-25 {% if type == 'report-approved' %} amp-custom-nav-bar-selected {% endif %}">
+                        <div class="amp-margin-bottom-15">
+                            <a href="?type=report-approved" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">Report approved ({{ task_type_counts.report_approved }})</a>
+                        </div>
                     </li>
-                    <li>
-                        {% if type == 'reminder' and not future and not deleted %}
-                            <b>Reminder ({{ task_type_counts.reminder }})</b>
-                        {% else %}
-                            <a href="?type=reminder" class="govuk-link govuk-link--no-visited-state">Reminder ({{ task_type_counts.reminder }})</a>
-                        {% endif %}
-                        |
-                        {% if deleted %}
-                            <b>View deleted</b>
-                        {% else %}
-                            <a href="?type=reminder&deleted=true" class="govuk-link govuk-link--no-visited-state">View deleted</a>
-                        {% endif %}
-                        |
-                        {% if future %}
-                            <b>View future</b>
-                        {% else %}
-                            <a href="?type=reminder&future=true" class="govuk-link govuk-link--no-visited-state">View future</a>
-                        {% endif %}
+                    <li class="amp-custom-nav-bar amp-margin-right-25 {% if type == 'reminder' %} amp-custom-nav-bar-selected {% endif %}">
+                        <div class="amp-margin-bottom-15">
+                            <a href="?type=reminder" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">Reminder ({{ task_type_counts.reminder }})</a>
+                        </div>
                     </li>
-                    <li>
-                        {% if type == 'overdue' %}
-                            <b>Overdue ({{ task_type_counts.overdue }})</b>
-                        {% else %}
-                            <a href="?type=overdue" class="govuk-link govuk-link--no-visited-state">
-                                Overdue ({{ task_type_counts.overdue }})</a>
-                        {% endif %}
+                    <li class="amp-custom-nav-bar amp-margin-right-25 {% if type == 'overdue' %} amp-custom-nav-bar-selected {% endif %}">
+                        <div class="amp-margin-bottom-15">
+                            <a href="?type=overdue" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">Overdue ({{ task_type_counts.overdue }})</a>
+                         </div>
                     </li>
-                    <li>
-                        {% if type == 'postcase' %}
-                            <b>Post case ({{ task_type_counts.postcase }})</b>
-                        {% else %}
-                            <a href="?type=postcase" class="govuk-link govuk-link--no-visited-state">
-                                Post case ({{ task_type_counts.postcase }})</a>
-                        {% endif %}
+                    <li class="amp-custom-nav-bar {% if type == 'postcase' %} amp-custom-nav-bar-selected {% endif %}">
+                        <div class="amp-margin-bottom-15">
+                            <a href="?type=postcase" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">Post case ({{ task_type_counts.postcase }})</a>
+                         </div>
                     </li>
                 </ul>
             </div>
-            <div class="govuk-grid-column-one-half">
-                <ul class="govuk-list">
-                    <li>
-                        {% if show_all_users %}
-                            <b>Showing tasks for all users</b>
-                        {% else %}
-                            <a href="?show_all_users=true" class="govuk-link govuk-link--no-visited-state">
-                                Show tasks for all users</a>
-                        {% endif %}
-                    </li>
-                </ul>
+            <div class="govuk-grid-column-full">
+                {% if not type %}
+                    <ul class="govuk-list">
+                        <li class="amp-custom-nav-bar amp-margin-right-25">
+                            {% if not show_all_users %}
+                                <b> All </b>
+                            {% else %} 
+                                <a href="{% url 'notifications:task-list' %}" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">All</a>
+                            {% endif %}
+                        </li>
+                        <li class="amp-custom-nav-bar amp-margin-right-25 {% if not type %} amp-custom-sub-nav-bar-selected {% endif %}">
+                            {% if show_all_users == True %}
+                                <b> Show all tasks for all users </b>
+                            {% else %}    
+                                <a href="?show_all_users=true" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">Show all tasks for all users</a>
+                            {% endif %}
+                        </li>
+                    </ul>
+                {% endif %}
+                {% if type == 'qa-comment' %}
+                    <ul class="govuk-list">
+                        <li class="amp-custom-nav-bar amp-margin-right-25">
+                            {% if not read %}
+                                <b>QA comment ({{ task_type_counts.qa_comment }})</b>
+                            {% else %} 
+                                <a href="?type=qa-comment" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">QA comment ({{ task_type_counts.qa_comment }})</a>
+                            {% endif %}
+                        </li>
+                        <li class="amp-custom-nav-bar amp-margin-right-25">
+                            {% if read %}
+                                <b> View read </b>
+                            {% else %}    
+                                <a href="?type=qa-comment&read=true" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">View read</a>
+                            {% endif %}
+                        </li>
+                    </ul>
+                {% endif %}
+                {% if type == 'report-approved' %}
+                    <ul class="govuk-list">
+                        <li class="amp-custom-nav-bar amp-margin-right-25">
+                            {% if not read %}
+                                <b>Report approved ({{ task_type_counts.report_approved }})</b>
+                            {% else %} 
+                                <a href="?type=report-approved" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">Report approved ({{ task_type_counts.report_approved }})</a>
+                            {% endif %}
+                        </li>
+                        <li class="amp-custom-nav-bar amp-margin-right-25">
+                            {% if read %}
+                                <b> View read </b>
+                            {% else %}    
+                                <a href="?type=report-approved&read=true" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">View read</a>
+                            {% endif %}
+                        </li>
+                    </ul>
+                {% endif %}
+                {% if type == 'reminder' %}
+                    <ul class="govuk-list">
+                        <li class="amp-custom-nav-bar amp-margin-right-25">
+                            {% if not read and not deleted and not future %}
+                                <b>Reminder ({{ task_type_counts.reminder }})</b>
+                            {% else %} 
+                                <a href="?type=reminder" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">Reminder ({{ task_type_counts.reminder }})</a>
+                            {% endif %}
+                        </li>
+                        <li class="amp-custom-nav-bar amp-margin-right-25">
+                            {% if deleted %}
+                                <b> View deleted </b>
+                            {% else %}    
+                                <a href="?type=reminder&deleted=true" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">View deleted</a>
+                            {% endif %}
+                        </li>
+                        <li class="amp-custom-nav-bar amp-margin-right-25">
+                            {% if future %}
+                                <b> View future </b>
+                            {% else %}    
+                                <a href="?type=reminder&future=true" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">View future</a>
+                            {% endif %}
+                        </li>
+                    </ul>
+                {% endif %}
             </div>
         </div>
         <div class="govuk-grid-row">
@@ -120,34 +151,84 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% for task in tasks %}
-                    <h2 class="govuk-heading-m amp-margin-bottom-10">
-                        {{ task.get_type_display }}
-                        {% if show_all_users %}
-                            {% if task.user %}
-                                ({{ task.user.get_full_name }})
-                            {% elif task.base_case.auditor %}
-                                ({{ task.base_case.auditor.get_full_name }})
-                            {% endif %}
-                        {% endif %}
-                    </h2>
-                    <p class="govuk-body amp-margin-bottom-5"><b>Date</b> {{ task.date|amp_date }}</p>
-                    <p class="govuk-body amp-margin-bottom-5">
-                        <b>Case</b>
-                        <a href="{% url 'simplified:case-detail' task.base_case.id %}" class="govuk-link govuk-link--no-visited-state">{{ task.base_case }}</a>
-                    </p>
-                    <p class="govuk-body amp-margin-bottom-5"><b>Description</b> {{ task.description }}</p>
-                    <p class="govuk-body amp-margin-bottom-5">
-                        <b>Action required</b>
-                        {{ task.action }}
-                    </p>
-                    <p class="govuk-body">
-                        <b>Options</b>
-                        {% for option in task.options %}
-                            <a href="{{ option.url }}" class="govuk-link govuk-link--no-visited-state amp-margin-left-10">
-                                {{ option.label }}</a>
-                        {% endfor %}
-                    </p>
-                    <hr class="amp-width-100 amp-margin-bottom-30" />
+                    <div>
+                        <h2 class="govuk-heading-m amp-margin-bottom-20">
+                            {{ task.get_type_display }}
+                        </h2>
+                        <div class="govuk-body amp-column-view-parent">
+                            <div>
+                                {% if show_all_users %}
+                                    <div class="amp-margin-bottom-10 amp-column-view-parent">
+                                        <div class="amp-min-width-170">
+                                            <b>User</b>
+                                        </div>
+                                        <div>
+                                            {% if task.user %}
+                                                {{ task.user.get_full_name }}
+                                            {% elif task.base_case.auditor %}
+                                                {{ task.base_case.auditor.get_full_name }}
+                                            {% else %}
+                                                Unknown
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                <div class="amp-margin-bottom-10 amp-column-view-parent">
+                                    <div class="amp-min-width-170 ">
+                                        <b>Date</b>
+                                    </div>
+                                    <div>
+                                        {{ task.date|amp_date }}
+                                    </div>
+                                </div>
+                                <div class="amp-margin-bottom-10 amp-column-view-parent">
+                                    <div class="amp-min-width-170 ">
+                                        <b>ID</b>
+                                    </div>
+                                    <div>
+                                        {{ task.base_case.case_identifier }}
+                                    </div>
+                                </div>
+                                <div class="amp-margin-bottom-10 amp-column-view-parent">
+                                    <div class="amp-min-width-170 ">
+                                        <b>Case</b>
+                                    </div>
+                                    <div>
+                                        <a href="{% url 'simplified:case-detail' task.base_case.id %}" class="govuk-link govuk-link--no-visited-state">{{ task.base_case.organisation_name }}</a>
+                                    </div>
+                                </div>
+                                <div class="amp-margin-bottom-10 amp-column-view-parent">
+                                    <div class="amp-min-width-170 ">
+                                        <b>Description</b>
+                                    </div>
+                                    <div>
+                                        {{ task.description }}
+                                    </div>
+                                </div>
+                                <div class="amp-margin-bottom-10 amp-column-view-parent">
+                                    <div class="amp-min-width-170 ">
+                                        <b>Action required</b>
+                                    </div>
+                                    <div>
+                                        {{ task.action }}
+                                    </div>
+                                </div>
+                                <div class="amp-margin-bottom-10 amp-column-view-parent">
+                                    <div class="amp-min-width-170 ">
+                                        <b>Options</b>
+                                    </div>
+                                    <div>
+                                        {% for option in task.options %}
+                                            <a href="{{ option.url }}" class="govuk-link govuk-link--no-visited-state">{{ option.label }}</a>
+                                            &nbsp
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="amp-width-100 amp-margin-top-25 amp-margin-bottom-25 hr-grey" />
                 {% endfor %}
             </div>
         </div>

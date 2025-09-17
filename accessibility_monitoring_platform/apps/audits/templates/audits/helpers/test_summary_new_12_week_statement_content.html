@@ -16,7 +16,7 @@
         {% for new_12_week_custom_issue in statement_check_results %}
             <tr class="govuk-table__row">
                 <td class="govuk-table__cell amp-width-one-half amp-notes">
-                    {{ new_12_week_custom_issue.report_comment|markdown_to_html }}
+                    {{ new_12_week_custom_issue.retest_comment|markdown_to_html }}
                     {% include 'audits/helpers/issue_identifier.html' with issue=new_12_week_custom_issue %}
                 </td>
                 <td class="govuk-table__cell amp-width-one-half amp-notes">

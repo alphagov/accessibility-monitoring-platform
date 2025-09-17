@@ -20,6 +20,7 @@ from .utils import filter_cases
 TRUTHY_SEARCH_FIELDS: list[str] = [
     "sort_by",
     "status",
+    "case_number",
     "recommendation_for_enforcement",
     "auditor",
     "reviewer",
