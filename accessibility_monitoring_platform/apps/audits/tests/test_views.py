@@ -95,6 +95,7 @@ PAGE_LOCATION: str = "Press button then click on link"
 STATEMENT_CHECK_INITIAL_COMMENT: str = "Statement check initial comment"
 STATEMENT_CHECK_CUSTOM_COMMENT: str = "Statement check custom comment"
 NEW_12_WEEK_CUSTOM_REPORT_COMMENT: str = "New 12-week custom report comment"
+NEW_12_WEEK_CUSTOM_RETEST_COMMENT: str = "New 12-week custom retest comment"
 NEW_12_WEEK_CUSTOM_AUDITOR_NOTES: str = "New 12-week custom auditor notes"
 HISTORIC_RETEST_NOTES: str = "Historic retest notes"
 HISTORIC_CHECK_RESULT_NOTES: str = "Historic check result notes"
@@ -3061,7 +3062,7 @@ def test_test_statement_summary_page_view(url_name, admin_client):
     StatementCheckResult.objects.create(
         audit=audit,
         type=StatementCheck.Type.TWELVE_WEEK,
-        report_comment=NEW_12_WEEK_CUSTOM_REPORT_COMMENT,
+        retest_comment=NEW_12_WEEK_CUSTOM_RETEST_COMMENT,
     )
 
     response: HttpResponse = admin_client.get(reverse(url_name, kwargs=audit_pk))
@@ -3070,7 +3071,7 @@ def test_test_statement_summary_page_view(url_name, admin_client):
 
     assertContains(response, STATEMENT_CHECK_INITIAL_COMMENT)
     assertContains(response, STATEMENT_CHECK_CUSTOM_COMMENT)
-    assertContains(response, NEW_12_WEEK_CUSTOM_REPORT_COMMENT)
+    assertContains(response, NEW_12_WEEK_CUSTOM_RETEST_COMMENT)
 
 
 @pytest.mark.parametrize(
