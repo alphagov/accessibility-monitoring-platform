@@ -4,16 +4,19 @@ from datetime import date, datetime, timedelta
 
 import pytest
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest
 from django.urls import reverse
 
 from ...audits.models import Retest
 from ...cases.models import BaseCase
 from ...common.models import Boolean, Link
+from ...detailed.models import DetailedEventHistory
 from ...simplified.models import (
     CaseCompliance,
     EqualityBodyCorrespondence,
     SimplifiedCase,
+    SimplifiedEventHistory,
 )
 from ...simplified.utils import create_case_and_compliance
 from ...simplified.views import (
@@ -31,6 +34,8 @@ from ..utils import (
     get_task_type_counts,
     get_tasks_by_type_count,
     mark_tasks_as_read,
+    record_case_model_create_event,
+    record_case_model_update_event,
 )
 
 TODAY = date.today()
@@ -110,7 +115,7 @@ def test_add_task_creates_task_and_sends_email(type, mailoutbox, rf):
         base_case=base_case,
         type=type,
         description="this is a notification",
-        list_description="There is a notification",
+        email_description="There is a notification",
         request=request,
     )
 
@@ -144,7 +149,7 @@ def test_add_task_creates_task_and_sends_no_email(mailoutbox, rf):
         base_case=base_case,
         type=type,
         description="this is a notification",
-        list_description="There is a notification",
+        email_description="There is a notification",
         request=request,
     )
 
@@ -176,7 +181,7 @@ def test_add_task_creates_new_email_notification_model_when_null(mailoutbox, rf)
         base_case=base_case,
         type=type,
         description="this is a notification",
-        list_description="There is a notification",
+        email_description="There is a notification",
         request=request,
     )
 
@@ -914,3 +919,44 @@ def test_exclude_cases_with_pending_reminders():
         base_case,
         case_to_exclude,
     ]
+
+
+@pytest.mark.parametrize(
+    "test_type, history_model",
+    [
+        (BaseCase.TestType.SIMPLIFIED, SimplifiedEventHistory),
+        (BaseCase.TestType.DETAILED, DetailedEventHistory),
+    ],
+)
+@pytest.mark.django_db
+def text_record_case_model_create_event(test_type, history_model):
+    """Test recording case model create event on correct history model"""
+    user: User = User.objects.create()
+    base_case: BaseCase = BaseCase.objects.create(test_type=test_type)
+    record_case_model_create_event(user=user, model_object=user, base_case=base_case)
+
+    content_type: ContentType = ContentType.objects.get_for_model(User)
+    event = history_model.objects.get(content_type=content_type, object_id=user.id)
+
+    assert event.event_type == history_model.Type.CREATE
+
+
+@pytest.mark.parametrize(
+    "test_type, history_model",
+    [
+        (BaseCase.TestType.SIMPLIFIED, SimplifiedEventHistory),
+        (BaseCase.TestType.DETAILED, DetailedEventHistory),
+    ],
+)
+@pytest.mark.django_db
+def text_record_case_model_update_event(test_type, history_model):
+    """Test recording case model update event on correct history model"""
+    user: User = User.objects.create()
+    base_case: BaseCase = BaseCase.objects.create(test_type=test_type)
+    user.first_name = "Joe"
+    record_case_model_update_event(user=user, model_object=user, base_case=base_case)
+
+    content_type: ContentType = ContentType.objects.get_for_model(User)
+    event = history_model.objects.get(content_type=content_type, object_id=user.id)
+
+    assert event.event_type == history_model.Type.UPDATE

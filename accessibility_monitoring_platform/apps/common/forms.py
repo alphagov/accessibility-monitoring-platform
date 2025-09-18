@@ -471,12 +471,18 @@ class FrequentlyUsedLinkUpdateForm(forms.ModelForm):
 
     label = AMPCharFieldWide(label="Label")
     url = AMPURLField(label="URL")
+    case_type = AMPChoiceRadioField(
+        label="Type of case",
+        choices=FrequentlyUsedLink.CaseType.choices,
+        initial=FrequentlyUsedLink.CaseType.ALL,
+    )
 
     class Meta:
         model = FrequentlyUsedLink
         fields = [
             "label",
             "url",
+            "case_type",
         ]
 
 
@@ -518,4 +524,8 @@ class BulkURLSearchForm(forms.Form):
 
 class ImportCSVForm(forms.Form):
     model = AMPChoiceField(label="Model", choices=IMPORT_MODEL_CHOICES)
+    data = AMPTextField(label="CSV data")
+
+
+class ImportTrelloCommentsForm(forms.Form):
     data = AMPTextField(label="CSV data")

@@ -1,7 +1,8 @@
 {% extends 'detailed/base.html' %}
 
 {% block preform %}
-    {% include 'detailed/helpers/contacts_list.html' %}
-    <p class="govuk-body amp-todo">TODO: Details element with PSB Zendesk tickets</p>
-    <p class="govuk-body amp-todo">TODO: Link to unresponsive PSB page</p>
+    <div class="amp-margin-bottom-40">
+        {% include 'detailed/helpers/contacts_list.html' %}
+        {% include 'detailed/helpers/zendesk_tickets.html' %}
+    </div>
 {% endblock %}

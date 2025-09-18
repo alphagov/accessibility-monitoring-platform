@@ -8,6 +8,7 @@ from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
+from ...detailed.models import DetailedCase
 from ...simplified.models import SimplifiedCase, SimplifiedEventHistory
 from ..models import Task
 from ..views import (
@@ -542,9 +543,9 @@ def test_task_mark_as_read(rf):
 
 
 @pytest.mark.django_db
-def test_comments_mark_as_read_marks_tasks_as_read(rf):
+def test_comments_mark_as_read_marks_tasks_as_read_simplified(rf):
     """
-    Test marking case comments as read marks QA comment and Report
+    Test marking simplified case comments as read marks QA comment and Report
     approved tasks as read.
     """
     user: User = User.objects.create(
@@ -585,6 +586,61 @@ def test_comments_mark_as_read_marks_tasks_as_read(rf):
     assert len(request._messages.messages) == 1
     assert (
         request._messages.messages[0][1] == f"{simplified_case} comments marked as read"
+    )
+
+    qa_comment_task_from_db: Task = Task.objects.get(id=qa_comment_task.id)
+
+    assert qa_comment_task_from_db.read is True
+
+    report_approved_task_from_db: Task = Task.objects.get(id=report_approved_task.id)
+
+    assert report_approved_task_from_db.read is True
+
+
+@pytest.mark.django_db
+def test_comments_mark_as_read_marks_tasks_as_read_detailed(rf):
+    """
+    Test marking detailed case comments as read marks QA comment and Report
+    approved tasks as read.
+    """
+    user: User = User.objects.create(
+        username="johnsmith", first_name="John", last_name="Smith"
+    )
+    detailed_case: DetailedCase = DetailedCase.objects.create(auditor=user)
+    qa_comment_task: Task = Task.objects.create(
+        type=Task.Type.QA_COMMENT,
+        date=date.today(),
+        user=user,
+        base_case=detailed_case,
+    )
+    report_approved_task: Task = Task.objects.create(
+        type=Task.Type.REPORT_APPROVED,
+        date=date.today(),
+        user=user,
+        base_case=detailed_case,
+    )
+
+    request = rf.get(
+        reverse(
+            "notifications:mark-case-comments-read",
+            kwargs={"case_id": detailed_case.id},
+        )
+    )
+    request.user = user
+    request._messages = MockMessages()
+
+    assert qa_comment_task.read is False
+    assert report_approved_task.read is False
+
+    response: HttpResponse = CommentsMarkAsReadView.as_view()(
+        request, case_id=detailed_case.id
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse("notifications:task-list")
+    assert len(request._messages.messages) == 1
+    assert (
+        request._messages.messages[0][1] == f"{detailed_case} comments marked as read"
     )
 
     qa_comment_task_from_db: Task = Task.objects.get(id=qa_comment_task.id)

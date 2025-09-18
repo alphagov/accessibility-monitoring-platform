@@ -5,10 +5,12 @@ from datetime import date
 
 from django.contrib.auth.models import User
 
+from ...detailed.models import DetailedCase
 from ...simplified.models import SimplifiedCase
 from ..utils import (
     get_all_cases_in_qa,
     group_cases_by_status,
+    group_detailed_cases_by_status,
     return_cases_requiring_user_review,
 )
 
@@ -175,7 +177,7 @@ MOCK_CASES: list[MockCase] = [
     MockCase(id=1),
 ]
 
-EXPECTED_MOCK_CASES_BY_STATUS = {
+EXPECTED_MOCK_CASES_BY_STATUS: dict[str, list[MockCase]] = {
     "final_decision_due": [
         MockCase(
             id=21,
@@ -358,9 +360,52 @@ EXPECTED_MOCK_CASES_IN_QA = [
 ]
 
 
+@dataclass
+class MockDetailedCase:
+    """Mock of detailed case for testing"""
+
+    id: int
+    status: str = DetailedCase.Status.UNASSIGNED
+
+
+MOCK_DETAILED_CASES: list[MockDetailedCase] = [
+    MockDetailedCase(id=3),
+    MockDetailedCase(id=2),
+    MockDetailedCase(id=1, status=DetailedCase.Status.BLOCKED),
+]
+
+
 def test_group_cases_by_status():
     """Test cases are grouped by status and sorted"""
     assert group_cases_by_status(simplified_cases=MOCK_CASES) == EXPECTED_MOCK_CASES_BY_STATUS  # type: ignore
+
+
+def test_group_detailed_cases_by_status():
+    """Test detailed cases are grouped by status and sorted"""
+    detailed_cases_by_status: dict = group_detailed_cases_by_status(
+        detailed_cases=MOCK_DETAILED_CASES
+    )
+
+    assert len(detailed_cases_by_status) == len(DetailedCase.Status.choices)
+
+    assert DetailedCase.Status.UNASSIGNED in detailed_cases_by_status
+
+    unassigned_detailed_cases: dict = detailed_cases_by_status[
+        DetailedCase.Status.UNASSIGNED
+    ]
+
+    assert unassigned_detailed_cases["cases"] == [
+        MockDetailedCase(id=2),
+        MockDetailedCase(id=3),
+    ]
+
+    assert DetailedCase.Status.BLOCKED in detailed_cases_by_status
+
+    blocked_detailed_cases: dict = detailed_cases_by_status[DetailedCase.Status.BLOCKED]
+
+    assert blocked_detailed_cases["cases"] == [
+        MockDetailedCase(id=1, status=DetailedCase.Status.BLOCKED)
+    ]
 
 
 def test_get_all_cases_in_qa():

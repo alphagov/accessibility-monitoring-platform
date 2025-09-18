@@ -31,7 +31,7 @@ from ....audits.models import (
 from ....cases.models import BaseCase
 from ....comments.models import Comment
 from ....common.models import EmailTemplate
-from ....detailed.models import DetailedCase, DetailedCaseHistory
+from ....detailed.models import DetailedCase, DetailedCaseHistory, DetailedEventHistory
 from ....exports.models import Export, ExportCase
 from ....mobile.models import MobileCase
 from ....notifications.models import NotificationSetting, Task
@@ -131,7 +131,7 @@ class Command(BaseCommand):
                 Report,
             ]
         )
-        delete_from_models([DetailedCaseHistory, DetailedCase])
+        delete_from_models([DetailedEventHistory, DetailedCaseHistory, DetailedCase])
         delete_from_models([SimplifiedEventHistory, Contact, CaseEvent, SimplifiedCase])
         delete_from_models([MobileCase])
         delete_from_models([BaseCase])

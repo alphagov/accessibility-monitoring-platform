@@ -473,34 +473,6 @@ def test_case_save_increments_version():
     assert simplified_case.version == old_version + 1
 
 
-@pytest.mark.django_db
-def test_qa_comments():
-    """
-    Test the QA comments are returned in most recently created order
-    """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Comment.objects.create(simplified_case=simplified_case, hidden=True)
-    comment1: Comment = Comment.objects.create(simplified_case=simplified_case)
-    comment2: Comment = Comment.objects.create(simplified_case=simplified_case)
-
-    comments: list[Contact] = simplified_case.qa_comments
-
-    assert len(comments) == 2
-    assert comments[0].id == comment2.id
-    assert comments[1].id == comment1.id
-
-
-@pytest.mark.django_db
-def test_qa_comments_count():
-    """Test the QA comments count"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Comment.objects.create(simplified_case=simplified_case, hidden=True)
-    Comment.objects.create(simplified_case=simplified_case)
-    Comment.objects.create(simplified_case=simplified_case)
-
-    assert simplified_case.qa_comments_count == 2
-
-
 @pytest.mark.parametrize(
     "previous_case_url, previous_case_number",
     [
@@ -613,7 +585,7 @@ def test_case_last_edited_from_comment(last_edited_case: SimplifiedCase):
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_COMMENT_CREATED)
     ):
-        comment: Comment = Comment.objects.create(simplified_case=last_edited_case)
+        comment: Comment = Comment.objects.create(base_case=last_edited_case)
 
     assert last_edited_case.last_edited == DATETIME_COMMENT_CREATED
 
@@ -1705,47 +1677,6 @@ def test_overdue_link_12_week_correspondence_1_week_chaser_sent_a_week_ago():
 
 
 @pytest.mark.django_db
-def test_case_reminder():
-    """Test SimplifiedCase.reminder returns the unread reminder"""
-    user: User = User.objects.create()
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    reminder: Task = Task.objects.create(
-        type=Task.Type.REMINDER,
-        base_case=simplified_case,
-        user=user,
-        date=REMINDER_DUE_DATE,
-    )
-
-    assert simplified_case.reminder == reminder
-
-    reminder.read = True
-    reminder.save()
-
-    assert simplified_case.reminder is None
-
-
-@pytest.mark.django_db
-def test_case_reminder_history():
-    """Test SimplifiedCase.reminder_history returns the read reminders"""
-    user: User = User.objects.create()
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    reminder: Task = Task.objects.create(
-        type=Task.Type.REMINDER,
-        base_case=simplified_case,
-        user=user,
-        date=REMINDER_DUE_DATE,
-    )
-
-    assert simplified_case.reminder_history.count() == 0
-
-    reminder.read = True
-    reminder.save()
-
-    assert simplified_case.reminder_history.count() == 1
-    assert simplified_case.reminder_history.first() == reminder
-
-
-@pytest.mark.django_db
 def test_event_history_history_update():
     """Test EventHistory.variables contains expected values for update"""
     user: User = User.objects.create()
@@ -1885,8 +1816,8 @@ def test_update_case_status():
         ),
         (
             CaseStatus.Status.COMPLETE,
-            "Go to post case summary",
-            "simplified:edit-post-case",
+            "Go to statement enforcement",
+            "simplified:edit-statement-enforcement",
         ),
         (
             CaseStatus.Status.DEACTIVATED,

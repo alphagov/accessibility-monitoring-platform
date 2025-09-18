@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 
-from ..cases.models import BaseCase
+from ..cases.models import BaseCase, TestType
 from ..common.models import Link
 from ..common.templatetags.common_tags import amp_date
 
@@ -42,21 +42,31 @@ class Task(models.Model):
     def options(self) -> list[Link]:
         options: list[Link] = []
         if self.type == Task.Type.QA_COMMENT:
+            url_name: str = (
+                "simplified:edit-qa-comments"
+                if self.base_case.test_type == TestType.SIMPLIFIED
+                else "detailed:edit-qa-comments"
+            )
             options.append(
                 Link(
                     label="Go to QA comment",
                     url=reverse(
-                        "simplified:edit-qa-comments",
+                        url_name,
                         kwargs={"pk": self.base_case.id},
                     ),
                 ),
             )
         elif self.type == Task.Type.REPORT_APPROVED:
+            url_name: str = (
+                "simplified:edit-qa-approval"
+                if self.base_case.test_type == TestType.SIMPLIFIED
+                else "detailed:edit-qa-approval"
+            )
             options.append(
                 Link(
                     label="Go to Report approved",
                     url=reverse(
-                        "simplified:edit-qa-approval",
+                        url_name,
                         kwargs={"pk": self.base_case.id},
                     ),
                 ),

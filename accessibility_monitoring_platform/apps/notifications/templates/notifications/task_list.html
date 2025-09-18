@@ -7,12 +7,7 @@
 
 {% block content %}
 <div class="govuk-width-container">
-     <div class="govuk-breadcrumbs amp-margin-bottom-20">
-        <ol class="govuk-breadcrumbs__list">
-            {% include 'common/breadcrumb_home.html' %}
-            <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
-        </ol>
-     </div>
+    {% include 'common/breadcrumbs.html' %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
@@ -65,14 +60,14 @@
                         <li class="amp-custom-nav-bar amp-margin-right-25">
                             {% if not show_all_users %}
                                 <b> All </b>
-                            {% else %} 
+                            {% else %}
                                 <a href="{% url 'notifications:task-list' %}" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">All</a>
                             {% endif %}
                         </li>
                         <li class="amp-custom-nav-bar amp-margin-right-25 {% if not type %} amp-custom-sub-nav-bar-selected {% endif %}">
                             {% if show_all_users == True %}
                                 <b> Show all tasks for all users </b>
-                            {% else %}    
+                            {% else %}
                                 <a href="?show_all_users=true" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">Show all tasks for all users</a>
                             {% endif %}
                         </li>
@@ -83,14 +78,14 @@
                         <li class="amp-custom-nav-bar amp-margin-right-25">
                             {% if not read %}
                                 <b>QA comment ({{ task_type_counts.qa_comment }})</b>
-                            {% else %} 
+                            {% else %}
                                 <a href="?type=qa-comment" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">QA comment ({{ task_type_counts.qa_comment }})</a>
                             {% endif %}
                         </li>
                         <li class="amp-custom-nav-bar amp-margin-right-25">
                             {% if read %}
                                 <b> View read </b>
-                            {% else %}    
+                            {% else %}
                                 <a href="?type=qa-comment&read=true" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">View read</a>
                             {% endif %}
                         </li>
@@ -101,14 +96,14 @@
                         <li class="amp-custom-nav-bar amp-margin-right-25">
                             {% if not read %}
                                 <b>Report approved ({{ task_type_counts.report_approved }})</b>
-                            {% else %} 
+                            {% else %}
                                 <a href="?type=report-approved" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">Report approved ({{ task_type_counts.report_approved }})</a>
                             {% endif %}
                         </li>
                         <li class="amp-custom-nav-bar amp-margin-right-25">
                             {% if read %}
                                 <b> View read </b>
-                            {% else %}    
+                            {% else %}
                                 <a href="?type=report-approved&read=true" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">View read</a>
                             {% endif %}
                         </li>
@@ -119,21 +114,21 @@
                         <li class="amp-custom-nav-bar amp-margin-right-25">
                             {% if not read and not deleted and not future %}
                                 <b>Reminder ({{ task_type_counts.reminder }})</b>
-                            {% else %} 
+                            {% else %}
                                 <a href="?type=reminder" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">Reminder ({{ task_type_counts.reminder }})</a>
                             {% endif %}
                         </li>
                         <li class="amp-custom-nav-bar amp-margin-right-25">
                             {% if deleted %}
                                 <b> View deleted </b>
-                            {% else %}    
+                            {% else %}
                                 <a href="?type=reminder&deleted=true" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">View deleted</a>
                             {% endif %}
                         </li>
                         <li class="amp-custom-nav-bar amp-margin-right-25">
                             {% if future %}
                                 <b> View future </b>
-                            {% else %}    
+                            {% else %}
                                 <a href="?type=reminder&future=true" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">View future</a>
                             {% endif %}
                         </li>
@@ -224,7 +219,7 @@
                                         {% endfor %}
                                     </div>
                                 </div>
-                                
+
                             </div>
                         </div>
                     </div>

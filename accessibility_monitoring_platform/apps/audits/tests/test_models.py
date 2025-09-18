@@ -1031,6 +1031,17 @@ def test_audit_all_overview_statement_checks_have_passed():
 
 
 @pytest.mark.django_db
+def test_audit_all_overview_statement_checks_have_passed_when_none():
+    """
+    Tests audit all overview statement checks have passed is false when
+    there are no such checks.
+    """
+    audit: Audit = create_audit_and_statement_check_results()
+
+    assert audit.all_overview_statement_checks_have_passed is False
+
+
+@pytest.mark.django_db
 def test_all_overview_statement_checks_have_passed():
     """
     Tests an audit has all statement checks on overview set to yes.

@@ -1,0 +1,10 @@
+<div class="govuk-breadcrumbs">
+    <ol class="govuk-breadcrumbs__list">
+        {% include 'common/breadcrumb_home.html' %}
+        {% include 'common/breadcrumb_case.html' %}
+        <li class="govuk-breadcrumbs__list-item">
+            <a class="govuk-breadcrumbs__link" href="{% url 'simplified:zendesk-tickets' case.id %}">PSB Zendesk tickets</a>
+        </li>
+        {% include 'common/breadcrumb_page.html' %}
+    </ol>
+</div>

@@ -39,18 +39,13 @@
 {% endblock %}
 
 {% block postform %}
-    <div class="govuk-grid-row">
+    <div id="qa-discussion" class="govuk-grid-row">
         <div class="govuk-grid-column-full amp-margin-top-30">
             {% for comment in case.qa_comments %}
+                <hr class="amp-width-100 amp-margin-bottom-30" />
                 {% include "comments/helpers/comment.html" %}
-                {% if request.user == comment.user  %}
-                    <p class="govuk-body-m">
-                        <a href="{% url 'comments:edit-qa-comment' comment.id %}" class="govuk-link govuk-link--no-visited-state">
-                            Edit or delete comment</a>
-                    </p>
-                {% endif %}
-                <hr class="amp-width-100" />
             {% endfor %}
+            <hr class="amp-width-100 amp-margin-bottom-30" />
         </div>
     </div>
 {% endblock %}

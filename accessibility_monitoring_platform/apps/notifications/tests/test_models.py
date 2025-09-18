@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 
 from ...common.models import Link
+from ...detailed.models import DetailedCase
 from ...simplified.models import SimplifiedCase
 from ..models import NotificationSetting, Task
 
@@ -24,8 +25,8 @@ def test_notifications_settings_returns_str():
 
 
 @pytest.mark.django_db
-def test_options_qa_comment():
-    """Task options for QA comment"""
+def test_options_qa_comment_simplified():
+    """Task options for QA comment in simplified case"""
     user: User = User.objects.create()
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
     task: Task = Task.objects.create(
@@ -61,8 +62,45 @@ def test_options_qa_comment():
 
 
 @pytest.mark.django_db
-def test_options_report_approved():
-    """Task options for report approved"""
+def test_options_qa_comment_detailed():
+    """Task options for QA comment in detailed case"""
+    user: User = User.objects.create()
+    detailed_case: DetailedCase = DetailedCase.objects.create(auditor=user)
+    task: Task = Task.objects.create(
+        type=Task.Type.QA_COMMENT,
+        date=date.today(),
+        base_case=detailed_case,
+        user=user,
+    )
+
+    assert task.options() == [
+        Link(
+            label="Go to QA comment",
+            url=reverse(
+                "detailed:edit-qa-comments",
+                kwargs={"pk": detailed_case.id},
+            ),
+        ),
+        Link(
+            label="Mark as seen",
+            url=reverse(
+                "notifications:mark-task-read",
+                kwargs={"pk": task.id},
+            ),
+        ),
+        Link(
+            label="Mark case tasks as seen",
+            url=reverse(
+                "notifications:mark-case-comments-read",
+                kwargs={"case_id": detailed_case.id},
+            ),
+        ),
+    ]
+
+
+@pytest.mark.django_db
+def test_options_report_approved_simplified():
+    """Task options for report approved on simplified case"""
     user: User = User.objects.create()
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
     task: Task = Task.objects.create(
@@ -92,6 +130,43 @@ def test_options_report_approved():
             url=reverse(
                 "notifications:mark-case-comments-read",
                 kwargs={"case_id": simplified_case.id},
+            ),
+        ),
+    ]
+
+
+@pytest.mark.django_db
+def test_options_report_approved_detailed():
+    """Task options for report approved on detailed case"""
+    user: User = User.objects.create()
+    detailed_case: DetailedCase = DetailedCase.objects.create(auditor=user)
+    task: Task = Task.objects.create(
+        type=Task.Type.REPORT_APPROVED,
+        date=date.today(),
+        base_case=detailed_case,
+        user=user,
+    )
+
+    assert task.options() == [
+        Link(
+            label="Go to Report approved",
+            url=reverse(
+                "detailed:edit-qa-approval",
+                kwargs={"pk": detailed_case.id},
+            ),
+        ),
+        Link(
+            label="Mark as seen",
+            url=reverse(
+                "notifications:mark-task-read",
+                kwargs={"pk": task.id},
+            ),
+        ),
+        Link(
+            label="Mark case tasks as seen",
+            url=reverse(
+                "notifications:mark-case-comments-read",
+                kwargs={"case_id": detailed_case.id},
             ),
         ),
     ]

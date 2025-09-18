@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% load humanize %}
+
+{% block title %}{{ sitemap.current_platform_page.get_name }}{% endblock %}
+
+{% block phase_banner %}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'common/breadcrumbs.html' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ sitemap.current_platform_page.get_name }}</h1>
+                {% include 'common/error_summary.html' %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                <nav role="navigation" class="amp-margin-bottom-40">
+                    <h2 class="govuk-heading-m">Contents</h2>
+                    <div class="amp-left-border">
+                        <ul class="govuk-list">
+                            <li>
+                                <a href="#id_tools" class="govuk-link govuk-link--no-visited-state">
+                                    Tools</a>
+                                <ul class="govuk-list govuk-list--bullet amp-margin-bottom-0">
+                                    <li>
+                                        <a href="#id_write_to_log" class="govuk-link govuk-link--no-visited-state">
+                                            Write to log</a>
+                                    </li>
+                                    <li>
+                                        <a href="#id_raise_exception" class="govuk-link govuk-link--no-visited-state">
+                                            Raise exception</a>
+                                    </li>
+                                    <li>
+                                        <a href="#id_housekeeping" class="govuk-link govuk-link--no-visited-state">
+                                            Housekeeping</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#id_sitemap" class="govuk-link govuk-link--no-visited-state">
+                                    Sitemap</a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <h2 class="govuk-heading-m">Tech team pages</h2>
+                <ul class="govuk-list">
+                    <li>
+                        <a href="{% url 'tech:issue-reports-list' %}" class="govuk-link govuk-link--no-visited-state">
+                            Issue reports</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'tech:reference-implementation' %}" class="govuk-link govuk-link--no-visited-state">
+                            Reference implementation</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="govuk-grid-column-two-thirds">
+                <h2 id="id_tools" class="govuk-heading-l">Tools</h2>
+                <h3 id="id_write_to_log" class="govuk-heading-m">Write to log</h3>
+                <form method="post" action="{% url 'tech:platform-checking' %}">
+                    {% csrf_token %}
+                    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+
+                    <div class="govuk-grid-row">
+                        {% for field in form.visible_fields %}
+                            <div class="govuk-grid-column-full govuk-form-group">
+                                <label class="govuk-label"
+                                    for="{{ field.auto_id }}"><b>{{ field.label }}</b>
+                                </label>
+                                <p class="govuk-body-m">{{ field.help_text }}</p>
+                                {% include 'common/form_errors.html' with errors=field.errors %}
+                                {{ field }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Post"
+                                name="submit"
+                                class="govuk-button"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'tech:reference-implementation' %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                    <h3 id="id_raise_exception" class="govuk-heading-m">Raise exception</h3>
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="400"
+                                name="raise_400"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                            <input
+                                type="submit"
+                                value="403"
+                                name="raise_403"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                            <input
+                                type="submit"
+                                value="500"
+                                name="raise_500"
+                                class="govuk-button govuk-button--secondary"
+                                data-module="govuk-button"
+                            />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h2 id="id_sitemap" class="govuk-heading-l">Sitemap</h2>
+                <ol class="govuk-list govuk-list--number">
+                    {% for platform_page_group in sitemap.platform_page_groups %}
+                        <li>
+                            <b>{% if platform_page_group.name %}{{ platform_page_group.name }}{% else %}ANONYMOUS{% endif %}</b>
+                            (type <code>{{ platform_page_group.type }}</code>):
+                            {% if platform_page_group.pages %}
+                                {% include 'tech/platform_subpages.html' with pages=platform_page_group.pages %}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ol>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

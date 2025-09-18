@@ -80,7 +80,7 @@ def test_register_redirects_with_auth(admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        """<h1 class="govuk-heading-xl amp-margin-bottom-10">Your simplified cases</h1>""",
+        """<h1 class="govuk-heading-xl amp-margin-bottom-10">Dashboard</h1>""",
         html=True,
     )
 
@@ -95,7 +95,7 @@ def test_register_post_redirects(client):
     )
 
     assert response.status_code == 200
-    assertContains(response, "Your simplified cases")
+    assertContains(response, "Dashboard")
 
 
 @pytest.mark.django_db
