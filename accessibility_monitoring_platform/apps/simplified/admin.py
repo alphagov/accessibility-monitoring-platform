@@ -68,6 +68,7 @@ class CaseStatusAdmin(admin.ModelAdmin):
         "simplified_case__organisation_name",
         "simplified_case__case_number",
     ]
+    list_display = ["simplified_case", "status"]
     list_filter = ["status"]
     show_facets = admin.ShowFacets.ALWAYS
 

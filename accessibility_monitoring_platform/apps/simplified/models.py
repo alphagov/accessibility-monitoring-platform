@@ -446,10 +446,6 @@ class SimplifiedCase(BaseCase):
             return "present"
         return "future"
 
-    @property
-    def qa_comments_count(self):
-        return self.qa_comments.count()
-
     def calulate_qa_status(self) -> str:
         if (
             self.reviewer is None

@@ -6,7 +6,9 @@ from datetime import date, datetime
 
 import pytest
 from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
 
+from ...comments.models import Comment
 from ...detailed.models import DetailedCase
 from ...mobile.models import MobileCase
 from ...notifications.models import Task
@@ -177,22 +179,6 @@ def test_case_identifier():
 
 
 @pytest.mark.django_db
-def test_case_get_case():
-    """Test the BaseCase.get_case returns the correct subclass object"""
-    detailed_case: DetailedCase = DetailedCase.objects.create()
-
-    assert isinstance(detailed_case.get_case(), DetailedCase) is True
-
-    mobile_case: MobileCase = MobileCase.objects.create()
-
-    assert isinstance(mobile_case.get_case(), MobileCase) is True
-
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-
-    assert isinstance(simplified_case.get_case(), SimplifiedCase) is True
-
-
-@pytest.mark.django_db
 def test_base_case_save_increments_version():
     """Test that saving a BaseCase increments its version"""
     base_case: BaseCase = BaseCase.objects.create()
@@ -259,3 +245,47 @@ def test_case_reminder_history():
 
     assert base_case.reminder_history.count() == 1
     assert base_case.reminder_history.first() == reminder
+
+
+@pytest.mark.django_db
+def test_qa_comments():
+    """
+    Test the QA comments are returned in most recently created order
+    """
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Comment.objects.create(base_case=simplified_case, hidden=True)
+    comment1: Comment = Comment.objects.create(base_case=simplified_case)
+    comment2: Comment = Comment.objects.create(base_case=simplified_case)
+
+    comments: QuerySet[Comment] = simplified_case.qa_comments
+
+    assert comments.count() == 2
+    assert comments[0].id == comment2.id
+    assert comments[1].id == comment1.id
+
+
+@pytest.mark.django_db
+def test_qa_comments_count():
+    """Test the QA comments count"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Comment.objects.create(base_case=simplified_case, hidden=True)
+    Comment.objects.create(base_case=simplified_case)
+    Comment.objects.create(base_case=simplified_case)
+
+    assert simplified_case.qa_comments_count == 2
+
+
+@pytest.mark.django_db
+def test_case_get_case():
+    """Test the BaseCase.get_case returns the correct subclass object"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+
+    assert isinstance(detailed_case.get_case(), DetailedCase) is True
+
+    mobile_case: MobileCase = MobileCase.objects.create()
+
+    assert isinstance(mobile_case.get_case(), MobileCase) is True
+
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+
+    assert isinstance(simplified_case.get_case(), SimplifiedCase) is True

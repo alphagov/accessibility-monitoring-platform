@@ -393,6 +393,10 @@ class BaseCase(VersionModel):
     def qa_comments(self):
         return self.comment_basecase.filter(hidden=False).order_by("-created_date")
 
+    @property
+    def qa_comments_count(self):
+        return self.qa_comments.count()
+
     def get_case(self):
         if self.test_type == TestType.SIMPLIFIED:
             return self.simplifiedcase

@@ -473,34 +473,6 @@ def test_case_save_increments_version():
     assert simplified_case.version == old_version + 1
 
 
-@pytest.mark.django_db
-def test_qa_comments():
-    """
-    Test the QA comments are returned in most recently created order
-    """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Comment.objects.create(base_case=simplified_case, hidden=True)
-    comment1: Comment = Comment.objects.create(base_case=simplified_case)
-    comment2: Comment = Comment.objects.create(base_case=simplified_case)
-
-    comments: list[Contact] = simplified_case.qa_comments
-
-    assert len(comments) == 2
-    assert comments[0].id == comment2.id
-    assert comments[1].id == comment1.id
-
-
-@pytest.mark.django_db
-def test_qa_comments_count():
-    """Test the QA comments count"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Comment.objects.create(base_case=simplified_case, hidden=True)
-    Comment.objects.create(base_case=simplified_case)
-    Comment.objects.create(base_case=simplified_case)
-
-    assert simplified_case.qa_comments_count == 2
-
-
 @pytest.mark.parametrize(
     "previous_case_url, previous_case_number",
     [
