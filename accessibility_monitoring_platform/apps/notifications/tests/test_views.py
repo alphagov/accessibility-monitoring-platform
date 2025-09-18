@@ -617,3 +617,28 @@ def test_tast_tools_shown_on_reminder_page(admin_client):
     assertContains(
         response, '<h2 class="govuk-heading-s amp-margin-bottom-10">Case tools</h2>'
     )
+
+
+@pytest.mark.django_db
+def test_deactivate_case_updates_status(admin_client):
+    """Test deactivating a case updates its status to deactivated"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+
+    assert simplified_case.status == SimplifiedCase.Status.UNASSIGNED
+
+    response: HttpResponse = admin_client.post(
+        reverse("simplified:deactivate-case", kwargs={"pk": simplified_case.id}),
+        {
+            "version": simplified_case.version,
+            "deactivate_notes": "Deactivate note",
+            "deactivate": "Deactivate case",
+        },
+    )
+
+    assert response.status_code == 302
+
+    simplified_case_from_db: SimplifiedCase = SimplifiedCase.objects.get(
+        id=simplified_case.id
+    )
+
+    assert simplified_case_from_db.status == SimplifiedCase.Status.DEACTIVATED
