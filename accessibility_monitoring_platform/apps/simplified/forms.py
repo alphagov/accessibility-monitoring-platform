@@ -832,7 +832,7 @@ class CaseCloseUpdateForm(VersionForm):
         if case_completed == SimplifiedCase.CaseCompleted.COMPLETE_SEND:
             simplified_case: SimplifiedCase = self.instance
             equality_body_columns: list[EqualityBodyCSVColumn] = (
-                populate_equality_body_columns(simplified_case=simplified_case)
+                populate_equality_body_columns(case=simplified_case)
             )
             required_data_missing_columns: list[EqualityBodyCSVColumn] = [
                 column

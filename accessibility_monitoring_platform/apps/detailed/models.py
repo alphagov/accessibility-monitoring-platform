@@ -73,7 +73,6 @@ class DetailedCase(BaseCase):
     # Case details - Case metadata
     previous_case_url = models.TextField(default="", blank=True)
     trello_url = models.TextField(default="", blank=True)
-    notes = models.TextField(default="", blank=True)
     service_type = models.CharField(
         max_length=20,
         choices=ServiceType.choices,

@@ -57,7 +57,7 @@ from .views import (
     ZendeskTicketUpdateView,
     enable_correspondence_process,
     export_cases,
-    export_feedback_suvey_cases,
+    export_feedback_survey_cases,
     mark_qa_comments_as_read,
 )
 
@@ -65,7 +65,7 @@ app_name: str = "simplified"
 urlpatterns: list[URLPattern] = [
     path(
         "export-feedback-survey-cases-csv/",
-        login_required(export_feedback_suvey_cases),
+        login_required(export_feedback_survey_cases),
         name="export-feedback-survey-cases",
     ),
     path("export-as-csv/", login_required(export_cases), name="case-export-list"),

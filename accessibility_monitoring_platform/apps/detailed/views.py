@@ -8,22 +8,24 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
-from django.http import HttpRequest, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 
-from ..cases.models import BaseCase
-from ..cases.utils import find_duplicate_cases
+from ..cases.forms import CaseSearchForm
+from ..cases.models import BaseCase, TestType
+from ..cases.utils import filter_cases, find_duplicate_cases
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
-from ..common.utils import extract_domain_from_url
+from ..common.utils import extract_domain_from_url, replace_search_key_with_case_search
 from ..common.views import (
     HideCaseNavigationMixin,
     NextPlatformPageMixin,
     ShowGoBackJSWidgetMixin,
 )
+from ..exports.csv_export_utils import download_detailed_cases
 from ..notifications.models import Task
 from ..notifications.utils import mark_tasks_as_read
 from .forms import (
@@ -642,3 +644,15 @@ def mark_qa_comments_as_read(request: HttpRequest, pk: int) -> HttpResponseRedir
     return redirect(
         reverse("detailed:edit-qa-comments", kwargs={"pk": detailed_case.id})
     )
+
+
+def export_detailed_cases(request: HttpRequest) -> HttpResponse:
+    """View to export detailed cases"""
+    search_parameters: dict[str, str] = replace_search_key_with_case_search(request.GET)
+    search_parameters["test_type"] = TestType.DETAILED
+    case_search_form: CaseSearchForm = CaseSearchForm(search_parameters)
+    case_search_form: CaseSearchForm = CaseSearchForm(
+        replace_search_key_with_case_search(request.GET)
+    )
+    case_search_form.is_valid()
+    return download_detailed_cases(cases=filter_cases(form=case_search_form))

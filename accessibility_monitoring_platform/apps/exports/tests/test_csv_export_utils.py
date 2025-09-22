@@ -13,9 +13,9 @@ from django.http import HttpResponse, StreamingHttpResponse
 from ...audits.models import Audit
 from ...simplified.models import CaseCompliance, Contact, SimplifiedCase
 from ..csv_export_utils import (
-    CASE_COLUMNS_FOR_EXPORT,
     EQUALITY_BODY_COLUMNS_FOR_EXPORT,
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
     CSVColumn,
     EqualityBodyCSVColumn,
     csv_output_generator,
@@ -296,7 +296,7 @@ def test_download_cases():
     csv_header, csv_body = decode_csv_response(response)
 
     expected_header: list[str] = [
-        column.column_header for column in CASE_COLUMNS_FOR_EXPORT
+        column.column_header for column in SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT
     ]
 
     expected_first_data_row: list[str] = [
@@ -408,9 +408,7 @@ def test_populate_equality_body_columns():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     CaseCompliance.objects.create(simplified_case=simplified_case)
     Contact.objects.create(simplified_case=simplified_case, email=CONTACT_EMAIL)
-    row: list[CSVColumn] = populate_equality_body_columns(
-        simplified_case=simplified_case
-    )
+    row: list[CSVColumn] = populate_equality_body_columns(case=simplified_case)
 
     assert len(row) == 30
 
@@ -455,7 +453,8 @@ def test_populate_csv_columns():
     simplified_case.update_case_status()
     Contact.objects.create(simplified_case=simplified_case, email=CONTACT_EMAIL)
     row: list[CSVColumn] = populate_csv_columns(
-        simplified_case=simplified_case, column_definitions=CASE_COLUMNS_FOR_EXPORT
+        case=simplified_case,
+        column_definitions=SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
     )
 
     assert len(row) == 92
@@ -479,7 +478,7 @@ def test_populate_feedback_survey_columns():
     simplified_case.update_case_status()
     Contact.objects.create(simplified_case=simplified_case, email=CONTACT_EMAIL)
     row: list[CSVColumn] = populate_csv_columns(
-        simplified_case=simplified_case,
+        case=simplified_case,
         column_definitions=FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     )
 
@@ -500,7 +499,7 @@ def test_csv_output_generator():
     simplified_cases: list[SimplifiedCase] = [simplified_case for _ in range(501)]
 
     generator: Generator[str, None, None] = csv_output_generator(
-        cases=simplified_cases, columns_for_export=CASE_COLUMNS_FOR_EXPORT
+        cases=simplified_cases, columns_for_export=SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT
     )
 
     first_yield: str = next(generator)

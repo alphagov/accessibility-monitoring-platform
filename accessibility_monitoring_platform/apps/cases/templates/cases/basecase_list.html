@@ -110,6 +110,14 @@
                                     Create detailed case
                                 </a>
                             </li>
+                            <li>
+                                <a
+                                    href="{% url 'detailed:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Export to CSV
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>

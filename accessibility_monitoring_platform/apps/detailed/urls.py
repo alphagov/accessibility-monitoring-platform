@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.urls.resolvers import URLPattern
 
-from accessibility_monitoring_platform.apps.detailed.views import (
+from .views import (
     CaseCloseUpdateView,
     CaseZendeskTicketsDetailView,
     ContactCreateView,
@@ -40,6 +40,7 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     ZendeskTicketConfirmDeleteUpdateView,
     ZendeskTicketCreateView,
     ZendeskTicketUpdateView,
+    export_detailed_cases,
     mark_qa_comments_as_read,
 )
 
@@ -49,6 +50,9 @@ urlpatterns: list[URLPattern] = [
         "create/",
         login_required(DetailedCaseCreateView.as_view()),
         name="case-create",
+    ),
+    path(
+        "export-as-csv/", login_required(export_detailed_cases), name="case-export-list"
     ),
     path(
         "<int:pk>/case-detail/",
