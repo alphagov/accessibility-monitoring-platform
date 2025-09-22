@@ -11,7 +11,7 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 
-from ..common.models import IssueReport
+from ..common.models import Boolean, IssueReport
 from ..detailed.models import DetailedCase
 from ..mobile.models import MobileCase
 from ..reports.models import Report
@@ -27,7 +27,6 @@ logger = logging.getLogger(__name__)
 
 
 class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
     def test_func(self):
         return self.request.user.is_staff
 
@@ -123,5 +122,6 @@ class ImportTrelloComments(StaffRequiredMixin, FormView):
         form = context["form"]
         if form.is_valid():
             csv_data: str = form.cleaned_data["data"]
-            import_trello_comments(csv_data)
+            reset_data: bool = form.cleaned_data["reset_data"] == Boolean.YES
+            import_trello_comments(csv_data, reset_data)
         return self.render_to_response(self.get_context_data())

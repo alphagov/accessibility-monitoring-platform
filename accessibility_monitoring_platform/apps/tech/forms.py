@@ -4,7 +4,14 @@ import logging
 
 from django import forms
 
-from ..common.forms import AMPCharFieldWide, AMPChoiceField, AMPTextField
+from ..common.forms import (
+    AMPCharFieldWide,
+    AMPChoiceCheckboxField,
+    AMPChoiceCheckboxWidget,
+    AMPChoiceField,
+    AMPTextField,
+)
+from ..common.models import Boolean
 
 LOG_LEVEL_CHOICES: list[tuple[int, str]] = [
     (logging.WARNING, "Warning"),
@@ -33,3 +40,8 @@ class ImportCSVForm(forms.Form):
 
 class ImportTrelloCommentsForm(forms.Form):
     data = AMPTextField(label="CSV data")
+    reset_data = AMPChoiceCheckboxField(
+        label="Reset existing data",
+        choices=Boolean.choices,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "Delete existing data"}),
+    )

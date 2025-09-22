@@ -110,6 +110,14 @@ def get_datetime_from_string(date: str) -> datetime | None:
     return datetime.strptime(f"1 {date}", "%d %b %Y").replace(tzinfo=timezone.utc)
 
 
+def get_number_from_string(number: str) -> int | None:
+    if number in ["", "-"]:
+        return None
+    if number.isdigit():
+        return int(number)
+    return None
+
+
 def validate_url(url: str) -> str:
     if url.startswith("http"):
         return url
@@ -213,6 +221,15 @@ def create_detailed_case_from_dict(
             case_folder_url=row["Link to case folder"],
             initial_test_start_date=get_datetime_from_string(row["Test start date"]),
             initial_test_end_date=get_datetime_from_string(row["Test end date"]),
+            initial_total_number_of_issues=get_number_from_string(
+                row["Total issues (excluding best practice)"]
+            ),
+            initial_total_number_of_pages=get_number_from_string(
+                row["Number of pages tested"]
+            ),
+            retest_total_number_of_issues=get_number_from_string(
+                row["Number of issues on closure"]
+            ),
         )
     detailed_case.case_number = case_number
     detailed_case.case_identifier = f"#D-{case_number}"
@@ -394,7 +411,7 @@ def import_mobile_cases_csv(csv_data: str) -> None:
         )
 
 
-def import_trello_comments(csv_data: str) -> None:
+def import_trello_comments(csv_data: str, reset_data: bool = False) -> None:
     try:
         comment_fullname_to_user: dict[str, User] = {
             comment_fullname: User.objects.get(username=username)
@@ -403,8 +420,9 @@ def import_trello_comments(csv_data: str) -> None:
     except User.DoesNotExist:  # Automated tests
         logger.warning("One or more historic Users missing")
         return
-    DetailedCaseHistory.objects.filter(label=TRELLO_COMMENT_LABEL).delete()
-    DetailedCaseHistory.objects.filter(label=TRELLO_DESCRIPTION_LABEL).delete()
+    if reset_data:
+        DetailedCaseHistory.objects.filter(label=TRELLO_COMMENT_LABEL).delete()
+        DetailedCaseHistory.objects.filter(label=TRELLO_DESCRIPTION_LABEL).delete()
     card_descriptions: dict[DetailedCase, str] = {}
     reader: Any = csv.DictReader(io.StringIO(csv_data))
     for row in reader:
