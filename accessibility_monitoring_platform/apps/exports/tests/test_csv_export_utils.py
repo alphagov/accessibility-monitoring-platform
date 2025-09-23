@@ -8,11 +8,15 @@ from datetime import date, datetime, timezone
 from typing import Any, Generator
 
 import pytest
+from django.contrib.auth.models import User
 from django.http import HttpResponse, StreamingHttpResponse
 
 from ...audits.models import Audit
+from ...detailed.models import Contact as DetailedContact
 from ...detailed.models import DetailedCase
-from ...simplified.models import CaseCompliance, Contact, SimplifiedCase
+from ...simplified.models import CaseCompliance
+from ...simplified.models import Contact as SimplifiedContact
+from ...simplified.models import SimplifiedCase
 from ..csv_export_utils import (
     DETAILED_CASE_COLUMNS_FOR_EXPORT,
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
@@ -31,13 +35,13 @@ from ..csv_export_utils import (
     populate_equality_body_columns,
 )
 
-CONTACTS: list[Contact] = [
-    Contact(
+CONTACTS: list[SimplifiedContact] = [
+    SimplifiedContact(
         name="Name 1",
         job_title="Job title 1",
         email="email1",
     ),
-    Contact(
+    SimplifiedContact(
         name="Name 2",
         job_title="Job title 2",
         email="email2",
@@ -53,8 +57,11 @@ email2
 """
 
 CSV_EXPORT_FILENAME: str = "cases_export.csv"
-CONTACT_NOTES: str = "Contact notes"
-CONTACT_EMAIL: str = "example@example.com"
+SIMPLIFIED_CONTACT_NOTES: str = "Simplified contact notes"
+SIMPLIFIED_CONTACT_EMAIL: str = "simplified@example.com"
+DETAILED_CONTACT_NAME: str = "Detailed contact name"
+DETAILED_CONTACT_TITLE: str = "Detailed contact job title"
+DETAILED_CONTACT_DETAILS: str = "Detailed contact details"
 
 
 def decode_csv_response(
@@ -167,7 +174,7 @@ def test_download_feedback_survey_cases():
     """Test creation of CSV for feedback survey"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         compliance_email_sent_date=datetime(2022, 12, 16, tzinfo=timezone.utc),
-        contact_notes=CONTACT_NOTES,
+        contact_notes=SIMPLIFIED_CONTACT_NOTES,
     )
     CaseCompliance.objects.create(simplified_case=simplified_case)
     simplified_cases: list[SimplifiedCase] = [simplified_case]
@@ -196,7 +203,7 @@ def test_download_feedback_survey_cases():
         "",  # Enforcement recommendation notes
         "Not assessed",  # statement_compliance_state_12_week
         "",  # Contact email
-        CONTACT_NOTES,  # Contact notes
+        SIMPLIFIED_CONTACT_NOTES,  # Contact notes
         "No",  # Feedback survey sent
     ]
 
@@ -285,7 +292,9 @@ def test_download_cases_simplified():
     CaseCompliance.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
     simplified_cases: list[SimplifiedCase] = [simplified_case]
-    Contact.objects.create(simplified_case=simplified_case, email="test@example.com")
+    SimplifiedContact.objects.create(
+        simplified_case=simplified_case, email="test@example.com"
+    )
 
     response: HttpResponse = download_simplified_cases(
         simplified_cases=simplified_cases, filename=CSV_EXPORT_FILENAME
@@ -410,10 +419,20 @@ def test_download_cases_simplified():
 @pytest.mark.django_db
 def test_download_cases_detailed():
     """Test creation of CSV download of detailed cases"""
+    user: User = User.objects.create(
+        username="johnsmith", first_name="John", last_name="Smith"
+    )
     detailed_case: DetailedCase = DetailedCase.objects.create()
     detailed_case.created = datetime(2022, 12, 16, tzinfo=timezone.utc)
     detailed_case.save()
     detailed_cases: list[DetailedCase] = [detailed_case]
+    DetailedContact.objects.create(
+        detailed_case=detailed_case,
+        name=DETAILED_CONTACT_NAME,
+        job_title=DETAILED_CONTACT_TITLE,
+        contact_details=DETAILED_CONTACT_DETAILS,
+        created_by=user,
+    )
 
     response: HttpResponse = download_detailed_cases(
         detailed_cases=detailed_cases, filename=CSV_EXPORT_FILENAME
@@ -454,6 +473,9 @@ def test_download_cases_detailed():
         "",
         "No",
         "",
+        DETAILED_CONTACT_NAME,
+        DETAILED_CONTACT_TITLE,
+        DETAILED_CONTACT_DETAILS,
         "",
         "",
         "",
@@ -528,7 +550,9 @@ def test_populate_equality_body_columns():
     """Test collection of case data for equality body export"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     CaseCompliance.objects.create(simplified_case=simplified_case)
-    Contact.objects.create(simplified_case=simplified_case, email=CONTACT_EMAIL)
+    SimplifiedContact.objects.create(
+        simplified_case=simplified_case, email=SIMPLIFIED_CONTACT_EMAIL
+    )
     row: list[CSVColumn] = populate_equality_body_columns(case=simplified_case)
 
     assert len(row) == 30
@@ -541,7 +565,7 @@ def test_populate_equality_body_columns():
 
     contact_details_cell: EqualityBodyCSVColumn = contact_details[0]
 
-    assert contact_details_cell.formatted_data == f"{CONTACT_EMAIL}\n"
+    assert contact_details_cell.formatted_data == f"{SIMPLIFIED_CONTACT_EMAIL}\n"
     assert contact_details_cell.edit_url_name == "simplified:manage-contact-details"
     assert contact_details_cell.edit_url == "/simplified/1/manage-contact-details/"
 
@@ -572,7 +596,9 @@ def test_populate_csv_columns_simplified():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     CaseCompliance.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
-    Contact.objects.create(simplified_case=simplified_case, email=CONTACT_EMAIL)
+    SimplifiedContact.objects.create(
+        simplified_case=simplified_case, email=SIMPLIFIED_CONTACT_EMAIL
+    )
     row: list[CSVColumn] = populate_csv_columns(
         case=simplified_case,
         column_definitions=SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
@@ -588,7 +614,7 @@ def test_populate_csv_columns_simplified():
 
     contact_email_cell: CSVColumn = contact_email[0]
 
-    assert contact_email_cell.formatted_data == CONTACT_EMAIL
+    assert contact_email_cell.formatted_data == SIMPLIFIED_CONTACT_EMAIL
 
 
 @pytest.mark.django_db
@@ -600,7 +626,7 @@ def test_populate_csv_columns_detailed():
         column_definitions=DETAILED_CASE_COLUMNS_FOR_EXPORT,
     )
 
-    assert len(row) == 80
+    assert len(row) == 83
 
     # contact_email: list[CSVColumn] = [
     #     cell for cell in row if cell.column_header == "Contact email"
@@ -619,7 +645,9 @@ def test_populate_feedback_survey_columns():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     CaseCompliance.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
-    Contact.objects.create(simplified_case=simplified_case, email=CONTACT_EMAIL)
+    SimplifiedContact.objects.create(
+        simplified_case=simplified_case, email=SIMPLIFIED_CONTACT_EMAIL
+    )
     row: list[CSVColumn] = populate_csv_columns(
         case=simplified_case,
         column_definitions=FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,

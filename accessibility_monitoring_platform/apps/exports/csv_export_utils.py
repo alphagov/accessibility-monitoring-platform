@@ -14,6 +14,7 @@ from django.urls import reverse
 
 from ..audits.models import Audit
 from ..cases.models import BaseCase
+from ..detailed.models import Contact as DetailedContact
 from ..detailed.models import DetailedCase
 from ..reports.models import Report
 from ..simplified.models import CaseCompliance, CaseStatus
@@ -866,7 +867,19 @@ DETAILED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="case_metadata_complete_date",
     ),
     # Initial contact - contact details
-    # CSVColumn(column_header="Contact email", source_class=Contact, source_attr="email"),
+    CSVColumn(
+        column_header="Contact name", source_class=DetailedContact, source_attr="name"
+    ),
+    CSVColumn(
+        column_header="Contact job title",
+        source_class=DetailedContact,
+        source_attr="job_title",
+    ),
+    CSVColumn(
+        column_header="Contact details",
+        source_class=DetailedContact,
+        source_attr="contact_details",
+    ),
     # Initial contact - Information request
     CSVColumn(
         column_header="Information request process started",
@@ -1322,6 +1335,11 @@ def populate_csv_columns(
         SimplifiedContact: (
             case.contact_set.filter(is_deleted=False).first()
             if isinstance(case, SimplifiedCase)
+            else None
+        ),
+        DetailedContact: (
+            case.contact_set.filter(is_deleted=False).first()
+            if isinstance(case, DetailedCase)
             else None
         ),
     }
