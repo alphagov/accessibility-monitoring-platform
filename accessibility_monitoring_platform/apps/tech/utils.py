@@ -68,7 +68,8 @@ COMMENT_FULLNAME_TO_USERNAME: dict[str, str] = {
     "Andrew Hick": "andrew.hick@digital.cabinet-office.gov.uk",
     "ChrisH": "chris.heathcote@digital.cabinet-office.gov.uk",
     "Eu-Hyung Han": "eu-hyung.han@digital.cabinet-office.gov.uk",
-    "Jessica Eley": "jessica.eley@digital.cabinet-office.gov.uk",
+    # Jessica Eley's name missing from extract on 23 September 2024, came through as 'unknown'
+    "unknown": "jessica.eley@digital.cabinet-office.gov.uk",
     "katherine.badger": "katherine.badger@digital.cabinet-office.gov.uk",
     "Keeley Robertson": "keeley.talbot@digital.cabinet-office.gov.uk",
     "Kelly Clarkson": "kelly.clarkson@digital.cabinet-office.gov.uk",
@@ -420,6 +421,7 @@ def import_trello_comments(csv_data: str, reset_data: bool = False) -> None:
     except User.DoesNotExist:  # Automated tests
         logger.warning("One or more historic Users missing")
         return
+    katherine: User = comment_fullname_to_user["katherine.badger"]
     if reset_data:
         DetailedCaseHistory.objects.filter(label=TRELLO_COMMENT_LABEL).delete()
         DetailedCaseHistory.objects.filter(label=TRELLO_DESCRIPTION_LABEL).delete()
@@ -447,13 +449,14 @@ def import_trello_comments(csv_data: str, reset_data: bool = False) -> None:
                         event_type=DetailedCaseHistory.EventType.NOTE,
                         value=row["comment_text"].replace(' "\u200c")', ")"),
                         label=TRELLO_COMMENT_LABEL,
-                        created_by=comment_fullname_to_user[row["comment_fullname"]],
+                        created_by=comment_fullname_to_user.get(
+                            row["comment_fullname"], katherine
+                        ),
                     )
             except DetailedCase.DoesNotExist:
                 logger.warning("DetailedCase not found: %s", case_identifier)
 
     # Add description text
-    katherine: User = comment_fullname_to_user["katherine.badger"]
     for detailed_case, description_text in card_descriptions.items():
         DetailedCaseHistory.objects.create(
             detailed_case=detailed_case,

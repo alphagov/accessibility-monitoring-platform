@@ -5,9 +5,8 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("cases", "0019_alter_basecase_status"),
+        ("cases", "0018_alter_basecase_enforcement_body_and_more"),
         ("comments", "0004_remove_comment_case"),
     ]
 
