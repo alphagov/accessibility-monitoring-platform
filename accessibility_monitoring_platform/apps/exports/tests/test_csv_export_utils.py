@@ -11,19 +11,22 @@ import pytest
 from django.http import HttpResponse, StreamingHttpResponse
 
 from ...audits.models import Audit
+from ...detailed.models import DetailedCase
 from ...simplified.models import CaseCompliance, Contact, SimplifiedCase
 from ..csv_export_utils import (
-    EQUALITY_BODY_COLUMNS_FOR_EXPORT,
+    DETAILED_CASE_COLUMNS_FOR_EXPORT,
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
     CSVColumn,
     EqualityBodyCSVColumn,
     csv_output_generator,
+    download_detailed_cases,
     download_equality_body_cases,
     download_feedback_survey_cases,
     download_simplified_cases,
-    format_contacts,
     format_model_field,
+    format_simplified_contacts,
     populate_csv_columns,
     populate_equality_body_columns,
 )
@@ -78,6 +81,8 @@ def validate_csv_response(
     assert csv_header == expected_header
 
     first_data_row: list[str] = csv_body[0]
+
+    assert len(first_data_row) == len(expected_first_data_row)
 
     for position in range(len(first_data_row)):
         assert (
@@ -154,7 +159,7 @@ def test_format_case_field(column, case_value, expected_formatted_value):
 
 def test_format_contacts():
     """Test that contacts fields values are contatenated"""
-    assert format_contacts(contacts=CONTACTS) == EXPECTED_FORMATTED_CONTACTS
+    assert format_simplified_contacts(contacts=CONTACTS) == EXPECTED_FORMATTED_CONTACTS
 
 
 @pytest.mark.django_db
@@ -225,7 +230,7 @@ def test_download_equality_body_cases():
     csv_header, csv_body = decode_csv_response(response)
 
     expected_header: list[str] = [
-        column.column_header for column in EQUALITY_BODY_COLUMNS_FOR_EXPORT
+        column.column_header for column in SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT
     ]
 
     expected_first_data_row: list[str] = [
@@ -270,8 +275,8 @@ def test_download_equality_body_cases():
 
 
 @pytest.mark.django_db
-def test_download_cases():
-    """Test creation of CSV download of cases"""
+def test_download_cases_simplified():
+    """Test creation of CSV download of simplified cases"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         contact_notes="Contact for CSV export",
     )
@@ -403,6 +408,122 @@ def test_download_cases():
 
 
 @pytest.mark.django_db
+def test_download_cases_detailed():
+    """Test creation of CSV download of detailed cases"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+    detailed_case.created = datetime(2022, 12, 16, tzinfo=timezone.utc)
+    detailed_case.save()
+    detailed_cases: list[DetailedCase] = [detailed_case]
+
+    response: HttpResponse = download_detailed_cases(
+        detailed_cases=detailed_cases, filename=CSV_EXPORT_FILENAME
+    )
+
+    assert response.status_code == 200
+
+    assert response.headers == {
+        "Content-Type": "text/csv",
+        "Content-Disposition": f"attachment; filename={CSV_EXPORT_FILENAME}",
+    }
+
+    csv_header, csv_body = decode_csv_response(response)
+
+    expected_header: list[str] = [
+        column.column_header for column in DETAILED_CASE_COLUMNS_FOR_EXPORT
+    ]
+
+    expected_first_data_row: list[str] = [
+        "1",
+        "2",
+        "",
+        "16/12/2022",
+        "Unassigned case",
+        "",
+        "Detailed",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "EHRC",
+        "Website",
+        "Unknown",
+        "",
+        "No",
+        "",
+        "No",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "Not known",
+        "Not assessed",
+        "Not checked",
+        "",
+        "No",
+        "",
+        "",
+        "",
+        "Not started",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "Not known",
+        "",
+        "Not assessed",
+        "",
+        "Not checked",
+        "",
+        "",
+        "",
+        "Not selected",
+        "",
+        "",
+        "",
+        "Case still in progress",
+        "No",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "No (or holding)",
+        "",
+        "",
+        "No",
+        "",
+    ]
+
+    validate_csv_response(
+        csv_header=csv_header,
+        csv_body=csv_body,
+        expected_header=expected_header,
+        expected_first_data_row=expected_first_data_row,
+    )
+
+
+@pytest.mark.django_db
 def test_populate_equality_body_columns():
     """Test collection of case data for equality body export"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
@@ -446,8 +567,8 @@ def test_populate_equality_body_columns():
 
 
 @pytest.mark.django_db
-def test_populate_csv_columns():
-    """Test collection of case data for CSV export"""
+def test_populate_csv_columns_simplified():
+    """Test collection of case data for CSV export for simplified case"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     CaseCompliance.objects.create(simplified_case=simplified_case)
     simplified_case.update_case_status()
@@ -468,6 +589,28 @@ def test_populate_csv_columns():
     contact_email_cell: CSVColumn = contact_email[0]
 
     assert contact_email_cell.formatted_data == CONTACT_EMAIL
+
+
+@pytest.mark.django_db
+def test_populate_csv_columns_detailed():
+    """Test collection of case data for CSV export for detailed case"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+    row: list[CSVColumn] = populate_csv_columns(
+        case=detailed_case,
+        column_definitions=DETAILED_CASE_COLUMNS_FOR_EXPORT,
+    )
+
+    assert len(row) == 80
+
+    # contact_email: list[CSVColumn] = [
+    #     cell for cell in row if cell.column_header == "Contact email"
+    # ]
+
+    # assert len(contact_email) == 1
+
+    # contact_email_cell: CSVColumn = contact_email[0]
+
+    # assert contact_email_cell.formatted_data == CONTACT_EMAIL
 
 
 @pytest.mark.django_db

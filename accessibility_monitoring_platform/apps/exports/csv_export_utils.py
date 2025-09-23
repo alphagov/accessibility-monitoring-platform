@@ -16,7 +16,9 @@ from ..audits.models import Audit
 from ..cases.models import BaseCase
 from ..detailed.models import DetailedCase
 from ..reports.models import Report
-from ..simplified.models import CaseCompliance, CaseStatus, Contact, SimplifiedCase
+from ..simplified.models import CaseCompliance, CaseStatus
+from ..simplified.models import Contact as SimplifiedContact
+from ..simplified.models import SimplifiedCase
 
 DOWNLOAD_CASES_CHUNK_SIZE: int = 500
 
@@ -54,7 +56,7 @@ class EqualityBodyCSVColumn(CSVColumn):
 
 CONTACT_DETAILS_COLUMN_HEADER: str = "Contact details"
 
-EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
+SIMPLIFIED_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
     EqualityBodyCSVColumn(
         column_header="Equality body",
         source_class=SimplifiedCase,
@@ -140,7 +142,7 @@ EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
         edit_url_anchor="id_is_complaint-label",
     ),
 ]
-EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
+SIMPLIFIED_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
     EqualityBodyCSVColumn(
         column_header="Published report",
         source_class=SimplifiedCase,
@@ -180,7 +182,9 @@ EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
         edit_url_anchor="id_psb_progress_notes-label",
     ),
 ]
-EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
+SIMPLIFIED_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: list[
+    EqualityBodyCSVColumn
+] = [
     EqualityBodyCSVColumn(
         column_header=CONTACT_DETAILS_COLUMN_HEADER,
         source_class=SimplifiedCase,
@@ -249,7 +253,9 @@ EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
         edit_url_anchor="id_compliance_decision_sent_to_email-label",
     ),
 ]
-EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
+SIMPLIFIED_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: list[
+    EqualityBodyCSVColumn
+] = [
     EqualityBodyCSVColumn(
         column_header="Total number of accessibility issues",
         source_class=SimplifiedCase,
@@ -315,11 +321,11 @@ EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
         edit_url_anchor="id_twelve_week_disproportionate_burden_notes-label",
     ),
 ]
-EQUALITY_BODY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = (
-    EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT
-    + EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT
-    + EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT
-    + EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT
+SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = (
+    SIMPLIFIED_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT
+    + SIMPLIFIED_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT
+    + SIMPLIFIED_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT
+    + SIMPLIFIED_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT
 )
 
 SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
@@ -760,7 +766,11 @@ SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_class=SimplifiedCase,
         source_attr="subcategory",
     ),
-    CSVColumn(column_header="Contact email", source_class=Contact, source_attr="email"),
+    CSVColumn(
+        column_header="Contact email",
+        source_class=SimplifiedContact,
+        source_attr="email",
+    ),
 ]
 
 DETAILED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
@@ -1200,7 +1210,11 @@ FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_class=CaseCompliance,
         source_attr="statement_compliance_state_12_week",
     ),
-    CSVColumn(column_header="Contact email", source_class=Contact, source_attr="email"),
+    CSVColumn(
+        column_header="Contact email",
+        source_class=SimplifiedContact,
+        source_attr="email",
+    ),
     CSVColumn(
         column_header="Contact notes",
         source_class=SimplifiedCase,
@@ -1214,7 +1228,7 @@ FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
 ]
 
 
-def format_contacts(contacts: QuerySet[Contact]) -> str:
+def format_simplified_contacts(contacts: QuerySet[SimplifiedContact]) -> str:
     """
     For a contact-related field, concatenate the values for all the contacts
     and return as a single string.
@@ -1233,7 +1247,8 @@ def format_contacts(contacts: QuerySet[Contact]) -> str:
 
 
 def format_model_field(
-    source_instance: Audit | SimplifiedCase | Contact | None, column: CSVColumn
+    source_instance: Audit | SimplifiedCase | SimplifiedContact | None,
+    column: CSVColumn,
 ) -> str:
     """
     For a model field, return the value, suitably formatted.
@@ -1254,13 +1269,13 @@ def format_model_field(
 
 def populate_equality_body_columns(
     case: DetailedCase | SimplifiedCase,
-    column_definitions: list[CSVColumn] = EQUALITY_BODY_COLUMNS_FOR_EXPORT,
+    column_definitions: list[CSVColumn] = SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
 ) -> list[EqualityBodyCSVColumn]:
     """
     Collect data for a case to export to the equality body
     """
     contact_details: str = (
-        format_contacts(contacts=case.contacts)
+        format_simplified_contacts(contacts=case.contacts)
         if isinstance(case, SimplifiedCase)
         else None
     )
@@ -1304,12 +1319,21 @@ def populate_csv_columns(
         DetailedCase: case if isinstance(case, DetailedCase) else None,
         CaseCompliance: case.compliance if hasattr(case, "compliance") else None,
         CaseStatus: case.status,
-        Contact: case.contact_set.filter(is_deleted=False).first(),
+        SimplifiedContact: (
+            case.contact_set.filter(is_deleted=False).first()
+            if isinstance(case, SimplifiedCase)
+            else None
+        ),
     }
     columns: list[CSVColumn] = copy.deepcopy(column_definitions)
     for column in columns:
         source_instance: (
-            DetailedCase | SimplifiedCase | CaseCompliance | CaseStatus | Contact | None
+            DetailedCase
+            | SimplifiedCase
+            | CaseCompliance
+            | CaseStatus
+            | SimplifiedContact
+            | None
         ) = source_instances.get(column.source_class)
         column.formatted_data = format_model_field(
             source_instance=source_instance, column=column
@@ -1361,7 +1385,7 @@ def download_equality_body_cases(
     response = StreamingHttpResponse(
         csv_output_generator(
             cases=cases,
-            columns_for_export=EQUALITY_BODY_COLUMNS_FOR_EXPORT,
+            columns_for_export=SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
             equality_body_csv=True,
         ),
         content_type="text/csv",
@@ -1387,13 +1411,13 @@ def download_simplified_cases(
 
 
 def download_detailed_cases(
-    cases: QuerySet[BaseCase], filename: str = "detailed_cases.csv"
+    detailed_cases: QuerySet[BaseCase], filename: str = "detailed_cases.csv"
 ) -> StreamingHttpResponse:
     """Given a Case queryset, download the data in csv format"""
 
     response = StreamingHttpResponse(
         csv_output_generator(
-            cases=cases,
+            cases=detailed_cases,
             columns_for_export=DETAILED_CASE_COLUMNS_FOR_EXPORT,
         ),
         content_type="text/csv",

@@ -38,10 +38,10 @@ from ..common.views import (
     ShowGoBackJSWidgetMixin,
 )
 from ..exports.csv_export_utils import (
-    EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
-    EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
-    EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
-    EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
     EqualityBodyCSVColumn,
     download_feedback_survey_cases,
     download_simplified_cases,
@@ -737,25 +737,25 @@ class CaseCloseUpdateView(CaseUpdateView):
         equality_body_metadata_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
                 case=simplified_case,
-                column_definitions=EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
+                column_definitions=SIMPLIFIED_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
             )
         )
         equality_body_report_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
                 case=simplified_case,
-                column_definitions=EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
+                column_definitions=SIMPLIFIED_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
             )
         )
         equality_body_correspondence_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
                 case=simplified_case,
-                column_definitions=EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
+                column_definitions=SIMPLIFIED_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
             )
         )
         equality_body_test_summary_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
                 case=simplified_case,
-                column_definitions=EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
+                column_definitions=SIMPLIFIED_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
             )
         )
         all_equality_body_columns: list[EqualityBodyCSVColumn] = (

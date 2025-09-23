@@ -28,9 +28,9 @@ from ...comments.models import Comment
 from ...common.models import Boolean, EmailTemplate
 from ...common.utils import amp_format_date
 from ...exports.csv_export_utils import (
-    EQUALITY_BODY_COLUMNS_FOR_EXPORT,
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
 )
 from ...notifications.models import Task
 from ...reports.models import Report
@@ -87,7 +87,7 @@ case_feedback_survey_columns_to_export_str: str = ",".join(
     column.column_header for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
 )
 case_equality_body_columns_to_export_str: str = ",".join(
-    column.column_header for column in EQUALITY_BODY_COLUMNS_FOR_EXPORT
+    column.column_header for column in SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT
 )
 case_columns_to_export_str: str = ",".join(
     column.column_header for column in SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT

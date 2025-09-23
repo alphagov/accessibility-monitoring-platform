@@ -12,6 +12,7 @@ from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
 from ...comments.models import Comment
+from ...exports.csv_export_utils import DETAILED_CASE_COLUMNS_FOR_EXPORT
 from ...notifications.models import Task
 from ..models import DetailedCase, DetailedEventHistory, ZendeskTicket
 from ..views import mark_qa_comments_as_read
@@ -337,3 +338,14 @@ def test_mark_qa_comments_as_read(rf):
     assert (
         request._messages.messages[0][1] == f"{detailed_case} comments marked as read"
     )
+
+
+def test_case_export_list_view(admin_client):
+    """Test that the case export list view returns csv data"""
+    case_columns_to_export_str: str = ",".join(
+        column.column_header for column in DETAILED_CASE_COLUMNS_FOR_EXPORT
+    )
+    response: HttpResponse = admin_client.get(reverse("detailed:case-export-list"))
+
+    assert response.status_code == 200
+    assertContains(response, case_columns_to_export_str)

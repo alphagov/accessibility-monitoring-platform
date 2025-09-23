@@ -655,4 +655,4 @@ def export_detailed_cases(request: HttpRequest) -> HttpResponse:
         replace_search_key_with_case_search(request.GET)
     )
     case_search_form.is_valid()
-    return download_detailed_cases(cases=filter_cases(form=case_search_form))
+    return download_detailed_cases(detailed_cases=filter_cases(form=case_search_form))
