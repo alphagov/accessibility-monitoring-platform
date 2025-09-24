@@ -28,11 +28,19 @@ from ..notifications.models import Task
 logger = logging.getLogger(__name__)
 
 ZENDESK_URL_PREFIX: str = "https://govuk.zendesk.com/agent/tickets/"
+MAP_WEBSITE_COMPLIANCE: dict[str, str] = {
+    "not compliant": DetailedCase.WebsiteCompliance.NOT,
+    "": DetailedCase.WebsiteCompliance.UNKNOWN,
+    "other": DetailedCase.WebsiteCompliance.UNKNOWN,
+    "partially compliant": DetailedCase.WebsiteCompliance.PARTIALLY,
+}
 MAP_STATEMENT_COMPLIANCE: dict[str, str] = {
     "not compliant": DetailedCase.StatementCompliance.NOT_COMPLIANT,
     "": DetailedCase.StatementCompliance.UNKNOWN,
     "other": DetailedCase.StatementCompliance.UNKNOWN,
     "compliant": DetailedCase.StatementCompliance.COMPLIANT,
+    "no statement": DetailedCase.StatementCompliance.NO_STATEMENT,
+    "not found": DetailedCase.StatementCompliance.NO_STATEMENT,
 }
 MAP_ENFORCEMENT_RECOMMENDATION: dict[str, str] = {
     "No further action": DetailedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
@@ -157,7 +165,7 @@ def create_detailed_case_from_dict(
     else:
         qa_auditor: User = auditors.get(qa_auditors, default_user)
     feedback_survey_sent: str = row["Feedback survey sent"]
-    is_feedback_survey_sent: Boolean = (
+    is_feedback_requested: Boolean = (
         Boolean.YES if feedback_survey_sent == "Yes" else Boolean.NO
     )
     status: str = MAP_CASE_STATUS.get(row["Status"], DetailedCase.Status.UNASSIGNED)
@@ -193,9 +201,6 @@ def create_detailed_case_from_dict(
             retest_disproportionate_burden_information=row[
                 "Disproportionate Burden Notes"
             ],
-            # retest_statement_backup_url=validate_url(
-            #     row["Link to new copy of accessibility statement if not compliant"]
-            # ),
             recommendation_for_enforcement=MAP_ENFORCEMENT_RECOMMENDATION[
                 row["Enforcement Recommendation"]
             ],
@@ -210,7 +215,7 @@ def create_detailed_case_from_dict(
                 row["Active case with enforcement body?"],
                 DetailedCase.StatementCompliance.UNKNOWN,
             ),
-            is_feedback_survey_sent=is_feedback_survey_sent,
+            is_feedback_requested=is_feedback_requested,
             contact_information_request_start_date=get_datetime_from_string(
                 row["First Contact Date"]
             ),
@@ -235,6 +240,17 @@ def create_detailed_case_from_dict(
             ),
             retest_total_number_of_issues=get_number_from_string(
                 row["Number of issues on closure"]
+            ),
+            initial_website_compliance_state=MAP_WEBSITE_COMPLIANCE[
+                row["Initial site compliance"].lower()
+            ],
+            initial_statement_compliance_state=MAP_STATEMENT_COMPLIANCE[
+                row["Initial statement compliance"].lower()
+            ],
+            is_case_added_to_stats=(
+                Boolean.YES
+                if row["Added to stats tab (formula)"] == "Yes"
+                else Boolean.NO
             ),
         )
     detailed_case.case_number = case_number

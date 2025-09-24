@@ -200,9 +200,7 @@ class DetailedCase(BaseCase):
         default=CaseCloseDecision.NO_DECISION,
     )
     case_close_decision_notes = models.TextField(default="", blank=True)
-    is_feedback_survey_sent = models.CharField(
-        max_length=20, choices=Boolean.choices, default=Boolean.NO
-    )
+    # is_feedback_requested from case metadata
     case_close_complete_date = models.DateField(null=True, blank=True)
 
     # Post case - statement enforcement

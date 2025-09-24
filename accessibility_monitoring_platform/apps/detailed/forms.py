@@ -38,7 +38,9 @@ class DetailedCaseCreateForm(forms.ModelForm):
     organisation_name = AMPCharFieldWide(
         label="Organisation name · Included in export",
     )
-    parental_organisation_name = AMPCharFieldWide(label="Parent organisation name · Included in export")
+    parental_organisation_name = AMPCharFieldWide(
+        label="Parent organisation name · Included in export"
+    )
     website_name = AMPCharFieldWide(label="Website name · Included in export")
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     subcategory = AMPModelChoiceField(
@@ -394,7 +396,9 @@ class QAApprovalUpdateForm(VersionForm):
 class FinalReportUpdateForm(VersionForm):
     """Form for updating publish report page"""
 
-    equality_body_report_url = AMPURLField(label="Link to equality body PDF report · Included in export")
+    equality_body_report_url = AMPURLField(
+        label="Link to equality body PDF report · Included in export"
+    )
     final_report_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -424,7 +428,9 @@ class ReportSentUpdateForm(VersionForm):
 class ReportAcknowledgedUpdateForm(VersionForm):
     """Form for updating correspondence report acknowledged page"""
 
-    report_acknowledged_date = AMPDateField(label="Report acknowledged on · Included in export")
+    report_acknowledged_date = AMPDateField(
+        label="Report acknowledged on · Included in export"
+    )
     report_acknowledged_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -571,7 +577,7 @@ class CaseCloseUpdateForm(VersionForm):
         choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(attrs={"label": "Case added to stats tab?"}),
     )
-    is_feedback_survey_sent = AMPChoiceCheckboxField(
+    is_feedback_requested = AMPChoiceCheckboxField(
         label="Feedback survey sent",
         choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
@@ -591,7 +597,7 @@ class CaseCloseUpdateForm(VersionForm):
             "recommendation_decision_sent_to",
             "case_close_decision_state",
             "is_case_added_to_stats",
-            "is_feedback_survey_sent",
+            "is_feedback_requested",
             "case_close_complete_date",
         ]
 
