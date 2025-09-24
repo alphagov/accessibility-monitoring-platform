@@ -61,6 +61,11 @@ MAP_DISPROPORTIONATE_BURDEN_CLAIM: dict[str, str] = {
 }
 MAP_CASE_STATUS: dict[str, str] = {
     "Case closed and sent to equality body": DetailedCase.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
+    "Report in progress": DetailedCase.Status.REPORT_IN_PROGRESS,
+    "Report acknowledged waiting for 12-week deadline": DetailedCase.Status.AWAITING_12_WEEK_DEADLINE,
+    "Requested update at 12 weeks": DetailedCase.Status.REQUESTED_12_WEEK_UPDATE,
+    "Reviewing changes": DetailedCase.Status.REVIEWING_CHANGES,
+    "Complete": DetailedCase.Status.COMPLETE,
 }
 
 COMMENT_FULLNAME_TO_USERNAME: dict[str, str] = {
