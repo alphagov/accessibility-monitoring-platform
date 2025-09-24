@@ -99,8 +99,6 @@ NEW_12_WEEK_CUSTOM_RETEST_COMMENT: str = "New 12-week custom retest comment"
 NEW_12_WEEK_CUSTOM_AUDITOR_NOTES: str = "New 12-week custom auditor notes"
 HISTORIC_RETEST_NOTES: str = "Historic retest notes"
 HISTORIC_CHECK_RESULT_NOTES: str = "Historic check result notes"
-INITIAL_START_DATE: date = date(2001, 1, 1)
-TWELVE_WEEK_RETEST: date = date(2001, 4, 1)
 
 
 def create_audit() -> Audit:
@@ -3037,6 +3035,15 @@ def test_test_statement_summary_page_view(url_name, admin_client):
     audit: Audit = create_audit()
     audit_pk: dict[str, int] = {"pk": audit.id}
     StatementPage.objects.create(audit=audit, url="https://example.com")
+    overview_statement_check: StatementCheck | None = StatementCheck.objects.filter(
+        type=StatementCheck.Type.OVERVIEW
+    ).first()
+    StatementCheckResult.objects.create(
+        statement_check=overview_statement_check,
+        audit=audit,
+        type=StatementCheck.Type.OVERVIEW,
+        check_result_state=StatementCheckResult.Result.YES,
+    )
     statement_check: StatementCheck = StatementCheck.objects.filter(
         type=StatementCheck.Type.WEBSITE
     ).first()

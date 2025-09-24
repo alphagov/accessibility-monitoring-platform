@@ -7,8 +7,6 @@ from typing import Any
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.core.exceptions import BadRequest, PermissionDenied
 from django.core.mail import EmailMessage
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
@@ -21,10 +19,6 @@ from django.views.generic.list import ListView
 
 from ..cases.models import BaseCase
 from ..common.sitemap import PlatformPage, Sitemap
-from ..detailed.utils import import_detailed_cases_csv
-from ..mobile.utils import import_mobile_cases_csv
-from ..reports.models import Report
-from ..simplified.models import SimplifiedCase
 from ..simplified.utils import (
     record_simplified_model_create_event,
     record_simplified_model_update_event,
@@ -38,8 +32,6 @@ from .forms import (
     FooterLinkOneExtraFormset,
     FrequentlyUsedLinkFormset,
     FrequentlyUsedLinkOneExtraFormset,
-    ImportCSVForm,
-    PlatformCheckingForm,
 )
 from .mark_deleted_util import mark_object_as_deleted
 from .metrics import (
@@ -63,12 +55,6 @@ from .platform_template_view import PlatformTemplateView
 from .utils import extract_domain_from_url, get_platform_settings, sanitise_domain
 
 logger = logging.getLogger(__name__)
-
-
-class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
-    def test_func(self):
-        return self.request.user.is_staff
 
 
 class HideCaseNavigationMixin:
@@ -427,60 +413,6 @@ class FooterLinkFormsetTemplateView(TemplateView):
         return url
 
 
-class PlatformCheckingView(StaffRequiredMixin, FormView):
-    """
-    Write log message
-    """
-
-    form_class = PlatformCheckingForm
-    template_name: str = "common/tech_team/platform_checking.html"
-    success_url: str = reverse_lazy("common:platform-checking")
-
-    def form_valid(self, form):
-        if "trigger_400" in self.request.POST:
-            raise BadRequest
-        if "trigger_403" in self.request.POST:
-            raise PermissionDenied
-        if "trigger_500" in self.request.POST:
-            1 / 0
-        logger.log(
-            level=int(form.cleaned_data["level"]), msg=form.cleaned_data["message"]
-        )
-        return super().form_valid(form)
-
-
-class ReferenceImplementaionView(StaffRequiredMixin, TemplateView):
-    """Reference implementations of reusable components"""
-
-    template_name: str = "common/tech_team/reference_implementation.html"
-
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Get context data for template rendering"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        report: Report | None = Report.objects.all().first()
-        if report is None or not hasattr(
-            report.base_case, "simplifiedcase"
-        ):  # In test environment
-            simplified_case: SimplifiedCase | None = (
-                SimplifiedCase.objects.all().first()
-            )
-        else:
-            simplified_case: SimplifiedCase = report.base_case.simplifiedcase
-        context["case"] = simplified_case
-        return context
-
-
-class IssueReportListView(ListView):
-    """
-    View of list of issue reports.
-    """
-
-    model: type[IssueReport] = IssueReport
-    template_name: str = "common/issue_report_list.html"
-    context_object_name: str = "issue_reports"
-    paginate_by: int = 10
-
-
 class BulkURLSearchView(FormView):
     """
     Bulk search for cases matching URLs
@@ -524,25 +456,3 @@ class BulkURLSearchView(FormView):
             return self.render_to_response(
                 self.get_context_data(bulk_search_results=bulk_search_results)
             )
-        return self.render_to_response()
-
-
-class ImportCSV(StaffRequiredMixin, FormView):
-    """Reset Detailed or Mobile Cases data from CSV"""
-
-    form_class = ImportCSVForm
-    template_name: str = "common/import_csv.html"
-    success_url: str = reverse_lazy("common:import-csv")
-
-    def post(
-        self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
-    ) -> HttpResponseRedirect:
-        context: dict[str, Any] = self.get_context_data()
-        form = context["form"]
-        if form.is_valid():
-            csv_data: str = form.cleaned_data["data"]
-            if form.cleaned_data["model"] == "detailed":
-                import_detailed_cases_csv(csv_data)
-            elif form.cleaned_data["model"] == "mobile":
-                import_mobile_cases_csv(csv_data)
-        return self.render_to_response(self.get_context_data())

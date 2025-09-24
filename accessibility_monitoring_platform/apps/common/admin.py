@@ -137,7 +137,9 @@ class UserCacheUniqueHashAdmin(admin.ModelAdmin):
 class FrequentlyUsedLinksAdmin(admin.ModelAdmin):
     """ "Django admin configuration for FrequentlyUsedLink model"""
 
-    list_display = ["label", "url", "is_deleted"]
+    list_display = ["label", "url", "case_type", "position", "is_deleted"]
+    list_filter = ["case_type", "is_deleted"]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class FooterLinksAdmin(admin.ModelAdmin):

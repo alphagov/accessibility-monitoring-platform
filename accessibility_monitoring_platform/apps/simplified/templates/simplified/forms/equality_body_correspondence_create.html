@@ -1,17 +1,7 @@
 {% extends 'common/case_form.html' %}
 
 {% block breadcrumbs %}
-<div class="govuk-breadcrumbs">
-    <ol class="govuk-breadcrumbs__list">
-        {% include 'common/breadcrumb_home.html' %}
-        {% include 'simplified/helpers/breadcrumb_case.html' %}
-        <li class="govuk-breadcrumbs__list-item">
-            <a class="govuk-breadcrumbs__link" href="{% url 'simplified:list-equality-body-correspondence' case.id %}">
-                All equality body correspondence</a>
-        </li>
-        <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
-    </ol>
-</div>
+    {% include 'simplified/helpers/eq_cores_breadcrumbs.html' %}
 {% endblock %}
 
 {% block formbuttons %}

@@ -442,7 +442,7 @@ def test_case_status_equality_bodies_complete(admin_client):
     check_for_status_specific_link(
         admin_client,
         simplified_case=simplified_case,
-        expected_link_label="Go to post case summary",
+        expected_link_label="Go to statement enforcement",
     )
 
 

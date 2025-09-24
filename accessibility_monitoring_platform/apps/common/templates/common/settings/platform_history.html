@@ -6,21 +6,21 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    {% include 'common/settings/breadcrumbs.html' with page_heading=sitemap.current_platform_page.get_name %}
+    {% include 'common/breadcrumbs.html' %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
+            <div class="govuk-grid-column-one-quarter">
                 {% include 'common/settings/nav_steps.html' with current='common:platform-history' %}
             </div>
-            <div class="govuk-grid-column-two-thirds amp-markdown">
-                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ sitemap.current_platform_page.get_name }}</h1>
+            <div class="govuk-grid-column-three-quarters amp-markdown">
+                <h1 class="govuk-heading-xl amp-margin-bottom-25">{{ sitemap.current_platform_page.get_name }}</h1>
                 {% include "common/pagination_controls.html" %}
                 <table class="govuk-table">
                     <tbody class="govuk-table__body">
                     {% for change_to_platform in changes_to_platform %}
                         <tr class="govuk-table__row">
                             <td class="govuk-table__cell">
-                                <h2 class="govuk-heading-m">{{ change_to_platform.name }}</h2>
+                                <h2 class="govuk-heading-m amp-margin-top-20">{{ change_to_platform.name }}</h2>
                                 {{ change_to_platform.notes|markdown_to_html }}
                             </td>
                         </tr>

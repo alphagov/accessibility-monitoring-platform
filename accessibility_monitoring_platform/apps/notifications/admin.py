@@ -25,6 +25,7 @@ class TaskAdmin(admin.ModelAdmin):
 
     search_fields = [
         "base_case__case_number",
+        "base_case__case_identifier",
         "base_case__organisation_name",
         "description",
     ]

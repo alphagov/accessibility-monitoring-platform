@@ -26,7 +26,7 @@ def test_add_comment_notification(rf):
     first_request.user = first_user
 
     comment: Comment = Comment.objects.create(
-        simplified_case=simplified_case,
+        base_case=simplified_case,
         user=first_user,
         body=COMMENT_BODY,
     )
@@ -41,7 +41,7 @@ def test_add_comment_notification(rf):
     second_request.user = second_user
 
     second_comment: Comment = Comment.objects.create(
-        simplified_case=simplified_case,
+        base_case=simplified_case,
         user=second_user,
         body="this is a comment by a second user",
     )
@@ -82,7 +82,7 @@ def test_add_comment_notification_to_on_call_qa(rf):
     platform.save()
 
     comment: Comment = Comment.objects.create(
-        simplified_case=simplified_case,
+        base_case=simplified_case,
         user=first_user,
         body=COMMENT_BODY,
     )

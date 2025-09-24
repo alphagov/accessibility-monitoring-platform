@@ -3,23 +3,27 @@
 {% endif %}
 <div class="amp-left-border">
     <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5"><b>Date created</b></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-15">{{ detailed_case.created|amp_date }}</p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-15">{{ case.created|amp_date }}</p>
     <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5"><b>Last edited</b></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-15">{{ detailed_case.updated|amp_date }}</p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5"><b>Last not added</b></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-15"><span class="amp-todo">TODO</span></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5"><b>Website test</b></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-0">Initial test <span class="amp-todo">TODO</span></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-15">Retest <span class="amp-todo">TODO</span></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5"><b>Statement test</b></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-0">Initial test <span class="amp-todo">TODO</span></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-15">Retest <span class="amp-todo">TODO</span></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5"><b>Comments</b></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-15"><span class="amp-todo">TODO</span></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5"><b>Reminder</b></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-15"><span class="amp-todo">TODO</span></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5"><b>Overdue</b></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-15"><span class="amp-todo">TODO</span></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5"><b>Post case</b></p>
-    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-15"><span class="amp-todo">TODO</span></p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-15">{{ case.updated|amp_date }}</p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5"><b>Last note added</b></p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-15">
+        {% if case.most_recent_history %}
+            <a href="{% url 'detailed:create-case-note' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                {{ case.most_recent_history.created|amp_date }}</a>
+        {% else %}
+            None
+        {% endif %}
+    </p>
+    <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5">
+        <b>Reminder{% if case.reminder %} on {{ case.reminder.date|amp_date }}{% endif %}</b>
+    </p>
+    <p class="govuk-body-s amp-margin-bottom-10">
+        {% if case.reminder %}
+            {{ case.reminder.description }}
+            (<a href="{% url 'notifications:edit-reminder-task' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">Edit</a>)
+        {% else %}
+            <a href="{% url 'notifications:reminder-create' case.id %}" class="govuk-link govuk-link--no-visited-state">Create</a>
+        {% endif %}
+    </p>
 </div>

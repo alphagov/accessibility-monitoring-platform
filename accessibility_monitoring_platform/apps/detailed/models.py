@@ -16,6 +16,8 @@ from ..cases.models import UPDATE_SEPARATOR, BaseCase, DetailedCaseStatus
 from ..common.models import Boolean, VersionModel
 from ..common.utils import extract_domain_from_url
 
+ZENDESK_URL_PREFIX: str = "https://govuk.zendesk.com/agent/tickets/"
+
 
 class DetailedCase(BaseCase):
     """
@@ -27,6 +29,7 @@ class DetailedCase(BaseCase):
     class WebsiteCompliance(models.TextChoices):
         COMPLIANT = "compliant", "Fully compliant"
         PARTIALLY = "partially-compliant", "Partially compliant"
+        NOT = "not-compliant", "Not compliant"
         UNKNOWN = "not-known", "Not known"
 
     class DisproportionateBurden(models.TextChoices):
@@ -38,7 +41,8 @@ class DetailedCase(BaseCase):
 
     class StatementCompliance(models.TextChoices):
         COMPLIANT = "compliant", "Compliant"
-        NOT_COMPLIANT = "not-compliant", "Not compliant or no statement"
+        NOT_COMPLIANT = "not-compliant", "Not compliant"
+        NO_STATEMENT = "no-statement", "No statement"
         UNKNOWN = "unknown", "Not assessed"
 
     class ReportApprovedStatus(models.TextChoices):
@@ -62,80 +66,66 @@ class DetailedCase(BaseCase):
         IN_PROGRESS = "in-progress", "Case in progress"
         NO = "no", "No (or holding)"
 
-    # status = models.CharField(
-    #     max_length=30,
-    #     choices=Status.choices,
-    #     default=Status.INITIAL,
-    # )
+    class ServiceType(models.TextChoices):
+        SERVICE = "service", "Service"
+        WEBSITE = "website", "Website"
 
     # Case details - Case metadata
     previous_case_url = models.TextField(default="", blank=True)
     trello_url = models.TextField(default="", blank=True)
-    notes = models.TextField(default="", blank=True)
+    service_type = models.CharField(
+        max_length=20,
+        choices=ServiceType.choices,
+        default=ServiceType.WEBSITE,
+    )
+    case_folder_url = models.TextField(default="", blank=True)
     case_metadata_complete_date = models.DateField(null=True, blank=True)
 
     # Initial contact - Manage contact details
     manage_contacts_complete_date = models.DateField(null=True, blank=True)
 
     # Initial contact - Request contact details
-    first_contact_date = models.DateField(null=True, blank=True)
-    first_contact_sent_to = models.CharField(max_length=200, default="", blank=True)
-    request_contact_details_complete_date = models.DateField(null=True, blank=True)
-
-    # Initial contact - Chasing contact record
-    chasing_record_complete_date = models.DateField(null=True, blank=True)
-
-    # Initial contact - Information delivered
-    contact_acknowledged_date = models.DateField(null=True, blank=True)
-    contact_acknowledged_by = models.CharField(max_length=200, default="", blank=True)
-    saved_to_google_drive = models.CharField(
-        max_length=20, choices=Boolean.choices, default=Boolean.NO
-    )
-    information_delivered_complete_date = models.DateField(null=True, blank=True)
+    contact_information_request_start_date = models.DateField(null=True, blank=True)
+    contact_information_request_end_date = models.DateField(null=True, blank=True)
+    contact_information_request_complete_date = models.DateField(null=True, blank=True)
 
     # Initial test - Testing details
-    monitor_folder_url = models.TextField(default="", blank=True)
+    initial_test_start_date = models.DateField(null=True, blank=True)
     initial_testing_details_complete_date = models.DateField(null=True, blank=True)
 
     # Initial test - Testing outcome
-    initial_test_date = models.DateField(null=True, blank=True)
+    initial_test_end_date = models.DateField(null=True, blank=True)
+    initial_total_number_of_pages = models.IntegerField(null=True, blank=True)
     initial_total_number_of_issues = models.IntegerField(null=True, blank=True)
-    initial_testing_outcome_complete_date = models.DateField(null=True, blank=True)
-
-    # Initial test - Website compliance
     initial_website_compliance_state = models.CharField(
         max_length=20,
         choices=WebsiteCompliance.choices,
         default=WebsiteCompliance.UNKNOWN,
     )
-    initial_website_compliance_complete_date = models.DateField(null=True, blank=True)
-
-    # Initial test - Disproportionate burden
-    initial_disproportionate_burden_claim = models.CharField(
-        max_length=20,
-        choices=DisproportionateBurden.choices,
-        default=DisproportionateBurden.NOT_CHECKED,
-    )
-    initial_disproportionate_burden_complete_date = models.DateField(
-        null=True, blank=True
-    )
-
-    # Initial test - Statement compliance
     initial_statement_compliance_state = models.CharField(
         max_length=200,
         choices=StatementCompliance.choices,
         default=StatementCompliance.UNKNOWN,
     )
-    initial_statement_compliance_complete_date = models.DateField(null=True, blank=True)
+    initial_disproportionate_burden_claim = models.CharField(
+        max_length=20,
+        choices=DisproportionateBurden.choices,
+        default=DisproportionateBurden.NOT_CHECKED,
+    )
+    initial_testing_outcome_complete_date = models.DateField(null=True, blank=True)
 
-    # Report - Report draft
-    report_draft_url = models.TextField(default="", blank=True)
+    # Report - Report ready for QA
     report_ready_for_qa = models.CharField(
         max_length=20,
         choices=Boolean.choices,
         default=Boolean.NO,
     )
-    report_draft_complete_date = models.DateField(null=True, blank=True)
+    report_ready_for_qa_complete_date = models.DateField(null=True, blank=True)
+
+    # Report - QA auditor
+    qa_auditor_complete_date = models.DateField(null=True, blank=True)
+
+    # Report - QA comments
 
     # Report - QA approval
     report_approved_status = models.CharField(
@@ -145,19 +135,16 @@ class DetailedCase(BaseCase):
     )
     qa_approval_complete_date = models.DateField(null=True, blank=True)
 
-    # Report - Publish report
+    # Report - Final report
     equality_body_report_url = models.TextField(default="", blank=True)
-    public_report_url = models.TextField(default="", blank=True)
-    publish_report_complete_date = models.DateField(null=True, blank=True)
+    final_report_complete_date = models.DateField(null=True, blank=True)
 
     # Correspondence - Report sent
     report_sent_date = models.DateField(null=True, blank=True)
-    report_sent_to = models.CharField(max_length=200, default="", blank=True)
     report_sent_complete_date = models.DateField(null=True, blank=True)
 
     # Correspondence - Report acknowledged
     report_acknowledged_date = models.DateField(null=True, blank=True)
-    report_acknowledged_by = models.CharField(max_length=200, default="", blank=True)
     report_acknowledged_complete_date = models.DateField(null=True, blank=True)
 
     # Correspondence - 12-week deadline
@@ -166,70 +153,61 @@ class DetailedCase(BaseCase):
 
     # Correspondence - 12-week update request
     twelve_week_update_date = models.DateField(null=True, blank=True)
-    twelve_week_update_to = models.CharField(max_length=200, default="", blank=True)
     twelve_week_update_complete_date = models.DateField(null=True, blank=True)
 
     # Correspondence - Report acknowledged
     twelve_week_acknowledged_date = models.DateField(null=True, blank=True)
-    twelve_week_acknowledged_by = models.CharField(
-        max_length=200, default="", blank=True
-    )
     twelve_week_acknowledged_complete_date = models.DateField(null=True, blank=True)
 
     # Reviewing changes - Retest result
-    retest_date = models.DateField(null=True, blank=True)
+    retest_start_date = models.DateField(null=True, blank=True)
     retest_total_number_of_issues = models.IntegerField(null=True, blank=True)
     retest_result_complete_date = models.DateField(null=True, blank=True)
 
-    # Reviewing changes - Summary of changes
-    summary_of_changes_complete_date = models.DateField(null=True, blank=True)
-
-    # Reviewing changes - Website compliance decision
+    # Reviewing changes - Retest compliance decisions
     retest_website_compliance_state = models.CharField(
         max_length=20,
         choices=WebsiteCompliance.choices,
         default=WebsiteCompliance.UNKNOWN,
     )
-    retest_website_compliance_complete_date = models.DateField(null=True, blank=True)
-
-    # Reviewing changes - Disproportionate burden
-    retest_disproportionate_burden_claim = models.CharField(
-        max_length=20,
-        choices=DisproportionateBurden.choices,
-        default=DisproportionateBurden.NOT_CHECKED,
-    )
-    retest_disproportionate_burden_complete_date = models.DateField(
-        null=True, blank=True
-    )
-
-    # Reviewing changes - Statement compliance
-    retest_statement_backup_url = models.TextField(default="", blank=True)
+    retest_website_compliance_information = models.TextField(default="", blank=True)
     retest_statement_compliance_state = models.CharField(
         max_length=200,
         choices=StatementCompliance.choices,
         default=StatementCompliance.UNKNOWN,
     )
-    retest_statement_compliance_complete_date = models.DateField(null=True, blank=True)
-
-    # Reviewing changes - Final metrics
-    number_of_days_to_retest = models.IntegerField(null=True, blank=True)
-    retest_metrics_complete_date = models.DateField(null=True, blank=True)
+    retest_statement_compliance_information = models.TextField(default="", blank=True)
+    retest_disproportionate_burden_claim = models.CharField(
+        max_length=20,
+        choices=DisproportionateBurden.choices,
+        default=DisproportionateBurden.NOT_CHECKED,
+    )
+    retest_disproportionate_burden_information = models.TextField(
+        default="", blank=True
+    )
+    retest_compliance_decisions_complete_date = models.DateField(null=True, blank=True)
 
     # Closing the case - Closing the case
+    psb_progress_info = models.TextField(default="", blank=True)
+    recommendation_decision_sent_date = models.DateField(null=True, blank=True)
+    recommendation_decision_sent_to = models.CharField(
+        max_length=200, default="", blank=True
+    )
+    recommendation_info = models.TextField(default="", blank=True)
     case_close_decision_state = models.CharField(
         max_length=30,
         choices=CaseCloseDecision.choices,
         default=CaseCloseDecision.NO_DECISION,
     )
     case_close_decision_notes = models.TextField(default="", blank=True)
-    case_close_decision_sent_date = models.DateField(null=True, blank=True)
-    case_close_decision_sent_to = models.CharField(
-        max_length=200, default="", blank=True
-    )
     is_feedback_survey_sent = models.CharField(
         max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     case_close_complete_date = models.DateField(null=True, blank=True)
+
+    # Post case - statement enforcement
+    psb_statement_appeal_information = models.TextField(default="", blank=True)
+    statement_enforcement_complete_date = models.DateField(null=True, blank=True)
 
     # Post case - Equality body metadata
     enforcement_body_sent_date = models.DateField(null=True, blank=True)
@@ -247,6 +225,12 @@ class DetailedCase(BaseCase):
         max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     enforcement_body_metadata_complete_date = models.DateField(null=True, blank=True)
+
+    # Unresponsive PSB page
+    no_psb_contact = models.CharField(
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
+    )
+    no_psb_contact_info = models.TextField(default="", blank=True)
 
     class Meta:
         ordering = ["-id"]
@@ -271,14 +255,26 @@ class DetailedCase(BaseCase):
             event_type=DetailedCaseHistory.EventType.STATUS
         )
 
-    def contact_notes_history(self) -> QuerySet["DetailedCaseHistory"]:
+    def notes_history(self) -> QuerySet["DetailedCaseHistory"]:
         return self.detailedcasehistory_set.filter(
-            event_type=DetailedCaseHistory.EventType.CONTACT_NOTE
+            event_type=DetailedCaseHistory.EventType.NOTE
         )
+
+    @property
+    def zendesk_tickets(self) -> QuerySet["ZendeskTicket"]:
+        return self.zendeskticket_set.filter(is_deleted=False)
+
+    @property
+    def most_recent_history(self):
+        return self.detailedcasehistory_set.first()
 
     @property
     def contacts(self) -> QuerySet["Contact"]:
         return self.contact_set.filter(is_deleted=False)
+
+    @property
+    def preferred_contacts(self) -> QuerySet["Contact"]:
+        return self.contacts.filter(preferred=Contact.Preferred.YES)
 
 
 class DetailedEventHistory(models.Model):
@@ -343,18 +339,31 @@ class DetailedCaseHistory(models.Model):
 
     class EventType(models.TextChoices):
         NOTE = "note", "Entered note"
-        REMINDER = "reminder", "Reminder set"
         STATUS = "status", "Changed status"
-        CONTACT_NOTE = "contact_note", "Entered contact note"
 
     detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
     event_type = models.CharField(
         max_length=20, choices=EventType.choices, default=EventType.NOTE
     )
+    id_within_case = models.IntegerField(default=0, blank=True)
+    detailed_case_status = models.CharField(
+        max_length=200,
+        choices=DetailedCase.Status.choices,
+        default=DetailedCase.Status.UNASSIGNED,
+    )
     value = models.TextField(default="", blank=True)
+    label = models.CharField(max_length=200, default="", blank=True)
     created_by = models.ForeignKey(User, on_delete=models.PROTECT)
     created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs) -> None:
+        if not self.id:
+            self.detailed_case_status = self.detailed_case.status
+            if self.event_type == DetailedCaseHistory.EventType.NOTE:
+                self.id_within_case = self.detailed_case.notes_history().count() + 1
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return (
@@ -374,19 +383,13 @@ class Contact(VersionModel):
         NO = "no", "No"
         UNKNOWN = "unknown", "Not known"
 
-    class Type(models.TextChoices):
-        ORGANISATION = "organisation", "Organisation"
-        CONTRACTOR = "contractor", "Contractor"
-
     detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
     name = models.TextField(default="", blank=True)
     job_title = models.CharField(max_length=200, default="", blank=True)
-    contact_point = models.CharField(max_length=200, default="", blank=True)
+    contact_details = models.TextField(default="", blank=True)
+    information = models.TextField(default="", blank=True)
     preferred = models.CharField(
         max_length=20, choices=Preferred.choices, default=Preferred.UNKNOWN
-    )
-    type = models.CharField(
-        max_length=20, choices=Type.choices, default=Type.ORGANISATION
     )
     created = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.PROTECT)
@@ -399,11 +402,42 @@ class Contact(VersionModel):
         string: str = ""
         if self.name:
             string = self.name
-        if self.contact_point:
-            string += f" {self.contact_point}"
+        if self.contact_details:
+            string += f" {self.contact_details}"
         return string
 
     def get_absolute_url(self) -> str:
         return reverse(
             "detailed:manage-contact-details", kwargs={"pk": self.detailed_case.id}
         )
+
+
+class ZendeskTicket(models.Model):
+    """
+    Model for detailed ZendeskTicket
+    """
+
+    detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
+    id_within_case = models.IntegerField(default=1, blank=True)
+    url = models.TextField(default="", blank=True)
+    summary = models.TextField(default="", blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-id"]
+
+    def __str__(self) -> str:
+        return self.url
+
+    def get_absolute_url(self) -> str:
+        return reverse("detailed:update-zendesk-ticket", kwargs={"pk": self.id})
+
+    def save(self, *args, **kwargs) -> None:
+        if not self.id:
+            self.id_within_case = self.detailed_case.zendeskticket_set.all().count() + 1
+        if self.url.startswith(ZENDESK_URL_PREFIX):
+            zendesk_id: str = self.url.replace(ZENDESK_URL_PREFIX, "").replace("/", "")
+            if zendesk_id.isdigit():
+                self.id_within_case = int(zendesk_id)
+        super().save(*args, **kwargs)

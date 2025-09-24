@@ -174,9 +174,22 @@ class FrequentlyUsedLink(models.Model):
     Model for frequently used links
     """
 
+    class CaseType(models.TextChoices):
+        ALL = "all", "All"
+        SIMPLIFIED = "simplified", "Simplified"
+        DETAILED = "detailed", "Detailed"
+        MOBILE = "mobile", "Mobile"
+
     label = models.TextField(default="", blank=True)
     url = models.TextField(default="", blank=True)
     is_deleted = models.BooleanField(default=False)
+    position = models.IntegerField(default=0)
+    case_type = models.CharField(
+        max_length=10, choices=CaseType.choices, default=CaseType.ALL
+    )
+
+    class Meta:
+        ordering = ["position"]
 
     def __str__(self) -> str:
         return str(f"{self.label}: {self.url}")

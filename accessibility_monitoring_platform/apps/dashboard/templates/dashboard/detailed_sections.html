@@ -1,0 +1,5 @@
+  {% for key, case in cases_by_status.items %}
+    {% if case.cases %}
+        {% include "dashboard/detailed/generic_table.html" with cases=case.cases table_title=case.label id=key %}
+    {% endif %}
+  {% endfor %}

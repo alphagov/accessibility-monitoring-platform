@@ -1,0 +1,109 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+        <nav role="navigation" class="amp-margin-bottom-40">
+            <h2 class="govuk-heading-m">Contents</h2>
+            <div class="amp-left-border">
+                <ul class="govuk-list">
+                    <li>
+                        <a href="#id_banners" class="govuk-link govuk-link--no-visited-state">
+                            Banners</a>
+                    </li>
+                    <li>
+                        <a href="#id_forms" class="govuk-link govuk-link--no-visited-state">
+                            Forms</a>
+                    </li>
+                    <li>
+                        <a href="#id_formlike_styles" class="govuk-link govuk-link--no-visited-state">
+                            Form-like style examples</a>
+                    </li>
+                    <li>
+                        <a href="#id_gds_design_system_components" class="govuk-link govuk-link--no-visited-state">
+                            GDS Design system components</a>
+                    </li>
+                    <li>
+                        <a href="#id_headers" class="govuk-link govuk-link--no-visited-state">
+                            Header examples</a>
+                    </li>
+                    <li>
+                        <a href="#id_labels_of_notes_fields" class="govuk-link govuk-link--no-visited-state">
+                            Labels of notes fields</a>
+                    </li>
+                    <li>
+                        <a href="#id_links" class="govuk-link govuk-link--no-visited-state">
+                            Link examples</a>
+                    </li>
+                    <li>
+                        <a href="#id_lists" class="govuk-link govuk-link--no-visited-state">
+                            List examples</a>
+                    </li>
+                    <li>
+                        <a href="#id_page_layouts" class="govuk-link govuk-link--no-visited-state">
+                            Page layouts</a>
+                    </li>
+                    <li>
+                        <a href="#id_tables" class="govuk-link govuk-link--no-visited-state">
+                            Tables</a>
+                    </li>
+                    <li>
+                        <a href="#id_widgets" class="govuk-link govuk-link--no-visited-state">
+                            Widgets</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+    <div class="govuk-grid-column-one-half">
+        <h2 class="govuk-heading-m">Tech team pages</h2>
+        <ul class="govuk-list">
+            <li>
+                <a href="{% url 'tech:issue-reports-list' %}" class="govuk-link govuk-link--no-visited-state">
+                    Issue reports</a>
+                (<a href="{% url 'admin:common_issuereport_changelist' %}?complete__exact=0" class="govuk-link govuk-link--no-visited-state"
+                    >admin</a>)
+            </li>
+            <li>
+                <a href="{% url 'tech:platform-checking' %}" class="govuk-link govuk-link--no-visited-state">
+                    Tools and sitemap</a>
+                (<a href="{% url 'tech:platform-checking' %}#id_sitemap" class="govuk-link govuk-link--no-visited-state"
+                    >sitemap</a>)
+            </li>
+            <li>
+                <a href="{% url 'tech:import-csv' %}" class="govuk-link govuk-link--no-visited-state">
+                    Reset detailed or mobile case data</a>
+                (<a href="{% url 'tech:import-trello-comments' %}" class="govuk-link govuk-link--no-visited-state"
+                    >Reset Trello comments</a>)
+            </li>
+        </ul>
+        <h2 class="govuk-heading-m">Platform history</h2>
+        <ul class="govuk-list">
+            <li>
+                <a href="{% url 'common:platform-history' %}" class="govuk-link govuk-link--no-visited-state">
+                    Versions</a>
+                (<a href="{% url 'admin:common_changetoplatform_changelist' %}" class="govuk-link govuk-link--no-visited-state"
+                    >admin</a>)
+            </li>
+        </ul>
+        <h2 class="govuk-heading-m">Case history</h2>
+        <ul class="govuk-list">
+            <li>
+                <a href="{% url 'simplified:case-history' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    {{ case }}</a>
+                (<a href="{% url 'admin:simplified_simplifiedeventhistory_changelist' %}?q={{ case.case_number }}" class="govuk-link govuk-link--no-visited-state"
+                    >admin</a>)
+            </li>
+            {% if detailed_case %}
+                <li>
+                    <a href="{% url 'detailed:case-history' detailed_case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        {{ detailed_case }}</a>
+                    (<a href="{% url 'admin:detailed_detailedeventhistory_changelist' %}?q={{ detailed_case.case_number }}" class="govuk-link govuk-link--no-visited-state"
+                        >admin</a>)
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <hr class="amp-width-100 amp-margin-bottom-30" />
+    </div>
+</div>

@@ -30,7 +30,11 @@ COMPLIANCE_FIELDS: list[str] = [
 UPDATE_SEPARATOR: str = " -> "
 
 
-class TestType(models.TextChoices):
+class DisablePyTestCollectionMixin(object):
+    __test__ = False
+
+
+class TestType(DisablePyTestCollectionMixin, models.TextChoices):
     SIMPLIFIED = "simplified", "Simplified"
     DETAILED = "detailed", "Detailed"
     MOBILE = "mobile", "Mobile"
@@ -43,20 +47,30 @@ class CaseStatusChoice:
     label: str
     test_types: list[TestType]
 
+    @property
+    def search_cases_choices_label(self):
+        if len(self.test_types) < len(TestType):
+            test_type_initials: str = "&".join(
+                [test_type.label[0] for test_type in self.test_types]
+            )
+            return f"{self.label} ({test_type_initials})"
+        return self.label
+
 
 CASE_STATUS_UNKNOWN: CaseStatusChoice = CaseStatusChoice(
     name="UNKNOWN",
     value="910-unknown",
     label="Unknown",
+    test_types=[TestType.SIMPLIFIED],
+)
+CASE_STATUS_UNASSIGNED: CaseStatusChoice = CaseStatusChoice(
+    name="UNASSIGNED",
+    value="000-unassigned-case",
+    label="Unassigned case",
     test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
 )
 CASE_STATUSES: list[CaseStatusChoice] = [
-    CaseStatusChoice(
-        name="UNASSIGNED",
-        value="000-unassigned-case",
-        label="Unassigned case",
-        test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
-    ),
+    CASE_STATUS_UNASSIGNED,
     CaseStatusChoice(
         name="PSB_INFO_REQ",
         value="010-initial-psb-info-requested",
@@ -66,7 +80,7 @@ CASE_STATUSES: list[CaseStatusChoice] = [
     CaseStatusChoice(
         name="PSB_INFO_CHASING",
         value="020-initial-psb-info-chasing",
-        label="Chasing - no response / missed deadline",
+        label="Chasing initial response",
         test_types=[TestType.DETAILED, TestType.MOBILE],
     ),
     CaseStatusChoice(
@@ -78,7 +92,7 @@ CASE_STATUSES: list[CaseStatusChoice] = [
     CaseStatusChoice(
         name="PSB_INFO_RECEIVED",
         value="040-initial-psb-info-received",
-        label="Received Details/Access",
+        label="Received details and access",
         test_types=[TestType.DETAILED, TestType.MOBILE],
     ),
     CaseStatusChoice(
@@ -178,6 +192,12 @@ CASE_STATUSES: list[CaseStatusChoice] = [
         test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
     ),
     CaseStatusChoice(
+        name="BLOCKED",
+        value="210-blocked",
+        label="Blocked",
+        test_types=[TestType.DETAILED],
+    ),
+    CaseStatusChoice(
         name="DEACTIVATED",
         value="900-deactivated",
         label="Deactivated",
@@ -185,13 +205,17 @@ CASE_STATUSES: list[CaseStatusChoice] = [
     ),
     CASE_STATUS_UNKNOWN,
 ]
+ALL_CASE_STATUS_SEARCH_CHOICES: list[tuple[str, str]] = [
+    (case_status.value, case_status.search_cases_choices_label)
+    for case_status in CASE_STATUSES
+]
 ALL_CASE_STATUS_CHOICES: list[tuple[str, str]] = [
     (case_status.value, case_status.label) for case_status in CASE_STATUSES
 ]
 
 
 class CaseStatusChoices:
-    choices: None | list[tuple[str, str]] = None
+    choices: list[tuple[str, str]] | None = None
 
     def __init__(self, test_type: str):
         self.choices = []
@@ -201,12 +225,12 @@ class CaseStatusChoices:
                 self.choices.append((status.value, status.label))
 
 
-SimplifiedCaseStatus: None | CaseStatusChoices = None
-DetailedCaseStatus: None | CaseStatusChoices = None
-MobileCaseStatus: None | CaseStatusChoices = None
+SimplifiedCaseStatus: CaseStatusChoices | None = None
+DetailedCaseStatus: CaseStatusChoices | None = None
+MobileCaseStatus: CaseStatusChoices | None = None
 
 if SimplifiedCaseStatus is None:
-    SimplifiedCaseStatus: None | CaseStatusChoices = CaseStatusChoices(
+    SimplifiedCaseStatus: CaseStatusChoices | None = CaseStatusChoices(
         test_type=TestType.SIMPLIFIED
     )
 if DetailedCaseStatus is None:
@@ -246,7 +270,7 @@ class BaseCase(VersionModel):
 
     class EnforcementBody(models.TextChoices):
         EHRC = "ehrc", "Equality and Human Rights Commission"
-        ECNI = "ecni", "Equality Commission Northern Ireland"
+        ECNI = "ecni", "Equality Commission for Northern Ireland"
 
     class RecommendationForEnforcement(models.TextChoices):
         NO_FURTHER_ACTION = "no-further-action", "No further action"
@@ -356,3 +380,27 @@ class BaseCase(VersionModel):
 
     def get_absolute_url(self) -> str:
         return reverse(f"{self.test_type}:case-detail", kwargs={"pk": self.pk})
+
+    @property
+    def reminder(self):
+        return self.task_set.filter(type="reminder", read=False).first()
+
+    @property
+    def reminder_history(self):
+        return self.task_set.filter(type="reminder", read=True)
+
+    @property
+    def qa_comments(self):
+        return self.comment_basecase.filter(hidden=False).order_by("-created_date")
+
+    @property
+    def qa_comments_count(self):
+        return self.qa_comments.count()
+
+    def get_case(self):
+        if self.test_type == TestType.SIMPLIFIED:
+            return self.simplifiedcase
+        if self.test_type == TestType.DETAILED:
+            return self.detailedcase
+        if self.test_type == TestType.MOBILE:
+            return self.mobilecase

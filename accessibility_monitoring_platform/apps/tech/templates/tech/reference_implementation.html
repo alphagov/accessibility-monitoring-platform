@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ sitemap.current_platform_page.get_name }}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'common/breadcrumbs_no_case.html' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ sitemap.current_platform_page.get_name }}</h1>
+                <p class="govuk-body">Examples and links to components and patterns used in the platform.</p>
+            </div>
+        </div>
+        {% include 'tech/ref/contents.html' %}
+        {% include 'tech/ref/banners.html' %}
+        {% include 'tech/ref/forms.html' %}
+        {% include 'tech/ref/formlike.html' %}
+        {% include 'tech/ref/gds_components.html' %}
+        {% include 'tech/ref/headers.html' %}
+        {% include 'tech/ref/labels.html' %}
+        {% include 'tech/ref/links.html' %}
+        {% include 'tech/ref/lists.html' %}
+        {% include 'tech/ref/page_layouts.html' %}
+        {% include 'tech/ref/tables.html' %}
+        {% include 'tech/ref/widgets.html' %}
+    </main>
+</div>
+{% endblock %}
