@@ -49,10 +49,10 @@ class CaseCreateForm(forms.ModelForm):
     Form for creating a case
     """
 
+    home_page_url = AMPURLField(label="Full URL (included in equality body export)")
     organisation_name = AMPCharFieldWide(
         label="Organisation name (included in equality body export)",
     )
-    home_page_url = AMPURLField(label="Full URL (included in equality body export)")
     parental_organisation_name = AMPCharFieldWide(
         label="Parent organisation name (included in equality body export)"
     )
@@ -88,8 +88,8 @@ class CaseCreateForm(forms.ModelForm):
     class Meta:
         model = SimplifiedCase
         fields = [
-            "organisation_name",
             "home_page_url",
+            "organisation_name",
             "parental_organisation_name",
             "website_name",
             "subcategory",
@@ -173,8 +173,8 @@ class CaseMetadataUpdateForm(CaseCreateForm, VersionForm):
         fields = [
             "version",
             "auditor",
-            "organisation_name",
             "home_page_url",
+            "organisation_name",
             "parental_organisation_name",
             "website_name",
             "subcategory",
@@ -832,7 +832,7 @@ class CaseCloseUpdateForm(VersionForm):
         if case_completed == SimplifiedCase.CaseCompleted.COMPLETE_SEND:
             simplified_case: SimplifiedCase = self.instance
             equality_body_columns: list[EqualityBodyCSVColumn] = (
-                populate_equality_body_columns(simplified_case=simplified_case)
+                populate_equality_body_columns(case=simplified_case)
             )
             required_data_missing_columns: list[EqualityBodyCSVColumn] = [
                 column
@@ -971,22 +971,6 @@ class EqualityBodyCorrespondenceCreateForm(forms.ModelForm):
         ]
 
 
-class ZendeskTicketConfirmDeleteUpdateForm(forms.ModelForm):
-    """
-    Form for confirming the deletion of a zendesk ticket
-    """
-
-    is_deleted = forms.BooleanField(
-        label="Confirm you want to remove Zendest ticket",
-        required=False,
-        widget=AMPBooleanCheckboxWidget(attrs={"label": "Remove ticket"}),
-    )
-
-    class Meta:
-        model = ZendeskTicket
-        fields = ["is_deleted"]
-
-
 class ZendeskTicketCreateUpdateForm(forms.ModelForm):
     """
     Form for updating a zendesk ticket
@@ -998,3 +982,19 @@ class ZendeskTicketCreateUpdateForm(forms.ModelForm):
     class Meta:
         model = ZendeskTicket
         fields = ["summary", "url"]
+
+
+class ZendeskTicketConfirmDeleteUpdateForm(forms.ModelForm):
+    """
+    Form for confirming the deletion of a zendesk ticket
+    """
+
+    is_deleted = forms.BooleanField(
+        label="Confirm you want to remove Zendesk ticket",
+        required=False,
+        widget=AMPBooleanCheckboxWidget(attrs={"label": "Remove ticket"}),
+    )
+
+    class Meta:
+        model = ZendeskTicket
+        fields = ["is_deleted"]

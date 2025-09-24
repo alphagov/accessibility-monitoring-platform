@@ -6,6 +6,7 @@ from django.forms.models import ModelForm
 from django.urls import reverse
 from django.views.generic.edit import UpdateView
 
+from ..cases.models import BaseCase
 from ..simplified.utils import record_simplified_model_update_event
 from .forms import CommentUpdateForm
 from .models import Comment
@@ -27,16 +28,21 @@ class QACommentUpdateView(UpdateView):
         if "remove_comment" in self.request.POST:
             if comment.user.id == self.request.user.id:  # type: ignore
                 comment.hidden = True
-        record_simplified_model_update_event(
-            user=self.request.user,
-            model_object=comment,
-            simplified_case=comment.simplified_case,
-        )
+        if comment.base_case.test_type == BaseCase.TestType.SIMPLIFIED:
+            record_simplified_model_update_event(
+                user=self.request.user,
+                model_object=comment,
+                simplified_case=comment.base_case.simplifiedcase,
+            )
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        case_pk: dict[str, int] = {"pk": self.object.simplified_case.id}  # type: ignore
+        case_pk: dict[str, int] = {"pk": self.object.base_case.id}  # type: ignore
+        if self.object.base_case.test_type == BaseCase.TestType.DETAILED:
+            return (
+                f"{reverse('detailed:edit-qa-comments', kwargs=case_pk)}?#qa-discussion"
+            )
         return (
             f"{reverse('simplified:edit-qa-comments', kwargs=case_pk)}?#qa-discussion"
         )

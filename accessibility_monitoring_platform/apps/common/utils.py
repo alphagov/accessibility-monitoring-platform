@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 from django.http import HttpRequest
+from django.http.request import QueryDict
 from django.utils import timezone
 from django_otp.plugins.otp_email.models import EmailDevice
 
@@ -272,3 +273,11 @@ def get_first_of_this_month_last_year() -> datetime:
 def replace_whole_words(old_word: str, replacement: str, string: str):
     """Replace whole word matches of old_word with replacement in string"""
     return re.sub(r"\b" + old_word + r"\b", replacement, string)
+
+
+def replace_search_key_with_case_search(request_get: QueryDict) -> dict[str, str]:
+    """Convert QueryDict to dictionary and replace key 'search' with 'case_search'."""
+    search_args: dict[str, str] = {key: value for key, value in request_get.items()}
+    if "search" in search_args:
+        search_args["case_search"] = search_args.pop("search")
+    return search_args

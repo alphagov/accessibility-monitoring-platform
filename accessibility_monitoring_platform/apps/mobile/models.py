@@ -34,8 +34,11 @@ class MobileCase(BaseCase):
         default=AppOS.IOS,
     )
     notes = models.TextField(default="", blank=True)
+    case_folder_url = models.TextField(default="", blank=True)
     case_metadata_complete_date = models.DateField(null=True, blank=True)
 
+    initial_test_start_date = models.DateField(null=True, blank=True)
+    initial_test_end_date = models.DateField(null=True, blank=True)
     # status = models.CharField(
     #     max_length=30,
     #     choices=Status.choices,
@@ -116,3 +119,28 @@ class EventHistory(models.Model):
                 }
             )
         return variable_list
+
+
+class MobileCaseHistory(models.Model):
+    """Model to record history of changes to MobileCase"""
+
+    class EventType(models.TextChoices):
+        NOTE = "note", "Entered note"
+        STATUS = "status", "Changed status"
+        RECOMMENDATION = "recommendation", "Entered enforcement recommendation"
+
+    mobile_case = models.ForeignKey(MobileCase, on_delete=models.PROTECT)
+    event_type = models.CharField(
+        max_length=20, choices=EventType.choices, default=EventType.NOTE
+    )
+    value = models.TextField(default="", blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    created = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.mobile_case} {self.event_type} {self.created} {self.created_by}"
+
+    class Meta:
+        ordering = ["-id"]
+        verbose_name_plural = "Mobile Case history"

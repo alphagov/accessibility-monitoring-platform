@@ -8,6 +8,6 @@ describe('Login', () => {
     cy.get('form[data-cy="login-form"]').submit()
     cy.getCookie('sessionid').should('exist')
     cy.getCookie('csrftoken').should('exist')
-    cy.title().should('eq', 'Home | Your simplified cases')
+    cy.title().should('eq', 'Home | Dashboard')
   })
 })

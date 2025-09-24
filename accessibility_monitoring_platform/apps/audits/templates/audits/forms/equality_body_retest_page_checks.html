@@ -10,10 +10,10 @@
 <div class="govuk-width-container">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include 'common/case_banner.html' with case=retest_page.retest.simplified_case %}
+            {% include 'cases/helpers/case_banner.html' with case=retest_page.retest.simplified_case %}
         </div>
     </div>
-    {% include 'audits/helpers/retest_breadcrumb.html' with retest=retest_page.retest page_heading=retest_page %}
+    {% include 'audits/helpers/retest_breadcrumbs.html' with retest=retest_page.retest page_heading=retest_page %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">

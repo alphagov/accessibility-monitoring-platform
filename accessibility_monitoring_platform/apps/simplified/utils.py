@@ -13,7 +13,6 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Case as DjangoCase
 from django.db.models import Q, QuerySet, When
-from django.http.request import QueryDict
 from django.urls import reverse
 
 from ..audits.models import Audit
@@ -68,7 +67,7 @@ def get_simplified_case_detail_sections(
     for page_group in sitemap.platform_page_groups:
         if page_group.show and (
             page_group.type == PlatformPageGroup.Type.SIMPLIFIED_CASE_NAV
-            or page_group.type == PlatformPageGroup.Type.CASE_TOOLS
+            or page_group.type == PlatformPageGroup.Type.SIMPLIFIED_CASE_TOOLS
         ):
             case_detail_pages: list[CaseDetailPage] = []
             for page in page_group.pages:
@@ -188,14 +187,6 @@ def filter_cases(form) -> QuerySet[SimplifiedCase]:  # noqa: C901
         .order_by(sort_by)
         .select_related("auditor", "reviewer")
     )
-
-
-def replace_search_key_with_case_search(request_get: QueryDict) -> dict[str, str]:
-    """Convert QueryDict to dictionary and replace key 'search' with 'case_search'."""
-    search_args: dict[str, str] = {key: value for key, value in request_get.items()}
-    if "search" in search_args:
-        search_args["case_search"] = search_args.pop("search")
-    return search_args
 
 
 def record_case_event(

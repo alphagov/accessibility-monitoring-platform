@@ -1,0 +1,46 @@
+{% extends 'detailed/base.html' %}
+
+{% load static %}
+
+{% block preform %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <p class="govuk-body amp-margin-bottom-5"><b>Date posted</b></p>
+        <p class="govuk-body">{{ detailed_case_history.created|amp_datetime }}</p>
+        <p class="govuk-body amp-margin-bottom-5"><b>Posted by</b></p>
+        <p class="govuk-body">{{ detailed_case_history.created_by.get_full_name }}</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block formfields %}
+{% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+{% include 'common/amp_field.html' with field=form.label %}
+{% include 'common/amp_field.html' with field=form.value %}
+{% include 'common/preview_markdown.html' with field_id=form.value.auto_id %}
+{% endblock %}
+
+{% block formbuttons %}
+    <div class="govuk-grid-row amp-margin-top-30">
+        <div class="govuk-grid-column-full govuk-button-group">
+            <input
+                type="submit"
+                value="Save and return"
+                name="save_return"
+                class="govuk-button"
+                data-module="govuk-button"
+            />
+            <a
+                href="{% url 'detailed:create-case-note' detailed_case_history.detailed_case.id %}"
+                class="govuk-link govuk-link--no-visited-state"
+            >
+                Return to case notes
+            </a>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block extrascript %}
+    <script src="{% static 'js/markdown_preview.js' %}"></script>
+{% endblock %}

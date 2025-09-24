@@ -11,8 +11,8 @@ from ..common.utils import (
     check_dict_for_truthy_values,
     get_dict_without_page_items,
     get_url_parameters_for_pagination,
+    replace_search_key_with_case_search,
 )
-from ..simplified.utils import replace_search_key_with_case_search
 from .forms import CaseSearchForm
 from .models import BaseCase
 from .utils import filter_cases
@@ -34,6 +34,7 @@ TRUTHY_SEARCH_FIELDS: list[str] = [
     "is_complaint",
     "enforcement_body",
     "subcategory",
+    "test_type",
 ]
 
 

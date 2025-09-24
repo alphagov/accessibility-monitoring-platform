@@ -7,11 +7,11 @@
     <div class="govuk-breadcrumbs">
         <ol class="govuk-breadcrumbs__list">
             {% include 'common/breadcrumb_home.html' %}
-            {% include 'simplified/helpers/breadcrumb_case.html' %}
+            {% include 'common/breadcrumb_case.html' %}
             <li class="govuk-breadcrumbs__list-item">
                 <a class="govuk-breadcrumbs__link" href="{% url 'simplified:email-template-list' case.id %}">Email templates</a>
             </li>
-            <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
+            {% include 'common/breadcrumb_page.html' %}
         </ol>
     </div>
 {% endblock %}

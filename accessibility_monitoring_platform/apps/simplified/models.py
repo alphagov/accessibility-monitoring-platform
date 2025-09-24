@@ -446,24 +446,6 @@ class SimplifiedCase(BaseCase):
             return "present"
         return "future"
 
-    @property
-    def reminder(self):
-        return self.task_set.filter(type="reminder", read=False).first()
-
-    @property
-    def reminder_history(self):
-        return self.task_set.filter(type="reminder", read=True)
-
-    @property
-    def qa_comments(self):
-        return self.comment_simplifiedcase.filter(hidden=False).order_by(
-            "-created_date"
-        )
-
-    @property
-    def qa_comments_count(self):
-        return self.qa_comments.count()
-
     def calulate_qa_status(self) -> str:
         if (
             self.reviewer is None
@@ -726,7 +708,7 @@ class SimplifiedCase(BaseCase):
             for check_result in self.audit.checkresult_audit.all():
                 updated_times.append(check_result.updated)
 
-        for comment in self.comment_simplifiedcase.all():
+        for comment in self.comment_basecase.all():
             updated_times.append(comment.created_date)
             updated_times.append(comment.updated)
 
@@ -1117,8 +1099,10 @@ class SimplifiedCase(BaseCase):
                 ),
             ),
             CaseStatus.Status.COMPLETE: Link(
-                label="Go to post case summary",
-                url=reverse("simplified:edit-post-case", kwargs={"pk": self.id}),
+                label="Go to statement enforcement",
+                url=reverse(
+                    "simplified:edit-statement-enforcement", kwargs={"pk": self.id}
+                ),
             ),
             CaseStatus.Status.DEACTIVATED: Link(
                 label="Go to case metadata",
@@ -1337,12 +1321,7 @@ class Contact(VersionModel):
         ordering = ["-preferred", "-id"]
 
     def __str__(self) -> str:
-        string: str = ""
-        if self.name:
-            string = self.name
-        if self.email:
-            string += f" {self.email}"
-        return string
+        return f"{self.name} {self.email}".strip()
 
     def get_absolute_url(self) -> str:
         return reverse(
@@ -1447,7 +1426,7 @@ class EqualityBodyCorrespondence(models.Model):
 
 class ZendeskTicket(models.Model):
     """
-    Model for cases ZendeskTicket
+    Model for simplified ZendeskTicket
     """
 
     simplified_case = models.ForeignKey(SimplifiedCase, on_delete=models.PROTECT)

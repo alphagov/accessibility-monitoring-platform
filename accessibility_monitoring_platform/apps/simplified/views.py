@@ -19,6 +19,7 @@ from django.views.generic.list import ListView
 
 from ..audits.utils import get_audit_summary_context, report_data_updated
 from ..cases.forms import CaseSearchForm
+from ..cases.models import TestType
 from ..cases.utils import find_duplicate_cases
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
@@ -26,17 +27,21 @@ from ..common.email_template_utils import get_email_template_context
 from ..common.mark_deleted_util import get_id_from_button_name
 from ..common.models import EmailTemplate
 from ..common.sitemap import PlatformPage, Sitemap, get_platform_page_by_url_name
-from ..common.utils import amp_format_date, extract_domain_from_url
+from ..common.utils import (
+    amp_format_date,
+    extract_domain_from_url,
+    replace_search_key_with_case_search,
+)
 from ..common.views import (
     HideCaseNavigationMixin,
     NextPlatformPageMixin,
     ShowGoBackJSWidgetMixin,
 )
 from ..exports.csv_export_utils import (
-    EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
-    EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
-    EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
-    EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
     EqualityBodyCSVColumn,
     download_feedback_survey_cases,
     download_simplified_cases,
@@ -98,7 +103,6 @@ from .utils import (
     record_case_event,
     record_simplified_model_create_event,
     record_simplified_model_update_event,
-    replace_search_key_with_case_search,
 )
 
 FOUR_WEEKS_IN_DAYS: int = 4 * ONE_WEEK_IN_DAYS
@@ -372,7 +376,7 @@ class CaseQACommentsUpdateView(CaseUpdateView):
         body: str = form.cleaned_data.get("body")
         if body:
             comment: Comment = Comment.objects.create(
-                simplified_case=simplified_case,
+                base_case=simplified_case,
                 user=self.request.user,
                 body=form.cleaned_data.get("body"),
             )
@@ -407,7 +411,7 @@ class CaseQAApprovalUpdateView(CaseUpdateView):
                         base_case=simplified_case,
                         type=Task.Type.REPORT_APPROVED,
                         description=f"{self.request.user.get_full_name()} QA approved Case {simplified_case}",
-                        list_description=f"{simplified_case} - Report approved",
+                        email_description=f"{simplified_case} - Report approved",
                         request=self.request,
                     )
                     record_simplified_model_create_event(
@@ -732,26 +736,26 @@ class CaseCloseUpdateView(CaseUpdateView):
         simplified_case: SimplifiedCase = self.object
         equality_body_metadata_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
-                simplified_case=simplified_case,
-                column_definitions=EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
+                case=simplified_case,
+                column_definitions=SIMPLIFIED_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
             )
         )
         equality_body_report_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
-                simplified_case=simplified_case,
-                column_definitions=EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
+                case=simplified_case,
+                column_definitions=SIMPLIFIED_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
             )
         )
         equality_body_correspondence_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
-                simplified_case=simplified_case,
-                column_definitions=EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
+                case=simplified_case,
+                column_definitions=SIMPLIFIED_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
             )
         )
         equality_body_test_summary_columns: list[EqualityBodyCSVColumn] = (
             populate_equality_body_columns(
-                simplified_case=simplified_case,
-                column_definitions=EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
+                case=simplified_case,
+                column_definitions=SIMPLIFIED_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
             )
         )
         all_equality_body_columns: list[EqualityBodyCSVColumn] = (
@@ -866,20 +870,20 @@ class CaseOutstandingIssuesDetailView(
 
 def export_cases(request: HttpRequest) -> HttpResponse:
     """View to export cases"""
-    case_search_form: CaseSearchForm = CaseSearchForm(
-        replace_search_key_with_case_search(request.GET)
-    )
+    search_parameters: dict[str, str] = replace_search_key_with_case_search(request.GET)
+    search_parameters["test_type"] = TestType.SIMPLIFIED
+    case_search_form: CaseSearchForm = CaseSearchForm(search_parameters)
     case_search_form.is_valid()
     return download_simplified_cases(
         simplified_cases=filter_cases(form=case_search_form)
     )
 
 
-def export_feedback_suvey_cases(request: HttpRequest) -> HttpResponse:
+def export_feedback_survey_cases(request: HttpRequest) -> HttpResponse:
     """View to export cases for feedback survey"""
-    case_search_form: CaseSearchForm = CaseSearchForm(
-        replace_search_key_with_case_search(request.GET)
-    )
+    search_parameters: dict[str, str] = replace_search_key_with_case_search(request.GET)
+    search_parameters["test_type"] = TestType.SIMPLIFIED
+    case_search_form: CaseSearchForm = CaseSearchForm(search_parameters)
     case_search_form.is_valid()
     return download_feedback_survey_cases(cases=filter_cases(form=case_search_form))
 
@@ -1230,7 +1234,7 @@ class CaseHistoryDetailView(DetailView):
 
     model: type[SimplifiedCase] = SimplifiedCase
     context_object_name: str = "case"
-    template_name: str = "simplified/case_history.html"
+    template_name: str = "cases/case_history.html"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add current case to context"""

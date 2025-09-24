@@ -29,7 +29,7 @@ DATETIME_COMMENT_UPDATED: datetime = datetime(2021, 9, 26, tzinfo=timezone.utc)
 def test_comment_updated_updated():
     """Test the comment updated field is updated"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    comment: Comment = Comment.objects.create(simplified_case=simplified_case)
+    comment: Comment = Comment.objects.create(base_case=simplified_case)
 
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_COMMENT_UPDATED)
@@ -49,9 +49,7 @@ def test_body_html_with_issue_identifier_links_no_matching_issues():
     body: str = (
         f"{simplified_case.case_number}-A-1 {simplified_case.case_number}-S-1 {simplified_case.case_number}-SC-1"
     )
-    comment: Comment = Comment.objects.create(
-        simplified_case=simplified_case, body=body
-    )
+    comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
 
     assert comment.body_html_with_issue_identifier_links == f"<p>{body}</p>"
 
@@ -77,9 +75,7 @@ def test_body_html_with_issue_identifier_links_matching_check_result():
     body: str = (
         f"{check_result.issue_identifier} {simplified_case.case_number}-S-2 {simplified_case.case_number}-SC-2"
     )
-    comment: Comment = Comment.objects.create(
-        simplified_case=simplified_case, body=body
-    )
+    comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
 
     assert (
         comment.body_html_with_issue_identifier_links
@@ -106,9 +102,7 @@ def test_body_html_with_issue_identifier_links_longer_issue_identifier():
         wcag_definition=wcag_definition,
     )
     body: str = f"{check_result.issue_identifier} {check_result.issue_identifier}1"
-    comment: Comment = Comment.objects.create(
-        simplified_case=simplified_case, body=body
-    )
+    comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
 
     assert (
         comment.body_html_with_issue_identifier_links
@@ -133,9 +127,7 @@ def test_body_html_with_issue_identifier_links_matching_statement_check_result()
     body: str = (
         f"{simplified_case.case_number}-A-2 {statement_check_result.issue_identifier} {simplified_case.case_number}-SC-2"
     )
-    comment: Comment = Comment.objects.create(
-        simplified_case=simplified_case, body=body
-    )
+    comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
 
     assert (
         comment.body_html_with_issue_identifier_links
@@ -157,9 +149,7 @@ def test_body_html_with_issue_identifier_links_matching_custom_statement_check_r
     body: str = (
         f"{simplified_case.case_number}-A-2 {simplified_case.case_number}-S-2 {statement_check_result.issue_identifier}"
     )
-    comment: Comment = Comment.objects.create(
-        simplified_case=simplified_case, body=body
-    )
+    comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
 
     assert (
         comment.body_html_with_issue_identifier_links

@@ -6,11 +6,10 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.urls.resolvers import URLPattern
 
-from accessibility_monitoring_platform.apps.detailed.views import (
+from .views import (
     CaseCloseUpdateView,
-    ContactChasingRecordUpdateView,
+    CaseZendeskTicketsDetailView,
     ContactCreateView,
-    ContactInformationDeliveredUpdateView,
     ContactInformationRequestUpdateView,
     ContactUpdateView,
     CorrespondenceReportAcknowledgedUpdateView,
@@ -20,25 +19,29 @@ from accessibility_monitoring_platform.apps.detailed.views import (
     CorrespondenceTwelveWeekRequestUpdateView,
     DetailedCaseCreateView,
     DetailedCaseDetailView,
+    DetailedCaseHistoryDetailView,
     DetailedCaseMetadataUpdateView,
     DetailedCaseNoteCreateView,
+    DetailedCaseNoteUpdateView,
     DetailedCaseStatusUpdateView,
     EnforcementBodyMetadataUpdateView,
-    InitialDisproportionateBurdenUpdateView,
-    InitialStatementComplianceUpdateView,
+    FinalReportUpdateView,
     InitialTestingDetailsUpdateView,
     InitialTestingOutcomeUpdateView,
-    InitialWebsiteComplianceUpdateView,
     ManageContactDetailsUpdateView,
-    PublishReportUpdateView,
     QAApprovalUpdateView,
-    ReportDraftUpdateView,
-    RetestDisproportionateBurdenUpdateView,
-    RetestMetricsUpdateView,
+    QAAuditorUpdateView,
+    QACommentsUpdateView,
+    ReportReadyForQAUpdateView,
+    RetestComplianceDecisionsUpdateView,
     RetestResultUpdateView,
-    RetestStatementComplianceUpdateView,
-    RetestSummaryUpdateView,
-    RetestWebsiteComplianceUpdateView,
+    StatementEnforcementUpdateView,
+    UnresponsivePSBUpdateView,
+    ZendeskTicketConfirmDeleteUpdateView,
+    ZendeskTicketCreateView,
+    ZendeskTicketUpdateView,
+    export_detailed_cases,
+    mark_qa_comments_as_read,
 )
 
 app_name: str = "detailed"
@@ -47,6 +50,9 @@ urlpatterns: list[URLPattern] = [
         "create/",
         login_required(DetailedCaseCreateView.as_view()),
         name="case-create",
+    ),
+    path(
+        "export-as-csv/", login_required(export_detailed_cases), name="case-export-list"
     ),
     path(
         "<int:pk>/case-detail/",
@@ -64,9 +70,14 @@ urlpatterns: list[URLPattern] = [
         name="edit-case-status",
     ),
     path(
-        "<int:case_id>/case-note-create/",
+        "<int:case_id>/create-case-note/",
         login_required(DetailedCaseNoteCreateView.as_view()),
         name="create-case-note",
+    ),
+    path(
+        "notes/<int:pk>/edit-case-note/",
+        login_required(DetailedCaseNoteUpdateView.as_view()),
+        name="edit-case-note",
     ),
     path(
         "<int:pk>/manage-contact-details/",
@@ -89,16 +100,6 @@ urlpatterns: list[URLPattern] = [
         name="edit-request-contact-details",
     ),
     path(
-        "<int:pk>/edit-chasing-record/",
-        login_required(ContactChasingRecordUpdateView.as_view()),
-        name="edit-chasing-record",
-    ),
-    path(
-        "<int:pk>/edit-information-delivered/",
-        login_required(ContactInformationDeliveredUpdateView.as_view()),
-        name="edit-information-delivered",
-    ),
-    path(
         "<int:pk>/edit-initial-testing-details/",
         login_required(InitialTestingDetailsUpdateView.as_view()),
         name="edit-initial-testing-details",
@@ -109,24 +110,24 @@ urlpatterns: list[URLPattern] = [
         name="edit-initial-testing-outcome",
     ),
     path(
-        "<int:pk>/edit-initial-website-compliance/",
-        login_required(InitialWebsiteComplianceUpdateView.as_view()),
-        name="edit-initial-website-compliance",
+        "<int:pk>/edit-report-ready-for-qa/",
+        login_required(ReportReadyForQAUpdateView.as_view()),
+        name="edit-report-ready-for-qa",
     ),
     path(
-        "<int:pk>/edit-disproportionate-burden-compliance/",
-        login_required(InitialDisproportionateBurdenUpdateView.as_view()),
-        name="edit-disproportionate-burden-compliance",
+        "<int:pk>/edit-qa-auditor/",
+        login_required(QAAuditorUpdateView.as_view()),
+        name="edit-qa-auditor",
     ),
     path(
-        "<int:pk>/edit-initial-statement-compliance/",
-        login_required(InitialStatementComplianceUpdateView.as_view()),
-        name="edit-initial-statement-compliance",
+        "<int:pk>/edit-qa-comments/",
+        login_required(QACommentsUpdateView.as_view()),
+        name="edit-qa-comments",
     ),
     path(
-        "<int:pk>/edit-report-draft/",
-        login_required(ReportDraftUpdateView.as_view()),
-        name="edit-report-draft",
+        "<int:pk>/mark-qa-comments-as-read/",
+        login_required(mark_qa_comments_as_read),
+        name="mark-qa-comments-as-read",
     ),
     path(
         "<int:pk>/edit-qa-approval/",
@@ -134,9 +135,9 @@ urlpatterns: list[URLPattern] = [
         name="edit-qa-approval",
     ),
     path(
-        "<int:pk>/edit-publish-report/",
-        login_required(PublishReportUpdateView.as_view()),
-        name="edit-publish-report",
+        "<int:pk>/edit-final-report/",
+        login_required(FinalReportUpdateView.as_view()),
+        name="edit-final-report",
     ),
     path(
         "<int:pk>/edit-report-sent/",
@@ -169,29 +170,9 @@ urlpatterns: list[URLPattern] = [
         name="edit-retest-result",
     ),
     path(
-        "<int:pk>/edit-retest-summary/",
-        login_required(RetestSummaryUpdateView.as_view()),
-        name="edit-retest-summary",
-    ),
-    path(
-        "<int:pk>/edit-retest-website-compliance/",
-        login_required(RetestWebsiteComplianceUpdateView.as_view()),
-        name="edit-retest-website-compliance",
-    ),
-    path(
-        "<int:pk>/edit-retest-disproportionate-burden/",
-        login_required(RetestDisproportionateBurdenUpdateView.as_view()),
-        name="edit-retest-disproportionate-burden",
-    ),
-    path(
-        "<int:pk>/edit-retest-statement-compliance/",
-        login_required(RetestStatementComplianceUpdateView.as_view()),
-        name="edit-retest-statement-compliance",
-    ),
-    path(
-        "<int:pk>/edit-retest-metrics/",
-        login_required(RetestMetricsUpdateView.as_view()),
-        name="edit-retest-metrics",
+        "<int:pk>/edit-retest-compliance-decisions/",
+        login_required(RetestComplianceDecisionsUpdateView.as_view()),
+        name="edit-retest-compliance-decisions",
     ),
     path(
         "<int:pk>/edit-case-close/",
@@ -199,8 +180,43 @@ urlpatterns: list[URLPattern] = [
         name="edit-case-close",
     ),
     path(
+        "<int:pk>/edit-statement-enforcement/",
+        login_required(StatementEnforcementUpdateView.as_view()),
+        name="edit-statement-enforcement",
+    ),
+    path(
         "<int:pk>/edit-equality-body-metadata/",
         login_required(EnforcementBodyMetadataUpdateView.as_view()),
         name="edit-equality-body-metadata",
+    ),
+    path(
+        "<int:pk>/zendesk-tickets/",
+        login_required(CaseZendeskTicketsDetailView.as_view()),
+        name="zendesk-tickets",
+    ),
+    path(
+        "<int:case_id>/create-zendesk-ticket/",
+        login_required(ZendeskTicketCreateView.as_view()),
+        name="create-zendesk-ticket",
+    ),
+    path(
+        "<int:pk>/update-zendesk-ticket/",
+        login_required(ZendeskTicketUpdateView.as_view()),
+        name="update-zendesk-ticket",
+    ),
+    path(
+        "<int:pk>/confirm-delete-zendesk-ticket/",
+        login_required(ZendeskTicketConfirmDeleteUpdateView.as_view()),
+        name="confirm-delete-zendesk-ticket",
+    ),
+    path(
+        "<int:pk>/edit-unresponsive-psb/",
+        login_required(UnresponsivePSBUpdateView.as_view()),
+        name="edit-unresponsive-psb",
+    ),
+    path(
+        "<int:pk>/history/",
+        login_required(DetailedCaseHistoryDetailView.as_view()),
+        name="case-history",
     ),
 ]

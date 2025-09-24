@@ -6,12 +6,7 @@
 
 {% block content %}
 <div class="govuk-width-container">
-    <div class="govuk-breadcrumbs">
-        <ol class="govuk-breadcrumbs__list">
-            {% include 'common/breadcrumb_home.html' %}
-            <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.get_name }}</li>
-        </ol>
-    </div>
+    {% include 'common/breadcrumbs.html' %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
@@ -31,6 +26,7 @@
                                             <span class="govuk-details__summary-text">Advanced search</span>
                                         </summary>
                                         <div class="govuk-details__text amp-advanced-search">
+                                            {% include 'common/amp_field.html' with field=form.test_type %}
                                             {% include 'common/amp_field.html' with field=form.sort_by %}
                                             {% include 'common/amp_field.html' with field=form.status %}
                                             {% include 'common/amp_field.html' with field=form.recommendation_for_enforcement %}
@@ -61,6 +57,7 @@
                             </div>
                         </form>
                         <hr class="amp-width-100 amp-margin-bottom-25" />
+                        <h2 id="id_header_3" class="govuk-heading-m">Simplified</h2>
                         <ul class="govuk-list">
                             <li>
                                 <a
@@ -100,6 +97,25 @@
                                     class="govuk-link govuk-link--no-visited-state"
                                 >
                                     ECNI CSV export manager
+                                </a>
+                            </li>
+                        </ul>
+                        <h2 id="id_header_3" class="govuk-heading-m">Detailed</h2>
+                        <ul class="govuk-list">
+                            <li>
+                                <a
+                                    href="{% url 'detailed:case-create' %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Create detailed case
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'detailed:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Export to CSV
                                 </a>
                             </li>
                         </ul>

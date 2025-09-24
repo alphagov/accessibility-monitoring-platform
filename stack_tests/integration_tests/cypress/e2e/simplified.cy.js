@@ -1,6 +1,6 @@
 /* global cy before Cypress */
 
-const organisationName = 'ExampleCorp'
+const organisationName = 'Simplified Organisation'
 const caseDetailsNote = 'Case details note'
 const qaComment = 'QA comment'
 const contactName = 'Example Contact 2'
@@ -38,7 +38,7 @@ describe('Case overview', () => {
     cy.get('[name="notes"]').clear().type(caseDetailsNote)
     cy.get('[name="case_details_complete_date"]').click()
     cy.contains('Save').click()
-    cy.contains(/^Simplified case$/).click()
+    cy.contains('li', /#S-1\b/).click()
     cy.title().should('eq', `${organisationName} | Simplified case overview`)
     cy.contains(caseDetailsNote)
   })
@@ -60,10 +60,10 @@ describe('Case overview', () => {
 
   it('can edit QA comments', () => {
     cy.contains(/^ Report QA/).click()
-    cy.contains(/^Comments \(0\)$/).click()
+    cy.contains(/^QA comments \(0\)$/).click()
     cy.get('[name="body"]').clear().type(qaComment)
     cy.contains('Save').click()
-    cy.contains(/^Simplified case$/).click()
+    cy.contains('li', /#S-1\b/).click()
     cy.contains(qaComment)
   })
 
@@ -77,13 +77,19 @@ describe('Case overview', () => {
   it('can edit contact details', () => {
     cy.contains('Contact details').click()
     cy.contains(/^Manage contact details$/).click()
-    cy.contains('Edit or remove').click()
+    cy.get('a')
+      .not('details a')
+      .filter(':visible')
+      .filter((_, el) => /(^|\b)Edit(\b|\/)/i.test(el.textContent))
+      .last()
+      .scrollIntoView({ block: 'center' })
+      .click();
     cy.get('[name="name"]').clear().type(contactName)
     cy.get('[name="email"]').clear().type(contactEmail)
     cy.contains('Save and return').click()
     cy.get('[name="manage_contact_details_complete_date"]').click()
     cy.contains('Save').click()
-    cy.contains(/^Simplified case$/).click()
+    cy.contains('li', /#S-1\b/).click()
     cy.contains(contactName)
     cy.contains(contactEmail)
   })
@@ -103,7 +109,7 @@ describe('Case overview', () => {
     cy.get('[name="is_ready_for_final_decision"]').check('yes')
     cy.get('[name="review_changes_complete_date"]').click()
     cy.contains('Save').click()
-    cy.contains(/^Simplified case$/).click()
+    cy.contains('li', /#S-1\b/).click()
     cy.contains(psbProgressNote)
   })
 
@@ -115,7 +121,7 @@ describe('Case overview', () => {
     cy.get('[name="recommendation_notes"]').clear().type(recommendationNote)
     cy.get('[name="enforcement_recommendation_complete_date"]').click()
     cy.contains('Save').click()
-    cy.contains(/^Simplified case$/).click()
+    cy.contains('li', /#S-1\b/).click()
     cy.contains(recommendationNote)
   })
 
@@ -125,7 +131,7 @@ describe('Case overview', () => {
     cy.get('[name="case_completed"]').check('complete-send')
     cy.get('[name="case_close_complete_date"]').click()
     cy.contains('Save').click()
-    cy.contains(/^Simplified case$/).click()
+    cy.contains('li', /#S-1\b/).click()
     cy.contains(recommendationNote)
   })
 

@@ -7,7 +7,7 @@ from django.db import models
 from django.db.models import QuerySet
 
 from ..cases.models import (
-    ALL_CASE_STATUS_CHOICES,
+    ALL_CASE_STATUS_SEARCH_CHOICES,
     CASE_STATUS_UNKNOWN,
     BaseCase,
     Complaint,
@@ -27,7 +27,7 @@ TEST_TYPE_CHOICES: list[tuple[str, str]] = [("", "All")] + BaseCase.TestType.cho
 ENFORCEMENT_BODY_FILTER_CHOICES = [("", "All")] + BaseCase.EnforcementBody.choices
 STATUS_CHOICES: list[tuple[str, str]] = [("", "All")] + [
     choice
-    for choice in ALL_CASE_STATUS_CHOICES
+    for choice in ALL_CASE_STATUS_SEARCH_CHOICES
     if choice[0] != CASE_STATUS_UNKNOWN.value
 ]
 RECOMMENDATION_CHOICES: list[tuple[str, str]] = [
@@ -58,6 +58,7 @@ def get_search_user_choices(user_query: QuerySet[User]) -> list[tuple[str, str]]
 class CaseSearchForm(AMPDateRangeForm):
     """Form for searching for cases"""
 
+    test_type = AMPChoiceField(label="Testing type", choices=TEST_TYPE_CHOICES)
     sort_by = AMPChoiceField(label="Sort by", choices=Sort.choices)
     case_search = AMPCharFieldWide(label="Search")
     auditor = AMPChoiceField(label="Auditor")
@@ -77,7 +78,6 @@ class CaseSearchForm(AMPDateRangeForm):
     subcategory = AMPModelChoiceField(
         label="Sub-category", queryset=SubCategory.objects.all()
     )
-    test_type = AMPChoiceField(label="Testing type", choices=TEST_TYPE_CHOICES)
     case_number = AMPIntegerField(label="Case number")
 
     def __init__(self, *args, **kwargs):

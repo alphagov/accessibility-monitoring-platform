@@ -1,7 +1,18 @@
 <p class="govuk-body">
-    <b class="govuk-body-l govuk-!-font-weight-bold">{{ comment.user.first_name }} {{ comment.user.last_name }} </b>
-    on {{ comment.created_date|amp_datetime }}
+    <b class="govuk-body govuk-!-font-weight-bold">
+        {{ comment.user.first_name }} {{ comment.user.last_name }} 
+    </b>
+    <span class="govuk-body-s">
+        on {{ comment.created_date|amp_datetime }}
+        {% if request.user == comment.user  %}
+            &nbsp; | &nbsp;
+            <a href="{% url 'comments:edit-qa-comment' comment.id %}" class="govuk-link govuk-link--no-visited-state">
+                Edit
+            </a>
+        {% endif %}
+    </span>
+    
 </p>
-<div class="govuk-body">
+<div class="govuk-body amp-margin-bottom-30">
     {{ comment.body_html_with_issue_identifier_links }}
 </div>

@@ -4,57 +4,68 @@ Views for cases app
 
 from typing import Any
 
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 
-from ..cases.models import BaseCase
-from ..cases.utils import find_duplicate_cases
-from ..common.utils import extract_domain_from_url
+from ..cases.forms import CaseSearchForm
+from ..cases.models import BaseCase, TestType
+from ..cases.utils import filter_cases, find_duplicate_cases
+from ..comments.models import Comment
+from ..comments.utils import add_comment_notification
+from ..common.utils import extract_domain_from_url, replace_search_key_with_case_search
 from ..common.views import (
     HideCaseNavigationMixin,
     NextPlatformPageMixin,
     ShowGoBackJSWidgetMixin,
 )
+from ..exports.csv_export_utils import download_detailed_cases
+from ..notifications.models import Task
+from ..notifications.utils import mark_tasks_as_read
 from .forms import (
     CaseCloseUpdateForm,
-    ContactChasingRecordUpdateForm,
     ContactCreateForm,
-    ContactInformationDeliveredUpdateForm,
     ContactInformationRequestUpdateForm,
     ContactUpdateForm,
     DetailedCaseCreateForm,
     DetailedCaseHistoryCreateForm,
+    DetailedCaseHistoryUpdateForm,
     DetailedCaseMetadataUpdateForm,
     DetailedCaseStatusUpdateForm,
     EnforcementBodyMetadataUpdateForm,
-    InitialDisproportionateBurdenUpdateForm,
-    InitialStatementComplianceUpdateForm,
+    FinalReportUpdateForm,
     InitialTestingDetailsUpdateForm,
     InitialTestingOutcomeUpdateForm,
-    InitialWebsiteComplianceUpdateForm,
     ManageContactsUpdateForm,
-    PublishReportUpdateForm,
     QAApprovalUpdateForm,
+    QAAuditorUpdateForm,
+    QACommentsUpdateForm,
     ReportAcknowledgedUpdateForm,
-    ReportDraftUpdateForm,
+    ReportReadyForQAUpdateForm,
     ReportSentUpdateForm,
-    RetestDisproportionateBurdenUpdateForm,
-    RetestMetricsUpdateForm,
+    RetestComplianceDecisionsUpdateForm,
     RetestResultUpdateForm,
-    RetestStatementComplianceUpdateForm,
-    RetestSummaryUpdateForm,
-    RetestWebsiteComplianceUpdateForm,
+    StatementEnforcementUpdateForm,
     TwelveWeekAcknowledgedUpdateForm,
     TwelveWeekDeadlineUpdateForm,
     TwelveWeekRequestUpdateForm,
+    UnresponsivePSBUpdateForm,
+    ZendeskTicketConfirmDeleteUpdateForm,
+    ZendeskTicketCreateUpdateForm,
 )
-from .models import Contact, DetailedCase, DetailedCaseHistory
+from .models import (
+    Contact,
+    DetailedCase,
+    DetailedCaseHistory,
+    DetailedEventHistory,
+    ZendeskTicket,
+)
 from .utils import (
     add_to_detailed_case_history,
     record_detailed_model_create_event,
@@ -71,6 +82,16 @@ class AddDetailedCaseToContextMixin:
         context: dict[str, Any] = super().get_context_data(**kwargs)
         context["detailed_case"] = detailed_case
         return context
+
+
+class MessageOnSaveMixin:
+    def get_success_url(self) -> str:
+        messages.add_message(
+            self.request,
+            messages.INFO,
+            "Page saved",
+        )
+        return super().get_success_url()
 
 
 class DetailedCaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
@@ -220,7 +241,7 @@ class DetailedCaseNoteCreateView(HideCaseNavigationMixin, CreateView):
         context["detailed_case_history"] = detailed_case.detailedcasehistory_set.all()
         return context
 
-    def form_valid(self, form: DetailedCaseCreateForm):
+    def form_valid(self, form: DetailedCaseHistoryCreateForm):
         """Process contents of valid form"""
         detailed_case: DetailedCase = get_object_or_404(
             DetailedCase, id=self.kwargs.get("case_id")
@@ -228,6 +249,7 @@ class DetailedCaseNoteCreateView(HideCaseNavigationMixin, CreateView):
         detailed_case_history: DetailedCaseHistory = form.save(commit=False)
         detailed_case_history.detailed_case = detailed_case
         detailed_case_history.created_by = self.request.user
+        detailed_case_history.label = detailed_case.get_status_display()
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -242,6 +264,32 @@ class DetailedCaseNoteCreateView(HideCaseNavigationMixin, CreateView):
         )
         return reverse(
             "detailed:create-case-note", kwargs={"case_id": detailed_case.id}
+        )
+
+
+class DetailedCaseNoteUpdateView(HideCaseNavigationMixin, UpdateView):
+    """View to edit a note on the DetailedCaseHistory"""
+
+    model: type[DetailedCaseHistory] = DetailedCaseHistory
+    form_class: type[DetailedCaseHistoryUpdateForm] = DetailedCaseHistoryUpdateForm
+    context_object_name: str = "detailed_case_history"
+    template_name: str = "detailed/forms/note_update.html"
+
+    def form_valid(self, form: ContactUpdateForm):
+        """Mark contact as deleted if button is pressed"""
+        detailed_case_history: DetailedCaseHistory = form.save(commit=False)
+        record_detailed_model_update_event(
+            user=self.request.user,
+            model_object=detailed_case_history,
+            detailed_case=detailed_case_history.detailed_case,
+        )
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Return to notes page"""
+        return reverse(
+            "detailed:create-case-note",
+            kwargs={"case_id": self.object.detailed_case.id},
         )
 
 
@@ -331,41 +379,6 @@ class ContactInformationRequestUpdateView(CorrespondenceUpdateView):
     )
 
 
-class ContactChasingRecordUpdateView(DetailedCaseUpdateView):
-    """View to update chasing record for contact"""
-
-    form_class: type[ContactChasingRecordUpdateForm] = ContactChasingRecordUpdateForm
-    template_name: str = "detailed/forms/contact_notes.html"
-
-    def form_valid(self, form: ContactUpdateForm):
-        """Mark store notes in history not in DetailedCase"""
-        if form.cleaned_data["notes"]:
-            add_to_detailed_case_history(
-                detailed_case=self.object,
-                user=self.request.user,
-                value=form.cleaned_data["notes"],
-                event_type=DetailedCaseHistory.EventType.CONTACT_NOTE,
-            )
-        if form.changed_data:
-            self.object: DetailedCase = form.save(commit=False)
-            self.object.notes = ""
-            user: User = self.request.user
-            record_detailed_model_update_event(
-                user=user, model_object=self.object, detailed_case=self.object
-            )
-            self.object.save()
-
-        return HttpResponseRedirect(self.get_success_url())
-
-
-class ContactInformationDeliveredUpdateView(CorrespondenceUpdateView):
-    """View to update information delivered for contact"""
-
-    form_class: type[ContactInformationDeliveredUpdateForm] = (
-        ContactInformationDeliveredUpdateForm
-    )
-
-
 class InitialTestingDetailsUpdateView(DetailedCaseUpdateView):
     """View to update initial testing details"""
 
@@ -378,34 +391,41 @@ class InitialTestingOutcomeUpdateView(DetailedCaseUpdateView):
     form_class: type[InitialTestingOutcomeUpdateForm] = InitialTestingOutcomeUpdateForm
 
 
-class InitialWebsiteComplianceUpdateView(DetailedCaseUpdateView):
-    """View to update initial testing outcome"""
-
-    form_class: type[InitialWebsiteComplianceUpdateForm] = (
-        InitialWebsiteComplianceUpdateForm
-    )
-
-
-class InitialDisproportionateBurdenUpdateView(DetailedCaseUpdateView):
-    """View to update initial testing outcome"""
-
-    form_class: type[InitialDisproportionateBurdenUpdateForm] = (
-        InitialDisproportionateBurdenUpdateForm
-    )
-
-
-class InitialStatementComplianceUpdateView(DetailedCaseUpdateView):
-    """View to update initial testing outcome"""
-
-    form_class: type[InitialStatementComplianceUpdateForm] = (
-        InitialStatementComplianceUpdateForm
-    )
-
-
-class ReportDraftUpdateView(DetailedCaseUpdateView):
+class ReportReadyForQAUpdateView(DetailedCaseUpdateView):
     """View to update report draft"""
 
-    form_class: type[ReportDraftUpdateForm] = ReportDraftUpdateForm
+    form_class: type[ReportReadyForQAUpdateForm] = ReportReadyForQAUpdateForm
+
+
+class QAAuditorUpdateView(DetailedCaseUpdateView):
+    """View to update QA auditor"""
+
+    form_class: type[QAAuditorUpdateForm] = QAAuditorUpdateForm
+
+
+class QACommentsUpdateView(DetailedCaseUpdateView):
+    """View to add or update QA comments"""
+
+    form_class: type[QACommentsUpdateForm] = QACommentsUpdateForm
+    template_name: str = "detailed/forms/qa_comments.html"
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        detailed_case: DetailedCase = self.object
+        body: str = form.cleaned_data.get("body")
+        if body:
+            comment: Comment = Comment.objects.create(
+                base_case=detailed_case,
+                user=self.request.user,
+                body=form.cleaned_data.get("body"),
+            )
+            record_detailed_model_create_event(
+                user=self.request.user,
+                model_object=comment,
+                detailed_case=detailed_case,
+            )
+            add_comment_notification(self.request, comment)
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class QAApprovalUpdateView(DetailedCaseUpdateView):
@@ -414,10 +434,10 @@ class QAApprovalUpdateView(DetailedCaseUpdateView):
     form_class: type[QAApprovalUpdateForm] = QAApprovalUpdateForm
 
 
-class PublishReportUpdateView(DetailedCaseUpdateView):
+class FinalReportUpdateView(DetailedCaseUpdateView):
     """View to update publish report"""
 
-    form_class: type[PublishReportUpdateForm] = PublishReportUpdateForm
+    form_class: type[FinalReportUpdateForm] = FinalReportUpdateForm
 
 
 class CorrespondenceReportSentUpdateView(CorrespondenceUpdateView):
@@ -453,53 +473,31 @@ class CorrespondenceTwelveWeekAcknowledgedUpdateView(CorrespondenceUpdateView):
 
 
 class RetestResultUpdateView(DetailedCaseUpdateView):
-    """View to update reviewing changes retest result"""
+    """View to update reviewing changes retesting"""
 
     form_class: type[RetestResultUpdateForm] = RetestResultUpdateForm
-    template_name: str = "detailed/forms/retest_result.html"
+    template_name: str = "detailed/forms/retesting.html"
 
 
-class RetestSummaryUpdateView(DetailedCaseUpdateView):
-    """View to update reviewing changes summary of changes"""
+class RetestComplianceDecisionsUpdateView(DetailedCaseUpdateView):
+    """View to update reviewing changes retest result"""
 
-    form_class: type[RetestSummaryUpdateForm] = RetestSummaryUpdateForm
-    template_name: str = "detailed/forms/retest_summary.html"
-
-
-class RetestWebsiteComplianceUpdateView(DetailedCaseUpdateView):
-    """View to update reviewing changes website compliance"""
-
-    form_class: type[RetestWebsiteComplianceUpdateForm] = (
-        RetestWebsiteComplianceUpdateForm
+    form_class: type[RetestComplianceDecisionsUpdateForm] = (
+        RetestComplianceDecisionsUpdateForm
     )
-
-
-class RetestDisproportionateBurdenUpdateView(DetailedCaseUpdateView):
-    """View to update reviewing changes disproportionate burden"""
-
-    form_class: type[RetestDisproportionateBurdenUpdateForm] = (
-        RetestDisproportionateBurdenUpdateForm
-    )
-
-
-class RetestStatementComplianceUpdateView(DetailedCaseUpdateView):
-    """View to update reviewing changes statement compliance"""
-
-    form_class: type[RetestStatementComplianceUpdateForm] = (
-        RetestStatementComplianceUpdateForm
-    )
-
-
-class RetestMetricsUpdateView(DetailedCaseUpdateView):
-    """View to update reviewing changes final metrics"""
-
-    form_class: type[RetestMetricsUpdateForm] = RetestMetricsUpdateForm
 
 
 class CaseCloseUpdateView(DetailedCaseUpdateView):
     """View to update closing the case"""
 
+    template_name: str = "detailed/forms/close_case.html"
     form_class: type[CaseCloseUpdateForm] = CaseCloseUpdateForm
+
+
+class StatementEnforcementUpdateView(DetailedCaseUpdateView):
+    """View to update post case statement enforcement"""
+
+    form_class: type[StatementEnforcementUpdateForm] = StatementEnforcementUpdateForm
 
 
 class EnforcementBodyMetadataUpdateView(DetailedCaseUpdateView):
@@ -508,3 +506,153 @@ class EnforcementBodyMetadataUpdateView(DetailedCaseUpdateView):
     form_class: type[EnforcementBodyMetadataUpdateForm] = (
         EnforcementBodyMetadataUpdateForm
     )
+
+
+class CaseZendeskTicketsDetailView(
+    HideCaseNavigationMixin, ShowGoBackJSWidgetMixin, DetailView
+):
+    """
+    View of Zendesk tickets for a detailed case
+    """
+
+    model: type[DetailedCase] = DetailedCase
+    context_object_name: str = "case"
+    template_name: str = "detailed/zendesk_tickets.html"
+
+
+class ZendeskTicketCreateView(HideCaseNavigationMixin, CreateView):
+    """
+    View to create a Zendesk ticket
+    """
+
+    model: type[DetailedCase] = ZendeskTicket
+    form_class: type[ZendeskTicketCreateUpdateForm] = ZendeskTicketCreateUpdateForm
+    template_name: str = "detailed/forms/zendesk_ticket_create.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add case to context as object"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        detailed_case: DetailedCase = get_object_or_404(
+            DetailedCase, id=self.kwargs.get("case_id")
+        )
+        context["object"] = detailed_case
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        detailed_case: DetailedCase = get_object_or_404(
+            DetailedCase, id=self.kwargs.get("case_id")
+        )
+        zendesk_ticket: ZendeskTicket = form.save(commit=False)
+        zendesk_ticket.detailed_case = detailed_case
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        zendesk_ticket: ZendeskTicket = self.object
+        user: User = self.request.user
+        record_detailed_model_create_event(
+            user=user,
+            model_object=zendesk_ticket,
+            detailed_case=zendesk_ticket.detailed_case,
+        )
+        case_pk: dict[str, int] = {"pk": zendesk_ticket.detailed_case.id}
+        return reverse("detailed:zendesk-tickets", kwargs=case_pk)
+
+
+class ZendeskTicketUpdateView(HideCaseNavigationMixin, UpdateView):
+    """
+    View to update Zendesk ticket
+    """
+
+    model: type[ZendeskTicket] = ZendeskTicket
+    form_class: type[ZendeskTicketCreateUpdateForm] = ZendeskTicketCreateUpdateForm
+    context_object_name: str = "zendesk_ticket"
+    template_name: str = "detailed/forms/zendesk_ticket_update.html"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add update event"""
+        if form.changed_data:
+            zendesk_ticket: ZendeskTicket = form.save(commit=False)
+            user: User = self.request.user
+            record_detailed_model_update_event(
+                user=user,
+                model_object=zendesk_ticket,
+                detailed_case=zendesk_ticket.detailed_case,
+            )
+            self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self) -> str:
+        """Return to zendesk tickets page on save"""
+        zendesk_ticket: ZendeskTicket = self.object
+        case_pk: dict[str, int] = {"pk": zendesk_ticket.detailed_case.id}
+        return reverse("detailed:zendesk-tickets", kwargs=case_pk)
+
+
+class ZendeskTicketConfirmDeleteUpdateView(ZendeskTicketUpdateView):
+    """
+    View to confirm delete of Zendesk ticket
+    """
+
+    form_class: type[ZendeskTicketConfirmDeleteUpdateForm] = (
+        ZendeskTicketConfirmDeleteUpdateForm
+    )
+    template_name: str = "detailed/forms/zendesk_ticket_confirm_delete.html"
+
+
+class UnresponsivePSBUpdateView(
+    MessageOnSaveMixin, HideCaseNavigationMixin, DetailedCaseUpdateView
+):
+    """View to set unresponsive PSB flag"""
+
+    form_class: type[UnresponsivePSBUpdateForm] = UnresponsivePSBUpdateForm
+    template_name: str = "detailed/forms/unresponsive_psb.html"
+
+
+class DetailedCaseHistoryDetailView(DetailView):
+    """
+    View of details of a single case
+    """
+
+    model: type[DetailedCase] = DetailedCase
+    context_object_name: str = "case"
+    template_name: str = "cases/case_history.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add current case to context"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        detailed_case: DetailedCase = self.object
+        event_history: DetailedEventHistory = DetailedEventHistory.objects.filter(
+            detailed_case=detailed_case
+        ).prefetch_related("parent")
+        context["event_history"] = event_history
+        context["all_users"] = User.objects.all().order_by("id")
+        return context
+
+
+def mark_qa_comments_as_read(request: HttpRequest, pk: int) -> HttpResponseRedirect:
+    """Mark QA comment reminders as read for the current user"""
+    detailed_case: DetailedCase = DetailedCase.objects.get(id=pk)
+    mark_tasks_as_read(
+        user=request.user, base_case=detailed_case, type=Task.Type.QA_COMMENT
+    )
+    mark_tasks_as_read(
+        user=request.user, base_case=detailed_case, type=Task.Type.REPORT_APPROVED
+    )
+    messages.success(request, f"{detailed_case} comments marked as read")
+    return redirect(
+        reverse("detailed:edit-qa-comments", kwargs={"pk": detailed_case.id})
+    )
+
+
+def export_detailed_cases(request: HttpRequest) -> HttpResponse:
+    """View to export detailed cases"""
+    search_parameters: dict[str, str] = replace_search_key_with_case_search(request.GET)
+    search_parameters["test_type"] = TestType.DETAILED
+    case_search_form: CaseSearchForm = CaseSearchForm(search_parameters)
+    case_search_form: CaseSearchForm = CaseSearchForm(
+        replace_search_key_with_case_search(request.GET)
+    )
+    case_search_form.is_valid()
+    return download_detailed_cases(detailed_cases=filter_cases(form=case_search_form))

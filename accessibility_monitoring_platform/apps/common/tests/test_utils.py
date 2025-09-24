@@ -40,6 +40,7 @@ from ..utils import (
     get_recent_changes_to_platform,
     get_url_parameters_for_pagination,
     list_to_dictionary_of_lists,
+    replace_search_key_with_case_search,
     replace_whole_words,
     sanitise_domain,
     undo_double_escapes,
@@ -576,3 +577,11 @@ def test_replace_whole_words():
         )
         == "freddy bob alfred"
     )
+
+
+def test_replace_search_key_with_case_search():
+    """Test replace_search_key_with_case_search"""
+
+    assert replace_search_key_with_case_search(
+        {"search": "value", "other_key": "other value"}
+    ) == {"case_search": "value", "other_key": "other value"}
