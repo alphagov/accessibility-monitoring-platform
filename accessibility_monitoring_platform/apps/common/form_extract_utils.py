@@ -14,41 +14,8 @@ from .models import Sector
 
 EXCLUDED_FIELDS = [
     "version",
-    "case_details_complete_date",
-    "testing_details_complete_date",
-    "reporting_details_complete_date",
-    "qa_auditor_complete_date",
-    "cores_overview_complete_date",
-    "manage_contact_details_complete_date",
-    "report_sent_on_complete_date",
-    "one_week_followup_complete_date",
-    "four_week_followup_complete_date",
-    "report_acknowledged_complete_date",
-    "twelve_week_update_requested_complete_date",
-    "one_week_followup_final_complete_date",
-    "twelve_week_update_request_ack_complete_date",
-    "report_correspondence_complete_date",
-    "final_decision_complete_date",
-    "enforcement_correspondence_complete_date",
-    "audit_metadata_complete_date",
-    "audit_pages_complete_date",
-    "audit_manual_complete_date",
-    "audit_axe_complete_date",
-    "audit_pdf_complete_date",
-    "audit_wcag_summary_complete_date",
-    "audit_statement_summary_complete_date",
-    "manual_checks_complete_date",
-    "axe_checks_complete_date",
-    "case_close_complete_date",
-    "post_case_complete_date",
-    "review_changes_complete_date",
-    "twelve_week_correspondence_complete_date",
-    "twelve_week_retest_complete_date",
     "add_contact_email",
     "add_contact_notes",
-    "initial_disproportionate_burden_complete_date",
-    "twelve_week_disproportionate_burden_complete_date",
-    "audit_retest_metadata_complete_date",
     "report_draft_url",
 ]
 EXTRA_LABELS = {
@@ -56,6 +23,7 @@ EXTRA_LABELS = {
     "report_final_pdf_url": "Final draft (PDF)",
     "report_final_odt_url": "Final draft (ODT)",
 }
+PAGE_COMPLETE_DATE_SUFFIX: str = "_complete_date"
 
 
 @dataclass
@@ -87,9 +55,11 @@ def extract_form_labels_and_values(  # noqa: C901
     if excluded_fields is None:
         excluded_fields = []
     for field_name, field in form.fields.items():
-        if field_name in EXCLUDED_FIELDS:
-            continue
-        if field_name in excluded_fields:
+        if (
+            field_name in EXCLUDED_FIELDS
+            or field_name in excluded_fields
+            or field_name.endswith(PAGE_COMPLETE_DATE_SUFFIX)
+        ):
             continue
         type_of_value: str = FieldLabelAndValue.Type.TEXT
         value: Any = getattr(instance, field_name)
