@@ -39,6 +39,7 @@ class DetailedCaseHistoryAdmin(admin.ModelAdmin):
     search_fields = [
         "detailed_case__case_number",
         "detailed_case__organisation_name",
+        "label",
         "value",
     ]
     list_display = [

@@ -86,7 +86,7 @@ CASE_STATUSES: list[CaseStatusChoice] = [
     CaseStatusChoice(
         name="PSB_INFO_REQ_ACK",
         value="030-initial-psb-info-req-ack",
-        label="Acknowledge our request",
+        label="Acknowledged our request",
         test_types=[TestType.DETAILED, TestType.MOBILE],
     ),
     CaseStatusChoice(
