@@ -1785,7 +1785,7 @@ SITE_MAP: list[PlatformPageGroup] = (
                     name="Tools and sitemap", url_name="tech:platform-checking"
                 ),
                 PlatformPage(
-                    name="Reset detailed or mobile case data",
+                    name="Reset mobile case data",
                     url_name="tech:import-csv",
                 ),
                 PlatformPage(

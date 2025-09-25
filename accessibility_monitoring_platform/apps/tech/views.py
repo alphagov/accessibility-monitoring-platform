@@ -17,11 +17,7 @@ from ..mobile.models import MobileCase
 from ..reports.models import Report
 from ..simplified.models import SimplifiedCase
 from .forms import ImportCSVForm, ImportTrelloCommentsForm, PlatformCheckingForm
-from .utils import (
-    import_detailed_cases_csv,
-    import_mobile_cases_csv,
-    import_trello_comments,
-)
+from .utils import import_mobile_cases_csv, import_trello_comments
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +84,7 @@ class IssueReportListView(ListView):
 
 
 class ImportCSV(StaffRequiredMixin, FormView):
-    """Reset Detailed or Mobile Cases data from CSV"""
+    """Reset obile Cases data from CSV"""
 
     form_class = ImportCSVForm
     template_name: str = "tech/import_csv.html"
@@ -101,10 +97,7 @@ class ImportCSV(StaffRequiredMixin, FormView):
         form = context["form"]
         if form.is_valid():
             csv_data: str = form.cleaned_data["data"]
-            if form.cleaned_data["model"] == "detailed":
-                import_detailed_cases_csv(csv_data)
-            elif form.cleaned_data["model"] == "mobile":
-                import_mobile_cases_csv(csv_data)
+            import_mobile_cases_csv(csv_data)
         return self.render_to_response(self.get_context_data())
 
 
