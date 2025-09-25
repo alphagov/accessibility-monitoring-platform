@@ -185,7 +185,7 @@ class CaseDetailView(DetailView):
         }
 
 
-class CaseSearchView(CaseDetailView):
+class CaseSearchView(HideCaseNavigationMixin, CaseDetailView):
     """
     View and search details of a single case
     """
