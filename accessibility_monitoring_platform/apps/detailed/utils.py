@@ -11,13 +11,13 @@ from typing import Any
 from django.contrib.auth.models import User
 from django.db import models
 
+from ..cases.utils import CaseDetailPage, CaseDetailSection
 from ..common.form_extract_utils import (
     FieldLabelAndValue,
     extract_form_labels_and_values,
 )
 from ..common.sitemap import PlatformPageGroup, Sitemap
 from ..common.utils import diff_model_fields
-from ..simplified.utils import CaseDetailPage, CaseDetailSection
 from .models import DetailedCase, DetailedCaseHistory, DetailedEventHistory
 
 

@@ -43,22 +43,17 @@ class FieldLabelAndValue:
     external_url: bool = True
 
 
-def extract_form_labels_and_values(  # noqa: C901
+def extract_form_labels_and_values(
     instance: models.Model,
     form: type[forms.Form],
-    excluded_fields: list[str] | None = None,
 ) -> list[FieldLabelAndValue]:
     """Extract field labels from form and values from case for use in html rows"""
     display_rows: list[FieldLabelAndValue] = []
     if instance is None:
         return []
-    if excluded_fields is None:
-        excluded_fields = []
     for field_name, field in form.fields.items():
-        if (
-            field_name in EXCLUDED_FIELDS
-            or field_name in excluded_fields
-            or field_name.endswith(PAGE_COMPLETE_DATE_SUFFIX)
+        if field_name in EXCLUDED_FIELDS or field_name.endswith(
+            PAGE_COMPLETE_DATE_SUFFIX
         ):
             continue
         type_of_value: str = FieldLabelAndValue.Type.TEXT
