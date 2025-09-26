@@ -12,7 +12,7 @@ from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
 from ...comments.models import Comment
-from ...exports.csv_export_utils import DETAILED_CASE_COLUMNS_FOR_EXPORT
+from ...detailed.csv_export import DETAILED_CASE_COLUMNS_FOR_EXPORT
 from ...notifications.models import Task
 from ..models import DetailedCase, DetailedEventHistory, ZendeskTicket
 from ..views import mark_qa_comments_as_read

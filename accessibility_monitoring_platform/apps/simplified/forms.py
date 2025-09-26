@@ -10,6 +10,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.safestring import mark_safe
 
+from ..cases.csv_export import populate_equality_body_columns
+from ..common.csv_export import EqualityBodyCSVColumn
 from ..common.forms import (
     AMPAuditorModelChoiceField,
     AMPBooleanCheckboxWidget,
@@ -25,10 +27,6 @@ from ..common.forms import (
     VersionForm,
 )
 from ..common.models import Sector, SubCategory
-from ..exports.csv_export_utils import (
-    EqualityBodyCSVColumn,
-    populate_equality_body_columns,
-)
 from .models import (
     Boolean,
     Contact,

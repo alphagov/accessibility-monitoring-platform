@@ -41,6 +41,7 @@ from .views import (
     ZendeskTicketCreateView,
     ZendeskTicketUpdateView,
     export_detailed_cases,
+    export_feedback_survey_cases,
     mark_qa_comments_as_read,
 )
 
@@ -53,6 +54,11 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "export-as-csv/", login_required(export_detailed_cases), name="case-export-list"
+    ),
+    path(
+        "export-feedback-survey-cases-csv/",
+        login_required(export_feedback_survey_cases),
+        name="export-feedback-survey-cases",
     ),
     path(
         "<int:pk>/case-detail/",
