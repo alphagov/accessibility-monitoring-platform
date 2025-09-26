@@ -40,8 +40,8 @@ from ..common.views import (
     ShowGoBackJSWidgetMixin,
 )
 from ..exports.csv_export_utils import (
-    download_feedback_survey_cases,
     download_simplified_cases,
+    download_simplified_feedback_survey_cases,
 )
 from ..notifications.models import Task
 from ..notifications.utils import add_task, mark_tasks_as_read
@@ -887,7 +887,9 @@ def export_feedback_survey_cases(request: HttpRequest) -> HttpResponse:
     search_parameters["test_type"] = TestType.SIMPLIFIED
     case_search_form: CaseSearchForm = CaseSearchForm(search_parameters)
     case_search_form.is_valid()
-    return download_feedback_survey_cases(cases=filter_cases(form=case_search_form))
+    return download_simplified_feedback_survey_cases(
+        cases=filter_cases(form=case_search_form)
+    )
 
 
 class CaseStatementEnforcementUpdateView(CaseUpdateView):

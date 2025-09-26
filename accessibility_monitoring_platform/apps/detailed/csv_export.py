@@ -424,3 +424,48 @@ DETAILED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="no_psb_contact_info",
     ),
 ]
+DETAILED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
+    CSVColumn(
+        column_header="Case no.", source_class=DetailedCase, source_attr="case_number"
+    ),
+    CSVColumn(
+        column_header="Organisation name",
+        source_class=DetailedCase,
+        source_attr="organisation_name",
+    ),
+    CSVColumn(
+        column_header="Closing the case date",
+        source_class=DetailedCase,
+        source_attr="recommendation_decision_sent_date",
+    ),
+    CSVColumn(
+        column_header="Enforcement recommendation",
+        source_class=DetailedCase,
+        source_attr="recommendation_for_enforcement",
+    ),
+    CSVColumn(
+        column_header="Enforcement recommendation notes",
+        source_class=DetailedCase,
+        source_attr="recommendation_info",
+    ),
+    CSVColumn(
+        column_header="Final statement decision",
+        source_class=DetailedCase,
+        source_attr="retest_statement_compliance_state",
+    ),
+    CSVColumn(
+        column_header="Contact email",
+        source_class=DetailedContact,
+        source_attr="contact_details",
+    ),
+    CSVColumn(
+        column_header="Contact notes",
+        source_class=DetailedContact,
+        source_attr="information",
+    ),
+    CSVColumn(
+        column_header="Feedback survey sent?",
+        source_class=DetailedCase,
+        source_attr="is_feedback_requested",
+    ),
+]

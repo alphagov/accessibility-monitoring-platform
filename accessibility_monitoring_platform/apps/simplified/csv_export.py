@@ -727,7 +727,7 @@ SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     ),
 ]
 
-FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
+SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     CSVColumn(
         column_header="Case no.", source_class=SimplifiedCase, source_attr="case_number"
     ),

@@ -22,9 +22,9 @@ from ...detailed.csv_export import DETAILED_CASE_COLUMNS_FOR_EXPORT
 from ...detailed.models import Contact as DetailedContact
 from ...detailed.models import DetailedCase
 from ...simplified.csv_export import (
-    FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
     SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     format_simplified_contacts,
 )
 from ...simplified.models import CaseCompliance
@@ -33,8 +33,8 @@ from ...simplified.models import SimplifiedCase
 from ..csv_export_utils import (
     download_detailed_cases,
     download_equality_body_cases,
-    download_feedback_survey_cases,
     download_simplified_cases,
+    download_simplified_feedback_survey_cases,
 )
 
 CONTACTS: list[SimplifiedContact] = [
@@ -181,7 +181,7 @@ def test_download_feedback_survey_cases():
     CaseCompliance.objects.create(simplified_case=simplified_case)
     simplified_cases: list[SimplifiedCase] = [simplified_case]
 
-    response: HttpResponse = download_feedback_survey_cases(
+    response: HttpResponse = download_simplified_feedback_survey_cases(
         cases=simplified_cases, filename=CSV_EXPORT_FILENAME
     )
 
@@ -195,7 +195,7 @@ def test_download_feedback_survey_cases():
     csv_header, csv_body = decode_csv_response(response)
 
     expected_header: list[str] = [
-        column.column_header for column in FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
+        column.column_header for column in SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
     ]
     expected_first_data_row: list[str] = [
         "1",  # Case no.
@@ -652,7 +652,7 @@ def test_populate_feedback_survey_columns():
     )
     row: list[CSVColumn] = populate_csv_columns(
         case=simplified_case,
-        column_definitions=FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
+        column_definitions=SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     )
 
     assert len(row) == 9

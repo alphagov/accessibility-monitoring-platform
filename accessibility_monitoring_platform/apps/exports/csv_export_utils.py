@@ -5,11 +5,15 @@ from django.http import StreamingHttpResponse
 
 from ..cases.csv_export import csv_output_generator
 from ..cases.models import BaseCase
-from ..detailed.csv_export import DETAILED_CASE_COLUMNS_FOR_EXPORT
+from ..detailed.csv_export import (
+    DETAILED_CASE_COLUMNS_FOR_EXPORT,
+    DETAILED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
+)
+from ..detailed.models import DetailedCase
 from ..simplified.csv_export import (
-    FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
     SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
 )
 from ..simplified.models import SimplifiedCase
 
@@ -65,13 +69,30 @@ def download_detailed_cases(
     return response
 
 
-def download_feedback_survey_cases(
-    cases: QuerySet[SimplifiedCase], filename: str = "feedback_survey_cases.csv"
+def download_simplified_feedback_survey_cases(
+    cases: QuerySet[SimplifiedCase],
+    filename: str = "simplified_feedback_survey_cases.csv",
 ) -> StreamingHttpResponse:
     """Given a Case queryset, download the feedback survey data in csv format"""
     response = StreamingHttpResponse(
         csv_output_generator(
-            cases=cases, columns_for_export=FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
+            cases=cases,
+            columns_for_export=SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
+        ),
+        content_type="text/csv",
+    )
+    response["Content-Disposition"] = f"attachment; filename={filename}"
+    return response
+
+
+def download_detailed_feedback_survey_cases(
+    cases: QuerySet[DetailedCase], filename: str = "detailed_feedback_survey_cases.csv"
+) -> StreamingHttpResponse:
+    """Given a Case queryset, download the feedback survey data in csv format"""
+    response = StreamingHttpResponse(
+        csv_output_generator(
+            cases=cases,
+            columns_for_export=DETAILED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
         ),
         content_type="text/csv",
     )
