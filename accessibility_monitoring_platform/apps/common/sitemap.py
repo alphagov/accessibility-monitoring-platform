@@ -1473,8 +1473,7 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                         instance_class=DetailedCaseContact,
                     ),
                 ],
-                # case_details_form_class=ManageContactDetailsUpdateForm,
-                # case_details_template_name="simplified/details/details_manage_contact_details.html",
+                case_details_template_name="detailed/details/details_manage_contact_details.html",
                 next_page_url_name="detailed:edit-request-contact-details",
             ),
             DetailedCasePlatformPage(

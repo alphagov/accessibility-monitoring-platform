@@ -1,5 +1,11 @@
 {% extends 'cases/details/details.html' %}
 
+{% block pretable %}
+    {% if not case.notes_history %}
+        <p class="govuk-body">No case notes</p>
+    {% endif %}
+{% endblock %}
+
 {% block prefixrows %}
     {% for note in case.notes_history %}
         <tr class="govuk-table__row">

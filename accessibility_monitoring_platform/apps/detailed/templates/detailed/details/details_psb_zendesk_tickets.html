@@ -1,10 +1,9 @@
-<h3 class="govuk-heading-s">
-    {% if case_detail_page.page.platform_page_group.name %}
-        {{ case_detail_page.page.platform_page_group.name }} |
+{% extends 'cases/details/details.html' %}
+
+{% block pretable %}
+    {% if not case.zendesk_tickets %}
+        <p class="govuk-body">No PSB Zendesk tickets</p>
     {% endif %}
-    <a href="{% url 'detailed:zendesk-tickets' case.id %}" class="govuk-link govuk-link--no-visited-state">PSB Zendesk tickets</a>
-</h3>
-{% if case.zendesk_tickets %}
     {% for zendesk_ticket in case.zendesk_tickets %}
         <p class="govuk-body-m"><b>PSB Zendesk ticket #{{ zendesk_ticket.id_within_case }}</b></p>
         <table class="govuk-table" data-search-target-page-name="" data-search-target-label="PSB Zendesk tickets" data-search-target-url="{% url 'simplified:zendesk-tickets' case.id %}">
@@ -27,6 +26,4 @@
             </tbody>
         </table>
     {% endfor %}
-{% else %}
-    <p class="govuk-body">No PSB Zendesk tickets</p>
-{% endif %}
+{% endblock %}
