@@ -12,10 +12,14 @@ import pytest
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import QuerySet
+from django.http import HttpRequest
+from django.urls import reverse
 
 from ...audits.models import Audit
 from ...cases.forms import DateType
+from ...cases.utils import CaseDetailSection
 from ...common.models import Boolean, Sector, SubCategory
+from ...common.sitemap import Sitemap
 from ..models import (
     CaseCompliance,
     CaseEvent,
@@ -27,6 +31,7 @@ from ..utils import (
     build_edit_link_html,
     create_case_and_compliance,
     filter_cases,
+    get_simplified_case_detail_sections,
     record_case_event,
     record_simplified_model_create_event,
     record_simplified_model_update_event,
@@ -654,3 +659,21 @@ def test_case_filtered_by_subcategory():
 
     assert len(filtered_cases) == 1
     assert filtered_cases[0].organisation_name == ORGANISATION_NAME
+
+
+@pytest.mark.django_db
+def test_get_simplified_case_detail_sections(rf):
+    """Test get_simplified_case_detail_sections builds list of detail sections"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        organisation_name=ORGANISATION_NAME
+    )
+    request: HttpRequest = rf.get(
+        reverse("simplified:case-view-and-search", kwargs={"pk": simplified_case.id}),
+    )
+    sitemap: Sitemap = Sitemap(request=request)
+
+    sections: list[CaseDetailSection] = get_simplified_case_detail_sections(
+        simplified_case=simplified_case, sitemap=sitemap
+    )
+
+    assert sections[0].pages[0].display_fields[2].value == ORGANISATION_NAME

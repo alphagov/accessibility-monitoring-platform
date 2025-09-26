@@ -68,21 +68,7 @@
                 </div>
             </div>
         </div>
-        <div id="search-scope" data-search-target-page-name="{{ sitemap.current_platform_page.get_name }}" data-search-target-label="{{ sitemap.current_platform_page.get_name }}" data-search-target-url="{{ case.get_absolute_url }}" class="amp-hide">
-            <div class="govuk-grid-row">
-                <div class="govuk-grid-column-full">
-                    <hr class="amp-width-100 amp-margin-bottom-30" />
-                    {% if case.archive %}
-                        {% include 'simplified/details/archive.html' %}
-                    {% endif %}
-                    {% for case_detail_section in case_detail_sections %}
-                        {% for case_detail_page in case_detail_section.pages %}
-                            {% include case_detail_page.page.case_details_template_name %}
-                        {% endfor %}
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
+        {% include 'simplified/details/sections.html' with hide_sections=True %}
     </main>
 </div>
 {% endblock %}

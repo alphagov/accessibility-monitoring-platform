@@ -23,7 +23,27 @@ from ..audits.forms import (
 from ..audits.models import Audit, Page, Retest, RetestPage, StatementCheckResult
 from ..cases.models import BaseCase
 from ..comments.models import Comment
-from ..detailed.forms import DetailedCaseMetadataUpdateForm
+from ..detailed.forms import CaseCloseUpdateForm as DetailedCaseCloseUpdateForm
+from ..detailed.forms import (
+    ContactInformationRequestUpdateForm,
+    DetailedCaseMetadataUpdateForm,
+    EnforcementBodyMetadataUpdateForm,
+    FinalReportUpdateForm,
+    InitialTestingDetailsUpdateForm,
+    InitialTestingOutcomeUpdateForm,
+    QAApprovalUpdateForm,
+    QAAuditorUpdateForm,
+    ReportAcknowledgedUpdateForm,
+    ReportReadyForQAUpdateForm,
+    ReportSentUpdateForm,
+    RetestComplianceDecisionsUpdateForm,
+    RetestResultUpdateForm,
+    StatementEnforcementUpdateForm,
+    TwelveWeekAcknowledgedUpdateForm,
+    TwelveWeekDeadlineUpdateForm,
+    TwelveWeekRequestUpdateForm,
+    UnresponsivePSBUpdateForm,
+)
 from ..detailed.models import Contact as DetailedCaseContact
 from ..detailed.models import DetailedCase, DetailedCaseHistory
 from ..detailed.models import ZendeskTicket as DetailedZendeskTicket
@@ -32,8 +52,8 @@ from ..mobile.forms import MobileCaseMetadataUpdateForm
 from ..mobile.models import MobileCase
 from ..notifications.models import Task
 from ..reports.models import Report
+from ..simplified.forms import CaseCloseUpdateForm as SimplifiedCaseCloseUpdateForm
 from ..simplified.forms import (
-    CaseCloseUpdateForm,
     CaseEnforcementRecommendationUpdateForm,
     CaseEqualityBodyMetadataUpdateForm,
     CaseFourWeekContactDetailsUpdateForm,
@@ -635,7 +655,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="audits:edit-audit-metadata",
                 complete_flag_name="audit_metadata_complete_date",
                 case_details_form_class=AuditMetadataUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="audits:edit-audit-pages",
             ),
             AuditPagesPlatformPage(
@@ -770,7 +790,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="audits:edit-initial-disproportionate-burden",
                 complete_flag_name="initial_disproportionate_burden_complete_date",
                 case_details_form_class=InitialDisproportionateBurdenUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="audits:edit-statement-decision",
             ),
             AuditPlatformPage(
@@ -806,7 +826,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="simplified:edit-report-ready-for-qa",
                 complete_flag_name="reporting_details_complete_date",
                 case_details_form_class=CaseReportReadyForQAUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:edit-qa-auditor",
             ),
             SimplifiedCasePlatformPage(
@@ -814,7 +834,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="simplified:edit-qa-auditor",
                 complete_flag_name="qa_auditor_complete_date",
                 case_details_form_class=CaseQAAuditorUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:edit-qa-comments",
             ),
             CaseCommentsPlatformPage(
@@ -837,7 +857,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="simplified:edit-qa-approval",
                 complete_flag_name="qa_approval_complete_date",
                 case_details_form_class=CaseQAApprovalUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:edit-publish-report",
             ),
             SimplifiedCasePlatformPage(
@@ -888,7 +908,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 complete_flag_name="request_contact_details_complete_date",
                 show_flag_name="enable_correspondence_process",
                 case_details_form_class=CaseRequestContactDetailsUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:edit-one-week-contact-details",
             ),
             SimplifiedCasePlatformPage(
@@ -897,7 +917,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 complete_flag_name="one_week_contact_details_complete_date",
                 show_flag_name="enable_correspondence_process",
                 case_details_form_class=CaseOneWeekContactDetailsUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:edit-four-week-contact-details",
             ),
             SimplifiedCasePlatformPage(
@@ -906,7 +926,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 complete_flag_name="four_week_contact_details_complete_date",
                 show_flag_name="enable_correspondence_process",
                 case_details_form_class=CaseFourWeekContactDetailsUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:edit-report-sent-on",
             ),
         ],
@@ -920,7 +940,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="simplified:edit-report-sent-on",
                 complete_flag_name="report_sent_on_complete_date",
                 case_details_form_class=CaseReportSentOnUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:edit-report-one-week-followup",
             ),
             SimplifiedCasePlatformPage(
@@ -928,7 +948,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="simplified:edit-report-one-week-followup",
                 complete_flag_name="one_week_followup_complete_date",
                 case_details_form_class=CaseReportOneWeekFollowupUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:edit-report-four-week-followup",
             ),
             SimplifiedCasePlatformPage(
@@ -936,7 +956,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="simplified:edit-report-four-week-followup",
                 complete_flag_name="four_week_followup_complete_date",
                 case_details_form_class=CaseReportFourWeekFollowupUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:edit-report-acknowledged",
             ),
             SimplifiedCasePlatformPage(
@@ -944,7 +964,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="simplified:edit-report-acknowledged",
                 complete_flag_name="report_acknowledged_complete_date",
                 case_details_form_class=CaseReportAcknowledgedUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:edit-12-week-update-requested",
             ),
         ],
@@ -958,7 +978,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="simplified:edit-12-week-update-requested",
                 complete_flag_name="twelve_week_update_requested_complete_date",
                 case_details_form_class=CaseTwelveWeekUpdateRequestedUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:edit-12-week-one-week-followup-final",
             ),
             SimplifiedCasePlatformPage(
@@ -966,7 +986,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="simplified:edit-12-week-one-week-followup-final",
                 complete_flag_name="one_week_followup_final_complete_date",
                 case_details_form_class=CaseOneWeekFollowupFinalUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:edit-12-week-update-request-ack",
             ),
             SimplifiedCasePlatformPage(
@@ -974,7 +994,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="simplified:edit-12-week-update-request-ack",
                 complete_flag_name="twelve_week_update_request_ack_complete_date",
                 case_details_form_class=CaseTwelveWeekUpdateAcknowledgedUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
             ),
         ],
     ),
@@ -998,7 +1018,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="audits:edit-audit-retest-metadata",
                 complete_flag_name="audit_retest_metadata_complete_date",
                 case_details_form_class=AuditRetestMetadataUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
             ),
             AuditRetestPagesPlatformPage(
                 name="Update page links",
@@ -1138,7 +1158,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="audits:edit-twelve-week-disproportionate-burden",
                 complete_flag_name="twelve_week_disproportionate_burden_complete_date",
                 case_details_form_class=TwelveWeekDisproportionateBurdenUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="audits:edit-audit-retest-statement-decision",
             ),
             AuditPlatformPage(
@@ -1165,7 +1185,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="simplified:edit-review-changes",
                 complete_flag_name="review_changes_complete_date",
                 case_details_form_class=CaseReviewChangesUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:edit-enforcement-recommendation",
             ),
             SimplifiedCasePlatformPage(
@@ -1173,15 +1193,15 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="simplified:edit-enforcement-recommendation",
                 complete_flag_name="enforcement_recommendation_complete_date",
                 case_details_form_class=CaseEnforcementRecommendationUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:edit-case-close",
             ),
             SimplifiedCasePlatformPage(
                 name="Closing the case",
                 url_name="simplified:edit-case-close",
                 complete_flag_name="case_close_complete_date",
-                case_details_form_class=CaseCloseUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_form_class=SimplifiedCaseCloseUpdateForm,
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:edit-statement-enforcement",
             ),
         ],
@@ -1193,14 +1213,14 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 name="Statement enforcement",
                 url_name="simplified:edit-statement-enforcement",
                 case_details_form_class=CaseStatementEnforcementUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:edit-equality-body-metadata",
             ),
             SimplifiedCasePlatformPage(
                 name="Equality body metadata",
                 url_name="simplified:edit-equality-body-metadata",
                 case_details_form_class=CaseEqualityBodyMetadataUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:list-equality-body-correspondence",
             ),
             SimplifiedCasePlatformPage(
@@ -1393,7 +1413,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 show_flag_name="not_archived",
                 url_name="simplified:edit-no-psb-response",
                 case_details_form_class=CaseNoPSBContactUpdateForm,
-                case_details_template_name="simplified/details/details.html",
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:edit-enforcement-recommendation",
             ),
         ],
@@ -1409,11 +1429,6 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             ),
             DetailedCasePlatformPage(
                 name="Change status", url_name="detailed:edit-case-status"
-            ),
-            DetailedCasePlatformPage(
-                name="Case notes",
-                url_name="detailed:create-case-note",
-                url_kwarg_key="case_id",
             ),
             PlatformPage(
                 name="Edit case note #{instance.id_within_case}",
@@ -1431,7 +1446,7 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="detailed:edit-case-metadata",
                 complete_flag_name="case_metadata_complete_date",
                 case_details_form_class=DetailedCaseMetadataUpdateForm,
-                # case_details_template_name="simplified/details/details_case_metadata.html",
+                case_details_template_name="detailed/details/details_case_metadata.html",
                 next_page_url_name="detailed:manage-contact-details",
             )
         ],
@@ -1458,14 +1473,15 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                         instance_class=DetailedCaseContact,
                     ),
                 ],
-                # case_details_form_class=ManageContactDetailsUpdateForm,
-                # case_details_template_name="simplified/details/details_manage_contact_details.html",
+                case_details_template_name="detailed/details/details_manage_contact_details.html",
                 next_page_url_name="detailed:edit-request-contact-details",
             ),
             DetailedCasePlatformPage(
                 name="Information request",
                 url_name="detailed:edit-request-contact-details",
                 complete_flag_name="contact_information_request_complete_date",
+                case_details_form_class=ContactInformationRequestUpdateForm,
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="detailed:edit-initial-testing-details",
             ),
         ],
@@ -1477,12 +1493,16 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 name="Testing",
                 url_name="detailed:edit-initial-testing-details",
                 complete_flag_name="initial_testing_details_complete_date",
+                case_details_form_class=InitialTestingDetailsUpdateForm,
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="detailed:edit-initial-testing-outcome",
             ),
             DetailedCasePlatformPage(
                 name="Testing outcome",
                 url_name="detailed:edit-initial-testing-outcome",
                 complete_flag_name="initial_testing_outcome_complete_date",
+                case_details_form_class=InitialTestingOutcomeUpdateForm,
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="detailed:edit-report-ready-for-qa",
             ),
         ],
@@ -1494,29 +1514,38 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 name="Report ready for QA",
                 url_name="detailed:edit-report-ready-for-qa",
                 complete_flag_name="report_ready_for_qa_complete_date",
+                case_details_form_class=ReportReadyForQAUpdateForm,
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="detailed:edit-qa-auditor",
             ),
             DetailedCasePlatformPage(
                 name="QA auditor",
                 url_name="detailed:edit-qa-auditor",
                 complete_flag_name="qa_auditor_complete_date",
+                case_details_form_class=QAAuditorUpdateForm,
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="detailed:edit-qa-comments",
             ),
             DetailedCasePlatformPage(
                 name="QA comments",
                 url_name="detailed:edit-qa-comments",
+                case_details_template_name="detailed/details/details_qa_comments.html",
                 next_page_url_name="detailed:edit-qa-approval",
             ),
             DetailedCasePlatformPage(
                 name="QA approval",
                 url_name="detailed:edit-qa-approval",
                 complete_flag_name="qa_approval_complete_date",
+                case_details_form_class=QAApprovalUpdateForm,
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="detailed:edit-final-report",
             ),
             DetailedCasePlatformPage(
                 name="Final report",
                 url_name="detailed:edit-final-report",
                 complete_flag_name="final_report_complete_date",
+                case_details_form_class=FinalReportUpdateForm,
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="detailed:edit-report-sent",
             ),
         ],
@@ -1528,30 +1557,40 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 name="Report sent",
                 url_name="detailed:edit-report-sent",
                 complete_flag_name="report_sent_complete_date",
+                case_details_form_class=ReportSentUpdateForm,
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="detailed:edit-12-week-deadline",
             ),
             DetailedCasePlatformPage(
                 name="12-week deadline",
                 url_name="detailed:edit-12-week-deadline",
                 complete_flag_name="twelve_week_deadline_complete_date",
+                case_details_form_class=TwelveWeekDeadlineUpdateForm,
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="detailed:edit-report-acknowledged",
             ),
             DetailedCasePlatformPage(
                 name="Report acknowledged",
                 url_name="detailed:edit-report-acknowledged",
                 complete_flag_name="report_acknowledged_complete_date",
+                case_details_form_class=ReportAcknowledgedUpdateForm,
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="detailed:edit-12-week-request-update",
             ),
             DetailedCasePlatformPage(
                 name="12-week update request",
                 url_name="detailed:edit-12-week-request-update",
                 complete_flag_name="twelve_week_update_complete_date",
+                case_details_form_class=TwelveWeekRequestUpdateForm,
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="detailed:edit-12-week-acknowledged",
             ),
             DetailedCasePlatformPage(
                 name="12-week acknowledged",
                 url_name="detailed:edit-12-week-acknowledged",
                 complete_flag_name="twelve_week_acknowledged_complete_date",
+                case_details_form_class=TwelveWeekAcknowledgedUpdateForm,
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="detailed:edit-retest-result",
             ),
         ],
@@ -1563,12 +1602,16 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 name="Retest result",
                 url_name="detailed:edit-retest-result",
                 complete_flag_name="retest_result_complete_date",
+                case_details_form_class=RetestResultUpdateForm,
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="detailed:edit-retest-compliance-decisions",
             ),
             DetailedCasePlatformPage(
                 name="Compliance decisions",
                 url_name="detailed:edit-retest-compliance-decisions",
                 complete_flag_name="retest_compliance_decisions_complete_date",
+                case_details_form_class=RetestComplianceDecisionsUpdateForm,
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="detailed:edit-case-close",
             ),
         ],
@@ -1580,6 +1623,8 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 name="Closing the case",
                 url_name="detailed:edit-case-close",
                 complete_flag_name="case_close_complete_date",
+                case_details_form_class=DetailedCaseCloseUpdateForm,
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="detailed:edit-statement-enforcement",
             ),
         ],
@@ -1591,12 +1636,16 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 name="Statement enforcement",
                 url_name="detailed:edit-statement-enforcement",
                 complete_flag_name="statement_enforcement_complete_date",
+                case_details_form_class=StatementEnforcementUpdateForm,
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="detailed:edit-equality-body-metadata",
             ),
             DetailedCasePlatformPage(
                 name="Equality body metadata",
                 url_name="detailed:edit-equality-body-metadata",
                 complete_flag_name="enforcement_body_metadata_complete_date",
+                case_details_form_class=EnforcementBodyMetadataUpdateForm,
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="detailed:case-detail",
             ),
         ],
@@ -1606,9 +1655,13 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
         type=PlatformPageGroup.Type.DETAILED_CASE_TOOLS,
         pages=[
             DetailedCasePlatformPage(
+                name="View and search all case data",
+                url_name="detailed:case-view-and-search",
+            ),
+            DetailedCasePlatformPage(
                 name="PSB Zendesk tickets",
                 url_name="detailed:zendesk-tickets",
-                # case_details_template_name="detailed/details/details_psb_zendesk_tickets.html",
+                case_details_template_name="detailed/details/details_psb_zendesk_tickets.html",
                 subpages=[
                     DetailedCasePlatformPage(
                         name="Add PSB Zendesk ticket",
@@ -1630,7 +1683,16 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 ],
             ),
             DetailedCasePlatformPage(
-                name="Unresponsive PSB", url_name="detailed:edit-unresponsive-psb"
+                name="Unresponsive PSB",
+                url_name="detailed:edit-unresponsive-psb",
+                case_details_form_class=UnresponsivePSBUpdateForm,
+                case_details_template_name="cases/details/details.html",
+            ),
+            DetailedCasePlatformPage(
+                name="Case notes",
+                url_name="detailed:create-case-note",
+                url_kwarg_key="case_id",
+                case_details_template_name="detailed/details/details_case_notes.html",
             ),
         ],
     ),

@@ -132,26 +132,3 @@ def test_extract_form_labels_and_values_with_no_values_set():
         label=REPORT_SENT_ON_LABEL,
         value=None,
     )
-
-
-def test_extract_form_labels_and_values_can_exclude_fields():
-    """
-    Test fields can be excluded from extraction of labels from form and values
-    from case.
-    """
-    simplified_case: SimplifiedCase = SimplifiedCase()
-
-    labels_and_values: list[FieldLabelAndValue] = extract_form_labels_and_values(
-        instance=simplified_case,
-        form=CaseForm(),
-        excluded_fields=["home_page_url", "report_sent_date"],
-    )
-
-    assert len(labels_and_values) == 3
-    assert labels_and_values[0] == FieldLabelAndValue(label=AUDITOR_LABEL, value=None)
-    assert labels_and_values[1] == FieldLabelAndValue(
-        label=SECTOR_LABEL, value="Unknown"
-    )
-    assert labels_and_values[2] == FieldLabelAndValue(
-        label=TEST_TYPE_LABEL, value=simplified_case.get_test_type_display()
-    )

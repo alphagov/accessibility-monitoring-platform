@@ -1,5 +1,7 @@
 {% extends 'detailed/base.html' %}
 
+{% load static %}
+
 {% block breadcrumbs %}
 {% include 'common/breadcrumbs_no_case.html' %}
 {% endblock %}
@@ -14,10 +16,17 @@
 </div>
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-one-half">
+        {% include 'detailed/details/search_in_case.html' %}
+        <hr class="amp-width-100 amp-margin-bottom-30" />
         {% include 'cases/helpers/case_nav.html' with case_nav_type='detailed_case_nav' %}
     </div>
     <div class="govuk-grid-column-one-half">
         {% include 'detailed/helpers/overview.html' %}
     </div>
 </div>
+{% include 'detailed/details/sections.html' with hide_sections=True %}
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'js/cases_search_in_case.js' %}"></script>
 {% endblock %}
