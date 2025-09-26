@@ -8,8 +8,16 @@ from typing import Any
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import QuerySet
+from django.http import StreamingHttpResponse
 
+from ..cases.csv_export import csv_output_generator
+from ..cases.models import BaseCase
 from ..common.utils import diff_model_fields
+from .csv_export import (
+    DETAILED_CASE_COLUMNS_FOR_EXPORT,
+    DETAILED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
+)
 from .models import DetailedCase, DetailedCaseHistory, DetailedEventHistory
 
 
@@ -65,3 +73,34 @@ def add_to_detailed_case_history(
     record_detailed_model_create_event(
         user=user, model_object=detailed_case_history, detailed_case=detailed_case
     )
+
+
+def download_detailed_cases(
+    detailed_cases: QuerySet[BaseCase], filename: str = "detailed_cases.csv"
+) -> StreamingHttpResponse:
+    """Given a Case queryset, download the data in csv format"""
+
+    response = StreamingHttpResponse(
+        csv_output_generator(
+            cases=detailed_cases,
+            columns_for_export=DETAILED_CASE_COLUMNS_FOR_EXPORT,
+        ),
+        content_type="text/csv",
+    )
+    response["Content-Disposition"] = f"attachment; filename={filename}"
+    return response
+
+
+def download_detailed_feedback_survey_cases(
+    cases: QuerySet[BaseCase], filename: str = "detailed_feedback_survey_cases.csv"
+) -> StreamingHttpResponse:
+    """Given a Case queryset, download the feedback survey data in csv format"""
+    response = StreamingHttpResponse(
+        csv_output_generator(
+            cases=cases,
+            columns_for_export=DETAILED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
+        ),
+        content_type="text/csv",
+    )
+    response["Content-Disposition"] = f"attachment; filename={filename}"
+    return response

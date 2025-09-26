@@ -39,10 +39,6 @@ from ..common.views import (
     NextPlatformPageMixin,
     ShowGoBackJSWidgetMixin,
 )
-from ..exports.csv_export_utils import (
-    download_simplified_cases,
-    download_simplified_feedback_survey_cases,
-)
 from ..notifications.models import Task
 from ..notifications.utils import add_task, mark_tasks_as_read
 from ..reports.utils import publish_report_util
@@ -100,6 +96,8 @@ from .models import (
     ZendeskTicket,
 )
 from .utils import (
+    download_simplified_cases,
+    download_simplified_feedback_survey_cases,
     filter_cases,
     get_simplified_case_detail_sections,
     record_case_event,
