@@ -18,11 +18,13 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from ..audits.utils import get_audit_summary_context, report_data_updated
+from ..cases.csv_export import populate_equality_body_columns
 from ..cases.forms import CaseSearchForm
 from ..cases.models import TestType
 from ..cases.utils import find_duplicate_cases
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
+from ..common.csv_export import EqualityBodyCSVColumn
 from ..common.email_template_utils import get_email_template_context
 from ..common.mark_deleted_util import get_id_from_button_name
 from ..common.models import EmailTemplate
@@ -38,18 +40,18 @@ from ..common.views import (
     ShowGoBackJSWidgetMixin,
 )
 from ..exports.csv_export_utils import (
-    SIMPLIFIED_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
-    SIMPLIFIED_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
-    SIMPLIFIED_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
-    SIMPLIFIED_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
-    EqualityBodyCSVColumn,
     download_feedback_survey_cases,
     download_simplified_cases,
-    populate_equality_body_columns,
 )
 from ..notifications.models import Task
 from ..notifications.utils import add_task, mark_tasks_as_read
 from ..reports.utils import publish_report_util
+from .csv_export import (
+    SIMPLIFIED_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
+)
 from .forms import (
     CaseCloseUpdateForm,
     CaseCreateForm,

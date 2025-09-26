@@ -15,16 +15,14 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
+from ..cases.csv_export import populate_equality_body_columns
 from ..common.views import HideCaseNavigationMixin
 from ..simplified.models import SimplifiedCase
 from ..simplified.utils import (
     record_simplified_model_create_event,
     record_simplified_model_update_event,
 )
-from .csv_export_utils import (
-    download_equality_body_cases,
-    populate_equality_body_columns,
-)
+from .csv_export_utils import download_equality_body_cases
 from .forms import ExportConfirmForm, ExportCreateForm, ExportDeleteForm
 from .models import Export, ExportCase
 

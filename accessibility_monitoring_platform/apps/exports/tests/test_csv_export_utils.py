@@ -12,27 +12,29 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, StreamingHttpResponse
 
 from ...audits.models import Audit
+from ...cases.csv_export import (
+    csv_output_generator,
+    populate_csv_columns,
+    populate_equality_body_columns,
+)
+from ...common.csv_export import CSVColumn, EqualityBodyCSVColumn, format_model_field
+from ...detailed.csv_export import DETAILED_CASE_COLUMNS_FOR_EXPORT
 from ...detailed.models import Contact as DetailedContact
 from ...detailed.models import DetailedCase
+from ...simplified.csv_export import (
+    FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
+    format_simplified_contacts,
+)
 from ...simplified.models import CaseCompliance
 from ...simplified.models import Contact as SimplifiedContact
 from ...simplified.models import SimplifiedCase
 from ..csv_export_utils import (
-    DETAILED_CASE_COLUMNS_FOR_EXPORT,
-    FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
-    SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
-    SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
-    CSVColumn,
-    EqualityBodyCSVColumn,
-    csv_output_generator,
     download_detailed_cases,
     download_equality_body_cases,
     download_feedback_survey_cases,
     download_simplified_cases,
-    format_model_field,
-    format_simplified_contacts,
-    populate_csv_columns,
-    populate_equality_body_columns,
 )
 
 CONTACTS: list[SimplifiedContact] = [

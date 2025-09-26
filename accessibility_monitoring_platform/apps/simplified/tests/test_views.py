@@ -27,14 +27,14 @@ from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_resu
 from ...comments.models import Comment
 from ...common.models import Boolean, EmailTemplate
 from ...common.utils import amp_format_date
-from ...exports.csv_export_utils import (
+from ...notifications.models import Task
+from ...reports.models import Report
+from ...s3_read_write.models import S3Report
+from ...simplified.csv_export import (
     FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
     SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
 )
-from ...notifications.models import Task
-from ...reports.models import Report
-from ...s3_read_write.models import S3Report
 from ..models import (
     CaseCompliance,
     CaseEvent,
