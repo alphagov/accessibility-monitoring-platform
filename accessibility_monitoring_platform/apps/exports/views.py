@@ -15,18 +15,16 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
+from ..cases.csv_export import populate_equality_body_columns
 from ..common.views import HideCaseNavigationMixin
 from ..simplified.models import SimplifiedCase
 from ..simplified.utils import (
     record_simplified_model_create_event,
     record_simplified_model_update_event,
 )
-from .csv_export_utils import (
-    download_equality_body_cases,
-    populate_equality_body_columns,
-)
 from .forms import ExportConfirmForm, ExportCreateForm, ExportDeleteForm
 from .models import Export, ExportCase
+from .utils import download_equality_body_simplified_cases
 
 
 class EnforcementBodyMixin:
@@ -185,7 +183,7 @@ class ExportConfirmDeleteUpdateView(UpdateView):
 def export_all_cases(request: HttpRequest, pk: int) -> HttpResponse:
     """View to export all cases"""
     export: Export = get_object_or_404(Export, id=pk)
-    return download_equality_body_cases(
+    return download_equality_body_simplified_cases(
         cases=export.all_cases,
         filename=f"DRAFT_{export.enforcement_body.upper()}_cases_{export.cutoff_date}.csv",
     )
@@ -194,7 +192,7 @@ def export_all_cases(request: HttpRequest, pk: int) -> HttpResponse:
 def export_ready_cases(request: HttpRequest, pk: int) -> HttpResponse:
     """View to export only ready cases."""
     export: Export = get_object_or_404(Export, pk=pk)
-    return download_equality_body_cases(
+    return download_equality_body_simplified_cases(
         cases=export.ready_cases,
         filename=f"{export.enforcement_body.upper()}_cases_{export.cutoff_date}.csv",
     )

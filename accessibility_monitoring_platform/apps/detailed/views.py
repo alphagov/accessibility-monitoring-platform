@@ -26,7 +26,6 @@ from ..common.views import (
     NextPlatformPageMixin,
     ShowGoBackJSWidgetMixin,
 )
-from ..exports.csv_export_utils import download_detailed_cases
 from ..notifications.models import Task
 from ..notifications.utils import mark_tasks_as_read
 from .forms import (
@@ -69,6 +68,8 @@ from .models import (
 )
 from .utils import (
     add_to_detailed_case_history,
+    download_detailed_cases,
+    download_detailed_feedback_survey_cases,
     get_detailed_case_detail_sections,
     record_detailed_model_create_event,
     record_detailed_model_update_event,
@@ -691,3 +692,14 @@ def export_detailed_cases(request: HttpRequest) -> HttpResponse:
     )
     case_search_form.is_valid()
     return download_detailed_cases(detailed_cases=filter_cases(form=case_search_form))
+
+
+def export_feedback_survey_cases(request: HttpRequest) -> HttpResponse:
+    """View to export cases for feedback survey"""
+    search_parameters: dict[str, str] = replace_search_key_with_case_search(request.GET)
+    search_parameters["test_type"] = TestType.DETAILED
+    case_search_form: CaseSearchForm = CaseSearchForm(search_parameters)
+    case_search_form.is_valid()
+    return download_detailed_feedback_survey_cases(
+        cases=filter_cases(form=case_search_form)
+    )
