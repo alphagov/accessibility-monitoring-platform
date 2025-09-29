@@ -8,6 +8,7 @@ import requests
 from django import forms
 from django.core.exceptions import ValidationError
 
+from ..cases.models import BaseCase
 from ..common.forms import (
     AMPAuditorModelChoiceField,
     AMPBooleanCheckboxWidget,
@@ -111,14 +112,13 @@ class DetailedCaseCreateForm(forms.ModelForm):
         if not previous_case_url:
             return previous_case_url
 
-        # Check if URL exists
         if requests.head(previous_case_url, timeout=10).status_code >= 400:
             raise ValidationError("Previous case URL does not exist")
 
         # Extract case id from view case URL
         try:
-            case_id: str = re.search(".*/cases/(.+?)/view/?", previous_case_url).group(  # type: ignore
-                1
+            case_id: str = re.search(".*/(simplified|detailed)/(.+?)/(view|case-detail)/?", previous_case_url).group(  # type: ignore
+                2
             )
         except AttributeError:
             raise ValidationError(  # pylint: disable=raise-missing-from
@@ -126,7 +126,7 @@ class DetailedCaseCreateForm(forms.ModelForm):
             )
 
         # Check if Case exists matching id from URL
-        if case_id.isdigit() and DetailedCase.objects.filter(id=case_id).exists():
+        if case_id.isdigit() and BaseCase.objects.filter(id=case_id).exists():
             return previous_case_url
         else:
             raise ValidationError("Previous case not found in platform")
