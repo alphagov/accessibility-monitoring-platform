@@ -152,7 +152,7 @@ def test_download_cases_detailed():
 
 @pytest.mark.django_db
 def test_download_feedback_survey_detailed_cases():
-    """Test creation of CSV for feedback survey"""
+    """Test creation of CSV for feedback survey for detailed cases"""
     detailed_case: DetailedCase = DetailedCase.objects.create(
         recommendation_decision_sent_date=datetime(2022, 12, 16, tzinfo=timezone.utc),
     )

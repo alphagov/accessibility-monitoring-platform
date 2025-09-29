@@ -353,7 +353,7 @@ def record_simplified_model_create_event(
 def download_simplified_cases(
     simplified_cases: QuerySet[SimplifiedCase], filename: str = "simplified_cases.csv"
 ) -> StreamingHttpResponse:
-    """Given a Case queryset, download the data in csv format"""
+    """Given a SimplifiedCase queryset, download the data in csv format"""
 
     response = StreamingHttpResponse(
         csv_output_generator(
@@ -370,7 +370,9 @@ def download_simplified_feedback_survey_cases(
     cases: QuerySet[SimplifiedCase],
     filename: str = "simplified_feedback_survey_cases.csv",
 ) -> StreamingHttpResponse:
-    """Given a Case queryset, download the feedback survey data in csv format"""
+    """
+    Given a SimplifiedCase queryset, download the feedback survey data in csv format
+    """
     response = StreamingHttpResponse(
         csv_output_generator(
             cases=cases,

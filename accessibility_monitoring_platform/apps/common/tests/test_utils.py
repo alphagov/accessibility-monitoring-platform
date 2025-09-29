@@ -96,7 +96,10 @@ class MockRequest:
 def decode_csv_response(
     response: StreamingHttpResponse,
 ) -> tuple[list[str], list[list[str]]]:
-    """Decode CSV HTTP response and break into column names and data"""
+    """
+    Function used in tests. Decode CSV HTTP response and break into column names and
+    data.
+    """
     content_chunks: list[str] = [
         chunk.decode("utf-8") for chunk in response.streaming_content
     ]
@@ -113,7 +116,7 @@ def validate_csv_response(
     expected_header: list[str],
     expected_first_data_row: list[str],
 ):
-    """Validate csv header and body matches expected data"""
+    """Function used in tests. Validate csv header and body matches expected data"""
     assert csv_header == expected_header
 
     first_data_row: list[str] = csv_body[0]

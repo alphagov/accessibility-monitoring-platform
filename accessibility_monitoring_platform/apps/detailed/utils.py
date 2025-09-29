@@ -78,7 +78,7 @@ def add_to_detailed_case_history(
 def download_detailed_cases(
     detailed_cases: QuerySet[BaseCase], filename: str = "detailed_cases.csv"
 ) -> StreamingHttpResponse:
-    """Given a Case queryset, download the data in csv format"""
+    """Given a DetailedCase queryset, download the data in csv format"""
 
     response = StreamingHttpResponse(
         csv_output_generator(
@@ -94,7 +94,9 @@ def download_detailed_cases(
 def download_detailed_feedback_survey_cases(
     cases: QuerySet[BaseCase], filename: str = "detailed_feedback_survey_cases.csv"
 ) -> StreamingHttpResponse:
-    """Given a Case queryset, download the feedback survey data in csv format"""
+    """
+    Given a DetailedCase queryset, download the feedback survey data in csv format
+    """
     response = StreamingHttpResponse(
         csv_output_generator(
             cases=cases,

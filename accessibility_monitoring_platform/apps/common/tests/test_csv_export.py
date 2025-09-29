@@ -8,7 +8,7 @@ from ...simplified.models import SimplifiedCase
 from ..csv_export import CSVColumn, EqualityBodyCSVColumn, format_model_field
 
 
-def test_format_case_field_with_no_data():
+def test_format_model_field_with_no_data():
     """
     Test that format_model_field returns empty string if no model instance
     """
@@ -64,8 +64,8 @@ def test_format_case_field_with_no_data():
         ),
     ],
 )
-def test_format_case_field(column, case_value, expected_formatted_value):
-    """Test that case fields are formatted correctly"""
+def test_format_model_field(column, case_value, expected_formatted_value):
+    """Test that model fields are formatted correctly"""
     simplified_case: SimplifiedCase = SimplifiedCase()
     setattr(simplified_case, column.source_attr, case_value)
     assert expected_formatted_value == format_model_field(
@@ -74,9 +74,7 @@ def test_format_case_field(column, case_value, expected_formatted_value):
 
 
 def test_required_data_missing():
-    """
-    Test that equality body CSV column required_data_missing
-    """
+    """Test equality body CSV column required_data_missing"""
     equality_body_csv_column: EqualityBodyCSVColumn = EqualityBodyCSVColumn(
         column_header="A", source_class=SimplifiedCase, source_attr="a"
     )
@@ -90,3 +88,7 @@ def test_required_data_missing():
     equality_body_csv_column.formatted_data = None
 
     assert equality_body_csv_column.required_data_missing is True
+
+    equality_body_csv_column.formatted_data = "formatted string"
+
+    assert equality_body_csv_column.required_data_missing is False
