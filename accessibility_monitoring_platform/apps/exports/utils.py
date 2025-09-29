@@ -25,7 +25,7 @@ def get_exportable_cases(
     )
 
 
-def download_equality_body_cases(
+def download_equality_body_simplified_cases(
     cases: QuerySet[SimplifiedCase],
     filename: str = "enforcement_body_cases.csv",
 ) -> StreamingHttpResponse:

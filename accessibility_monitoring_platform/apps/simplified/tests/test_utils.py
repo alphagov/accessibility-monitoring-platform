@@ -12,20 +12,29 @@ import pytest
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import QuerySet
+from django.http import HttpResponse
 
 from ...audits.models import Audit
 from ...cases.forms import DateType
 from ...common.models import Boolean, Sector, SubCategory
+from ...common.tests.test_utils import decode_csv_response, validate_csv_response
+from ..csv_export import (
+    SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
+)
 from ..models import (
     CaseCompliance,
     CaseEvent,
     CaseStatus,
+    Contact,
     SimplifiedCase,
     SimplifiedEventHistory,
 )
 from ..utils import (
     build_edit_link_html,
     create_case_and_compliance,
+    download_simplified_cases,
+    download_simplified_feedback_survey_cases,
     filter_cases,
     record_case_event,
     record_simplified_model_create_event,
@@ -57,6 +66,7 @@ SUBCATEGORY_NAME: str = "Sub-category name"
 CASE_IDENTIFIER: str = "#S-1"
 APP_NAME: str = "App name"
 APP_STORE_URL: str = "https://appstore.com"
+SIMPLIFIED_CONTACT_NOTES: str = "Simplified case contact notes"
 
 
 @dataclass
@@ -71,25 +81,6 @@ class MockForm:
     """Mock of form for testing"""
 
     cleaned_data: dict[str, str]
-
-
-def validate_csv_response(
-    csv_header: list[str],
-    csv_body: list[list[str]],
-    expected_header: list[str],
-    expected_first_data_row: list[str],
-):
-    """Validate csv header and body matches expected data"""
-    assert csv_header == expected_header
-
-    first_data_row: list[str] = csv_body[0]
-
-    for position in range(len(first_data_row)):
-        assert (
-            first_data_row[position] == expected_first_data_row[position]
-        ), f"Data mismatch on column {position}: {expected_header[position]}"
-
-    assert first_data_row == expected_first_data_row
 
 
 @pytest.mark.parametrize(
@@ -654,3 +645,182 @@ def test_case_filtered_by_subcategory():
 
     assert len(filtered_cases) == 1
     assert filtered_cases[0].organisation_name == ORGANISATION_NAME
+
+
+@pytest.mark.django_db
+def test_download_cases_simplified():
+    """Test creation of CSV download of simplified cases"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        contact_notes="Contact for CSV export",
+    )
+    simplified_case.created = datetime(2022, 12, 16, tzinfo=timezone.utc)
+    simplified_case.save()
+    CaseCompliance.objects.create(simplified_case=simplified_case)
+    simplified_case.update_case_status()
+    simplified_cases: list[SimplifiedCase] = [simplified_case]
+    Contact.objects.create(simplified_case=simplified_case, email="test@example.com")
+
+    response: HttpResponse = download_simplified_cases(
+        simplified_cases=simplified_cases, filename=CSV_EXPORT_FILENAME
+    )
+
+    assert response.status_code == 200
+
+    assert response.headers == {
+        "Content-Type": "text/csv",
+        "Content-Disposition": f"attachment; filename={CSV_EXPORT_FILENAME}",
+    }
+
+    csv_header, csv_body = decode_csv_response(response)
+
+    expected_header: list[str] = [
+        column.column_header for column in SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT
+    ]
+
+    expected_first_data_row: list[str] = [
+        "1",
+        "2",
+        "",
+        "16/12/2022",
+        "Unassigned case",
+        "",
+        "Simplified",
+        "",
+        "",
+        "",
+        "Unknown",
+        "",
+        "EHRC",
+        "No",
+        "",
+        "",
+        "",
+        "",
+        "Not assessed",
+        "",
+        "Not known",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "No",
+        "",
+        "Not started",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "No",
+        "",
+        "",
+        "",
+        "",
+        "Not applicable or organisation responded to 12-week update",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "No",
+        "",
+        "Not known",
+        "",
+        "",
+        "Not known",
+        "",
+        "",
+        "Not assessed",
+        "",
+        "",
+        "Not selected",
+        "",
+        "",
+        "Case still in progress",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "No",
+        "No (or holding)",
+        "",
+        "",
+        "False",
+        "",
+        "",
+        "Unknown",
+        "Contact for CSV export",
+        "",
+        "n/a",
+        "",
+        "",
+        "",
+        "test@example.com",
+    ]
+
+    validate_csv_response(
+        csv_header=csv_header,
+        csv_body=csv_body,
+        expected_header=expected_header,
+        expected_first_data_row=expected_first_data_row,
+    )
+
+
+@pytest.mark.django_db
+def test_download_feedback_survey_cases():
+    """Test creation of CSV for feedback survey"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        compliance_email_sent_date=datetime(2022, 12, 16, tzinfo=timezone.utc),
+        contact_notes=SIMPLIFIED_CONTACT_NOTES,
+    )
+    CaseCompliance.objects.create(simplified_case=simplified_case)
+    simplified_cases: list[SimplifiedCase] = [simplified_case]
+
+    response: HttpResponse = download_simplified_feedback_survey_cases(
+        cases=simplified_cases, filename=CSV_EXPORT_FILENAME
+    )
+
+    assert response.status_code == 200
+
+    assert response.headers == {
+        "Content-Type": "text/csv",
+        "Content-Disposition": f"attachment; filename={CSV_EXPORT_FILENAME}",
+    }
+
+    csv_header, csv_body = decode_csv_response(response)
+
+    expected_header: list[str] = [
+        column.column_header for column in SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
+    ]
+    expected_first_data_row: list[str] = [
+        "1",  # Case no.
+        "",  # Organisation name
+        "16/12/2022",  # Closing the case date
+        "Not selected",  # Enforcement recommendation
+        "",  # Enforcement recommendation notes
+        "Not assessed",  # statement_compliance_state_12_week
+        "",  # Contact email
+        SIMPLIFIED_CONTACT_NOTES,  # Contact notes
+        "No",  # Feedback survey sent
+    ]
+
+    validate_csv_response(
+        csv_header=csv_header,
+        csv_body=csv_body,
+        expected_header=expected_header,
+        expected_first_data_row=expected_first_data_row,
+    )

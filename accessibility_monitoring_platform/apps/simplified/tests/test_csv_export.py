@@ -27,6 +27,6 @@ email2
 """
 
 
-def test_format_contacts():
+def test_format_simplified_contacts():
     """Test that contacts fields values are contatenated"""
     assert format_simplified_contacts(contacts=CONTACTS) == EXPECTED_FORMATTED_CONTACTS

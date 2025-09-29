@@ -24,7 +24,7 @@ from ..simplified.utils import (
 )
 from .forms import ExportConfirmForm, ExportCreateForm, ExportDeleteForm
 from .models import Export, ExportCase
-from .utils import download_equality_body_cases
+from .utils import download_equality_body_simplified_cases
 
 
 class EnforcementBodyMixin:
@@ -183,7 +183,7 @@ class ExportConfirmDeleteUpdateView(UpdateView):
 def export_all_cases(request: HttpRequest, pk: int) -> HttpResponse:
     """View to export all cases"""
     export: Export = get_object_or_404(Export, id=pk)
-    return download_equality_body_cases(
+    return download_equality_body_simplified_cases(
         cases=export.all_cases,
         filename=f"DRAFT_{export.enforcement_body.upper()}_cases_{export.cutoff_date}.csv",
     )
@@ -192,7 +192,7 @@ def export_all_cases(request: HttpRequest, pk: int) -> HttpResponse:
 def export_ready_cases(request: HttpRequest, pk: int) -> HttpResponse:
     """View to export only ready cases."""
     export: Export = get_object_or_404(Export, pk=pk)
-    return download_equality_body_cases(
+    return download_equality_body_simplified_cases(
         cases=export.ready_cases,
         filename=f"{export.enforcement_body.upper()}_cases_{export.cutoff_date}.csv",
     )

@@ -65,16 +65,6 @@ def test_populate_csv_columns_detailed():
 
     assert len(row) == 83
 
-    # contact_email: list[CSVColumn] = [
-    #     cell for cell in row if cell.column_header == "Contact email"
-    # ]
-
-    # assert len(contact_email) == 1
-
-    # contact_email_cell: CSVColumn = contact_email[0]
-
-    # assert contact_email_cell.formatted_data == CONTACT_EMAIL
-
 
 @pytest.mark.django_db
 def test_populate_feedback_survey_columns():
