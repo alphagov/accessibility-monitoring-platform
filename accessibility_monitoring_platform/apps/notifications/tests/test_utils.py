@@ -94,6 +94,62 @@ def test_mark_tasks_as_read_marks_task_as_read(rf):
 
 
 @pytest.mark.django_db
+def test_add_task_qa_comment_correct_link_in_email_simplified(mailoutbox, rf):
+    """test to check if add_task adds task and sends email for simplified case"""
+    request: HttpRequest = rf.get("/")
+    user: User = User.objects.create_user(  # type: ignore
+        username="mockuser", email="mockuser@mock.com", password="secret"
+    )
+    request.user = user
+    NotificationSetting.objects.create(user=user)
+    base_case: BaseCase = BaseCase.objects.create(
+        test_type=BaseCase.TestType.SIMPLIFIED
+    )
+
+    add_task(
+        user=user,
+        base_case=base_case,
+        type=Task.Type.QA_COMMENT,
+        description="this is a notification",
+        email_description="There is a notification",
+        request=request,
+    )
+
+    assert len(mailoutbox) == 1
+    assert (
+        reverse("simplified:edit-qa-comments", kwargs={"pk": base_case.id})
+        in mailoutbox[0].body
+    )
+
+
+@pytest.mark.django_db
+def test_add_task_qa_comment_correct_link_in_email_detailed(mailoutbox, rf):
+    """test to check if add_task adds task and sends email for detailed case"""
+    request: HttpRequest = rf.get("/")
+    user: User = User.objects.create_user(  # type: ignore
+        username="mockuser", email="mockuser@mock.com", password="secret"
+    )
+    request.user = user
+    NotificationSetting.objects.create(user=user)
+    base_case: BaseCase = BaseCase.objects.create(test_type=BaseCase.TestType.DETAILED)
+
+    add_task(
+        user=user,
+        base_case=base_case,
+        type=Task.Type.QA_COMMENT,
+        description="this is a notification",
+        email_description="There is a notification",
+        request=request,
+    )
+
+    assert len(mailoutbox) == 1
+    assert (
+        reverse("detailed:edit-qa-comments", kwargs={"pk": base_case.id})
+        in mailoutbox[0].body
+    )
+
+
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "type",
     [Task.Type.QA_COMMENT, Task.Type.REPORT_APPROVED],
