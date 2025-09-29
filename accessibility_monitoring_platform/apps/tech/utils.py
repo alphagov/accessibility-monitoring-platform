@@ -194,7 +194,8 @@ def import_mobile_cases_csv(csv_data: str) -> None:
 
 def import_trello_comments(csv_data: str, reset_data: bool = False) -> None:
     comment_fullname_to_user: dict[str, User] = {
-        f"{user.first_name} {user.last_name}": user for user in User.objects.all()
+        f"{user.first_name.lower()}.{user.last_name.lower()}": user
+        for user in User.objects.all()
     }
     default_user: User = User.objects.get(id=DEFAULT_USER_ID)
     if reset_data:
@@ -225,7 +226,8 @@ def import_trello_comments(csv_data: str, reset_data: bool = False) -> None:
                         value=row["comment_text"].replace(' "\u200c")', ")"),
                         label=TRELLO_COMMENT_LABEL,
                         created_by=comment_fullname_to_user.get(
-                            row["comment_fullname"], default_user
+                            row["comment_fullname"].lower().replace(" ", "."),
+                            default_user,
                         ),
                     )
             except DetailedCase.DoesNotExist:

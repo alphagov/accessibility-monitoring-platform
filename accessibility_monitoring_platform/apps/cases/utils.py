@@ -4,11 +4,14 @@ Utility functions for cases app
 
 import copy
 import logging
+from dataclasses import dataclass
 from typing import Any
 
 from django.db.models import Case as DjangoCase
 from django.db.models import Q, QuerySet, When
 
+from ..common.form_extract_utils import FieldLabelAndValue
+from ..common.sitemap import PlatformPage
 from ..common.utils import build_filters, extract_domain_from_url
 from ..simplified.models import SimplifiedCase
 from .models import CASE_STATUS_UNASSIGNED, BaseCase, Sort
@@ -26,6 +29,18 @@ CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
 ]
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class CaseDetailPage:
+    page: PlatformPage
+    display_fields: list[FieldLabelAndValue] = None
+
+
+@dataclass
+class CaseDetailSection:
+    page_group_name: str
+    pages: list[CaseDetailPage]
 
 
 def filter_cases(form) -> QuerySet[BaseCase]:

@@ -1,5 +1,11 @@
 {% extends 'cases/details/details.html' %}
 
+{% block pretable %}
+    {% if not case.qa_comments %}
+        <p class="govuk-body">No QA comments</p>
+    {% endif %}
+{% endblock %}
+
 {% block prefixrows %}
     {% for comment in case.qa_comments %}
         <tr class="govuk-table__row">
