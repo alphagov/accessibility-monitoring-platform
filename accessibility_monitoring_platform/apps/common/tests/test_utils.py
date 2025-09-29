@@ -2,8 +2,11 @@
 Test - common utility functions
 """
 
+import csv
+import io
 from datetime import date, datetime, timedelta
 from datetime import timezone as datetime_timezone
+from typing import Any
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
@@ -11,7 +14,7 @@ import pytest
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
-from django.http import HttpRequest
+from django.http import HttpRequest, StreamingHttpResponse
 from django.http.request import QueryDict
 from django.utils import timezone
 from django_otp.plugins.otp_email.models import EmailDevice
@@ -88,6 +91,44 @@ class MockRequest:
         self.POST = {button: "Remove"}
         self.user = user
         self.session = session
+
+
+def decode_csv_response(
+    response: StreamingHttpResponse,
+) -> tuple[list[str], list[list[str]]]:
+    """
+    Function used in tests. Decode CSV HTTP response and break into column names and
+    data.
+    """
+    content_chunks: list[str] = [
+        chunk.decode("utf-8") for chunk in response.streaming_content
+    ]
+    content: str = "".join(content_chunks)
+    csv_reader: Any = csv.reader(io.StringIO(content))
+    csv_body: list[list[str]] = list(csv_reader)
+    csv_header: list[str] = csv_body.pop(0)
+    return csv_header, csv_body
+
+
+def validate_csv_response(
+    csv_header: list[str],
+    csv_body: list[list[str]],
+    expected_header: list[str],
+    expected_first_data_row: list[str],
+):
+    """Function used in tests. Validate csv header and body matches expected data"""
+    assert csv_header == expected_header
+
+    first_data_row: list[str] = csv_body[0]
+
+    assert len(first_data_row) == len(expected_first_data_row)
+
+    for position in range(len(first_data_row)):
+        assert (
+            first_data_row[position] == expected_first_data_row[position]
+        ), f"Data mismatch on column {position}: {expected_header[position]}"
+
+    assert first_data_row == expected_first_data_row
 
 
 def test_extract_domain_from_url_https():

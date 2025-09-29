@@ -1,0 +1,22 @@
+<div id="search-scope" data-search-target-page-name="{{ sitemap.current_platform_page.get_name }}" data-search-target-label="{{ sitemap.current_platform_page.get_name }}" data-search-target-url="{{ case.get_absolute_url }}"{% if hide_sections %} class="amp-hide"{% endif %}>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% if case.archive %}
+                {% include 'simplified/details/archive.html' %}
+            {% endif %}
+            {% for case_detail_section in case_detail_sections %}
+                {% if not hide_sections %}
+                    <div class="amp_case_search_list_header">
+                        <h2 id="page-group-{{ forloop.counter }}-{{ case_detail_section.page_group_name|slugify }}" class="govuk-heading-m">
+                            {{ case_detail_section.page_group_name }}
+                        </h2>
+                        <a href="#" class="govuk-link">Return to top</a>
+                    </div>
+                {% endif %}
+                {% for case_detail_page in case_detail_section.pages %}
+                    {% include case_detail_page.page.case_details_template_name %}
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+</div>

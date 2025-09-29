@@ -8,6 +8,8 @@ from django.urls.resolvers import URLPattern
 
 from .views import (
     CaseCloseUpdateView,
+    CaseDetailView,
+    CaseSearchView,
     CaseZendeskTicketsDetailView,
     ContactCreateView,
     ContactInformationRequestUpdateView,
@@ -18,7 +20,6 @@ from .views import (
     CorrespondenceTwelveWeekDeadlineUpdateView,
     CorrespondenceTwelveWeekRequestUpdateView,
     DetailedCaseCreateView,
-    DetailedCaseDetailView,
     DetailedCaseHistoryDetailView,
     DetailedCaseMetadataUpdateView,
     DetailedCaseNoteCreateView,
@@ -41,6 +42,7 @@ from .views import (
     ZendeskTicketCreateView,
     ZendeskTicketUpdateView,
     export_detailed_cases,
+    export_feedback_survey_cases,
     mark_qa_comments_as_read,
 )
 
@@ -55,9 +57,19 @@ urlpatterns: list[URLPattern] = [
         "export-as-csv/", login_required(export_detailed_cases), name="case-export-list"
     ),
     path(
+        "export-feedback-survey-cases-csv/",
+        login_required(export_feedback_survey_cases),
+        name="export-feedback-survey-cases",
+    ),
+    path(
         "<int:pk>/case-detail/",
-        login_required(DetailedCaseDetailView.as_view()),
+        login_required(CaseDetailView.as_view()),
         name="case-detail",
+    ),
+    path(
+        "<int:pk>/case-view-and-search/",
+        login_required(CaseSearchView.as_view()),
+        name="case-view-and-search",
     ),
     path(
         "<int:pk>/case-metadata/",

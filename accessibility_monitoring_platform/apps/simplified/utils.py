@@ -5,7 +5,6 @@ Utility functions for cases app
 import copy
 import json
 from collections.abc import Callable
-from dataclasses import dataclass
 from functools import partial
 from typing import Any
 
@@ -13,15 +12,22 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Case as DjangoCase
 from django.db.models import Q, QuerySet, When
+from django.http import StreamingHttpResponse
 from django.urls import reverse
 
 from ..audits.models import Audit
+from ..cases.csv_export import csv_output_generator
+from ..cases.utils import CaseDetailPage, CaseDetailSection
 from ..common.form_extract_utils import (
     FieldLabelAndValue,
     extract_form_labels_and_values,
 )
-from ..common.sitemap import PlatformPage, PlatformPageGroup, Sitemap
+from ..common.sitemap import PlatformPageGroup, Sitemap
 from ..common.utils import build_filters, diff_model_fields
+from .csv_export import (
+    SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
+    SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
+)
 from .models import (
     COMPLIANCE_FIELDS,
     CaseCompliance,
@@ -39,18 +45,6 @@ CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
     ("sector", "sector_id"),
     ("subcategory", "subcategory_id"),
 ]
-
-
-@dataclass
-class CaseDetailPage:
-    page: PlatformPage
-    display_fields: list[FieldLabelAndValue] = None
-
-
-@dataclass
-class CaseDetailSection:
-    page_group_name: str
-    pages: list[CaseDetailPage]
 
 
 def get_simplified_case_detail_sections(
@@ -342,3 +336,37 @@ def record_simplified_model_create_event(
         event_type=SimplifiedEventHistory.Type.CREATE,
         difference=json.dumps(model_object_fields, default=str),
     )
+
+
+def download_simplified_cases(
+    simplified_cases: QuerySet[SimplifiedCase], filename: str = "simplified_cases.csv"
+) -> StreamingHttpResponse:
+    """Given a SimplifiedCase queryset, download the data in csv format"""
+
+    response = StreamingHttpResponse(
+        csv_output_generator(
+            cases=simplified_cases,
+            columns_for_export=SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
+        ),
+        content_type="text/csv",
+    )
+    response["Content-Disposition"] = f"attachment; filename={filename}"
+    return response
+
+
+def download_simplified_feedback_survey_cases(
+    cases: QuerySet[SimplifiedCase],
+    filename: str = "simplified_feedback_survey_cases.csv",
+) -> StreamingHttpResponse:
+    """
+    Given a SimplifiedCase queryset, download the feedback survey data in csv format
+    """
+    response = StreamingHttpResponse(
+        csv_output_generator(
+            cases=cases,
+            columns_for_export=SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
+        ),
+        content_type="text/csv",
+    )
+    response["Content-Disposition"] = f"attachment; filename={filename}"
+    return response
