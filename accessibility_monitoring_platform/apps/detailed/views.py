@@ -19,6 +19,7 @@ from ..cases.models import BaseCase, TestType
 from ..cases.utils import filter_cases, find_duplicate_cases
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
+from ..common.sitemap import Sitemap
 from ..common.utils import extract_domain_from_url, replace_search_key_with_case_search
 from ..common.views import (
     HideCaseNavigationMixin,
@@ -69,6 +70,7 @@ from .utils import (
     add_to_detailed_case_history,
     download_detailed_cases,
     download_detailed_feedback_survey_cases,
+    get_detailed_case_detail_sections,
     record_detailed_model_create_event,
     record_detailed_model_update_event,
 )
@@ -157,6 +159,39 @@ class DetailedCaseDetailView(DetailView):
 
     model: type[DetailedCase] = DetailedCase
     context_object_name: str = "detailed_case"
+
+
+class CaseDetailView(DetailView):
+    """
+    View of details of a single case
+    """
+
+    model: type[DetailedCase] = DetailedCase
+    context_object_name: str = "detailed_case"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add case detail sections to context"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+
+        detailed_case: DetailedCase = self.object
+        sitemap: Sitemap = Sitemap(request=self.request)
+
+        return {
+            **{
+                "case_detail_sections": get_detailed_case_detail_sections(
+                    detailed_case=detailed_case, sitemap=sitemap
+                )
+            },
+            **context,
+        }
+
+
+class CaseSearchView(HideCaseNavigationMixin, CaseDetailView):
+    """
+    View and search details of a single case
+    """
+
+    template_name: str = "detailed/case_search_all_data.html"
 
 
 class DetailedCaseUpdateView(NextPlatformPageMixin, UpdateView):

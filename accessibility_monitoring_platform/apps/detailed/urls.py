@@ -8,6 +8,8 @@ from django.urls.resolvers import URLPattern
 
 from .views import (
     CaseCloseUpdateView,
+    CaseDetailView,
+    CaseSearchView,
     CaseZendeskTicketsDetailView,
     ContactCreateView,
     ContactInformationRequestUpdateView,
@@ -18,7 +20,6 @@ from .views import (
     CorrespondenceTwelveWeekDeadlineUpdateView,
     CorrespondenceTwelveWeekRequestUpdateView,
     DetailedCaseCreateView,
-    DetailedCaseDetailView,
     DetailedCaseHistoryDetailView,
     DetailedCaseMetadataUpdateView,
     DetailedCaseNoteCreateView,
@@ -62,8 +63,13 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/case-detail/",
-        login_required(DetailedCaseDetailView.as_view()),
+        login_required(CaseDetailView.as_view()),
         name="case-detail",
+    ),
+    path(
+        "<int:pk>/case-view-and-search/",
+        login_required(CaseSearchView.as_view()),
+        name="case-view-and-search",
     ),
     path(
         "<int:pk>/case-metadata/",

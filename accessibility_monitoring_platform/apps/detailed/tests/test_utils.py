@@ -4,21 +4,47 @@ from datetime import datetime, timezone
 
 import pytest
 from django.contrib.auth.models import User
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
+from django.urls import reverse
 
+from ...cases.utils import CaseDetailSection
+from ...common.sitemap import Sitemap
 from ...common.tests.test_utils import decode_csv_response, validate_csv_response
 from ...detailed.csv_export import (
     DETAILED_CASE_COLUMNS_FOR_EXPORT,
     DETAILED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
 )
 from ..models import Contact, DetailedCase
-from ..utils import download_detailed_cases, download_detailed_feedback_survey_cases
+from ..utils import (
+    download_detailed_cases,
+    download_detailed_feedback_survey_cases,
+    get_detailed_case_detail_sections,
+)
 
+ORGANISATION_NAME: str = "Organisation name one"
 DETAILED_CONTACT_NAME: str = "Detailed contact name"
 DETAILED_CONTACT_TITLE: str = "Detailed contact job title"
 DETAILED_CONTACT_DETAILS: str = "Detailed contact details"
 DETAILED_CONTACT_INFORMATION: str = "Detailed contact notes"
 CSV_EXPORT_FILENAME: str = "detailed_export.csv"
+
+
+@pytest.mark.django_db
+def test_get_detailed_case_detail_sections(rf):
+    """Test get_detailed_case_detail_sections builds list of detail sections"""
+    detailed_case: DetailedCase = DetailedCase.objects.create(
+        organisation_name=ORGANISATION_NAME
+    )
+    request: HttpRequest = rf.get(
+        reverse("detailed:case-view-and-search", kwargs={"pk": detailed_case.id}),
+    )
+    sitemap: Sitemap = Sitemap(request=request)
+
+    sections: list[CaseDetailSection] = get_detailed_case_detail_sections(
+        detailed_case=detailed_case, sitemap=sitemap
+    )
+
+    assert sections[0].pages[0].display_fields[1].value == ORGANISATION_NAME
 
 
 @pytest.mark.django_db

@@ -12,11 +12,14 @@ import pytest
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import QuerySet
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
+from django.urls import reverse
 
 from ...audits.models import Audit
 from ...cases.forms import DateType
+from ...cases.utils import CaseDetailSection
 from ...common.models import Boolean, Sector, SubCategory
+from ...common.sitemap import Sitemap
 from ...common.tests.test_utils import decode_csv_response, validate_csv_response
 from ..csv_export import (
     SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
@@ -36,6 +39,7 @@ from ..utils import (
     download_simplified_cases,
     download_simplified_feedback_survey_cases,
     filter_cases,
+    get_simplified_case_detail_sections,
     record_case_event,
     record_simplified_model_create_event,
     record_simplified_model_update_event,
@@ -824,3 +828,21 @@ def test_download_feedback_survey_cases():
         expected_header=expected_header,
         expected_first_data_row=expected_first_data_row,
     )
+
+
+@pytest.mark.django_db
+def test_get_simplified_case_detail_sections(rf):
+    """Test get_simplified_case_detail_sections builds list of detail sections"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        organisation_name=ORGANISATION_NAME
+    )
+    request: HttpRequest = rf.get(
+        reverse("simplified:case-view-and-search", kwargs={"pk": simplified_case.id}),
+    )
+    sitemap: Sitemap = Sitemap(request=request)
+
+    sections: list[CaseDetailSection] = get_simplified_case_detail_sections(
+        simplified_case=simplified_case, sitemap=sitemap
+    )
+
+    assert sections[0].pages[0].display_fields[2].value == ORGANISATION_NAME

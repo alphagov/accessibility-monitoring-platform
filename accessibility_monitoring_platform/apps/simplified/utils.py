@@ -5,7 +5,6 @@ Utility functions for cases app
 import copy
 import json
 from collections.abc import Callable
-from dataclasses import dataclass
 from functools import partial
 from typing import Any
 
@@ -18,11 +17,12 @@ from django.urls import reverse
 
 from ..audits.models import Audit
 from ..cases.csv_export import csv_output_generator
+from ..cases.utils import CaseDetailPage, CaseDetailSection
 from ..common.form_extract_utils import (
     FieldLabelAndValue,
     extract_form_labels_and_values,
 )
-from ..common.sitemap import PlatformPage, PlatformPageGroup, Sitemap
+from ..common.sitemap import PlatformPageGroup, Sitemap
 from ..common.utils import build_filters, diff_model_fields
 from .csv_export import (
     SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
@@ -45,18 +45,6 @@ CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
     ("sector", "sector_id"),
     ("subcategory", "subcategory_id"),
 ]
-
-
-@dataclass
-class CaseDetailPage:
-    page: PlatformPage
-    display_fields: list[FieldLabelAndValue] = None
-
-
-@dataclass
-class CaseDetailSection:
-    page_group_name: str
-    pages: list[CaseDetailPage]
 
 
 def get_simplified_case_detail_sections(

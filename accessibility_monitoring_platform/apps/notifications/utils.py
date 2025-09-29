@@ -68,9 +68,13 @@ def add_task(
         email_settings.save()
 
     if type == Task.Type.QA_COMMENT:
-        path: str = reverse("simplified:edit-qa-comments", kwargs={"pk": base_case.id})
+        path: str = reverse(
+            f"{base_case.test_type}:edit-qa-comments", kwargs={"pk": base_case.id}
+        )
     else:
-        path: str = reverse("simplified:edit-qa-approval", kwargs={"pk": base_case.id})
+        path: str = reverse(
+            f"{base_case.test_type}:edit-qa-approval", kwargs={"pk": base_case.id}
+        )
 
     if email_settings.email_notifications_enabled:
         context: EmailContextType = {
