@@ -1,7 +1,5 @@
 """Forms - cases"""
 
-import re
-
 import requests
 from django import forms
 from django.contrib.auth.models import User
@@ -15,6 +13,7 @@ from ..cases.models import (
     BaseCase,
     Complaint,
     Sort,
+    extract_id_from_case_url,
 )
 from ..common.forms import (
     AMPCharFieldWide,
@@ -119,18 +118,19 @@ class PreviousCaseURLForm(forms.ModelForm):
         if requests.head(previous_case_url, timeout=10).status_code >= 400:
             raise ValidationError("Previous case URL does not exist")
 
-        # Extract case id from view case URL
         try:
-            case_id: str = re.search(".*/(simplified|detailed)/(.+?)/(view|case-detail)/?", previous_case_url).group(  # type: ignore
-                2
-            )
+            case_id: int | None = extract_id_from_case_url(case_url=previous_case_url)
         except AttributeError:
+            raise ValidationError(  # pylint: disable=raise-missing-from
+                "Previous case URL did not contain case id"
+            )
+        if case_id is None:
             raise ValidationError(  # pylint: disable=raise-missing-from
                 "Previous case URL did not contain case id"
             )
 
         # Check if Case exists matching id from URL
-        if case_id.isdigit() and BaseCase.objects.filter(id=case_id).exists():
+        if case_id and BaseCase.objects.filter(id=case_id).exists():
             return previous_case_url
         else:
             raise ValidationError("Previous case not found in platform")

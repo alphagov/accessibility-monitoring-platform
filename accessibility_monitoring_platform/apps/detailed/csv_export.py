@@ -4,6 +4,159 @@ from ..common.csv_export import CSVColumn
 from ..detailed.models import Contact as DetailedContact
 from ..detailed.models import DetailedCase
 
+DETAILED_EQUALITY_BODY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
+    CSVColumn(
+        column_header="Enforcement Body",
+        source_class=DetailedCase,
+        source_attr="enforcement_body",
+    ),
+    CSVColumn(
+        column_header="Test type",
+        source_class=DetailedCase,
+        source_attr="test_type",
+    ),
+    CSVColumn(
+        column_header="Case number",
+        source_class=DetailedCase,
+        source_attr="case_number",
+    ),
+    CSVColumn(
+        column_header="Organisation",
+        source_class=DetailedCase,
+        source_attr="organisation_name",
+    ),
+    CSVColumn(
+        column_header="Website URL",
+        source_class=DetailedCase,
+        source_attr="home_page_url",
+    ),
+    CSVColumn(
+        column_header="Parent organisation name",
+        source_class=DetailedCase,
+        source_attr="parental_organisation_name",
+    ),
+    CSVColumn(
+        column_header="Sub-category",
+        source_class=DetailedCase,
+        source_attr="subcategory",
+    ),
+    CSVColumn(
+        column_header="Website name",
+        source_class=DetailedCase,
+        source_attr="website_name",
+    ),
+    CSVColumn(
+        column_header="Previous Case Number",
+        source_class=DetailedCase,
+        source_attr="previous_case_identifier",
+    ),
+    CSVColumn(
+        column_header="Is it a complaint?",
+        source_class=DetailedCase,
+        source_attr="is_complaint",
+    ),
+    CSVColumn(
+        column_header="Published report",
+        source_class=DetailedCase,
+        source_attr="equality_body_report_url",
+    ),
+    CSVColumn(
+        column_header="Enforcement recommendation",
+        source_class=DetailedCase,
+        source_attr="recommendation_for_enforcement",
+    ),
+    CSVColumn(
+        column_header="Enforcement recommendation notes including exemptions",
+        source_class=DetailedCase,
+        source_attr="recommendation_info",
+    ),
+    CSVColumn(
+        column_header="Summary of progress made / response from PSB",
+        source_class=DetailedCase,
+        source_attr="psb_progress_info",
+    ),
+    CSVColumn(
+        column_header="Contact details",
+        source_class=DetailedCase,
+        source_attr="equality_body_export_contact_details",
+    ),
+    CSVColumn(
+        column_header="Organisation responded to report?",
+        source_class=DetailedCase,
+        source_attr="report_acknowledged_yes_no",
+    ),
+    CSVColumn(
+        column_header="Report sent on",
+        source_class=DetailedCase,
+        source_attr="report_sent_date",
+    ),
+    CSVColumn(
+        column_header="Report acknowledged",
+        source_class=DetailedCase,
+        source_attr="report_acknowledged_date",
+    ),
+    CSVColumn(
+        column_header="12-week deadline",
+        source_class=DetailedCase,
+        source_attr="twelve_week_deadline_date",
+    ),
+    CSVColumn(
+        column_header="Retest date",
+        source_class=DetailedCase,
+        source_attr="retest_start_date",
+    ),
+    CSVColumn(
+        column_header="Date when compliance decision email sent to public sector body",
+        source_class=DetailedCase,
+        source_attr="recommendation_decision_sent_date",
+    ),
+    CSVColumn(
+        column_header="Compliance decision email sent to",
+        source_class=DetailedCase,
+        source_attr="recommendation_decision_sent_to",
+    ),
+    CSVColumn(
+        column_header="Total number of accessibility issues",
+        source_class=DetailedCase,
+        source_attr="initial_total_number_of_issues",
+    ),
+    CSVColumn(
+        column_header="Number of issues fixed",
+        source_class=DetailedCase,
+        source_attr="number_of_issues_fixed",
+    ),
+    CSVColumn(
+        column_header="Number of issues unfixed",
+        source_class=DetailedCase,
+        source_attr="retest_total_number_of_issues",
+    ),
+    CSVColumn(
+        column_header="Issues fixed as a percentage",
+        source_class=DetailedCase,
+        source_attr="percentage_of_issues_fixed",
+    ),
+    CSVColumn(
+        column_header="Was an accessibility statement found during the 12-week assessment",
+        source_class=DetailedCase,
+        source_attr="equality_body_export_statement_found_at_retest",
+    ),
+    CSVColumn(
+        column_header="Retest Accessibility Statement Decision",
+        source_class=DetailedCase,
+        source_attr="retest_statement_compliance_state",
+    ),
+    CSVColumn(
+        column_header="Retest disproportionate burden claimed?",
+        source_class=DetailedCase,
+        source_attr="retest_disproportionate_burden_claim",
+    ),
+    CSVColumn(
+        column_header="Retest disproportionate burden details",
+        source_class=DetailedCase,
+        source_attr="retest_disproportionate_burden_information",
+    ),
+]
+
 DETAILED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     # General
     CSVColumn(

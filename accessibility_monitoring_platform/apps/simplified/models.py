@@ -18,7 +18,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
-from ..cases.models import BaseCase, SimplifiedCaseStatus
+from ..cases.models import BaseCase, SimplifiedCaseStatus, get_previous_case_identifier
 from ..common.models import Boolean, EmailTemplate, Link, VersionModel
 from ..common.utils import (
     extract_domain_from_url,
@@ -678,11 +678,8 @@ class SimplifiedCase(BaseCase):
             return ""
 
     @property
-    def previous_case_number(self):
-        result = re.search(r".*/simplified/(\d+)/view.*", self.previous_case_url)
-        if result:
-            return result.group(1)
-        return None
+    def previous_case_identifier(self):
+        return get_previous_case_identifier(previous_case_url=self.previous_case_url)
 
     @property
     def last_edited(self):

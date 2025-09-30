@@ -24,6 +24,7 @@ from ..common.sitemap import PlatformPageGroup, Sitemap
 from ..common.utils import diff_model_fields
 from .csv_export import (
     DETAILED_CASE_COLUMNS_FOR_EXPORT,
+    DETAILED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
     DETAILED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
 )
 from .models import DetailedCase, DetailedCaseHistory, DetailedEventHistory
@@ -159,3 +160,21 @@ def get_detailed_case_detail_sections(
                 )
             )
     return view_sections
+
+
+def download_detailed_equality_body_cases(
+    cases: QuerySet[DetailedCase],
+    filename: str = "detailed_equality_body_cases.csv",
+) -> StreamingHttpResponse:
+    """
+    Given a DetailedCase queryset, download the feedback survey data in csv format
+    """
+    response = StreamingHttpResponse(
+        csv_output_generator(
+            cases=cases,
+            columns_for_export=DETAILED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
+        ),
+        content_type="text/csv",
+    )
+    response["Content-Disposition"] = f"attachment; filename={filename}"
+    return response

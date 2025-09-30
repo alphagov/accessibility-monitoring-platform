@@ -112,6 +112,14 @@
                             </li>
                             <li>
                                 <a
+                                    href="{% url 'detailed:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Export to CSV
+                                </a>
+                            </li>
+                            <li>
+                                <a
                                     href="{% url 'detailed:export-feedback-survey-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
                                     class="govuk-link govuk-link--no-visited-state"
                                 >
@@ -120,10 +128,10 @@
                             </li>
                             <li>
                                 <a
-                                    href="{% url 'detailed:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                                    href="{% url 'detailed:export-equality-body-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
                                     class="govuk-link govuk-link--no-visited-state"
                                 >
-                                    Export to CSV
+                                    Export to equality body CSV
                                 </a>
                             </li>
                         </ul>

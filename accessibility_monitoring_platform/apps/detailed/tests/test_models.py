@@ -2,13 +2,27 @@
 Tests for detailed models
 """
 
+from datetime import date
+
 import pytest
 from django.contrib.auth.models import User
 
+from ...common.models import Boolean
+from ...simplified.models import SimplifiedCase
 from ..models import Contact, DetailedCase, DetailedCaseHistory, ZendeskTicket
 
 ORGANISATION_NAME: str = "Organisation Name"
 WEBSITE_NAME: str = "Website Name"
+EXPECTED_FORMATTED_CONTACTS: str = """Name 2
+Job title 2
+email2
+Information 2
+
+Name 1
+Job title 1
+email1
+Information 1
+"""
 
 
 @pytest.mark.django_db
@@ -174,3 +188,147 @@ def test_zendesk_id_within_case():
     zendesk_ticket.save()
 
     assert zendesk_ticket.id_within_case == 1234567
+
+
+@pytest.mark.parametrize(
+    "previous_case_url, previous_case_identifier",
+    [
+        ("https://...gov.uk/simplified/1/view/", "#S-1"),
+        ("https://...gov.uk/detailed/1/case-detail/", "#D-1"),
+        ("", None),
+        ("https://...gov.uk/audit/191/view/", None),
+    ],
+)
+@pytest.mark.django_db
+def test_previous_case_identifier(previous_case_url, previous_case_identifier):
+    """Test previous case identifier derived from url"""
+    if "detailed" in previous_case_url:
+        DetailedCase.objects.create()
+    else:
+        SimplifiedCase.objects.create()
+
+    detailed_case: DetailedCase = DetailedCase.objects.create(
+        previous_case_url=previous_case_url
+    )
+
+    assert detailed_case.previous_case_identifier == previous_case_identifier
+
+
+@pytest.mark.django_db
+def test_detailed_case_equality_body_export_contact_details():
+    """Test that contacts fields values are contatenated"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+    user: User = User.objects.create()
+    Contact.objects.create(
+        detailed_case=detailed_case,
+        created_by=user,
+        name="Name 1",
+        job_title="Job title 1",
+        contact_details="email1",
+        information="Information 1",
+    ),
+    Contact.objects.create(
+        detailed_case=detailed_case,
+        created_by=user,
+        name="Name 2",
+        job_title="Job title 2",
+        contact_details="email2",
+        information="Information 2",
+    ),
+
+    assert (
+        detailed_case.equality_body_export_contact_details
+        == EXPECTED_FORMATTED_CONTACTS
+    )
+
+
+def test_detailed_case_report_acknowledged_yes_no():
+    """Test the DetailedCase.report_acknowledged_yes_no"""
+
+    assert DetailedCase().report_acknowledged_yes_no == "No"
+    assert (
+        DetailedCase(
+            report_acknowledged_date=date(2020, 1, 1)
+        ).report_acknowledged_yes_no
+        == "Yes"
+    )
+    assert (
+        DetailedCase(
+            report_acknowledged_date=date(2020, 1, 1),
+            no_psb_contact=Boolean.YES,
+        ).report_acknowledged_yes_no
+        == "No"
+    )
+
+
+def test_detailed_case_number_of_issues_fixed():
+    """Test the DetailedCase.number_of_issues_fixed"""
+
+    assert DetailedCase().number_of_issues_fixed is None
+    assert (
+        DetailedCase(initial_total_number_of_issues=50).number_of_issues_fixed is None
+    )
+    assert (
+        DetailedCase(
+            initial_total_number_of_issues=50, retest_total_number_of_issues=20
+        ).number_of_issues_fixed
+        == 30
+    )
+    assert (
+        DetailedCase(
+            initial_total_number_of_issues=50, retest_total_number_of_issues=60
+        ).number_of_issues_fixed
+        == -10
+    )
+
+
+def test_detailed_case_percentage_of_issues_fixed():
+    """Test the DetailedCase.percentage_of_issues_fixed"""
+
+    assert DetailedCase().percentage_of_issues_fixed is None
+    assert (
+        DetailedCase(initial_total_number_of_issues=50).percentage_of_issues_fixed
+        is None
+    )
+    assert (
+        DetailedCase(
+            initial_total_number_of_issues=50, retest_total_number_of_issues=20
+        ).percentage_of_issues_fixed
+        == 60
+    )
+    assert (
+        DetailedCase(
+            initial_total_number_of_issues=50, retest_total_number_of_issues=60
+        ).percentage_of_issues_fixed
+        == -20
+    )
+
+
+def test_detailed_case_equality_body_export_statement_found_at_retest():
+    """Test the DetailedCase.equality_body_export_statement_found_at_retest"""
+
+    assert DetailedCase().equality_body_export_statement_found_at_retest == "No"
+    assert (
+        DetailedCase(
+            retest_statement_compliance_state=DetailedCase.StatementCompliance.COMPLIANT
+        ).equality_body_export_statement_found_at_retest
+        == "Yes"
+    )
+    assert (
+        DetailedCase(
+            retest_statement_compliance_state=DetailedCase.StatementCompliance.NOT_COMPLIANT
+        ).equality_body_export_statement_found_at_retest
+        == "Yes"
+    )
+    assert (
+        DetailedCase(
+            retest_statement_compliance_state=DetailedCase.StatementCompliance.NO_STATEMENT
+        ).equality_body_export_statement_found_at_retest
+        == "No"
+    )
+    assert (
+        DetailedCase(
+            retest_statement_compliance_state=DetailedCase.StatementCompliance.UNKNOWN
+        ).equality_body_export_statement_found_at_retest
+        == "No"
+    )

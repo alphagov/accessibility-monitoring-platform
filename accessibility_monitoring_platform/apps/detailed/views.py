@@ -69,6 +69,7 @@ from .models import (
 from .utils import (
     add_to_detailed_case_history,
     download_detailed_cases,
+    download_detailed_equality_body_cases,
     download_detailed_feedback_survey_cases,
     get_detailed_case_detail_sections,
     record_detailed_model_create_event,
@@ -701,5 +702,16 @@ def export_feedback_survey_cases(request: HttpRequest) -> HttpResponse:
     case_search_form: CaseSearchForm = CaseSearchForm(search_parameters)
     case_search_form.is_valid()
     return download_detailed_feedback_survey_cases(
+        cases=filter_cases(form=case_search_form)
+    )
+
+
+def export_equality_body_cases(request: HttpRequest) -> HttpResponse:
+    """View to export cases for equality body survey"""
+    search_parameters: dict[str, str] = replace_search_key_with_case_search(request.GET)
+    search_parameters["test_type"] = TestType.DETAILED
+    case_search_form: CaseSearchForm = CaseSearchForm(search_parameters)
+    case_search_form.is_valid()
+    return download_detailed_equality_body_cases(
         cases=filter_cases(form=case_search_form)
     )
