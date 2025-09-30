@@ -23,6 +23,7 @@ from ...audits.models import (
 )
 from ...comments.models import Comment
 from ...common.models import Boolean, EmailTemplate, Link
+from ...detailed.models import DetailedCase
 from ...notifications.models import Task
 from ...reports.models import Report, ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
@@ -474,20 +475,27 @@ def test_case_save_increments_version():
 
 
 @pytest.mark.parametrize(
-    "previous_case_url, previous_case_number",
+    "previous_case_url, previous_case_identifier",
     [
-        ("https://...gov.uk/simplified/191/view/", "191"),
+        ("https://...gov.uk/simplified/1/view/", "#S-1"),
+        ("https://...gov.uk/detailed/1/case-detail/", "#D-1"),
         ("", None),
-        ("https://...gov.uk/audits/191/view/", None),
+        ("https://...gov.uk/audit/191/view/", None),
     ],
 )
-def test_previous_case_number(previous_case_url, previous_case_number):
+@pytest.mark.django_db
+def test_previous_case_identifier(previous_case_url, previous_case_identifier):
     """Test previous case number derived from url"""
-    simplified_case: SimplifiedCase = SimplifiedCase(
+    if "detailed" in previous_case_url:
+        DetailedCase.objects.create()
+    else:
+        SimplifiedCase.objects.create()
+
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         previous_case_url=previous_case_url
     )
 
-    assert simplified_case.previous_case_number == previous_case_number
+    assert simplified_case.previous_case_identifier == previous_case_identifier
 
 
 @pytest.mark.django_db

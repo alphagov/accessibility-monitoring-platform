@@ -5,6 +5,7 @@ Tests for detailed models
 import pytest
 from django.contrib.auth.models import User
 
+from ...simplified.models import SimplifiedCase
 from ..models import Contact, DetailedCase, DetailedCaseHistory, ZendeskTicket
 
 ORGANISATION_NAME: str = "Organisation Name"
@@ -174,3 +175,27 @@ def test_zendesk_id_within_case():
     zendesk_ticket.save()
 
     assert zendesk_ticket.id_within_case == 1234567
+
+
+@pytest.mark.parametrize(
+    "previous_case_url, previous_case_identifier",
+    [
+        ("https://...gov.uk/simplified/1/view/", "#S-1"),
+        ("https://...gov.uk/detailed/1/case-detail/", "#D-1"),
+        ("", None),
+        ("https://...gov.uk/audit/191/view/", None),
+    ],
+)
+@pytest.mark.django_db
+def test_previous_case_identifier(previous_case_url, previous_case_identifier):
+    """Test previous case number derived from url"""
+    if "detailed" in previous_case_url:
+        DetailedCase.objects.create()
+    else:
+        SimplifiedCase.objects.create()
+
+    detailed_case: DetailedCase = DetailedCase.objects.create(
+        previous_case_url=previous_case_url
+    )
+
+    assert detailed_case.previous_case_identifier == previous_case_identifier

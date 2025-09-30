@@ -2,6 +2,7 @@
 Models - cases
 """
 
+import re
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -28,6 +29,25 @@ COMPLIANCE_FIELDS: list[str] = [
 ]
 
 UPDATE_SEPARATOR: str = " -> "
+
+
+def extract_id_from_case_url(case_url: str) -> int | None:
+    """Extract case id from case overview URL"""
+    regex_search_result = re.search(
+        ".*/(simplified|detailed)/(.+?)/(view|case-detail)/?", case_url
+    )
+    if regex_search_result is not None:
+        case_id: str = regex_search_result.group(2)
+        if case_id.isdigit():
+            return int(case_id)
+
+
+def get_previous_case_identifier(previous_case_url: str) -> str | None:
+    """Build case identifier from URL"""
+    case_id: int | None = extract_id_from_case_url(case_url=previous_case_url)
+    if case_id:
+        base_case: BaseCase = BaseCase.objects.get(id=case_id)
+        return base_case.case_identifier
 
 
 class DisablePyTestCollectionMixin(object):
