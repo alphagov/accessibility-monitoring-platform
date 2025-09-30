@@ -124,6 +124,10 @@ class PreviousCaseURLForm(forms.ModelForm):
             raise ValidationError(  # pylint: disable=raise-missing-from
                 "Previous case URL did not contain case id"
             )
+        if case_id is None:
+            raise ValidationError(  # pylint: disable=raise-missing-from
+                "Previous case URL did not contain case id"
+            )
 
         # Check if Case exists matching id from URL
         if case_id and BaseCase.objects.filter(id=case_id).exists():

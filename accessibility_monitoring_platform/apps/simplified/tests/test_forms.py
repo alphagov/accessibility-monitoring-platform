@@ -51,7 +51,7 @@ TODAY = date.today()
         (
             "https://platform.gov.uk/simplified/not-an-id/view",
             200,
-            "Previous case not found in platform",
+            "Previous case URL did not contain case id",
         ),
     ],
 )
