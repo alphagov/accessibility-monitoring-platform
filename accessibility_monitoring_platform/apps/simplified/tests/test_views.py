@@ -32,7 +32,6 @@ from ...reports.models import Report
 from ...s3_read_write.models import S3Report
 from ...simplified.csv_export import (
     SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
-    SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
     SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
 )
 from ..models import (
@@ -85,9 +84,6 @@ DRAFT_REPORT_URL: str = "https://draft-report-url.com"
 TRELLO_URL: str = "https://trello.com/board12"
 case_feedback_survey_columns_to_export_str: str = ",".join(
     column.column_header for column in SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT
-)
-case_equality_body_columns_to_export_str: str = ",".join(
-    column.column_header for column in SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT
 )
 case_columns_to_export_str: str = ",".join(
     column.column_header for column in SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT

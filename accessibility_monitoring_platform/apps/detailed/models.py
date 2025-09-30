@@ -285,19 +285,19 @@ class DetailedCase(BaseCase):
 
     @property
     def equality_body_export_contact_details(self) -> str:
-        contact_details: str = ""
+        contacts_string: str = ""
         for contact in self.contacts:
-            if contact_details:
-                contact_details += "\n"
+            if contacts_string:
+                contacts_string += "\n"
             if contact.name:
-                contact_details += f"{contact.name}\n"
+                contacts_string += f"{contact.name}\n"
             if contact.job_title:
-                contact_details += f"{contact.job_title}\n"
-            if contact.email:
-                contact_details += f"{contact.details}\n"
+                contacts_string += f"{contact.job_title}\n"
+            if contact.contact_details:
+                contacts_string += f"{contact.contact_details}\n"
             if contact.information:
-                contact_details += f"{contact.information}\n"
-        return contact_details
+                contacts_string += f"{contact.information}\n"
+        return contacts_string
 
     @property
     def report_acknowledged_yes_no(self) -> str:

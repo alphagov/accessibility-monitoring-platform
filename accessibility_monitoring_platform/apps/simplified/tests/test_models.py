@@ -485,7 +485,7 @@ def test_case_save_increments_version():
 )
 @pytest.mark.django_db
 def test_previous_case_identifier(previous_case_url, previous_case_identifier):
-    """Test previous case number derived from url"""
+    """Test previous case identifier derived from url"""
     if "detailed" in previous_case_url:
         DetailedCase.objects.create()
     else:

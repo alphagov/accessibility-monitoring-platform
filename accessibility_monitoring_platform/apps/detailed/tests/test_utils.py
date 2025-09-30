@@ -12,11 +12,13 @@ from ...common.sitemap import Sitemap
 from ...common.tests.test_utils import decode_csv_response, validate_csv_response
 from ...detailed.csv_export import (
     DETAILED_CASE_COLUMNS_FOR_EXPORT,
+    DETAILED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
     DETAILED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
 )
 from ..models import Contact, DetailedCase
 from ..utils import (
     download_detailed_cases,
+    download_detailed_equality_body_cases,
     download_detailed_feedback_survey_cases,
     get_detailed_case_detail_sections,
 )
@@ -219,6 +221,80 @@ def test_download_feedback_survey_detailed_cases():
         DETAILED_CONTACT_DETAILS,  # Contact email
         DETAILED_CONTACT_INFORMATION,  # Contact notes
         "No",  # Feedback survey sent
+    ]
+
+    validate_csv_response(
+        csv_header=csv_header,
+        csv_body=csv_body,
+        expected_header=expected_header,
+        expected_first_data_row=expected_first_data_row,
+    )
+
+
+@pytest.mark.django_db
+def test_download_equality_body_detailed_cases():
+    """Test creation of CSV for equality body for detailed cases"""
+    detailed_case: DetailedCase = DetailedCase.objects.create(
+        recommendation_decision_sent_date=datetime(2022, 12, 16, tzinfo=timezone.utc),
+    )
+    user: User = User.objects.create(
+        username="johnsmith", first_name="John", last_name="Smith"
+    )
+    Contact.objects.create(
+        detailed_case=detailed_case,
+        contact_details=DETAILED_CONTACT_DETAILS,
+        information=DETAILED_CONTACT_INFORMATION,
+        created_by=user,
+    )
+    detailed_cases: list[DetailedCase] = [detailed_case]
+
+    response: HttpResponse = download_detailed_equality_body_cases(
+        cases=detailed_cases, filename=CSV_EXPORT_FILENAME
+    )
+
+    assert response.status_code == 200
+
+    assert response.headers == {
+        "Content-Type": "text/csv",
+        "Content-Disposition": f"attachment; filename={CSV_EXPORT_FILENAME}",
+    }
+
+    csv_header, csv_body = decode_csv_response(response)
+
+    expected_header: list[str] = [
+        column.column_header for column in DETAILED_EQUALITY_BODY_COLUMNS_FOR_EXPORT
+    ]
+    expected_first_data_row: list[str] = [
+        "EHRC",
+        "Detailed",
+        "1",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "No",
+        "",
+        "Not selected",
+        "",
+        "",
+        "Detailed contact details\nDetailed contact notes\n",
+        "No",
+        "",
+        "",
+        "",
+        "",
+        "16/12/2022",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "No",
+        "Not assessed",
+        "Not checked",
+        "",
     ]
 
     validate_csv_response(
