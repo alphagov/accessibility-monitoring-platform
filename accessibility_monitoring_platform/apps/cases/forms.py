@@ -1,8 +1,11 @@
-"""
-Forms - cases
-"""
+"""Forms - cases"""
 
+import re
+
+import requests
+from django import forms
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import QuerySet
 
@@ -20,6 +23,7 @@ from ..common.forms import (
     AMPDateRangeForm,
     AMPIntegerField,
     AMPModelChoiceField,
+    AMPURLField,
 )
 from ..common.models import Sector, SubCategory
 
@@ -88,3 +92,45 @@ class CaseSearchForm(AMPDateRangeForm):
         )
         self.fields["auditor"].choices = auditor_choices
         self.fields["reviewer"].choices = auditor_choices
+
+
+class PreviousCaseURLForm(forms.ModelForm):
+    """Form for a case with a previous URL field"""
+
+    previous_case_url = AMPURLField(
+        label="URL to previous case · Included in export",
+        help_text="If the website has been previously audited, include a link to the case below",
+    )
+
+    class Meta:
+        model = BaseCase
+        fields = [
+            "previous_case_url",
+        ]
+
+    def clean_previous_case_url(self):
+        """Check url contains case number"""
+        previous_case_url = self.cleaned_data.get("previous_case_url")
+
+        # Check if URL was entered
+        if not previous_case_url:
+            return previous_case_url
+
+        if requests.head(previous_case_url, timeout=10).status_code >= 400:
+            raise ValidationError("Previous case URL does not exist")
+
+        # Extract case id from view case URL
+        try:
+            case_id: str = re.search(".*/(simplified|detailed)/(.+?)/(view|case-detail)/?", previous_case_url).group(  # type: ignore
+                2
+            )
+        except AttributeError:
+            raise ValidationError(  # pylint: disable=raise-missing-from
+                "Previous case URL did not contain case id"
+            )
+
+        # Check if Case exists matching id from URL
+        if case_id.isdigit() and BaseCase.objects.filter(id=case_id).exists():
+            return previous_case_url
+        else:
+            raise ValidationError("Previous case not found in platform")

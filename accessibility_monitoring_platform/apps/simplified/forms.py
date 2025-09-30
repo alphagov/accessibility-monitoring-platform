@@ -2,16 +2,13 @@
 Forms - cases
 """
 
-import re
-
-import requests
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.safestring import mark_safe
 
 from ..cases.csv_export import populate_equality_body_columns
-from ..cases.models import BaseCase
+from ..cases.forms import PreviousCaseURLForm
 from ..common.csv_export import EqualityBodyCSVColumn
 from ..common.forms import (
     AMPAuditorModelChoiceField,
@@ -43,7 +40,7 @@ class DateType(models.TextChoices):
     UPDATED = "case_updated_date", "Case updated"
 
 
-class CaseCreateForm(forms.ModelForm):
+class CaseCreateForm(PreviousCaseURLForm):
     """
     Form for creating a case
     """
@@ -80,10 +77,6 @@ class CaseCreateForm(forms.ModelForm):
             attrs={"label": "Did this case originate from a complaint?"}
         ),
     )
-    previous_case_url = AMPURLField(
-        label="URL to previous case · Included in export",
-        help_text="If the website has been previously audited, include a link to the case below",
-    )
     notes = AMPTextField(label="Notes")
 
     class Meta:
@@ -113,33 +106,6 @@ class CaseCreateForm(forms.ModelForm):
         if not enforcement_body:
             raise ValidationError("Choose which equalities body will check the case")
         return enforcement_body
-
-    def clean_previous_case_url(self):
-        """Check url contains case number"""
-        previous_case_url = self.cleaned_data.get("previous_case_url")
-
-        # Check if URL was entered
-        if not previous_case_url:
-            return previous_case_url
-
-        if requests.head(previous_case_url, timeout=10).status_code >= 400:
-            raise ValidationError("Previous case URL does not exist")
-
-        # Extract case id from view case URL
-        try:
-            case_id: str = re.search(".*/(simplified|detailed)/(.+?)/(view|case-detail)/?", previous_case_url).group(  # type: ignore
-                2
-            )
-        except AttributeError:
-            raise ValidationError(  # pylint: disable=raise-missing-from
-                "Previous case URL did not contain case id"
-            )
-
-        # Check if Case exists matching id from URL
-        if case_id.isdigit() and BaseCase.objects.filter(id=case_id).exists():
-            return previous_case_url
-        else:
-            raise ValidationError("Previous case not found in platform")
 
 
 class CaseMetadataUpdateForm(CaseCreateForm, VersionForm):

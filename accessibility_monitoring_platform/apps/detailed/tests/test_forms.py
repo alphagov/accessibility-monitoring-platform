@@ -40,7 +40,7 @@ HOME_PAGE_URL: str = "https://example.com"
     ],
 )
 @pytest.mark.django_db
-@patch("accessibility_monitoring_platform.apps.detailed.forms.requests")
+@patch("accessibility_monitoring_platform.apps.cases.forms.requests")
 def test_clean_previous_case_url(
     mock_requests, previous_case_url, requests_status, expected_error_message
 ):
