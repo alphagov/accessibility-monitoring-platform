@@ -22,6 +22,8 @@ from ..models import (
     MobileCaseStatus,
     SimplifiedCaseStatus,
     TestType,
+    extract_id_from_case_url,
+    get_previous_case_identifier,
 )
 
 REMINDER_DUE_DATE: date = date(2022, 1, 1)
@@ -289,3 +291,38 @@ def test_case_get_case():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     assert isinstance(simplified_case.get_case(), SimplifiedCase) is True
+
+
+@pytest.mark.parametrize(
+    "case_url, case_id",
+    [
+        ("https://...gov.uk/simplified/1/view/", 1),
+        ("https://...gov.uk/detailed/2/case-detail/", 2),
+        ("", None),
+        ("https://...gov.uk/audit/191/view/", None),
+    ],
+)
+def test_extract_id_from_case_url(case_url, case_id):
+    """Test extracting case id from case overview URL"""
+
+    assert extract_id_from_case_url(case_url) == case_id
+
+
+@pytest.mark.parametrize(
+    "previous_case_url, previous_case_identifier",
+    [
+        ("https://...gov.uk/simplified/1/view/", "#S-1"),
+        ("https://...gov.uk/detailed/1/case-detail/", "#D-1"),
+        ("", None),
+        ("https://...gov.uk/audit/191/view/", None),
+    ],
+)
+@pytest.mark.django_db
+def test_previous_case_identifier(previous_case_url, previous_case_identifier):
+    """Test previous case identifier derived from url"""
+    if "detailed" in previous_case_url:
+        DetailedCase.objects.create()
+    else:
+        SimplifiedCase.objects.create()
+
+    assert get_previous_case_identifier(previous_case_url) == previous_case_identifier

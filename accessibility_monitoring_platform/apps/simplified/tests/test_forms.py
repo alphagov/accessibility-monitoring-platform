@@ -51,12 +51,12 @@ TODAY = date.today()
         (
             "https://platform.gov.uk/simplified/not-an-id/view",
             200,
-            "Previous case not found in platform",
+            "Previous case URL did not contain case id",
         ),
     ],
 )
 @pytest.mark.django_db
-@patch("accessibility_monitoring_platform.apps.simplified.forms.requests")
+@patch("accessibility_monitoring_platform.apps.cases.forms.requests")
 def test_clean_previous_case_url(
     mock_requests, previous_case_url, requests_status, expected_error_message
 ):

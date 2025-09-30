@@ -82,7 +82,7 @@ SIMPLIFIED_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn
     EqualityBodyCSVColumn(
         column_header="Previous Case Number",
         source_class=SimplifiedCase,
-        source_attr="previous_case_number",
+        source_attr="previous_case_identifier",
         edit_url_class=SimplifiedCase,
         edit_url_name="simplified:edit-case-metadata",
         edit_url_anchor="id_previous_case_url-label",

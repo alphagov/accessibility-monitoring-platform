@@ -12,7 +12,12 @@ from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
-from ..cases.models import UPDATE_SEPARATOR, BaseCase, DetailedCaseStatus
+from ..cases.models import (
+    UPDATE_SEPARATOR,
+    BaseCase,
+    DetailedCaseStatus,
+    get_previous_case_identifier,
+)
 from ..common.models import Boolean, VersionModel
 from ..common.utils import extract_domain_from_url
 
@@ -273,6 +278,57 @@ class DetailedCase(BaseCase):
     @property
     def preferred_contacts(self) -> QuerySet["Contact"]:
         return self.contacts.filter(preferred=Contact.Preferred.YES)
+
+    @property
+    def previous_case_identifier(self) -> str:
+        return get_previous_case_identifier(previous_case_url=self.previous_case_url)
+
+    @property
+    def equality_body_export_contact_details(self) -> str:
+        contacts_string: str = ""
+        for contact in self.contacts:
+            if contacts_string:
+                contacts_string += "\n"
+            if contact.name:
+                contacts_string += f"{contact.name}\n"
+            if contact.job_title:
+                contacts_string += f"{contact.job_title}\n"
+            if contact.contact_details:
+                contacts_string += f"{contact.contact_details}\n"
+            if contact.information:
+                contacts_string += f"{contact.information}\n"
+        return contacts_string
+
+    @property
+    def report_acknowledged_yes_no(self) -> str:
+        return (
+            "Yes"
+            if self.report_acknowledged_date and self.no_psb_contact == Boolean.NO
+            else "No"
+        )
+
+    @property
+    def number_of_issues_fixed(self) -> int | None:
+        if self.initial_total_number_of_issues and self.retest_total_number_of_issues:
+            return (
+                self.initial_total_number_of_issues - self.retest_total_number_of_issues
+            )
+
+    @property
+    def percentage_of_issues_fixed(self) -> int | None:
+        if self.initial_total_number_of_issues and self.number_of_issues_fixed:
+            return int(
+                self.number_of_issues_fixed * 100 / self.initial_total_number_of_issues
+            )
+
+    @property
+    def equality_body_export_statement_found_at_retest(self) -> str:
+        if self.retest_statement_compliance_state in [
+            DetailedCase.StatementCompliance.COMPLIANT,
+            DetailedCase.StatementCompliance.NOT_COMPLIANT,
+        ]:
+            return "Yes"
+        return "No"
 
 
 class DetailedEventHistory(models.Model):

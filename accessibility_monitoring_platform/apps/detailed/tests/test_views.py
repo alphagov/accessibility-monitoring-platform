@@ -12,7 +12,11 @@ from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
 from ...comments.models import Comment
-from ...detailed.csv_export import DETAILED_CASE_COLUMNS_FOR_EXPORT
+from ...detailed.csv_export import (
+    DETAILED_CASE_COLUMNS_FOR_EXPORT,
+    DETAILED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
+    DETAILED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
+)
 from ...notifications.models import Task
 from ..models import DetailedCase, DetailedEventHistory, ZendeskTicket
 from ..views import mark_qa_comments_as_read
@@ -340,12 +344,26 @@ def test_mark_qa_comments_as_read(rf):
     )
 
 
-def test_case_export_list_view(admin_client):
+@pytest.mark.parametrize(
+    "columns_for_export, export_url",
+    [
+        (DETAILED_CASE_COLUMNS_FOR_EXPORT, "detailed:case-export-list"),
+        (
+            DETAILED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
+            "detailed:export-equality-body-cases",
+        ),
+        (
+            DETAILED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
+            "detailed:export-feedback-survey-cases",
+        ),
+    ],
+)
+def test_case_export_list_view(admin_client, columns_for_export, export_url):
     """Test that the case export list view returns csv data"""
     case_columns_to_export_str: str = ",".join(
-        column.column_header for column in DETAILED_CASE_COLUMNS_FOR_EXPORT
+        column.column_header for column in columns_for_export
     )
-    response: HttpResponse = admin_client.get(reverse("detailed:case-export-list"))
+    response: HttpResponse = admin_client.get(reverse(export_url))
 
     assert response.status_code == 200
     assertContains(response, case_columns_to_export_str)
