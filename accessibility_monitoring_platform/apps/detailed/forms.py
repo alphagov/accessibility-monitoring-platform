@@ -518,9 +518,7 @@ class RetestComplianceDecisionsUpdateForm(VersionForm):
 class CaseCloseUpdateForm(VersionForm):
     """Form for updating closing the case page"""
 
-    psb_progress_info = AMPTextField(
-        label="Progress summary and PSB response · Included in export"
-    )
+    psb_progress_info = AMPTextField(label="Progress summary and PSB response")
     recommendation_for_enforcement = AMPChoiceRadioField(
         label="Enforcement recommendation · Included in export",
         choices=DetailedCase.RecommendationForEnforcement.choices,

@@ -39,7 +39,7 @@ def test_download_equality_body_simplified_cases():
     expected_first_data_row: list[str] = [
         "EHRC",
         "Simplified",
-        "1",
+        "#S-1",
         "",
         "",
         "",
@@ -49,7 +49,6 @@ def test_download_equality_body_simplified_cases():
         "No",
         "",
         "Not selected",
-        "",
         "",
         "",
         "No",
