@@ -31,7 +31,7 @@ SIMPLIFIED_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn
     EqualityBodyCSVColumn(
         column_header="Case number",
         source_class=SimplifiedCase,
-        source_attr="case_number",
+        source_attr="case_identifier",
         required=True,
         edit_url_class=SimplifiedCase,
         edit_url_name=None,

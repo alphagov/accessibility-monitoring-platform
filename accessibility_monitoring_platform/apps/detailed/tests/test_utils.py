@@ -267,7 +267,7 @@ def test_download_equality_body_detailed_cases():
     expected_first_data_row: list[str] = [
         "EHRC",
         "Detailed",
-        "1",
+        "#D-1",
         "",
         "",
         "",

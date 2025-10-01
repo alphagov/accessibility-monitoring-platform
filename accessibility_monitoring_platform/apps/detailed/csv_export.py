@@ -18,7 +18,7 @@ DETAILED_EQUALITY_BODY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     CSVColumn(
         column_header="Case number",
         source_class=DetailedCase,
-        source_attr="case_number",
+        source_attr="case_identifier",
     ),
     CSVColumn(
         column_header="Organisation",
