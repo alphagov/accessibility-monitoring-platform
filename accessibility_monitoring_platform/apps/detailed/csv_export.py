@@ -18,7 +18,7 @@ DETAILED_EQUALITY_BODY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     CSVColumn(
         column_header="Case number",
         source_class=DetailedCase,
-        source_attr="case_number",
+        source_attr="case_identifier",
     ),
     CSVColumn(
         column_header="Organisation",
@@ -69,11 +69,6 @@ DETAILED_EQUALITY_BODY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         column_header="Enforcement recommendation notes including exemptions",
         source_class=DetailedCase,
         source_attr="recommendation_info",
-    ),
-    CSVColumn(
-        column_header="Summary of progress made / response from PSB",
-        source_class=DetailedCase,
-        source_attr="psb_progress_info",
     ),
     CSVColumn(
         column_header="Contact details",

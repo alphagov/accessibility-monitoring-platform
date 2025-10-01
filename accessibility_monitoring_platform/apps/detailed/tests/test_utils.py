@@ -267,7 +267,7 @@ def test_download_equality_body_detailed_cases():
     expected_first_data_row: list[str] = [
         "EHRC",
         "Detailed",
-        "1",
+        "#D-1",
         "",
         "",
         "",
@@ -277,7 +277,6 @@ def test_download_equality_body_detailed_cases():
         "No",
         "",
         "Not selected",
-        "",
         "",
         "Detailed contact details\nDetailed contact notes\n",
         "No",

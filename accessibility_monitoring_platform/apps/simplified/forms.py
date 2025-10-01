@@ -717,7 +717,7 @@ class CaseReviewChangesUpdateForm(VersionForm):
         label="Retested website? (included in equality body export)"
     )
     psb_progress_notes = AMPTextField(
-        label="Summary of progress made from public sector body (included in equality body export)"
+        label="Summary of progress made from public sector body"
     )
     is_ready_for_final_decision = AMPChoiceRadioField(
         label="Is this case ready for final decision?",
