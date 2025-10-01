@@ -51,7 +51,6 @@ def test_download_equality_body_simplified_cases():
         "Not selected",
         "",
         "",
-        "",
         "No",
         "",
         "",

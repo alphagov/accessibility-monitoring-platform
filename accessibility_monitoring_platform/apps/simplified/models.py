@@ -624,23 +624,23 @@ class SimplifiedCase(BaseCase):
             return None
 
     @property
-    def not_archived(self):
+    def not_archived(self) -> bool:
         return self.archive == ""
 
     @property
-    def show_start_test(self):
+    def show_start_test(self) -> bool:
         return self.not_archived and self.audit is None
 
     @property
-    def not_archived_has_audit(self):
+    def not_archived_has_audit(self) -> bool:
         return self.not_archived and self.audit is not None
 
     @property
-    def report_acknowledged_yes_no(self):
+    def report_acknowledged_yes_no(self) -> str:
         return "Yes" if self.report_acknowledged_date else "No"
 
     @property
-    def show_start_12_week_retest(self):
+    def show_start_12_week_retest(self) -> bool:
         return (
             self.not_archived
             and self.audit is not None
@@ -648,7 +648,7 @@ class SimplifiedCase(BaseCase):
         )
 
     @property
-    def show_12_week_retest(self):
+    def show_12_week_retest(self) -> bool:
         return (
             self.not_archived
             and self.audit is not None
@@ -663,26 +663,26 @@ class SimplifiedCase(BaseCase):
             return None
 
     @property
-    def show_create_report(self):
+    def show_create_report(self) -> bool:
         return self.not_archived and self.report is None
 
     @property
-    def not_archived_has_report(self):
+    def not_archived_has_report(self) -> bool:
         return self.not_archived and self.report is not None
 
     @property
-    def published_report_url(self):
+    def published_report_url(self) -> str:
         if self.report and self.report.latest_s3_report:
             return f"{settings.AMP_PROTOCOL}{settings.AMP_VIEWER_DOMAIN}/reports/{self.report.latest_s3_report.guid}"
         else:
             return ""
 
     @property
-    def previous_case_identifier(self):
+    def previous_case_identifier(self) -> str | None:
         return get_previous_case_identifier(previous_case_url=self.previous_case_url)
 
     @property
-    def last_edited(self):
+    def last_edited(self) -> datetime:
         """Return when case or related data was last changed"""
         updated_times: list[datetime | None] = [self.created, self.updated]
 
@@ -767,7 +767,7 @@ class SimplifiedCase(BaseCase):
         return int(fixed_checks_count * 100 / failed_checks_count)
 
     @property
-    def csv_export_statement_initially_found(self) -> int:
+    def csv_export_statement_initially_found(self) -> str:
         if self.audit is None:
             return "unknown"
         if self.audit.statement_initially_found:
@@ -775,7 +775,7 @@ class SimplifiedCase(BaseCase):
         return "No"
 
     @property
-    def csv_export_statement_found_at_12_week_retest(self) -> int:
+    def csv_export_statement_found_at_12_week_retest(self) -> str:
         if self.audit is None:
             return "unknown"
         if self.audit.statement_found_at_12_week_retest:

@@ -126,15 +126,6 @@ SIMPLIFIED_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] 
         edit_url_name="simplified:edit-enforcement-recommendation",
         edit_url_anchor="id_recommendation_notes-label",
     ),
-    EqualityBodyCSVColumn(
-        column_header="Summary of progress made / response from PSB",
-        source_class=SimplifiedCase,
-        source_attr="psb_progress_notes",
-        data_type="markdown",
-        edit_url_class=SimplifiedCase,
-        edit_url_name="simplified:edit-review-changes",
-        edit_url_anchor="id_psb_progress_notes-label",
-    ),
 ]
 SIMPLIFIED_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: list[
     EqualityBodyCSVColumn

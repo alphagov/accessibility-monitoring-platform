@@ -71,11 +71,6 @@ DETAILED_EQUALITY_BODY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="recommendation_info",
     ),
     CSVColumn(
-        column_header="Summary of progress made / response from PSB",
-        source_class=DetailedCase,
-        source_attr="psb_progress_info",
-    ),
-    CSVColumn(
         column_header="Contact details",
         source_class=DetailedCase,
         source_attr="equality_body_export_contact_details",

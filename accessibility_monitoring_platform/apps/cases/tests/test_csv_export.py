@@ -122,7 +122,7 @@ def test_populate_equality_body_columns():
     )
     row: list[CSVColumn] = populate_equality_body_columns(case=simplified_case)
 
-    assert len(row) == 30
+    assert len(row) == 29
 
     contact_details: list[EqualityBodyCSVColumn] = [
         cell for cell in row if cell.column_header == "Contact details"

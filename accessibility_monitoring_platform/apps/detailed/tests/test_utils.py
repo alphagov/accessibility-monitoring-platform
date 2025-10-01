@@ -278,7 +278,6 @@ def test_download_equality_body_detailed_cases():
         "",
         "Not selected",
         "",
-        "",
         "Detailed contact details\nDetailed contact notes\n",
         "No",
         "",
