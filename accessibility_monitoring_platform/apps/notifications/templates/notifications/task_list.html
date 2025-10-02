@@ -189,7 +189,7 @@
                                         <b>Case</b>
                                     </div>
                                     <div>
-                                        <a href="{% url 'simplified:case-detail' task.base_case.id %}" class="govuk-link govuk-link--no-visited-state">{{ task.base_case.organisation_name }}</a>
+                                        <a href="{{ task.base_case.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">{{ task.base_case.organisation_name }}</a>
                                     </div>
                                 </div>
                                 <div class="amp-margin-bottom-10 amp-column-view-parent">
