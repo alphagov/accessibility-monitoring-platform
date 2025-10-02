@@ -217,6 +217,7 @@
                     </table>
                 </div>
             </div>
+            {% include 'common/top_and_bottom.html' %}
         {% endfor %}
     {% else %}
         {% for wcag_definition, failures in audit_failures_by_wcag.items %}
@@ -284,6 +285,7 @@
                     </table>
                 </div>
             </div>
+            {% include 'common/top_and_bottom.html' %}
         {% endfor %}
         {% if pages_with_retest_notes %}
             <h2 id="additional-page-issues" class="govuk-heading-m govuk-!-font-size-19 govuk-!-font-weight-bold">Additional issues found on page ({{ pages_with_retest_notes|length }})</h2>
@@ -334,6 +336,7 @@
                 {% endfor %}
                 </tbody>
             </table>
+            {% include 'common/top_and_bottom.html' %}
         {% endif %}
     {% endif %}
 {% endif %}
@@ -345,5 +348,8 @@
         {% else %}
             {% include 'audits/helpers/test_summary_initial_statement_content.html' %}
         {% endif %}
+        {% include 'common/top_and_bottom.html' %}
     {% endfor %}
 {% endif %}
+
+<hr id="bottom-of-page" class="amp-width-100 amp-margin-bottom-30">
