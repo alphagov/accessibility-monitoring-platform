@@ -98,7 +98,7 @@ def test_dashboard_shows_link_to_closed_and_sent_cases(admin_client, admin_user)
 
     assertContains(
         response,
-        f"""<a href="/cases/?auditor={admin_user.id}&status=case-closed-sent-to-equalities-body"
+        f"""<a href="/cases/?auditor={admin_user.id}&status=180-case-closed-sent-to-equalities-body"
             class="govuk-link govuk-link--no-visited-state">
                 View in search</a>""",
         html=True,
@@ -173,7 +173,7 @@ def test_dashboard_shows_link_to_completed_cases(admin_client, admin_user):
 
     assertContains(
         response,
-        f"""<a href="/cases/?auditor={admin_user.id}&status=complete"
+        f"""<a href="/cases/?auditor={admin_user.id}&status=200-complete"
             class="govuk-link govuk-link--no-visited-state">
                 View in search</a>""",
         html=True,

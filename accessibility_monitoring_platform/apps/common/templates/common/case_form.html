@@ -21,7 +21,7 @@
                 {% block nav %}
                     {% if case.archive %}
                         <p class="govuk-body-s amp-margin-bottom-10">
-                            <a href="{% url 'simplified:case-detail' case.id %}" class="govuk-link govuk-link--no-visited-state">Return to case overview</a>
+                            <a href="{{ case.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">Return to case overview</a>
                         </p>
                     {% endif %}
                     {% if case.test_type == 'simplified' %}

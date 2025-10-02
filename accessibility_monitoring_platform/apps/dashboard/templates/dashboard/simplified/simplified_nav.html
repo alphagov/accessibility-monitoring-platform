@@ -76,8 +76,8 @@
         Case closed and waiting to be sent to equalities body - {{ cases_by_status.case_closed_waiting_to_be_sent|length }}{% if cases_by_status.case_closed_waiting_to_be_sent %}</a>{% endif %}
     </p>
     <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
-        Case closed and sent to equalities body - 
-        <a href="{% url 'cases:case-list' %}?{% if show_all_cases %}{% else %}auditor={{ user.id }}&{% endif %}status=case-closed-sent-to-equalities-body" class="govuk-link govuk-link--no-visited-state">
+        Case closed and sent to equalities body -
+        <a href="{% url 'cases:case-list' %}?{% if filter == 'all-cases' %}{% else %}auditor={{ user.id }}&{% endif %}status=180-case-closed-sent-to-equalities-body" class="govuk-link govuk-link--no-visited-state">
             View in search</a>
     </p>
     <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
@@ -87,8 +87,8 @@
         In correspondence with equalities body - {{ cases_by_status.in_correspondence_with_equalities_body|length }}{% if cases_by_status.in_correspondence_with_equalities_body %}</a>{% endif %}
     </p>
     <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
-        Completed cases - 
-        <a href="{% url 'cases:case-list' %}?{% if show_all_cases %}{% else %}auditor={{ user.id }}&{% endif %}status=complete" class="govuk-link govuk-link--no-visited-state">
+        Completed cases -
+        <a href="{% url 'cases:case-list' %}?{% if filter == 'all-cases' %}{% else %}auditor={{ user.id }}&{% endif %}status=200-complete" class="govuk-link govuk-link--no-visited-state">
             View in search</a>
     </p>
 </nav>
