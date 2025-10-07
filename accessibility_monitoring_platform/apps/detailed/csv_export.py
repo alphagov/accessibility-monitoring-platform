@@ -128,7 +128,7 @@ DETAILED_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: list[
     EqualityBodyCSVColumn(
         column_header="Contact details",
         source_class=DetailedCase,
-        source_attr=None,
+        source_attr="equality_body_export_contact_details",
         data_type="pre",
         edit_url_class=DetailedCase,
         edit_url_name="detailed:manage-contact-details",
