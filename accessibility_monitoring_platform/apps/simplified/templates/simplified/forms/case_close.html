@@ -97,19 +97,19 @@
 
         <h2 class="govuk-heading-m" id="1-metadata">1. Metadata</h2>
         {% for equality_body_column in equality_body_metadata_columns %}
-            {% include 'simplified/helpers/csv_column.html' %}
+            {% include 'cases/helpers/equality_body_csv_column.html' %}
         {% endfor %}
         <h2 class="govuk-heading-m" id="2-report-and-recommendation">2. Report and recommendation</h2>
         {% for equality_body_column in equality_body_report_columns %}
-            {% include 'simplified/helpers/csv_column.html' %}
+            {% include 'cases/helpers/equality_body_csv_column.html' %}
         {% endfor %}
         <h2 class="govuk-heading-m" id="3-correspondence">3. Correspondence</h2>
         {% for equality_body_column in equality_body_correspondence_columns %}
-            {% include 'simplified/helpers/csv_column.html' %}
+            {% include 'cases/helpers/equality_body_csv_column.html' %}
         {% endfor %}
         <h2 class="govuk-heading-m" id="4-test-summary">4. Test summary</h2>
         {% for equality_body_column in equality_body_test_summary_columns %}
-            {% include 'simplified/helpers/csv_column.html' %}
+            {% include 'cases/helpers/equality_body_csv_column.html' %}
         {% endfor %}
     </div>
 </div>

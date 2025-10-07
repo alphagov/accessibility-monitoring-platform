@@ -14,11 +14,13 @@ from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 
+from ..cases.csv_export import populate_equality_body_columns
 from ..cases.forms import CaseSearchForm
 from ..cases.models import BaseCase, TestType
 from ..cases.utils import filter_cases, find_duplicate_cases
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
+from ..common.csv_export import EqualityBodyCSVColumn
 from ..common.sitemap import Sitemap
 from ..common.utils import extract_domain_from_url, replace_search_key_with_case_search
 from ..common.views import (
@@ -28,6 +30,12 @@ from ..common.views import (
 )
 from ..notifications.models import Task
 from ..notifications.utils import mark_tasks_as_read
+from .csv_export import (
+    DETAILED_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
+    DETAILED_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
+    DETAILED_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
+    DETAILED_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
+)
 from .forms import (
     CaseCloseUpdateForm,
     CaseRecommendationUpdateForm,
@@ -537,6 +545,56 @@ class CaseCloseUpdateView(DetailedCaseUpdateView):
 
     template_name: str = "detailed/forms/close_case.html"
     form_class: type[CaseCloseUpdateForm] = CaseCloseUpdateForm
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Get context data for template rendering"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        detailed_case: DetailedCase = self.object
+        equality_body_metadata_columns: list[EqualityBodyCSVColumn] = (
+            populate_equality_body_columns(
+                case=detailed_case,
+                column_definitions=DETAILED_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
+            )
+        )
+        equality_body_report_columns: list[EqualityBodyCSVColumn] = (
+            populate_equality_body_columns(
+                case=detailed_case,
+                column_definitions=DETAILED_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
+            )
+        )
+        equality_body_correspondence_columns: list[EqualityBodyCSVColumn] = (
+            populate_equality_body_columns(
+                case=detailed_case,
+                column_definitions=DETAILED_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
+            )
+        )
+        equality_body_test_summary_columns: list[EqualityBodyCSVColumn] = (
+            populate_equality_body_columns(
+                case=detailed_case,
+                column_definitions=DETAILED_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
+            )
+        )
+        all_equality_body_columns: list[EqualityBodyCSVColumn] = (
+            equality_body_metadata_columns
+            + equality_body_report_columns
+            + equality_body_correspondence_columns
+            + equality_body_test_summary_columns
+        )
+        required_data_missing_columns: list[EqualityBodyCSVColumn] = [
+            column
+            for column in all_equality_body_columns
+            if column.required_data_missing
+        ]
+        context["equality_body_metadata_columns"] = equality_body_metadata_columns
+        context["equality_body_report_columns"] = equality_body_report_columns
+        context["equality_body_correspondence_columns"] = (
+            equality_body_correspondence_columns
+        )
+        context["equality_body_test_summary_columns"] = (
+            equality_body_test_summary_columns
+        )
+        context["required_data_missing_columns"] = required_data_missing_columns
+        return context
 
 
 class StatementEnforcementUpdateView(DetailedCaseUpdateView):

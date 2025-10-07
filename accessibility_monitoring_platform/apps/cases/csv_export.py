@@ -34,22 +34,23 @@ def populate_equality_body_columns(
     contact_details: str = (
         format_simplified_contacts(contacts=case.contacts)
         if isinstance(case, SimplifiedCase)
-        else None
+        else case.equality_body_export_contact_details
     )
     source_instances: dict = {
         SimplifiedCase: case if isinstance(case, SimplifiedCase) else None,
+        DetailedCase: case if isinstance(case, DetailedCase) else None,
         Audit: case.audit if hasattr(case, "audit") else None,
         CaseCompliance: case.compliance if hasattr(case, "compliance") else None,
         Report: case.report if hasattr(case, "report") else None,
     }
     columns: list[EqualityBodyCSVColumn] = copy.deepcopy(column_definitions)
     for column in columns:
-        source_instance: Audit | SimplifiedCase | CaseCompliance | Report | None = (
-            source_instances.get(column.source_class)
-        )
-        edit_url_instance: Audit | SimplifiedCase | CaseCompliance | Report | None = (
-            source_instances.get(column.edit_url_class)
-        )
+        source_instance: (
+            Audit | DetailedCase | SimplifiedCase | CaseCompliance | Report | None
+        ) = source_instances.get(column.source_class)
+        edit_url_instance: (
+            Audit | DetailedCase | SimplifiedCase | CaseCompliance | Report | None
+        ) = source_instances.get(column.edit_url_class)
         if column.column_header == CONTACT_DETAILS_COLUMN_HEADER:
             column.formatted_data = contact_details
         else:

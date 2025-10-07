@@ -75,6 +75,9 @@ describe('Create detailed case', () => {
     cy.title().should('eq', `${newOrganisationName} | Compliance decisions`)
     cy.contains('Save and continue').click()
 
+    cy.title().should('eq', `${newOrganisationName} | Recommendation`)
+    cy.contains('Save and continue').click()
+
     cy.title().should('eq', `${newOrganisationName} | Closing the case`)
     cy.contains('Save and continue').click()
 
