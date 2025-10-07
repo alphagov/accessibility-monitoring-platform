@@ -36,6 +36,10 @@
                         </div>
                     </div>
                 </form>
+                <p class="govuk-body-m">
+                    Displaying {{ paginator.count }}
+                    Issue report{% if paginator.count != 1 %}s{% endif %}.
+                </p>
                 {% include "common/pagination_controls.html" %}
                     {% for issue_report in issue_reports %}
                         <h2 id="issue-{{ issue_report.issue_number }}" class="govuk-heading-m">
