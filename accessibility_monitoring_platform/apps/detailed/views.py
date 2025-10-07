@@ -30,6 +30,7 @@ from ..notifications.models import Task
 from ..notifications.utils import mark_tasks_as_read
 from .forms import (
     CaseCloseUpdateForm,
+    CaseRecommendationUpdateForm,
     ContactCreateForm,
     ContactInformationRequestUpdateForm,
     ContactUpdateForm,
@@ -522,6 +523,13 @@ class RetestComplianceDecisionsUpdateView(DetailedCaseUpdateView):
     form_class: type[RetestComplianceDecisionsUpdateForm] = (
         RetestComplianceDecisionsUpdateForm
     )
+
+
+class CaseRecommendationUpdateView(DetailedCaseUpdateView):
+    """View to update case recommendation"""
+
+    template_name: str = "detailed/forms/recommendation.html"
+    form_class: type[CaseRecommendationUpdateForm] = CaseRecommendationUpdateForm
 
 
 class CaseCloseUpdateView(DetailedCaseUpdateView):

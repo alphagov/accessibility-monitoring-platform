@@ -192,7 +192,7 @@ class DetailedCase(BaseCase):
     )
     retest_compliance_decisions_complete_date = models.DateField(null=True, blank=True)
 
-    # Closing the case - Closing the case
+    # Closing the case - Recommendation
     psb_progress_info = models.TextField(default="", blank=True)
     recommendation_decision_sent_date = models.DateField(null=True, blank=True)
     recommendation_decision_sent_to = models.CharField(
@@ -206,6 +206,9 @@ class DetailedCase(BaseCase):
     )
     case_close_decision_notes = models.TextField(default="", blank=True)
     # is_feedback_requested from case metadata
+    case_recommendation_complete_date = models.DateField(null=True, blank=True)
+
+    # Closing the case - Closing the case
     case_close_complete_date = models.DateField(null=True, blank=True)
 
     # Post case - statement enforcement

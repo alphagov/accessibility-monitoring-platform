@@ -515,8 +515,8 @@ class RetestComplianceDecisionsUpdateForm(VersionForm):
         ]
 
 
-class CaseCloseUpdateForm(VersionForm):
-    """Form for updating closing the case page"""
+class CaseRecommendationUpdateForm(VersionForm):
+    """Form for updating the case recommendation page"""
 
     psb_progress_info = AMPTextField(label="Progress summary and PSB response")
     recommendation_for_enforcement = AMPChoiceRadioField(
@@ -548,7 +548,7 @@ class CaseCloseUpdateForm(VersionForm):
             attrs={"label": "Feedback survey sent to this organisation?"}
         ),
     )
-    case_close_complete_date = AMPDatePageCompleteField()
+    case_recommendation_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = DetailedCase
@@ -562,6 +562,19 @@ class CaseCloseUpdateForm(VersionForm):
             "case_close_decision_state",
             "is_case_added_to_stats",
             "is_feedback_requested",
+            "case_recommendation_complete_date",
+        ]
+
+
+class CaseCloseUpdateForm(VersionForm):
+    """Form for updating closing the case page"""
+
+    case_close_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = DetailedCase
+        fields = [
+            "version",
             "case_close_complete_date",
         ]
 
