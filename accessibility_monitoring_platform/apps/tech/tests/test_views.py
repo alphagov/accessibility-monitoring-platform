@@ -9,6 +9,7 @@ from django.urls import reverse
 from pytest_django.asserts import assertContains
 
 from ...audits.models import Audit
+from ...common.models import IssueReport
 from ...reports.models import Report
 from ...simplified.models import SimplifiedCase
 from ...users.tests.test_views import VALID_PASSWORD, VALID_USER_EMAIL, create_user
@@ -84,3 +85,73 @@ def test_reference_implementations_page(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "Reference implementation")
+
+
+@pytest.mark.parametrize(
+    "fieldname",
+    [
+        "page_url",
+        "page_title",
+        "goal_description",
+        "issue_description",
+        "trello_ticket",
+        "notes",
+    ],
+)
+def test_issue_report_list_view_filters(fieldname, admin_client):
+    """Test Issue reports list can be filtered by each field"""
+    user: User = User.objects.create()
+    issue_report: IssueReport = IssueReport.objects.create(created_by=user)
+    setattr(issue_report, fieldname, "searchstring")
+    issue_report.save()
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse('tech:issue-reports-list')}?issue_report_search=SearchString"
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response, '<p class="govuk-body-m">Displaying 1 Issue report.</p>', html=True
+    )
+
+
+def test_issue_report_list_view_filter_issue_number(admin_client):
+    """Test Issue reports list can be filtered by issue number"""
+    user: User = User.objects.create()
+    IssueReport.objects.create(created_by=user, issue_number=999)
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse('tech:issue-reports-list')}?issue_report_search=999"
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response, '<p class="govuk-body-m">Displaying 1 Issue report.</p>', html=True
+    )
+
+
+@pytest.mark.parametrize(
+    "fieldname",
+    [
+        "first_name",
+        "last_name",
+    ],
+)
+def test_issue_report_list_view_filter_user_name(fieldname, admin_client):
+    """Test Issue reports list can be filtered by user name"""
+    user: User = User.objects.create()
+    setattr(user, fieldname, "Username1")
+    user.save()
+    IssueReport.objects.create(created_by=user)
+
+    response: HttpResponse = admin_client.get(
+        f"{reverse('tech:issue-reports-list')}?issue_report_search=Username1"
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response, '<p class="govuk-body-m">Displaying 1 Issue report.</p>', html=True
+    )

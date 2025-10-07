@@ -2566,7 +2566,7 @@ def test_wcag_definition_list_view_shows_all(admin_client):
     ["type", "name", "description", "hint", "url_on_w3", "report_boilerplate"],
 )
 def test_wcag_definition_list_view_filters(fieldname, admin_client):
-    """Test WCAG definition list cab be filtered by each field"""
+    """Test WCAG definition list can be filtered by each field"""
     wcag_definition: WcagDefinition = WcagDefinition.objects.create()
     setattr(wcag_definition, fieldname, "helcaraxe")
     wcag_definition.save()
