@@ -267,7 +267,9 @@ class RetestStatementPageFormsetUpdateView(NextPlatformPageMixin, UpdateView):
             statement_pages_formset = StatementPageFormset(self.request.POST)
         else:
             statement_pages: QuerySet[StatementPage] = (
-                self.object.simplified_case.audit.statement_pages
+                self.object.simplified_case.audit.statement_pages.filter(
+                    added_stage=StatementPage.AddedStage.RETEST
+                )
             )
             if "add_extra" in self.request.GET:
                 statement_pages_formset = StatementPageFormsetOneExtra(
@@ -279,6 +281,11 @@ class RetestStatementPageFormsetUpdateView(NextPlatformPageMixin, UpdateView):
             if form.instance.id is None:
                 form.fields["added_stage"].initial = StatementPage.AddedStage.RETEST
         context["statement_pages_formset"] = statement_pages_formset
+        context["old_statement_pages"] = (
+            self.object.simplified_case.audit.statement_pages.exclude(
+                added_stage=StatementPage.AddedStage.RETEST
+            )
+        )
         return context
 
     def form_valid(self, form: ModelForm):

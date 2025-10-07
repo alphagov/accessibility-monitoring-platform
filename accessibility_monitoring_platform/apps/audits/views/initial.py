@@ -4,6 +4,7 @@ Views for audits app (called tests by users)
 
 from typing import Any
 
+from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -46,6 +47,8 @@ from ..forms import (
     CheckResultFormset,
     InitialCustomIssueCreateUpdateForm,
     InitialDisproportionateBurdenUpdateForm,
+    StatementPageFormset,
+    StatementPageFormsetOneExtra,
 )
 from ..models import (
     Audit,
@@ -372,9 +375,20 @@ class InitialStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        for form in context["statement_pages_formset"]:
+        if self.request.POST:
+            statement_pages_formset = StatementPageFormset(self.request.POST)
+        else:
+            statement_pages: QuerySet[StatementPage] = self.object.statement_pages
+            if "add_extra" in self.request.GET:
+                statement_pages_formset = StatementPageFormsetOneExtra(
+                    queryset=statement_pages
+                )
+            else:
+                statement_pages_formset = StatementPageFormset(queryset=statement_pages)
+        for form in statement_pages_formset:
             if form.instance.id is None:
                 form.fields["added_stage"].initial = StatementPage.AddedStage.INITIAL
+        context["statement_pages_formset"] = statement_pages_formset
         return context
 
     def get_success_url(self) -> str:

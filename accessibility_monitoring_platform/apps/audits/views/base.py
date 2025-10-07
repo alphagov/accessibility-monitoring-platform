@@ -25,8 +25,6 @@ from ..forms import (
     StatementCheckCreateUpdateForm,
     StatementCheckResultFormset,
     StatementCheckSearchForm,
-    StatementPageFormset,
-    StatementPageFormsetOneExtra,
     WcagDefinitionCreateUpdateForm,
     WcagDefinitionSearchForm,
 )
@@ -427,22 +425,6 @@ class StatementPageFormsetUpdateView(AuditUpdateView):
     """
     View to update statement pages
     """
-
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Get context data for template rendering"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        if self.request.POST:
-            statement_pages_formset = StatementPageFormset(self.request.POST)
-        else:
-            statement_pages: QuerySet[StatementPage] = self.object.statement_pages
-            if "add_extra" in self.request.GET:
-                statement_pages_formset = StatementPageFormsetOneExtra(
-                    queryset=statement_pages
-                )
-            else:
-                statement_pages_formset = StatementPageFormset(queryset=statement_pages)
-        context["statement_pages_formset"] = statement_pages_formset
-        return context
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""

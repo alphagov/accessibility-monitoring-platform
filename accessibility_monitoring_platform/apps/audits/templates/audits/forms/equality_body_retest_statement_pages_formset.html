@@ -24,6 +24,21 @@
             <div class="govuk-grid-column-two-thirds">
                 {% include 'common/formset_error_summary.html' with formset=statement_pages_formset %}
                 {% include 'common/error_summary.html' %}
+                {% for statement_page in old_statement_pages %}
+                    <h2 id="statement-page-{{ statement_page.id }}" class="govuk-heading-m">{{ statement_page.get_added_stage_display }} link {{ forloop.counter }}</h2>
+                    <p class="govuk-body amp-margin-bottom-5"><b>Link to statement</b></p>
+                    <p class="govuk-body">
+                        <a href="{{ statement_page.url }}" rel="noreferrer noopener"
+                            target="_blank" class="govuk-link">{{ statement_page.url }}</a>
+                        <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span>
+                    </p>
+                    <p class="govuk-body amp-margin-bottom-5"><b>Statement backup</b></p>
+                    <p class="govuk-body">
+                        <a href="{{ statement_page.backup_url }}" rel="noreferrer noopener"
+                            target="_blank" class="govuk-link">{{ statement_page.backup_url }}</a>
+                        <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span>
+                    </p>
+                {% endfor %}
                 <form method="post" action="{% url 'audits:edit-equality-body-statement-pages' retest.id %}">
                     {% csrf_token %}
                     {{ statement_pages_formset.management_form }}
@@ -58,7 +73,7 @@
                                 </tr>
                             {% endfor %}
                         {% else %}
-                            <p class="govuk-body-l">No statement links have been entered</p>
+                            <p class="govuk-body-l">No equality body retest statement links have been entered</p>
                         {% endif %}
                         </tbody>
                     </table>

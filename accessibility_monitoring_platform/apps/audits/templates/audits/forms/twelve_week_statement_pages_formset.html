@@ -1,5 +1,23 @@
 {% extends 'common/case_form.html' %}
 
+{% block preform %}
+{% for statement_page in initial_statement_pages %}
+    <h2 id="statement-page-{{ statement_page.id }}" class="govuk-heading-m">Initial link {{ forloop.counter }}</h2>
+    <p class="govuk-body amp-margin-bottom-5"><b>Link to statement</b></p>
+    <p class="govuk-body">
+        <a href="{{ statement_page.url }}" rel="noreferrer noopener"
+            target="_blank" class="govuk-link">{{ statement_page.url }}</a>
+        <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span>
+    </p>
+    <p class="govuk-body amp-margin-bottom-5"><b>Statement backup</b></p>
+    <p class="govuk-body">
+        <a href="{{ statement_page.backup_url }}" rel="noreferrer noopener"
+            target="_blank" class="govuk-link">{{ statement_page.backup_url }}</a>
+        <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span>
+    </p>
+{% endfor %}
+{% endblock %}
+
 {% block form %}
     {% include 'common/formset_error_summary.html' with formset=statement_pages_formset %}
     <form method="post" action="{% url 'audits:edit-audit-retest-statement-pages' audit.id %}">
@@ -14,7 +32,7 @@
                         <td class="govuk-table__cell">
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
-                                    <h2 id="statement-page-{{ statement_page_form.instance.id }}" class="govuk-heading-m">Link {{ forloop.counter }}</h2>
+                                    <h2 id="statement-page-{{ statement_page_form.instance.id }}" class="govuk-heading-m">12-week link {{ forloop.counter }}</h2>
                                     {% include 'common/form_errors.html' with errors=statement_page_form.non_field_errors %}
                                     {% include 'common/form_hidden_fields.html' with hidden_fields=statement_page_form.hidden_fields %}
                                     {% for field in statement_page_form.visible_fields %}
