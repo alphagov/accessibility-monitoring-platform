@@ -5,6 +5,7 @@ Views for audits app (called tests by users)
 from datetime import date
 from typing import Any
 
+from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
@@ -43,6 +44,8 @@ from ..forms import (
     CaseComplianceStatement12WeekUpdateForm,
     CaseComplianceWebsite12WeekUpdateForm,
     New12WeekCustomStatementCheckResultUpdateForm,
+    StatementPageFormset,
+    StatementPageFormsetOneExtra,
     TwelveWeekDisproportionateBurdenUpdateForm,
     TwelveWeekStatementPagesUpdateForm,
 )
@@ -289,11 +292,29 @@ class TwelveWeekStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        for form in context["statement_pages_formset"]:
+        if self.request.POST:
+            statement_pages_formset = StatementPageFormset(self.request.POST)
+        else:
+            statement_pages: QuerySet[StatementPage] = (
+                self.object.statement_pages.exclude(
+                    added_stage=StatementPage.AddedStage.INITIAL
+                )
+            )
+            if "add_extra" in self.request.GET:
+                statement_pages_formset = StatementPageFormsetOneExtra(
+                    queryset=statement_pages
+                )
+            else:
+                statement_pages_formset = StatementPageFormset(queryset=statement_pages)
+        for form in statement_pages_formset:
             if form.instance.id is None:
                 form.fields["added_stage"].initial = (
                     StatementPage.AddedStage.TWELVE_WEEK
                 )
+        context["statement_pages_formset"] = statement_pages_formset
+        context["initial_statement_pages"] = self.object.statement_pages.filter(
+            added_stage=StatementPage.AddedStage.INITIAL
+        )
         return context
 
     def get_success_url(self) -> str:
