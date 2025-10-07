@@ -44,3 +44,16 @@ class ImportTrelloCommentsForm(forms.Form):
         choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(attrs={"label": "Delete existing data"}),
     )
+
+
+class IssueReportSearchForm(forms.Form):
+    """Form for searching for issue reports"""
+
+    issue_report_search = AMPCharFieldWide(
+        widget=forms.TextInput(
+            attrs={
+                "class": "govuk-input",
+                "placeholder": "Search term",
+            }
+        )
+    )
