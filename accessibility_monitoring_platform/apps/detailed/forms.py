@@ -532,10 +532,6 @@ class CaseRecommendationUpdateForm(VersionForm):
     recommendation_decision_sent_to = AMPCharFieldWide(
         label="Decision sent to · Included in export"
     )
-    case_close_decision_state = AMPChoiceRadioField(
-        label="Case completed",
-        choices=DetailedCase.CaseCloseDecision,
-    )
     is_case_added_to_stats = AMPChoiceCheckboxField(
         label="Case stats",
         choices=Boolean.choices,
@@ -559,7 +555,6 @@ class CaseRecommendationUpdateForm(VersionForm):
             "recommendation_info",
             "recommendation_decision_sent_date",
             "recommendation_decision_sent_to",
-            "case_close_decision_state",
             "is_case_added_to_stats",
             "is_feedback_requested",
             "case_recommendation_complete_date",
@@ -569,12 +564,17 @@ class CaseRecommendationUpdateForm(VersionForm):
 class CaseCloseUpdateForm(VersionForm):
     """Form for updating closing the case page"""
 
+    case_close_decision_state = AMPChoiceRadioField(
+        label="Case completed",
+        choices=DetailedCase.CaseCloseDecision,
+    )
     case_close_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = DetailedCase
         fields = [
             "version",
+            "case_close_decision_state",
             "case_close_complete_date",
         ]
 

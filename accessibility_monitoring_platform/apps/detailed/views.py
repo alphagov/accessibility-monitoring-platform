@@ -536,15 +536,15 @@ class RetestComplianceDecisionsUpdateView(DetailedCaseUpdateView):
 class CaseRecommendationUpdateView(DetailedCaseUpdateView):
     """View to update case recommendation"""
 
-    template_name: str = "detailed/forms/recommendation.html"
     form_class: type[CaseRecommendationUpdateForm] = CaseRecommendationUpdateForm
+    template_name: str = "detailed/forms/recommendation.html"
 
 
 class CaseCloseUpdateView(DetailedCaseUpdateView):
     """View to update closing the case"""
 
-    template_name: str = "detailed/forms/close_case.html"
     form_class: type[CaseCloseUpdateForm] = CaseCloseUpdateForm
+    template_name: str = "cases/closing_case.html"
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""

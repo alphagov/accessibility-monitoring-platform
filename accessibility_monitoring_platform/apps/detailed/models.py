@@ -199,16 +199,16 @@ class DetailedCase(BaseCase):
         max_length=200, default="", blank=True
     )
     recommendation_info = models.TextField(default="", blank=True)
-    case_close_decision_state = models.CharField(
-        max_length=30,
-        choices=CaseCloseDecision.choices,
-        default=CaseCloseDecision.NO_DECISION,
-    )
     case_close_decision_notes = models.TextField(default="", blank=True)
     # is_feedback_requested from case metadata
     case_recommendation_complete_date = models.DateField(null=True, blank=True)
 
     # Closing the case - Closing the case
+    case_close_decision_state = models.CharField(
+        max_length=30,
+        choices=CaseCloseDecision.choices,
+        default=CaseCloseDecision.NO_DECISION,
+    )
     case_close_complete_date = models.DateField(null=True, blank=True)
 
     # Post case - statement enforcement

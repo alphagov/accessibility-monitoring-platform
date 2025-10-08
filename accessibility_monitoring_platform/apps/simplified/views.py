@@ -728,7 +728,7 @@ class CaseCloseUpdateView(CaseUpdateView):
     """
 
     form_class: type[CaseCloseUpdateForm] = CaseCloseUpdateForm
-    template_name: str = "simplified/forms/case_close.html"
+    template_name: str = "cases/closing_case.html"
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""

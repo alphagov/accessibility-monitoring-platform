@@ -207,7 +207,6 @@ DETAILED_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColu
         source_class=DetailedCase,
         source_attr="number_of_issues_fixed",
         ui_suffix=" (derived from initial and unfixed numbers of issues)",
-        required=True,
         edit_url_class=DetailedCase,
         edit_url_name=None,
     ),
