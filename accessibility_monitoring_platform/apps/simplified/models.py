@@ -607,8 +607,7 @@ class SimplifiedCase(BaseCase):
     @property
     def equality_body_export_contact_details(self) -> QuerySet["Contact"]:
         """
-        For a contact-related field, concatenate the values for all the contacts
-        and return as a single string.
+        Concatenate the values for all the contacts and return as a single string.
         """
         contact_details: str = ""
         for contact in self.contacts:

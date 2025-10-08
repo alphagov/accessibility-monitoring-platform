@@ -76,22 +76,21 @@ def populate_csv_columns(
     case: DetailedCase | SimplifiedCase, column_definitions: list[CSVColumn]
 ) -> list[CSVColumn]:
     """Collect data for a case to export"""
-    source_instances: dict[ExportableClasses] = {
-        SimplifiedCase: case if isinstance(case, SimplifiedCase) else None,
-        DetailedCase: case if isinstance(case, DetailedCase) else None,
-        CaseCompliance: case.compliance if hasattr(case, "compliance") else None,
-        CaseStatus: case.status,
-        SimplifiedContact: (
-            case.contact_set.filter(is_deleted=False).first()
-            if isinstance(case, SimplifiedCase)
-            else None
-        ),
-        DetailedContact: (
-            case.contact_set.filter(is_deleted=False).first()
-            if isinstance(case, DetailedCase)
-            else None
-        ),
-    }
+    source_instances: dict[ExportableClasses] = {}
+    if isinstance(case, DetailedCase):
+        source_instances[DetailedCase] = case
+        source_instances[DetailedContact] = case.contact_set.filter(
+            is_deleted=False
+        ).first()
+    elif isinstance(case, SimplifiedCase):
+        source_instances[SimplifiedCase] = case
+        source_instances[CaseStatus] = case.status
+        source_instances[SimplifiedContact] = case.contact_set.filter(
+            is_deleted=False
+        ).first()
+        if hasattr(case, "compliance"):
+            source_instances[CaseCompliance] = case.compliance
+
     columns: list[CSVColumn] = copy.deepcopy(column_definitions)
     for column in columns:
         source_instance: ExportableClasses = source_instances.get(column.source_class)
