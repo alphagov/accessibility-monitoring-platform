@@ -12,11 +12,7 @@ from ..common.csv_export import CSVColumn, EqualityBodyCSVColumn, format_model_f
 from ..detailed.models import Contact as DetailedContact
 from ..detailed.models import DetailedCase
 from ..reports.models import Report
-from ..simplified.csv_export import (
-    CONTACT_DETAILS_COLUMN_HEADER,
-    SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
-    format_simplified_contacts,
-)
+from ..simplified.csv_export import SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT
 from ..simplified.models import CaseCompliance, CaseStatus
 from ..simplified.models import Contact as SimplifiedContact
 from ..simplified.models import SimplifiedCase
@@ -31,19 +27,19 @@ def populate_equality_body_columns(
     """
     Collect data for a case to export to the equality body
     """
-    contact_details: str = (
-        format_simplified_contacts(contacts=case.contacts)
-        if isinstance(case, SimplifiedCase)
-        else case.equality_body_export_contact_details
-    )
-    source_instances: dict = {
-        SimplifiedCase: case if isinstance(case, SimplifiedCase) else None,
-        DetailedCase: case if isinstance(case, DetailedCase) else None,
-        Audit: case.audit if hasattr(case, "audit") else None,
-        CaseCompliance: case.compliance if hasattr(case, "compliance") else None,
-        Report: case.report if hasattr(case, "report") else None,
-    }
+    source_instances: dict = {}
+    if isinstance(case, SimplifiedCase):
+        source_instances[SimplifiedCase] = case
+    elif isinstance(case, DetailedCase):
+        source_instances[DetailedCase] = case
+        source_instances[Audit] = case.audit if hasattr(case, "audit") else None
+        source_instances[CaseCompliance] = (
+            case.compliance if hasattr(case, "compliance") else None
+        )
+        source_instances[Report] = case.report if hasattr(case, "report") else None
+
     columns: list[EqualityBodyCSVColumn] = copy.deepcopy(column_definitions)
+
     for column in columns:
         source_instance: (
             Audit | DetailedCase | SimplifiedCase | CaseCompliance | Report | None
@@ -51,18 +47,18 @@ def populate_equality_body_columns(
         edit_url_instance: (
             Audit | DetailedCase | SimplifiedCase | CaseCompliance | Report | None
         ) = source_instances.get(column.edit_url_class)
-        if column.column_header == CONTACT_DETAILS_COLUMN_HEADER:
-            column.formatted_data = contact_details
-        else:
-            column.formatted_data = format_model_field(
-                source_instance=source_instance, column=column
-            )
+
+        column.formatted_data = format_model_field(
+            source_instance=source_instance, column=column
+        )
+
         if column.edit_url_name is not None and edit_url_instance is not None:
             column.edit_url = reverse(
                 column.edit_url_name, kwargs={"pk": edit_url_instance.id}
             )
             if column.edit_url_anchor:
                 column.edit_url += f"#{column.edit_url_anchor}"
+
     return columns
 
 

@@ -288,6 +288,10 @@ class DetailedCase(BaseCase):
 
     @property
     def equality_body_export_contact_details(self) -> str:
+        """
+        For a contact-related field, concatenate the values for all the contacts
+        and return as a single string.
+        """
         contacts_string: str = ""
         for contact in self.contacts:
             if contacts_string:
