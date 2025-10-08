@@ -8,7 +8,12 @@ from django.db.models import QuerySet
 from django.urls import reverse
 
 from ..audits.models import Audit
-from ..common.csv_export import CSVColumn, EqualityBodyCSVColumn, format_model_field
+from ..common.csv_export import (
+    CSVColumn,
+    EqualityBodyCSVColumn,
+    ExportableClasses,
+    format_model_field,
+)
 from ..detailed.models import Contact as DetailedContact
 from ..detailed.models import DetailedCase
 from ..reports.models import Report
@@ -19,6 +24,10 @@ from ..simplified.models import SimplifiedCase
 
 DOWNLOAD_CASES_CHUNK_SIZE: int = 500
 
+EqualityBodySourceClasses = (
+    Audit | DetailedCase | CaseCompliance | Report | SimplifiedCase | None
+)
+
 
 def populate_equality_body_columns(
     case: DetailedCase | SimplifiedCase,
@@ -27,26 +36,27 @@ def populate_equality_body_columns(
     """
     Collect data for a case to export to the equality body
     """
-    source_instances: dict = {}
-    if isinstance(case, SimplifiedCase):
-        source_instances[SimplifiedCase] = case
-    elif isinstance(case, DetailedCase):
+    source_instances: dict[EqualityBodySourceClasses] = {}
+    if isinstance(case, DetailedCase):
         source_instances[DetailedCase] = case
-        source_instances[Audit] = case.audit if hasattr(case, "audit") else None
-        source_instances[CaseCompliance] = (
-            case.compliance if hasattr(case, "compliance") else None
-        )
-        source_instances[Report] = case.report if hasattr(case, "report") else None
+    elif isinstance(case, SimplifiedCase):
+        source_instances[SimplifiedCase] = case
+        if hasattr(case, "audit"):
+            source_instances[Audit] = case.audit
+        if hasattr(case, "compliance"):
+            source_instances[CaseCompliance] = case.compliance
+        if hasattr(case, "report"):
+            source_instances[Report] = case.report
 
     columns: list[EqualityBodyCSVColumn] = copy.deepcopy(column_definitions)
 
     for column in columns:
-        source_instance: (
-            Audit | DetailedCase | SimplifiedCase | CaseCompliance | Report | None
-        ) = source_instances.get(column.source_class)
-        edit_url_instance: (
-            Audit | DetailedCase | SimplifiedCase | CaseCompliance | Report | None
-        ) = source_instances.get(column.edit_url_class)
+        source_instance: EqualityBodySourceClasses = source_instances.get(
+            column.source_class
+        )
+        edit_url_instance: EqualityBodySourceClasses = source_instances.get(
+            column.edit_url_class
+        )
 
         column.formatted_data = format_model_field(
             source_instance=source_instance, column=column
@@ -65,10 +75,8 @@ def populate_equality_body_columns(
 def populate_csv_columns(
     case: DetailedCase | SimplifiedCase, column_definitions: list[CSVColumn]
 ) -> list[CSVColumn]:
-    """
-    Collect data for a case to export
-    """
-    source_instances: dict = {
+    """Collect data for a case to export"""
+    source_instances: dict[ExportableClasses] = {
         SimplifiedCase: case if isinstance(case, SimplifiedCase) else None,
         DetailedCase: case if isinstance(case, DetailedCase) else None,
         CaseCompliance: case.compliance if hasattr(case, "compliance") else None,
@@ -86,14 +94,7 @@ def populate_csv_columns(
     }
     columns: list[CSVColumn] = copy.deepcopy(column_definitions)
     for column in columns:
-        source_instance: (
-            DetailedCase
-            | SimplifiedCase
-            | CaseCompliance
-            | CaseStatus
-            | SimplifiedContact
-            | None
-        ) = source_instances.get(column.source_class)
+        source_instance: ExportableClasses = source_instances.get(column.source_class)
         column.formatted_data = format_model_field(
             source_instance=source_instance, column=column
         )
