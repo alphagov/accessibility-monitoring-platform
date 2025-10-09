@@ -1763,6 +1763,12 @@ SITE_MAP: list[PlatformPageGroup] = (
                     url_kwarg_key="pk",
                     instance_class=Export,
                 ),
+                PlatformPage(
+                    name="{instance} preview",
+                    url_name="exports:export-preview",
+                    url_kwarg_key="pk",
+                    instance_class=Export,
+                ),
                 SimplifiedCasePlatformPage(
                     name="Export Case as email for #{instance.case_number}",
                     url_name="exports:export-case-as-email",

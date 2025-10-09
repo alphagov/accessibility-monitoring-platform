@@ -33,8 +33,9 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 <p class="govuk-body-m">
-                    <a href="{% url 'exports:export-all-cases' export.id %}"
-                       class="govuk-link govuk-link--no-visited-state">Download DRAFT {{ export.enforcement_body|upper }} CSV export (all cases)</a>
+                    <a href="{% url 'exports:export-preview' export.id %}"
+                        class="govuk-link govuk-link--no-visited-state"
+                        target="_blank">Open EHRC export preview in new tab</a>
                 </p>
             </div>
             <div class="govuk-grid-column-one-third">
