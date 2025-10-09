@@ -216,5 +216,63 @@ describe('Create simplified case, tests and report', () => {
 
     cy.title().should('eq', `${newOrganisationName} | Closing the case`)
     cy.contains('Save and continue').click()
+
+    cy.contains('Post case').click()
+    cy.contains('Retest overview').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Retest overview`)
+    cy.contains('New retest').click()
+
+    cy.title().should('eq', 'Retest #1 | Retest metadata')
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Retest #1 | Home`)
+    cy.contains('Save and next page').click()
+
+    cy.title().should('eq', 'Retest #1 | Comparison')
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', 'Retest #1 | Compliance decision')
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Statement links`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Statement overview`)
+    cy.get('[name="form-0-check_result_state"]').check('yes')
+    cy.get('[name="form-1-check_result_state"]').check('yes')
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Statement information`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Compliance status`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Non-accessible content`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Statement preparation`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Feedback and enforcement procedure`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Disproportionate burden claim`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Custom statement issues`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Statement results`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Disproportionate burden`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Statement decision`)
+    cy.contains('Save and exit').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Retest overview`)
   })
 })
