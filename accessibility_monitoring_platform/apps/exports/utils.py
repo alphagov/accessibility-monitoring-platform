@@ -5,7 +5,7 @@ from datetime import date
 from django.db.models import QuerySet
 from django.http import StreamingHttpResponse
 
-from ..cases.csv_export import csv_output_generator
+from ..cases.csv_export import csv_output_generator, populate_equality_body_columns
 from ..simplified.csv_export import SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT
 from ..simplified.models import SimplifiedCase
 
@@ -40,3 +40,13 @@ def download_equality_body_simplified_cases(
     )
     response["Content-Disposition"] = f"attachment; filename={filename}"
     return response
+
+
+def preview_equality_body_simplified_cases(cases: QuerySet[SimplifiedCase]) -> dict:
+    """Get all the data for an equality body CSV export of simplified cases"""
+    return {
+        "columns": SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
+        "rows": [
+            populate_equality_body_columns(case=case.get_case()) for case in cases
+        ],
+    }

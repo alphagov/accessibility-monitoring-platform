@@ -1,0 +1,24 @@
+<table>
+    <thead>
+        <tr>
+            {% for column in preview.columns %}
+                <th scope="col">{{ column.column_header }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+    {% for row in preview.rows %}
+        <tr>
+            {% for column in row %}
+                <td>{{ column.formatted_data }}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<style>
+table, th, td {
+  border: 1px solid black;
+}
+</style>

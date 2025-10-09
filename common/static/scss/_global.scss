@@ -1017,3 +1017,11 @@ svg {
     direction: ltr;
     vertical-align: top;
 }
+
+.amp-export-preview {
+    width: 10000px;
+
+    tr td {
+        max-width: 300px;
+    }
+}
