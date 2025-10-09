@@ -9,6 +9,7 @@ from django.urls.resolvers import URLPattern
 from .views import (
     CaseCloseUpdateView,
     CaseDetailView,
+    CaseRecommendationUpdateView,
     CaseSearchView,
     CaseZendeskTicketsDetailView,
     ContactCreateView,
@@ -191,6 +192,11 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-retest-compliance-decisions/",
         login_required(RetestComplianceDecisionsUpdateView.as_view()),
         name="edit-retest-compliance-decisions",
+    ),
+    path(
+        "<int:pk>/edit-case-recommendation/",
+        login_required(CaseRecommendationUpdateView.as_view()),
+        name="edit-case-recommendation",
     ),
     path(
         "<int:pk>/edit-case-close/",

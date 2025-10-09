@@ -8,20 +8,25 @@ from django.db.models import QuerySet
 from django.urls import reverse
 
 from ..audits.models import Audit
-from ..common.csv_export import CSVColumn, EqualityBodyCSVColumn, format_model_field
+from ..common.csv_export import (
+    CSVColumn,
+    EqualityBodyCSVColumn,
+    ExportableClasses,
+    format_model_field,
+)
 from ..detailed.models import Contact as DetailedContact
 from ..detailed.models import DetailedCase
 from ..reports.models import Report
-from ..simplified.csv_export import (
-    CONTACT_DETAILS_COLUMN_HEADER,
-    SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
-    format_simplified_contacts,
-)
+from ..simplified.csv_export import SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT
 from ..simplified.models import CaseCompliance, CaseStatus
 from ..simplified.models import Contact as SimplifiedContact
 from ..simplified.models import SimplifiedCase
 
 DOWNLOAD_CASES_CHUNK_SIZE: int = 500
+
+EqualityBodySourceClasses = (
+    Audit | DetailedCase | CaseCompliance | Report | SimplifiedCase | None
+)
 
 
 def populate_equality_body_columns(
@@ -31,72 +36,64 @@ def populate_equality_body_columns(
     """
     Collect data for a case to export to the equality body
     """
-    contact_details: str = (
-        format_simplified_contacts(contacts=case.contacts)
-        if isinstance(case, SimplifiedCase)
-        else None
-    )
-    source_instances: dict = {
-        SimplifiedCase: case if isinstance(case, SimplifiedCase) else None,
-        Audit: case.audit if hasattr(case, "audit") else None,
-        CaseCompliance: case.compliance if hasattr(case, "compliance") else None,
-        Report: case.report if hasattr(case, "report") else None,
-    }
+    source_instances: dict[EqualityBodySourceClasses] = {}
+    if isinstance(case, DetailedCase):
+        source_instances[DetailedCase] = case
+    elif isinstance(case, SimplifiedCase):
+        source_instances[SimplifiedCase] = case
+        if hasattr(case, "audit"):
+            source_instances[Audit] = case.audit
+        if hasattr(case, "compliance"):
+            source_instances[CaseCompliance] = case.compliance
+        if hasattr(case, "report"):
+            source_instances[Report] = case.report
+
     columns: list[EqualityBodyCSVColumn] = copy.deepcopy(column_definitions)
+
     for column in columns:
-        source_instance: Audit | SimplifiedCase | CaseCompliance | Report | None = (
-            source_instances.get(column.source_class)
+        source_instance: EqualityBodySourceClasses = source_instances.get(
+            column.source_class
         )
-        edit_url_instance: Audit | SimplifiedCase | CaseCompliance | Report | None = (
-            source_instances.get(column.edit_url_class)
+        edit_url_instance: EqualityBodySourceClasses = source_instances.get(
+            column.edit_url_class
         )
-        if column.column_header == CONTACT_DETAILS_COLUMN_HEADER:
-            column.formatted_data = contact_details
-        else:
-            column.formatted_data = format_model_field(
-                source_instance=source_instance, column=column
-            )
+
+        column.formatted_data = format_model_field(
+            source_instance=source_instance, column=column
+        )
+
         if column.edit_url_name is not None and edit_url_instance is not None:
             column.edit_url = reverse(
                 column.edit_url_name, kwargs={"pk": edit_url_instance.id}
             )
             if column.edit_url_anchor:
                 column.edit_url += f"#{column.edit_url_anchor}"
+
     return columns
 
 
 def populate_csv_columns(
     case: DetailedCase | SimplifiedCase, column_definitions: list[CSVColumn]
 ) -> list[CSVColumn]:
-    """
-    Collect data for a case to export
-    """
-    source_instances: dict = {
-        SimplifiedCase: case if isinstance(case, SimplifiedCase) else None,
-        DetailedCase: case if isinstance(case, DetailedCase) else None,
-        CaseCompliance: case.compliance if hasattr(case, "compliance") else None,
-        CaseStatus: case.status,
-        SimplifiedContact: (
-            case.contact_set.filter(is_deleted=False).first()
-            if isinstance(case, SimplifiedCase)
-            else None
-        ),
-        DetailedContact: (
-            case.contact_set.filter(is_deleted=False).first()
-            if isinstance(case, DetailedCase)
-            else None
-        ),
-    }
+    """Collect data for a case to export"""
+    source_instances: dict[ExportableClasses] = {}
+    if isinstance(case, DetailedCase):
+        source_instances[DetailedCase] = case
+        source_instances[DetailedContact] = case.contact_set.filter(
+            is_deleted=False
+        ).first()
+    elif isinstance(case, SimplifiedCase):
+        source_instances[SimplifiedCase] = case
+        source_instances[CaseStatus] = case.status
+        source_instances[SimplifiedContact] = case.contact_set.filter(
+            is_deleted=False
+        ).first()
+        if hasattr(case, "compliance"):
+            source_instances[CaseCompliance] = case.compliance
+
     columns: list[CSVColumn] = copy.deepcopy(column_definitions)
     for column in columns:
-        source_instance: (
-            DetailedCase
-            | SimplifiedCase
-            | CaseCompliance
-            | CaseStatus
-            | SimplifiedContact
-            | None
-        ) = source_instances.get(column.source_class)
+        source_instance: ExportableClasses = source_instances.get(column.source_class)
         column.formatted_data = format_model_field(
             source_instance=source_instance, column=column
         )

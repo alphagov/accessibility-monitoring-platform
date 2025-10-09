@@ -1,156 +1,271 @@
 """Utility functions for CSV exports"""
 
-from ..common.csv_export import CSVColumn
+from ..common.csv_export import CSVColumn, EqualityBodyCSVColumn
 from ..detailed.models import Contact as DetailedContact
 from ..detailed.models import DetailedCase
 
-DETAILED_EQUALITY_BODY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
-    CSVColumn(
-        column_header="Enforcement Body",
+DETAILED_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
+    EqualityBodyCSVColumn(
+        column_header="Equality body",
         source_class=DetailedCase,
         source_attr="enforcement_body",
+        required=True,
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-case-metadata",
+        edit_url_anchor="id_enforcement_body-label",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Test type",
         source_class=DetailedCase,
         source_attr="test_type",
+        required=True,
+        edit_url_class=DetailedCase,
+        edit_url_name=None,
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Case number",
         source_class=DetailedCase,
         source_attr="case_identifier",
+        required=True,
+        edit_url_class=DetailedCase,
+        edit_url_name=None,
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Organisation",
         source_class=DetailedCase,
         source_attr="organisation_name",
+        required=True,
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-case-metadata",
+        edit_url_anchor="id_organisation_name-label",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Website URL",
         source_class=DetailedCase,
         source_attr="home_page_url",
+        required=True,
+        data_type="url",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-case-metadata",
+        edit_url_anchor="id_home_page_url-label",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Parent organisation name",
         source_class=DetailedCase,
         source_attr="parental_organisation_name",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-case-metadata",
+        edit_url_anchor="id_parental_organisation_name-label",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Sub-category",
         source_class=DetailedCase,
         source_attr="subcategory",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-case-metadata",
+        edit_url_anchor="id_subcategory-label",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Website name",
         source_class=DetailedCase,
         source_attr="website_name",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-case-metadata",
+        edit_url_anchor="id_website_name-label",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Previous Case Number",
         source_class=DetailedCase,
         source_attr="previous_case_identifier",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-case-metadata",
+        edit_url_anchor="id_previous_case_url-label",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Is it a complaint?",
         source_class=DetailedCase,
         source_attr="is_complaint",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-case-metadata",
+        edit_url_anchor="id_is_complaint-label",
     ),
-    CSVColumn(
+]
+DETAILED_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
+    EqualityBodyCSVColumn(
         column_header="Published report",
         source_class=DetailedCase,
         source_attr="equality_body_report_url",
+        required=True,
+        data_type="url",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-final-report",
+        edit_url_anchor="id_equality_body_report_url-label",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Enforcement recommendation",
         source_class=DetailedCase,
         source_attr="recommendation_for_enforcement",
+        required=True,
+        default_data="Not selected",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-case-recommendation",
+        edit_url_anchor="id_recommendation_for_enforcement-label",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Enforcement recommendation notes including exemptions",
         source_class=DetailedCase,
         source_attr="recommendation_info",
+        required=True,
+        data_type="markdown",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-case-recommendation",
+        edit_url_anchor="id_recommendation_info-label",
     ),
-    CSVColumn(
+]
+DETAILED_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: list[
+    EqualityBodyCSVColumn
+] = [
+    EqualityBodyCSVColumn(
         column_header="Contact details",
         source_class=DetailedCase,
         source_attr="equality_body_export_contact_details",
+        data_type="pre",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:manage-contact-details",
+        edit_url_label="Go to contact details",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Organisation responded to report?",
         source_class=DetailedCase,
         source_attr="report_acknowledged_yes_no",
+        ui_suffix=" (derived from report acknowledged date)",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-report-acknowledged",
+        edit_url_anchor="id_report_acknowledged_date-label",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Report sent on",
         source_class=DetailedCase,
         source_attr="report_sent_date",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-report-sent",
+        edit_url_anchor="id_report_sent_date-label",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Report acknowledged",
         source_class=DetailedCase,
         source_attr="report_acknowledged_date",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-report-acknowledged",
+        edit_url_anchor="id_report_acknowledged_date-label",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="12-week deadline",
         source_class=DetailedCase,
         source_attr="twelve_week_deadline_date",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-12-week-deadline",
+        edit_url_anchor="id_twelve_week_deadline_date-label",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Retest date",
         source_class=DetailedCase,
         source_attr="retest_start_date",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-retest-result",
+        edit_url_anchor="id_retest_start_date-label",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Date when compliance decision email sent to public sector body",
         source_class=DetailedCase,
         source_attr="recommendation_decision_sent_date",
+        required=True,
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-case-recommendation",
+        edit_url_anchor="id_recommendation_decision_sent_date-label",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Compliance decision email sent to",
         source_class=DetailedCase,
         source_attr="recommendation_decision_sent_to",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-case-recommendation",
+        edit_url_anchor="id_recommendation_decision_sent_to-label",
     ),
-    CSVColumn(
+]
+DETAILED_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
+    EqualityBodyCSVColumn(
         column_header="Total number of accessibility issues",
         source_class=DetailedCase,
         source_attr="initial_total_number_of_issues",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-initial-testing-outcome",
+        edit_url_anchor="id_initial_total_number_of_issues-label",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Number of issues fixed",
         source_class=DetailedCase,
         source_attr="number_of_issues_fixed",
+        ui_suffix=" (derived from initial and unfixed numbers of issues)",
+        edit_url_class=DetailedCase,
+        edit_url_name=None,
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Number of issues unfixed",
         source_class=DetailedCase,
         source_attr="retest_total_number_of_issues",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-retest-result",
+        edit_url_anchor="id_retest_total_number_of_issues-label",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Issues fixed as a percentage",
         source_class=DetailedCase,
         source_attr="percentage_of_issues_fixed",
+        ui_suffix="% (Derived from retest results)",
+        edit_url_class=DetailedCase,
+        edit_url_name=None,
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Was an accessibility statement found during the 12-week assessment",
         source_class=DetailedCase,
         source_attr="equality_body_export_statement_found_at_retest",
+        ui_suffix=" (Derived from retest statement compliance decision)",
+        edit_url_class=DetailedCase,
+        edit_url_name=None,
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Retest Accessibility Statement Decision",
         source_class=DetailedCase,
         source_attr="retest_statement_compliance_state",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-retest-compliance-decisions",
+        edit_url_anchor="id_retest_statement_compliance_state-label",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Retest disproportionate burden claimed?",
         source_class=DetailedCase,
         source_attr="retest_disproportionate_burden_claim",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-retest-compliance-decisions",
+        edit_url_anchor="id_retest_disproportionate_burden_claim-label",
     ),
-    CSVColumn(
+    EqualityBodyCSVColumn(
         column_header="Retest disproportionate burden details",
         source_class=DetailedCase,
         source_attr="retest_disproportionate_burden_information",
+        data_type="markdown",
+        edit_url_class=DetailedCase,
+        edit_url_name="detailed:edit-retest-compliance-decisions",
+        edit_url_anchor="id_retest_disproportionate_burden_information-label",
     ),
 ]
+DETAILED_EQUALITY_BODY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = (
+    DETAILED_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT
+    + DETAILED_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT
+    + DETAILED_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT
+    + DETAILED_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT
+)
 
 DETAILED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     # General

@@ -31,17 +31,17 @@ from ....audits.models import (
 from ....cases.models import BaseCase
 from ....comments.models import Comment
 from ....common.models import EmailTemplate
+from ....detailed.models import Contact as DetailedContact
 from ....detailed.models import DetailedCase, DetailedCaseHistory, DetailedEventHistory
+from ....detailed.models import ZendeskTicket as DetailedZendeskTicket
 from ....exports.models import Export, ExportCase
 from ....mobile.models import MobileCase
 from ....notifications.models import NotificationSetting, Task
 from ....reports.models import Report, ReportVisitsMetrics, ReportWrapper
 from ....s3_read_write.models import S3Report
+from ....simplified.models import CaseCompliance, CaseEvent, CaseStatus
+from ....simplified.models import Contact as SimplifiedContact
 from ....simplified.models import (
-    CaseCompliance,
-    CaseEvent,
-    CaseStatus,
-    Contact,
     EqualityBodyCorrespondence,
     SimplifiedCase,
     SimplifiedEventHistory,
@@ -86,6 +86,7 @@ class Command(BaseCommand):
         delete_from_models(
             [
                 Task,
+                DetailedZendeskTicket,
                 EmailTemplate,
                 ExportCase,
                 Export,
@@ -131,8 +132,12 @@ class Command(BaseCommand):
                 Report,
             ]
         )
-        delete_from_models([DetailedEventHistory, DetailedCaseHistory, DetailedCase])
-        delete_from_models([SimplifiedEventHistory, Contact, CaseEvent, SimplifiedCase])
+        delete_from_models(
+            [DetailedEventHistory, DetailedCaseHistory, DetailedContact, DetailedCase]
+        )
+        delete_from_models(
+            [SimplifiedEventHistory, SimplifiedContact, CaseEvent, SimplifiedCase]
+        )
         delete_from_models([MobileCase])
         delete_from_models([BaseCase])
         delete_from_models([ChangeToPlatform, IssueReport, Platform, Sector])  # Common

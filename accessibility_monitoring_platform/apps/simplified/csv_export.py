@@ -1,7 +1,5 @@
 """Utility functions for CSV exports"""
 
-from django.db.models import QuerySet
-
 from ..audits.models import Audit
 from ..common.csv_export import CSVColumn, EqualityBodyCSVColumn
 from ..reports.models import Report
@@ -9,7 +7,6 @@ from ..simplified.models import CaseCompliance
 from ..simplified.models import Contact as SimplifiedContact
 from ..simplified.models import SimplifiedCase
 
-CONTACT_DETAILS_COLUMN_HEADER: str = "Contact details"
 SIMPLIFIED_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
     EqualityBodyCSVColumn(
         column_header="Equality body",
@@ -131,9 +128,9 @@ SIMPLIFIED_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: list[
     EqualityBodyCSVColumn
 ] = [
     EqualityBodyCSVColumn(
-        column_header=CONTACT_DETAILS_COLUMN_HEADER,
+        column_header="Contact details",
         source_class=SimplifiedCase,
-        source_attr=None,
+        source_attr="equality_body_export_contact_details",
         data_type="pre",
         edit_url_class=SimplifiedCase,
         edit_url_name="simplified:manage-contact-details",
@@ -763,21 +760,3 @@ SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="is_feedback_requested",
     ),
 ]
-
-
-def format_simplified_contacts(contacts: QuerySet[SimplifiedContact]) -> str:
-    """
-    For a contact-related field, concatenate the values for all the contacts
-    and return as a single string.
-    """
-    contact_details: str = ""
-    for contact in contacts:
-        if contact_details:
-            contact_details += "\n"
-        if contact.name:
-            contact_details += f"{contact.name}\n"
-        if contact.job_title:
-            contact_details += f"{contact.job_title}\n"
-        if contact.email:
-            contact_details += f"{contact.email}\n"
-    return contact_details

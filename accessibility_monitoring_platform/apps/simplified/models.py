@@ -605,6 +605,24 @@ class SimplifiedCase(BaseCase):
         return self.contacts.exists()
 
     @property
+    def equality_body_export_contact_details(self) -> QuerySet["Contact"]:
+        """
+        Concatenate the values for all the contacts and return as a single string.
+        """
+        contact_details: str = ""
+        for contact in self.contacts:
+            if contact_details:
+                contact_details += "\n"
+            if contact.name:
+                contact_details += f"{contact.name}\n"
+            if contact.job_title:
+                contact_details += f"{contact.job_title}\n"
+            if contact.email:
+                contact_details += f"{contact.email}\n"
+        return contact_details
+        return self.contact_set.filter(is_deleted=False)
+
+    @property
     def psb_appeal_deadline(self) -> date | None:
         if self.compliance_email_sent_date is None:
             return None
