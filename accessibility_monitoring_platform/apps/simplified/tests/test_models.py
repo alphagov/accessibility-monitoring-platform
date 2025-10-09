@@ -1897,3 +1897,33 @@ def test_simplified_case_report_acknowledged_yes_no():
         ).report_acknowledged_yes_no
         == "Yes"
     )
+
+
+@pytest.mark.django_db
+def test_equality_body_export_contact_details():
+    """Test that contacts fields values are contatenated"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Contact.objects.create(
+        simplified_case=simplified_case,
+        name="Name 1",
+        job_title="Job title 1",
+        email="email1",
+    )
+    Contact.objects.create(
+        simplified_case=simplified_case,
+        name="Name 2",
+        job_title="Job title 2",
+        email="email2",
+    )
+
+    assert (
+        simplified_case.equality_body_export_contact_details
+        == """Name 2
+Job title 2
+email2
+
+Name 1
+Job title 1
+email1
+"""
+    )

@@ -25,6 +25,7 @@ from ..cases.models import BaseCase
 from ..comments.models import Comment
 from ..detailed.forms import CaseCloseUpdateForm as DetailedCaseCloseUpdateForm
 from ..detailed.forms import (
+    CaseRecommendationUpdateForm,
     ContactInformationRequestUpdateForm,
     DetailedCaseMetadataUpdateForm,
     EnforcementBodyMetadataUpdateForm,
@@ -1612,13 +1613,21 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 complete_flag_name="retest_compliance_decisions_complete_date",
                 case_details_form_class=RetestComplianceDecisionsUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="detailed:edit-case-close",
+                next_page_url_name="detailed:edit-case-recommendation",
             ),
         ],
     ),
     DetailedCasePlatformPageGroup(
         name="Closing the case",
         pages=[
+            DetailedCasePlatformPage(
+                name="Recommendation",
+                url_name="detailed:edit-case-recommendation",
+                complete_flag_name="case_recommendation_complete_date",
+                case_details_form_class=CaseRecommendationUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="detailed:edit-case-close",
+            ),
             DetailedCasePlatformPage(
                 name="Closing the case",
                 url_name="detailed:edit-case-close",

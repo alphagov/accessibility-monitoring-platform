@@ -192,20 +192,23 @@ class DetailedCase(BaseCase):
     )
     retest_compliance_decisions_complete_date = models.DateField(null=True, blank=True)
 
-    # Closing the case - Closing the case
+    # Closing the case - Recommendation
     psb_progress_info = models.TextField(default="", blank=True)
     recommendation_decision_sent_date = models.DateField(null=True, blank=True)
     recommendation_decision_sent_to = models.CharField(
         max_length=200, default="", blank=True
     )
     recommendation_info = models.TextField(default="", blank=True)
+    case_close_decision_notes = models.TextField(default="", blank=True)
+    # is_feedback_requested from case metadata
+    case_recommendation_complete_date = models.DateField(null=True, blank=True)
+
+    # Closing the case - Closing the case
     case_close_decision_state = models.CharField(
         max_length=30,
         choices=CaseCloseDecision.choices,
         default=CaseCloseDecision.NO_DECISION,
     )
-    case_close_decision_notes = models.TextField(default="", blank=True)
-    # is_feedback_requested from case metadata
     case_close_complete_date = models.DateField(null=True, blank=True)
 
     # Post case - statement enforcement
@@ -285,6 +288,9 @@ class DetailedCase(BaseCase):
 
     @property
     def equality_body_export_contact_details(self) -> str:
+        """
+        Concatenate the values for all the contacts and return as a single string.
+        """
         contacts_string: str = ""
         for contact in self.contacts:
             if contacts_string:

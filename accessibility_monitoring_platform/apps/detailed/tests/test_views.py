@@ -35,6 +35,9 @@ ZENDESK_URL: str = "https://zendesk.com/tickets/1"
 TODAY: date = date.today()
 QA_COMMENT_BODY: str = "QA comment body"
 ORGANISATION_NAME: str = "Organisation name"
+HOME_PAGE_URL: str = "https://domain.com"
+RECOMMENDATION_INFO: str = "Recommendation note"
+EQUALITY_BODY_REPORT_URL: str = "https://eb-report.com"
 
 
 class MockMessages:
@@ -367,3 +370,106 @@ def test_case_export_list_view(admin_client, columns_for_export, export_url):
 
     assert response.status_code == 200
     assertContains(response, case_columns_to_export_str)
+
+
+def test_closing_the_case_page(admin_client):
+    """Test that closing the case page renders as expected"""
+    detailed_case: DetailedCase = DetailedCase.objects.create(
+        home_page_url=HOME_PAGE_URL, recommendation_info=f"* {RECOMMENDATION_INFO}"
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("detailed:edit-case-close", kwargs={"pk": detailed_case.id}),
+    )
+
+    assert response.status_code == 200
+
+    # Required columns labelled as such; Missing data labelled as incomplete
+    assertContains(response, "Published report | Required and incomplete", html=True)
+
+    # Required data with default value labelled as incomplete
+    assertContains(
+        response,
+        "Enforcement recommendation | Required and incomplete",
+        html=True,
+    )
+
+    # URL data rendered as link
+    assertContains(
+        response,
+        f"""<a href="{HOME_PAGE_URL}"
+            class="govuk-link" target="_blank">
+            {HOME_PAGE_URL}</a>""",
+        html=True,
+    )
+
+    # Edit link label used
+    assertContains(
+        response,
+        """<a href="/detailed/1/manage-contact-details/"
+            class="govuk-link govuk-link--no-visited-state">
+            Go to contact details</a>""",
+        html=True,
+    )
+
+    # Markdown data rendered as html
+    assertContains(response, f"<li>{RECOMMENDATION_INFO}</li>")
+
+
+def test_closing_the_case_page_close_missing_data(admin_client):
+    """Test that closing the case page renders as expected when data is missing"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+
+    response: HttpResponse = admin_client.get(
+        reverse("detailed:edit-case-close", kwargs={"pk": detailed_case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertContains(
+        response, "The case has missing data and can not be submitted to EHRC."
+    )
+    assertNotContains(
+        response, "All fields are complete and the case can now be closed."
+    )
+
+    assertContains(
+        response,
+        """<p class="govuk-body-m amp-margin-bottom-5"><b>Organisation | Required and incomplete</b></p>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<p class="govuk-body-m amp-margin-bottom-5">No data available</p>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<p class="govuk-body-m">
+            <a href="/detailed/1/case-metadata/#id_organisation_name-label" class="govuk-link govuk-link--no-visited-state">
+            Edit<span class="govuk-visually-hidden"> Organisation</span></a></p>""",
+        html=True,
+    )
+
+
+def test_closing_the_case_page_no_missing_data(admin_client):
+    """Test that closing the case page renders as expected when no data is missing"""
+    detailed_case: DetailedCase = DetailedCase.objects.create(
+        organisation_name=ORGANISATION_NAME,
+        home_page_url=HOME_PAGE_URL,
+        equality_body_report_url=EQUALITY_BODY_REPORT_URL,
+        recommendation_for_enforcement=DetailedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
+        recommendation_info=RECOMMENDATION_INFO,
+        recommendation_decision_sent_date=date.today(),
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse("detailed:edit-case-close", kwargs={"pk": detailed_case.id}),
+    )
+
+    assert response.status_code == 200
+
+    assertNotContains(
+        response, "The case has missing data and can not be submitted to EHRC."
+    )
+    assertContains(response, "All fields are complete and the case can now be closed.")
