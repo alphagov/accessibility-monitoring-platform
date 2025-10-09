@@ -5,7 +5,11 @@ from ...audits.models import Audit
 from ...common.tests.test_utils import decode_csv_response, validate_csv_response
 from ...simplified.csv_export import SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT
 from ...simplified.models import CaseCompliance, SimplifiedCase
-from ..utils import download_equality_body_simplified_cases, get_exportable_cases
+from ..utils import (
+    download_equality_body_simplified_cases,
+    get_exportable_cases,
+    preview_equality_body_simplified_cases,
+)
 from .test_forms import CUTOFF_DATE, create_exportable_case
 
 CSV_EXPORT_FILENAME: str = "cases_export.csv"
@@ -113,3 +117,18 @@ def test_get_exportable_case():
         ).first()
         == simplified_case
     )
+
+
+@pytest.mark.django_db
+def test_preview_equality_body_simplified_cases():
+    """Test preview of equality body CSV data for simplified case"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    preview: dict = preview_equality_body_simplified_cases(cases=[simplified_case])
+
+    assert "columns" in preview
+    assert preview["columns"] == SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT
+
+    assert "rows" in preview
+    assert len(preview["rows"]) == 1
+    assert len(preview["rows"][0]) == len(SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT)
+    assert preview["rows"][0][0].column_header == "Equality body"

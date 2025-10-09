@@ -1,3 +1,21 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ sitemap.current_platform_page.get_name }}</title>
+    <meta name="robots" content="nofollow, noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="icon" sizes="48x48" href="{% static 'assets/rebrand/images/favicon.ico' %}">
+    <link rel="icon" sizes="any" href="{% static 'assets/rebrand/images/favicon.svg' %}" type="image/svg+xml">
+    <link rel="mask-icon" href="{% static 'assets/rebrand/images/govuk-icon-mask.svg' %}" color="#1d70b8">
+    <link rel="apple-touch-icon" href="{% static 'assets/rebrand/images/govuk-icon-180.png' %}">
+    <meta property="og:image" content="{% static 'assets/rebrand/images/govuk-opengraph-image.png' %}">
+    <meta name="description" content="Accessibility Monitoring Platform">
+  </head>
+  <body>
 <table>
     <thead>
         <tr>
