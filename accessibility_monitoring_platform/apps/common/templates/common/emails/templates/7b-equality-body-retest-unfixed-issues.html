@@ -102,7 +102,7 @@ Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
 <h2 class="amp-margin-bottom-0">Errors found in retest</h2>
 <br>
 {% for retest_page in retest.retestpage_set.all %}
-    {% if retest_page.missing_date or retest_page.unfixed_check_results %}
+    {% if retest_page.missing_date or retest_page.unfixed_check_results or retest_page.additional_issues_notes %}
         <b>{{ retest_page.page }}{% if retest_page.page.page_type != 'pdf' %} page{% endif %} issues</b>
         ({{ retest_page.unfixed_check_results.count }} issue{% if retest_page.unfixed_check_results.count != 1 %}s{% endif %} remaining)
         <br>
@@ -113,7 +113,7 @@ Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
             This page has been removed by the organisation.
             <br>
             <br>
-        {% else %}
+        {% elif retest_page.unfixed_check_results %}
             <table id="email-issues-table-{{ forloop.counter }}">
                 <thead>
                     <tr>
@@ -158,16 +158,16 @@ Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
                     {% endfor %}
                 </tbody>
             </table>
-            <b>Additional issues found</b>
-            {% if retest_page.additional_issues_notes %}
-                {{ retest_page.additional_issues_notes|markdown_to_html }}
-            {% else %}
-                <br>
-                <br>
-                None
-                <br>
-                <br>
-            {% endif %}
+        {% endif %}
+        <b>Additional issues found</b>
+        {% if retest_page.additional_issues_notes %}
+            {{ retest_page.additional_issues_notes|markdown_to_html }}
+        {% else %}
+            <br>
+            <br>
+            None
+            <br>
+            <br>
         {% endif %}
     {% endif %}
 {% endfor %}
