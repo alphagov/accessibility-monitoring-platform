@@ -4,7 +4,7 @@ Admin for cases
 
 from django.contrib import admin
 
-from .models import EventHistory, MobileCase
+from .models import EventHistory, MobileCase, MobileContact, MobileZendeskTicket
 
 
 class MobileCaseAdmin(admin.ModelAdmin):
@@ -49,5 +49,38 @@ class EventHistoryAdmin(admin.ModelAdmin):
     show_facets = admin.ShowFacets.ALWAYS
 
 
+class ContactAdmin(admin.ModelAdmin):
+    search_fields = [
+        "name",
+        "contact_details",
+        "mobile_case__organisation_name",
+        "mobile_case__case_number",
+    ]
+    list_display = [
+        "__str__",
+        "name",
+        "contact_details",
+        "mobile_case",
+        "is_deleted",
+    ]
+    list_filter = ["is_deleted"]
+    show_facets = admin.ShowFacets.ALWAYS
+
+
+class ZendeskTicketAdmin(admin.ModelAdmin):
+    """Django admin configuration for ZendeskTicket model"""
+
+    search_fields = [
+        "url",
+        "summary",
+        "mobile_case__organisation_name",
+        "mobile_case__case_number",
+    ]
+    list_display = ["url", "summary", "mobile_case", "created", "is_deleted"]
+    list_filter = ["is_deleted"]
+
+
 admin.site.register(MobileCase, MobileCaseAdmin)
 admin.site.register(EventHistory, EventHistoryAdmin)
+admin.site.register(MobileContact, ContactAdmin)
+admin.site.register(MobileZendeskTicket, ZendeskTicketAdmin)

@@ -483,7 +483,9 @@ class MobileZendeskTicket(models.Model):
 
     def save(self, *args, **kwargs) -> None:
         if not self.id:
-            self.id_within_case = self.mobile_case.zendeskticket_set.all().count() + 1
+            self.id_within_case = (
+                self.mobile_case.mobile_zendesktickets.all().count() + 1
+            )
         if self.url.startswith(ZENDESK_URL_PREFIX):
             zendesk_id: str = self.url.replace(ZENDESK_URL_PREFIX, "").replace("/", "")
             if zendesk_id.isdigit():

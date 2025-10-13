@@ -12,10 +12,16 @@ from django.contrib.auth.models import User
 from ..cases.models import Sector
 
 # from ..comments.models import Comment
-from ..common.models import Boolean
+from ..common.models import ZENDESK_URL_PREFIX, Boolean
 from ..common.utils import extract_domain_from_url
 from ..detailed.models import DetailedCase, DetailedCaseHistory
-from ..mobile.models import EventHistory, MobileCase, MobileCaseHistory
+from ..mobile.models import (
+    EventHistory,
+    MobileCase,
+    MobileCaseHistory,
+    MobileContact,
+    MobileZendeskTicket,
+)
 from ..mobile.utils import record_mobile_model_create_event
 
 # from ..notifications.models import Task
@@ -244,16 +250,49 @@ def create_mobile_case_from_dict(
             ),
         )
 
-    for column_name in [
-        "Summary of progress made / response from PSB",
-    ]:
-        if row[column_name]:
-            add_note_to_mobile_history(
+    MobileCaseHistory.objects.create(
+        mobile_case_id=mobile_case.id,
+        event_type=MobileCaseHistory.EventType.STATUS,
+        value="Imported from spreadsheet",
+        created_by=auditor,
+    )
+
+    if " " in qa_auditors:
+        add_note_to_mobile_history(
+            mobile_case=mobile_case,
+            created=updated,
+            created_by=auditor,
+            note=f"All legacy QA auditors: {qa_auditors}",
+        )
+
+    if feedback_survey_sent and feedback_survey_sent != "Yes":
+        add_note_to_mobile_history(
+            mobile_case=mobile_case,
+            created=updated,
+            created_by=auditor,
+            note=f"Feedback survey sent from imported spreadsheet:\n\n{feedback_survey_sent}",
+        )
+
+    if row["Contact name"] or row["Job title"] or row["Contact detail"]:
+        contact: MobileContact = MobileContact.objects.create(
+            mobile_case=mobile_case,
+            name=row["Contact name"],
+            job_title=row["Job title"],
+            contact_details=row["Contact detail"],
+            created_by=auditor,
+        )
+        contact.created = updated
+        contact.save()
+
+    zendesk_urls: str = row["Zendesk ticket"]
+    for zendesk_url in zendesk_urls.split():
+        if zendesk_url.startswith(ZENDESK_URL_PREFIX):
+            MobileZendeskTicket.objects.create(
                 mobile_case=mobile_case,
-                created=updated,
-                created_by=auditor,
-                note=f"Legacy {column_name}:\n\n{row[column_name]}",
+                url=zendesk_url,
+                summary="From imported spreadsheet",
             )
+
     add_note_to_mobile_history(
         mobile_case=mobile_case,
         created=updated,
@@ -278,6 +317,11 @@ def import_mobile_cases_csv(csv_data: str) -> None:
 
     EventHistory.objects.all().delete()
     MobileCaseHistory.objects.all().delete()
+    MobileContact.objects.all().delete()
+    MobileZendeskTicket.objects.all().delete()
+    # for mobile_case in MobileCase.objects.all():
+    #     Task.objects.filter(base_case=mobile_case).delete()
+    #     Comment.objects.filter(base_case=mobile_case).delete()
     MobileCase.objects.all().delete()
 
     reader: Any = csv.DictReader(io.StringIO(csv_data))
@@ -304,30 +348,30 @@ def import_trello_comments(csv_data: str, reset_data: bool = False) -> None:
     }
     default_user: User = User.objects.get(id=DEFAULT_USER_ID)
     if reset_data:
-        DetailedCaseHistory.objects.filter(label=TRELLO_COMMENT_LABEL).delete()
-        DetailedCaseHistory.objects.filter(label=TRELLO_DESCRIPTION_LABEL).delete()
+        MobileCaseHistory.objects.filter(label=TRELLO_COMMENT_LABEL).delete()
+        MobileCaseHistory.objects.filter(label=TRELLO_DESCRIPTION_LABEL).delete()
     card_descriptions: dict[DetailedCase, str] = {}
     reader: Any = csv.DictReader(io.StringIO(csv_data))
     for row in reader:
         case_no: str = row["case_no"]
         if case_no == "":
             continue
-        if row["case_no"].startswith("D"):
-            case_identifier: str = f"#D-{case_no[1:]}"
+        if row["case_no"].startswith("M"):
+            case_identifier: str = f"#M-{case_no[1:]}"
             try:
-                detailed_case: DetailedCase = DetailedCase.objects.get(
+                mobile_case: MobileCase = MobileCase.objects.get(
                     case_identifier=case_identifier
                 )
-                card_descriptions[detailed_case] = row["card_description"]
+                card_descriptions[mobile_case] = row["card_description"]
                 comment_time: datetime = datetime.strptime(
                     row["comment_date"], "%Y-%m-%dT%H:%M:%S.%fZ"
                 ).replace(tzinfo=timezone.utc)
                 with patch(
                     "django.utils.timezone.now", Mock(return_value=comment_time)
                 ):
-                    DetailedCaseHistory.objects.create(
-                        detailed_case=detailed_case,
-                        event_type=DetailedCaseHistory.EventType.NOTE,
+                    MobileCaseHistory.objects.create(
+                        mobile_case=mobile_case,
+                        event_type=MobileCaseHistory.EventType.NOTE,
                         value=row["comment_text"].replace(' "\u200c")', ")"),
                         label=TRELLO_COMMENT_LABEL,
                         created_by=comment_fullname_to_user.get(
@@ -335,13 +379,13 @@ def import_trello_comments(csv_data: str, reset_data: bool = False) -> None:
                             default_user,
                         ),
                     )
-            except DetailedCase.DoesNotExist:
-                logger.warning("DetailedCase not found: %s", case_identifier)
+            except MobileCase.DoesNotExist:
+                logger.warning("MobileCase not found: %s", case_identifier)
 
     # Add description text
-    for detailed_case, description_text in card_descriptions.items():
+    for mobile_case, description_text in card_descriptions.items():
         DetailedCaseHistory.objects.create(
-            detailed_case=detailed_case,
+            mobile_case=mobile_case,
             event_type=DetailedCaseHistory.EventType.NOTE,
             value=description_text.replace(' "\u200c")', ")"),
             label=TRELLO_DESCRIPTION_LABEL,

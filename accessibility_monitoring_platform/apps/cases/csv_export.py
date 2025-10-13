@@ -79,7 +79,7 @@ def populate_csv_columns(
     source_instances: dict[ExportableClasses] = {}
     if isinstance(case, DetailedCase):
         source_instances[DetailedCase] = case
-        source_instances[DetailedContact] = case.contact_set.filter(
+        source_instances[DetailedContact] = case.detailed_contacts.filter(
             is_deleted=False
         ).first()
     elif isinstance(case, SimplifiedCase):
