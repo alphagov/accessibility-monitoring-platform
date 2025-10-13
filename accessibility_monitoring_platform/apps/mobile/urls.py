@@ -9,6 +9,7 @@ from django.urls.resolvers import URLPattern
 from .views import (
     MobileCaseCreateView,
     MobileCaseDetailView,
+    MobileCaseHistoryDetailView,
     MobileCaseMetadataUpdateView,
 )
 
@@ -28,5 +29,10 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/case-metadata/",
         login_required(MobileCaseMetadataUpdateView.as_view()),
         name="edit-case-metadata",
+    ),
+    path(
+        "<int:pk>/history/",
+        login_required(MobileCaseHistoryDetailView.as_view()),
+        name="case-history",
     ),
 ]

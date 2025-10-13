@@ -15,7 +15,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from ..common.utils import extract_domain_from_url
 from ..common.views import ShowGoBackJSWidgetMixin
 from .forms import MobileCaseCreateForm, MobileCaseMetadataUpdateForm
-from .models import MobileCase
+from .models import EventHistory, MobileCase
 from .utils import record_mobile_model_create_event, record_mobile_model_update_event
 
 
@@ -110,3 +110,24 @@ class MobileCaseMetadataUpdateView(UpdateView):
         if "save_continue" in self.request.POST:
             return self.object.get_absolute_url()
         return self.request.path
+
+
+class MobileCaseHistoryDetailView(DetailView):
+    """
+    View of details of a single case
+    """
+
+    model: type[MobileCase] = MobileCase
+    context_object_name: str = "case"
+    template_name: str = "cases/case_history.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add current case to context"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        mobile_case: MobileCase = self.object
+        event_history: EventHistory = EventHistory.objects.filter(
+            mobile_case=mobile_case
+        ).prefetch_related("parent")
+        context["event_history"] = event_history
+        context["all_users"] = User.objects.all().order_by("id")
+        return context

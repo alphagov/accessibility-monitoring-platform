@@ -18,10 +18,8 @@ from ..cases.models import (
     DetailedCaseStatus,
     get_previous_case_identifier,
 )
-from ..common.models import Boolean, VersionModel
+from ..common.models import ZENDESK_URL_PREFIX, Boolean, VersionModel
 from ..common.utils import extract_domain_from_url
-
-ZENDESK_URL_PREFIX: str = "https://govuk.zendesk.com/agent/tickets/"
 
 
 class DetailedCase(BaseCase):
@@ -268,7 +266,7 @@ class DetailedCase(BaseCase):
 
     @property
     def zendesk_tickets(self) -> QuerySet["ZendeskTicket"]:
-        return self.zendeskticket_set.filter(is_deleted=False)
+        return self.detailed_zendesktickets.filter(is_deleted=False)
 
     @property
     def most_recent_history(self):
@@ -276,7 +274,7 @@ class DetailedCase(BaseCase):
 
     @property
     def contacts(self) -> QuerySet["Contact"]:
-        return self.contact_set.filter(is_deleted=False)
+        return self.detailed_contacts.filter(is_deleted=False)
 
     @property
     def preferred_contacts(self) -> QuerySet["Contact"]:
@@ -443,7 +441,9 @@ class Contact(VersionModel):
         NO = "no", "No"
         UNKNOWN = "unknown", "Not known"
 
-    detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
+    detailed_case = models.ForeignKey(
+        DetailedCase, on_delete=models.PROTECT, related_name="mobile_contacts"
+    )
     name = models.TextField(default="", blank=True)
     job_title = models.CharField(max_length=200, default="", blank=True)
     contact_details = models.TextField(default="", blank=True)
@@ -477,7 +477,9 @@ class ZendeskTicket(models.Model):
     Model for detailed ZendeskTicket
     """
 
-    detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
+    detailed_case = models.ForeignKey(
+        DetailedCase, on_delete=models.PROTECT, related_name="detailed_zendesktickets"
+    )
     id_within_case = models.IntegerField(default=1, blank=True)
     url = models.TextField(default="", blank=True)
     summary = models.TextField(default="", blank=True)

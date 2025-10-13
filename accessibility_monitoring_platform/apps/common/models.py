@@ -18,6 +18,7 @@ Placeholder for platform."""
 MORE_INFORMATION_ABOUT_MONITORING_DEFAULT: str = """# More Information
 
 More information about monitoring placeholder"""
+ZENDESK_URL_PREFIX: str = "https://govuk.zendesk.com/agent/tickets/"
 
 
 class Boolean(models.TextChoices):

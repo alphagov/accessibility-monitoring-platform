@@ -296,12 +296,14 @@ class DetailedCasePlatformPage(BaseCasePlatformPage):
         self.set_instance(instance=case)
 
 
-class MobileCasePlatformPage(SimplifiedCasePlatformPage):
+class MobileCasePlatformPage(BaseCasePlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.instance_class: ClassVar[MobileCase] = MobileCase
 
     def populate_from_case(self, case: MobileCase):
+        if hasattr(case, "mobilecase"):
+            self.set_instance(instance=case.mobilecase)
         self.set_instance(instance=case)
 
 
@@ -1846,6 +1848,9 @@ SITE_MAP: list[PlatformPageGroup] = (
                 ),
                 DetailedCasePlatformPage(
                     name="Detailed case history", url_name="detailed:case-history"
+                ),
+                MobileCasePlatformPage(
+                    name="Mobile case history", url_name="mobile:case-history"
                 ),
                 PlatformPage(name="Issue reports", url_name="tech:issue-reports-list"),
                 PlatformPage(
