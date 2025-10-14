@@ -441,18 +441,18 @@ class TwelveWeekRequestUpdateForm(VersionForm):
         ]
 
 
-class TwelveWeekAcknowledgedUpdateForm(VersionForm):
-    """Form for updating correspondence 12-week acknowledged page"""
+class TwelveWeekReceivedUpdateForm(VersionForm):
+    """Form for updating correspondence 12-week received page"""
 
-    twelve_week_acknowledged_date = AMPDateField(label="12-week update acknowledged")
-    twelve_week_acknowledged_complete_date = AMPDatePageCompleteField()
+    twelve_week_received_date = AMPDateField(label="12-week update received")
+    twelve_week_received_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = DetailedCase
         fields = [
             "version",
-            "twelve_week_acknowledged_date",
-            "twelve_week_acknowledged_complete_date",
+            "twelve_week_received_date",
+            "twelve_week_received_complete_date",
         ]
 
 
