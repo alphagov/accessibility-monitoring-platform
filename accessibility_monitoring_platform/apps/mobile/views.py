@@ -61,8 +61,8 @@ from .forms import (
     RetestComplianceDecisionsUpdateForm,
     RetestResultUpdateForm,
     StatementEnforcementUpdateForm,
-    TwelveWeekAcknowledgedUpdateForm,
     TwelveWeekDeadlineUpdateForm,
+    TwelveWeekReceivedUpdateForm,
     TwelveWeekRequestUpdateForm,
     UnresponsivePSBUpdateForm,
     ZendeskTicketConfirmDeleteUpdateForm,
@@ -501,12 +501,10 @@ class CorrespondenceTwelveWeekRequestUpdateView(CorrespondenceUpdateView):
     form_class: type[TwelveWeekRequestUpdateForm] = TwelveWeekRequestUpdateForm
 
 
-class CorrespondenceTwelveWeekAcknowledgedUpdateView(CorrespondenceUpdateView):
-    """View to update correspondence 12-week acknowledged"""
+class CorrespondenceTwelveWeekReceivedUpdateView(CorrespondenceUpdateView):
+    """View to update correspondence 12-week received"""
 
-    form_class: type[TwelveWeekAcknowledgedUpdateForm] = (
-        TwelveWeekAcknowledgedUpdateForm
-    )
+    form_class: type[TwelveWeekReceivedUpdateForm] = TwelveWeekReceivedUpdateForm
 
 
 class RetestResultUpdateView(MobileCaseUpdateView):

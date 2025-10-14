@@ -10,8 +10,7 @@ from unittest.mock import Mock, patch
 from django.contrib.auth.models import User
 
 from ..cases.models import Sector
-
-# from ..comments.models import Comment
+from ..comments.models import Comment
 from ..common.models import ZENDESK_URL_PREFIX, Boolean
 from ..common.utils import extract_domain_from_url
 from ..detailed.models import DetailedCase, DetailedCaseHistory
@@ -23,8 +22,7 @@ from ..mobile.models import (
     MobileZendeskTicket,
 )
 from ..mobile.utils import record_mobile_model_create_event
-
-# from ..notifications.models import Task
+from ..notifications.models import Task
 
 logger = logging.getLogger(__name__)
 
@@ -113,7 +111,7 @@ def validate_url(url: str) -> str:
 
 
 def add_note_to_mobile_history(
-    mobile_case: MobileCase, created: datetime, created_by: User, note: str
+    mobile_case: MobileCase, created_by: User, note: str
 ) -> None:
     mobile_case_history: MobileCaseHistory = MobileCaseHistory.objects.create(
         mobile_case=mobile_case,
@@ -121,8 +119,6 @@ def add_note_to_mobile_history(
         value=note,
         created_by=created_by,
     )
-    mobile_case_history.created = created
-    mobile_case_history.save()
     record_mobile_model_create_event(
         user=created_by, model_object=mobile_case_history, mobile_case=mobile_case
     )
@@ -164,6 +160,8 @@ def create_mobile_case_from_dict(
     with patch("django.utils.timezone.now", Mock(return_value=created)):
         mobile_case: MobileCase = MobileCase.objects.create(
             test_type=MobileCase.TestType.MOBILE,
+            created_by_id=default_user.id,
+            updated=updated,
             app_name=row["App name"],
             app_store_url=url,
             domain=extract_domain_from_url(url),
@@ -250,55 +248,51 @@ def create_mobile_case_from_dict(
             ),
         )
 
-    MobileCaseHistory.objects.create(
-        mobile_case_id=mobile_case.id,
-        event_type=MobileCaseHistory.EventType.STATUS,
-        value="Imported from spreadsheet",
-        created_by=auditor,
-    )
-
-    if " " in qa_auditors:
-        add_note_to_mobile_history(
-            mobile_case=mobile_case,
-            created=updated,
-            created_by=auditor,
-            note=f"All legacy QA auditors: {qa_auditors}",
-        )
-
-    if feedback_survey_sent and feedback_survey_sent != "Yes":
-        add_note_to_mobile_history(
-            mobile_case=mobile_case,
-            created=updated,
-            created_by=auditor,
-            note=f"Feedback survey sent from imported spreadsheet:\n\n{feedback_survey_sent}",
-        )
-
-    if row["Contact name"] or row["Job title"] or row["Contact detail"]:
-        contact: MobileContact = MobileContact.objects.create(
-            mobile_case=mobile_case,
-            name=row["Contact name"],
-            job_title=row["Job title"],
-            contact_details=row["Contact detail"],
+        MobileCaseHistory.objects.create(
+            mobile_case_id=mobile_case.id,
+            event_type=MobileCaseHistory.EventType.STATUS,
+            value="Imported from spreadsheet",
             created_by=auditor,
         )
-        contact.created = updated
-        contact.save()
 
-    zendesk_urls: str = row["Zendesk ticket"]
-    for zendesk_url in zendesk_urls.split():
-        if zendesk_url.startswith(ZENDESK_URL_PREFIX):
-            MobileZendeskTicket.objects.create(
+        if " " in qa_auditors:
+            add_note_to_mobile_history(
                 mobile_case=mobile_case,
-                url=zendesk_url,
-                summary="From imported spreadsheet",
+                created_by=auditor,
+                note=f"All legacy QA auditors: {qa_auditors}",
             )
 
-    add_note_to_mobile_history(
-        mobile_case=mobile_case,
-        created=updated,
-        created_by=auditor,
-        note=f"Legacy record:\n\n{legacy_case_number}",
-    )
+        if feedback_survey_sent and feedback_survey_sent != "Yes":
+            add_note_to_mobile_history(
+                mobile_case=mobile_case,
+                created_by=auditor,
+                note=f"Feedback survey sent from imported spreadsheet:\n\n{feedback_survey_sent}",
+            )
+
+        if row["Contact name"] or row["Job title"] or row["Contact detail"]:
+            contact: MobileContact = MobileContact.objects.create(
+                mobile_case=mobile_case,
+                name=row["Contact name"],
+                job_title=row["Job title"],
+                contact_details=row["Contact detail"],
+                created_by=auditor,
+            )
+            contact.save()
+
+        zendesk_urls: str = row["Zendesk ticket"]
+        for zendesk_url in zendesk_urls.split():
+            if zendesk_url.startswith(ZENDESK_URL_PREFIX):
+                MobileZendeskTicket.objects.create(
+                    mobile_case=mobile_case,
+                    url=zendesk_url,
+                    summary="From imported spreadsheet",
+                )
+
+        add_note_to_mobile_history(
+            mobile_case=mobile_case,
+            created_by=auditor,
+            note=f"Legacy record:\n\n{legacy_case_number}",
+        )
 
 
 def import_mobile_cases_csv(csv_data: str) -> None:
@@ -319,9 +313,9 @@ def import_mobile_cases_csv(csv_data: str) -> None:
     MobileCaseHistory.objects.all().delete()
     MobileContact.objects.all().delete()
     MobileZendeskTicket.objects.all().delete()
-    # for mobile_case in MobileCase.objects.all():
-    #     Task.objects.filter(base_case=mobile_case).delete()
-    #     Comment.objects.filter(base_case=mobile_case).delete()
+    for mobile_case in MobileCase.objects.all():
+        Task.objects.filter(base_case=mobile_case).delete()
+        Comment.objects.filter(base_case=mobile_case).delete()
     MobileCase.objects.all().delete()
 
     reader: Any = csv.DictReader(io.StringIO(csv_data))

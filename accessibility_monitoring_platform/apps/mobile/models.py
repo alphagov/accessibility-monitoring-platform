@@ -160,9 +160,9 @@ class MobileCase(BaseCase):
     twelve_week_update_date = models.DateField(null=True, blank=True)
     twelve_week_update_complete_date = models.DateField(null=True, blank=True)
 
-    # Correspondence - Report acknowledged
-    twelve_week_acknowledged_date = models.DateField(null=True, blank=True)
-    twelve_week_acknowledged_complete_date = models.DateField(null=True, blank=True)
+    # Correspondence - Report received
+    twelve_week_received_date = models.DateField(null=True, blank=True)
+    twelve_week_received_complete_date = models.DateField(null=True, blank=True)
 
     # Reviewing changes - Retest result
     retest_start_date = models.DateField(null=True, blank=True)
@@ -400,22 +400,36 @@ class MobileCaseHistory(models.Model):
     class EventType(models.TextChoices):
         NOTE = "note", "Entered note"
         STATUS = "status", "Changed status"
-        RECOMMENDATION = "recommendation", "Entered enforcement recommendation"
 
     mobile_case = models.ForeignKey(MobileCase, on_delete=models.PROTECT)
     event_type = models.CharField(
         max_length=20, choices=EventType.choices, default=EventType.NOTE
     )
+    id_within_case = models.IntegerField(default=0, blank=True)
+    mobile_case_status = models.CharField(
+        max_length=200,
+        choices=MobileCase.Status.choices,
+        default=MobileCase.Status.UNASSIGNED,
+    )
     value = models.TextField(default="", blank=True)
+    label = models.CharField(max_length=200, default="", blank=True)
     created_by = models.ForeignKey(User, on_delete=models.PROTECT)
     created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs) -> None:
+        if not self.id:
+            self.mobile_case_status = self.mobile_case.status
+            if self.event_type == MobileCaseHistory.EventType.NOTE:
+                self.id_within_case = self.mobile_case.notes_history().count() + 1
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.mobile_case} {self.event_type} {self.created} {self.created_by}"
 
     class Meta:
-        ordering = ["-id"]
+        ordering = ["-created"]
         verbose_name_plural = "Mobile Case history"
 
 

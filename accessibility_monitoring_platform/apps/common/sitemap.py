@@ -84,10 +84,10 @@ from ..mobile.forms import (
     StatementEnforcementUpdateForm as MobileStatementEnforcementUpdateForm,
 )
 from ..mobile.forms import (
-    TwelveWeekAcknowledgedUpdateForm as MobileTwelveWeekAcknowledgedUpdateForm,
+    TwelveWeekDeadlineUpdateForm as MobileTwelveWeekDeadlineUpdateForm,
 )
 from ..mobile.forms import (
-    TwelveWeekDeadlineUpdateForm as MobileTwelveWeekDeadlineUpdateForm,
+    TwelveWeekReceivedUpdateForm as MobileTwelveWeekReceivedUpdateForm,
 )
 from ..mobile.forms import (
     TwelveWeekRequestUpdateForm as MobileTwelveWeekRequestUpdateForm,
@@ -1917,18 +1917,18 @@ MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 next_page_url_name="mobile:edit-12-week-request-update",
             ),
             MobileCasePlatformPage(
-                name="12-week update request",
+                name="12-week update requested",
                 url_name="mobile:edit-12-week-request-update",
                 complete_flag_name="twelve_week_update_complete_date",
                 case_details_form_class=MobileTwelveWeekRequestUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="mobile:edit-12-week-acknowledged",
+                next_page_url_name="mobile:edit-12-week-received",
             ),
             MobileCasePlatformPage(
-                name="12-week acknowledged",
-                url_name="mobile:edit-12-week-acknowledged",
-                complete_flag_name="twelve_week_acknowledged_complete_date",
-                case_details_form_class=MobileTwelveWeekAcknowledgedUpdateForm,
+                name="12-week received",
+                url_name="mobile:edit-12-week-received",
+                complete_flag_name="twelve_week_received_complete_date",
+                case_details_form_class=MobileTwelveWeekReceivedUpdateForm,
                 case_details_template_name="cases/details/details.html",
                 next_page_url_name="mobile:edit-retest-result",
             ),

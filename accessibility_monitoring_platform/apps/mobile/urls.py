@@ -16,8 +16,8 @@ from .views import (
     ContactUpdateView,
     CorrespondenceReportAcknowledgedUpdateView,
     CorrespondenceReportSentUpdateView,
-    CorrespondenceTwelveWeekAcknowledgedUpdateView,
     CorrespondenceTwelveWeekDeadlineUpdateView,
+    CorrespondenceTwelveWeekReceivedUpdateView,
     CorrespondenceTwelveWeekRequestUpdateView,
     EnforcementBodyMetadataUpdateView,
     FinalReportUpdateView,
@@ -179,9 +179,9 @@ urlpatterns: list[URLPattern] = [
         name="edit-12-week-request-update",
     ),
     path(
-        "<int:pk>/edit-12-week-acknowledged/",
-        login_required(CorrespondenceTwelveWeekAcknowledgedUpdateView.as_view()),
-        name="edit-12-week-acknowledged",
+        "<int:pk>/edit-12-week-received/",
+        login_required(CorrespondenceTwelveWeekReceivedUpdateView.as_view()),
+        name="edit-12-week-received",
     ),
     path(
         "<int:pk>/edit-retest-result/",
