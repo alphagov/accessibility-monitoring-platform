@@ -31,9 +31,7 @@ class MobileCaseCreateForm(forms.ModelForm):
     Form for creating a case
     """
 
-    organisation_name = AMPCharFieldWide(
-        label="Organisation name",
-    )
+    organisation_name = AMPCharFieldWide(label="Organisation name")
     parental_organisation_name = AMPCharFieldWide(label="Parent organisation name")
     app_name = AMPCharFieldWide(label="App name")
     app_store_url = AMPURLField(label="App store URL")

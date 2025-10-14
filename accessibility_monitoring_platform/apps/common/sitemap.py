@@ -93,7 +93,12 @@ from ..mobile.forms import (
     TwelveWeekRequestUpdateForm as MobileTwelveWeekRequestUpdateForm,
 )
 from ..mobile.forms import UnresponsivePSBUpdateForm as MobileUnresponsivePSBUpdateForm
-from ..mobile.models import MobileCase, MobileContact, MobileZendeskTicket
+from ..mobile.models import (
+    MobileCase,
+    MobileCaseHistory,
+    MobileContact,
+    MobileZendeskTicket,
+)
 from ..notifications.models import Task
 from ..reports.models import Report
 from ..simplified.forms import CaseCloseUpdateForm as SimplifiedCaseCloseUpdateForm
@@ -286,6 +291,8 @@ class PlatformPage:
                 return self.instance.simplified_case
             if hasattr(self.instance, "detailed_case"):
                 return self.instance.detailed_case
+            if hasattr(self.instance, "mobile_case"):
+                return self.instance.mobile_case
             if hasattr(self.instance, "audit"):
                 return self.instance.audit.simplified_case
             if hasattr(self.instance, "retest"):
@@ -1775,6 +1782,15 @@ MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             MobileCasePlatformPage(
                 name="Mobile case overview", url_name="mobile:case-detail"
             ),
+            MobileCasePlatformPage(
+                name="Change status", url_name="mobile:edit-case-status"
+            ),
+            PlatformPage(
+                name="Edit case note #{instance.id_within_case}",
+                url_name="mobile:edit-case-note",
+                url_kwarg_key="pk",
+                instance_class=MobileCaseHistory,
+            ),
         ],
     ),
     MobileCasePlatformPageGroup(
@@ -2306,13 +2322,6 @@ def build_sitemap_for_current_page(
     case: SimplifiedCase | DetailedCase | BaseCase | None = (
         current_platform_page.get_case()
     )
-    if case is not None:
-        if hasattr(case, "simplifiedcase"):
-            case: SimplifiedCase = case.simplifiedcase
-        elif hasattr(case, "detailedcase"):
-            case: DetailedCase = case.detailedcase
-        elif hasattr(case, "mobilecase"):
-            case: MobileCase = case.mobilecase
     case_nav_type: PlatformPageGroup.Type | None = (
         TEST_TYPE_TO_CASE_NAV.get(case.test_type) if case is not None else None
     )

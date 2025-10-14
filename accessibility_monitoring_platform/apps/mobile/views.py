@@ -133,7 +133,9 @@ class MobileCaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
 
         if duplicate_cases:
             context["duplicate_cases"] = duplicate_cases
-            context["new_case"] = form.save(commit=False)
+            new_case: MobileCase = form.save(commit=False)
+            new_case.test_type = MobileCase.TestType.MOBILE
+            context["new_case"] = new_case
             return self.render_to_response(context)
 
         mobile_case: MobileCase = form.save(commit=False)

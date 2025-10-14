@@ -291,7 +291,7 @@ def create_mobile_case_from_dict(
         add_note_to_mobile_history(
             mobile_case=mobile_case,
             created_by=auditor,
-            note=f"Legacy record:\n\n{legacy_case_number}",
+            note=f"Legacy record id: {legacy_case_number}",
         )
 
 
