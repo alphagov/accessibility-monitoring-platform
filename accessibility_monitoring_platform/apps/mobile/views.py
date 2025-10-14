@@ -166,6 +166,22 @@ class MobileCaseDetailView(DetailView):
     model: type[MobileCase] = MobileCase
     context_object_name: str = "mobile_case"
 
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add case detail sections to context"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+
+        mobile_case: MobileCase = self.object
+        sitemap: Sitemap = Sitemap(request=self.request)
+
+        return {
+            **{
+                "case_detail_sections": get_mobile_case_detail_sections(
+                    mobile_case=mobile_case, sitemap=sitemap
+                )
+            },
+            **context,
+        }
+
 
 class CaseDetailView(DetailView):
     """
