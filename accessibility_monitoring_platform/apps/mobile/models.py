@@ -257,29 +257,29 @@ class MobileCase(BaseCase):
         return mark_safe(title)
 
     def status_history(self) -> QuerySet["MobileCaseHistory"]:
-        return self.detailedcasehistory_set.filter(
+        return self.mobilecasehistory_set.filter(
             event_type=MobileCaseHistory.EventType.STATUS
         )
 
     def notes_history(self) -> QuerySet["MobileCaseHistory"]:
-        return self.detailedcasehistory_set.filter(
+        return self.mobilecasehistory_set.filter(
             event_type=MobileCaseHistory.EventType.NOTE
         )
 
     @property
-    def zendesk_tickets(self) -> QuerySet["ZendeskTicket"]:
+    def zendesk_tickets(self) -> QuerySet["MobileZendeskTicket"]:
         return self.mobile_zendesktickets.filter(is_deleted=False)
 
     @property
     def most_recent_history(self):
-        return self.detailedcasehistory_set.first()
+        return self.mobilecasehistory_set.first()
 
     @property
-    def contacts(self) -> QuerySet["Contact"]:
+    def contacts(self) -> QuerySet["MobileContact"]:
         return self.mobile_contacts.filter(is_deleted=False)
 
     @property
-    def preferred_contacts(self) -> QuerySet["Contact"]:
+    def preferred_contacts(self) -> QuerySet["MobileContact"]:
         return self.contacts.filter(preferred=MobileContact.Preferred.YES)
 
     @property

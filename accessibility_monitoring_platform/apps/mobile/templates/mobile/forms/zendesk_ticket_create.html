@@ -1,0 +1,21 @@
+{% extends 'common/case_form.html' %}
+
+{% block formbuttons %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full govuk-button-group">
+        <input
+            type="submit"
+            value="Save and return"
+            name="save_return"
+            class="govuk-button"
+            data-module="govuk-button"
+        />
+        <a
+            href="{% url 'mobile:zendesk-tickets' case.id %}"
+            class="govuk-link govuk-link--no-visited-state"
+        >
+            Cancel
+        </a>
+    </div>
+</div>
+{% endblock %}

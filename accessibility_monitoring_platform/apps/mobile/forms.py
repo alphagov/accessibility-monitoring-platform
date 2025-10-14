@@ -6,18 +6,24 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 from ..common.forms import (
+    AMPAuditorModelChoiceField,
+    AMPBooleanCheckboxWidget,
     AMPCharFieldWide,
     AMPChoiceCheckboxField,
     AMPChoiceCheckboxWidget,
+    AMPChoiceField,
     AMPChoiceRadioField,
+    AMPDateField,
     AMPDatePageCompleteField,
+    AMPDateWidget,
+    AMPIntegerField,
     AMPModelChoiceField,
     AMPTextField,
     AMPURLField,
     VersionForm,
 )
 from ..common.models import Boolean, Sector, SubCategory
-from .models import MobileCase
+from .models import MobileCase, MobileCaseHistory, MobileContact, MobileZendeskTicket
 
 
 class MobileCaseCreateForm(forms.ModelForm):
@@ -55,7 +61,6 @@ class MobileCaseCreateForm(forms.ModelForm):
             attrs={"label": "Did this case originate from a complaint?"}
         ),
     )
-    notes = AMPTextField(label="Notes")
 
     class Meta:
         model = MobileCase
@@ -70,7 +75,6 @@ class MobileCaseCreateForm(forms.ModelForm):
             "enforcement_body",
             "psb_location",
             "is_complaint",
-            "notes",
         ]
 
     def clean_app_store_url(self):
@@ -87,6 +91,13 @@ class MobileCaseCreateForm(forms.ModelForm):
 
 
 class MobileCaseMetadataUpdateForm(MobileCaseCreateForm, VersionForm):
+    is_feedback_requested = AMPChoiceCheckboxField(
+        label="Feedback survey sent?",
+        choices=Boolean.choices,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Feedback survey sent to this organisation?"}
+        ),
+    )
     case_metadata_complete_date = AMPDatePageCompleteField()
 
     def __init__(self, *args, **kwargs):
@@ -107,8 +118,553 @@ class MobileCaseMetadataUpdateForm(MobileCaseCreateForm, VersionForm):
             "enforcement_body",
             "psb_location",
             "is_complaint",
-            "notes",
-            "is_complaint",
-            "notes",
+            "is_feedback_requested",
             "case_metadata_complete_date",
+        ]
+
+
+class MobileCaseStatusUpdateForm(VersionForm):
+    status = AMPChoiceField(
+        label="Status",
+        choices=MobileCase.Status.choices,
+    )
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "status",
+        ]
+
+
+class MobileCaseHistoryCreateForm(forms.ModelForm):
+    value = AMPTextField(label="New note")
+
+    class Meta:
+        model = MobileCaseHistory
+        fields = [
+            "value",
+        ]
+
+
+class MobileCaseHistoryUpdateForm(forms.ModelForm):
+    label = AMPCharFieldWide(label="Label")
+    value = AMPTextField(label="New note")
+
+    class Meta:
+        model = MobileCaseHistory
+        fields = [
+            "label",
+            "value",
+        ]
+
+
+class ManageContactsUpdateForm(VersionForm):
+    """Form for updating contacts list page"""
+
+    manage_contacts_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "manage_contacts_complete_date",
+        ]
+
+
+class ContactCreateForm(forms.ModelForm):
+    """Form for creating a contact"""
+
+    name = AMPCharFieldWide(label="Name")
+    job_title = AMPCharFieldWide(label="Job title")
+    contact_details = AMPCharFieldWide(label="Contact details")
+    preferred = AMPChoiceRadioField(
+        label="Preferred contact",
+        choices=MobileContact.Preferred.choices,
+        initial=MobileContact.Preferred.UNKNOWN,
+    )
+    information = AMPTextField(label="Information about contact")
+
+    class Meta:
+        model = MobileContact
+        fields = ["name", "job_title", "contact_details", "preferred", "information"]
+
+
+class ContactUpdateForm(VersionForm, ContactCreateForm):
+    """Form for updating a contact"""
+
+    class Meta:
+        model = MobileContact
+        fields = [
+            "version",
+            "name",
+            "job_title",
+            "contact_details",
+            "preferred",
+            "information",
+        ]
+
+
+class ContactInformationRequestUpdateForm(VersionForm):
+    """Form for updating contact information request page"""
+
+    contact_information_request_start_date = AMPDateField(
+        label="Information request process started",
+        help_text="This is when we first reach out to an organisation via any method regardless of whether we have a contact or not",
+    )
+    contact_information_request_end_date = AMPDateField(label="Information received")
+    contact_information_request_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "contact_information_request_start_date",
+            "contact_information_request_end_date",
+            "contact_information_request_complete_date",
+        ]
+
+
+class InitialTestingDetailsUpdateForm(VersionForm):
+    """Form for updating initial testing details page"""
+
+    auditor = AMPAuditorModelChoiceField(label="Auditor")
+    initial_test_start_date = AMPDateField(label="Test start date")
+    initial_testing_details_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "auditor",
+            "initial_test_start_date",
+            "initial_testing_details_complete_date",
+        ]
+
+
+class InitialTestingOutcomeUpdateForm(VersionForm):
+    """Form for updating initial testing outcome page"""
+
+    initial_test_end_date = AMPDateField(label="Test end date")
+    initial_total_number_of_pages = AMPIntegerField(label="Number of pages tested")
+    initial_total_number_of_issues = AMPIntegerField(
+        label="Number of issues found · Included in export",
+        help_text="This does not include best practice issues",
+    )
+    initial_website_compliance_state = AMPChoiceRadioField(
+        label="Initial website compliance decision",
+        choices=MobileCase.WebsiteCompliance.choices,
+    )
+    initial_statement_compliance_state = AMPChoiceRadioField(
+        label="Initial statement compliance decision",
+        choices=MobileCase.StatementCompliance.choices,
+    )
+    initial_disproportionate_burden_claim = AMPChoiceRadioField(
+        label="Initial disproportionate burden claim",
+        choices=MobileCase.DisproportionateBurden.choices,
+    )
+    initial_testing_outcome_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "initial_test_end_date",
+            "initial_total_number_of_pages",
+            "initial_total_number_of_issues",
+            "initial_website_compliance_state",
+            "initial_statement_compliance_state",
+            "initial_disproportionate_burden_claim",
+            "initial_testing_outcome_complete_date",
+        ]
+
+
+class ReportReadyForQAUpdateForm(VersionForm):
+    """Form for updating report ready for QA page"""
+
+    report_ready_for_qa = AMPChoiceRadioField(
+        label="Report ready for QA process?",
+        choices=Boolean.choices,
+    )
+    report_ready_for_qa_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "report_ready_for_qa",
+            "report_ready_for_qa_complete_date",
+        ]
+
+
+class QAAuditorUpdateForm(VersionForm):
+    """Form for updating report QA auditor page"""
+
+    reviewer = AMPAuditorModelChoiceField(label="QA auditor")
+    qa_auditor_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "reviewer",
+            "qa_auditor_complete_date",
+        ]
+
+
+class QACommentsUpdateForm(VersionForm):
+    """
+    Form for updating QA comments page
+    """
+
+    body: AMPTextField = AMPTextField(
+        label="Add comment",
+        widget=forms.Textarea(attrs={"class": "govuk-textarea", "rows": "12"}),
+    )
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "body",
+        ]
+
+
+class QAApprovalUpdateForm(VersionForm):
+    """Form for updating report QA approval page"""
+
+    report_approved_status = AMPChoiceRadioField(
+        label="Report approved?",
+        choices=MobileCase.ReportApprovedStatus.choices,
+    )
+    qa_approval_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "report_approved_status",
+            "qa_approval_complete_date",
+        ]
+
+
+class FinalReportUpdateForm(VersionForm):
+    """Form for updating publish report page"""
+
+    equality_body_report_url = AMPURLField(
+        label="Link to equality body PDF report · Included in export"
+    )
+    final_report_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "equality_body_report_url",
+            "final_report_complete_date",
+        ]
+
+
+class ReportSentUpdateForm(VersionForm):
+    """Form for updating correspondence report sent page"""
+
+    report_sent_date = AMPDateField(label="Report sent on · Included in export")
+    report_sent_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "report_sent_date",
+            "report_sent_complete_date",
+        ]
+
+
+class ReportAcknowledgedUpdateForm(VersionForm):
+    """Form for updating correspondence report acknowledged page"""
+
+    report_acknowledged_date = AMPDateField(
+        label="Report acknowledged on · Included in export"
+    )
+    report_acknowledged_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "report_acknowledged_date",
+            "report_acknowledged_complete_date",
+        ]
+
+
+class TwelveWeekDeadlineUpdateForm(VersionForm):
+    """Form for updating correspondence 12-week deadline page"""
+
+    twelve_week_deadline_date = AMPDateField(
+        label="12-week deadline · Included in export",
+        widget=AMPDateWidget(attrs={"populate_with_12_week_only": True}),
+    )
+    twelve_week_deadline_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "twelve_week_deadline_date",
+            "twelve_week_deadline_complete_date",
+        ]
+
+
+class TwelveWeekRequestUpdateForm(VersionForm):
+    """Form for updating correspondence 12-week update request page"""
+
+    twelve_week_update_date = AMPDateField(label="12-week update requested")
+    twelve_week_update_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "twelve_week_update_date",
+            "twelve_week_update_complete_date",
+        ]
+
+
+class TwelveWeekAcknowledgedUpdateForm(VersionForm):
+    """Form for updating correspondence 12-week acknowledged page"""
+
+    twelve_week_acknowledged_date = AMPDateField(label="12-week update acknowledged")
+    twelve_week_acknowledged_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "twelve_week_acknowledged_date",
+            "twelve_week_acknowledged_complete_date",
+        ]
+
+
+class RetestResultUpdateForm(VersionForm):
+    """Form for updating reviewing changes retesting page"""
+
+    retest_start_date = AMPDateField(label="Latest retest date · Included in export")
+    retest_total_number_of_issues = AMPIntegerField(
+        label="Total number of remaining issues · Included in export"
+    )
+    retest_result_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "retest_start_date",
+            "retest_total_number_of_issues",
+            "retest_result_complete_date",
+        ]
+
+
+class RetestComplianceDecisionsUpdateForm(VersionForm):
+    """Form for updating reviewing changes retest result page"""
+
+    retest_website_compliance_state = AMPChoiceRadioField(
+        label="Retest website compliance decision · Included in export",
+        choices=MobileCase.WebsiteCompliance.choices,
+    )
+    retest_website_compliance_information = AMPTextField(
+        label="Retest website compliance decision information"
+    )
+    retest_statement_compliance_state = AMPChoiceRadioField(
+        label="Retest statement compliance decision · Included in export",
+        choices=MobileCase.StatementCompliance.choices,
+    )
+    retest_statement_compliance_information = AMPTextField(
+        label="Retest statement compliance decision information"
+    )
+    retest_disproportionate_burden_claim = AMPChoiceRadioField(
+        label="Retest disproportionate burden claim · Included in export",
+        choices=MobileCase.DisproportionateBurden.choices,
+    )
+    retest_disproportionate_burden_information = AMPTextField(
+        label="Retest disproportionate burden information · Included in export"
+    )
+    retest_compliance_decisions_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "retest_website_compliance_state",
+            "retest_website_compliance_information",
+            "retest_statement_compliance_state",
+            "retest_statement_compliance_information",
+            "retest_disproportionate_burden_claim",
+            "retest_disproportionate_burden_information",
+            "retest_compliance_decisions_complete_date",
+        ]
+
+
+class CaseRecommendationUpdateForm(VersionForm):
+    """Form for updating the case recommendation page"""
+
+    psb_progress_info = AMPTextField(label="Progress summary and PSB response")
+    recommendation_for_enforcement = AMPChoiceRadioField(
+        label="Enforcement recommendation · Included in export",
+        choices=MobileCase.RecommendationForEnforcement.choices,
+    )
+    recommendation_info = AMPTextField(
+        label="Enforcement recommendation details · Included in export"
+    )
+    recommendation_decision_sent_date = AMPDateField(
+        label="Date decision email sent · Included in export"
+    )
+    recommendation_decision_sent_to = AMPCharFieldWide(
+        label="Decision sent to · Included in export"
+    )
+    is_case_added_to_stats = AMPChoiceCheckboxField(
+        label="Case stats",
+        choices=Boolean.choices,
+        widget=AMPChoiceCheckboxWidget(attrs={"label": "Case added to stats tab?"}),
+    )
+    is_feedback_requested = AMPChoiceCheckboxField(
+        label="Feedback survey sent",
+        choices=Boolean.choices,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Feedback survey sent to this organisation?"}
+        ),
+    )
+    case_recommendation_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "psb_progress_info",
+            "recommendation_for_enforcement",
+            "recommendation_info",
+            "recommendation_decision_sent_date",
+            "recommendation_decision_sent_to",
+            "is_case_added_to_stats",
+            "is_feedback_requested",
+            "case_recommendation_complete_date",
+        ]
+
+
+class CaseCloseUpdateForm(VersionForm):
+    """Form for updating closing the case page"""
+
+    case_close_decision_state = AMPChoiceRadioField(
+        label="Case completed",
+        choices=MobileCase.CaseCloseDecision,
+    )
+    case_close_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "case_close_decision_state",
+            "case_close_complete_date",
+        ]
+
+
+class StatementEnforcementUpdateForm(VersionForm):
+    """Form for updating the statement enforcement page"""
+
+    psb_statement_appeal_information = AMPTextField(
+        label="Public sector body appeal information"
+    )
+    statement_enforcement_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "psb_statement_appeal_information",
+            "statement_enforcement_complete_date",
+        ]
+
+
+class EnforcementBodyMetadataUpdateForm(VersionForm):
+    """Form for updating closing the case page"""
+
+    enforcement_body_sent_date = AMPDateField(label="Date sent to equality body")
+    enforcement_body_started_date = AMPDateField(
+        label="Date equality body started the case"
+    )
+    enforcement_body_case_owner = AMPCharFieldWide(
+        label="Equality body case owner (first name only)"
+    )
+    enforcement_body_closed_case_state = AMPChoiceRadioField(
+        label="Equality body has officially closed the case?",
+        choices=MobileCase.EnforcementBodyClosedCase.choices,
+    )
+    enforcement_body_completed_case_date = AMPDateField(
+        label="Date equality body completed the case"
+    )
+    enforcement_body_metadata_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "enforcement_body_sent_date",
+            "enforcement_body_started_date",
+            "enforcement_body_case_owner",
+            "enforcement_body_closed_case_state",
+            "enforcement_body_completed_case_date",
+            "enforcement_body_metadata_complete_date",
+        ]
+
+
+class ZendeskTicketCreateUpdateForm(forms.ModelForm):
+    """
+    Form for updating a zendesk ticket
+    """
+
+    summary = AMPTextField(label="Summary")
+    url = AMPURLField(label="Link to Zendesk ticket")
+
+    class Meta:
+        model = MobileZendeskTicket
+        fields = ["summary", "url"]
+
+
+class ZendeskTicketConfirmDeleteUpdateForm(forms.ModelForm):
+    """
+    Form for confirming the deletion of a zendesk ticket
+    """
+
+    is_deleted = forms.BooleanField(
+        label="Confirm you want to remove Zendesk ticket",
+        required=False,
+        widget=AMPBooleanCheckboxWidget(attrs={"label": "Remove ticket"}),
+    )
+
+    class Meta:
+        model = MobileZendeskTicket
+        fields = ["is_deleted"]
+
+
+class UnresponsivePSBUpdateForm(VersionForm):
+    """Form for recording an unresponsive PSB"""
+
+    no_psb_contact = AMPChoiceCheckboxField(
+        label="Do you want to mark the PSB as unresponsive to this case?",
+        help_text="Also add a case note with more information",
+        choices=Boolean.choices,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Mark the PSB as unresponsive to this case"}
+        ),
+    )
+    no_psb_contact_info = AMPTextField(
+        label="Public sector body is unresponsive information"
+    )
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "no_psb_contact",
+            "no_psb_contact_info",
         ]

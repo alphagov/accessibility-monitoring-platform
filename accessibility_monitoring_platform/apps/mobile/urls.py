@@ -7,10 +7,45 @@ from django.urls import path
 from django.urls.resolvers import URLPattern
 
 from .views import (
+    CaseCloseUpdateView,
+    CaseRecommendationUpdateView,
+    CaseSearchView,
+    CaseZendeskTicketsDetailView,
+    ContactCreateView,
+    ContactInformationRequestUpdateView,
+    ContactUpdateView,
+    CorrespondenceReportAcknowledgedUpdateView,
+    CorrespondenceReportSentUpdateView,
+    CorrespondenceTwelveWeekAcknowledgedUpdateView,
+    CorrespondenceTwelveWeekDeadlineUpdateView,
+    CorrespondenceTwelveWeekRequestUpdateView,
+    EnforcementBodyMetadataUpdateView,
+    FinalReportUpdateView,
+    InitialTestingDetailsUpdateView,
+    InitialTestingOutcomeUpdateView,
+    ManageContactDetailsUpdateView,
     MobileCaseCreateView,
     MobileCaseDetailView,
     MobileCaseHistoryDetailView,
     MobileCaseMetadataUpdateView,
+    MobileCaseNoteCreateView,
+    MobileCaseNoteUpdateView,
+    MobileCaseStatusUpdateView,
+    QAApprovalUpdateView,
+    QAAuditorUpdateView,
+    QACommentsUpdateView,
+    ReportReadyForQAUpdateView,
+    RetestComplianceDecisionsUpdateView,
+    RetestResultUpdateView,
+    StatementEnforcementUpdateView,
+    UnresponsivePSBUpdateView,
+    ZendeskTicketConfirmDeleteUpdateView,
+    ZendeskTicketCreateView,
+    ZendeskTicketUpdateView,
+    export_equality_body_cases,
+    export_feedback_survey_cases,
+    export_mobile_cases,
+    mark_qa_comments_as_read,
 )
 
 app_name: str = "mobile"
@@ -21,14 +56,187 @@ urlpatterns: list[URLPattern] = [
         name="case-create",
     ),
     path(
+        "export-as-csv/", login_required(export_mobile_cases), name="case-export-list"
+    ),
+    path(
+        "export-feedback-survey-cases-csv/",
+        login_required(export_feedback_survey_cases),
+        name="export-feedback-survey-cases",
+    ),
+    path(
+        "export-equality-body-cases-csv/",
+        login_required(export_equality_body_cases),
+        name="export-equality-body-cases",
+    ),
+    path(
         "<int:pk>/case-detail/",
         login_required(MobileCaseDetailView.as_view()),
         name="case-detail",
     ),
     path(
+        "<int:pk>/case-view-and-search/",
+        login_required(CaseSearchView.as_view()),
+        name="case-view-and-search",
+    ),
+    path(
         "<int:pk>/case-metadata/",
         login_required(MobileCaseMetadataUpdateView.as_view()),
         name="edit-case-metadata",
+    ),
+    path(
+        "<int:pk>/case-status/",
+        login_required(MobileCaseStatusUpdateView.as_view()),
+        name="edit-case-status",
+    ),
+    path(
+        "<int:case_id>/create-case-note/",
+        login_required(MobileCaseNoteCreateView.as_view()),
+        name="create-case-note",
+    ),
+    path(
+        "notes/<int:pk>/edit-case-note/",
+        login_required(MobileCaseNoteUpdateView.as_view()),
+        name="edit-case-note",
+    ),
+    path(
+        "<int:pk>/manage-contact-details/",
+        login_required(ManageContactDetailsUpdateView.as_view()),
+        name="manage-contact-details",
+    ),
+    path(
+        "<int:case_id>/edit-contact-create/",
+        login_required(ContactCreateView.as_view()),
+        name="edit-contact-create",
+    ),
+    path(
+        "<int:pk>/edit-contact-update/",
+        login_required(ContactUpdateView.as_view()),
+        name="edit-contact-update",
+    ),
+    path(
+        "<int:pk>/edit-request-contact-details/",
+        login_required(ContactInformationRequestUpdateView.as_view()),
+        name="edit-request-contact-details",
+    ),
+    path(
+        "<int:pk>/edit-initial-testing-details/",
+        login_required(InitialTestingDetailsUpdateView.as_view()),
+        name="edit-initial-testing-details",
+    ),
+    path(
+        "<int:pk>/edit-initial-testing-outcome/",
+        login_required(InitialTestingOutcomeUpdateView.as_view()),
+        name="edit-initial-testing-outcome",
+    ),
+    path(
+        "<int:pk>/edit-report-ready-for-qa/",
+        login_required(ReportReadyForQAUpdateView.as_view()),
+        name="edit-report-ready-for-qa",
+    ),
+    path(
+        "<int:pk>/edit-qa-auditor/",
+        login_required(QAAuditorUpdateView.as_view()),
+        name="edit-qa-auditor",
+    ),
+    path(
+        "<int:pk>/edit-qa-comments/",
+        login_required(QACommentsUpdateView.as_view()),
+        name="edit-qa-comments",
+    ),
+    path(
+        "<int:pk>/mark-qa-comments-as-read/",
+        login_required(mark_qa_comments_as_read),
+        name="mark-qa-comments-as-read",
+    ),
+    path(
+        "<int:pk>/edit-qa-approval/",
+        login_required(QAApprovalUpdateView.as_view()),
+        name="edit-qa-approval",
+    ),
+    path(
+        "<int:pk>/edit-final-report/",
+        login_required(FinalReportUpdateView.as_view()),
+        name="edit-final-report",
+    ),
+    path(
+        "<int:pk>/edit-report-sent/",
+        login_required(CorrespondenceReportSentUpdateView.as_view()),
+        name="edit-report-sent",
+    ),
+    path(
+        "<int:pk>/edit-report-acknowledged/",
+        login_required(CorrespondenceReportAcknowledgedUpdateView.as_view()),
+        name="edit-report-acknowledged",
+    ),
+    path(
+        "<int:pk>/edit-12-week-deadline/",
+        login_required(CorrespondenceTwelveWeekDeadlineUpdateView.as_view()),
+        name="edit-12-week-deadline",
+    ),
+    path(
+        "<int:pk>/edit-12-week-request-update/",
+        login_required(CorrespondenceTwelveWeekRequestUpdateView.as_view()),
+        name="edit-12-week-request-update",
+    ),
+    path(
+        "<int:pk>/edit-12-week-acknowledged/",
+        login_required(CorrespondenceTwelveWeekAcknowledgedUpdateView.as_view()),
+        name="edit-12-week-acknowledged",
+    ),
+    path(
+        "<int:pk>/edit-retest-result/",
+        login_required(RetestResultUpdateView.as_view()),
+        name="edit-retest-result",
+    ),
+    path(
+        "<int:pk>/edit-retest-compliance-decisions/",
+        login_required(RetestComplianceDecisionsUpdateView.as_view()),
+        name="edit-retest-compliance-decisions",
+    ),
+    path(
+        "<int:pk>/edit-case-recommendation/",
+        login_required(CaseRecommendationUpdateView.as_view()),
+        name="edit-case-recommendation",
+    ),
+    path(
+        "<int:pk>/edit-case-close/",
+        login_required(CaseCloseUpdateView.as_view()),
+        name="edit-case-close",
+    ),
+    path(
+        "<int:pk>/edit-statement-enforcement/",
+        login_required(StatementEnforcementUpdateView.as_view()),
+        name="edit-statement-enforcement",
+    ),
+    path(
+        "<int:pk>/edit-equality-body-metadata/",
+        login_required(EnforcementBodyMetadataUpdateView.as_view()),
+        name="edit-equality-body-metadata",
+    ),
+    path(
+        "<int:pk>/zendesk-tickets/",
+        login_required(CaseZendeskTicketsDetailView.as_view()),
+        name="zendesk-tickets",
+    ),
+    path(
+        "<int:case_id>/create-zendesk-ticket/",
+        login_required(ZendeskTicketCreateView.as_view()),
+        name="create-zendesk-ticket",
+    ),
+    path(
+        "<int:pk>/update-zendesk-ticket/",
+        login_required(ZendeskTicketUpdateView.as_view()),
+        name="update-zendesk-ticket",
+    ),
+    path(
+        "<int:pk>/confirm-delete-zendesk-ticket/",
+        login_required(ZendeskTicketConfirmDeleteUpdateView.as_view()),
+        name="confirm-delete-zendesk-ticket",
+    ),
+    path(
+        "<int:pk>/edit-unresponsive-psb/",
+        login_required(UnresponsivePSBUpdateView.as_view()),
+        name="edit-unresponsive-psb",
     ),
     path(
         "<int:pk>/history/",

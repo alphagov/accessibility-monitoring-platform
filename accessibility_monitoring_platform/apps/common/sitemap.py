@@ -49,8 +49,51 @@ from ..detailed.models import Contact as DetailedCaseContact
 from ..detailed.models import DetailedCase, DetailedCaseHistory
 from ..detailed.models import ZendeskTicket as DetailedZendeskTicket
 from ..exports.models import Export
+from ..mobile.forms import CaseCloseUpdateForm as MobileCaseCloseUpdateForm
+from ..mobile.forms import (
+    CaseRecommendationUpdateForm as MobileCaseRecommendationUpdateForm,
+)
+from ..mobile.forms import (
+    ContactInformationRequestUpdateForm as MobileContactInformationRequestUpdateForm,
+)
+from ..mobile.forms import (
+    EnforcementBodyMetadataUpdateForm as MobileEnforcementBodyMetadataUpdateForm,
+)
+from ..mobile.forms import FinalReportUpdateForm as MobileFinalReportUpdateForm
+from ..mobile.forms import (
+    InitialTestingDetailsUpdateForm as MobileInitialTestingDetailsUpdateForm,
+)
+from ..mobile.forms import (
+    InitialTestingOutcomeUpdateForm as MobileInitialTestingOutcomeUpdateForm,
+)
 from ..mobile.forms import MobileCaseMetadataUpdateForm
-from ..mobile.models import MobileCase
+from ..mobile.forms import QAApprovalUpdateForm as MobileQAApprovalUpdateForm
+from ..mobile.forms import QAAuditorUpdateForm as MobileQAAuditorUpdateForm
+from ..mobile.forms import (
+    ReportAcknowledgedUpdateForm as MobileReportAcknowledgedUpdateForm,
+)
+from ..mobile.forms import (
+    ReportReadyForQAUpdateForm as MobileReportReadyForQAUpdateForm,
+)
+from ..mobile.forms import ReportSentUpdateForm as MobileReportSentUpdateForm
+from ..mobile.forms import (
+    RetestComplianceDecisionsUpdateForm as MobileRetestComplianceDecisionsUpdateForm,
+)
+from ..mobile.forms import RetestResultUpdateForm as MobileRetestResultUpdateForm
+from ..mobile.forms import (
+    StatementEnforcementUpdateForm as MobileStatementEnforcementUpdateForm,
+)
+from ..mobile.forms import (
+    TwelveWeekAcknowledgedUpdateForm as MobileTwelveWeekAcknowledgedUpdateForm,
+)
+from ..mobile.forms import (
+    TwelveWeekDeadlineUpdateForm as MobileTwelveWeekDeadlineUpdateForm,
+)
+from ..mobile.forms import (
+    TwelveWeekRequestUpdateForm as MobileTwelveWeekRequestUpdateForm,
+)
+from ..mobile.forms import UnresponsivePSBUpdateForm as MobileUnresponsivePSBUpdateForm
+from ..mobile.models import MobileCase, MobileContact, MobileZendeskTicket
 from ..notifications.models import Task
 from ..reports.models import Report
 from ..simplified.forms import CaseCloseUpdateForm as SimplifiedCaseCloseUpdateForm
@@ -337,6 +380,21 @@ class DetailedCaseContactsPlatformPage(DetailedCasePlatformPage):
                 self.subpages = bound_subpages
 
 
+class MobileCaseContactsPlatformPage(MobileCasePlatformPage):
+    def populate_from_case(self, case: MobileCase):
+        if case is not None:
+            self.set_instance(instance=case)
+            if self.subpages is not None:
+                bound_subpages: list[PlatformPage] = populate_subpages_with_instance(
+                    platform_page=self, instance=case
+                )
+                for contact in case.contacts:
+                    bound_subpages += populate_subpages_with_instance(
+                        platform_page=self, instance=contact
+                    )
+                self.subpages = bound_subpages
+
+
 class CaseCommentsPlatformPage(SimplifiedCasePlatformPage):
     def populate_from_case(self, case: SimplifiedCase):
         if case is not None:
@@ -509,6 +567,7 @@ class PlatformPageGroup:
         MOBILE_CASE_NAV: str = auto()
         SIMPLIFIED_CASE_TOOLS: str = auto()
         DETAILED_CASE_TOOLS: str = auto()
+        MOBILE_CASE_TOOLS: str = auto()
         DEFAULT: str = auto()
 
     name: str
@@ -1726,8 +1785,262 @@ MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="mobile:edit-case-metadata",
                 complete_flag_name="case_metadata_complete_date",
                 case_details_form_class=MobileCaseMetadataUpdateForm,
-                # case_details_template_name="simplified/details/details_case_metadata.html",
+                case_details_template_name="mobile/details/details_case_metadata.html",
+                next_page_url_name="mobile:manage-contact-details",
             )
+        ],
+    ),
+    MobileCasePlatformPageGroup(
+        name="Initial contact",
+        pages=[
+            MobileCaseContactsPlatformPage(
+                name="Contact details",
+                url_name="mobile:manage-contact-details",
+                complete_flag_name="manage_contacts_complete_date",
+                subpages=[
+                    MobileCasePlatformPage(
+                        name="Add contact",
+                        url_name="mobile:edit-contact-create",
+                        url_kwarg_key="case_id",
+                        visible_only_when_current=True,
+                    ),
+                    PlatformPage(
+                        name="Edit contact {instance}",
+                        url_name="mobile:edit-contact-update",
+                        url_kwarg_key="pk",
+                        visible_only_when_current=True,
+                        instance_class=MobileContact,
+                    ),
+                ],
+                case_details_template_name="mobile/details/details_manage_contact_details.html",
+                next_page_url_name="mobile:edit-request-contact-details",
+            ),
+            MobileCasePlatformPage(
+                name="Information request",
+                url_name="mobile:edit-request-contact-details",
+                complete_flag_name="contact_information_request_complete_date",
+                case_details_form_class=MobileContactInformationRequestUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="mobile:edit-initial-testing-details",
+            ),
+        ],
+    ),
+    MobileCasePlatformPageGroup(
+        name="Initial test",
+        pages=[
+            MobileCasePlatformPage(
+                name="Testing",
+                url_name="mobile:edit-initial-testing-details",
+                complete_flag_name="initial_testing_details_complete_date",
+                case_details_form_class=MobileInitialTestingDetailsUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="mobile:edit-initial-testing-outcome",
+            ),
+            MobileCasePlatformPage(
+                name="Testing outcome",
+                url_name="mobile:edit-initial-testing-outcome",
+                complete_flag_name="initial_testing_outcome_complete_date",
+                case_details_form_class=MobileInitialTestingOutcomeUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="mobile:edit-report-ready-for-qa",
+            ),
+        ],
+    ),
+    MobileCasePlatformPageGroup(
+        name="Report",
+        pages=[
+            MobileCasePlatformPage(
+                name="Report ready for QA",
+                url_name="mobile:edit-report-ready-for-qa",
+                complete_flag_name="report_ready_for_qa_complete_date",
+                case_details_form_class=MobileReportReadyForQAUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="mobile:edit-qa-auditor",
+            ),
+            MobileCasePlatformPage(
+                name="QA auditor",
+                url_name="mobile:edit-qa-auditor",
+                complete_flag_name="qa_auditor_complete_date",
+                case_details_form_class=MobileQAAuditorUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="mobile:edit-qa-comments",
+            ),
+            MobileCasePlatformPage(
+                name="QA comments",
+                url_name="mobile:edit-qa-comments",
+                case_details_template_name="mobile/details/details_qa_comments.html",
+                next_page_url_name="mobile:edit-qa-approval",
+            ),
+            MobileCasePlatformPage(
+                name="QA approval",
+                url_name="mobile:edit-qa-approval",
+                complete_flag_name="qa_approval_complete_date",
+                case_details_form_class=MobileQAApprovalUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="mobile:edit-final-report",
+            ),
+            MobileCasePlatformPage(
+                name="Final report",
+                url_name="mobile:edit-final-report",
+                complete_flag_name="final_report_complete_date",
+                case_details_form_class=MobileFinalReportUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="mobile:edit-report-sent",
+            ),
+        ],
+    ),
+    MobileCasePlatformPageGroup(
+        name="Correspondence",
+        pages=[
+            MobileCasePlatformPage(
+                name="Report sent",
+                url_name="mobile:edit-report-sent",
+                complete_flag_name="report_sent_complete_date",
+                case_details_form_class=MobileReportSentUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="mobile:edit-12-week-deadline",
+            ),
+            MobileCasePlatformPage(
+                name="12-week deadline",
+                url_name="mobile:edit-12-week-deadline",
+                complete_flag_name="twelve_week_deadline_complete_date",
+                case_details_form_class=MobileTwelveWeekDeadlineUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="mobile:edit-report-acknowledged",
+            ),
+            MobileCasePlatformPage(
+                name="Report acknowledged",
+                url_name="mobile:edit-report-acknowledged",
+                complete_flag_name="report_acknowledged_complete_date",
+                case_details_form_class=MobileReportAcknowledgedUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="mobile:edit-12-week-request-update",
+            ),
+            MobileCasePlatformPage(
+                name="12-week update request",
+                url_name="mobile:edit-12-week-request-update",
+                complete_flag_name="twelve_week_update_complete_date",
+                case_details_form_class=MobileTwelveWeekRequestUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="mobile:edit-12-week-acknowledged",
+            ),
+            MobileCasePlatformPage(
+                name="12-week acknowledged",
+                url_name="mobile:edit-12-week-acknowledged",
+                complete_flag_name="twelve_week_acknowledged_complete_date",
+                case_details_form_class=MobileTwelveWeekAcknowledgedUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="mobile:edit-retest-result",
+            ),
+        ],
+    ),
+    MobileCasePlatformPageGroup(
+        name="Reviewing changes",
+        pages=[
+            MobileCasePlatformPage(
+                name="Retest result",
+                url_name="mobile:edit-retest-result",
+                complete_flag_name="retest_result_complete_date",
+                case_details_form_class=MobileRetestResultUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="mobile:edit-retest-compliance-decisions",
+            ),
+            MobileCasePlatformPage(
+                name="Compliance decisions",
+                url_name="mobile:edit-retest-compliance-decisions",
+                complete_flag_name="retest_compliance_decisions_complete_date",
+                case_details_form_class=MobileRetestComplianceDecisionsUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="mobile:edit-case-recommendation",
+            ),
+        ],
+    ),
+    MobileCasePlatformPageGroup(
+        name="Closing the case",
+        pages=[
+            MobileCasePlatformPage(
+                name="Recommendation",
+                url_name="mobile:edit-case-recommendation",
+                complete_flag_name="case_recommendation_complete_date",
+                case_details_form_class=MobileCaseRecommendationUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="mobile:edit-case-close",
+            ),
+            MobileCasePlatformPage(
+                name="Closing the case",
+                url_name="mobile:edit-case-close",
+                complete_flag_name="case_close_complete_date",
+                case_details_form_class=MobileCaseCloseUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="mobile:edit-statement-enforcement",
+            ),
+        ],
+    ),
+    MobileCasePlatformPageGroup(
+        name="Post case",
+        pages=[
+            MobileCasePlatformPage(
+                name="Statement enforcement",
+                url_name="mobile:edit-statement-enforcement",
+                complete_flag_name="statement_enforcement_complete_date",
+                case_details_form_class=MobileStatementEnforcementUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="mobile:edit-equality-body-metadata",
+            ),
+            MobileCasePlatformPage(
+                name="Equality body metadata",
+                url_name="mobile:edit-equality-body-metadata",
+                complete_flag_name="enforcement_body_metadata_complete_date",
+                case_details_form_class=MobileEnforcementBodyMetadataUpdateForm,
+                case_details_template_name="cases/details/details.html",
+                next_page_url_name="mobile:case-detail",
+            ),
+        ],
+    ),
+    MobileCasePlatformPageGroup(
+        name="Case tools",
+        type=PlatformPageGroup.Type.MOBILE_CASE_TOOLS,
+        pages=[
+            MobileCasePlatformPage(
+                name="View and search all case data",
+                url_name="mobile:case-view-and-search",
+            ),
+            MobileCasePlatformPage(
+                name="PSB Zendesk tickets",
+                url_name="mobile:zendesk-tickets",
+                case_details_template_name="mobile/details/details_psb_zendesk_tickets.html",
+                subpages=[
+                    MobileCasePlatformPage(
+                        name="Add PSB Zendesk ticket",
+                        url_name="mobile:create-zendesk-ticket",
+                        url_kwarg_key="case_id",
+                    ),
+                    PlatformPage(
+                        name="Edit PSB Zendesk ticket #{instance.id_within_case}",
+                        url_name="mobile:update-zendesk-ticket",
+                        url_kwarg_key="pk",
+                        instance_class=MobileZendeskTicket,
+                    ),
+                    PlatformPage(
+                        name="Remove PSB Zendesk ticket #{instance.id_within_case}",
+                        url_name="mobile:confirm-delete-zendesk-ticket",
+                        url_kwarg_key="pk",
+                        instance_class=MobileZendeskTicket,
+                    ),
+                ],
+            ),
+            MobileCasePlatformPage(
+                name="Unresponsive PSB",
+                url_name="mobile:edit-unresponsive-psb",
+                case_details_form_class=MobileUnresponsivePSBUpdateForm,
+                case_details_template_name="cases/details/details.html",
+            ),
+            MobileCasePlatformPage(
+                name="Case notes",
+                url_name="mobile:create-case-note",
+                url_kwarg_key="case_id",
+                case_details_template_name="mobile/details/details_case_notes.html",
+            ),
         ],
     ),
 ]
@@ -2028,6 +2341,12 @@ def build_sitemap_for_current_page(
                 for platform_page_group in site_map
                 if platform_page_group.type
                 == PlatformPageGroup.Type.DETAILED_CASE_TOOLS
+            ]
+        if case_nav_type == PlatformPageGroup.Type.MOBILE_CASE_NAV:
+            case_navigation += [
+                platform_page_group
+                for platform_page_group in site_map
+                if platform_page_group.type == PlatformPageGroup.Type.MOBILE_CASE_TOOLS
             ]
         for platform_page_group in case_navigation:
             platform_page_group.populate_from_case(case=case)
