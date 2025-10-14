@@ -22,4 +22,4 @@ def test_non_case_specific_page_loads(path_name, expected_content, admin_client)
     response: HttpResponse = admin_client.get(reverse(path_name))
 
     assert response.status_code == 200
-    assertContains(response, expected_content)
+    assertContains(response, expected_content, html=True)

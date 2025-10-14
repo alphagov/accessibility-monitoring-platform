@@ -127,6 +127,7 @@ class MobileCaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
 
         context: dict[str, Any] = self.get_context_data()
         duplicate_cases: QuerySet[BaseCase] = find_duplicate_cases(
+            url=form.cleaned_data.get("home_page_url", ""),
             organisation_name=form.cleaned_data.get("organisation_name", ""),
         ).order_by("created")
 

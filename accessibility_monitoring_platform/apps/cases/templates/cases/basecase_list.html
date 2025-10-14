@@ -135,6 +135,41 @@
                                 </a>
                             </li>
                         </ul>
+                        <h2 id="id_header_3" class="govuk-heading-m">Mobile</h2>
+                        <ul class="govuk-list">
+                            <li>
+                                <a
+                                    href="{% url 'mobile:case-create' %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Create mobile case
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'mobile:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Export to CSV
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'mobile:export-feedback-survey-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Export to feedback survey CSV
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="{% url 'mobile:export-equality-body-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
+                                    class="govuk-link govuk-link--no-visited-state"
+                                >
+                                    Export to equality body CSV
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>

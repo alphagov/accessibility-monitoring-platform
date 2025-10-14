@@ -40,6 +40,7 @@ class MobileCaseCreateForm(forms.ModelForm):
     app_os = AMPChoiceRadioField(
         label="App OS",
         choices=MobileCase.AppOS.choices,
+        initial=MobileCase.AppOS.ANDROID,
     )
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     subcategory = AMPModelChoiceField(
@@ -49,10 +50,12 @@ class MobileCaseCreateForm(forms.ModelForm):
     enforcement_body = AMPChoiceRadioField(
         label="Which equalities body will check the case?",
         choices=MobileCase.EnforcementBody.choices,
+        initial=MobileCase.EnforcementBody.EHRC,
     )
     psb_location = AMPChoiceRadioField(
         label="Public sector body location",
         choices=MobileCase.PsbLocation.choices,
+        initial=MobileCase.PsbLocation.ENGLAND,
     )
     is_complaint = AMPChoiceCheckboxField(
         label="Complaint?",
