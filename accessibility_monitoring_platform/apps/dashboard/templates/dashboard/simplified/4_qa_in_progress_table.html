@@ -4,10 +4,10 @@
     <table class="govuk-table">
         <thead class="govuk-table__head">
             <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header amp-width-15-percent">Date created</th>
+                <th scope="col" class="govuk-table__header amp-width-15-percent">Date of test</th>
                 <th scope="col" class="govuk-table__header amp-width-one-quarter">Case</th>
                 <th scope="col" class="govuk-table__header amp-width-one-quarter">Full URL</th>
-                {% if show_all_cases %}
+                {% if filter == "all-cases" %}
                     <th scope="col" class="govuk-table__header amp-width-one-quarter">QA Auditor</th>
                 {% else %}
                     <th scope="col" class="govuk-table__header amp-width-one-quarter">Current step</th>
@@ -17,7 +17,7 @@
         <tbody class="govuk-table__body">
             {% for case in cases %}
                 <tr class="govuk-table__row ">
-                    <th scope="row" class="govuk-table__header amp-width-15-percent govuk-!-font-weight-regular">{{ case.created|amp_date_trunc }}</th>
+                    <th scope="row" class="govuk-table__header amp-width-15-percent govuk-!-font-weight-regular">{{ case.audit.date_of_test|amp_date_trunc }}</th>
                     <td class="govuk-table__cell amp-width-one-quarter">
                         <a href="{{ case.get_absolute_url }}" class="govuk-link">{{ case.organisation_name|truncatechars:25 }}</a>
                     </td>
@@ -30,7 +30,7 @@
                                 No auditor
                             {% endif %}
                         {% else %}
-                            <a href="{% url 'simplified:edit-qa-approval' case.id %}" class="govuk-link"> {{case.get_report_approved_status_display}} </a>
+                            <a href="{% url 'simplified:edit-qa-auditor' case.id %}" class="govuk-link"> {{case.get_report_approved_status_display}} </a>
                         {% endif %}
                     </td>
                 </tr>
