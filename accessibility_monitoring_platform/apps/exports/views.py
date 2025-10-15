@@ -24,7 +24,10 @@ from ..simplified.utils import (
 )
 from .forms import ExportConfirmForm, ExportCreateForm, ExportDeleteForm
 from .models import Export, ExportCase
-from .utils import download_equality_body_simplified_cases
+from .utils import (
+    download_equality_body_simplified_cases,
+    preview_equality_body_simplified_cases,
+)
 
 
 class EnforcementBodyMixin:
@@ -101,6 +104,23 @@ class ExportDetailView(DetailView):
 
     model: type[Export] = Export
     context_object_name: str = "export"
+
+
+class ExportPreviewDetailView(DetailView):
+    """Preview details of a single export"""
+
+    model: type[Export] = Export
+    context_object_name: str = "export"
+    template_name: str = "exports/export_preview.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add export preview values into context"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        export: Export = self.object
+        context["preview"] = preview_equality_body_simplified_cases(
+            cases=export.all_cases
+        )
+        return context
 
 
 class ExportCaseAsEmailDetailView(HideCaseNavigationMixin, DetailView):
