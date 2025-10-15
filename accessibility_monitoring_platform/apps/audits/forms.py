@@ -491,7 +491,7 @@ class New12WeekCustomStatementCheckResultUpdateForm(forms.ModelForm):
         fields = ["retest_comment", "auditor_notes", "retest_state"]
 
 
-class InitialDisproportionateBurdenUpdateForm(VersionForm):
+class AuditInitialDisproportionateBurdenUpdateForm(VersionForm):
     """
     Form for editing initial disproportional burden claim
     """
@@ -970,7 +970,7 @@ class AuditRetestStatementDecisionUpdateForm(VersionForm):
         ]
 
 
-class TwelveWeekDisproportionateBurdenUpdateForm(VersionForm):
+class AuditTwelveWeekDisproportionateBurdenUpdateForm(VersionForm):
     """
     Form for editing twelve_week disproportional burden claim
     """

@@ -49,41 +49,41 @@ from .csv_export import (
     SIMPLIFIED_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
 )
 from .forms import (
-    CaseCloseUpdateForm,
-    CaseCreateForm,
-    CaseDeactivateForm,
-    CaseEnforcementRecommendationUpdateForm,
-    CaseEqualityBodyMetadataUpdateForm,
-    CaseFourWeekContactDetailsUpdateForm,
-    CaseMetadataUpdateForm,
-    CaseNoPSBContactUpdateForm,
-    CaseOneWeekContactDetailsUpdateForm,
-    CaseOneWeekFollowupFinalUpdateForm,
-    CasePublishReportUpdateForm,
-    CaseQAApprovalUpdateForm,
-    CaseQAAuditorUpdateForm,
-    CaseQACommentsUpdateForm,
-    CaseReportAcknowledgedUpdateForm,
-    CaseReportDetailsUpdateForm,
-    CaseReportFourWeekFollowupUpdateForm,
-    CaseReportOneWeekFollowupUpdateForm,
-    CaseReportReadyForQAUpdateForm,
-    CaseReportSentOnUpdateForm,
-    CaseRequestContactDetailsUpdateForm,
-    CaseReviewChangesUpdateForm,
-    CaseStatementEnforcementUpdateForm,
-    CaseTestResultsUpdateForm,
-    CaseTwelveWeekRetestUpdateForm,
-    CaseTwelveWeekUpdateAcknowledgedUpdateForm,
-    CaseTwelveWeekUpdateRequestedUpdateForm,
-    ContactCreateForm,
-    ContactUpdateForm,
-    EqualityBodyCorrespondenceCreateForm,
-    ListCaseEqualityBodyCorrespondenceUpdateForm,
-    ManageContactDetailsUpdateForm,
-    PostCaseUpdateForm,
-    ZendeskTicketConfirmDeleteUpdateForm,
-    ZendeskTicketCreateUpdateForm,
+    ListSimplifiedCaseEqualityBodyCorrespondenceUpdateForm,
+    SimplifiedCaseCloseUpdateForm,
+    SimplifiedCaseCreateForm,
+    SimplifiedCaseDeactivateForm,
+    SimplifiedCaseEnforcementRecommendationUpdateForm,
+    SimplifiedCaseEqualityBodyMetadataUpdateForm,
+    SimplifiedCaseFourWeekContactDetailsUpdateForm,
+    SimplifiedCaseMetadataUpdateForm,
+    SimplifiedCaseNoPSBContactUpdateForm,
+    SimplifiedCaseOneWeekContactDetailsUpdateForm,
+    SimplifiedCaseOneWeekFollowupFinalUpdateForm,
+    SimplifiedCasePublishReportUpdateForm,
+    SimplifiedCaseQAApprovalUpdateForm,
+    SimplifiedCaseQAAuditorUpdateForm,
+    SimplifiedCaseQACommentsUpdateForm,
+    SimplifiedCaseReportAcknowledgedUpdateForm,
+    SimplifiedCaseReportDetailsUpdateForm,
+    SimplifiedCaseReportFourWeekFollowupUpdateForm,
+    SimplifiedCaseReportOneWeekFollowupUpdateForm,
+    SimplifiedCaseReportReadyForQAUpdateForm,
+    SimplifiedCaseReportSentOnUpdateForm,
+    SimplifiedCaseRequestContactDetailsUpdateForm,
+    SimplifiedCaseReviewChangesUpdateForm,
+    SimplifiedCaseStatementEnforcementUpdateForm,
+    SimplifiedCaseTestResultsUpdateForm,
+    SimplifiedCaseTwelveWeekRetestUpdateForm,
+    SimplifiedCaseTwelveWeekUpdateAcknowledgedUpdateForm,
+    SimplifiedCaseTwelveWeekUpdateRequestedUpdateForm,
+    SimplifiedContactCreateForm,
+    SimplifiedContactUpdateForm,
+    SimplifiedEqualityBodyCorrespondenceCreateForm,
+    SimplifiedManageContactDetailsUpdateForm,
+    SimplifiedPostCaseUpdateForm,
+    SimplifiedZendeskTicketConfirmDeleteUpdateForm,
+    SimplifiedZendeskTicketCreateUpdateForm,
 )
 from .models import (
     ONE_WEEK_IN_DAYS,
@@ -206,7 +206,7 @@ class CaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
     """
 
     model: type[SimplifiedCase] = SimplifiedCase
-    form_class: type[CaseCreateForm] = CaseCreateForm
+    form_class: type[SimplifiedCaseCreateForm] = SimplifiedCaseCreateForm
     context_object_name: str = "case"
     template_name: str = "simplified/forms/create.html"
 
@@ -298,7 +298,9 @@ class CaseMetadataUpdateView(CaseUpdateView):
     View to update case metadata
     """
 
-    form_class: type[CaseMetadataUpdateForm] = CaseMetadataUpdateForm
+    form_class: type[SimplifiedCaseMetadataUpdateForm] = (
+        SimplifiedCaseMetadataUpdateForm
+    )
 
     def get_next_platform_page(self) -> PlatformPage:
         simplified_case: SimplifiedCase = self.object
@@ -329,7 +331,9 @@ class CaseTestResultsUpdateView(CaseUpdateView):
     View to update case test results
     """
 
-    form_class: type[CaseTestResultsUpdateForm] = CaseTestResultsUpdateForm
+    form_class: type[SimplifiedCaseTestResultsUpdateForm] = (
+        SimplifiedCaseTestResultsUpdateForm
+    )
     template_name: str = "simplified/forms/test_results.html"
 
 
@@ -339,7 +343,9 @@ class CaseCreateReportUpdateView(DetailView):
     """
 
     model: type[SimplifiedCase] = SimplifiedCase
-    form_class: type[CaseReportDetailsUpdateForm] = CaseReportDetailsUpdateForm
+    form_class: type[SimplifiedCaseReportDetailsUpdateForm] = (
+        SimplifiedCaseReportDetailsUpdateForm
+    )
     template_name: str = "simplified/forms/report_create.html"
 
 
@@ -349,7 +355,9 @@ class CaseReportReadyForQAUpdateView(CaseUpdateView):
     """
 
     model: type[SimplifiedCase] = SimplifiedCase
-    form_class: type[CaseReportReadyForQAUpdateForm] = CaseReportReadyForQAUpdateForm
+    form_class: type[SimplifiedCaseReportReadyForQAUpdateForm] = (
+        SimplifiedCaseReportReadyForQAUpdateForm
+    )
     template_name: str = "simplified/forms/report_ready_for_qa.html"
 
 
@@ -358,7 +366,9 @@ class CaseQAAuditorUpdateView(CaseUpdateView):
     View to record QA auditor
     """
 
-    form_class: type[CaseQAAuditorUpdateForm] = CaseQAAuditorUpdateForm
+    form_class: type[SimplifiedCaseQAAuditorUpdateForm] = (
+        SimplifiedCaseQAAuditorUpdateForm
+    )
     template_name: str = "simplified/forms/qa_auditor.html"
 
 
@@ -367,7 +377,9 @@ class CaseQACommentsUpdateView(CaseUpdateView):
     View to update QA comments page
     """
 
-    form_class: type[CaseQACommentsUpdateForm] = CaseQACommentsUpdateForm
+    form_class: type[SimplifiedCaseQACommentsUpdateForm] = (
+        SimplifiedCaseQACommentsUpdateForm
+    )
     template_name: str = "simplified/forms/qa_comments.html"
 
     def form_valid(self, form: ModelForm):
@@ -394,7 +406,9 @@ class CaseQAApprovalUpdateView(CaseUpdateView):
     View to record QA approval
     """
 
-    form_class: type[CaseQAApprovalUpdateForm] = CaseQAApprovalUpdateForm
+    form_class: type[SimplifiedCaseQAApprovalUpdateForm] = (
+        SimplifiedCaseQAApprovalUpdateForm
+    )
     template_name: str = "simplified/forms/qa_approval.html"
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
@@ -427,7 +441,9 @@ class CasePublishReportUpdateView(CaseUpdateView):
     View to publish report after QA approval
     """
 
-    form_class: type[CasePublishReportUpdateForm] = CasePublishReportUpdateForm
+    form_class: type[SimplifiedCasePublishReportUpdateForm] = (
+        SimplifiedCasePublishReportUpdateForm
+    )
     template_name: str = "simplified/forms/publish_report.html"
 
     def form_valid(self, form: ModelForm):
@@ -443,7 +459,9 @@ class ManageContactDetailsUpdateView(CaseUpdateView):
     View to list case contacts
     """
 
-    form_class: type[ManageContactDetailsUpdateForm] = ManageContactDetailsUpdateForm
+    form_class: type[SimplifiedManageContactDetailsUpdateForm] = (
+        SimplifiedManageContactDetailsUpdateForm
+    )
     template_name: str = "simplified/forms/manage_contact_details.html"
 
     def get_next_platform_page(self) -> PlatformPage:
@@ -465,10 +483,10 @@ class ContactCreateView(CreateView):
 
     model: type[Contact] = Contact
     context_object_name: str = "contact"
-    form_class: type[ContactCreateForm] = ContactCreateForm
+    form_class: type[SimplifiedContactCreateForm] = SimplifiedContactCreateForm
     template_name: str = "simplified/forms/contact_create.html"
 
-    def form_valid(self, form: ContactCreateForm):
+    def form_valid(self, form: SimplifiedContactCreateForm):
         """Populate case of contact"""
         simplified_case: SimplifiedCase = get_object_or_404(
             SimplifiedCase, id=self.kwargs.get("case_id")
@@ -493,10 +511,10 @@ class ContactUpdateView(UpdateView):
 
     model: type[Contact] = Contact
     context_object_name: str = "contact"
-    form_class: type[ContactUpdateForm] = ContactUpdateForm
+    form_class: type[SimplifiedContactUpdateForm] = SimplifiedContactUpdateForm
     template_name: str = "simplified/forms/contact_update.html"
 
-    def form_valid(self, form: ContactUpdateForm):
+    def form_valid(self, form: SimplifiedContactUpdateForm):
         """Mark contact as deleted if button is pressed"""
         contact: Contact = form.save(commit=False)
         if "delete_contact" in self.request.POST:
@@ -519,12 +537,12 @@ class CaseRequestContactDetailsUpdateView(CaseUpdateView):
     View to update Request contact details
     """
 
-    form_class: type[CaseRequestContactDetailsUpdateForm] = (
-        CaseRequestContactDetailsUpdateForm
+    form_class: type[SimplifiedCaseRequestContactDetailsUpdateForm] = (
+        SimplifiedCaseRequestContactDetailsUpdateForm
     )
     template_name: str = "simplified/forms/request_initial_contact.html"
 
-    def form_valid(self, form: CaseReportSentOnUpdateForm):
+    def form_valid(self, form: SimplifiedCaseReportSentOnUpdateForm):
         """
         Recalculate followup dates if report sent date has changed;
         Otherwise set sent dates based on followup date checkboxes.
@@ -545,8 +563,8 @@ class CaseOneWeekContactDetailsUpdateView(CaseUpdateView):
     View to update One week contact details
     """
 
-    form_class: type[CaseOneWeekContactDetailsUpdateForm] = (
-        CaseOneWeekContactDetailsUpdateForm
+    form_class: type[SimplifiedCaseOneWeekContactDetailsUpdateForm] = (
+        SimplifiedCaseOneWeekContactDetailsUpdateForm
     )
     template_name: str = "simplified/forms/one_week_followup_contact.html"
 
@@ -556,8 +574,8 @@ class CaseFourWeekContactDetailsUpdateView(CaseUpdateView):
     View to update Four week contact details
     """
 
-    form_class: type[CaseFourWeekContactDetailsUpdateForm] = (
-        CaseFourWeekContactDetailsUpdateForm
+    form_class: type[SimplifiedCaseFourWeekContactDetailsUpdateForm] = (
+        SimplifiedCaseFourWeekContactDetailsUpdateForm
     )
     template_name: str = "simplified/forms/four_week_followup_contact.html"
 
@@ -569,7 +587,9 @@ class CaseNoPSBResponseUpdateView(
     View to set no psb contact flag
     """
 
-    form_class: type[CaseNoPSBContactUpdateForm] = CaseNoPSBContactUpdateForm
+    form_class: type[SimplifiedCaseNoPSBContactUpdateForm] = (
+        SimplifiedCaseNoPSBContactUpdateForm
+    )
     template_name: str = "simplified/forms/no_psb_response.html"
 
 
@@ -578,10 +598,12 @@ class CaseReportSentOnUpdateView(CaseUpdateView):
     View to update Report sent on
     """
 
-    form_class: type[CaseReportSentOnUpdateForm] = CaseReportSentOnUpdateForm
+    form_class: type[SimplifiedCaseReportSentOnUpdateForm] = (
+        SimplifiedCaseReportSentOnUpdateForm
+    )
     template_name: str = "simplified/forms/report_sent_on.html"
 
-    def form_valid(self, form: CaseReportSentOnUpdateForm):
+    def form_valid(self, form: SimplifiedCaseReportSentOnUpdateForm):
         """
         Recalculate followup dates if report sent date has changed;
         Otherwise set sent dates based on followup date checkboxes.
@@ -600,8 +622,8 @@ class CaseReportOneWeekFollowupUpdateView(CaseUpdateView):
     View to update One week followup
     """
 
-    form_class: type[CaseReportOneWeekFollowupUpdateForm] = (
-        CaseReportOneWeekFollowupUpdateForm
+    form_class: type[SimplifiedCaseReportOneWeekFollowupUpdateForm] = (
+        SimplifiedCaseReportOneWeekFollowupUpdateForm
     )
     template_name: str = "simplified/forms/report_one_week_followup.html"
 
@@ -611,8 +633,8 @@ class CaseReportFourWeekFollowupUpdateView(CaseUpdateView):
     View to update Four week followup
     """
 
-    form_class: type[CaseReportFourWeekFollowupUpdateForm] = (
-        CaseReportFourWeekFollowupUpdateForm
+    form_class: type[SimplifiedCaseReportFourWeekFollowupUpdateForm] = (
+        SimplifiedCaseReportFourWeekFollowupUpdateForm
     )
     template_name: str = "simplified/forms/report_four_week_followup.html"
 
@@ -622,8 +644,8 @@ class CaseReportAcknowledgedUpdateView(CaseUpdateView):
     View to update Report acknowledged
     """
 
-    form_class: type[CaseReportAcknowledgedUpdateForm] = (
-        CaseReportAcknowledgedUpdateForm
+    form_class: type[SimplifiedCaseReportAcknowledgedUpdateForm] = (
+        SimplifiedCaseReportAcknowledgedUpdateForm
     )
     template_name: str = "simplified/forms/report_acknowledged.html"
 
@@ -633,12 +655,12 @@ class CaseTwelveWeekUpdateRequestedUpdateView(CaseUpdateView):
     View to update 12-week update requested
     """
 
-    form_class: type[CaseTwelveWeekUpdateRequestedUpdateForm] = (
-        CaseTwelveWeekUpdateRequestedUpdateForm
+    form_class: type[SimplifiedCaseTwelveWeekUpdateRequestedUpdateForm] = (
+        SimplifiedCaseTwelveWeekUpdateRequestedUpdateForm
     )
     template_name: str = "simplified/forms/12_week_update_requested.html"
 
-    def form_valid(self, form: CaseTwelveWeekUpdateRequestedUpdateForm):
+    def form_valid(self, form: SimplifiedCaseTwelveWeekUpdateRequestedUpdateForm):
         """
         Recalculate chaser dates if twelve week update requested date has changed;
         Otherwise set sent dates based on chaser date checkboxes.
@@ -659,8 +681,8 @@ class CaseOneWeekFollowupFinalUpdateView(CaseUpdateView):
     View to update One week followup for final update
     """
 
-    form_class: type[CaseOneWeekFollowupFinalUpdateForm] = (
-        CaseOneWeekFollowupFinalUpdateForm
+    form_class: type[SimplifiedCaseOneWeekFollowupFinalUpdateForm] = (
+        SimplifiedCaseOneWeekFollowupFinalUpdateForm
     )
     template_name: str = "simplified/forms/12_week_one_week_followup_final.html"
 
@@ -670,8 +692,8 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
     View to update 12-week update request acknowledged
     """
 
-    form_class: type[CaseTwelveWeekUpdateAcknowledgedUpdateForm] = (
-        CaseTwelveWeekUpdateAcknowledgedUpdateForm
+    form_class: type[SimplifiedCaseTwelveWeekUpdateAcknowledgedUpdateForm] = (
+        SimplifiedCaseTwelveWeekUpdateAcknowledgedUpdateForm
     )
     template_name: str = "simplified/forms/12_week_update_request_ack.html"
 
@@ -698,7 +720,9 @@ class CaseTwelveWeekRetestUpdateView(CaseUpdateView):
     View to update case twelve week retest results
     """
 
-    form_class: type[CaseTwelveWeekRetestUpdateForm] = CaseTwelveWeekRetestUpdateForm
+    form_class: type[SimplifiedCaseTwelveWeekRetestUpdateForm] = (
+        SimplifiedCaseTwelveWeekRetestUpdateForm
+    )
     template_name: str = "simplified/forms/twelve_week_retest.html"
 
 
@@ -707,7 +731,9 @@ class CaseReviewChangesUpdateView(CaseUpdateView):
     View to record review of changes made by PSB
     """
 
-    form_class: type[CaseReviewChangesUpdateForm] = CaseReviewChangesUpdateForm
+    form_class: type[SimplifiedCaseReviewChangesUpdateForm] = (
+        SimplifiedCaseReviewChangesUpdateForm
+    )
     template_name: str = "simplified/forms/review_changes.html"
 
 
@@ -716,8 +742,8 @@ class CaseEnforcementRecommendationUpdateView(CaseUpdateView):
     View to record the enforcement recommendation
     """
 
-    form_class: type[CaseEnforcementRecommendationUpdateForm] = (
-        CaseEnforcementRecommendationUpdateForm
+    form_class: type[SimplifiedCaseEnforcementRecommendationUpdateForm] = (
+        SimplifiedCaseEnforcementRecommendationUpdateForm
     )
     template_name: str = "simplified/forms/enforcement_recommendation.html"
 
@@ -727,7 +753,7 @@ class CaseCloseUpdateView(CaseUpdateView):
     View to record sending the compliance decision
     """
 
-    form_class: type[CaseCloseUpdateForm] = CaseCloseUpdateForm
+    form_class: type[SimplifiedCaseCloseUpdateForm] = SimplifiedCaseCloseUpdateForm
     template_name: str = "cases/closing_case.html"
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
@@ -786,7 +812,7 @@ class PostCaseUpdateView(CaseUpdateView):
     View to record post case notes
     """
 
-    form_class: type[PostCaseUpdateForm] = PostCaseUpdateForm
+    form_class: type[SimplifiedPostCaseUpdateForm] = SimplifiedPostCaseUpdateForm
     template_name: str = "simplified/forms/post_case.html"
 
     def get_success_url(self) -> str:
@@ -802,7 +828,7 @@ class CaseDeactivateUpdateView(CaseUpdateView):
     View to deactivate case
     """
 
-    form_class: type[CaseDeactivateForm] = CaseDeactivateForm
+    form_class: type[SimplifiedCaseDeactivateForm] = SimplifiedCaseDeactivateForm
     template_name: str = "simplified/forms/deactivate.html"
 
     def form_valid(self, form: ModelForm):
@@ -825,7 +851,7 @@ class CaseReactivateUpdateView(CaseUpdateView):
     View to reactivate case
     """
 
-    form_class: type[CaseDeactivateForm] = CaseDeactivateForm
+    form_class: type[SimplifiedCaseDeactivateForm] = SimplifiedCaseDeactivateForm
     template_name: str = "simplified/forms/reactivate.html"
 
     def form_valid(self, form: ModelForm):
@@ -895,8 +921,8 @@ class CaseStatementEnforcementUpdateView(CaseUpdateView):
     View of statement enforcement
     """
 
-    form_class: type[CaseStatementEnforcementUpdateForm] = (
-        CaseStatementEnforcementUpdateForm
+    form_class: type[SimplifiedCaseStatementEnforcementUpdateForm] = (
+        SimplifiedCaseStatementEnforcementUpdateForm
     )
     template_name: str = "simplified/forms/statement_enforcement.html"
 
@@ -906,8 +932,8 @@ class CaseEqualityBodyMetadataUpdateView(CaseUpdateView):
     View of equality body metadata
     """
 
-    form_class: type[CaseEqualityBodyMetadataUpdateForm] = (
-        CaseEqualityBodyMetadataUpdateForm
+    form_class: type[SimplifiedCaseEqualityBodyMetadataUpdateForm] = (
+        SimplifiedCaseEqualityBodyMetadataUpdateForm
     )
     template_name: str = "common/case_form.html"
 
@@ -917,8 +943,8 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
     View of equality body correspondence list
     """
 
-    form_class: type[ListCaseEqualityBodyCorrespondenceUpdateForm] = (
-        ListCaseEqualityBodyCorrespondenceUpdateForm
+    form_class: type[ListSimplifiedCaseEqualityBodyCorrespondenceUpdateForm] = (
+        ListSimplifiedCaseEqualityBodyCorrespondenceUpdateForm
     )
     template_name: str = "simplified/forms/equality_body_correspondence_list.html"
 
@@ -979,8 +1005,8 @@ class EqualityBodyCorrespondenceCreateView(CreateView):
     """
 
     model: type[EqualityBodyCorrespondence] = EqualityBodyCorrespondence
-    form_class: type[EqualityBodyCorrespondenceCreateForm] = (
-        EqualityBodyCorrespondenceCreateForm
+    form_class: type[SimplifiedEqualityBodyCorrespondenceCreateForm] = (
+        SimplifiedEqualityBodyCorrespondenceCreateForm
     )
     template_name: str = "simplified/forms/equality_body_correspondence_create.html"
 
@@ -1028,8 +1054,8 @@ class CaseEqualityBodyCorrespondenceUpdateView(UpdateView):
     """
 
     model: type[EqualityBodyCorrespondence] = EqualityBodyCorrespondence
-    form_class: type[EqualityBodyCorrespondenceCreateForm] = (
-        EqualityBodyCorrespondenceCreateForm
+    form_class: type[SimplifiedEqualityBodyCorrespondenceCreateForm] = (
+        SimplifiedEqualityBodyCorrespondenceCreateForm
     )
     context_object_name: str = "equality_body_correspondence"
     template_name: str = "simplified/forms/equality_body_correspondence_update.html"
@@ -1103,7 +1129,9 @@ class ZendeskTicketCreateView(HideCaseNavigationMixin, CreateView):
     """
 
     model: type[SimplifiedCase] = ZendeskTicket
-    form_class: type[ZendeskTicketCreateUpdateForm] = ZendeskTicketCreateUpdateForm
+    form_class: type[SimplifiedZendeskTicketCreateUpdateForm] = (
+        SimplifiedZendeskTicketCreateUpdateForm
+    )
     template_name: str = "simplified/forms/zendesk_ticket_create.html"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
@@ -1143,7 +1171,9 @@ class ZendeskTicketUpdateView(HideCaseNavigationMixin, UpdateView):
     """
 
     model: type[ZendeskTicket] = ZendeskTicket
-    form_class: type[ZendeskTicketCreateUpdateForm] = ZendeskTicketCreateUpdateForm
+    form_class: type[SimplifiedZendeskTicketCreateUpdateForm] = (
+        SimplifiedZendeskTicketCreateUpdateForm
+    )
     context_object_name: str = "zendesk_ticket"
     template_name: str = "simplified/forms/zendesk_ticket_update.html"
 
@@ -1172,8 +1202,8 @@ class ZendeskTicketConfirmDeleteUpdateView(ZendeskTicketUpdateView):
     View to confirm delete of Zendesk ticket
     """
 
-    form_class: type[ZendeskTicketConfirmDeleteUpdateForm] = (
-        ZendeskTicketConfirmDeleteUpdateForm
+    form_class: type[SimplifiedZendeskTicketConfirmDeleteUpdateForm] = (
+        SimplifiedZendeskTicketConfirmDeleteUpdateForm
     )
     template_name: str = "simplified/forms/zendesk_ticket_confirm_delete.html"
 

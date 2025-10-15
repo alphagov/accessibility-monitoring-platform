@@ -37,36 +37,36 @@ from .csv_export import (
     MOBILE_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
 )
 from .forms import (
-    CaseCloseUpdateForm,
-    CaseRecommendationUpdateForm,
-    ContactCreateForm,
-    ContactInformationRequestUpdateForm,
-    ContactUpdateForm,
-    EnforcementBodyMetadataUpdateForm,
-    FinalReportUpdateForm,
-    InitialTestingDetailsUpdateForm,
-    InitialTestingOutcomeUpdateForm,
-    ManageContactsUpdateForm,
+    MobileCaseCloseUpdateForm,
     MobileCaseCreateForm,
     MobileCaseHistoryCreateForm,
     MobileCaseHistoryUpdateForm,
     MobileCaseMetadataUpdateForm,
+    MobileCaseRecommendationUpdateForm,
     MobileCaseStatusUpdateForm,
-    QAApprovalUpdateForm,
-    QAAuditorUpdateForm,
-    QACommentsUpdateForm,
-    ReportAcknowledgedUpdateForm,
-    ReportReadyForQAUpdateForm,
-    ReportSentUpdateForm,
-    RetestComplianceDecisionsUpdateForm,
-    RetestResultUpdateForm,
-    StatementEnforcementUpdateForm,
-    TwelveWeekDeadlineUpdateForm,
-    TwelveWeekReceivedUpdateForm,
-    TwelveWeekRequestUpdateForm,
-    UnresponsivePSBUpdateForm,
-    ZendeskTicketConfirmDeleteUpdateForm,
-    ZendeskTicketCreateUpdateForm,
+    MobileContactCreateForm,
+    MobileContactInformationRequestUpdateForm,
+    MobileContactUpdateForm,
+    MobileEnforcementBodyMetadataUpdateForm,
+    MobileFinalReportUpdateForm,
+    MobileInitialTestingDetailsUpdateForm,
+    MobileInitialTestingOutcomeUpdateForm,
+    MobileManageContactsUpdateForm,
+    MobileQAApprovalUpdateForm,
+    MobileQAAuditorUpdateForm,
+    MobileQACommentsUpdateForm,
+    MobileReportAcknowledgedUpdateForm,
+    MobileReportReadyForQAUpdateForm,
+    MobileReportSentUpdateForm,
+    MobileRetestComplianceDecisionsUpdateForm,
+    MobileRetestResultUpdateForm,
+    MobileStatementEnforcementUpdateForm,
+    MobileTwelveWeekDeadlineUpdateForm,
+    MobileTwelveWeekReceivedUpdateForm,
+    MobileTwelveWeekRequestUpdateForm,
+    MobileUnresponsivePSBUpdateForm,
+    MobileZendeskTicketConfirmDeleteUpdateForm,
+    MobileZendeskTicketCreateUpdateForm,
 )
 from .models import (
     EventHistory,
@@ -331,7 +331,7 @@ class MobileCaseNoteUpdateView(HideCaseNavigationMixin, UpdateView):
     context_object_name: str = "mobile_case_history"
     template_name: str = "mobile/forms/note_update.html"
 
-    def form_valid(self, form: ContactUpdateForm):
+    def form_valid(self, form: MobileContactUpdateForm):
         """Mark contact as deleted if button is pressed"""
         mobile_case_history: MobileCaseHistory = form.save(commit=False)
         record_mobile_model_update_event(
@@ -352,7 +352,7 @@ class MobileCaseNoteUpdateView(HideCaseNavigationMixin, UpdateView):
 class ManageContactDetailsUpdateView(MobileCaseUpdateView):
     """View to list mobile case contacts"""
 
-    form_class: type[ManageContactsUpdateForm] = ManageContactsUpdateForm
+    form_class: type[MobileManageContactsUpdateForm] = MobileManageContactsUpdateForm
     template_name: str = "mobile/forms/manage_contacts.html"
 
 
@@ -361,10 +361,10 @@ class ContactCreateView(AddMobileCaseToContextMixin, CreateView):
 
     model: type[MobileContact] = MobileContact
     context_object_name: str = "contact"
-    form_class: type[ContactCreateForm] = ContactCreateForm
+    form_class: type[MobileContactCreateForm] = MobileContactCreateForm
     template_name: str = "mobile/forms/contact_create.html"
 
-    def form_valid(self, form: ContactCreateForm):
+    def form_valid(self, form: MobileContactCreateForm):
         """Populate mobile case of contact"""
         mobile_case: MobileCase = get_object_or_404(
             MobileCase, id=self.kwargs.get("case_id")
@@ -392,7 +392,7 @@ class ContactUpdateView(UpdateView):
 
     model: type[MobileContact] = MobileContact
     context_object_name: str = "contact"
-    form_class: type[ContactUpdateForm] = ContactUpdateForm
+    form_class: type[MobileContactUpdateForm] = MobileContactUpdateForm
     template_name: str = "mobile/forms/contact_update.html"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
@@ -401,7 +401,7 @@ class ContactUpdateView(UpdateView):
         context["mobile_case"] = self.object.mobile_case
         return context
 
-    def form_valid(self, form: ContactUpdateForm):
+    def form_valid(self, form: MobileContactUpdateForm):
         """Mark contact as deleted if button is pressed"""
         contact: MobileContact = form.save(commit=False)
         if "delete_contact" in self.request.POST:
@@ -430,39 +430,45 @@ class CorrespondenceUpdateView(MobileCaseUpdateView):
 class ContactInformationRequestUpdateView(CorrespondenceUpdateView):
     """View to update request information for contact"""
 
-    form_class: type[ContactInformationRequestUpdateForm] = (
-        ContactInformationRequestUpdateForm
+    form_class: type[MobileContactInformationRequestUpdateForm] = (
+        MobileContactInformationRequestUpdateForm
     )
 
 
 class InitialTestingDetailsUpdateView(MobileCaseUpdateView):
     """View to update initial testing details"""
 
-    form_class: type[InitialTestingDetailsUpdateForm] = InitialTestingDetailsUpdateForm
+    form_class: type[MobileInitialTestingDetailsUpdateForm] = (
+        MobileInitialTestingDetailsUpdateForm
+    )
 
 
 class InitialTestingOutcomeUpdateView(MobileCaseUpdateView):
     """View to update initial testing outcome"""
 
-    form_class: type[InitialTestingOutcomeUpdateForm] = InitialTestingOutcomeUpdateForm
+    form_class: type[MobileInitialTestingOutcomeUpdateForm] = (
+        MobileInitialTestingOutcomeUpdateForm
+    )
 
 
 class ReportReadyForQAUpdateView(MobileCaseUpdateView):
     """View to update report draft"""
 
-    form_class: type[ReportReadyForQAUpdateForm] = ReportReadyForQAUpdateForm
+    form_class: type[MobileReportReadyForQAUpdateForm] = (
+        MobileReportReadyForQAUpdateForm
+    )
 
 
 class QAAuditorUpdateView(MobileCaseUpdateView):
     """View to update QA auditor"""
 
-    form_class: type[QAAuditorUpdateForm] = QAAuditorUpdateForm
+    form_class: type[MobileQAAuditorUpdateForm] = MobileQAAuditorUpdateForm
 
 
 class QACommentsUpdateView(MobileCaseUpdateView):
     """View to add or update QA comments"""
 
-    form_class: type[QACommentsUpdateForm] = QACommentsUpdateForm
+    form_class: type[MobileQACommentsUpdateForm] = MobileQACommentsUpdateForm
     template_name: str = "mobile/forms/qa_comments.html"
 
     def form_valid(self, form: ModelForm):
@@ -487,71 +493,81 @@ class QACommentsUpdateView(MobileCaseUpdateView):
 class QAApprovalUpdateView(MobileCaseUpdateView):
     """View to update report QA approval"""
 
-    form_class: type[QAApprovalUpdateForm] = QAApprovalUpdateForm
+    form_class: type[MobileQAApprovalUpdateForm] = MobileQAApprovalUpdateForm
 
 
 class FinalReportUpdateView(MobileCaseUpdateView):
     """View to update publish report"""
 
-    form_class: type[FinalReportUpdateForm] = FinalReportUpdateForm
+    form_class: type[MobileFinalReportUpdateForm] = MobileFinalReportUpdateForm
 
 
 class CorrespondenceReportSentUpdateView(CorrespondenceUpdateView):
     """View to update correspondence report sent"""
 
-    form_class: type[ReportSentUpdateForm] = ReportSentUpdateForm
+    form_class: type[MobileReportSentUpdateForm] = MobileReportSentUpdateForm
 
 
 class CorrespondenceReportAcknowledgedUpdateView(CorrespondenceUpdateView):
     """View to update correspondence report acknowledged"""
 
-    form_class: type[ReportAcknowledgedUpdateForm] = ReportAcknowledgedUpdateForm
+    form_class: type[MobileReportAcknowledgedUpdateForm] = (
+        MobileReportAcknowledgedUpdateForm
+    )
 
 
 class CorrespondenceTwelveWeekDeadlineUpdateView(CorrespondenceUpdateView):
     """View to update correspondence 12-week deadline"""
 
-    form_class: type[TwelveWeekDeadlineUpdateForm] = TwelveWeekDeadlineUpdateForm
+    form_class: type[MobileTwelveWeekDeadlineUpdateForm] = (
+        MobileTwelveWeekDeadlineUpdateForm
+    )
 
 
 class CorrespondenceTwelveWeekRequestUpdateView(CorrespondenceUpdateView):
     """View to update correspondence 12-week update request"""
 
-    form_class: type[TwelveWeekRequestUpdateForm] = TwelveWeekRequestUpdateForm
+    form_class: type[MobileTwelveWeekRequestUpdateForm] = (
+        MobileTwelveWeekRequestUpdateForm
+    )
 
 
 class CorrespondenceTwelveWeekReceivedUpdateView(CorrespondenceUpdateView):
     """View to update correspondence 12-week received"""
 
-    form_class: type[TwelveWeekReceivedUpdateForm] = TwelveWeekReceivedUpdateForm
+    form_class: type[MobileTwelveWeekReceivedUpdateForm] = (
+        MobileTwelveWeekReceivedUpdateForm
+    )
 
 
 class RetestResultUpdateView(MobileCaseUpdateView):
     """View to update reviewing changes retesting"""
 
-    form_class: type[RetestResultUpdateForm] = RetestResultUpdateForm
+    form_class: type[MobileRetestResultUpdateForm] = MobileRetestResultUpdateForm
     template_name: str = "mobile/forms/retesting.html"
 
 
 class RetestComplianceDecisionsUpdateView(MobileCaseUpdateView):
     """View to update reviewing changes retest result"""
 
-    form_class: type[RetestComplianceDecisionsUpdateForm] = (
-        RetestComplianceDecisionsUpdateForm
+    form_class: type[MobileRetestComplianceDecisionsUpdateForm] = (
+        MobileRetestComplianceDecisionsUpdateForm
     )
 
 
 class CaseRecommendationUpdateView(MobileCaseUpdateView):
     """View to update case recommendation"""
 
-    form_class: type[CaseRecommendationUpdateForm] = CaseRecommendationUpdateForm
+    form_class: type[MobileCaseRecommendationUpdateForm] = (
+        MobileCaseRecommendationUpdateForm
+    )
     template_name: str = "mobile/forms/recommendation.html"
 
 
 class CaseCloseUpdateView(MobileCaseUpdateView):
     """View to update closing the case"""
 
-    form_class: type[CaseCloseUpdateForm] = CaseCloseUpdateForm
+    form_class: type[MobileCaseCloseUpdateForm] = MobileCaseCloseUpdateForm
     template_name: str = "cases/closing_case.html"
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
@@ -608,14 +624,16 @@ class CaseCloseUpdateView(MobileCaseUpdateView):
 class StatementEnforcementUpdateView(MobileCaseUpdateView):
     """View to update post case statement enforcement"""
 
-    form_class: type[StatementEnforcementUpdateForm] = StatementEnforcementUpdateForm
+    form_class: type[MobileStatementEnforcementUpdateForm] = (
+        MobileStatementEnforcementUpdateForm
+    )
 
 
 class EnforcementBodyMetadataUpdateView(MobileCaseUpdateView):
     """View to update post case equality body metadata"""
 
-    form_class: type[EnforcementBodyMetadataUpdateForm] = (
-        EnforcementBodyMetadataUpdateForm
+    form_class: type[MobileEnforcementBodyMetadataUpdateForm] = (
+        MobileEnforcementBodyMetadataUpdateForm
     )
 
 
@@ -637,7 +655,9 @@ class ZendeskTicketCreateView(HideCaseNavigationMixin, CreateView):
     """
 
     model: type[MobileZendeskTicket] = MobileZendeskTicket
-    form_class: type[ZendeskTicketCreateUpdateForm] = ZendeskTicketCreateUpdateForm
+    form_class: type[MobileZendeskTicketCreateUpdateForm] = (
+        MobileZendeskTicketCreateUpdateForm
+    )
     template_name: str = "mobile/forms/zendesk_ticket_create.html"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
@@ -677,7 +697,9 @@ class ZendeskTicketUpdateView(HideCaseNavigationMixin, UpdateView):
     """
 
     model: type[MobileZendeskTicket] = MobileZendeskTicket
-    form_class: type[ZendeskTicketCreateUpdateForm] = ZendeskTicketCreateUpdateForm
+    form_class: type[MobileZendeskTicketCreateUpdateForm] = (
+        MobileZendeskTicketCreateUpdateForm
+    )
     context_object_name: str = "zendesk_ticket"
     template_name: str = "mobile/forms/zendesk_ticket_update.html"
 
@@ -706,8 +728,8 @@ class ZendeskTicketConfirmDeleteUpdateView(ZendeskTicketUpdateView):
     View to confirm delete of Zendesk ticket
     """
 
-    form_class: type[ZendeskTicketConfirmDeleteUpdateForm] = (
-        ZendeskTicketConfirmDeleteUpdateForm
+    form_class: type[MobileZendeskTicketConfirmDeleteUpdateForm] = (
+        MobileZendeskTicketConfirmDeleteUpdateForm
     )
     template_name: str = "mobile/forms/zendesk_ticket_confirm_delete.html"
 
@@ -717,7 +739,7 @@ class UnresponsivePSBUpdateView(
 ):
     """View to set unresponsive PSB flag"""
 
-    form_class: type[UnresponsivePSBUpdateForm] = UnresponsivePSBUpdateForm
+    form_class: type[MobileUnresponsivePSBUpdateForm] = MobileUnresponsivePSBUpdateForm
     template_name: str = "mobile/forms/unresponsive_psb.html"
 
 
