@@ -2297,7 +2297,7 @@ def build_sitemap_for_current_page(
     Return the case navigation subset of the sitemap if the current
     page is case-related, otherwise return the entire sitemap.
     """
-    case: SimplifiedCase | DetailedCase | BaseCase | None = (
+    case: SimplifiedCase | DetailedCase | MobileCase | None = (
         current_platform_page.get_case()
     )
     case_nav_type: PlatformPageGroup.Type | None = (
@@ -2310,33 +2310,30 @@ def build_sitemap_for_current_page(
         )
     if case is not None and case_nav_type is not None:
         site_map = copy.deepcopy(SITE_MAP)
-        case_navigation: list[PlatformPageGroup] = [
-            platform_page_group
-            for platform_page_group in site_map
-            if platform_page_group.type == case_nav_type
-        ]
-        if case_nav_type == PlatformPageGroup.Type.SIMPLIFIED_CASE_NAV:
-            case_navigation += [
-                platform_page_group
-                for platform_page_group in site_map
-                if platform_page_group.type
-                == PlatformPageGroup.Type.SIMPLIFIED_CASE_TOOLS
-            ]
-        if case_nav_type == PlatformPageGroup.Type.DETAILED_CASE_NAV:
-            case_navigation += [
-                platform_page_group
-                for platform_page_group in site_map
-                if platform_page_group.type
-                == PlatformPageGroup.Type.DETAILED_CASE_TOOLS
-            ]
-        if case_nav_type == PlatformPageGroup.Type.MOBILE_CASE_NAV:
-            case_navigation += [
-                platform_page_group
-                for platform_page_group in site_map
-                if platform_page_group.type == PlatformPageGroup.Type.MOBILE_CASE_TOOLS
-            ]
-        for platform_page_group in case_navigation:
-            platform_page_group.populate_from_case(case=case)
+        case_navigation: list[PlatformPageGroup] = []
+
+        for platform_page_group in site_map:
+            if (
+                platform_page_group.type == case_nav_type
+                or (
+                    case_nav_type == PlatformPageGroup.Type.SIMPLIFIED_CASE_NAV
+                    and platform_page_group.type
+                    == PlatformPageGroup.Type.SIMPLIFIED_CASE_TOOLS
+                )
+                or (
+                    case_nav_type == PlatformPageGroup.Type.DETAILED_CASE_NAV
+                    and platform_page_group.type
+                    == PlatformPageGroup.Type.DETAILED_CASE_TOOLS
+                )
+                or (
+                    case_nav_type == PlatformPageGroup.Type.MOBILE_CASE_NAV
+                    and platform_page_group.type
+                    == PlatformPageGroup.Type.MOBILE_CASE_TOOLS
+                )
+            ):
+                platform_page_group.populate_from_case(case=case)
+                case_navigation.append(platform_page_group)
+
         return case_navigation
     return SITE_MAP
 

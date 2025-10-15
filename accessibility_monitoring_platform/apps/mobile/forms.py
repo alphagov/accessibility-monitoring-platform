@@ -5,6 +5,7 @@ Forms - mobile
 from django import forms
 from django.core.exceptions import ValidationError
 
+from ..cases.forms import PreviousCaseURLForm
 from ..common.forms import (
     AMPAuditorModelChoiceField,
     AMPBooleanCheckboxWidget,
@@ -26,7 +27,7 @@ from ..common.models import Boolean, Sector, SubCategory
 from .models import MobileCase, MobileCaseHistory, MobileContact, MobileZendeskTicket
 
 
-class MobileCaseCreateForm(forms.ModelForm):
+class MobileCaseCreateForm(PreviousCaseURLForm):
     """
     Form for creating a case
     """
@@ -75,6 +76,7 @@ class MobileCaseCreateForm(forms.ModelForm):
             "subcategory",
             "enforcement_body",
             "psb_location",
+            "previous_case_url",
             "is_complaint",
         ]
 
@@ -118,6 +120,7 @@ class MobileCaseMetadataUpdateForm(MobileCaseCreateForm, VersionForm):
             "subcategory",
             "enforcement_body",
             "psb_location",
+            "previous_case_url",
             "is_complaint",
             "is_feedback_requested",
             "case_metadata_complete_date",
