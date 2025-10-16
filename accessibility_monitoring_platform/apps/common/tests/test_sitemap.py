@@ -16,6 +16,7 @@ from ...audits.models import (
     RetestPage,
     WcagDefinition,
 )
+from ...cases.models import BaseCase
 from ...comments.models import Comment
 from ...common.models import EmailTemplate
 from ...detailed.models import DetailedCase
@@ -35,7 +36,7 @@ from ..sitemap import (
     AuditPagesPlatformPage,
     AuditPlatformPage,
     AuditRetestPagesPlatformPage,
-    CaseCommentsPlatformPage,
+    BaseCaseCommentsPlatformPage,
     CaseContactsPlatformPage,
     DetailedCasePlatformPage,
     DetailedCasePlatformPageGroup,
@@ -393,12 +394,12 @@ def test_mobile_case_platform_page():
 @pytest.mark.django_db
 def test_case_comments_platform_page():
     """Test CaseCommentsPlatformPage"""
-    case_comments_platform_page: CaseCommentsPlatformPage = (
+    case_comments_platform_page: BaseCaseCommentsPlatformPage = (
         get_platform_page_by_url_name(url_name="simplified:edit-qa-comments")
     )
 
-    assert isinstance(case_comments_platform_page, CaseCommentsPlatformPage)
-    assert case_comments_platform_page.instance_class == SimplifiedCase
+    assert isinstance(case_comments_platform_page, BaseCaseCommentsPlatformPage)
+    assert case_comments_platform_page.instance_class == BaseCase
     assert case_comments_platform_page.url_kwarg_key == "pk"
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()

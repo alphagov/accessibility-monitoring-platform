@@ -380,8 +380,8 @@ class MobileCaseContactsPlatformPage(MobileCasePlatformPage):
                 self.subpages = bound_subpages
 
 
-class CaseCommentsPlatformPage(SimplifiedCasePlatformPage):
-    def populate_from_case(self, case: SimplifiedCase):
+class BaseCaseCommentsPlatformPage(BaseCasePlatformPage):
+    def populate_from_case(self, case: BaseCase):
         if case is not None:
             self.set_instance(instance=case)
             if self.subpages is not None:
@@ -884,7 +884,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:edit-qa-comments",
             ),
-            CaseCommentsPlatformPage(
+            BaseCaseCommentsPlatformPage(
                 name="QA comments ({instance.qa_comments_count})",
                 url_name="simplified:edit-qa-comments",
                 subpages=[
@@ -1555,7 +1555,7 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
         ],
     ),
     DetailedCasePlatformPageGroup(
-        name="Report",
+        name="Report QA",
         pages=[
             DetailedCasePlatformPage(
                 name="Report ready for QA",
@@ -1573,9 +1573,18 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 case_details_template_name="cases/details/details.html",
                 next_page_url_name="detailed:edit-qa-comments",
             ),
-            DetailedCasePlatformPage(
+            BaseCaseCommentsPlatformPage(
                 name="QA comments",
                 url_name="detailed:edit-qa-comments",
+                subpages=[
+                    PlatformPage(
+                        name="Edit or delete comment",
+                        url_name="comments:edit-qa-comment",
+                        url_kwarg_key="pk",
+                        instance_class=Comment,
+                        visible_only_when_current=True,
+                    ),
+                ],
                 case_details_template_name="detailed/details/details_qa_comments.html",
                 next_page_url_name="detailed:edit-qa-approval",
             ),
@@ -1841,7 +1850,7 @@ MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
         ],
     ),
     MobileCasePlatformPageGroup(
-        name="Report",
+        name="Report QA",
         pages=[
             MobileCasePlatformPage(
                 name="Report ready for QA",
@@ -1859,9 +1868,18 @@ MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 case_details_template_name="cases/details/details.html",
                 next_page_url_name="mobile:edit-qa-comments",
             ),
-            MobileCasePlatformPage(
+            BaseCaseCommentsPlatformPage(
                 name="QA comments",
                 url_name="mobile:edit-qa-comments",
+                subpages=[
+                    PlatformPage(
+                        name="Edit or delete comment",
+                        url_name="comments:edit-qa-comment",
+                        url_kwarg_key="pk",
+                        instance_class=Comment,
+                        visible_only_when_current=True,
+                    ),
+                ],
                 case_details_template_name="mobile/details/details_qa_comments.html",
                 next_page_url_name="mobile:edit-qa-approval",
             ),
