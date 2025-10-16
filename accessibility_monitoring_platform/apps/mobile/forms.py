@@ -94,6 +94,7 @@ class MobileCaseCreateForm(PreviousCaseURLForm):
 
 
 class MobileCaseMetadataUpdateForm(MobileCaseCreateForm, VersionForm):
+    case_folder_url = AMPURLField(label="Link to case folder")
     is_feedback_requested = AMPChoiceCheckboxField(
         label="Feedback survey sent?",
         choices=Boolean.choices,
@@ -122,6 +123,7 @@ class MobileCaseMetadataUpdateForm(MobileCaseCreateForm, VersionForm):
             "psb_location",
             "previous_case_url",
             "is_complaint",
+            "case_folder_url",
             "is_feedback_requested",
             "case_metadata_complete_date",
         ]

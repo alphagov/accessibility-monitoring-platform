@@ -41,7 +41,7 @@ MOBILE_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = 
     EqualityBodyCSVColumn(
         column_header="Website URL",
         source_class=MobileCase,
-        source_attr="home_page_url",
+        source_attr="app_store_url",
         required=True,
         data_type="url",
         edit_url_class=MobileCase,
@@ -288,11 +288,11 @@ MOBILE_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="test_type",
     ),
     # Case details - Case metadata
-    CSVColumn(
-        column_header="Full URL · Included in export",
-        source_class=MobileCase,
-        source_attr="home_page_url",
-    ),
+    # CSVColumn(
+    #     column_header="Full URL · Included in export",
+    #     source_class=MobileCase,
+    #     source_attr="home_page_url",
+    # ),
     CSVColumn(
         column_header="Organisation name · Included in export",
         source_class=MobileCase,
@@ -304,9 +304,19 @@ MOBILE_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="parental_organisation_name",
     ),
     CSVColumn(
-        column_header="Website name · Included in export",
+        column_header="App name",
         source_class=MobileCase,
-        source_attr="website_name",
+        source_attr="app_name",
+    ),
+    CSVColumn(
+        column_header="App store URL",
+        source_class=MobileCase,
+        source_attr="app_store_url",
+    ),
+    CSVColumn(
+        column_header="App OS",
+        source_class=MobileCase,
+        source_attr="app_os",
     ),
     CSVColumn(column_header="Sector", source_class=MobileCase, source_attr="sector"),
     CSVColumn(
@@ -318,11 +328,6 @@ MOBILE_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         column_header="Which equalities body will check the case? · Included in export",
         source_class=MobileCase,
         source_attr="enforcement_body",
-    ),
-    CSVColumn(
-        column_header="Type",
-        source_class=MobileCase,
-        source_attr="service_type",
     ),
     CSVColumn(
         column_header="Public sector body location",
