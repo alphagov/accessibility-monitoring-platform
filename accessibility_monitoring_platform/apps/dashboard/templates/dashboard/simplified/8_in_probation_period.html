@@ -7,7 +7,7 @@
                 <th scope="col" class="govuk-table__header amp-width-15-percent">Next action due</th>
                 <th scope="col" class="govuk-table__header amp-width-one-quarter">Case</th>
                 <th scope="col" class="govuk-table__header amp-width-one-quarter">Full URL</th>
-                {% if show_all_cases %}
+                {% if filter == "all-cases" %}
                     <th scope="col" class="govuk-table__header amp-width-one-quarter">Auditor</th>
                 {% else %}
                     <th scope="col" class="govuk-table__header amp-width-one-quarter">Current step</th>
@@ -33,7 +33,7 @@
                             {% endif %}
                         {% else %}
                             <a href="{% url 'simplified:manage-contact-details' case.id %}" class="govuk-link">
-                                {% if case.report_followup_week_12_due_date < today %}
+                                {% if case.report_followup_week_12_due_date <= today %}
                                     Overdue
                                 {% else %}
                                     Waiting for 12-weeks deadline
