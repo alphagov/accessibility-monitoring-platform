@@ -33,7 +33,7 @@ ZENDESK_URL: str = "https://zendesk.com/tickets/1"
 TODAY: date = date.today()
 QA_COMMENT_BODY: str = "QA comment body"
 ORGANISATION_NAME: str = "Organisation name"
-HOME_PAGE_URL: str = "https://domain.com"
+APP_STORE_URL: str = "https://domain.com"
 RECOMMENDATION_INFO: str = "Recommendation note"
 EQUALITY_BODY_REPORT_URL: str = "https://eb-report.com"
 
@@ -371,7 +371,7 @@ def test_case_export_list_view(admin_client, columns_for_export, export_url):
 def test_closing_the_case_page(admin_client):
     """Test that closing the case page renders as expected"""
     mobile_case: MobileCase = MobileCase.objects.create(
-        home_page_url=HOME_PAGE_URL, recommendation_info=f"* {RECOMMENDATION_INFO}"
+        app_store_url=APP_STORE_URL, recommendation_info=f"* {RECOMMENDATION_INFO}"
     )
 
     response: HttpResponse = admin_client.get(
@@ -393,9 +393,9 @@ def test_closing_the_case_page(admin_client):
     # URL data rendered as link
     assertContains(
         response,
-        f"""<a href="{HOME_PAGE_URL}"
+        f"""<a href="{APP_STORE_URL}"
             class="govuk-link" target="_blank">
-            {HOME_PAGE_URL}</a>""",
+            {APP_STORE_URL}</a>""",
         html=True,
     )
 
@@ -452,7 +452,7 @@ def test_closing_the_case_page_no_missing_data(admin_client):
     """Test that closing the case page renders as expected when no data is missing"""
     mobile_case: MobileCase = MobileCase.objects.create(
         organisation_name=ORGANISATION_NAME,
-        home_page_url=HOME_PAGE_URL,
+        app_store_url=APP_STORE_URL,
         equality_body_report_url=EQUALITY_BODY_REPORT_URL,
         recommendation_for_enforcement=MobileCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
         recommendation_info=RECOMMENDATION_INFO,
