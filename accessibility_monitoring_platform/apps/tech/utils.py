@@ -248,6 +248,11 @@ def create_mobile_case_from_dict(
             ),
         )
 
+        mobile_case.case_identifier = (
+            f"{mobile_case.case_identifier} ({legacy_case_number})"
+        )
+        mobile_case.save()
+
         MobileCaseHistory.objects.create(
             mobile_case_id=mobile_case.id,
             event_type=MobileCaseHistory.EventType.STATUS,
