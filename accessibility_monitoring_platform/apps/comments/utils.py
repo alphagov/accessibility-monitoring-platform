@@ -37,10 +37,10 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
     if platform.active_qa_auditor:
         user_ids.add(platform.active_qa_auditor.id)
 
-    # If a detailed case has no auditor then add all QA auditors' ids
-    if (
-        comment.base_case.auditor is None
-        and comment.base_case.test_type == BaseCase.TestType.DETAILED
+    # If a detailed or mobile case has no auditor then add all QA auditors' ids
+    if comment.base_case.auditor is None and (
+        comment.base_case.test_type == BaseCase.TestType.DETAILED
+        or comment.base_case.test_type == BaseCase.TestType.MOBILE
     ):
         qa_auditor_group: Group = Group.objects.get(name="QA auditor")
         for user in qa_auditor_group.user_set.all():

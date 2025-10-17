@@ -34,7 +34,7 @@ UPDATE_SEPARATOR: str = " -> "
 def extract_id_from_case_url(case_url: str) -> int | None:
     """Extract case id from case overview URL"""
     regex_search_result = re.search(
-        ".*/(simplified|detailed)/(.+?)/(view|case-detail)/?", case_url
+        ".*/(simplified|detailed|mobile)/(.+?)/(view|case-detail)/?", case_url
     )
     if regex_search_result is not None:
         case_id: str = regex_search_result.group(2)

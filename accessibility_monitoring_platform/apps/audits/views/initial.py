@@ -23,6 +23,7 @@ from ..forms import (
     AuditExtraPageFormset,
     AuditExtraPageFormsetOneExtra,
     AuditExtraPageFormsetTwoExtra,
+    AuditInitialDisproportionateBurdenUpdateForm,
     AuditMetadataUpdateForm,
     AuditPageChecksForm,
     AuditPagesUpdateForm,
@@ -45,7 +46,6 @@ from ..forms import (
     CheckResultFilterForm,
     CheckResultFormset,
     InitialCustomIssueCreateUpdateForm,
-    InitialDisproportionateBurdenUpdateForm,
 )
 from ..models import (
     Audit,
@@ -615,8 +615,8 @@ class InitialDisproportionateBurdenUpdateView(AuditUpdateView):
     View to update initial disproportionate burden fields
     """
 
-    form_class: type[InitialDisproportionateBurdenUpdateForm] = (
-        InitialDisproportionateBurdenUpdateForm
+    form_class: type[AuditInitialDisproportionateBurdenUpdateForm] = (
+        AuditInitialDisproportionateBurdenUpdateForm
     )
     template_name: str = "audits/forms/statement_form.html"
 
