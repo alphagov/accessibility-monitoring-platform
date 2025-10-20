@@ -26,15 +26,17 @@ Information 1
 @pytest.mark.django_db
 def test_mobile_case_str():
     """Test MobileCase.__str__()"""
-    mobile_case: MobileCase = MobileCase.objects.create(app_name="App name")
+    mobile_case: MobileCase = MobileCase.objects.create(
+        organisation_name=ORGANISATION_NAME
+    )
 
-    assert str(mobile_case) == "App name | #M-1"
+    assert str(mobile_case) == "Organisation Name | #M-1"
 
 
 @pytest.mark.django_db
 def test_mobile_case_title():
     """Test MobileCase.title"""
-    mobile_case: MobileCase = MobileCase.objects.create(app_name="App name")
+    mobile_case: MobileCase = MobileCase.objects.create(android_app_name="App name")
 
     assert mobile_case.title == "App name &nbsp;|&nbsp; #M-1"
 

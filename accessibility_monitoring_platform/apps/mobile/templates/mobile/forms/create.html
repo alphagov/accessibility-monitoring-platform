@@ -29,12 +29,14 @@
                 <p class="govuk-body">{{ new_case.organisation_name }}</p>
                 <p class="govuk-body amp-margin-bottom-5"><b>Case type</b></p>
                 <p class="govuk-body">{{ new_case.get_test_type_display }}</p>
-                <p class="govuk-body amp-margin-bottom-5"><b>App name</b></p>
-                <p class="govuk-body">{{ new_case.app_name }}</p>
-                <p class="govuk-body amp-margin-bottom-5"><b>App store URL</b></p>
-                <p class="govuk-body">{{ new_case.app_store_url }}</p>
-                <p class="govuk-body amp-margin-bottom-5"><b>App OS</b></p>
-                <p class="govuk-body">{{ new_case.get_app_os_display }}</p>
+                <p class="govuk-body amp-margin-bottom-5"><b>Android app name</b></p>
+                <p class="govuk-body">{% if new_case.android_app_name %}{{ new_case.android_app_name }}{% else %}None{% endif %}</p>
+                <p class="govuk-body amp-margin-bottom-5"><b>Android app store URL</b></p>
+                <p class="govuk-body">{% if new_case.android_app_store_url %}{{ new_case.android_app_store_url }}{% else %}None{% endif %}</p>
+                <p class="govuk-body amp-margin-bottom-5"><b>iOS app name</b></p>
+                <p class="govuk-body">{% if new_case.ios_app_name %}{{ new_case.ios_app_name }}{% else %}None{% endif %}</p>
+                <p class="govuk-body amp-margin-bottom-5"><b>iOS app store URL</b></p>
+                <p class="govuk-body">{% if new_case.ios_app_store_url %}{{ new_case.ios_app_store_url }}{% else %}None{% endif %}</p>
                 <p class="govuk-body amp-margin-bottom-5"><b>Sector</b></p>
                 <p class="govuk-body">{{ new_case.sector }}</p>
                 <p class="govuk-body amp-margin-bottom-5"><b>Sub-category</b></p>
@@ -51,7 +53,7 @@
                         <tr class="govuk-table__row">
                             <th class="govuk-table__header amp-width-one-quarter">Date created</th>
                             <th class="govuk-table__header amp-width-one-quarter">Case</th>
-                            <th class="govuk-table__header amp-width-one-quarter">App store URL</th>
+                            <th class="govuk-table__header amp-width-one-quarter">App store URLs</th>
                             <th class="govuk-table__header amp-width-one-quarter">Status</th>
                         </tr>
                     </thead>
@@ -66,7 +68,11 @@
                                     </a>
                                     {{ case.case_identifier }}
                                 </td>
-                                <td class="govuk-table__cell">{{ case.app_store_url }}</td>
+                                <td class="govuk-table__cell">
+                                    {% if new_case.android_app_store_url %}{{ new_case.android_app_store_url }}{% endif %}
+                                    {% if new_case.android_app_store_url and new_case.ios_app_store_url %}and{% endif %}
+                                    {% if new_case.ios_app_store_url %}{{ new_case.ios_app_store_url }}{% endif %}
+                                </td>
                                 <td class="govuk-table__cell">{{ case.get_status_display }}</td>
                             </tr>
                         {% endfor %}
@@ -78,9 +84,10 @@
                 <div class="govuk-grid-column-full">
                     {% include 'common/amp_field.html' with field=form.organisation_name %}
                     {% include 'common/amp_field.html' with field=form.parental_organisation_name %}
-                    {% include 'common/amp_field.html' with field=form.app_name %}
-                    {% include 'common/amp_field.html' with field=form.app_store_url %}
-                    {% include 'common/amp_field.html' with field=form.app_os %}
+                    {% include 'common/amp_field.html' with field=form.android_app_name %}
+                    {% include 'common/amp_field.html' with field=form.android_app_store_url %}
+                    {% include 'common/amp_field.html' with field=form.ios_app_name %}
+                    {% include 'common/amp_field.html' with field=form.ios_app_store_url %}
                     {% include 'common/amp_field.html' with field=form.sector %}
                     {% include 'common/amp_field.html' with field=form.subcategory %}
                     {% include 'common/amp_field.html' with field=form.enforcement_body %}

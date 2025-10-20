@@ -34,13 +34,10 @@ class MobileCaseCreateForm(PreviousCaseURLForm):
 
     organisation_name = AMPCharFieldWide(label="Organisation name")
     parental_organisation_name = AMPCharFieldWide(label="Parent organisation name")
-    app_name = AMPCharFieldWide(label="App name")
-    app_store_url = AMPURLField(label="App store URL")
-    app_os = AMPChoiceRadioField(
-        label="App OS",
-        choices=MobileCase.AppOS.choices,
-        initial=MobileCase.AppOS.ANDROID,
-    )
+    android_app_name = AMPCharFieldWide(label="Android app name")
+    android_app_store_url = AMPURLField(label="Android app store URL")
+    ios_app_name = AMPCharFieldWide(label="iOS app name")
+    ios_app_store_url = AMPURLField(label="iOS app store URL")
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     subcategory = AMPModelChoiceField(
         label="Sub-category",
@@ -69,9 +66,10 @@ class MobileCaseCreateForm(PreviousCaseURLForm):
         fields = [
             "organisation_name",
             "parental_organisation_name",
-            "app_name",
-            "app_store_url",
-            "app_os",
+            "android_app_name",
+            "android_app_store_url",
+            "ios_app_name",
+            "ios_app_store_url",
             "sector",
             "subcategory",
             "enforcement_body",
@@ -81,10 +79,10 @@ class MobileCaseCreateForm(PreviousCaseURLForm):
         ]
 
     def clean_app_store_url(self):
-        app_store_url = self.cleaned_data.get("app_store_url")
-        if not app_store_url:
+        android_app_store_url = self.cleaned_data.get("android_app_store_url")
+        if not android_app_store_url:
             raise ValidationError("Full URL is required")
-        return app_store_url
+        return android_app_store_url
 
     def clean_enforcement_body(self):
         enforcement_body = self.cleaned_data.get("enforcement_body")
@@ -114,9 +112,10 @@ class MobileCaseMetadataUpdateForm(MobileCaseCreateForm, VersionForm):
             "version",
             "organisation_name",
             "parental_organisation_name",
-            "app_name",
-            "app_store_url",
-            "app_os",
+            "android_app_name",
+            "android_app_store_url",
+            "ios_app_name",
+            "ios_app_store_url",
             "sector",
             "subcategory",
             "enforcement_body",

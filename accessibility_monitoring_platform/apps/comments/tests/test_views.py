@@ -17,8 +17,16 @@ from ..models import Comment
 @pytest.mark.parametrize(
     "comment_edit_path, button_name, expected_redirect_path",
     [
-        ("comments:edit-qa-comment", "save_return", "simplified:edit-qa-comments"),
-        ("comments:edit-qa-comment", "remove_comment", "simplified:edit-qa-comments"),
+        (
+            "comments:edit-qa-comment-simplified",
+            "save_return",
+            "simplified:edit-qa-comments",
+        ),
+        (
+            "comments:edit-qa-comment-simplified",
+            "remove_comment",
+            "simplified:edit-qa-comments",
+        ),
     ],
 )
 def test_edit_qa_comment_redirects_based_on_button_pressed(
@@ -66,7 +74,9 @@ def test_qa_comment_removal(admin_client, admin_user):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("comments:edit-qa-comment", kwargs={"pk": simplified_case.id}),
+        reverse(
+            "comments:edit-qa-comment-simplified", kwargs={"pk": simplified_case.id}
+        ),
         {
             "remove_comment": "Button value",
         },
@@ -85,7 +95,9 @@ def test_qa_comment_removal_not_allowed(admin_client):
     comment: Comment = Comment.objects.create(base_case=simplified_case, user=user)
 
     response: HttpResponse = admin_client.post(
-        reverse("comments:edit-qa-comment", kwargs={"pk": simplified_case.id}),
+        reverse(
+            "comments:edit-qa-comment-simplified", kwargs={"pk": simplified_case.id}
+        ),
         {
             "remove_comment": "Button value",
         },
@@ -106,7 +118,7 @@ def test_edit_qa_comment_appears_in_case_nav(admin_client, admin_user):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("comments:edit-qa-comment", kwargs={"pk": comment.id}),
+        reverse("comments:edit-qa-comment-simplified", kwargs={"pk": comment.id}),
     )
     assert response.status_code == 200
 

@@ -74,13 +74,10 @@ class MobileCase(BaseCase):
     Status = MobileCaseStatus
 
     # Case metadata page
-    app_name = models.TextField(default="", blank=True)
-    app_store_url = models.TextField(default="", blank=True)
-    app_os = models.CharField(
-        max_length=20,
-        choices=AppOS.choices,
-        default=AppOS.IOS,
-    )
+    ios_app_name = models.TextField(default="", blank=True)
+    ios_app_store_url = models.TextField(default="", blank=True)
+    android_app_name = models.TextField(default="", blank=True)
+    android_app_store_url = models.TextField(default="", blank=True)
     case_folder_url = models.TextField(default="", blank=True)
     previous_case_url = models.TextField(default="", blank=True)
     trello_url = models.TextField(default="", blank=True)
@@ -242,18 +239,21 @@ class MobileCase(BaseCase):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return f"{self.app_name} | {self.case_identifier}"
+        return f"{self.organisation_name} | {self.case_identifier}"
 
     def save(self, *args, **kwargs) -> None:
         if not self.domain:
-            self.domain = extract_domain_from_url(self.app_store_url)
+            if self.ios_app_store_url:
+                self.domain = extract_domain_from_url(self.ios_app_store_url)
+            elif self.android_app_store_url:
+                self.domain = extract_domain_from_url(self.android_app_store_url)
         if self.test_type != BaseCase.TestType.MOBILE:
             self.test_type = BaseCase.TestType.MOBILE
         super().save(*args, **kwargs)
 
     @property
     def title(self) -> str:
-        title = f"{self.app_name} &nbsp;|&nbsp; {self.case_identifier}"
+        title = f"{self.android_app_name} &nbsp;|&nbsp; {self.case_identifier}"
         return mark_safe(title)
 
     def status_history(self) -> QuerySet["MobileCaseHistory"]:

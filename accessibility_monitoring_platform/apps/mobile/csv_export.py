@@ -41,7 +41,7 @@ MOBILE_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = 
     EqualityBodyCSVColumn(
         column_header="Website URL",
         source_class=MobileCase,
-        source_attr="app_store_url",
+        source_attr="android_app_store_url",
         required=True,
         data_type="url",
         edit_url_class=MobileCase,
@@ -304,19 +304,24 @@ MOBILE_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="parental_organisation_name",
     ),
     CSVColumn(
-        column_header="App name",
+        column_header="Android app name",
         source_class=MobileCase,
-        source_attr="app_name",
+        source_attr="android_name",
     ),
     CSVColumn(
-        column_header="App store URL",
+        column_header="Android app store URL",
         source_class=MobileCase,
-        source_attr="app_store_url",
+        source_attr="android_store_url",
     ),
     CSVColumn(
-        column_header="App OS",
+        column_header="iOS app name",
         source_class=MobileCase,
-        source_attr="app_os",
+        source_attr="ios_app_name",
+    ),
+    CSVColumn(
+        column_header="iOS app store URL",
+        source_class=MobileCase,
+        source_attr="ios_app_store_url",
     ),
     CSVColumn(column_header="Sector", source_class=MobileCase, source_attr="sector"),
     CSVColumn(

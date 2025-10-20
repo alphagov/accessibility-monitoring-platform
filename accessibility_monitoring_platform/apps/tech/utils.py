@@ -132,7 +132,18 @@ def create_mobile_case_from_dict(
 ) -> None:
     """User dictionary date (from csv) to create mobile Case"""
     legacy_case_number: str = row["Record "]
-    app_os: str = row["Type"].lower()
+    case_identifier = f"#M-{legacy_case_number[1:]}"
+    app_os: str = row["Type"]
+    url: str = validate_url(row["URL"])
+    if app_os == "Android":
+        mobile_case: MobileCase = MobileCase.objects.filter(
+            case_identifier=case_identifier
+        ).first()
+        if mobile_case is not None:
+            mobile_case.android_app_name = row["App name"]
+            mobile_case.android_app_store_url = url
+            mobile_case.save()
+            return
     first_contact_date: str = get_datetime_from_string(
         row["First contact date"]
     )  # dd/mm/yyyy
@@ -145,7 +156,6 @@ def create_mobile_case_from_dict(
     if updated is None:
         updated: datetime = created
     auditor: User = auditors.get(row["Auditor"], default_user)
-    url: str = validate_url(row["URL"])
     qa_auditors: str = row["Report checked by"]
     if " " in qa_auditors:
         qa_auditor: User = auditors.get(qa_auditors.split(" ")[0], default_user)
@@ -162,10 +172,9 @@ def create_mobile_case_from_dict(
             test_type=MobileCase.TestType.MOBILE,
             created_by_id=default_user.id,
             updated=updated,
-            app_name=row["App name"],
-            app_store_url=url,
+            ios_app_name=row["App name"],
+            ios_app_store_url=url,
             domain=extract_domain_from_url(url),
-            app_os=app_os,
             auditor_id=auditor.id,
             organisation_name=row["Organisation name"],
             # website_name=row["Website"],
@@ -248,9 +257,7 @@ def create_mobile_case_from_dict(
             ),
         )
 
-        mobile_case.case_identifier = (
-            f"{mobile_case.case_identifier} ({legacy_case_number})"
-        )
+        mobile_case.case_identifier = case_identifier
         mobile_case.save()
 
         MobileCaseHistory.objects.create(
@@ -324,20 +331,12 @@ def import_mobile_cases_csv(csv_data: str) -> None:
     MobileCase.objects.all().delete()
 
     reader: Any = csv.DictReader(io.StringIO(csv_data))
-    previous_row = {}
     for row in reader:
         if row["Enforcement body"] == "":
             continue
-        for key, value in row.items():
-            if value == "Same as iOS":
-                if row["Type"] == "Android" and previous_row["Type"] == "iOS":
-                    row[key] = previous_row[key]
-                else:
-                    row[key] = ""
         create_mobile_case_from_dict(
             row=row, default_user=default_user, auditors=auditors, sectors=sectors
         )
-        previous_row = row
 
 
 def import_trello_comments(csv_data: str, reset_data: bool = False) -> None:

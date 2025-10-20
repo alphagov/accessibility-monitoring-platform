@@ -890,7 +890,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 subpages=[
                     PlatformPage(
                         name="Edit or delete comment",
-                        url_name="comments:edit-qa-comment",
+                        url_name="comments:edit-qa-comment-simplified",
                         url_kwarg_key="pk",
                         instance_class=Comment,
                         visible_only_when_current=True,
@@ -1579,7 +1579,7 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 subpages=[
                     PlatformPage(
                         name="Edit or delete comment",
-                        url_name="comments:edit-qa-comment",
+                        url_name="comments:edit-qa-comment-detailed",
                         url_kwarg_key="pk",
                         instance_class=Comment,
                         visible_only_when_current=True,
@@ -1874,7 +1874,7 @@ MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 subpages=[
                     PlatformPage(
                         name="Edit or delete comment",
-                        url_name="comments:edit-qa-comment",
+                        url_name="comments:edit-qa-comment-mobile",
                         url_kwarg_key="pk",
                         instance_class=Comment,
                         visible_only_when_current=True,

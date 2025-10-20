@@ -371,7 +371,8 @@ def test_case_export_list_view(admin_client, columns_for_export, export_url):
 def test_closing_the_case_page(admin_client):
     """Test that closing the case page renders as expected"""
     mobile_case: MobileCase = MobileCase.objects.create(
-        app_store_url=APP_STORE_URL, recommendation_info=f"* {RECOMMENDATION_INFO}"
+        android_app_store_url=APP_STORE_URL,
+        recommendation_info=f"* {RECOMMENDATION_INFO}",
     )
 
     response: HttpResponse = admin_client.get(
@@ -452,7 +453,7 @@ def test_closing_the_case_page_no_missing_data(admin_client):
     """Test that closing the case page renders as expected when no data is missing"""
     mobile_case: MobileCase = MobileCase.objects.create(
         organisation_name=ORGANISATION_NAME,
-        app_store_url=APP_STORE_URL,
+        android_app_store_url=APP_STORE_URL,
         equality_body_report_url=EQUALITY_BODY_REPORT_URL,
         recommendation_for_enforcement=MobileCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
         recommendation_info=RECOMMENDATION_INFO,

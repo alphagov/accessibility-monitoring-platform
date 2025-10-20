@@ -298,8 +298,8 @@ def test_case_filtered_by_search_string(search_string):
         parental_organisation_name=PARENTAL_ORGANISATION_NAME,
         website_name=WEBSITE_NAME,
         subcategory=subcategory,
-        app_name=APP_NAME,
-        app_store_url=APP_STORE_URL,
+        android_app_name=APP_NAME,
+        android_app_store_url=APP_STORE_URL,
     )
     form: MockForm = MockForm(cleaned_data={"case_search": search_string})
 
