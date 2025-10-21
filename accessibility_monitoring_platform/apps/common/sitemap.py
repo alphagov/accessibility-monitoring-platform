@@ -205,6 +205,7 @@ class PlatformPage:
 
     @property
     def show(self):
+        """Should page be visible in the case navigation UI"""
         if self.instance is not None and self.show_flag_name is not None:
             return getattr(self.instance, self.show_flag_name)
         if self.instance is None and self.url_kwarg_key:
@@ -235,7 +236,11 @@ class PlatformPage:
                     subpage_instances.append(subpage_instance)
                 self.subpages = subpage_instances
 
-    def populate_from_case(self, case: SimplifiedCase):
+    def populate_from_case(self, case: BaseCase):
+        if case.__class__ == BaseCase:
+            case: SimplifiedCase | DetailedCase | MobileCase = case.get_case()
+        if self.instance is None and isinstance(case, self.instance_class):
+            self.set_instance(instance=case)
         if self.subpages is not None:
             for subpage in self.subpages:
                 subpage.populate_from_case(case=case)
@@ -292,47 +297,43 @@ class ExportPlatformPage(PlatformPage):
 
 
 class BaseCasePlatformPage(PlatformPage):
+    case_attr_name: str = "base_case"
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.instance_class: ClassVar[BaseCase] = BaseCase
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
-    def populate_from_case(self, case: BaseCase):
-        self.set_instance(instance=case)
-        super().populate_from_case(case=case)
+    def set_instance(self, instance: models.Model | None):
+        if self.instance_class is not None and instance is not None:
+            if isinstance(instance, self.instance_class):
+                self.instance = instance
+            elif hasattr(instance, self.case_attr_name):
+                self.instance = getattr(instance, self.case_attr_name)
+            else:
+                super().set_instance(instance=instance)
 
 
 class SimplifiedCasePlatformPage(BaseCasePlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.instance_class: ClassVar[SimplifiedCase] = SimplifiedCase
-
-    def populate_from_case(self, case: SimplifiedCase):
-        self.set_instance(instance=case)
-        super().populate_from_case(case=case)
+        self.case_attr_name = "simplified_case"
 
 
 class DetailedCasePlatformPage(BaseCasePlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.instance_class: ClassVar[DetailedCase] = DetailedCase
-
-    def populate_from_case(self, case: BaseCase | DetailedCase):
-        if hasattr(case, "detailedcase"):
-            self.set_instance(instance=case.detailedcase)
-        self.set_instance(instance=case)
+        self.case_attr_name = "detailed_case"
 
 
 class MobileCasePlatformPage(BaseCasePlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.instance_class: ClassVar[MobileCase] = MobileCase
-
-    def populate_from_case(self, case: MobileCase):
-        if hasattr(case, "mobilecase"):
-            self.set_instance(instance=case.mobilecase)
-        self.set_instance(instance=case)
+        self.case_attr_name = "mobile_case"
 
 
 class CaseContactsPlatformPage(SimplifiedCasePlatformPage):
@@ -400,13 +401,14 @@ class AuditPlatformPage(PlatformPage):
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
-    def get_case(self) -> MobileCase | None:
+    def get_case(self) -> SimplifiedCase | None:
         if self.instance is not None:
             return self.instance.simplified_case
 
     def set_instance(self, instance: models.Model):
-        if isinstance(instance, SimplifiedCase) and instance.audit is not None:
-            self.instance = instance.audit
+        if isinstance(instance, SimplifiedCase):
+            if instance.audit is not None:
+                self.instance = instance.audit
         else:
             super().set_instance(instance=instance)
 
@@ -510,13 +512,12 @@ class EqualityBodyRetestPlatformPage(PlatformPage):
     def show(self):
         return False
 
+    def set_instance(self, instance: models.Model):
+        if isinstance(instance, Retest):
+            self.instance = instance
+
     def get_case(self) -> SimplifiedCase | None:
         if self.instance is not None:
-            if isinstance(self.instance, SimplifiedCase):
-                return self.instance
-            if hasattr(self.instance, "base_case"):
-                if hasattr(self.instance.base_case, "simplifiedcase"):
-                    return self.instance.base_case.simplifiedcase
             return self.instance.simplified_case
 
 
@@ -637,7 +638,7 @@ class MobileCasePlatformPageGroup(BaseCasePlatformPageGroup):
         self.case: MobileCase | None = None
 
 
-TEST_TYPE_TO_CASE_NAV: dict[BaseCase.TestType, PlatformPageGroup.Type] = {
+MAP_TEST_TYPE_TO_CASE_NAV: dict[BaseCase.TestType, PlatformPageGroup.Type] = {
     BaseCase.TestType.SIMPLIFIED: PlatformPageGroup.Type.SIMPLIFIED_CASE_NAV,
     BaseCase.TestType.DETAILED: PlatformPageGroup.Type.DETAILED_CASE_NAV,
     BaseCase.TestType.MOBILE: PlatformPageGroup.Type.MOBILE_CASE_NAV,
@@ -2319,13 +2320,14 @@ def build_sitemap_for_current_page(
         current_platform_page.get_case()
     )
     case_nav_type: PlatformPageGroup.Type | None = (
-        TEST_TYPE_TO_CASE_NAV.get(case.test_type) if case is not None else None
+        MAP_TEST_TYPE_TO_CASE_NAV.get(case.test_type) if case is not None else None
     )
 
     if current_platform_page.next_page_url_name is not None:
         current_platform_page.next_page = get_platform_page_by_url_name(
             url_name=current_platform_page.next_page_url_name, instance=case
         )
+
     if case is not None and case_nav_type is not None:
         site_map = copy.deepcopy(SITE_MAP)
         case_navigation: list[PlatformPageGroup] = []
