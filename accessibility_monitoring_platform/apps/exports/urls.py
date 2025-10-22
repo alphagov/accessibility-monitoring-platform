@@ -13,6 +13,7 @@ from .views import (
     ExportCreateView,
     ExportDetailView,
     ExportListView,
+    ExportPreviewDetailView,
     export_all_cases,
     export_ready_cases,
     mark_all_export_cases_as_ready,
@@ -37,6 +38,11 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/export-detail/",
         login_required(ExportDetailView.as_view()),
         name="export-detail",
+    ),
+    path(
+        "<int:pk>/export-preview/",
+        login_required(ExportPreviewDetailView.as_view()),
+        name="export-preview",
     ),
     path(
         "<int:pk>/export-all-cases/",
