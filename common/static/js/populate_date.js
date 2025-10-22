@@ -2,6 +2,7 @@
 Populate date field with today.
 */
 const oneWeekInDays = 7
+const twoWeeksInDays = oneWeekInDays * 2
 const fourWeeksInDays = oneWeekInDays * 4
 const twelveWeeksInDays = oneWeekInDays * 12
 
@@ -43,6 +44,13 @@ const populateDateWithOneWeekElements = document.getElementsByClassName('amp-pop
 
 Array.from(populateDateWithOneWeekElements).forEach(function (populateDateElement) {
   const daysOffset = oneWeekInDays
+  addPopulateDateListeners(populateDateElement, daysOffset)
+})
+
+const populateDateWithTwoWeeksElements = document.getElementsByClassName('amp-populate-date-2-weeks')
+
+Array.from(populateDateWithTwoWeeksElements).forEach(function (populateDateElement) {
+  const daysOffset = twoWeeksInDays
   addPopulateDateListeners(populateDateElement, daysOffset)
 })
 

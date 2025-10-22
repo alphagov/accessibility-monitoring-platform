@@ -138,6 +138,8 @@ def test_amp_date_widget_html_includes_populate_future_dates_controls():
     assert "amp-populate-date-today" not in html
     assert "Populate date with one week from today" in html
     assert "amp-populate-date-1-week" in html
+    assert "Populate date with two weeks from today" in html
+    assert "amp-populate-date-2-weeks" in html
     assert "Populate date with four weeks from today" in html
     assert "amp-populate-date-4-weeks" in html
     assert "Populate date with 12 weeks from today" in html
