@@ -20,6 +20,7 @@
     {% endif %}
         {% include "common/helpers/edit_header.html" %}
         {% include 'common/error_summary.html' %}
+        {% block mobile_os_warning %}{% endblock %}
         {% block preform %}{% endblock %}
         {% block form %}
         <form method="post" action="{% url sitemap.current_platform_page.url_name object.id %}">

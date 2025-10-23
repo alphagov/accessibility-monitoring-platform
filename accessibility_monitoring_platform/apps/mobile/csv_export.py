@@ -41,7 +41,7 @@ MOBILE_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = 
     EqualityBodyCSVColumn(
         column_header="Website URL",
         source_class=MobileCase,
-        source_attr="android_app_store_url",
+        source_attr="home_page_url",
         required=True,
         data_type="url",
         edit_url_class=MobileCase,
@@ -169,7 +169,7 @@ MOBILE_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColu
         source_class=MobileCase,
         source_attr="retest_start_date",
         edit_url_class=MobileCase,
-        edit_url_name="mobile:edit-retest-result",
+        edit_url_name="mobile:edit-retest-ios-result",
         edit_url_anchor="id_retest_start_date-label",
     ),
     EqualityBodyCSVColumn(
@@ -196,7 +196,7 @@ MOBILE_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn
         source_class=MobileCase,
         source_attr="initial_total_number_of_issues",
         edit_url_class=MobileCase,
-        edit_url_name="mobile:edit-initial-testing-outcome",
+        edit_url_name="mobile:edit-initial-test-ios-outcome",
         edit_url_anchor="id_initial_total_number_of_issues-label",
     ),
     EqualityBodyCSVColumn(
@@ -212,7 +212,7 @@ MOBILE_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn
         source_class=MobileCase,
         source_attr="retest_total_number_of_issues",
         edit_url_class=MobileCase,
-        edit_url_name="mobile:edit-retest-result",
+        edit_url_name="mobile:edit-retest-ios-result",
         edit_url_anchor="id_retest_total_number_of_issues-label",
     ),
     EqualityBodyCSVColumn(
@@ -236,7 +236,7 @@ MOBILE_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn
         source_class=MobileCase,
         source_attr="retest_statement_compliance_state",
         edit_url_class=MobileCase,
-        edit_url_name="mobile:edit-retest-compliance-decisions",
+        edit_url_name="mobile:edit-retest-ios-compliance-decisions",
         edit_url_anchor="id_retest_statement_compliance_state-label",
     ),
     EqualityBodyCSVColumn(
@@ -244,7 +244,7 @@ MOBILE_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn
         source_class=MobileCase,
         source_attr="retest_disproportionate_burden_claim",
         edit_url_class=MobileCase,
-        edit_url_name="mobile:edit-retest-compliance-decisions",
+        edit_url_name="mobile:edit-retest-ios-compliance-decisions",
         edit_url_anchor="id_retest_disproportionate_burden_claim-label",
     ),
     EqualityBodyCSVColumn(
@@ -253,7 +253,7 @@ MOBILE_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn
         source_attr="retest_disproportionate_burden_information",
         data_type="markdown",
         edit_url_class=MobileCase,
-        edit_url_name="mobile:edit-retest-compliance-decisions",
+        edit_url_name="mobile:edit-retest-ios-compliance-decisions",
         edit_url_anchor="id_retest_disproportionate_burden_information-label",
     ),
 ]
@@ -304,19 +304,14 @@ MOBILE_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="parental_organisation_name",
     ),
     CSVColumn(
-        column_header="Android app name",
+        column_header="App name",
         source_class=MobileCase,
-        source_attr="android_name",
+        source_attr="app_name",
     ),
     CSVColumn(
         column_header="Android app store URL",
         source_class=MobileCase,
         source_attr="android_store_url",
-    ),
-    CSVColumn(
-        column_header="iOS app name",
-        source_class=MobileCase,
-        source_attr="ios_app_name",
     ),
     CSVColumn(
         column_header="iOS app store URL",
@@ -394,57 +389,110 @@ MOBILE_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_class=MobileCase,
         source_attr="contact_information_request_complete_date",
     ),
-    # Initial test - Testing
+    # Initial test - Auditor
     CSVColumn(
         column_header="Auditor",
         source_class=MobileCase,
         source_attr="auditor",
     ),
     CSVColumn(
-        column_header="Test start date",
+        column_header="Initial test auditor page complete",
         source_class=MobileCase,
-        source_attr="initial_test_start_date",
+        source_attr="initial_auditor_complete_date",
+    ),
+    # Initial test - iOS details
+    CSVColumn(
+        column_header="iOS test start date",
+        source_class=MobileCase,
+        source_attr="initial_ios_test_start_date",
     ),
     CSVColumn(
-        column_header="Initial test testing page complete",
+        column_header="iOS initial test testing page complete",
         source_class=MobileCase,
-        source_attr="initial_testing_details_complete_date",
+        source_attr="initial_ios_details_complete_date",
     ),
-    # Initial test - Testing outcome
+    # Initial test - iOS outcome
     CSVColumn(
-        column_header="Test end date",
+        column_header="iOS test end date",
         source_class=MobileCase,
-        source_attr="initial_test_end_date",
-    ),
-    CSVColumn(
-        column_header="Number of pages tested",
-        source_class=MobileCase,
-        source_attr="initial_total_number_of_pages",
+        source_attr="initial_ios_test_end_date",
     ),
     CSVColumn(
-        column_header="Number of issues found · Included in export",
+        column_header="iOS number of pages tested",
         source_class=MobileCase,
-        source_attr="initial_total_number_of_issues",
+        source_attr="initial_ios_total_number_of_pages",
     ),
     CSVColumn(
-        column_header="Initial website compliance decision",
+        column_header="iOS number of issues found · Included in export",
         source_class=MobileCase,
-        source_attr="initial_website_compliance_state",
+        source_attr="initial_ios_total_number_of_issues",
     ),
     CSVColumn(
-        column_header="Initial statement compliance decision",
+        column_header="iOS initial website compliance decision",
         source_class=MobileCase,
-        source_attr="initial_statement_compliance_state",
+        source_attr="initial_ios_website_compliance_state",
     ),
     CSVColumn(
-        column_header="Initial disproportionate burden claim",
+        column_header="iOS initial statement compliance decision",
         source_class=MobileCase,
-        source_attr="initial_disproportionate_burden_claim",
+        source_attr="initial_ios_statement_compliance_state",
     ),
     CSVColumn(
-        column_header="Initial test testing outcome page complete",
+        column_header="iOS initial disproportionate burden claim",
         source_class=MobileCase,
-        source_attr="initial_testing_outcome_complete_date",
+        source_attr="initial_ios_disproportionate_burden_claim",
+    ),
+    CSVColumn(
+        column_header="iOS initial test testing outcome page complete",
+        source_class=MobileCase,
+        source_attr="initial_ios_testing_outcome_complete_date",
+    ),
+    # Initial test - Android details
+    CSVColumn(
+        column_header="Android test start date",
+        source_class=MobileCase,
+        source_attr="initial_android_test_start_date",
+    ),
+    CSVColumn(
+        column_header="Android initial test testing page complete",
+        source_class=MobileCase,
+        source_attr="initial_android_details_complete_date",
+    ),
+    # Initial test - Android outcome
+    CSVColumn(
+        column_header="Android test end date",
+        source_class=MobileCase,
+        source_attr="initial_android_test_end_date",
+    ),
+    CSVColumn(
+        column_header="Android number of pages tested",
+        source_class=MobileCase,
+        source_attr="initial_android_total_number_of_pages",
+    ),
+    CSVColumn(
+        column_header="Android number of issues found · Included in export",
+        source_class=MobileCase,
+        source_attr="initial_android_total_number_of_issues",
+    ),
+    CSVColumn(
+        column_header="Android initial website compliance decision",
+        source_class=MobileCase,
+        source_attr="initial_android_website_compliance_state",
+    ),
+    CSVColumn(
+        column_header="Android initial statement compliance decision",
+        source_class=MobileCase,
+        source_attr="initial_android_statement_compliance_state",
+    ),
+    CSVColumn(
+        column_header="Android initial disproportionate burden claim",
+        source_class=MobileCase,
+        source_attr="initial_android_disproportionate_burden_claim",
+    ),
+    CSVColumn(
+        column_header="Android initial test testing outcome page complete",
+        source_class=MobileCase,
+        source_attr="initial_android_testing_outcome_complete_date",
     ),
     # Report - Report ready for QA
     CSVColumn(
@@ -719,7 +767,7 @@ MOBILE_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     CSVColumn(
         column_header="Final statement decision",
         source_class=MobileCase,
-        source_attr="retest_statement_compliance_state",
+        source_attr="retest_ios_statement_compliance_state",
     ),
     CSVColumn(
         column_header="Contact email",

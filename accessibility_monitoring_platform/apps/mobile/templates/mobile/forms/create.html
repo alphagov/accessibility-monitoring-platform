@@ -25,18 +25,22 @@
         <div class="govuk-grid-column-full">
 
             {% if duplicate_cases %}
+                <p class="govuk-body amp-margin-bottom-5"><b>Organisation URL</b></p>
+                <p class="govuk-body">{{ new_case.home_page_url }}</p>
                 <p class="govuk-body amp-margin-bottom-5"><b>Organisation name</b></p>
                 <p class="govuk-body">{{ new_case.organisation_name }}</p>
                 <p class="govuk-body amp-margin-bottom-5"><b>Case type</b></p>
                 <p class="govuk-body">{{ new_case.get_test_type_display }}</p>
-                <p class="govuk-body amp-margin-bottom-5"><b>Android app name</b></p>
-                <p class="govuk-body">{% if new_case.android_app_name %}{{ new_case.android_app_name }}{% else %}None{% endif %}</p>
-                <p class="govuk-body amp-margin-bottom-5"><b>Android app store URL</b></p>
-                <p class="govuk-body">{% if new_case.android_app_store_url %}{{ new_case.android_app_store_url }}{% else %}None{% endif %}</p>
-                <p class="govuk-body amp-margin-bottom-5"><b>iOS app name</b></p>
-                <p class="govuk-body">{% if new_case.ios_app_name %}{{ new_case.ios_app_name }}{% else %}None{% endif %}</p>
+                <p class="govuk-body amp-margin-bottom-5"><b>App name</b></p>
+                <p class="govuk-body">{% if new_case.app_name %}{{ new_case.app_name }}{% else %}None{% endif %}</p>
+                <p class="govuk-body amp-margin-bottom-5"><b>Case includes iOS test?</b></p>
+                <p class="govuk-body">{{ new_case.get_ios_test_included_display }}</p>
                 <p class="govuk-body amp-margin-bottom-5"><b>iOS app store URL</b></p>
                 <p class="govuk-body">{% if new_case.ios_app_store_url %}{{ new_case.ios_app_store_url }}{% else %}None{% endif %}</p>
+                <p class="govuk-body amp-margin-bottom-5"><b>Case includes Android test?</b></p>
+                <p class="govuk-body">{{ new_case.get_android_test_included_display }}</p>
+                <p class="govuk-body amp-margin-bottom-5"><b>Android app store URL</b></p>
+                <p class="govuk-body">{% if new_case.android_app_store_url %}{{ new_case.android_app_store_url }}{% else %}None{% endif %}</p>
                 <p class="govuk-body amp-margin-bottom-5"><b>Sector</b></p>
                 <p class="govuk-body">{{ new_case.sector }}</p>
                 <p class="govuk-body amp-margin-bottom-5"><b>Sub-category</b></p>
@@ -52,8 +56,8 @@
                     <thead class="govuk-table__head">
                         <tr class="govuk-table__row">
                             <th class="govuk-table__header amp-width-one-quarter">Date created</th>
+                            <th class="govuk-table__header amp-width-one-quarter">ID</th>
                             <th class="govuk-table__header amp-width-one-quarter">Case</th>
-                            <th class="govuk-table__header amp-width-one-quarter">App store URLs</th>
                             <th class="govuk-table__header amp-width-one-quarter">Status</th>
                         </tr>
                     </thead>
@@ -61,17 +65,12 @@
                         {% for case in duplicate_cases %}
                             <tr class="govuk-table__row">
                                 <td class="govuk-table__cell">{{ case.created|amp_date }}</td>
+                                <td class="govuk-table__cell">{{ case.case_identifier }}</td>
                                 <td class="govuk-table__cell">
                                     <a href="{{ case.get_absolute_url }}"
                                         class="govuk-link govuk-link--no-visited-state">
                                        {{ case.organisation_name }}
                                     </a>
-                                    {{ case.case_identifier }}
-                                </td>
-                                <td class="govuk-table__cell">
-                                    {% if new_case.android_app_store_url %}{{ new_case.android_app_store_url }}{% endif %}
-                                    {% if new_case.android_app_store_url and new_case.ios_app_store_url %}and{% endif %}
-                                    {% if new_case.ios_app_store_url %}{{ new_case.ios_app_store_url }}{% endif %}
                                 </td>
                                 <td class="govuk-table__cell">{{ case.get_status_display }}</td>
                             </tr>
@@ -82,12 +81,14 @@
 
             <div class="govuk-grid-row{% if duplicate_cases %} amp-display-none{% endif %}">
                 <div class="govuk-grid-column-full">
+                    {% include 'common/amp_field.html' with field=form.home_page_url %}
                     {% include 'common/amp_field.html' with field=form.organisation_name %}
                     {% include 'common/amp_field.html' with field=form.parental_organisation_name %}
-                    {% include 'common/amp_field.html' with field=form.android_app_name %}
-                    {% include 'common/amp_field.html' with field=form.android_app_store_url %}
-                    {% include 'common/amp_field.html' with field=form.ios_app_name %}
+                    {% include 'common/amp_field.html' with field=form.app_name %}
+                    {% include 'common/amp_field.html' with field=form.ios_test_included %}
                     {% include 'common/amp_field.html' with field=form.ios_app_store_url %}
+                    {% include 'common/amp_field.html' with field=form.android_test_included %}
+                    {% include 'common/amp_field.html' with field=form.android_app_store_url %}
                     {% include 'common/amp_field.html' with field=form.sector %}
                     {% include 'common/amp_field.html' with field=form.subcategory %}
                     {% include 'common/amp_field.html' with field=form.enforcement_body %}

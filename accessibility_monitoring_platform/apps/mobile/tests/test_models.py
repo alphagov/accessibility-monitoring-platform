@@ -36,7 +36,7 @@ def test_mobile_case_str():
 @pytest.mark.django_db
 def test_mobile_case_title():
     """Test MobileCase.title"""
-    mobile_case: MobileCase = MobileCase.objects.create(android_app_name="App name")
+    mobile_case: MobileCase = MobileCase.objects.create(app_name="App name")
 
     assert mobile_case.title == "App name &nbsp;|&nbsp; #M-1"
 
@@ -249,16 +249,28 @@ def test_mobile_case_number_of_issues_fixed():
     """Test the MobileCase.number_of_issues_fixed"""
 
     assert MobileCase().number_of_issues_fixed is None
-    assert MobileCase(initial_total_number_of_issues=50).number_of_issues_fixed is None
     assert (
         MobileCase(
-            initial_total_number_of_issues=50, retest_total_number_of_issues=20
+            initial_ios_total_number_of_issues=40,
+            initial_android_total_number_of_issues=10,
+        ).number_of_issues_fixed
+        is None
+    )
+    assert (
+        MobileCase(
+            initial_ios_total_number_of_issues=40,
+            initial_android_total_number_of_issues=10,
+            retest_ios_total_number_of_issues=20,
+            retest_android_total_number_of_issues=0,
         ).number_of_issues_fixed
         == 30
     )
     assert (
         MobileCase(
-            initial_total_number_of_issues=50, retest_total_number_of_issues=60
+            initial_ios_total_number_of_issues=40,
+            initial_android_total_number_of_issues=10,
+            retest_ios_total_number_of_issues=20,
+            retest_android_total_number_of_issues=40,
         ).number_of_issues_fixed
         == -10
     )
@@ -269,17 +281,24 @@ def test_mobile_case_percentage_of_issues_fixed():
 
     assert MobileCase().percentage_of_issues_fixed is None
     assert (
-        MobileCase(initial_total_number_of_issues=50).percentage_of_issues_fixed is None
+        MobileCase(initial_ios_total_number_of_issues=50).percentage_of_issues_fixed
+        is None
     )
     assert (
         MobileCase(
-            initial_total_number_of_issues=50, retest_total_number_of_issues=20
+            initial_ios_total_number_of_issues=50,
+            retest_ios_total_number_of_issues=20,
+            initial_android_total_number_of_issues=50,
+            retest_android_total_number_of_issues=20,
         ).percentage_of_issues_fixed
         == 60
     )
     assert (
         MobileCase(
-            initial_total_number_of_issues=50, retest_total_number_of_issues=60
+            initial_ios_total_number_of_issues=50,
+            retest_ios_total_number_of_issues=60,
+            initial_android_total_number_of_issues=50,
+            retest_android_total_number_of_issues=60,
         ).percentage_of_issues_fixed
         == -20
     )
@@ -291,25 +310,29 @@ def test_mobile_case_equality_body_export_statement_found_at_retest():
     assert MobileCase().equality_body_export_statement_found_at_retest == "No"
     assert (
         MobileCase(
-            retest_statement_compliance_state=MobileCase.StatementCompliance.COMPLIANT
+            retest_ios_statement_compliance_state=MobileCase.StatementCompliance.COMPLIANT,
+            retest_android_statement_compliance_state=MobileCase.StatementCompliance.COMPLIANT,
         ).equality_body_export_statement_found_at_retest
         == "Yes"
     )
     assert (
         MobileCase(
-            retest_statement_compliance_state=MobileCase.StatementCompliance.NOT_COMPLIANT
+            retest_ios_statement_compliance_state=MobileCase.StatementCompliance.NOT_COMPLIANT,
+            retest_android_statement_compliance_state=MobileCase.StatementCompliance.NOT_COMPLIANT,
         ).equality_body_export_statement_found_at_retest
         == "Yes"
     )
     assert (
         MobileCase(
-            retest_statement_compliance_state=MobileCase.StatementCompliance.NO_STATEMENT
+            retest_ios_statement_compliance_state=MobileCase.StatementCompliance.NO_STATEMENT,
+            retest_android_statement_compliance_state=MobileCase.StatementCompliance.NO_STATEMENT,
         ).equality_body_export_statement_found_at_retest
         == "No"
     )
     assert (
         MobileCase(
-            retest_statement_compliance_state=MobileCase.StatementCompliance.UNKNOWN
+            retest_ios_statement_compliance_state=MobileCase.StatementCompliance.UNKNOWN,
+            retest_android_statement_compliance_state=MobileCase.StatementCompliance.UNKNOWN,
         ).equality_body_export_statement_found_at_retest
         == "No"
     )

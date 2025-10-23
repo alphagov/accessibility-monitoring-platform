@@ -74,9 +74,14 @@ class MobileCase(BaseCase):
     Status = MobileCaseStatus
 
     # Case metadata page
-    ios_app_name = models.TextField(default="", blank=True)
+    app_name = models.TextField(default="", blank=True)
+    ios_test_included = models.CharField(
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
+    )
     ios_app_store_url = models.TextField(default="", blank=True)
-    android_app_name = models.TextField(default="", blank=True)
+    android_test_included = models.CharField(
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
+    )
     android_app_store_url = models.TextField(default="", blank=True)
     case_folder_url = models.TextField(default="", blank=True)
     previous_case_url = models.TextField(default="", blank=True)
@@ -91,30 +96,63 @@ class MobileCase(BaseCase):
     contact_information_request_end_date = models.DateField(null=True, blank=True)
     contact_information_request_complete_date = models.DateField(null=True, blank=True)
 
-    # Initial test - Testing details
-    initial_test_start_date = models.DateField(null=True, blank=True)
-    initial_testing_details_complete_date = models.DateField(null=True, blank=True)
+    # Initial test - Auditor
+    # auditor
+    initial_auditor_complete_date = models.DateField(null=True, blank=True)
 
-    # Initial test - Testing outcome
-    initial_test_end_date = models.DateField(null=True, blank=True)
-    initial_total_number_of_pages = models.IntegerField(null=True, blank=True)
-    initial_total_number_of_issues = models.IntegerField(null=True, blank=True)
-    initial_website_compliance_state = models.CharField(
+    # Initial test - iOS details
+    # ios_test_included
+    # ios_app_store_url
+    initial_ios_test_start_date = models.DateField(null=True, blank=True)
+    initial_ios_details_complete_date = models.DateField(null=True, blank=True)
+
+    # Initial test - iOS outcome
+    initial_ios_test_end_date = models.DateField(null=True, blank=True)
+    initial_ios_total_number_of_pages = models.IntegerField(null=True, blank=True)
+    initial_ios_total_number_of_issues = models.IntegerField(null=True, blank=True)
+    initial_ios_website_compliance_state = models.CharField(
         max_length=20,
         choices=WebsiteCompliance.choices,
         default=WebsiteCompliance.UNKNOWN,
     )
-    initial_statement_compliance_state = models.CharField(
+    initial_ios_statement_compliance_state = models.CharField(
         max_length=200,
         choices=StatementCompliance.choices,
         default=StatementCompliance.UNKNOWN,
     )
-    initial_disproportionate_burden_claim = models.CharField(
+    initial_ios_disproportionate_burden_claim = models.CharField(
         max_length=20,
         choices=DisproportionateBurden.choices,
         default=DisproportionateBurden.NOT_CHECKED,
     )
-    initial_testing_outcome_complete_date = models.DateField(null=True, blank=True)
+    initial_ios_outcome_complete_date = models.DateField(null=True, blank=True)
+
+    # Initial test - Android details
+    # android_test_included
+    # android_app_store_url
+    initial_android_test_start_date = models.DateField(null=True, blank=True)
+    initial_android_details_complete_date = models.DateField(null=True, blank=True)
+
+    # Initial test - Android outcome
+    initial_android_test_end_date = models.DateField(null=True, blank=True)
+    initial_android_total_number_of_pages = models.IntegerField(null=True, blank=True)
+    initial_android_total_number_of_issues = models.IntegerField(null=True, blank=True)
+    initial_android_website_compliance_state = models.CharField(
+        max_length=20,
+        choices=WebsiteCompliance.choices,
+        default=WebsiteCompliance.UNKNOWN,
+    )
+    initial_android_statement_compliance_state = models.CharField(
+        max_length=200,
+        choices=StatementCompliance.choices,
+        default=StatementCompliance.UNKNOWN,
+    )
+    initial_android_disproportionate_burden_claim = models.CharField(
+        max_length=20,
+        choices=DisproportionateBurden.choices,
+        default=DisproportionateBurden.NOT_CHECKED,
+    )
+    initial_android_outcome_complete_date = models.DateField(null=True, blank=True)
 
     # Report - Report ready for QA
     report_ready_for_qa = models.CharField(
@@ -161,33 +199,71 @@ class MobileCase(BaseCase):
     twelve_week_received_date = models.DateField(null=True, blank=True)
     twelve_week_received_complete_date = models.DateField(null=True, blank=True)
 
-    # Reviewing changes - Retest result
-    retest_start_date = models.DateField(null=True, blank=True)
-    retest_total_number_of_issues = models.IntegerField(null=True, blank=True)
-    retest_result_complete_date = models.DateField(null=True, blank=True)
+    # Reviewing changes - iOS retesting
+    retest_ios_start_date = models.DateField(null=True, blank=True)
+    retest_ios_total_number_of_issues = models.IntegerField(null=True, blank=True)
+    retest_ios_result_complete_date = models.DateField(null=True, blank=True)
 
-    # Reviewing changes - Retest compliance decisions
-    retest_website_compliance_state = models.CharField(
+    # Reviewing changes - iOS retest result
+    retest_ios_website_compliance_state = models.CharField(
         max_length=20,
         choices=WebsiteCompliance.choices,
         default=WebsiteCompliance.UNKNOWN,
     )
-    retest_website_compliance_information = models.TextField(default="", blank=True)
-    retest_statement_compliance_state = models.CharField(
+    retest_ios_website_compliance_information = models.TextField(default="", blank=True)
+    retest_ios_statement_compliance_state = models.CharField(
         max_length=200,
         choices=StatementCompliance.choices,
         default=StatementCompliance.UNKNOWN,
     )
-    retest_statement_compliance_information = models.TextField(default="", blank=True)
-    retest_disproportionate_burden_claim = models.CharField(
+    retest_ios_statement_compliance_information = models.TextField(
+        default="", blank=True
+    )
+    retest_ios_disproportionate_burden_claim = models.CharField(
         max_length=20,
         choices=DisproportionateBurden.choices,
         default=DisproportionateBurden.NOT_CHECKED,
     )
-    retest_disproportionate_burden_information = models.TextField(
+    retest_ios_disproportionate_burden_information = models.TextField(
         default="", blank=True
     )
-    retest_compliance_decisions_complete_date = models.DateField(null=True, blank=True)
+    retest_ios_compliance_decisions_complete_date = models.DateField(
+        null=True, blank=True
+    )
+
+    # Reviewing changes - Android retesting
+    retest_android_start_date = models.DateField(null=True, blank=True)
+    retest_android_total_number_of_issues = models.IntegerField(null=True, blank=True)
+    retest_android_result_complete_date = models.DateField(null=True, blank=True)
+
+    # Reviewing changes - Android retest result
+    retest_android_website_compliance_state = models.CharField(
+        max_length=20,
+        choices=WebsiteCompliance.choices,
+        default=WebsiteCompliance.UNKNOWN,
+    )
+    retest_android_website_compliance_information = models.TextField(
+        default="", blank=True
+    )
+    retest_android_statement_compliance_state = models.CharField(
+        max_length=200,
+        choices=StatementCompliance.choices,
+        default=StatementCompliance.UNKNOWN,
+    )
+    retest_android_statement_compliance_information = models.TextField(
+        default="", blank=True
+    )
+    retest_android_disproportionate_burden_claim = models.CharField(
+        max_length=20,
+        choices=DisproportionateBurden.choices,
+        default=DisproportionateBurden.NOT_CHECKED,
+    )
+    retest_android_disproportionate_burden_information = models.TextField(
+        default="", blank=True
+    )
+    retest_android_compliance_decisions_complete_date = models.DateField(
+        null=True, blank=True
+    )
 
     # Closing the case - Recommendation
     psb_progress_info = models.TextField(default="", blank=True)
@@ -242,18 +318,15 @@ class MobileCase(BaseCase):
         return f"{self.organisation_name} | {self.case_identifier}"
 
     def save(self, *args, **kwargs) -> None:
-        if not self.domain:
-            if self.ios_app_store_url:
-                self.domain = extract_domain_from_url(self.ios_app_store_url)
-            elif self.android_app_store_url:
-                self.domain = extract_domain_from_url(self.android_app_store_url)
+        if not self.domain and self.home_page_url:
+            self.domain = extract_domain_from_url(self.home_page_url)
         if self.test_type != BaseCase.TestType.MOBILE:
             self.test_type = BaseCase.TestType.MOBILE
         super().save(*args, **kwargs)
 
     @property
     def title(self) -> str:
-        title = f"{self.android_app_name} &nbsp;|&nbsp; {self.case_identifier}"
+        title = f"{self.app_name} &nbsp;|&nbsp; {self.case_identifier}"
         return mark_safe(title)
 
     def status_history(self) -> QuerySet["MobileCaseHistory"]:
@@ -314,6 +387,28 @@ class MobileCase(BaseCase):
         )
 
     @property
+    def initial_total_number_of_issues(self) -> int | None:
+        if (
+            self.initial_ios_total_number_of_issues is not None
+            and self.initial_android_total_number_of_issues is not None
+        ):
+            return (
+                self.initial_ios_total_number_of_issues
+                + self.initial_android_total_number_of_issues
+            )
+
+    @property
+    def retest_total_number_of_issues(self) -> int | None:
+        if (
+            self.retest_ios_total_number_of_issues is not None
+            and self.retest_android_total_number_of_issues is not None
+        ):
+            return (
+                self.retest_ios_total_number_of_issues
+                + self.retest_android_total_number_of_issues
+            )
+
+    @property
     def number_of_issues_fixed(self) -> int | None:
         if self.initial_total_number_of_issues and self.retest_total_number_of_issues:
             return (
@@ -329,7 +424,10 @@ class MobileCase(BaseCase):
 
     @property
     def equality_body_export_statement_found_at_retest(self) -> str:
-        if self.retest_statement_compliance_state in [
+        if self.retest_ios_statement_compliance_state in [
+            MobileCase.StatementCompliance.COMPLIANT,
+            MobileCase.StatementCompliance.NOT_COMPLIANT,
+        ] and self.retest_android_statement_compliance_state in [
             MobileCase.StatementCompliance.COMPLIANT,
             MobileCase.StatementCompliance.NOT_COMPLIANT,
         ]:

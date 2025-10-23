@@ -49,8 +49,11 @@ from .forms import (
     MobileContactUpdateForm,
     MobileEnforcementBodyMetadataUpdateForm,
     MobileFinalReportUpdateForm,
-    MobileInitialTestingDetailsUpdateForm,
-    MobileInitialTestingOutcomeUpdateForm,
+    MobileInitialTestAndroidDetailsUpdateForm,
+    MobileInitialTestAndroidOutcomeUpdateForm,
+    MobileInitialTestAuditorUpdateForm,
+    MobileInitialTestiOSDetailsUpdateForm,
+    MobileInitialTestiOSOutcomeUpdateForm,
     MobileManageContactsUpdateForm,
     MobileQAApprovalUpdateForm,
     MobileQAAuditorUpdateForm,
@@ -58,8 +61,10 @@ from .forms import (
     MobileReportAcknowledgedUpdateForm,
     MobileReportReadyForQAUpdateForm,
     MobileReportSentUpdateForm,
-    MobileRetestComplianceDecisionsUpdateForm,
-    MobileRetestResultUpdateForm,
+    MobileRetestAndroidComplianceDecisionsUpdateForm,
+    MobileRetestAndroidResultUpdateForm,
+    MobileRetestiOSComplianceDecisionsUpdateForm,
+    MobileRetestiOSResultUpdateForm,
     MobileStatementEnforcementUpdateForm,
     MobileTwelveWeekDeadlineUpdateForm,
     MobileTwelveWeekReceivedUpdateForm,
@@ -435,20 +440,48 @@ class ContactInformationRequestUpdateView(CorrespondenceUpdateView):
     )
 
 
-class InitialTestingDetailsUpdateView(MobileCaseUpdateView):
-    """View to update initial testing details"""
+class InitialTestAuditorUpdateView(MobileCaseUpdateView):
+    """View to update initial test auditor"""
 
-    form_class: type[MobileInitialTestingDetailsUpdateForm] = (
-        MobileInitialTestingDetailsUpdateForm
+    form_class: type[MobileInitialTestAuditorUpdateForm] = (
+        MobileInitialTestAuditorUpdateForm
     )
 
 
-class InitialTestingOutcomeUpdateView(MobileCaseUpdateView):
-    """View to update initial testing outcome"""
+class InitialTestiOSDetailsUpdateView(MobileCaseUpdateView):
+    """View to update initial test iOS details"""
 
-    form_class: type[MobileInitialTestingOutcomeUpdateForm] = (
-        MobileInitialTestingOutcomeUpdateForm
+    form_class: type[MobileInitialTestiOSDetailsUpdateForm] = (
+        MobileInitialTestiOSDetailsUpdateForm
     )
+    template_name: str = "mobile/ios_base.html"
+
+
+class InitialTestiOSOutcomeUpdateView(MobileCaseUpdateView):
+    """View to update initial test iOS outcome"""
+
+    form_class: type[MobileInitialTestiOSOutcomeUpdateForm] = (
+        MobileInitialTestiOSOutcomeUpdateForm
+    )
+    template_name: str = "mobile/ios_base.html"
+
+
+class InitialTestAndroidDetailsUpdateView(MobileCaseUpdateView):
+    """View to update initial test Android details"""
+
+    form_class: type[MobileInitialTestAndroidDetailsUpdateForm] = (
+        MobileInitialTestAndroidDetailsUpdateForm
+    )
+    template_name: str = "mobile/android_base.html"
+
+
+class InitialTestAndroidOutcomeUpdateView(MobileCaseUpdateView):
+    """View to update initial test Android outcome"""
+
+    form_class: type[MobileInitialTestAndroidOutcomeUpdateForm] = (
+        MobileInitialTestAndroidOutcomeUpdateForm
+    )
+    template_name: str = "mobile/android_base.html"
 
 
 class ReportReadyForQAUpdateView(MobileCaseUpdateView):
@@ -540,19 +573,38 @@ class CorrespondenceTwelveWeekReceivedUpdateView(CorrespondenceUpdateView):
     )
 
 
-class RetestResultUpdateView(MobileCaseUpdateView):
+class RetestiOSResultUpdateView(MobileCaseUpdateView):
     """View to update reviewing changes retesting"""
 
-    form_class: type[MobileRetestResultUpdateForm] = MobileRetestResultUpdateForm
-    template_name: str = "mobile/forms/retesting.html"
+    form_class: type[MobileRetestiOSResultUpdateForm] = MobileRetestiOSResultUpdateForm
+    template_name: str = "mobile/forms/retesting_ios.html"
 
 
-class RetestComplianceDecisionsUpdateView(MobileCaseUpdateView):
+class RetestiOSComplianceDecisionsUpdateView(MobileCaseUpdateView):
     """View to update reviewing changes retest result"""
 
-    form_class: type[MobileRetestComplianceDecisionsUpdateForm] = (
-        MobileRetestComplianceDecisionsUpdateForm
+    form_class: type[MobileRetestiOSComplianceDecisionsUpdateForm] = (
+        MobileRetestiOSComplianceDecisionsUpdateForm
     )
+    template_name: str = "mobile/forms/retesting_ios.html"
+
+
+class RetestAndroidResultUpdateView(MobileCaseUpdateView):
+    """View to update reviewing changes retesting"""
+
+    form_class: type[MobileRetestAndroidResultUpdateForm] = (
+        MobileRetestAndroidResultUpdateForm
+    )
+    template_name: str = "mobile/forms/retesting_android.html"
+
+
+class RetestAndroidComplianceDecisionsUpdateView(MobileCaseUpdateView):
+    """View to update reviewing changes retest result"""
+
+    form_class: type[MobileRetestAndroidComplianceDecisionsUpdateForm] = (
+        MobileRetestAndroidComplianceDecisionsUpdateForm
+    )
+    template_name: str = "mobile/forms/retesting_android.html"
 
 
 class CaseRecommendationUpdateView(MobileCaseUpdateView):

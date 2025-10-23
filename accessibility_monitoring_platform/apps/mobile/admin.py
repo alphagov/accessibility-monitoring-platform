@@ -21,8 +21,7 @@ class MobileCaseAdmin(admin.ModelAdmin):
     list_display = [
         "case_number",
         "organisation_name",
-        "android_app_name",
-        "ios_app_name",
+        "app_name",
         "auditor",
         "created",
     ]

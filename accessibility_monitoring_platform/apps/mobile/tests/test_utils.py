@@ -46,7 +46,7 @@ def test_get_mobile_case_detail_sections(rf):
         mobile_case=mobile_case, sitemap=sitemap
     )
 
-    assert sections[0].pages[0].display_fields[0].value == ORGANISATION_NAME
+    assert sections[0].pages[0].display_fields[1].value == ORGANISATION_NAME
 
 
 @pytest.mark.django_db
@@ -99,7 +99,6 @@ def test_download_cases_mobile():
         "",
         "",
         "",
-        "",
         "EHRC",
         "Unknown",
         "",
@@ -107,12 +106,22 @@ def test_download_cases_mobile():
         "",
         "No",
         "",
-        MOBILE_CONTACT_NAME,
-        MOBILE_CONTACT_TITLE,
-        MOBILE_CONTACT_DETAILS,
+        "Mobile contact name",
+        "Mobile contact job title",
+        "Mobile contact details",
         "",
         "",
         "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "Not known",
+        "Not assessed",
+        "Not checked",
         "",
         "",
         "",
@@ -144,11 +153,11 @@ def test_download_cases_mobile():
         "",
         "",
         "",
-        "Not known",
         "",
-        "Not assessed",
         "",
-        "Not checked",
+        "",
+        "",
+        "",
         "",
         "",
         "",
@@ -292,8 +301,8 @@ def test_download_equality_body_mobile_cases():
         "",
         "",
         "No",
-        "Not assessed",
-        "Not checked",
+        "",
+        "",
         "",
     ]
 

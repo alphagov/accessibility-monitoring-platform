@@ -32,12 +32,22 @@ class MobileCaseCreateForm(PreviousCaseURLForm):
     Form for creating a case
     """
 
+    home_page_url = AMPURLField(label="Organisation URL")
     organisation_name = AMPCharFieldWide(label="Organisation name")
     parental_organisation_name = AMPCharFieldWide(label="Parent organisation name")
-    android_app_name = AMPCharFieldWide(label="Android app name")
-    android_app_store_url = AMPURLField(label="Android app store URL")
-    ios_app_name = AMPCharFieldWide(label="iOS app name")
+    app_name = AMPCharFieldWide(label="App name")
+    ios_test_included = AMPChoiceRadioField(
+        label="Case includes iOS test?",
+        choices=Boolean.choices,
+        initial=Boolean.NO,
+    )
     ios_app_store_url = AMPURLField(label="iOS app store URL")
+    android_test_included = AMPChoiceRadioField(
+        label="Case includes Android test?",
+        choices=Boolean.choices,
+        initial=Boolean.NO,
+    )
+    android_app_store_url = AMPURLField(label="Android app store URL")
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     subcategory = AMPModelChoiceField(
         label="Sub-category",
@@ -64,12 +74,14 @@ class MobileCaseCreateForm(PreviousCaseURLForm):
     class Meta:
         model = MobileCase
         fields = [
+            "home_page_url",
             "organisation_name",
             "parental_organisation_name",
-            "android_app_name",
-            "android_app_store_url",
-            "ios_app_name",
+            "app_name",
+            "ios_test_included",
             "ios_app_store_url",
+            "android_test_included",
+            "android_app_store_url",
             "sector",
             "subcategory",
             "enforcement_body",
@@ -78,20 +90,34 @@ class MobileCaseCreateForm(PreviousCaseURLForm):
             "is_complaint",
         ]
 
-    def clean_app_store_url(self):
-        android_app_store_url = self.cleaned_data.get("android_app_store_url")
-        if not android_app_store_url:
-            raise ValidationError("Full URL is required")
-        return android_app_store_url
 
-    def clean_enforcement_body(self):
-        enforcement_body = self.cleaned_data.get("enforcement_body")
-        if not enforcement_body:
-            raise ValidationError("Choose which equalities body will check the case")
-        return enforcement_body
-
-
-class MobileCaseMetadataUpdateForm(MobileCaseCreateForm, VersionForm):
+class MobileCaseMetadataUpdateForm(PreviousCaseURLForm, VersionForm):
+    home_page_url = AMPURLField(label="Organisation URL")
+    organisation_name = AMPCharFieldWide(label="Organisation name")
+    parental_organisation_name = AMPCharFieldWide(label="Parent organisation name")
+    app_name = AMPCharFieldWide(label="App name")
+    sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
+    subcategory = AMPModelChoiceField(
+        label="Sub-category",
+        queryset=SubCategory.objects.all(),
+    )
+    enforcement_body = AMPChoiceRadioField(
+        label="Which equalities body will check the case?",
+        choices=MobileCase.EnforcementBody.choices,
+        initial=MobileCase.EnforcementBody.EHRC,
+    )
+    psb_location = AMPChoiceRadioField(
+        label="Public sector body location",
+        choices=MobileCase.PsbLocation.choices,
+        initial=MobileCase.PsbLocation.ENGLAND,
+    )
+    is_complaint = AMPChoiceCheckboxField(
+        label="Complaint?",
+        choices=Boolean.choices,
+        widget=AMPChoiceCheckboxWidget(
+            attrs={"label": "Did this case originate from a complaint?"}
+        ),
+    )
     case_folder_url = AMPURLField(label="Link to case folder")
     is_feedback_requested = AMPChoiceCheckboxField(
         label="Feedback survey sent?",
@@ -110,12 +136,10 @@ class MobileCaseMetadataUpdateForm(MobileCaseCreateForm, VersionForm):
         model = MobileCase
         fields = [
             "version",
+            "home_page_url",
             "organisation_name",
             "parental_organisation_name",
-            "android_app_name",
-            "android_app_store_url",
-            "ios_app_name",
-            "ios_app_store_url",
+            "app_name",
             "sector",
             "subcategory",
             "enforcement_body",
@@ -230,57 +254,138 @@ class MobileContactInformationRequestUpdateForm(VersionForm):
         ]
 
 
-class MobileInitialTestingDetailsUpdateForm(VersionForm):
-    """Form for updating initial testing details page"""
+class MobileInitialTestAuditorUpdateForm(VersionForm):
+    """Form for updating initial test auditor page"""
 
     auditor = AMPAuditorModelChoiceField(label="Auditor")
-    initial_test_start_date = AMPDateField(label="Test start date")
-    initial_testing_details_complete_date = AMPDatePageCompleteField()
+    initial_auditor_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = MobileCase
         fields = [
             "version",
             "auditor",
-            "initial_test_start_date",
-            "initial_testing_details_complete_date",
+            "initial_auditor_complete_date",
         ]
 
 
-class MobileInitialTestingOutcomeUpdateForm(VersionForm):
-    """Form for updating initial testing outcome page"""
+class MobileInitialTestiOSDetailsUpdateForm(VersionForm):
+    """Form for updating initial test iOS details page"""
 
-    initial_test_end_date = AMPDateField(label="Test end date")
-    initial_total_number_of_pages = AMPIntegerField(label="Number of pages tested")
-    initial_total_number_of_issues = AMPIntegerField(
-        label="Number of issues found · Included in export",
-        help_text="This does not include best practice issues",
+    ios_test_included = AMPChoiceRadioField(
+        label="Case includes iOS test?",
+        choices=Boolean.choices,
     )
-    initial_website_compliance_state = AMPChoiceRadioField(
-        label="Initial website compliance decision",
-        choices=MobileCase.WebsiteCompliance.choices,
-    )
-    initial_statement_compliance_state = AMPChoiceRadioField(
-        label="Initial statement compliance decision",
-        choices=MobileCase.StatementCompliance.choices,
-    )
-    initial_disproportionate_burden_claim = AMPChoiceRadioField(
-        label="Initial disproportionate burden claim",
-        choices=MobileCase.DisproportionateBurden.choices,
-    )
-    initial_testing_outcome_complete_date = AMPDatePageCompleteField()
+    ios_app_store_url = AMPURLField(label="iOS app store URL")
+    initial_ios_test_start_date = AMPDateField(label="Test start date")
+    initial_ios_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = MobileCase
         fields = [
             "version",
-            "initial_test_end_date",
-            "initial_total_number_of_pages",
-            "initial_total_number_of_issues",
-            "initial_website_compliance_state",
-            "initial_statement_compliance_state",
-            "initial_disproportionate_burden_claim",
-            "initial_testing_outcome_complete_date",
+            "ios_test_included",
+            "ios_app_store_url",
+            "initial_ios_test_start_date",
+            "initial_ios_details_complete_date",
+        ]
+
+
+class MobileInitialTestiOSOutcomeUpdateForm(VersionForm):
+    """Form for updating initial test iOS outcome page"""
+
+    initial_ios_test_end_date = AMPDateField(label="Test end date")
+    initial_ios_total_number_of_pages = AMPIntegerField(label="Number of pages tested")
+    initial_ios_total_number_of_issues = AMPIntegerField(
+        label="Number of issues found · Included in export",
+        help_text="This does not include best practice issues",
+    )
+    initial_ios_website_compliance_state = AMPChoiceRadioField(
+        label="Initial website compliance decision",
+        choices=MobileCase.WebsiteCompliance.choices,
+    )
+    initial_ios_statement_compliance_state = AMPChoiceRadioField(
+        label="Initial statement compliance decision",
+        choices=MobileCase.StatementCompliance.choices,
+    )
+    initial_ios_disproportionate_burden_claim = AMPChoiceRadioField(
+        label="Initial disproportionate burden claim",
+        choices=MobileCase.DisproportionateBurden.choices,
+    )
+    initial_ios_outcome_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "initial_ios_test_end_date",
+            "initial_ios_total_number_of_pages",
+            "initial_ios_total_number_of_issues",
+            "initial_ios_website_compliance_state",
+            "initial_ios_statement_compliance_state",
+            "initial_ios_disproportionate_burden_claim",
+            "initial_ios_outcome_complete_date",
+        ]
+
+
+class MobileInitialTestAndroidDetailsUpdateForm(VersionForm):
+    """Form for updating initial test Android details page"""
+
+    android_test_included = AMPChoiceRadioField(
+        label="Case includes Android test?",
+        choices=Boolean.choices,
+    )
+    android_app_store_url = AMPURLField(label="Android app store URL")
+    initial_android_test_start_date = AMPDateField(label="Test start date")
+    initial_android_details_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "android_test_included",
+            "android_app_store_url",
+            "initial_android_test_start_date",
+            "initial_android_details_complete_date",
+        ]
+
+
+class MobileInitialTestAndroidOutcomeUpdateForm(VersionForm):
+    """Form for updating initial test Android outcome page"""
+
+    initial_android_test_end_date = AMPDateField(label="Test end date")
+    initial_android_total_number_of_pages = AMPIntegerField(
+        label="Number of pages tested"
+    )
+    initial_android_total_number_of_issues = AMPIntegerField(
+        label="Number of issues found · Included in export",
+        help_text="This does not include best practice issues",
+    )
+    initial_android_website_compliance_state = AMPChoiceRadioField(
+        label="Initial website compliance decision",
+        choices=MobileCase.WebsiteCompliance.choices,
+    )
+    initial_android_statement_compliance_state = AMPChoiceRadioField(
+        label="Initial statement compliance decision",
+        choices=MobileCase.StatementCompliance.choices,
+    )
+    initial_android_disproportionate_burden_claim = AMPChoiceRadioField(
+        label="Initial disproportionate burden claim",
+        choices=MobileCase.DisproportionateBurden.choices,
+    )
+    initial_android_outcome_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "initial_android_test_end_date",
+            "initial_android_total_number_of_pages",
+            "initial_android_total_number_of_issues",
+            "initial_android_website_compliance_state",
+            "initial_android_statement_compliance_state",
+            "initial_android_disproportionate_burden_claim",
+            "initial_android_outcome_complete_date",
         ]
 
 
@@ -450,62 +555,125 @@ class MobileTwelveWeekReceivedUpdateForm(VersionForm):
         ]
 
 
-class MobileRetestResultUpdateForm(VersionForm):
-    """Form for updating reviewing changes retesting page"""
+class MobileRetestiOSResultUpdateForm(VersionForm):
+    """Form for updating reviewing changes iOS retesting page"""
 
-    retest_start_date = AMPDateField(label="Latest retest date · Included in export")
-    retest_total_number_of_issues = AMPIntegerField(
+    retest_ios_start_date = AMPDateField(
+        label="Latest retest date · Included in export"
+    )
+    retest_ios_total_number_of_issues = AMPIntegerField(
         label="Total number of remaining issues · Included in export"
     )
-    retest_result_complete_date = AMPDatePageCompleteField()
+    retest_ios_result_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = MobileCase
         fields = [
             "version",
-            "retest_start_date",
-            "retest_total_number_of_issues",
-            "retest_result_complete_date",
+            "retest_ios_start_date",
+            "retest_ios_total_number_of_issues",
+            "retest_ios_result_complete_date",
         ]
 
 
-class MobileRetestComplianceDecisionsUpdateForm(VersionForm):
-    """Form for updating reviewing changes retest result page"""
+class MobileRetestiOSComplianceDecisionsUpdateForm(VersionForm):
+    """Form for updating reviewing changes iOS retest result page"""
 
-    retest_website_compliance_state = AMPChoiceRadioField(
+    retest_ios_website_compliance_state = AMPChoiceRadioField(
         label="Retest website compliance decision · Included in export",
         choices=MobileCase.WebsiteCompliance.choices,
     )
-    retest_website_compliance_information = AMPTextField(
+    retest_ios_website_compliance_information = AMPTextField(
         label="Retest website compliance decision information"
     )
-    retest_statement_compliance_state = AMPChoiceRadioField(
+    retest_ios_statement_compliance_state = AMPChoiceRadioField(
         label="Retest statement compliance decision · Included in export",
         choices=MobileCase.StatementCompliance.choices,
     )
-    retest_statement_compliance_information = AMPTextField(
+    retest_ios_statement_compliance_information = AMPTextField(
         label="Retest statement compliance decision information"
     )
-    retest_disproportionate_burden_claim = AMPChoiceRadioField(
+    retest_ios_disproportionate_burden_claim = AMPChoiceRadioField(
         label="Retest disproportionate burden claim · Included in export",
         choices=MobileCase.DisproportionateBurden.choices,
     )
-    retest_disproportionate_burden_information = AMPTextField(
+    retest_ios_disproportionate_burden_information = AMPTextField(
         label="Retest disproportionate burden information · Included in export"
     )
-    retest_compliance_decisions_complete_date = AMPDatePageCompleteField()
+    retest_ios_compliance_decisions_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = MobileCase
         fields = [
             "version",
-            "retest_website_compliance_state",
-            "retest_website_compliance_information",
-            "retest_statement_compliance_state",
-            "retest_statement_compliance_information",
-            "retest_disproportionate_burden_claim",
-            "retest_disproportionate_burden_information",
-            "retest_compliance_decisions_complete_date",
+            "retest_ios_website_compliance_state",
+            "retest_ios_website_compliance_information",
+            "retest_ios_statement_compliance_state",
+            "retest_ios_statement_compliance_information",
+            "retest_ios_disproportionate_burden_claim",
+            "retest_ios_disproportionate_burden_information",
+            "retest_ios_compliance_decisions_complete_date",
+        ]
+
+
+class MobileRetestAndroidResultUpdateForm(VersionForm):
+    """Form for updating reviewing changes Android retesting page"""
+
+    retest_android_start_date = AMPDateField(
+        label="Latest retest date · Included in export"
+    )
+    retest_android_total_number_of_issues = AMPIntegerField(
+        label="Total number of remaining issues · Included in export"
+    )
+    retest_android_result_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "retest_android_start_date",
+            "retest_android_total_number_of_issues",
+            "retest_android_result_complete_date",
+        ]
+
+
+class MobileRetestAndroidComplianceDecisionsUpdateForm(VersionForm):
+    """Form for updating reviewing changes Android retest result page"""
+
+    retest_android_website_compliance_state = AMPChoiceRadioField(
+        label="Retest website compliance decision · Included in export",
+        choices=MobileCase.WebsiteCompliance.choices,
+    )
+    retest_android_website_compliance_information = AMPTextField(
+        label="Retest website compliance decision information"
+    )
+    retest_android_statement_compliance_state = AMPChoiceRadioField(
+        label="Retest statement compliance decision · Included in export",
+        choices=MobileCase.StatementCompliance.choices,
+    )
+    retest_android_statement_compliance_information = AMPTextField(
+        label="Retest statement compliance decision information"
+    )
+    retest_android_disproportionate_burden_claim = AMPChoiceRadioField(
+        label="Retest disproportionate burden claim · Included in export",
+        choices=MobileCase.DisproportionateBurden.choices,
+    )
+    retest_android_disproportionate_burden_information = AMPTextField(
+        label="Retest disproportionate burden information · Included in export"
+    )
+    retest_android_compliance_decisions_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = MobileCase
+        fields = [
+            "version",
+            "retest_android_website_compliance_state",
+            "retest_android_website_compliance_information",
+            "retest_android_statement_compliance_state",
+            "retest_android_statement_compliance_information",
+            "retest_android_disproportionate_burden_claim",
+            "retest_android_disproportionate_burden_information",
+            "retest_android_compliance_decisions_complete_date",
         ]
 
 
