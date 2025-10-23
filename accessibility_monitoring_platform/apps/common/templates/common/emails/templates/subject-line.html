@@ -1,0 +1,6 @@
+{% if case.website_name %}
+{{ case.website_name }} ({{ case.organisation_name }}) {{ subject }}
+{% else %}
+{{ case.organisation_name }} {{ subject }}
+{% endif %}
+<br>
