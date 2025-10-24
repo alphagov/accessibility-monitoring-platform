@@ -1063,13 +1063,30 @@ def test_email_all_specialists_all_detailed_reminders_due(mailoutbox):
         type=Task.Type.REMINDER,
         user=specialist_2,
         base_case=detailed_case_2,
-        description="First reminder description",
+        description="Second reminder description",
         date=date.today() + timedelta(days=7),
+    )
+
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        organisation_name="Simplified Organisation"
+    )
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        user=specialist_1,
+        base_case=simplified_case,
+        description="Third reminder description",
+        date=date.today(),
     )
 
     email_all_specialists_all_detailed_reminders_due()
 
     assert len(mailoutbox) == 1
     assert mailoutbox[0].to == ["specialist1@mock.com", "specialist2@mock.com"]
+
     assert "Detailed Organisation One" in mailoutbox[0].body
     assert "Detailed Organisation Two" in mailoutbox[0].body
+    assert "Simplified Organisation" not in mailoutbox[0].body
+
+    assert "First reminder description" in mailoutbox[0].body
+    assert "Second reminder description" in mailoutbox[0].body
+    assert "Third reminder description" not in mailoutbox[0].body

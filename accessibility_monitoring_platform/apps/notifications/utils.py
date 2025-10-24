@@ -105,6 +105,7 @@ def email_all_specialists_all_detailed_reminders_due() -> None:
     """
     detailed_reminders_due: QuerySet[Task] = Task.objects.filter(
         type=Task.Type.REMINDER,
+        base_case__test_type=BaseCase.TestType.DETAILED,
         read=False,
         date__lte=date.today() + timedelta(days=7),
     )
