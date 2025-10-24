@@ -115,7 +115,7 @@ class DetailedCaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
     model: type[DetailedCase] = DetailedCase
     form_class: type[DetailedCaseCreateForm] = DetailedCaseCreateForm
     context_object_name: str = "detailed_case"
-    template_name: str = "detailed/forms/create.html"
+    template_name: str = "cases/forms/create.html"
 
     def form_valid(self, form: DetailedCaseCreateForm):
         """Process contents of valid form"""

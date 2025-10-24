@@ -208,7 +208,7 @@ class CaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
     model: type[SimplifiedCase] = SimplifiedCase
     form_class: type[SimplifiedCaseCreateForm] = SimplifiedCaseCreateForm
     context_object_name: str = "case"
-    template_name: str = "simplified/forms/create.html"
+    template_name: str = "cases/forms/create.html"
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""

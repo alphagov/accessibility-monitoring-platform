@@ -120,7 +120,7 @@ class MobileCaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
     model: type[MobileCase] = MobileCase
     form_class: type[MobileCaseCreateForm] = MobileCaseCreateForm
     context_object_name: str = "mobile_case"
-    template_name: str = "mobile/forms/create.html"
+    template_name: str = "cases/forms/create.html"
 
     def form_valid(self, form: MobileCaseCreateForm):
         """Process contents of valid form"""
