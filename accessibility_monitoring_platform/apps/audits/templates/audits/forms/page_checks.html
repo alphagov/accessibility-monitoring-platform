@@ -49,7 +49,7 @@
             data-filter-string="{{ form.initial.wcag_definition }} {{ form.initial.wcag_definition.hint }} {{ form.initial.issue_identifier }}"
         >
             <div class="govuk-grid-column-full">
-                <hr class="amp-width-100 amp-margin-bottom-30">
+                <hr class="amp-width-100 amp-margin-bottom-40">
                 {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                 {% include 'audits/helpers/amp_wcag_state_field.html' with field=form.check_result_state %}
                 {% include 'audits/helpers/check_result_matching_initial_errors.html' %}
@@ -62,7 +62,7 @@
                 </div>
                 {% include 'common/preview_markdown.html' with field_id=form.notes.auto_id %}
                 {% include 'audits/helpers/check_result_initial_notes_history.html' with check_result=form.initial.check_result %}
-                <div class="govuk-grid-row amp-margin-bottom-20 amp-margin-top-20">
+                <div class="govuk-grid-row amp-margin-bottom-0 amp-margin-top-20">
                     <div class="govuk-grid-column-full govuk-button-group">
                         ▼ &nbsp; <a href="#save-and-continue-buttons" class="govuk-link govuk-link--no-visited-state">Go to save and continue</a>
                         ▲ &nbsp; {% include 'common/back_to_top.html' %}

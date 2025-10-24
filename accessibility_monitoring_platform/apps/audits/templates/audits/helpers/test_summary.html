@@ -8,22 +8,37 @@
     <div class="govuk-grid-row">
         <br/>
         <div class="govuk-grid-column-full">
-            <h2 class="govuk-heading-s">WCAG issues summary</h2>
-            <ul class="govuk-list govuk-list--bullet">
-                <li>Initial WCAG compliance decision: <b>{{ case.compliance.get_website_compliance_state_initial_display }}</b></li>
-                <li>Initial issues: {{ case.audit.failed_check_results.count }}</li>
-                <li>12-week WCAG compliance decision: <b>{{ case.compliance.get_website_compliance_state_12_week_display }}</b></li>
-                <li>
-                    Issues remaining at 12-weeks: {{ case.audit.unfixed_check_results.count }} issues
-                    {% if case.audit %}
-                        ({{ case.audit.percentage_wcag_issues_fixed }}% fixed)
-                    {% endif %}
-                </li>
-                <li>
-                    Pages removed at 12-weeks: {{ case.audit.missing_at_retest_pages.count }}
-                    ({{ case.audit.missing_at_retest_check_results.count }} issues)
-                </li>
-            </ul>
+
+            <table class="govuk-body">
+                <tr>
+                    <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Initial WCAG compliance decision</b></td>
+                    <td class="amp-padding-bottom-10">{{ case.compliance.get_website_compliance_state_initial_display }}</td>
+                </tr>
+                <tr>
+                    <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Initial issues</b></td>
+                    <td class="amp-padding-bottom-10">{{ case.audit.failed_check_results.count }}</td>
+                </tr>
+                <tr>
+                    <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>12-week WCAG compliance decision</b></td>
+                    <td class="amp-padding-bottom-10">{{ case.compliance.get_website_compliance_state_12_week_display }}</td>
+                </tr>
+                <tr>
+                    <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Issues remaining at 12-weeks</b></td>
+                    <td class="amp-padding-bottom-10"> 
+                        {{ case.audit.unfixed_check_results.count }} issues                
+                        {% if case.audit %}
+                            ({{ case.audit.percentage_wcag_issues_fixed }}% fixed)
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Pages removed at 12-weeks</b></td>
+                    <td class="amp-padding-bottom-10">                    
+                        {{ case.audit.missing_at_retest_pages.count }}
+                        ({{ case.audit.missing_at_retest_check_results.count }} issues)
+                    </td>
+                </tr>
+            </table>    
             <br/>
         </div>
     </div>
@@ -66,30 +81,56 @@
 {% if show_statement_summary %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <h2 class="govuk-heading-s">Statement issues summary</h2>
-            <ul class="govuk-list govuk-list--bullet">
+            <table class="govuk-body">
                 {% if case.compliance.statement_compliance_state_12_week == 'unknown' %}
-                    <li>Initial statement compliance: <b>{{ case.compliance.get_statement_compliance_state_initial_display }}</b></li>
+                    <tr>
+                        <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Initial statement compliance</b></td>
+                        <td class="amp-padding-bottom-10">{{ case.compliance.get_statement_compliance_state_initial_display }}</td>
+                    </tr>
                 {% endif %}
                 {% if case.audit.twelve_week_disproportionate_burden_claim == 'not-checked' %}
-                    <li>Initial disproportionate burden: <b>{{ case.audit.get_initial_disproportionate_burden_claim_display }}</b></li>
+                    <tr>
+                        <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Initial disproportionate burden</b></td>
+                        <td class="amp-padding-bottom-10">{{ case.audit.get_initial_disproportionate_burden_claim_display }}</td>
+                    </tr>
                 {% endif %}
                 {% if case.compliance.statement_compliance_state_12_week != 'unknown' %}
-                    <li>12-week statement compliance: <b>{{ case.compliance.get_statement_compliance_state_12_week_display }}</b></li>
+                    <tr>
+                        <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>12-week statement compliance</b></td>
+                        <td class="amp-padding-bottom-10">{{ case.compliance.get_statement_compliance_state_12_week_display }}</td>
+                    </tr>
                 {% endif %}
                 {% if case.audit.twelve_week_disproportionate_burden_claim != 'not-checked' %}
-                    <li>12-week disproportionate burden: <b>{{ case.audit.get_twelve_week_disproportionate_burden_claim_display }}</b></li>
+                    <tr>
+                        <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>12-week disproportionate burden</b></td>
+                        <td class="amp-padding-bottom-10">{{ case.audit.get_twelve_week_disproportionate_burden_claim_display }}</td>
+                    </tr>
                 {% endif %}
-                <li>
-                    {% if case.audit.accessibility_statement_found %}
-                        <a href="{{ case.audit.latest_statement_link }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
-                            Accessibility Statement</a>
-                        added to case
-                    {% else %}
-                        No accessibility statement added
-                    {% endif %}
-                </li>
-            </ul>
+                <tr>
+                    <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>12-week WCAG compliance decision</b></td>
+                    <td class="amp-padding-bottom-10">{{ case.compliance.get_website_compliance_state_12_week_display }}</td>
+                </tr>
+                <tr>
+                    <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Issues remaining at 12-weeks</b></td>
+                    <td class="amp-padding-bottom-10"> 
+                        {{ case.audit.unfixed_check_results.count }} issues                
+                        {% if case.audit %}
+                            ({{ case.audit.percentage_wcag_issues_fixed }}% fixed)
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top">
+                        {% if case.audit.accessibility_statement_found %}
+                            <a href="{{ case.audit.latest_statement_link }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+                                Accessibility Statement</a>
+                            added to case
+                        {% else %}
+                            No accessibility statement added
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>    
             <br/>
             <h2 class="govuk-heading-s">Statement assessment contents</h2>
             <div class="amp-border-left">

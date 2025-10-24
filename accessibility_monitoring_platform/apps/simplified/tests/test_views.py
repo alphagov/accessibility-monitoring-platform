@@ -1091,7 +1091,7 @@ def test_updating_case_creates_case_event(admin_client):
         (
             "simplified:edit-no-psb-response",
             "save_continue",
-            "simplified:edit-enforcement-recommendation",
+            "simplified:case-detail",
         ),
         ("simplified:edit-report-sent-on", "save", "simplified:edit-report-sent-on"),
         (
@@ -1800,7 +1800,7 @@ def test_no_psb_response_redirects_to_enforcement_recommendation(admin_client):
     assert response.status_code == 302
     assert (
         response.url
-        == f'{reverse("simplified:edit-enforcement-recommendation", kwargs={"pk": simplified_case.id})}'
+        == f'{reverse("simplified:case-detail", kwargs={"pk": simplified_case.id})}'
     )
 
 
@@ -3952,7 +3952,7 @@ def test_add_contact_details_redirects_correctly(admin_client):
     [
         ("edit-case-metadata", "Initial test | Testing details"),
         ("manage-contact-details", "Report correspondence | Report sent on"),
-        ("edit-no-psb-response", "Closing the case | Recommendation"),
+        ("edit-no-psb-response", "Simplified testing case | Simplified case overview"),
         ("edit-12-week-update-request-ack", "Closing the case | Reviewing changes"),
         ("edit-case-close", "Post case | Statement enforcement"),
     ],

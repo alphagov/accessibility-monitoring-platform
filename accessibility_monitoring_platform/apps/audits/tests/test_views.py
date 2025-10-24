@@ -3092,10 +3092,10 @@ def test_test_statement_summary_page_summary(url_name, admin_client):
     response: HttpResponse = admin_client.get(reverse(url_name, kwargs=audit_pk))
 
     assert response.status_code == 200
-    assertContains(response, "<li>Initial statement compliance: <b>")
-    assertContains(response, "<li>Initial disproportionate burden: <b>")
-    assertNotContains(response, "<li>12-week statement compliance: <b>")
-    assertNotContains(response, "<li>12-week disproportionate burden: <b>")
+    assertContains(response, "Initial statement compliance")
+    assertContains(response, "Initial disproportionate burden")
+    assertNotContains(response, "12-week statement compliance")
+    assertNotContains(response, "12-week disproportionate burden")
 
     audit.twelve_week_disproportionate_burden_claim = (
         Audit.DisproportionateBurden.ASSESSMENT
@@ -3109,10 +3109,10 @@ def test_test_statement_summary_page_summary(url_name, admin_client):
     response: HttpResponse = admin_client.get(reverse(url_name, kwargs=audit_pk))
 
     assert response.status_code == 200
-    assertNotContains(response, "<li>Initial statement compliance: <b>")
-    assertNotContains(response, "<li>Initial disproportionate burden: <b>")
-    assertContains(response, "<li>12-week statement compliance: <b>")
-    assertContains(response, "<li>12-week disproportionate burden: <b>")
+    assertNotContains(response, "Initial statement compliance")
+    assertNotContains(response, "Initial disproportionate burden")
+    assertContains(response, "12-week statement compliance")
+    assertContains(response, "12-week disproportionate burden")
 
 
 def test_create_equality_body_retest_redirects(admin_client):
