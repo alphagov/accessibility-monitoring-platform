@@ -1,9 +1,9 @@
 /* global cy before Cypress */
 
-const newOrganisationName = 'New detailed organisation name'
-const newHomePageURL = 'https://detailed-org.com'
+const newOrganisationName = 'New mobile organisation name'
+const newHomePageURL = 'https://mobile-org.com'
 
-describe('Create detailed case', () => {
+describe('Create mobile case', () => {
   before(() => {
     cy.login()
   })
@@ -12,14 +12,12 @@ describe('Create detailed case', () => {
     cy.visit('/cases')
 
     cy.title().should('eq', 'Search cases')
-    cy.contains('Create detailed case').click()
+    cy.contains('Create mobile case').click()
 
-    cy.title().should('eq', 'Create detailed case')
+    cy.title().should('eq', 'Create mobile case')
     cy.get('#id_home_page_url').type(newHomePageURL)
     cy.get('#id_organisation_name').type(newOrganisationName)
     cy.get('#id_sector').select('Private Sector Business')
-    cy.get('[name="enforcement_body"]').check('ehrc')
-    cy.get('[name="psb_location"]').check('england')
     cy.contains('Save and continue case').click()
 
     cy.title().should('eq', `${newOrganisationName} | Case metadata`)
@@ -31,10 +29,19 @@ describe('Create detailed case', () => {
     cy.title().should('eq', `${newOrganisationName} | Information request`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Testing`)
+    cy.title().should('eq', `${newOrganisationName} | Auditor`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Testing outcome`)
+    cy.title().should('eq', `${newOrganisationName} | iOS details`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | iOS outcome`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Android details`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Android outcome`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Report ready for QA`)
@@ -69,10 +76,16 @@ describe('Create detailed case', () => {
     cy.title().should('eq', `${newOrganisationName} | 12-week update received`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Retest result`)
+    cy.title().should('eq', `${newOrganisationName} | iOS retesting`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Compliance decisions`)
+    cy.title().should('eq', `${newOrganisationName} | iOS retest result`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Android retesting`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newOrganisationName} | Android retest result`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Recommendation`)
@@ -87,6 +100,6 @@ describe('Create detailed case', () => {
     cy.title().should('eq', `${newOrganisationName} | Equality body metadata`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Detailed case overview`)
+    cy.title().should('eq', `${newOrganisationName} | Mobile case overview`)
   })
 })

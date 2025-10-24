@@ -1648,7 +1648,7 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 next_page_url_name="detailed:edit-12-week-received",
             ),
             DetailedCasePlatformPage(
-                name="12-week received",
+                name="12-week update received",
                 url_name="detailed:edit-12-week-received",
                 complete_flag_name="twelve_week_received_complete_date",
                 case_details_form_class=DetailedTwelveWeekReceivedUpdateForm,
@@ -1967,7 +1967,7 @@ MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 next_page_url_name="mobile:edit-12-week-received",
             ),
             MobileCasePlatformPage(
-                name="12-week received",
+                name="12-week update received",
                 url_name="mobile:edit-12-week-received",
                 complete_flag_name="twelve_week_received_complete_date",
                 case_details_form_class=MobileTwelveWeekReceivedUpdateForm,

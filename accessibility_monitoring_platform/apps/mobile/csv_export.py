@@ -582,14 +582,14 @@ MOBILE_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_class=MobileCase,
         source_attr="twelve_week_update_complete_date",
     ),
-    # Correspondence - 12-week received
+    # Correspondence - 12-week update received
     CSVColumn(
         column_header="12-week update received",
         source_class=MobileCase,
         source_attr="twelve_week_received_date",
     ),
     CSVColumn(
-        column_header="Correspondence 12-week received page complete",
+        column_header="Correspondence 12-week update received page complete",
         source_class=MobileCase,
         source_attr="twelve_week_received_complete_date",
     ),

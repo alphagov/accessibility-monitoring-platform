@@ -442,7 +442,7 @@ class DetailedTwelveWeekRequestUpdateForm(VersionForm):
 
 
 class DetailedTwelveWeekReceivedUpdateForm(VersionForm):
-    """Form for updating correspondence 12-week received page"""
+    """Form for updating correspondence 12-week update received page"""
 
     twelve_week_received_date = AMPDateField(label="12-week update received")
     twelve_week_received_complete_date = AMPDatePageCompleteField()

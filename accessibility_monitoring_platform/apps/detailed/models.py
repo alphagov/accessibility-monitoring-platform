@@ -158,7 +158,7 @@ class DetailedCase(BaseCase):
     twelve_week_update_date = models.DateField(null=True, blank=True)
     twelve_week_update_complete_date = models.DateField(null=True, blank=True)
 
-    # Correspondence - 12-week received
+    # Correspondence - 12-week update received
     twelve_week_received_date = models.DateField(null=True, blank=True)
     twelve_week_received_complete_date = models.DateField(null=True, blank=True)
 
