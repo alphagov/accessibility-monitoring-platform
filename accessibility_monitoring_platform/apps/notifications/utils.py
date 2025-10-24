@@ -3,7 +3,7 @@
 from datetime import date, datetime, timedelta
 from typing import Any, TypedDict
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.core.mail import EmailMessage
 from django.db import models
 from django.db.models import Q
@@ -95,6 +95,33 @@ def add_task(
         email.content_subtype = "html"
         email.send()
     return task
+
+
+def email_all_specialists_all_detailed_reminders_due() -> None:
+    """
+    Find all reminders for detailed cases which are due in the next week.
+    Send an email listing them to all the specialists (members of the QA auditors
+    group).
+    """
+    detailed_reminders_due: QuerySet[Task] = Task.objects.filter(
+        type=Task.Type.REMINDER,
+        read=False,
+        date__lte=date.today() + timedelta(days=7),
+    )
+    if detailed_reminders_due.count() == 0:
+        return
+
+    qa_auditor_group: Group = Group.objects.get(name="QA auditors")
+    template: str = get_template("notifications/all_detailed_reminders_email.txt")
+    content: str = template.render({"tasks": detailed_reminders_due})  # type: ignore
+    email: EmailMessage = EmailMessage(
+        subject="Detailed case reminders due in the next week",
+        body=content,
+        from_email="accessibility-monitoring-platform-contact-form@digital.cabinet-office.gov.uk",
+        to=[user.email for user in qa_auditor_group.user_set.all()],
+    )
+    email.content_subtype = "html"
+    email.send()
 
 
 def mark_tasks_as_read(user: User, base_case: BaseCase, type: Task.Type) -> None:

@@ -3,7 +3,7 @@
 from datetime import date, datetime, timedelta
 
 import pytest
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest
 from django.urls import reverse
@@ -11,7 +11,7 @@ from django.urls import reverse
 from ...audits.models import Retest
 from ...cases.models import BaseCase
 from ...common.models import Boolean, Link
-from ...detailed.models import DetailedEventHistory
+from ...detailed.models import DetailedCase, DetailedEventHistory
 from ...simplified.models import (
     CaseCompliance,
     EqualityBodyCorrespondence,
@@ -27,6 +27,7 @@ from ..models import NotificationSetting, Task
 from ..utils import (
     add_task,
     build_task_list,
+    email_all_specialists_all_detailed_reminders_due,
     exclude_cases_with_pending_reminders,
     get_number_of_tasks,
     get_overdue_cases,
@@ -1005,14 +1006,70 @@ def text_record_case_model_create_event(test_type, history_model):
     ],
 )
 @pytest.mark.django_db
-def text_record_case_model_update_event(test_type, history_model):
+def test_record_case_model_update_event(test_type, history_model):
     """Test recording case model update event on correct history model"""
     user: User = User.objects.create()
-    base_case: BaseCase = BaseCase.objects.create(test_type=test_type)
+    if test_type == BaseCase.TestType.SIMPLIFIED:
+        case: SimplifiedCase = SimplifiedCase.objects.create()
+    else:
+        case: DetailedCase = DetailedCase.objects.create()
+
     user.first_name = "Joe"
-    record_case_model_update_event(user=user, model_object=user, base_case=base_case)
+    record_case_model_update_event(user=user, model_object=user, base_case=case)
 
     content_type: ContentType = ContentType.objects.get_for_model(User)
     event = history_model.objects.get(content_type=content_type, object_id=user.id)
 
     assert event.event_type == history_model.Type.UPDATE
+
+
+@pytest.mark.django_db
+def test_email_all_specialists_all_detailed_reminders_due(mailoutbox):
+    """Test emailing all remidners due this week to all specialists"""
+
+    specialist_1: User = User.objects.create_user(  # type: ignore
+        username="specialist1",
+        email="specialist1@mock.com",
+        password="secret",
+        first_name="First",
+        last_name="Specialist",
+    )
+    specialist_2: User = User.objects.create_user(  # type: ignore
+        username="specialist2",
+        email="specialist2@mock.com",
+        password="secret",
+        first_name="Second",
+        last_name="Specialist",
+    )
+    specialist_group: Group = Group.objects.create(name="QA auditors")
+    specialist_group.user_set.add(specialist_1)
+    specialist_group.user_set.add(specialist_2)
+
+    detailed_case_1: DetailedCase = DetailedCase.objects.create(
+        organisation_name="Detailed Organisation One"
+    )
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        user=specialist_1,
+        base_case=detailed_case_1,
+        description="First reminder description",
+        date=date.today(),
+    )
+
+    detailed_case_2: DetailedCase = DetailedCase.objects.create(
+        organisation_name="Detailed Organisation Two"
+    )
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        user=specialist_2,
+        base_case=detailed_case_2,
+        description="First reminder description",
+        date=date.today() + timedelta(days=7),
+    )
+
+    email_all_specialists_all_detailed_reminders_due()
+
+    assert len(mailoutbox) == 1
+    assert mailoutbox[0].to == ["specialist1@mock.com", "specialist2@mock.com"]
+    assert "Detailed Organisation One" in mailoutbox[0].body
+    assert "Detailed Organisation Two" in mailoutbox[0].body
