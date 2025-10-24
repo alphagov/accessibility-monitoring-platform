@@ -132,6 +132,13 @@
                                 <a href="?type=reminder&future=true" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">View future</a>
                             {% endif %}
                         </li>
+                        <li class="amp-custom-nav-bar amp-margin-right-25">
+                            {% if show_all_detailed_reminders %}
+                                <b> All detailed </b>
+                            {% else %}
+                                <a href="?type=reminder&show_all_detailed_reminders=true" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">All detailed</a>
+                            {% endif %}
+                        </li>
                     </ul>
                 {% endif %}
             </div>

@@ -4,6 +4,7 @@ from typing import Any
 
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
@@ -41,6 +42,17 @@ class TaskListView(TemplateView):
             tasks: list[Task] = build_task_list(user=None, **params)
             context["show_all_users"] = True
             context["tasks"] = tasks
+            context["task_type_counts"] = get_task_type_counts(tasks=tasks)
+            return {**context, **params}
+
+        if "show_all_detailed_reminders" in self.request.GET:
+            tasks: QuerySet[Task] = Task.objects.filter(
+                type=Task.Type.REMINDER,
+                base_case__test_type=BaseCase.TestType.DETAILED,
+                read=False,
+            ).order_by("date")
+            context["tasks"] = tasks
+            context["show_all_detailed_reminders"] = True
             context["task_type_counts"] = get_task_type_counts(tasks=tasks)
             return {**context, **params}
 
