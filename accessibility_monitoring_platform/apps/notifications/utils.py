@@ -108,7 +108,7 @@ def email_all_specialists_all_detailed_reminders_due() -> None:
         base_case__test_type=BaseCase.TestType.DETAILED,
         read=False,
         date__lte=date.today() + timedelta(days=7),
-    )
+    ).order_by("date")
     if detailed_reminders_due.count() == 0:
         return
 
