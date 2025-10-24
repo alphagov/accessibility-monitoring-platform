@@ -1,0 +1,48 @@
+{% extends 'common/case_form.html' %}
+
+{% load static %}
+
+{% block preform %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <p class="govuk-body-m">
+            {% include "common/amp_control_go_back.html" %}
+        </p>
+    </div>
+</div>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <div class="amp-sticky-contents">
+            <p class="govuk-heading-s amp-margin-bottom-10">Contents</p>
+            <ul class="govuk-list amp_case_search_contents">
+                {% for case_detail_section in case_detail_sections %}
+                    <li>
+                        <a href="#page-group-{{ forloop.counter }}-{{ case_detail_section.page_group_name|slugify }}" class="govuk-link govuk-link--no-visited-state">
+                            {{ case_detail_section.page_group_name }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <br/>
+        <h2 class="govuk-heading-s amp-margin-bottom-5">Search inside case</h2>
+        <div class="govuk-form-group">
+            <input
+                type="text"
+                name="search_in_case"
+                placeholder="Search"
+                class="govuk-input"
+                id="id_search_in_case">
+        </div>
+        <div id="search-results"></div>
+        <hr class="amp-nav-seperator">
+    </div>
+</div>
+{% include 'mobile/details/sections.html' %}
+{% endblock %}
+
+{% block form %}{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'js/cases_search_in_case.js' %}"></script>
+<script src="/static/js/go_back.js"></script>
+{% endblock %}

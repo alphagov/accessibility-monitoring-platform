@@ -1,0 +1,21 @@
+{% extends 'cases/details/details.html' %}
+
+{% block pretable %}
+    {% if not case.notes_history %}
+        <p class="govuk-body">No case notes</p>
+    {% endif %}
+{% endblock %}
+
+{% block prefixrows %}
+    {% for note in case.notes_history %}
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                {{ note.created_by.get_full_name }} on {{ note.created|amp_datetime }}
+                <br>{{ note.label }}
+            </th>
+            <td class="govuk-table__cell amp-width-one-half amp-notes">
+                {{ note.value|markdown_to_html }}
+            </td>
+        </tr>
+    {% endfor %}
+{% endblock %}

@@ -40,7 +40,7 @@ class DateType(models.TextChoices):
     UPDATED = "case_updated_date", "Case updated"
 
 
-class CaseCreateForm(PreviousCaseURLForm):
+class SimplifiedCaseCreateForm(PreviousCaseURLForm):
     """
     Form for creating a case
     """
@@ -108,7 +108,7 @@ class CaseCreateForm(PreviousCaseURLForm):
         return enforcement_body
 
 
-class CaseMetadataUpdateForm(CaseCreateForm, VersionForm):
+class SimplifiedCaseMetadataUpdateForm(SimplifiedCaseCreateForm, VersionForm):
     """
     Form for updating case metadata fields
     """
@@ -156,7 +156,7 @@ class CaseMetadataUpdateForm(CaseCreateForm, VersionForm):
         ]
 
 
-class CaseTestResultsUpdateForm(VersionForm):
+class SimplifiedCaseTestResultsUpdateForm(VersionForm):
     """
     Form for updating test results
     """
@@ -171,7 +171,7 @@ class CaseTestResultsUpdateForm(VersionForm):
         ]
 
 
-class CaseReportDetailsUpdateForm(VersionForm):
+class SimplifiedCaseReportDetailsUpdateForm(VersionForm):
     """
     Form for updating report details
     """
@@ -190,7 +190,7 @@ class CaseReportDetailsUpdateForm(VersionForm):
         ]
 
 
-class CaseReportReadyForQAUpdateForm(VersionForm):
+class SimplifiedCaseReportReadyForQAUpdateForm(VersionForm):
     """
     Form for updating report details
     """
@@ -211,7 +211,7 @@ class CaseReportReadyForQAUpdateForm(VersionForm):
         ]
 
 
-class CaseQAAuditorUpdateForm(VersionForm):
+class SimplifiedCaseQAAuditorUpdateForm(VersionForm):
     """
     Form for updating QA auditor
     """
@@ -231,7 +231,7 @@ class CaseQAAuditorUpdateForm(VersionForm):
         ]
 
 
-class CaseQACommentsUpdateForm(VersionForm):
+class SimplifiedCaseQACommentsUpdateForm(VersionForm):
     """
     Form for updating QA comments page
     """
@@ -249,7 +249,7 @@ class CaseQACommentsUpdateForm(VersionForm):
         ]
 
 
-class CaseQAApprovalUpdateForm(VersionForm):
+class SimplifiedCaseQAApprovalUpdateForm(VersionForm):
     """
     Form for updating QA auditor and report approval
     """
@@ -270,7 +270,7 @@ class CaseQAApprovalUpdateForm(VersionForm):
         ]
 
 
-class CasePublishReportUpdateForm(VersionForm):
+class SimplifiedCasePublishReportUpdateForm(VersionForm):
     """
     Form for publishing reporti after QA approval
     """
@@ -298,7 +298,7 @@ class CasePublishReportUpdateForm(VersionForm):
                 self.fields["publish_report_complete_date"].widget = forms.HiddenInput()
 
 
-class ManageContactDetailsUpdateForm(VersionForm):
+class SimplifiedManageContactDetailsUpdateForm(VersionForm):
     """
     Form for updating test results
     """
@@ -315,7 +315,7 @@ class ManageContactDetailsUpdateForm(VersionForm):
         ]
 
 
-class ContactCreateForm(forms.ModelForm):
+class SimplifiedContactCreateForm(forms.ModelForm):
     """
     Form for creating a contact
     """
@@ -332,7 +332,7 @@ class ContactCreateForm(forms.ModelForm):
         fields = ["name", "job_title", "email", "preferred"]
 
 
-class ContactUpdateForm(VersionForm):
+class SimplifiedContactUpdateForm(VersionForm):
     """
     Form for updating a contact
     """
@@ -349,7 +349,7 @@ class ContactUpdateForm(VersionForm):
         fields = ["version", "name", "job_title", "email", "preferred"]
 
 
-class CaseRequestContactDetailsUpdateForm(VersionForm):
+class SimplifiedCaseRequestContactDetailsUpdateForm(VersionForm):
     """
     Form to update Find contact details
     """
@@ -374,7 +374,7 @@ class CaseRequestContactDetailsUpdateForm(VersionForm):
         ]
 
 
-class CaseOneWeekContactDetailsUpdateForm(VersionForm):
+class SimplifiedCaseOneWeekContactDetailsUpdateForm(VersionForm):
     """
     Form to update One week contact details
     """
@@ -401,7 +401,7 @@ class CaseOneWeekContactDetailsUpdateForm(VersionForm):
         ]
 
 
-class CaseFourWeekContactDetailsUpdateForm(VersionForm):
+class SimplifiedCaseFourWeekContactDetailsUpdateForm(VersionForm):
     """
     Form to update Four week contact details
     """
@@ -430,7 +430,7 @@ class CaseFourWeekContactDetailsUpdateForm(VersionForm):
         ]
 
 
-class CaseReportSentOnUpdateForm(VersionForm):
+class SimplifiedCaseReportSentOnUpdateForm(VersionForm):
     """
     Form to update Report sent on
     """
@@ -454,7 +454,7 @@ class CaseReportSentOnUpdateForm(VersionForm):
         ]
 
 
-class CaseReportOneWeekFollowupUpdateForm(VersionForm):
+class SimplifiedCaseReportOneWeekFollowupUpdateForm(VersionForm):
     """
     Form to update One week followup
     """
@@ -491,7 +491,7 @@ class CaseReportOneWeekFollowupUpdateForm(VersionForm):
             self.fields["one_week_followup_sent_to_email"].widget = forms.HiddenInput()
 
 
-class CaseReportFourWeekFollowupUpdateForm(VersionForm):
+class SimplifiedCaseReportFourWeekFollowupUpdateForm(VersionForm):
     """
     Form to update Four week followup
     """
@@ -528,7 +528,7 @@ class CaseReportFourWeekFollowupUpdateForm(VersionForm):
             self.fields["four_week_followup_sent_to_email"].widget = forms.HiddenInput()
 
 
-class CaseReportAcknowledgedUpdateForm(VersionForm):
+class SimplifiedCaseReportAcknowledgedUpdateForm(VersionForm):
     """
     Form to update Report acknowledged
     """
@@ -554,7 +554,7 @@ class CaseReportAcknowledgedUpdateForm(VersionForm):
         ]
 
 
-class CaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
+class SimplifiedCaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
     """
     Form to update 12-week update requested
     """
@@ -586,7 +586,7 @@ class CaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
         ]
 
 
-class CaseOneWeekFollowupFinalUpdateForm(VersionForm):
+class SimplifiedCaseOneWeekFollowupFinalUpdateForm(VersionForm):
     """
     Form to update One week followup for final update
     """
@@ -634,7 +634,7 @@ class CaseOneWeekFollowupFinalUpdateForm(VersionForm):
             )
 
 
-class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
+class SimplifiedCaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
     """
     Form to update 12-week update request acknowledged
     """
@@ -667,7 +667,7 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
         ]
 
 
-class CaseNoPSBContactUpdateForm(VersionForm):
+class SimplifiedCaseNoPSBContactUpdateForm(VersionForm):
     """
     Form for archiving a case
     """
@@ -693,7 +693,7 @@ class CaseNoPSBContactUpdateForm(VersionForm):
         ]
 
 
-class CaseTwelveWeekRetestUpdateForm(VersionForm):
+class SimplifiedCaseTwelveWeekRetestUpdateForm(VersionForm):
     """
     Form for updating twelve week retest
     """
@@ -708,7 +708,7 @@ class CaseTwelveWeekRetestUpdateForm(VersionForm):
         ]
 
 
-class CaseReviewChangesUpdateForm(VersionForm):
+class SimplifiedCaseReviewChangesUpdateForm(VersionForm):
     """
     Form to record review of changes made by PSB
     """
@@ -737,7 +737,7 @@ class CaseReviewChangesUpdateForm(VersionForm):
         ]
 
 
-class CaseEnforcementRecommendationUpdateForm(VersionForm):
+class SimplifiedCaseEnforcementRecommendationUpdateForm(VersionForm):
     """
     Form to record sending the enforcement recommendation decision
     """
@@ -773,7 +773,7 @@ class CaseEnforcementRecommendationUpdateForm(VersionForm):
         ]
 
 
-class CaseCloseUpdateForm(VersionForm):
+class SimplifiedCaseCloseUpdateForm(VersionForm):
     """
     Form to record the case close decision
     """
@@ -812,7 +812,7 @@ class CaseCloseUpdateForm(VersionForm):
         return self.cleaned_data
 
 
-class PostCaseUpdateForm(VersionForm):
+class SimplifiedPostCaseUpdateForm(VersionForm):
     """
     Form to record post case notes
     """
@@ -833,7 +833,7 @@ class PostCaseUpdateForm(VersionForm):
         ]
 
 
-class CaseDeactivateForm(VersionForm):
+class SimplifiedCaseDeactivateForm(VersionForm):
     """
     Form for deactivating a case
     """
@@ -848,7 +848,7 @@ class CaseDeactivateForm(VersionForm):
         ]
 
 
-class CaseStatementEnforcementUpdateForm(VersionForm):
+class SimplifiedCaseStatementEnforcementUpdateForm(VersionForm):
     """
     Form to update statement enforcement
     """
@@ -865,7 +865,7 @@ class CaseStatementEnforcementUpdateForm(VersionForm):
         ]
 
 
-class CaseEqualityBodyMetadataUpdateForm(VersionForm):
+class SimplifiedCaseEqualityBodyMetadataUpdateForm(VersionForm):
     """
     Form to update equality body metadata
     """
@@ -901,7 +901,7 @@ class CaseEqualityBodyMetadataUpdateForm(VersionForm):
         ]
 
 
-class ListCaseEqualityBodyCorrespondenceUpdateForm(VersionForm):
+class ListSimplifiedCaseEqualityBodyCorrespondenceUpdateForm(VersionForm):
     """
     Form for list equality body correspondence page
     """
@@ -913,7 +913,7 @@ class ListCaseEqualityBodyCorrespondenceUpdateForm(VersionForm):
         ]
 
 
-class EqualityBodyCorrespondenceCreateForm(forms.ModelForm):
+class SimplifiedEqualityBodyCorrespondenceCreateForm(forms.ModelForm):
     """
     Form for creating an EqualityBodyCorrespondence
     """
@@ -937,7 +937,7 @@ class EqualityBodyCorrespondenceCreateForm(forms.ModelForm):
         ]
 
 
-class ZendeskTicketCreateUpdateForm(forms.ModelForm):
+class SimplifiedZendeskTicketCreateUpdateForm(forms.ModelForm):
     """
     Form for updating a zendesk ticket
     """
@@ -950,7 +950,7 @@ class ZendeskTicketCreateUpdateForm(forms.ModelForm):
         fields = ["summary", "url"]
 
 
-class ZendeskTicketConfirmDeleteUpdateForm(forms.ModelForm):
+class SimplifiedZendeskTicketConfirmDeleteUpdateForm(forms.ModelForm):
     """
     Form for confirming the deletion of a zendesk ticket
     """

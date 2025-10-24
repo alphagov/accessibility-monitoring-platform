@@ -66,7 +66,7 @@ describe('Create detailed case', () => {
     cy.title().should('eq', `${newOrganisationName} | 12-week update requested`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week received`)
+    cy.title().should('eq', `${newOrganisationName} | 12-week update received`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | Retest result`)

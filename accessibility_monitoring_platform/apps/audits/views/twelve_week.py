@@ -40,10 +40,10 @@ from ..forms import (
     AuditRetestStatementWebsiteUpdateForm,
     AuditRetestWcagSummaryUpdateForm,
     AuditRetestWebsiteDecisionUpdateForm,
+    AuditTwelveWeekDisproportionateBurdenUpdateForm,
     CaseComplianceStatement12WeekUpdateForm,
     CaseComplianceWebsite12WeekUpdateForm,
     New12WeekCustomStatementCheckResultUpdateForm,
-    TwelveWeekDisproportionateBurdenUpdateForm,
     TwelveWeekStatementPagesUpdateForm,
 )
 from ..models import (
@@ -620,8 +620,8 @@ class TwelveWeekDisproportionateBurdenUpdateView(AuditUpdateView):
     View to update 12-week disproportionate burden fields
     """
 
-    form_class: type[TwelveWeekDisproportionateBurdenUpdateForm] = (
-        TwelveWeekDisproportionateBurdenUpdateForm
+    form_class: type[AuditTwelveWeekDisproportionateBurdenUpdateForm] = (
+        AuditTwelveWeekDisproportionateBurdenUpdateForm
     )
     template_name: str = "audits/forms/twelve_week_disproportionate_burden.html"
 
