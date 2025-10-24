@@ -645,11 +645,6 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
     twelve_week_correspondence_acknowledged_by_email = AMPCharFieldWide(
         label="12-week update request acknowledged by (email address)"
     )
-    organisation_response = AMPChoiceRadioField(
-        label="If the organisation did not respond to the 12 week update request, select ‘Organisation did not respond to 12-week update’",
-        help_text="This field affects the case status",
-        choices=SimplifiedCase.OrganisationResponse.choices,
-    )
     twelve_week_correspondence_notes = AMPTextField(
         label="12-week correspondence notes"
     )
@@ -661,7 +656,6 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
             "version",
             "twelve_week_correspondence_acknowledged_date",
             "twelve_week_correspondence_acknowledged_by_email",
-            "organisation_response",
             "twelve_week_correspondence_notes",
             "twelve_week_update_request_ack_complete_date",
         ]

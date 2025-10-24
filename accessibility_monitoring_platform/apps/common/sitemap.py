@@ -1415,7 +1415,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="simplified:edit-no-psb-response",
                 case_details_form_class=CaseNoPSBContactUpdateForm,
                 case_details_template_name="cases/details/details.html",
-                next_page_url_name="simplified:edit-enforcement-recommendation",
+                next_page_url_name="simplified:case-detail",
             ),
         ],
     ),
