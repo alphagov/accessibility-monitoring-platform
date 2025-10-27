@@ -23,7 +23,7 @@
                     <td class="govuk-table__cell amp-width-one-quarter">
                         <a href="{{ case.get_absolute_url }}" class="govuk-link"> {{case.organisation_name|truncatechars:25}} </a>
                     </td>
-                    <td class="govuk-table__cell amp-width-one-quarter">{{case.domain|truncatechars:25}}</td>
+                    <td class="govuk-table__cell amp-width-one-quarter">{{case.domain_clean|truncatechars:25}}</td>
                     <td class="govuk-table__cell amp-width-one-quarter">
                         {% if filter == "all-cases" %}
                             {% if case.auditor %}
