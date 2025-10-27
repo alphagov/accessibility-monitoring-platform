@@ -12,7 +12,8 @@ from django.contrib.auth.models import User
 from ..cases.models import Sector
 from ..comments.models import Comment
 from ..common.models import ZENDESK_URL_PREFIX, Boolean
-from ..common.utils import extract_domain_from_url
+
+# from ..common.utils import extract_domain_from_url
 from ..detailed.models import DetailedCase, DetailedCaseHistory
 from ..mobile.models import (
     EventHistory,
@@ -168,13 +169,14 @@ def create_mobile_case_from_dict(
                 created_by_id=default_user.id,
                 updated=updated,
                 app_name=row["App name"],
+                android_test_included=MobileCase.TestIncluded.NO,
+                ios_test_included=MobileCase.TestIncluded.NO,
                 # domain=extract_domain_from_url(url),
                 auditor_id=auditor.id,
                 organisation_name=row["Organisation name"],
                 # website_name=row["Website"],
                 enforcement_body=row["Enforcement body"].lower(),
                 is_complaint=row["Is it a complaint?"].lower(),
-                equality_body_report_url=validate_url(row["Public link to report PDF"]),
                 reviewer=qa_auditor,
                 report_sent_date=get_datetime_from_string(row["Report sent on"]),
                 report_acknowledged_date=get_datetime_from_string(
@@ -266,7 +268,7 @@ def create_mobile_case_from_dict(
         )
 
     if app_os == "Android":
-        mobile_case.android_test_included = Boolean.YES
+        mobile_case.android_test_included = MobileCase.TestIncluded.YES
         mobile_case.android_app_store_url = url
         mobile_case.retest_android_statement_compliance_state = (
             MAP_STATEMENT_COMPLIANCE.get(
@@ -316,9 +318,12 @@ def create_mobile_case_from_dict(
                 DetailedCase.StatementCompliance.UNKNOWN,
             )
         )
+        mobile_case.equality_body_report_url_android = validate_url(
+            row["Public link to report PDF"]
+        )
         mobile_case.save()
     elif app_os == "iOS":
-        mobile_case.ios_test_included = Boolean.YES
+        mobile_case.ios_test_included = MobileCase.TestIncluded.YES
         mobile_case.ios_app_store_url = url
         mobile_case.retest_ios_statement_compliance_state = (
             MAP_STATEMENT_COMPLIANCE.get(
@@ -363,6 +368,9 @@ def create_mobile_case_from_dict(
                 row["Initial statement compliance"].lower(),
                 DetailedCase.StatementCompliance.UNKNOWN,
             )
+        )
+        mobile_case.equality_body_report_url_ios = validate_url(
+            row["Public link to report PDF"]
         )
         mobile_case.save()
 

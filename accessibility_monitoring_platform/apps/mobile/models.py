@@ -27,9 +27,10 @@ class MobileCase(BaseCase):
     Model for MobileCase
     """
 
-    class AppOS(models.TextChoices):
-        ANDROID = "android", "Android"
-        IOS = "ios", "iOS"
+    class TestIncluded(models.TextChoices):
+        YES = "yes", "Yes"
+        NO = "no", "No"
+        NOT_KNOWN = "not-known", "Not known"
 
     class WebsiteCompliance(models.TextChoices):
         COMPLIANT = "compliant", "Fully compliant"
@@ -76,11 +77,11 @@ class MobileCase(BaseCase):
     # Case metadata page
     app_name = models.TextField(default="", blank=True)
     ios_test_included = models.CharField(
-        max_length=20, choices=Boolean.choices, default=Boolean.NO
+        max_length=20, choices=TestIncluded.choices, default=TestIncluded.NOT_KNOWN
     )
     ios_app_store_url = models.TextField(default="", blank=True)
     android_test_included = models.CharField(
-        max_length=20, choices=Boolean.choices, default=Boolean.NO
+        max_length=20, choices=TestIncluded.choices, default=TestIncluded.NOT_KNOWN
     )
     android_app_store_url = models.TextField(default="", blank=True)
     case_folder_url = models.TextField(default="", blank=True)
@@ -176,7 +177,8 @@ class MobileCase(BaseCase):
     qa_approval_complete_date = models.DateField(null=True, blank=True)
 
     # Report - Final report
-    equality_body_report_url = models.TextField(default="", blank=True)
+    equality_body_report_url_ios = models.TextField(default="", blank=True)
+    equality_body_report_url_android = models.TextField(default="", blank=True)
     final_report_complete_date = models.DateField(null=True, blank=True)
 
     # Correspondence - Report sent
@@ -433,6 +435,19 @@ class MobileCase(BaseCase):
         ]:
             return "Yes"
         return "No"
+
+    @property
+    def equality_body_report_urls(self) -> str:
+        equality_body_report_url: str = ""
+        if self.equality_body_report_url_ios:
+            equality_body_report_url = f"iOS {self.equality_body_report_url_ios}"
+        if self.equality_body_report_url_ios and self.equality_body_report_url_android:
+            equality_body_report_url += " and "
+        if self.equality_body_report_url_android:
+            equality_body_report_url += (
+                f"Android {self.equality_body_report_url_android}"
+            )
+        return equality_body_report_url
 
 
 class EventHistory(models.Model):

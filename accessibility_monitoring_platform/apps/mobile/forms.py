@@ -3,7 +3,6 @@ Forms - mobile
 """
 
 from django import forms
-from django.core.exceptions import ValidationError
 
 from ..cases.forms import PreviousCaseURLForm
 from ..common.forms import (
@@ -38,14 +37,14 @@ class MobileCaseCreateForm(PreviousCaseURLForm):
     app_name = AMPCharFieldWide(label="App name")
     ios_test_included = AMPChoiceRadioField(
         label="Case includes iOS test?",
-        choices=Boolean.choices,
-        initial=Boolean.NO,
+        choices=MobileCase.TestIncluded.choices,
+        initial=MobileCase.TestIncluded.NOT_KNOWN,
     )
     ios_app_store_url = AMPURLField(label="iOS app store URL")
     android_test_included = AMPChoiceRadioField(
         label="Case includes Android test?",
-        choices=Boolean.choices,
-        initial=Boolean.NO,
+        choices=MobileCase.TestIncluded.choices,
+        initial=MobileCase.TestIncluded.NOT_KNOWN,
     )
     android_app_store_url = AMPURLField(label="Android app store URL")
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
@@ -274,7 +273,7 @@ class MobileInitialTestiOSDetailsUpdateForm(VersionForm):
 
     ios_test_included = AMPChoiceRadioField(
         label="Case includes iOS test?",
-        choices=Boolean.choices,
+        choices=MobileCase.TestIncluded.choices,
     )
     ios_app_store_url = AMPURLField(label="iOS app store URL")
     initial_ios_test_start_date = AMPDateField(label="Test start date")
@@ -333,7 +332,7 @@ class MobileInitialTestAndroidDetailsUpdateForm(VersionForm):
 
     android_test_included = AMPChoiceRadioField(
         label="Case includes Android test?",
-        choices=Boolean.choices,
+        choices=MobileCase.TestIncluded.choices,
     )
     android_app_store_url = AMPURLField(label="Android app store URL")
     initial_android_test_start_date = AMPDateField(label="Test start date")
@@ -461,8 +460,11 @@ class MobileQAApprovalUpdateForm(VersionForm):
 class MobileFinalReportUpdateForm(VersionForm):
     """Form for updating publish report page"""
 
-    equality_body_report_url = AMPURLField(
-        label="Link to equality body PDF report · Included in export"
+    equality_body_report_url_ios = AMPURLField(
+        label="Link to equality body PDF report for iOS · Included in export"
+    )
+    equality_body_report_url_android = AMPURLField(
+        label="Link to equality body PDF report for Android · Included in export"
     )
     final_report_complete_date = AMPDatePageCompleteField()
 
@@ -470,7 +472,8 @@ class MobileFinalReportUpdateForm(VersionForm):
         model = MobileCase
         fields = [
             "version",
-            "equality_body_report_url",
+            "equality_body_report_url_ios",
+            "equality_body_report_url_android",
             "final_report_complete_date",
         ]
 
@@ -680,7 +683,9 @@ class MobileRetestAndroidComplianceDecisionsUpdateForm(VersionForm):
 class MobileCaseRecommendationUpdateForm(VersionForm):
     """Form for updating the case recommendation page"""
 
-    psb_progress_info = AMPTextField(label="Progress summary and PSB response")
+    psb_progress_info = AMPTextField(
+        label="Progress summary and PSB response · Included in export"
+    )
     recommendation_for_enforcement = AMPChoiceRadioField(
         label="Enforcement recommendation · Included in export",
         choices=MobileCase.RecommendationForEnforcement.choices,

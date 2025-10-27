@@ -336,3 +336,31 @@ def test_mobile_case_equality_body_export_statement_found_at_retest():
         ).equality_body_export_statement_found_at_retest
         == "No"
     )
+
+
+@pytest.mark.parametrize(
+    "equality_body_report_url_ios, equality_body_report_url_android, expected_equality_body_report_urls",
+    [
+        ("", "", ""),
+        ("https://domain.com/ios", "", "iOS https://domain.com/ios"),
+        ("", "https://domain.com/android", "Android https://domain.com/android"),
+        (
+            "https://domain.com/ios",
+            "https://domain.com/android",
+            "iOS https://domain.com/ios and Android https://domain.com/android",
+        ),
+    ],
+)
+@pytest.mark.django_db
+def test_equality_body_report_urls(
+    equality_body_report_url_ios,
+    equality_body_report_url_android,
+    expected_equality_body_report_urls,
+):
+    """Test equality_body_report_urls returned for use in equality body export"""
+    mobile_case: MobileCase = MobileCase.objects.create(
+        equality_body_report_url_ios=equality_body_report_url_ios,
+        equality_body_report_url_android=equality_body_report_url_android,
+    )
+
+    assert mobile_case.equality_body_report_urls == expected_equality_body_report_urls

@@ -93,12 +93,12 @@ MOBILE_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
     EqualityBodyCSVColumn(
         column_header="Published report",
         source_class=MobileCase,
-        source_attr="equality_body_report_url",
+        source_attr="equality_body_report_urls",
         required=True,
         data_type="url",
         edit_url_class=MobileCase,
         edit_url_name="mobile:edit-final-report",
-        edit_url_anchor="id_equality_body_report_url-label",
+        edit_url_anchor="id_equality_body_report_url_ios-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Enforcement recommendation",
@@ -529,9 +529,14 @@ MOBILE_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     ),
     # Report - Final report
     CSVColumn(
-        column_header="Link to equality body PDF report · Included in export",
+        column_header="Link to equality body PDF report for iOS · Included in export",
         source_class=MobileCase,
-        source_attr="equality_body_report_url",
+        source_attr="equality_body_report_url_ios",
+    ),
+    CSVColumn(
+        column_header="Link to equality body PDF report for Android · Included in export",
+        source_class=MobileCase,
+        source_attr="equality_body_report_url_android",
     ),
     CSVColumn(
         column_header="Report final report page complete",

@@ -161,6 +161,7 @@ def test_download_cases_mobile():
         "",
         "",
         "",
+        "",
         "Not selected",
         "",
         "",

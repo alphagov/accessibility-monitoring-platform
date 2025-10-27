@@ -36,7 +36,8 @@ ORGANISATION_NAME: str = "Organisation name"
 APP_STORE_URL: str = "https://appstore.com"
 HOME_PAGE_URL: str = "https://organisation.com/homepage"
 RECOMMENDATION_INFO: str = "Recommendation note"
-EQUALITY_BODY_REPORT_URL: str = "https://eb-report.com"
+EQUALITY_BODY_REPORT_URL_IOS: str = "https://eb-report.com/ios"
+EQUALITY_BODY_REPORT_URL_ANDROID: str = "https://eb-report.com/android"
 
 
 class MockMessages:
@@ -456,7 +457,8 @@ def test_closing_the_case_page_no_missing_data(admin_client):
         home_page_url=HOME_PAGE_URL,
         organisation_name=ORGANISATION_NAME,
         android_app_store_url=APP_STORE_URL,
-        equality_body_report_url=EQUALITY_BODY_REPORT_URL,
+        equality_body_report_url_ios=EQUALITY_BODY_REPORT_URL_IOS,
+        equality_body_report_url_android=EQUALITY_BODY_REPORT_URL_ANDROID,
         recommendation_for_enforcement=MobileCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
         recommendation_info=RECOMMENDATION_INFO,
         recommendation_decision_sent_date=date.today(),
