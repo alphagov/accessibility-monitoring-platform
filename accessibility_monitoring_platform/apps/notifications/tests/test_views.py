@@ -702,7 +702,7 @@ def test_deactivate_case_updates_status(admin_client):
 
 @pytest.mark.django_db
 def test_task_list_show_all_detailed_reminders(rf):
-    """Test task list page can show all reminder tasks for detailed cases"""
+    """Test task list page can show all due reminder tasks for detailed cases"""
     request_user: User = User.objects.create(
         username="mockuser1", email="mockuser1@mock.com", password="secret1"
     )
