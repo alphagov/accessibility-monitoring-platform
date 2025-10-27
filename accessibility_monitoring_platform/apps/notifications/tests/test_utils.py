@@ -1041,7 +1041,7 @@ def test_email_all_specialists_all_detailed_reminders_due(mailoutbox):
         first_name="Second",
         last_name="Specialist",
     )
-    specialist_group: Group = Group.objects.create(name="QA auditors")
+    specialist_group: Group = Group.objects.create(name="QA auditor")
     specialist_group.user_set.add(specialist_1)
     specialist_group.user_set.add(specialist_2)
 

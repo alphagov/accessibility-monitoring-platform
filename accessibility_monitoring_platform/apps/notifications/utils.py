@@ -112,7 +112,7 @@ def email_all_specialists_all_detailed_reminders_due() -> None:
     if detailed_reminders_due.count() == 0:
         return
 
-    qa_auditor_group: Group = Group.objects.get(name="QA auditors")
+    qa_auditor_group: Group = Group.objects.get(name="QA auditor")
     template: str = get_template("notifications/all_detailed_reminders_email.txt")
     content: str = template.render({"tasks": detailed_reminders_due})  # type: ignore
     email: EmailMessage = EmailMessage(
