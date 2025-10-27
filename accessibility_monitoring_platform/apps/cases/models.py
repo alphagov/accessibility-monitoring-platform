@@ -336,6 +336,11 @@ class BaseCase(VersionModel):
     )
     home_page_url = models.TextField(default="", blank=True)
     domain = models.TextField(default="", blank=True)
+
+    @property
+    def domain_clean(self):
+        return self.domain.replace("www.", "")
+
     organisation_name = models.TextField(default="", blank=True)
     psb_location = models.CharField(
         max_length=20,
