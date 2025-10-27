@@ -1238,17 +1238,15 @@ class CaseStatus(models.Model):
             is None
         ):
             return CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
-        elif self.simplified_case.twelve_week_update_requested_date and (
-            self.simplified_case.twelve_week_correspondence_acknowledged_date is None
-            and self.simplified_case.organisation_response
-            == SimplifiedCase.OrganisationResponse.NOT_APPLICABLE
+        elif (
+            self.simplified_case.twelve_week_update_requested_date
+            and self.simplified_case.twelve_week_correspondence_acknowledged_date is None
         ):
             return CaseStatus.Status.AFTER_12_WEEK_CORES
         elif (
             self.simplified_case.twelve_week_correspondence_acknowledged_date
-            or self.simplified_case.organisation_response
-            != SimplifiedCase.OrganisationResponse.NOT_APPLICABLE
-        ) and self.simplified_case.is_ready_for_final_decision == Boolean.NO:
+            and self.simplified_case.is_ready_for_final_decision == Boolean.NO
+        ):
             return CaseStatus.Status.REVIEWING_CHANGES
         elif (
             self.simplified_case.is_ready_for_final_decision == Boolean.YES
