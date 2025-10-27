@@ -698,3 +698,51 @@ def test_deactivate_case_updates_status(admin_client):
     )
 
     assert simplified_case_from_db.status == SimplifiedCase.Status.DEACTIVATED
+
+
+@pytest.mark.django_db
+def test_task_list_show_all_detailed_reminders(rf):
+    """Test task list page can show all reminder tasks for detailed cases"""
+    request_user: User = User.objects.create(
+        username="mockuser1", email="mockuser1@mock.com", password="secret1"
+    )
+    other_user: User = User.objects.create(
+        username="mockuser2", email="mockuser2@mock.com", password="secret2"
+    )
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=other_user)
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        user=request_user,
+        base_case=simplified_case,
+        description="Simplified reminder description",
+    )
+    detailed_case: DetailedCase = DetailedCase.objects.create(auditor=other_user)
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        user=request_user,
+        base_case=detailed_case,
+        description="First detailed reminder description",
+    )
+    Task.objects.create(
+        type=Task.Type.REMINDER,
+        date=date.today(),
+        user=other_user,
+        base_case=detailed_case,
+        description="Second detailed reminder description",
+    )
+
+    request: HttpRequest = rf.get(
+        f'{reverse("notifications:task-list")}?type=reminder&show_all_detailed_reminders=true'
+    )
+    request.user = request_user
+
+    response: HttpResponse = TaskListView.as_view()(request)
+
+    assert response.status_code == 200
+
+    assertContains(response, "Tasks (2)")
+    assertContains(response, "First detailed reminder description")
+    assertContains(response, "Second detailed reminder description")
+    assertNotContains(response, "Simplified reminder description")
