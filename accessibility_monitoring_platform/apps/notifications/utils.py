@@ -100,7 +100,7 @@ def add_task(
 def email_all_specialists_all_detailed_reminders_due() -> None:
     """
     Find all reminders for detailed cases which are due in the next week.
-    Send an email listing them to all the specialists (members of the QA auditors
+    Send an email listing them to all the specialists (members of the QA auditor
     group).
     """
     detailed_reminders_due: QuerySet[Task] = Task.objects.filter(
