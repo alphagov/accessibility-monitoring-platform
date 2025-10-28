@@ -24,8 +24,8 @@ from ..common.sitemap import PlatformPageGroup, Sitemap
 from ..common.utils import diff_model_fields
 from .csv_export import (
     MOBILE_CASE_COLUMNS_FOR_EXPORT,
-    MOBILE_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
     MOBILE_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
+    csv_mobile_equality_body_output_generator,
 )
 from .models import EventHistory, MobileCase, MobileCaseHistory
 
@@ -163,16 +163,15 @@ def get_mobile_case_detail_sections(
 
 
 def download_mobile_equality_body_cases(
-    cases: QuerySet[MobileCase],
+    mobile_cases: QuerySet[MobileCase],
     filename: str = "mobile_equality_body_cases.csv",
 ) -> StreamingHttpResponse:
     """
     Given a MobileCase queryset, download the feedback survey data in csv format
     """
     response = StreamingHttpResponse(
-        csv_output_generator(
-            cases=cases,
-            columns_for_export=MOBILE_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
+        csv_mobile_equality_body_output_generator(
+            mobile_cases=mobile_cases,
         ),
         content_type="text/csv",
     )

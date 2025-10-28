@@ -14,7 +14,6 @@ from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 
-from ..cases.csv_export import populate_equality_body_columns
 from ..cases.forms import CaseSearchForm
 from ..cases.models import BaseCase, TestType
 from ..cases.utils import filter_cases, find_duplicate_cases
@@ -35,6 +34,7 @@ from .csv_export import (
     MOBILE_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
     MOBILE_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
     MOBILE_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
+    populate_mobile_equality_body_columns,
 )
 from .forms import (
     MobileCaseCloseUpdateForm,
@@ -627,26 +627,26 @@ class CaseCloseUpdateView(MobileCaseUpdateView):
         context: dict[str, Any] = super().get_context_data(**kwargs)
         mobile_case: MobileCase = self.object
         equality_body_metadata_columns: list[EqualityBodyCSVColumn] = (
-            populate_equality_body_columns(
-                case=mobile_case,
+            populate_mobile_equality_body_columns(
+                mobile_case=mobile_case,
                 column_definitions=MOBILE_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
             )
         )
         equality_body_report_columns: list[EqualityBodyCSVColumn] = (
-            populate_equality_body_columns(
-                case=mobile_case,
+            populate_mobile_equality_body_columns(
+                mobile_case=mobile_case,
                 column_definitions=MOBILE_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
             )
         )
         equality_body_correspondence_columns: list[EqualityBodyCSVColumn] = (
-            populate_equality_body_columns(
-                case=mobile_case,
+            populate_mobile_equality_body_columns(
+                mobile_case=mobile_case,
                 column_definitions=MOBILE_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
             )
         )
         equality_body_test_summary_columns: list[EqualityBodyCSVColumn] = (
-            populate_equality_body_columns(
-                case=mobile_case,
+            populate_mobile_equality_body_columns(
+                mobile_case=mobile_case,
                 column_definitions=MOBILE_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
             )
         )
@@ -859,5 +859,5 @@ def export_equality_body_cases(request: HttpRequest) -> HttpResponse:
     case_search_form: CaseSearchForm = CaseSearchForm(search_parameters)
     case_search_form.is_valid()
     return download_mobile_equality_body_cases(
-        cases=filter_cases(form=case_search_form)
+        mobile_cases=filter_cases(form=case_search_form)
     )

@@ -40,8 +40,6 @@ def populate_equality_body_columns(
     source_instances: dict[EqualityBodySourceClasses] = {}
     if isinstance(case, DetailedCase):
         source_instances[DetailedCase] = case
-    if isinstance(case, MobileCase):
-        source_instances[MobileCase] = case
     elif isinstance(case, SimplifiedCase):
         source_instances[SimplifiedCase] = case
         if hasattr(case, "audit"):

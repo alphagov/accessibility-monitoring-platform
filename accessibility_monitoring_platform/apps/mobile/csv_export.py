@@ -1,7 +1,78 @@
 """Utility functions for CSV exports"""
 
-from ..common.csv_export import CSVColumn, EqualityBodyCSVColumn
+import copy
+import csv
+from dataclasses import dataclass
+from typing import Any, Generator, Literal
+
+from django.db.models.query import QuerySet
+from django.urls import reverse
+
+from ..cases.csv_export import DOWNLOAD_CASES_CHUNK_SIZE
+from ..common.csv_export import CSVColumn, EqualityBodyCSVColumn, format_model_field
 from .models import MobileCase, MobileContact
+
+
+@dataclass
+class MobileEqualityBodyCSVColumn:
+    """
+    Data to use when building export CSV for equality body and to show in UI for
+    mobile case
+    """
+
+    column_header: str
+    ios_source_attr: str
+    android_source_attr: str
+    mobile_equality_body_csv_column: bool = True
+    data_type: Literal["str", "url", "markdown", "pre"] = "str"
+    ios_edit_url_name: str | None = None
+    ios_edit_url_label: str = "Edit iOS"
+    ios_edit_url_anchor: str = ""
+    ios_edit_url: str | None = None
+    android_edit_url_name: str | None = None
+    android_edit_url_label: str = "Edit Android"
+    android_edit_url_anchor: str = ""
+    android_edit_url: str | None = None
+    required_data_missing: bool = False
+    formatted_data: str = ""
+
+
+def format_value(
+    data_type: Literal["str", "url", "int"],
+    value: str,
+) -> str:
+    """Format the value"""
+    if not value:
+        return "missing"
+    return value
+
+
+def format_mobile_model_field(
+    column: MobileEqualityBodyCSVColumn, mobile_case: MobileCase
+) -> str:
+    """
+    For a model field, return the value, suitably formatted.
+    """
+    formatted: str = ""
+    if mobile_case.ios_test_included == MobileCase.TestIncluded.YES:
+        formatted_value = format_value(
+            data_type=column.data_type,
+            value=getattr(mobile_case, column.ios_source_attr),
+        )
+        formatted += f"iOS {formatted_value}"
+    if (
+        mobile_case.ios_test_included == MobileCase.TestIncluded.YES
+        and mobile_case.android_test_included == MobileCase.TestIncluded.YES
+    ):
+        formatted += " and "
+    if mobile_case.android_test_included == MobileCase.TestIncluded.YES:
+        formatted_value = format_value(
+            data_type=column.data_type,
+            value=getattr(mobile_case, column.android_source_attr),
+        )
+        formatted += f"Android {formatted_value}"
+    return formatted
+
 
 MOBILE_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
     EqualityBodyCSVColumn(
@@ -90,15 +161,14 @@ MOBILE_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = 
     ),
 ]
 MOBILE_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
-    EqualityBodyCSVColumn(
+    MobileEqualityBodyCSVColumn(
         column_header="Published report",
-        source_class=MobileCase,
-        source_attr="equality_body_report_urls",
-        required=True,
-        data_type="url",
-        edit_url_class=MobileCase,
-        edit_url_name="mobile:edit-final-report",
-        edit_url_anchor="id_equality_body_report_url_ios-label",
+        ios_source_attr="equality_body_report_url_ios",
+        ios_edit_url_name="mobile:edit-final-report",
+        ios_edit_url_anchor="id_equality_body_report_url_ios-label",
+        android_source_attr="equality_body_report_url_android",
+        android_edit_url_name="mobile:edit-final-report",
+        android_edit_url_anchor="id_equality_body_report_url_android-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Enforcement recommendation",
@@ -790,3 +860,86 @@ MOBILE_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="is_feedback_requested",
     ),
 ]
+
+
+def populate_mobile_equality_body_columns(
+    mobile_case: MobileCase,
+    column_definitions: list[
+        EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn
+    ] = MOBILE_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
+) -> list[EqualityBodyCSVColumn]:
+    """Collect data for a mobile case to export to the equality body"""
+
+    columns: list[EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn] = copy.deepcopy(
+        column_definitions
+    )
+
+    for column in columns:
+        if isinstance(column, MobileEqualityBodyCSVColumn):
+            column.ios_edit_url = reverse(
+                column.ios_edit_url_name, kwargs={"pk": mobile_case.id}
+            )
+            if column.ios_edit_url_anchor:
+                column.ios_edit_url += f"#{column.ios_edit_url_anchor}"
+
+            column.android_edit_url = reverse(
+                column.android_edit_url_name, kwargs={"pk": mobile_case.id}
+            )
+            if column.android_edit_url_anchor:
+                column.android_edit_url += f"#{column.android_edit_url_anchor}"
+
+            column.required_data_missing = (
+                mobile_case.ios_test_included == MobileCase.TestIncluded.YES
+                and MobileCase.ios_app_store_url == ""
+            ) or (
+                mobile_case.android_test_included == MobileCase.TestIncluded.YES
+                and MobileCase.android_app_store_url == ""
+            )
+
+            column.formatted_data = format_mobile_model_field(
+                column=column, mobile_case=mobile_case
+            )
+        else:
+            column.formatted_data = format_model_field(
+                source_instance=mobile_case, column=column
+            )
+            if column.edit_url_name is not None:
+                column.edit_url = reverse(
+                    column.edit_url_name, kwargs={"pk": mobile_case.id}
+                )
+                if column.edit_url_anchor:
+                    column.edit_url += f"#{column.edit_url_anchor}"
+
+    return columns
+
+
+def csv_mobile_equality_body_output_generator(
+    mobile_cases: QuerySet[MobileCase],
+) -> Generator[str, None, None]:
+    """
+    Generate a series of strings containing the mobile equality body export data for
+    a CSV streaming response
+    """
+
+    class DummyFile:
+        def write(self, value_to_write):
+            return value_to_write
+
+    writer: Any = csv.writer(DummyFile())
+    column_row: list[str] = [
+        column.column_header for column in MOBILE_EQUALITY_BODY_COLUMNS_FOR_EXPORT
+    ]
+
+    output: str = writer.writerow(column_row)
+
+    for counter, mobile_case in enumerate(mobile_cases):
+        case_columns: list[EqualityBodyCSVColumn] = (
+            populate_mobile_equality_body_columns(mobile_case=mobile_case.get_case())
+        )
+        row = [column.formatted_data for column in case_columns]
+        output += writer.writerow(row)
+        if counter % DOWNLOAD_CASES_CHUNK_SIZE == 0:
+            yield output
+            output = ""
+    if output:
+        yield output
