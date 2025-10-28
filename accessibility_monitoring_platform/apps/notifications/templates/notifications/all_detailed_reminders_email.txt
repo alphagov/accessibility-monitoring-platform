@@ -1,4 +1,4 @@
-Here are all of the reminders for detailed Cases which are due.
+Here are all of the reminders for detailed Cases which are overdue or due in the next seven days.
 
 {% for task in tasks %}
 
