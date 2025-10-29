@@ -9,7 +9,8 @@
 </b></p>
 {% if equality_body_column.mobile_equality_body_csv_column %}
     <p class="govuk-body-m amp-margin-bottom-5">
-        {{ equality_body_column.formatted_data }}
+        {{ equality_body_column.formatted_ui_data|safe }}
+        {{ equality_body_column.ui_suffix|safe }}
     </p>
 {% else %}
     <p class="govuk-body-m{% if equality_body_column.edit_url %} amp-margin-bottom-5{% endif %}">
@@ -31,16 +32,16 @@
 {% endif %}
 {% if equality_body_column.mobile_equality_body_csv_column %}
     <p class="govuk-body-m">
-        {% if case.ios_test_included == 'yes' %}
+        {% if equality_body_column.ios_edit_url %}
             <a href="{{ equality_body_column.ios_edit_url }}" class="govuk-link govuk-link--no-visited-state">
                 {{ equality_body_column.ios_edit_url_label }}
                 <span class="govuk-visually-hidden"> {{ equality_body_column.column_header }}</span>
             </a>
         {% endif %}
-        {% if case.ios_test_included == 'yes' and case.android_test_included == 'yes' %}
+        {% if equality_body_column.ios_edit_url and equality_body_column.android_edit_url %}
             &nbsp;
         {% endif %}
-        {% if case.android_test_included == 'yes' %}
+        {% if equality_body_column.android_edit_url %}
             <a href="{{ equality_body_column.android_edit_url }}" class="govuk-link govuk-link--no-visited-state">
                 {{ equality_body_column.android_edit_url_label }}
                 <span class="govuk-visually-hidden"> {{ equality_body_column.column_header }}</span>

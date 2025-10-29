@@ -156,10 +156,10 @@ def test_download_cases_mobile():
         "",
         "",
         "",
+        "iOS: Not assessed\n\nAndroid: Not assessed",
         "",
-        "",
-        "",
-        "",
+        "iOS: Not checked\n\nAndroid: Not checked",
+        "iOS: n/a\n\nAndroid: n/a",
         "",
         "",
         "Not selected",
@@ -260,7 +260,7 @@ def test_download_equality_body_mobile_cases():
     mobile_cases: list[MobileCase] = [mobile_case]
 
     response: HttpResponse = download_mobile_equality_body_cases(
-        cases=mobile_cases, filename=CSV_EXPORT_FILENAME
+        mobile_cases=mobile_cases, filename=CSV_EXPORT_FILENAME
     )
 
     assert response.status_code == 200
@@ -286,7 +286,7 @@ def test_download_equality_body_mobile_cases():
         "",
         "",
         "No",
-        "",
+        "iOS: n/a\n\nAndroid: n/a",
         "Not selected",
         "",
         "Mobile contact details\nMobile contact notes\n",
@@ -297,14 +297,14 @@ def test_download_equality_body_mobile_cases():
         "",
         "16/12/2022",
         "",
-        "",
-        "",
-        "",
-        "",
-        "No",
-        "",
-        "",
-        "",
+        "0",
+        "0",
+        "0",
+        "0",
+        "iOS: No\n\nAndroid: No",
+        "iOS: Not assessed\n\nAndroid: Not assessed",
+        "iOS: Not checked\n\nAndroid: Not checked",
+        "iOS: n/a\n\nAndroid: n/a",
     ]
 
     validate_csv_response(

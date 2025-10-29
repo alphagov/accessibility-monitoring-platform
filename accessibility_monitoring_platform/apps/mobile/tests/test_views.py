@@ -383,9 +383,6 @@ def test_closing_the_case_page(admin_client):
 
     assert response.status_code == 200
 
-    # Required columns labelled as such; Missing data labelled as incomplete
-    assertContains(response, "Published report | Required and incomplete", html=True)
-
     # Required data with default value labelled as incomplete
     assertContains(
         response,

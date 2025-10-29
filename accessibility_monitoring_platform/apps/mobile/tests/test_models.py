@@ -248,13 +248,13 @@ def test_mobile_case_report_acknowledged_yes_no():
 def test_mobile_case_number_of_issues_fixed():
     """Test the MobileCase.number_of_issues_fixed"""
 
-    assert MobileCase().number_of_issues_fixed is None
+    assert MobileCase().number_of_issues_fixed == 0
     assert (
         MobileCase(
             initial_ios_total_number_of_issues=40,
             initial_android_total_number_of_issues=10,
         ).number_of_issues_fixed
-        is None
+        == 50
     )
     assert (
         MobileCase(
@@ -279,10 +279,10 @@ def test_mobile_case_number_of_issues_fixed():
 def test_mobile_case_percentage_of_issues_fixed():
     """Test the MobileCase.percentage_of_issues_fixed"""
 
-    assert MobileCase().percentage_of_issues_fixed is None
+    assert MobileCase().percentage_of_issues_fixed == 0
     assert (
         MobileCase(initial_ios_total_number_of_issues=50).percentage_of_issues_fixed
-        is None
+        == 100
     )
     assert (
         MobileCase(
@@ -307,47 +307,54 @@ def test_mobile_case_percentage_of_issues_fixed():
 def test_mobile_case_equality_body_export_statement_found_at_retest():
     """Test the MobileCase.equality_body_export_statement_found_at_retest"""
 
-    assert MobileCase().equality_body_export_statement_found_at_retest == "No"
+    assert (
+        MobileCase().equality_body_export_statement_found_at_retest
+        == "iOS: No\n\nAndroid: No"
+    )
     assert (
         MobileCase(
             retest_ios_statement_compliance_state=MobileCase.StatementCompliance.COMPLIANT,
             retest_android_statement_compliance_state=MobileCase.StatementCompliance.COMPLIANT,
         ).equality_body_export_statement_found_at_retest
-        == "Yes"
+        == "iOS: Yes\n\nAndroid: Yes"
     )
     assert (
         MobileCase(
             retest_ios_statement_compliance_state=MobileCase.StatementCompliance.NOT_COMPLIANT,
             retest_android_statement_compliance_state=MobileCase.StatementCompliance.NOT_COMPLIANT,
         ).equality_body_export_statement_found_at_retest
-        == "Yes"
+        == "iOS: Yes\n\nAndroid: Yes"
     )
     assert (
         MobileCase(
             retest_ios_statement_compliance_state=MobileCase.StatementCompliance.NO_STATEMENT,
             retest_android_statement_compliance_state=MobileCase.StatementCompliance.NO_STATEMENT,
         ).equality_body_export_statement_found_at_retest
-        == "No"
+        == "iOS: No\n\nAndroid: No"
     )
     assert (
         MobileCase(
             retest_ios_statement_compliance_state=MobileCase.StatementCompliance.UNKNOWN,
             retest_android_statement_compliance_state=MobileCase.StatementCompliance.UNKNOWN,
         ).equality_body_export_statement_found_at_retest
-        == "No"
+        == "iOS: No\n\nAndroid: No"
     )
 
 
 @pytest.mark.parametrize(
     "equality_body_report_url_ios, equality_body_report_url_android, expected_equality_body_report_urls",
     [
-        ("", "", ""),
-        ("https://domain.com/ios", "", "iOS https://domain.com/ios"),
-        ("", "https://domain.com/android", "Android https://domain.com/android"),
+        ("", "", "iOS: n/a\n\nAndroid: n/a"),
+        ("https://domain.com/ios", "", "iOS: https://domain.com/ios\n\nAndroid: n/a"),
+        (
+            "",
+            "https://domain.com/android",
+            "iOS: n/a\n\nAndroid: https://domain.com/android",
+        ),
         (
             "https://domain.com/ios",
             "https://domain.com/android",
-            "iOS https://domain.com/ios and Android https://domain.com/android",
+            "iOS: https://domain.com/ios\n\nAndroid: https://domain.com/android",
         ),
     ],
 )

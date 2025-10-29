@@ -21,6 +21,17 @@ from ..cases.models import (
 from ..common.models import ZENDESK_URL_PREFIX, Boolean, VersionModel
 from ..common.utils import extract_domain_from_url
 
+IOS_ANDROID_SEPARATOR: str = "\n\n"
+
+
+def format_ios_and_android_str(ios: str, android: str) -> str:
+    """Return string combining iOS and Android string values"""
+    if ios == "":
+        ios = "n/a"
+    if android == "":
+        android = "n/a"
+    return f"iOS: {ios}{IOS_ANDROID_SEPARATOR}Android: {android}"
+
 
 class MobileCase(BaseCase):
     """
@@ -389,65 +400,83 @@ class MobileCase(BaseCase):
         )
 
     @property
-    def initial_total_number_of_issues(self) -> int | None:
-        if (
-            self.initial_ios_total_number_of_issues is not None
-            and self.initial_android_total_number_of_issues is not None
-        ):
-            return (
-                self.initial_ios_total_number_of_issues
-                + self.initial_android_total_number_of_issues
-            )
+    def initial_total_number_of_issues(self) -> int:
+        number_of_issues: int = 0
+        if self.initial_ios_total_number_of_issues is not None:
+            number_of_issues += self.initial_ios_total_number_of_issues
+        if self.initial_android_total_number_of_issues is not None:
+            number_of_issues += self.initial_android_total_number_of_issues
+        return number_of_issues
 
     @property
-    def retest_total_number_of_issues(self) -> int | None:
-        if (
-            self.retest_ios_total_number_of_issues is not None
-            and self.retest_android_total_number_of_issues is not None
-        ):
-            return (
-                self.retest_ios_total_number_of_issues
-                + self.retest_android_total_number_of_issues
-            )
+    def retest_total_number_of_issues_unfixed(self) -> int:
+        number_of_issues: int = 0
+        if self.retest_ios_total_number_of_issues is not None:
+            number_of_issues += self.retest_ios_total_number_of_issues
+        if self.retest_android_total_number_of_issues is not None:
+            number_of_issues += self.retest_android_total_number_of_issues
+        return number_of_issues
 
     @property
-    def number_of_issues_fixed(self) -> int | None:
-        if self.initial_total_number_of_issues and self.retest_total_number_of_issues:
-            return (
-                self.initial_total_number_of_issues - self.retest_total_number_of_issues
-            )
+    def number_of_issues_fixed(self) -> int:
+        return (
+            self.initial_total_number_of_issues
+            - self.retest_total_number_of_issues_unfixed
+        )
 
     @property
     def percentage_of_issues_fixed(self) -> int | None:
-        if self.initial_total_number_of_issues and self.number_of_issues_fixed:
+        if self.initial_total_number_of_issues > 0:
             return int(
                 self.number_of_issues_fixed * 100 / self.initial_total_number_of_issues
             )
+        return 0
 
     @property
     def equality_body_export_statement_found_at_retest(self) -> str:
         if self.retest_ios_statement_compliance_state in [
             MobileCase.StatementCompliance.COMPLIANT,
             MobileCase.StatementCompliance.NOT_COMPLIANT,
-        ] and self.retest_android_statement_compliance_state in [
+        ]:
+            ios: str = "Yes"
+        else:
+            ios: str = "No"
+        if self.retest_android_statement_compliance_state in [
             MobileCase.StatementCompliance.COMPLIANT,
             MobileCase.StatementCompliance.NOT_COMPLIANT,
         ]:
-            return "Yes"
-        return "No"
+            android: str = "Yes"
+        else:
+            android: str = "No"
+        return format_ios_and_android_str(ios=ios, android=android)
 
     @property
     def equality_body_report_urls(self) -> str:
-        equality_body_report_url: str = ""
-        if self.equality_body_report_url_ios:
-            equality_body_report_url = f"iOS {self.equality_body_report_url_ios}"
-        if self.equality_body_report_url_ios and self.equality_body_report_url_android:
-            equality_body_report_url += " and "
-        if self.equality_body_report_url_android:
-            equality_body_report_url += (
-                f"Android {self.equality_body_report_url_android}"
-            )
-        return equality_body_report_url
+        return format_ios_and_android_str(
+            ios=self.equality_body_report_url_ios,
+            android=self.equality_body_report_url_android,
+        )
+
+    @property
+    def retest_statement_compliance_state(self) -> str:
+        return format_ios_and_android_str(
+            ios=self.get_retest_ios_statement_compliance_state_display(),
+            android=self.get_retest_android_statement_compliance_state_display(),
+        )
+
+    @property
+    def retest_disproportionate_burden_claim(self) -> str:
+        return format_ios_and_android_str(
+            ios=self.get_retest_ios_disproportionate_burden_claim_display(),
+            android=self.get_retest_android_disproportionate_burden_claim_display(),
+        )
+
+    @property
+    def retest_disproportionate_burden_information(self) -> str:
+        return format_ios_and_android_str(
+            ios=self.retest_ios_disproportionate_burden_information,
+            android=self.retest_android_disproportionate_burden_information,
+        )
 
 
 class EventHistory(models.Model):

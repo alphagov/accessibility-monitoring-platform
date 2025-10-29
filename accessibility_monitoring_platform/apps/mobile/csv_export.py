@@ -3,14 +3,14 @@
 import copy
 import csv
 from dataclasses import dataclass
-from typing import Any, Generator, Literal
+from typing import Any, Generator
 
 from django.db.models.query import QuerySet
 from django.urls import reverse
 
 from ..cases.csv_export import DOWNLOAD_CASES_CHUNK_SIZE
 from ..common.csv_export import CSVColumn, EqualityBodyCSVColumn, format_model_field
-from .models import MobileCase, MobileContact
+from .models import IOS_ANDROID_SEPARATOR, MobileCase, MobileContact
 
 
 @dataclass
@@ -21,10 +21,8 @@ class MobileEqualityBodyCSVColumn:
     """
 
     column_header: str
-    ios_source_attr: str
-    android_source_attr: str
+    source_attr: str
     mobile_equality_body_csv_column: bool = True
-    data_type: Literal["str", "url", "markdown", "pre"] = "str"
     ios_edit_url_name: str | None = None
     ios_edit_url_label: str = "Edit iOS"
     ios_edit_url_anchor: str = ""
@@ -35,43 +33,8 @@ class MobileEqualityBodyCSVColumn:
     android_edit_url: str | None = None
     required_data_missing: bool = False
     formatted_data: str = ""
-
-
-def format_value(
-    data_type: Literal["str", "url", "int"],
-    value: str,
-) -> str:
-    """Format the value"""
-    if not value:
-        return "missing"
-    return value
-
-
-def format_mobile_model_field(
-    column: MobileEqualityBodyCSVColumn, mobile_case: MobileCase
-) -> str:
-    """
-    For a model field, return the value, suitably formatted.
-    """
-    formatted: str = ""
-    if mobile_case.ios_test_included == MobileCase.TestIncluded.YES:
-        formatted_value = format_value(
-            data_type=column.data_type,
-            value=getattr(mobile_case, column.ios_source_attr),
-        )
-        formatted += f"iOS {formatted_value}"
-    if (
-        mobile_case.ios_test_included == MobileCase.TestIncluded.YES
-        and mobile_case.android_test_included == MobileCase.TestIncluded.YES
-    ):
-        formatted += " and "
-    if mobile_case.android_test_included == MobileCase.TestIncluded.YES:
-        formatted_value = format_value(
-            data_type=column.data_type,
-            value=getattr(mobile_case, column.android_source_attr),
-        )
-        formatted += f"Android {formatted_value}"
-    return formatted
+    formatted_ui_data: str = ""
+    ui_suffix: str = ""
 
 
 MOBILE_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
@@ -136,12 +99,12 @@ MOBILE_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = 
         edit_url_anchor="id_subcategory-label",
     ),
     EqualityBodyCSVColumn(
-        column_header="Website name",
+        column_header="Website or app name",
         source_class=MobileCase,
-        source_attr="website_name",
+        source_attr="app_name",
         edit_url_class=MobileCase,
         edit_url_name="mobile:edit-case-metadata",
-        edit_url_anchor="id_website_name-label",
+        edit_url_anchor="id_app_name-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Previous Case Number",
@@ -163,10 +126,9 @@ MOBILE_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = 
 MOBILE_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
     MobileEqualityBodyCSVColumn(
         column_header="Published report",
-        ios_source_attr="equality_body_report_url_ios",
+        source_attr="equality_body_report_urls",
         ios_edit_url_name="mobile:edit-final-report",
         ios_edit_url_anchor="id_equality_body_report_url_ios-label",
-        android_source_attr="equality_body_report_url_android",
         android_edit_url_name="mobile:edit-final-report",
         android_edit_url_anchor="id_equality_body_report_url_android-label",
     ),
@@ -261,70 +223,64 @@ MOBILE_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColu
     ),
 ]
 MOBILE_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
-    EqualityBodyCSVColumn(
+    MobileEqualityBodyCSVColumn(
         column_header="Total number of accessibility issues",
-        source_class=MobileCase,
         source_attr="initial_total_number_of_issues",
-        edit_url_class=MobileCase,
-        edit_url_name="mobile:edit-initial-test-ios-outcome",
-        edit_url_anchor="id_initial_total_number_of_issues-label",
+        ios_edit_url_name="mobile:edit-initial-test-ios-outcome",
+        ios_edit_url_anchor="id_initial_ios_total_number_of_issues-label",
+        android_edit_url_name="mobile:edit-initial-test-android-outcome",
+        android_edit_url_anchor="id_initial_android_total_number_of_issues-label",
     ),
-    EqualityBodyCSVColumn(
+    MobileEqualityBodyCSVColumn(
         column_header="Number of issues fixed",
-        source_class=MobileCase,
         source_attr="number_of_issues_fixed",
-        ui_suffix=" (derived from initial and unfixed numbers of issues)",
-        edit_url_class=MobileCase,
-        edit_url_name=None,
+        ui_suffix="(Total number of accessibility issues - Number of issues unfixed)",
     ),
-    EqualityBodyCSVColumn(
+    MobileEqualityBodyCSVColumn(
         column_header="Number of issues unfixed",
-        source_class=MobileCase,
-        source_attr="retest_total_number_of_issues",
-        edit_url_class=MobileCase,
-        edit_url_name="mobile:edit-retest-ios-result",
-        edit_url_anchor="id_retest_total_number_of_issues-label",
+        source_attr="retest_total_number_of_issues_unfixed",
+        ios_edit_url_name="mobile:edit-retest-ios-result",
+        ios_edit_url_anchor="id_retest_ios_total_number_of_issues-label",
+        android_edit_url_name="mobile:edit-retest-android-result",
+        android_edit_url_anchor="id_retest_android_total_number_of_issues-label",
     ),
-    EqualityBodyCSVColumn(
+    MobileEqualityBodyCSVColumn(
         column_header="Issues fixed as a percentage",
-        source_class=MobileCase,
         source_attr="percentage_of_issues_fixed",
-        ui_suffix="% (Derived from retest results)",
-        edit_url_class=MobileCase,
-        edit_url_name=None,
+        ui_suffix="(Number of issues fixed / Total number of accessibility issues)",
     ),
-    EqualityBodyCSVColumn(
+    MobileEqualityBodyCSVColumn(
         column_header="Was an accessibility statement found during the 12-week assessment",
-        source_class=MobileCase,
         source_attr="equality_body_export_statement_found_at_retest",
-        ui_suffix=" (Derived from retest statement compliance decision)",
-        edit_url_class=MobileCase,
-        edit_url_name=None,
+        ui_suffix="<br>(Derived from retest statement compliance decisions)",
+        ios_edit_url_name="mobile:edit-retest-ios-compliance-decisions",
+        ios_edit_url_anchor="id_retest_ios_statement_compliance_state-label",
+        android_edit_url_name="mobile:edit-retest-android-compliance-decisions",
+        android_edit_url_anchor="id_retest_android_statement_compliance_state-label",
     ),
-    EqualityBodyCSVColumn(
+    MobileEqualityBodyCSVColumn(
         column_header="Retest Accessibility Statement Decision",
-        source_class=MobileCase,
         source_attr="retest_statement_compliance_state",
-        edit_url_class=MobileCase,
-        edit_url_name="mobile:edit-retest-ios-compliance-decisions",
-        edit_url_anchor="id_retest_statement_compliance_state-label",
+        ios_edit_url_name="mobile:edit-retest-ios-compliance-decisions",
+        ios_edit_url_anchor="id_retest_ios_statement_compliance_state-label",
+        android_edit_url_name="mobile:edit-retest-android-compliance-decisions",
+        android_edit_url_anchor="id_retest_android_statement_compliance_state-label",
     ),
-    EqualityBodyCSVColumn(
+    MobileEqualityBodyCSVColumn(
         column_header="Retest disproportionate burden claimed?",
-        source_class=MobileCase,
         source_attr="retest_disproportionate_burden_claim",
-        edit_url_class=MobileCase,
-        edit_url_name="mobile:edit-retest-ios-compliance-decisions",
-        edit_url_anchor="id_retest_disproportionate_burden_claim-label",
+        ios_edit_url_name="mobile:edit-retest-ios-compliance-decisions",
+        ios_edit_url_anchor="id_retest_ios_disproportionate_burden_claim-label",
+        android_edit_url_name="mobile:edit-retest-android-compliance-decisions",
+        android_edit_url_anchor="id_retest_android_disproportionate_burden_claim-label",
     ),
-    EqualityBodyCSVColumn(
+    MobileEqualityBodyCSVColumn(
         column_header="Retest disproportionate burden details",
-        source_class=MobileCase,
         source_attr="retest_disproportionate_burden_information",
-        data_type="markdown",
-        edit_url_class=MobileCase,
-        edit_url_name="mobile:edit-retest-ios-compliance-decisions",
-        edit_url_anchor="id_retest_disproportionate_burden_information-label",
+        ios_edit_url_name="mobile:edit-retest-ios-compliance-decisions",
+        ios_edit_url_anchor="id_retest_ios_disproportionate_burden_information-label",
+        android_edit_url_name="mobile:edit-retest-android-compliance-decisions",
+        android_edit_url_anchor="id_retest_android_disproportionate_burden_information-label",
     ),
 ]
 MOBILE_EQUALITY_BODY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = (
@@ -876,29 +832,35 @@ def populate_mobile_equality_body_columns(
 
     for column in columns:
         if isinstance(column, MobileEqualityBodyCSVColumn):
-            column.ios_edit_url = reverse(
-                column.ios_edit_url_name, kwargs={"pk": mobile_case.id}
-            )
-            if column.ios_edit_url_anchor:
-                column.ios_edit_url += f"#{column.ios_edit_url_anchor}"
+            if column.ios_edit_url_name is not None:
+                column.ios_edit_url = reverse(
+                    column.ios_edit_url_name, kwargs={"pk": mobile_case.id}
+                )
+                if column.ios_edit_url_anchor:
+                    column.ios_edit_url += f"#{column.ios_edit_url_anchor}"
 
-            column.android_edit_url = reverse(
-                column.android_edit_url_name, kwargs={"pk": mobile_case.id}
-            )
-            if column.android_edit_url_anchor:
-                column.android_edit_url += f"#{column.android_edit_url_anchor}"
+            if column.android_edit_url_name is not None:
+                column.android_edit_url = reverse(
+                    column.android_edit_url_name, kwargs={"pk": mobile_case.id}
+                )
+                if column.android_edit_url_anchor:
+                    column.android_edit_url += f"#{column.android_edit_url_anchor}"
 
-            column.required_data_missing = (
-                mobile_case.ios_test_included == MobileCase.TestIncluded.YES
-                and MobileCase.ios_app_store_url == ""
-            ) or (
-                mobile_case.android_test_included == MobileCase.TestIncluded.YES
-                and MobileCase.android_app_store_url == ""
-            )
+            # column.required_data_missing = (
+            #     mobile_case.ios_test_included == MobileCase.TestIncluded.YES
+            #     and MobileCase.ios_app_store_url == ""
+            # ) or (
+            #     mobile_case.android_test_included == MobileCase.TestIncluded.YES
+            #     and MobileCase.android_app_store_url == ""
+            # )
 
-            column.formatted_data = format_mobile_model_field(
-                column=column, mobile_case=mobile_case
-            )
+            column.formatted_data = getattr(mobile_case, column.source_attr)
+            if isinstance(column.formatted_data, str):
+                column.formatted_ui_data = column.formatted_data.replace(
+                    IOS_ANDROID_SEPARATOR, "<br>"
+                )
+            else:
+                column.formatted_ui_data = column.formatted_data
         else:
             column.formatted_data = format_model_field(
                 source_instance=mobile_case, column=column
