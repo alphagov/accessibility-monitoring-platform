@@ -18,6 +18,7 @@ CMD make static_files_process \
     && python manage.py collectstatic --noinput \
     && python manage.py migrate \
     && python manage.py recache_statuses \
+    && python manage.py send_reminders_email \
     && python manage.py clearsessions \
     && python manage.py axes_reset_logs --age 7 \
     && waitress-serve --port=8001 --threads=5 accessibility_monitoring_platform.wsgi:application
