@@ -132,247 +132,297 @@ def create_mobile_case_from_dict(
     sectors: dict[str, Sector],
 ) -> None:
     """User dictionary date (from csv) to create mobile Case"""
+    # app_os: str = row["Type"]  # Combined / iOS / Android
+    # url: str = validate_url(row["URL"])
+    # row["Sub-category"] is empty
     legacy_case_number: str = row["Record "]
-    case_identifier = f"#M-{legacy_case_number[1:]}"
-    app_os: str = row["Type"]
-    url: str = validate_url(row["URL"])
-    mobile_case: MobileCase = MobileCase.objects.filter(
-        case_identifier=case_identifier
-    ).first()
-    if mobile_case is None:
-        first_contact_date: str = get_datetime_from_string(
-            row["First contact date"]
-        )  # dd/mm/yyyy
-        if first_contact_date:
-            created: datetime = first_contact_date
-        else:
-            created: datetime = datetime.now().astimezone(timezone.utc)
-        last_date: str = row["Date decision email sent"]  # dd/mm/yyyy
-        updated: datetime = get_datetime_from_string(last_date)
-        if updated is None:
-            updated: datetime = created
-        auditor: User = auditors.get(row["Auditor"], default_user)
-        qa_auditors: str = row["Report checked by"]
-        if " " in qa_auditors:
-            qa_auditor: User = auditors.get(qa_auditors.split(" ")[0], default_user)
-        else:
-            qa_auditor: User = auditors.get(qa_auditors, default_user)
-        feedback_survey_sent: str = row["Feedback survey sent "]
-        is_feedback_requested: Boolean = (
-            Boolean.YES if feedback_survey_sent == "Yes" else Boolean.NO
-        )
-        status: str = MAP_CASE_STATUS.get(row["Status"], MobileCase.Status.UNASSIGNED)
+    case_identifier = f"#M-{legacy_case_number.split()[0][1:]} ({legacy_case_number})"
+    android_app_store_url = validate_url(row["URL (iOS)"])
+    android_test_included = (
+        MobileCase.TestIncluded.YES
+        if android_app_store_url
+        else MobileCase.TestIncluded.NO
+    )
+    ios_app_store_url = validate_url(row["URL (Android)"])
+    ios_test_included = (
+        MobileCase.TestIncluded.YES if ios_app_store_url else MobileCase.TestIncluded.NO
+    )
 
-        with patch("django.utils.timezone.now", Mock(return_value=created)):
-            mobile_case: MobileCase = MobileCase.objects.create(
-                test_type=MobileCase.TestType.MOBILE,
-                created_by_id=default_user.id,
-                updated=updated,
-                app_name=row["App name"],
-                android_test_included=MobileCase.TestIncluded.NO,
-                ios_test_included=MobileCase.TestIncluded.NO,
-                # domain=extract_domain_from_url(url),
-                auditor_id=auditor.id,
-                organisation_name=row["Organisation name"],
-                # website_name=row["Website"],
-                enforcement_body=row["Enforcement body"].lower(),
-                is_complaint=row["Is it a complaint?"].lower(),
-                reviewer=qa_auditor,
-                report_sent_date=get_datetime_from_string(row["Report sent on"]),
-                report_acknowledged_date=get_datetime_from_string(
-                    row["Report acknowledged"]
-                ),
-                twelve_week_deadline_date=get_datetime_from_string(
-                    row["Followup date - 12 week deadline"]
-                ),
-                recommendation_for_enforcement=MAP_ENFORCEMENT_RECOMMENDATION.get(
-                    row["Enforcement Recommendation"],
-                    DetailedCase.RecommendationForEnforcement.UNKNOWN,
-                ),
-                recommendation_decision_sent_date=get_datetime_from_string(
-                    row["Date decision email sent"]
-                ),
-                enforcement_body_sent_date=get_datetime_from_string(
-                    row["Date sent to enforcement body"]
-                ),
-                enforcement_body_closed_case_state=MAP_ENFORCEMENT_BODY_CLOSED_CASE.get(
-                    row["Active case with enforcement body?"],
-                    DetailedCase.StatementCompliance.UNKNOWN,
-                ),
-                is_feedback_requested=is_feedback_requested,
-                contact_information_request_start_date=get_datetime_from_string(
-                    row["First contact date"]
-                ),
-                psb_location=MAP_PSB_LOCATION.get(
-                    row["Public sector body location"], DetailedCase.PsbLocation.UNKNOWN
-                ),
-                sector=sectors[row["Sector"]],
-                psb_progress_info=row["Summary of progress made / response from PSB"],
-                recommendation_info=row["Enforcement Recommendation Notes"],
-                parental_organisation_name=row["Parent org (if relevant)"],
-                status=status,
-                case_folder_url=row["Link to case folder"],
-                is_case_added_to_stats=(
-                    Boolean.YES
-                    if row["Added to stats tab (formula)"] == "Yes"
-                    else Boolean.NO
-                ),
-            )
+    first_contact_date: str = get_datetime_from_string(
+        row["First contact date"]
+    )  # dd/mm/yyyy
+    if first_contact_date:
+        created: datetime = first_contact_date
+    else:
+        created: datetime = datetime.now().astimezone(timezone.utc)
+    last_date: str = row["Date decision email sent"]  # dd/mm/yyyy
+    updated: datetime = get_datetime_from_string(last_date)
+    if updated is None:
+        updated: datetime = created
+    auditor: User = auditors.get(row["Auditor"], default_user)
+    qa_auditors: str = row["Report checked by"]
+    if " " in qa_auditors:
+        qa_auditor: User = auditors.get(qa_auditors.split(" ")[0], default_user)
+    else:
+        qa_auditor: User = auditors.get(qa_auditors, default_user)
+    feedback_survey_sent: str = row["Feedback survey sent "]
+    is_feedback_requested: Boolean = (
+        Boolean.YES if feedback_survey_sent == "Yes" else Boolean.NO
+    )
+    status: str = MAP_CASE_STATUS.get(row["Status"], MobileCase.Status.UNASSIGNED)
 
-            mobile_case.case_identifier = case_identifier
-            mobile_case.save()
-        MobileCaseHistory.objects.create(
-            mobile_case_id=mobile_case.id,
-            event_type=MobileCaseHistory.EventType.STATUS,
-            value="Imported from spreadsheet",
-            created_by=auditor,
-        )
-
-        if " " in qa_auditors:
-            add_note_to_mobile_history(
-                mobile_case=mobile_case,
-                created_by=auditor,
-                note=f"All legacy QA auditors: {qa_auditors}",
-            )
-
-        if feedback_survey_sent and feedback_survey_sent != "Yes":
-            add_note_to_mobile_history(
-                mobile_case=mobile_case,
-                created_by=auditor,
-                note=f"Feedback survey sent from imported spreadsheet:\n\n{feedback_survey_sent}",
-            )
-
-        if row["Contact name"] or row["Job title"] or row["Contact detail"]:
-            contact: MobileContact = MobileContact.objects.create(
-                mobile_case=mobile_case,
-                name=row["Contact name"],
-                job_title=row["Job title"],
-                contact_details=row["Contact detail"],
-                created_by=auditor,
-            )
-            contact.save()
-
-        zendesk_urls: str = row["Zendesk ticket"]
-        for zendesk_url in zendesk_urls.split():
-            if zendesk_url.startswith(ZENDESK_URL_PREFIX):
-                MobileZendeskTicket.objects.create(
-                    mobile_case=mobile_case,
-                    url=zendesk_url,
-                    summary="From imported spreadsheet",
+    with patch("django.utils.timezone.now", Mock(return_value=created)):
+        mobile_case: MobileCase = MobileCase.objects.create(
+            created_by_id=default_user.id,
+            updated=updated,
+            # No home_page_url column on spreadsheet
+            # No website name column on spreadsheet
+            # domain=extract_domain_from_url(url),
+            status=status,
+            organisation_name=row["Organisation name"],
+            parental_organisation_name=row["Parent org (if relevant)"],
+            app_name=row["App name "],
+            ios_test_included=ios_test_included,
+            android_test_included=android_test_included,
+            ios_app_store_url=ios_app_store_url,
+            android_app_store_url=android_app_store_url,
+            sector=sectors[row["Sector"]],
+            # sub_category column on spreadsheet is empty
+            enforcement_body=row["Enforcement body"].lower(),
+            psb_location=MAP_PSB_LOCATION.get(
+                row["Public sector body location"], DetailedCase.PsbLocation.UNKNOWN
+            ),
+            previous_case_url=validate_url(row["URL to previous case "]),
+            is_complaint=row["Is it a complaint?"].lower(),
+            case_folder_url=row["Link to case folder"],
+            is_feedback_requested=is_feedback_requested,
+            # Contact name, title and detailed stored on MobileContact below
+            contact_information_request_start_date=get_datetime_from_string(
+                row["First contact date"]
+            ),
+            contact_information_request_end_date=get_datetime_from_string(
+                row["Information received"]
+            ),
+            auditor_id=auditor.id,
+            initial_ios_test_start_date=get_datetime_from_string(
+                row["Test start date (iOS)"]
+            ),
+            initial_android_test_start_date=get_datetime_from_string(
+                row["Test start date (Android)"]
+            ),
+            # Link to monitor doc not imported
+            initial_ios_test_end_date=get_datetime_from_string(
+                row["Test end date (iOS)"]
+            ),
+            initial_android_test_end_date=get_datetime_from_string(
+                row["Test end date (Android)"]
+            ),
+            initial_ios_total_number_of_pages=get_number_from_string(
+                row["Number of pages tested (iOS)"]
+            ),
+            initial_android_total_number_of_pages=get_number_from_string(
+                row["Number of pages tested (Android)"]
+            ),
+            initial_ios_total_number_of_issues=get_number_from_string(
+                row["Number of issues found (iOS)"]
+            ),
+            initial_android_total_number_of_issues=get_number_from_string(
+                row["Number of issues found (Android)"]
+            ),
+            initial_ios_website_compliance_state=MAP_WEBSITE_COMPLIANCE.get(
+                row["Initial app compliance decision (iOS)"].lower(),
+                DetailedCase.WebsiteCompliance.UNKNOWN,
+            ),
+            initial_android_website_compliance_state=(
+                MAP_WEBSITE_COMPLIANCE.get(
+                    row["Initial app compliance decision (Android)"].lower(),
+                    DetailedCase.WebsiteCompliance.UNKNOWN,
                 )
+            ),
+            initial_ios_statement_compliance_state=(
+                MAP_STATEMENT_COMPLIANCE.get(
+                    row["Initial statement compliance decision (iOS)"].lower(),
+                    DetailedCase.StatementCompliance.UNKNOWN,
+                )
+            ),
+            initial_android_statement_compliance_state=(
+                MAP_STATEMENT_COMPLIANCE.get(
+                    row["Initial statement compliance decision (Android)"].lower(),
+                    DetailedCase.StatementCompliance.UNKNOWN,
+                )
+            ),
+            initial_ios_disproportionate_burden_claim=MAP_DISPROPORTIONATE_BURDEN_CLAIM.get(
+                row["Initial disproportionate burden claim (iOS)"],
+                DetailedCase.DisproportionateBurden.NOT_CHECKED,
+            ),
+            initial_android_disproportionate_burden_claim=MAP_DISPROPORTIONATE_BURDEN_CLAIM.get(
+                row["Initial disproportionate burden claim (Android)"],
+                DetailedCase.DisproportionateBurden.NOT_CHECKED,
+            ),
+            reviewer=qa_auditor,
+            equality_body_report_url_ios=validate_url(
+                row["Public link to report PDF (iOS)"]
+            ),
+            equality_body_report_url_android=validate_url(
+                row["Public link to report PDF (Android)"]
+            ),
+            # Days taken to test not imported
+            report_sent_date=get_datetime_from_string(row["Report sent on"]),
+            # Zendesk tickets stored on MobileZendeskTicket below
+            twelve_week_deadline_date=get_datetime_from_string(
+                row["Followup date - 12 week deadline"]
+            ),
+            report_acknowledged_date=get_datetime_from_string(
+                row["Report acknowledged"]
+            ),
+            twelve_week_update_date=get_datetime_from_string(
+                row["12-week update requested"]
+            ),
+            twelve_week_received_date=get_datetime_from_string(
+                row["12-week update received"]
+            ),
+            retest_ios_start_date=get_datetime_from_string(row["Retest date (iOS)"]),
+            retest_android_start_date=get_datetime_from_string(
+                row["Retest date (Android)"]
+            ),
+            retest_ios_total_number_of_issues=get_number_from_string(
+                row["Total number of remaining issues (iOS)"]
+            ),
+            retest_android_total_number_of_issues=get_number_from_string(
+                row["Total number of remaining issues (Android)"]
+            ),
+            retest_ios_website_compliance_state=MAP_WEBSITE_COMPLIANCE.get(
+                row["Retest app compliance decision (iOS)"].lower(),
+                DetailedCase.WebsiteCompliance.UNKNOWN,
+            ),
+            retest_android_website_compliance_state=MAP_WEBSITE_COMPLIANCE.get(
+                row["Retest app compliance decision (Android)"].lower(),
+                DetailedCase.WebsiteCompliance.UNKNOWN,
+            ),
+            retest_ios_statement_compliance_state=(
+                MAP_STATEMENT_COMPLIANCE.get(
+                    row["Accessibility Statement Decision (iOS)"].lower(),
+                    DetailedCase.StatementCompliance.UNKNOWN,
+                )
+            ),
+            retest_android_statement_compliance_state=(
+                MAP_STATEMENT_COMPLIANCE.get(
+                    row["Accessibility Statement Decision (Android)"].lower(),
+                    DetailedCase.StatementCompliance.UNKNOWN,
+                )
+            ),
+            retest_ios_statement_compliance_information=row[
+                "Notes on accessibility statement (iOS)"
+            ],
+            retest_android_statement_compliance_information=row[
+                "Notes on accessibility statement (Android)"
+            ],
+            retest_ios_disproportionate_burden_claim=(
+                MAP_DISPROPORTIONATE_BURDEN_CLAIM.get(
+                    row["Disproportionate Burden Claimed? (iOS)"],
+                    DetailedCase.DisproportionateBurden.NOT_CHECKED,
+                )
+            ),
+            retest_android_disproportionate_burden_claim=(
+                MAP_DISPROPORTIONATE_BURDEN_CLAIM.get(
+                    row["Disproportionate Burden Claimed? (Android)"],
+                    DetailedCase.DisproportionateBurden.NOT_CHECKED,
+                )
+            ),
+            retest_android_disproportionate_burden_information=row[
+                "Disproportionate Burden Notes (iOS)"
+            ],
+            retest_ios_disproportionate_burden_information=row[
+                "Disproportionate Burden Notes (Android)"
+            ],
+            psb_progress_info=row["Summary of progress made / response from PSB"],
+            recommendation_for_enforcement=MAP_ENFORCEMENT_RECOMMENDATION.get(
+                row["Enforcement Recommendation (iOS)"],
+                DetailedCase.RecommendationForEnforcement.UNKNOWN,
+            ),
+            recommendation_info=row["Enforcement Recommendation Notes (iOS)"],
+            # Need spearate fields for mobile OSes:
+            # recommendation_for_enforcement_ios=MAP_ENFORCEMENT_RECOMMENDATION.get(
+            #     row["Enforcement Recommendation (iOS)"],
+            #     DetailedCase.RecommendationForEnforcement.UNKNOWN,
+            # ),
+            # recommendation_for_enforcement_android=MAP_ENFORCEMENT_RECOMMENDATION.get(
+            #     row["Enforcement Recommendation (Android)"],
+            #     DetailedCase.RecommendationForEnforcement.UNKNOWN,
+            # ),
+            # recommendation_info_ios=row["Enforcement Recommendation Notes (iOS)"],
+            # recommendation_info_android=row["Enforcement Recommendation Notes (Android)"],
+            recommendation_decision_sent_date=get_datetime_from_string(
+                row["Date decision email sent"]
+            ),
+            recommendation_decision_sent_to=row["Decision sent to"],
+            is_case_added_to_stats=(
+                Boolean.YES
+                if row["Added to stats tab (formula)"] == "Yes"
+                else Boolean.NO
+            ),
+            # Added to stats tab not imported
+            # Link to new copy of accessibility statement if not compliant not imported
+            # Percentage of issues resolved (iOS) not imported
+            # Percentage of issues resolved (Android) not imported
+            enforcement_body_sent_date=get_datetime_from_string(
+                row["Date sent to enforcement body"]
+            ),
+            enforcement_body_closed_case_state=MAP_ENFORCEMENT_BODY_CLOSED_CASE.get(
+                row["Active case with enforcement body?"],
+                DetailedCase.CaseCloseDecision.NO_DECISION,
+            ),
+            # Reporting year not imported
+        )
 
+        mobile_case.case_identifier = case_identifier
+        mobile_case.save()
+
+    MobileCaseHistory.objects.create(
+        mobile_case_id=mobile_case.id,
+        event_type=MobileCaseHistory.EventType.STATUS,
+        value="Imported from spreadsheet",
+        created_by=auditor,
+    )
+
+    if " " in qa_auditors:
         add_note_to_mobile_history(
             mobile_case=mobile_case,
             created_by=auditor,
-            note=f"Legacy record id: {legacy_case_number}",
+            note=f"All legacy QA auditors: {qa_auditors}",
         )
 
-    if app_os == "Android":
-        mobile_case.android_test_included = MobileCase.TestIncluded.YES
-        mobile_case.android_app_store_url = url
-        mobile_case.retest_android_statement_compliance_state = (
-            MAP_STATEMENT_COMPLIANCE.get(
-                row["Accessibility Statement Decision"].lower(),
-                DetailedCase.StatementCompliance.UNKNOWN,
+    if feedback_survey_sent and feedback_survey_sent != "Yes":
+        add_note_to_mobile_history(
+            mobile_case=mobile_case,
+            created_by=auditor,
+            note=f"Feedback survey sent from imported spreadsheet:\n\n{feedback_survey_sent}",
+        )
+
+    if row["Contact name"] or row["Job title"] or row["Contact detail"]:
+        contact: MobileContact = MobileContact.objects.create(
+            mobile_case=mobile_case,
+            name=row["Contact name"],
+            job_title=row["Job title"],
+            contact_details=row["Contact detail"],
+            created_by=auditor,
+        )
+        contact.save()
+
+    zendesk_urls: str = row["Zendesk ticket"]
+    for zendesk_url in zendesk_urls.split():
+        if zendesk_url.startswith(ZENDESK_URL_PREFIX):
+            MobileZendeskTicket.objects.create(
+                mobile_case=mobile_case,
+                url=zendesk_url,
+                summary="From imported spreadsheet",
             )
-        )
-        mobile_case.retest_android_statement_compliance_information = row[
-            "Notes on accessibility statement"
-        ]
-        mobile_case.retest_android_disproportionate_burden_information = row[
-            "Disproportionate Burden Notes"
-        ]
-        mobile_case.retest_android_start_date = get_datetime_from_string(
-            row["Retest date"]
-        )
-        mobile_case.retest_android_disproportionate_burden_claim = (
-            MAP_DISPROPORTIONATE_BURDEN_CLAIM.get(
-                row["Disproportionate Burden Claimed?"],
-                DetailedCase.DisproportionateBurden.NOT_CHECKED,
-            )
-        )
-        mobile_case.initial_android_test_start_date = get_datetime_from_string(
-            row["Test start date"]
-        )
-        mobile_case.initial_android_test_end_date = get_datetime_from_string(
-            row["Test end date"]
-        )
-        mobile_case.initial_android_total_number_of_issues = get_number_from_string(
-            row["Total issues (excluding best practice)"]
-        )
-        mobile_case.initial_android_total_number_of_pages = get_number_from_string(
-            row["Number of pages tested"]
-        )
-        mobile_case.retest_android_total_number_of_issues = get_number_from_string(
-            row["Number of issues on closure"]
-        )
-        mobile_case.initial_android_website_compliance_state = (
-            MAP_WEBSITE_COMPLIANCE.get(
-                row["Initial app compliance"].lower(),
-                DetailedCase.WebsiteCompliance.UNKNOWN,
-            )
-        )
-        mobile_case.initial_android_statement_compliance_state = (
-            MAP_STATEMENT_COMPLIANCE.get(
-                row["Initial statement compliance"].lower(),
-                DetailedCase.StatementCompliance.UNKNOWN,
-            )
-        )
-        mobile_case.equality_body_report_url_android = validate_url(
-            row["Public link to report PDF"]
-        )
-        mobile_case.save()
-    elif app_os == "iOS":
-        mobile_case.ios_test_included = MobileCase.TestIncluded.YES
-        mobile_case.ios_app_store_url = url
-        mobile_case.retest_ios_statement_compliance_state = (
-            MAP_STATEMENT_COMPLIANCE.get(
-                row["Accessibility Statement Decision"].lower(),
-                DetailedCase.StatementCompliance.UNKNOWN,
-            )
-        )
-        mobile_case.retest_ios_statement_compliance_information = row[
-            "Notes on accessibility statement"
-        ]
-        mobile_case.retest_ios_disproportionate_burden_information = row[
-            "Disproportionate Burden Notes"
-        ]
-        mobile_case.retest_ios_start_date = get_datetime_from_string(row["Retest date"])
-        mobile_case.retest_ios_disproportionate_burden_claim = (
-            MAP_DISPROPORTIONATE_BURDEN_CLAIM.get(
-                row["Disproportionate Burden Claimed?"],
-                DetailedCase.DisproportionateBurden.NOT_CHECKED,
-            )
-        )
-        mobile_case.initial_ios_test_start_date = get_datetime_from_string(
-            row["Test start date"]
-        )
-        mobile_case.initial_ios_test_end_date = get_datetime_from_string(
-            row["Test end date"]
-        )
-        mobile_case.initial_ios_total_number_of_issues = get_number_from_string(
-            row["Total issues (excluding best practice)"]
-        )
-        mobile_case.initial_ios_total_number_of_pages = get_number_from_string(
-            row["Number of pages tested"]
-        )
-        mobile_case.retest_ios_total_number_of_issues = get_number_from_string(
-            row["Number of issues on closure"]
-        )
-        mobile_case.initial_ios_website_compliance_state = MAP_WEBSITE_COMPLIANCE.get(
-            row["Initial app compliance"].lower(),
-            DetailedCase.WebsiteCompliance.UNKNOWN,
-        )
-        mobile_case.initial_ios_statement_compliance_state = (
-            MAP_STATEMENT_COMPLIANCE.get(
-                row["Initial statement compliance"].lower(),
-                DetailedCase.StatementCompliance.UNKNOWN,
-            )
-        )
-        mobile_case.equality_body_report_url_ios = validate_url(
-            row["Public link to report PDF"]
-        )
-        mobile_case.save()
+
+    add_note_to_mobile_history(
+        mobile_case=mobile_case,
+        created_by=auditor,
+        note=f"Legacy record id: {legacy_case_number}",
+    )
 
 
 def import_mobile_cases_csv(csv_data: str) -> None:
