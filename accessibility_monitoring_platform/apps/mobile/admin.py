@@ -27,6 +27,8 @@ class MobileCaseAdmin(admin.ModelAdmin):
     ]
     list_filter = [
         ("auditor", admin.RelatedOnlyFieldListFilter),
+        ("reviewer", admin.RelatedOnlyFieldListFilter),
+        "status",
     ]
     show_facets = admin.ShowFacets.ALWAYS
 

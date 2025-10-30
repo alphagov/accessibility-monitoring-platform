@@ -10,6 +10,7 @@ from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
 from ...comments.models import Comment
+from ...common.models import QA_AUDITOR_GROUP_NAME
 from ...notifications.models import Task
 from ..csv_export import (
     MOBILE_CASE_COLUMNS_FOR_EXPORT,
@@ -235,7 +236,7 @@ def test_unresponsive_psb_save_message(admin_client):
 
 def test_qa_comments_creates_comment(admin_client, admin_user):
     """Test adding a comment using QA comments page"""
-    qa_auditor_group: Group = Group.objects.create(name="QA auditor")
+    qa_auditor_group: Group = Group.objects.create(name=QA_AUDITOR_GROUP_NAME)
     qa_auditor: User = User.objects.create()
     qa_auditor_group.user_set.add(qa_auditor)
     mobile_case: MobileCase = MobileCase.objects.create(

@@ -61,10 +61,10 @@ def test_download_cases_mobile():
     mobile_cases: list[MobileCase] = [mobile_case]
     MobileContact.objects.create(
         mobile_case=mobile_case,
+        created_by=user,
         name=MOBILE_CONTACT_NAME,
         job_title=MOBILE_CONTACT_TITLE,
         contact_details=MOBILE_CONTACT_DETAILS,
-        created_by=user,
     )
 
     response: HttpResponse = download_mobile_cases(
@@ -92,6 +92,7 @@ def test_download_cases_mobile():
         "Unassigned case",
         "",
         "Mobile",
+        "",
         "",
         "",
         "",

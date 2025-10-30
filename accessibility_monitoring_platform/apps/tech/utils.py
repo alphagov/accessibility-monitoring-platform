@@ -79,6 +79,10 @@ TRELLO_COMMENT_LABEL: str = "Imported from Trello"
 TRELLO_DESCRIPTION_LABEL: str = "Description imported from Trello"
 
 
+def convert_windows_line_breaks_to_linux(windows: str) -> str:
+    return windows.replace("\r\n", "\n")
+
+
 def get_datetime_from_string(date: str) -> datetime | None:
     if len(date) < 5:
         return None
@@ -136,7 +140,7 @@ def create_mobile_case_from_dict(
     # url: str = validate_url(row["URL"])
     # row["Sub-category"] is empty
     legacy_case_number: str = row["Record "]
-    case_identifier = f"#M-{legacy_case_number.split()[0][1:]} ({legacy_case_number})"
+    case_identifier = f"#M-{legacy_case_number.split()[0][1:]}"
     android_app_store_url = validate_url(row["URL (iOS)"])
     android_test_included = (
         MobileCase.TestIncluded.YES
@@ -311,12 +315,12 @@ def create_mobile_case_from_dict(
                     DetailedCase.StatementCompliance.UNKNOWN,
                 )
             ),
-            retest_ios_statement_compliance_information=row[
-                "Notes on accessibility statement (iOS)"
-            ],
-            retest_android_statement_compliance_information=row[
-                "Notes on accessibility statement (Android)"
-            ],
+            retest_ios_statement_compliance_information=convert_windows_line_breaks_to_linux(
+                row["Notes on accessibility statement (iOS)"]
+            ),
+            retest_android_statement_compliance_information=convert_windows_line_breaks_to_linux(
+                row["Notes on accessibility statement (Android)"]
+            ),
             retest_ios_disproportionate_burden_claim=(
                 MAP_DISPROPORTIONATE_BURDEN_CLAIM.get(
                     row["Disproportionate Burden Claimed? (iOS)"],
@@ -329,18 +333,22 @@ def create_mobile_case_from_dict(
                     DetailedCase.DisproportionateBurden.NOT_CHECKED,
                 )
             ),
-            retest_android_disproportionate_burden_information=row[
-                "Disproportionate Burden Notes (iOS)"
-            ],
-            retest_ios_disproportionate_burden_information=row[
-                "Disproportionate Burden Notes (Android)"
-            ],
-            psb_progress_info=row["Summary of progress made / response from PSB"],
+            retest_android_disproportionate_burden_information=convert_windows_line_breaks_to_linux(
+                row["Disproportionate Burden Notes (iOS)"]
+            ),
+            retest_ios_disproportionate_burden_information=convert_windows_line_breaks_to_linux(
+                row["Disproportionate Burden Notes (Android)"]
+            ),
+            psb_progress_info=convert_windows_line_breaks_to_linux(
+                row["Summary of progress made / response from PSB"]
+            ),
             recommendation_for_enforcement=MAP_ENFORCEMENT_RECOMMENDATION.get(
                 row["Enforcement Recommendation (iOS)"],
                 DetailedCase.RecommendationForEnforcement.UNKNOWN,
             ),
-            recommendation_info=row["Enforcement Recommendation Notes (iOS)"],
+            recommendation_info=convert_windows_line_breaks_to_linux(
+                row["Enforcement Recommendation Notes (iOS)"]
+            ),
             # Need spearate fields for mobile OSes:
             # recommendation_for_enforcement_ios=MAP_ENFORCEMENT_RECOMMENDATION.get(
             #     row["Enforcement Recommendation (iOS)"],
@@ -402,9 +410,9 @@ def create_mobile_case_from_dict(
     if row["Contact name"] or row["Job title"] or row["Contact detail"]:
         contact: MobileContact = MobileContact.objects.create(
             mobile_case=mobile_case,
-            name=row["Contact name"],
-            job_title=row["Job title"],
-            contact_details=row["Contact detail"],
+            name=convert_windows_line_breaks_to_linux(row["Contact name"]),
+            job_title=convert_windows_line_breaks_to_linux(row["Job title"]),
+            contact_details=convert_windows_line_breaks_to_linux(row["Contact detail"]),
             created_by=auditor,
         )
         contact.save()

@@ -19,6 +19,8 @@ MORE_INFORMATION_ABOUT_MONITORING_DEFAULT: str = """# More Information
 
 More information about monitoring placeholder"""
 ZENDESK_URL_PREFIX: str = "https://govuk.zendesk.com/agent/tickets/"
+AUDITOR_GROUP_NAME: str = "Auditor"
+QA_AUDITOR_GROUP_NAME: str = "QA auditor"
 
 
 class Boolean(models.TextChoices):

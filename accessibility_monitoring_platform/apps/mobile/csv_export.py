@@ -314,11 +314,11 @@ MOBILE_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="test_type",
     ),
     # Case details - Case metadata
-    # CSVColumn(
-    #     column_header="Full URL · Included in export",
-    #     source_class=MobileCase,
-    #     source_attr="home_page_url",
-    # ),
+    CSVColumn(
+        column_header="Full URL · Included in export",
+        source_class=MobileCase,
+        source_attr="home_page_url",
+    ),
     CSVColumn(
         column_header="Organisation name · Included in export",
         source_class=MobileCase,
@@ -895,7 +895,7 @@ def csv_mobile_equality_body_output_generator(
     output: str = writer.writerow(column_row)
 
     for counter, mobile_case in enumerate(mobile_cases):
-        case_columns: list[EqualityBodyCSVColumn] = (
+        case_columns: list[EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn] = (
             populate_mobile_equality_body_columns(mobile_case=mobile_case.get_case())
         )
         row = [column.formatted_data for column in case_columns]

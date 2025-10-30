@@ -4,10 +4,18 @@ from datetime import date
 
 import pytest
 from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
+from pytest_django.asserts import assertQuerySetEqual
 
 from ...common.models import Boolean
 from ...simplified.models import SimplifiedCase
-from ..models import MobileCase, MobileCaseHistory, MobileContact, MobileZendeskTicket
+from ..models import (
+    MobileCase,
+    MobileCaseHistory,
+    MobileContact,
+    MobileZendeskTicket,
+    format_ios_and_android_str,
+)
 
 ORGANISATION_NAME: str = "Organisation Name"
 WEBSITE_NAME: str = "Website Name"
@@ -90,6 +98,19 @@ def test_mobile_case_notes_history():
 
 
 @pytest.mark.django_db
+def test_mobile_case_zendesk_tickets():
+    """Test MobileCase.zendesk_tickets returns that case's zendesk tickets"""
+    mobile_case: MobileCase = MobileCase.objects.create()
+    MobileZendeskTicket.objects.create(mobile_case=mobile_case)
+    MobileZendeskTicket.objects.create(mobile_case=mobile_case)
+    zendesk_tickets: QuerySet[MobileZendeskTicket] = MobileZendeskTicket.objects.filter(
+        mobile_case=mobile_case
+    )
+
+    assertQuerySetEqual(mobile_case.zendesk_tickets, zendesk_tickets)
+
+
+@pytest.mark.django_db
 def test_mobile_case_most_recent_history():
     """Test MobileCase.most_recent_history returns the most recent event"""
     mobile_case: MobileCase = MobileCase.objects.create()
@@ -115,6 +136,9 @@ def test_mobile_case_contacts():
     user: User = User.objects.create()
     contact: MobileContact = MobileContact.objects.create(
         mobile_case=mobile_case, created_by=user
+    )
+    MobileContact.objects.create(
+        mobile_case=mobile_case, created_by=user, is_deleted=True
     )
 
     assert list(mobile_case.contacts) == [contact]
@@ -245,6 +269,56 @@ def test_mobile_case_report_acknowledged_yes_no():
     )
 
 
+def test_mobile_case_initial_total_number_of_issues():
+    """Test the MobileCase.initial_total_number_of_issues"""
+
+    assert MobileCase().initial_total_number_of_issues == 0
+    assert (
+        MobileCase(
+            initial_ios_total_number_of_issues=40,
+        ).initial_total_number_of_issues
+        == 40
+    )
+    assert (
+        MobileCase(
+            initial_android_total_number_of_issues=10,
+        ).initial_total_number_of_issues
+        == 10
+    )
+    assert (
+        MobileCase(
+            initial_ios_total_number_of_issues=40,
+            initial_android_total_number_of_issues=10,
+        ).initial_total_number_of_issues
+        == 50
+    )
+
+
+def test_mobile_case_retest_total_number_of_issues_unfixed():
+    """Test the MobileCase.retest_total_number_of_issues_unfixed"""
+
+    assert MobileCase().retest_total_number_of_issues_unfixed == 0
+    assert (
+        MobileCase(
+            retest_ios_total_number_of_issues=40,
+        ).retest_total_number_of_issues_unfixed
+        == 40
+    )
+    assert (
+        MobileCase(
+            retest_android_total_number_of_issues=10,
+        ).retest_total_number_of_issues_unfixed
+        == 10
+    )
+    assert (
+        MobileCase(
+            retest_ios_total_number_of_issues=40,
+            retest_android_total_number_of_issues=10,
+        ).retest_total_number_of_issues_unfixed
+        == 50
+    )
+
+
 def test_mobile_case_number_of_issues_fixed():
     """Test the MobileCase.number_of_issues_fixed"""
 
@@ -371,3 +445,93 @@ def test_equality_body_report_urls(
     )
 
     assert mobile_case.equality_body_report_urls == expected_equality_body_report_urls
+
+
+@pytest.mark.parametrize(
+    "retest_ios_statement_compliance_state, retest_android_statement_compliance_state, expected_retest_statement_compliance_state",
+    [
+        (
+            MobileCase.StatementCompliance.UNKNOWN,
+            MobileCase.StatementCompliance.UNKNOWN,
+            "iOS: Not assessed\n\nAndroid: Not assessed",
+        ),
+        (
+            MobileCase.StatementCompliance.COMPLIANT,
+            MobileCase.StatementCompliance.UNKNOWN,
+            "iOS: Compliant\n\nAndroid: Not assessed",
+        ),
+        (
+            MobileCase.StatementCompliance.UNKNOWN,
+            MobileCase.StatementCompliance.NOT_COMPLIANT,
+            "iOS: Not assessed\n\nAndroid: Not compliant",
+        ),
+        (
+            MobileCase.StatementCompliance.COMPLIANT,
+            MobileCase.StatementCompliance.NO_STATEMENT,
+            "iOS: Compliant\n\nAndroid: No statement",
+        ),
+    ],
+)
+@pytest.mark.django_db
+def test_retest_statement_compliance_state(
+    retest_ios_statement_compliance_state,
+    retest_android_statement_compliance_state,
+    expected_retest_statement_compliance_state,
+):
+    """Test retest_statement_compliance_state returned for use in equality body export"""
+    mobile_case: MobileCase = MobileCase.objects.create(
+        retest_ios_statement_compliance_state=retest_ios_statement_compliance_state,
+        retest_android_statement_compliance_state=retest_android_statement_compliance_state,
+    )
+
+    assert (
+        mobile_case.retest_statement_compliance_state
+        == expected_retest_statement_compliance_state
+    )
+
+
+@pytest.mark.django_db
+def test_retest_disproportionate_burden_claim():
+    """
+    Test retest_disproportionate_burden_claim returned for use in equality body export
+    """
+    mobile_case: MobileCase = MobileCase.objects.create(
+        retest_ios_disproportionate_burden_claim=MobileCase.DisproportionateBurden.NOT_CHECKED,
+        retest_android_disproportionate_burden_claim=MobileCase.DisproportionateBurden.NO_CLAIM,
+    )
+
+    assert (
+        mobile_case.retest_disproportionate_burden_claim
+        == "iOS: Not checked\n\nAndroid: No claim"
+    )
+
+
+@pytest.mark.django_db
+def test_retest_disproportionate_burden_information():
+    """
+    Test retest_disproportionate_burden_information returned for use in equality body
+    export
+    """
+    mobile_case: MobileCase = MobileCase.objects.create(
+        retest_ios_disproportionate_burden_information="First note",
+        retest_android_disproportionate_burden_information="Second note",
+    )
+
+    assert (
+        mobile_case.retest_disproportionate_burden_information
+        == "iOS: First note\n\nAndroid: Second note"
+    )
+
+
+@pytest.mark.parametrize(
+    "ios, android, expected_result",
+    [
+        ("", "", "iOS: n/a\n\nAndroid: n/a"),
+        ("a", "", "iOS: a\n\nAndroid: n/a"),
+        ("", "b", "iOS: n/a\n\nAndroid: b"),
+        ("a", "b", "iOS: a\n\nAndroid: b"),
+    ],
+)
+def test_format_ios_and_android_str(ios: str, android: str, expected_result: str):
+    """Test format_ios_and_android_str"""
+    assert format_ios_and_android_str(ios=ios, android=android) == expected_result

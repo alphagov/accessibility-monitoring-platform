@@ -12,25 +12,6 @@
         {{ equality_body_column.formatted_ui_data|safe }}
         {{ equality_body_column.ui_suffix|safe }}
     </p>
-{% else %}
-    <p class="govuk-body-m{% if equality_body_column.edit_url %} amp-margin-bottom-5{% endif %}">
-        {% if equality_body_column.formatted_data or equality_body_column.formatted_data == 0 %}
-            {% if equality_body_column.data_type == 'url' %}
-                <a href="{{ equality_body_column.formatted_data }}" class="govuk-link" target="_blank">
-                    {{ equality_body_column.formatted_data }}</a>
-            {% elif equality_body_column.data_type == 'markdown' %}
-                <div class="amp-markdown">{{ equality_body_column.formatted_data|markdown_to_html }}</div>
-            {% elif equality_body_column.data_type == 'pre' %}
-                <pre class="govuk-body">{{ equality_body_column.formatted_data }}</pre>
-            {% else %}
-                <span class="amp-pre-line">{{ equality_body_column.formatted_data }}{{ equality_body_column.ui_suffix }}</span>
-            {% endif %}
-        {% else %}
-            No data available
-        {% endif %}
-    </p>
-{% endif %}
-{% if equality_body_column.mobile_equality_body_csv_column %}
     <p class="govuk-body-m">
         {% if equality_body_column.ios_edit_url %}
             <a href="{{ equality_body_column.ios_edit_url }}" class="govuk-link govuk-link--no-visited-state">
@@ -48,9 +29,27 @@
             </a>
         {% endif %}
     </p>
-{% elif equality_body_column.edit_url %}
-    <p class="govuk-body-m">
-        <a href="{{ equality_body_column.edit_url }}" class="govuk-link govuk-link--no-visited-state">
-            {{ equality_body_column.edit_url_label }}{% if equality_body_column.edit_url_label == 'Edit' %}<span class="govuk-visually-hidden"> {{ equality_body_column.column_header }}</span>{% endif %}</a>
+{% else %}
+    <p class="govuk-body-m{% if equality_body_column.edit_url %} amp-margin-bottom-5{% endif %}">
+        {% if equality_body_column.formatted_data or equality_body_column.formatted_data == 0 %}
+            {% if equality_body_column.data_type == 'url' %}
+                <a href="{{ equality_body_column.formatted_data }}" class="govuk-link" target="_blank">
+                    {{ equality_body_column.formatted_data }}</a>
+            {% elif equality_body_column.data_type == 'markdown' %}
+                <div class="amp-markdown">{{ equality_body_column.formatted_data|markdown_to_html }}</div>
+            {% elif equality_body_column.data_type == 'pre' %}
+                <pre class="govuk-body">{{ equality_body_column.formatted_data }}</pre>
+            {% else %}
+                <span class="amp-pre-line">{{ equality_body_column.formatted_data }}{{ equality_body_column.ui_suffix }}</span>
+            {% endif %}
+        {% else %}
+            No data available
+        {% endif %}
     </p>
+    {% if equality_body_column.edit_url %}
+        <p class="govuk-body-m">
+            <a href="{{ equality_body_column.edit_url }}" class="govuk-link govuk-link--no-visited-state">
+                {{ equality_body_column.edit_url_label }}{% if equality_body_column.edit_url_label == 'Edit' %}<span class="govuk-visually-hidden"> {{ equality_body_column.column_header }}</span>{% endif %}</a>
+        </p>
+    {% endif %}
 {% endif %}
