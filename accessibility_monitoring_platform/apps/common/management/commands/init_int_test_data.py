@@ -35,7 +35,13 @@ from ....detailed.models import Contact as DetailedContact
 from ....detailed.models import DetailedCase, DetailedCaseHistory, DetailedEventHistory
 from ....detailed.models import ZendeskTicket as DetailedZendeskTicket
 from ....exports.models import Export, ExportCase
-from ....mobile.models import MobileCase
+from ....mobile.models import EventHistory as MobileEventHistory
+from ....mobile.models import (
+    MobileCase,
+    MobileCaseHistory,
+    MobileContact,
+    MobileZendeskTicket,
+)
 from ....notifications.models import NotificationSetting, Task
 from ....reports.models import Report, ReportVisitsMetrics, ReportWrapper
 from ....s3_read_write.models import S3Report
@@ -138,7 +144,15 @@ class Command(BaseCommand):
         delete_from_models(
             [SimplifiedEventHistory, SimplifiedContact, CaseEvent, SimplifiedCase]
         )
-        delete_from_models([MobileCase])
+        delete_from_models(
+            [
+                MobileCaseHistory,
+                MobileContact,
+                MobileZendeskTicket,
+                MobileEventHistory,
+                MobileCase,
+            ]
+        )
         delete_from_models([BaseCase])
         delete_from_models([ChangeToPlatform, IssueReport, Platform, Sector])  # Common
         delete_from_models([Group, User])

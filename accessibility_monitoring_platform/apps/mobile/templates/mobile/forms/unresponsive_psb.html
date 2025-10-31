@@ -1,0 +1,31 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+<div class="govuk-body">
+    <p class="govuk-body-m">
+        The case must be forwarded to the relevant equalities body if you cannot find
+        contact details for the public sector body or the public sector body does not respond
+        to the initial report.
+    </p>
+</div>
+{% endblock %}
+
+{% block formbuttons %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full govuk-button-group">
+        <input
+            type="submit"
+            value="Save"
+            name="save"
+            class="govuk-button"
+            data-module="govuk-button"
+        />
+        <a
+            href="{{ case.get_absolute_url }}"
+            class="govuk-link govuk-link--no-visited-state"
+        >
+            Return to overview
+        </a>
+    </div>
+</div>
+{% endblock %}

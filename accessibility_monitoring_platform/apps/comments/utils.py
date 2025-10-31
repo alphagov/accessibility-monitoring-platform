@@ -1,10 +1,10 @@
 """Comments utilities"""
 
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import User
 from django.http import HttpRequest
 
 from ..cases.models import BaseCase
-from ..common.models import Platform
+from ..common.models import QA_AUDITOR_GROUP_NAME, Platform
 from ..common.utils import get_platform_settings
 from ..notifications.models import Task
 from ..notifications.utils import add_task
@@ -37,13 +37,12 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
     if platform.active_qa_auditor:
         user_ids.add(platform.active_qa_auditor.id)
 
-    # If a detailed case has no auditor then add all QA auditors' ids
-    if (
-        comment.base_case.auditor is None
-        and comment.base_case.test_type == BaseCase.TestType.DETAILED
+    # If a detailed or mobile case has no auditor then add all QA auditors' ids
+    if comment.base_case.auditor is None and (
+        comment.base_case.test_type == BaseCase.TestType.DETAILED
+        or comment.base_case.test_type == BaseCase.TestType.MOBILE
     ):
-        qa_auditor_group: Group = Group.objects.get(name="QA auditor")
-        for user in qa_auditor_group.user_set.all():
+        for user in User.objects.filter(groups__name=QA_AUDITOR_GROUP_NAME):
             user_ids.add(user.id)
 
     # Remove the commentor from the list of ids

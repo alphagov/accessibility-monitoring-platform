@@ -73,6 +73,7 @@ class ReferenceImplementaionView(StaffRequiredMixin, TemplateView):
             simplified_case: SimplifiedCase = report.base_case.simplifiedcase
         context["case"] = simplified_case
         context["detailed_case"] = DetailedCase.objects.first()
+        context["mobile_case"] = MobileCase.objects.first()
         context["banner_case_detailed"] = context["detailed_case"]
         context["banner_case_mobile"] = MobileCase.objects.last()
         context["banner_case_archived"] = SimplifiedCase.objects.exclude(
@@ -137,7 +138,7 @@ class IssueReportListView(ListView):
 
 
 class ImportCSV(StaffRequiredMixin, FormView):
-    """Reset obile Cases data from CSV"""
+    """Reset mobile Cases data from CSV"""
 
     form_class = ImportCSVForm
     template_name: str = "tech/import_csv.html"

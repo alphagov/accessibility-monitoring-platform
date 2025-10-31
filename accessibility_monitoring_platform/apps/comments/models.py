@@ -80,6 +80,12 @@ class Comment(models.Model):
         self.updated = timezone.now()
         super().save(*args, **kwargs)
 
+    def get_absolute_url(self) -> str:
+        return reverse(
+            f"comments:edit-qa-comment-{self.base_case.test_type}",
+            kwargs={"pk": self.id},
+        )
+
     @property
     def body_html_with_issue_identifier_links(self) -> str:
         html: str = markdown.markdown(
