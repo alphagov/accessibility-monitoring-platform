@@ -28,51 +28,50 @@ from ..notifications.models import Task
 logger = logging.getLogger(__name__)
 
 MAP_WEBSITE_COMPLIANCE: dict[str, str] = {
-    "not compliant": DetailedCase.WebsiteCompliance.NOT,
-    "": DetailedCase.WebsiteCompliance.UNKNOWN,
-    "other": DetailedCase.WebsiteCompliance.UNKNOWN,
-    "partially compliant": DetailedCase.WebsiteCompliance.PARTIALLY,
+    "not compliant": MobileCase.WebsiteCompliance.NOT,
+    "": MobileCase.WebsiteCompliance.UNKNOWN,
+    "other": MobileCase.WebsiteCompliance.UNKNOWN,
+    "partially compliant": MobileCase.WebsiteCompliance.PARTIALLY,
 }
 MAP_STATEMENT_COMPLIANCE: dict[str, str] = {
-    "not compliant": DetailedCase.StatementCompliance.NOT_COMPLIANT,
-    "": DetailedCase.StatementCompliance.UNKNOWN,
-    "other": DetailedCase.StatementCompliance.UNKNOWN,
-    "compliant": DetailedCase.StatementCompliance.COMPLIANT,
-    "no statement": DetailedCase.StatementCompliance.NO_STATEMENT,
-    "not found": DetailedCase.StatementCompliance.NO_STATEMENT,
+    "not compliant": MobileCase.StatementCompliance.NOT_COMPLIANT,
+    "": MobileCase.StatementCompliance.UNKNOWN,
+    "other": MobileCase.StatementCompliance.UNKNOWN,
+    "compliant": MobileCase.StatementCompliance.COMPLIANT,
+    "no statement": MobileCase.StatementCompliance.NO_STATEMENT,
+    "not found": MobileCase.StatementCompliance.NO_STATEMENT,
 }
 MAP_ENFORCEMENT_RECOMMENDATION: dict[str, str] = {
-    "No further action": DetailedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
-    "For enforcement consideration": DetailedCase.RecommendationForEnforcement.OTHER,
-    "": DetailedCase.RecommendationForEnforcement.UNKNOWN,
+    "No further action": MobileCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
+    "For enforcement consideration": MobileCase.RecommendationForEnforcement.OTHER,
+    "": MobileCase.RecommendationForEnforcement.UNKNOWN,
 }
 MAP_ENFORCEMENT_BODY_CLOSED_CASE: dict[str, str] = {
-    "No": DetailedCase.EnforcementBodyClosedCase.YES,
-    "Yes": DetailedCase.EnforcementBodyClosedCase.IN_PROGRESS,
-    "": DetailedCase.EnforcementBodyClosedCase.NO,
+    "No": MobileCase.EnforcementBodyClosedCase.YES,
+    "Yes": MobileCase.EnforcementBodyClosedCase.IN_PROGRESS,
+    "": MobileCase.EnforcementBodyClosedCase.NO,
 }
 MAP_PSB_LOCATION: dict[str, str] = {
-    "England": DetailedCase.PsbLocation.ENGLAND,
-    "Scotland": DetailedCase.PsbLocation.SCOTLAND,
-    "Wales": DetailedCase.PsbLocation.WALES,
-    "Northern Ireland": DetailedCase.PsbLocation.NI,
-    "UK-wide": DetailedCase.PsbLocation.UK,
-    "Unknown": DetailedCase.PsbLocation.UNKNOWN,
+    "England": MobileCase.PsbLocation.ENGLAND,
+    "Scotland": MobileCase.PsbLocation.SCOTLAND,
+    "Wales": MobileCase.PsbLocation.WALES,
+    "Northern Ireland": MobileCase.PsbLocation.NI,
+    "UK-wide": MobileCase.PsbLocation.UK,
+    "Unknown": MobileCase.PsbLocation.UNKNOWN,
 }
 MAP_DISPROPORTIONATE_BURDEN_CLAIM: dict[str, str] = {
-    "Claim with no assessment": DetailedCase.DisproportionateBurden.NO_ASSESSMENT,
-    "Claim with assessment": DetailedCase.DisproportionateBurden.ASSESSMENT,
-    "No claim": DetailedCase.DisproportionateBurden.NO_CLAIM,
-    "No statement": DetailedCase.DisproportionateBurden.NO_STATEMENT,
-    "Not checked": DetailedCase.DisproportionateBurden.NOT_CHECKED,
+    "Claim with no assessment": MobileCase.DisproportionateBurden.NO_ASSESSMENT,
+    "Claim with assessment": MobileCase.DisproportionateBurden.ASSESSMENT,
+    "No claim": MobileCase.DisproportionateBurden.NO_CLAIM,
+    "No statement": MobileCase.DisproportionateBurden.NO_STATEMENT,
+    "Not checked": MobileCase.DisproportionateBurden.NOT_CHECKED,
 }
 MAP_CASE_STATUS: dict[str, str] = {
-    "Case closed and sent to equality body": DetailedCase.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
-    "Report in progress": DetailedCase.Status.REPORT_IN_PROGRESS,
-    "Report acknowledged waiting for 12-week deadline": DetailedCase.Status.AWAITING_12_WEEK_DEADLINE,
-    "Requested update at 12 weeks": DetailedCase.Status.REQUESTED_12_WEEK_UPDATE,
-    "Reviewing changes": DetailedCase.Status.REVIEWING_CHANGES,
-    "Complete": DetailedCase.Status.COMPLETE,
+    "Case closed and sent to equality body": MobileCase.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY,
+    "Report in progress": MobileCase.Status.REPORT_IN_PROGRESS,
+    "Report acknowledged waiting for 12-week deadline": MobileCase.Status.AWAITING_12_WEEK_DEADLINE,
+    "Reviewing changes": MobileCase.Status.REVIEWING_CHANGES,
+    "Complete": MobileCase.Status.COMPLETE,
 }
 DEFAULT_USER_ID: int = 3
 TRELLO_COMMENT_LABEL: str = "Imported from Trello"
@@ -141,15 +140,15 @@ def create_mobile_case_from_dict(
     # row["Sub-category"] is empty
     legacy_case_number: str = row["Record "]
     case_identifier = f"#M-{legacy_case_number.split()[0][1:]}"
-    android_app_store_url = validate_url(row["URL (iOS)"])
+    ios_app_store_url = validate_url(row["URL (iOS)"])
+    ios_test_included = (
+        MobileCase.TestIncluded.YES if ios_app_store_url else MobileCase.TestIncluded.NO
+    )
+    android_app_store_url = validate_url(row["URL (Android)"])
     android_test_included = (
         MobileCase.TestIncluded.YES
         if android_app_store_url
         else MobileCase.TestIncluded.NO
-    )
-    ios_app_store_url = validate_url(row["URL (Android)"])
-    ios_test_included = (
-        MobileCase.TestIncluded.YES if ios_app_store_url else MobileCase.TestIncluded.NO
     )
 
     first_contact_date: str = get_datetime_from_string(
@@ -333,10 +332,10 @@ def create_mobile_case_from_dict(
                     DetailedCase.DisproportionateBurden.NOT_CHECKED,
                 )
             ),
-            retest_android_disproportionate_burden_information=convert_windows_line_breaks_to_linux(
+            retest_ios_disproportionate_burden_information=convert_windows_line_breaks_to_linux(
                 row["Disproportionate Burden Notes (iOS)"]
             ),
-            retest_ios_disproportionate_burden_information=convert_windows_line_breaks_to_linux(
+            retest_android_disproportionate_burden_information=convert_windows_line_breaks_to_linux(
                 row["Disproportionate Burden Notes (Android)"]
             ),
             psb_progress_info=convert_windows_line_breaks_to_linux(

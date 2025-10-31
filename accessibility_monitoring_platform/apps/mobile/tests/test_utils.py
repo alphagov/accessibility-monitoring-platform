@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 import pytest
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
 
@@ -15,8 +16,9 @@ from ...mobile.csv_export import (
     MOBILE_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
     MOBILE_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
 )
-from ..models import MobileCase, MobileContact
+from ..models import EventHistory, MobileCase, MobileCaseHistory, MobileContact
 from ..utils import (
+    add_to_mobile_case_history,
     download_mobile_cases,
     download_mobile_equality_body_cases,
     download_mobile_feedback_survey_cases,
@@ -29,6 +31,37 @@ MOBILE_CONTACT_TITLE: str = "Mobile contact job title"
 MOBILE_CONTACT_DETAILS: str = "Mobile contact details"
 MOBILE_CONTACT_INFORMATION: str = "Mobile contact notes"
 CSV_EXPORT_FILENAME: str = "mobile_export.csv"
+
+
+@pytest.mark.django_db
+def test_add_to_mobile_case_history():
+    """Test adding latest change of MobileCase to history"""
+    user: User = User.objects.create(
+        username="johnsmith", first_name="John", last_name="Smith"
+    )
+    mobile_case: MobileCase = MobileCase.objects.create()
+
+    add_to_mobile_case_history(
+        mobile_case=mobile_case,
+        user=user,
+        value="New mobile case history entry",
+        event_type=MobileCaseHistory.EventType.NOTE,
+    )
+
+    assert MobileCaseHistory.objects.filter(mobile_case=mobile_case).count() == 1
+
+    mobile_case_history: MobileCaseHistory = MobileCaseHistory.objects.filter(
+        mobile_case=mobile_case
+    ).first()
+
+    assert mobile_case_history.value == "New mobile case history entry"
+
+    content_type: ContentType = ContentType.objects.get_for_model(MobileCaseHistory)
+    event: EventHistory = EventHistory.objects.get(
+        content_type=content_type, object_id=user.id
+    )
+
+    assert event.event_type == EventHistory.Type.CREATE
 
 
 @pytest.mark.django_db
