@@ -1,10 +1,7 @@
 Here are all of the reminders for detailed Cases which are overdue or due in the next seven days.
 
 {% for task in tasks %}
-
 User who set reminder: {{ task.user.get_full_name }}
-
-Auditor: {% if task.base_case.auditor %}{{ task.base_case.auditor.get_full_name }}{% else %}None{% endif %}
 
 Date: {{ task.date|amp_date }}
 
@@ -13,10 +10,11 @@ ID: {{ task.base_case.case_identifier }}
 Case: {% if task.base_case.website_name %}{{ task.base_case.website_name }} ({{ task.base_case.organisation_name }}){% else %}{{ task.base_case.organisation_name }}{% endif %}
 See https://platform.accessibility-monitoring.service.gov.uk{{ task.base_case.get_absolute_url }}
 
+Auditor: {% if task.base_case.auditor %}{{ task.base_case.auditor.get_full_name }}{% else %}None{% endif %}
+
 Description:
 
 {{ task.description }}
 
 ------
-
 {% endfor %}
