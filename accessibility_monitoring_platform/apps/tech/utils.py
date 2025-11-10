@@ -140,6 +140,7 @@ def create_mobile_case_from_dict(
     # row["Sub-category"] is empty
     legacy_case_number: str = row["Record "]
     case_identifier = f"#M-{legacy_case_number.split()[0][1:]}"
+    home_page_url = validate_url(row["Organisation URL"])
     ios_app_store_url = validate_url(row["URL (iOS)"])
     ios_test_included = (
         MobileCase.TestIncluded.YES if ios_app_store_url else MobileCase.TestIncluded.NO
@@ -182,6 +183,7 @@ def create_mobile_case_from_dict(
             # No website name column on spreadsheet
             # domain=extract_domain_from_url(url),
             status=status,
+            home_page_url=home_page_url,
             organisation_name=row["Organisation name"],
             parental_organisation_name=row["Parent org (if relevant)"],
             app_name=row["App name "],
