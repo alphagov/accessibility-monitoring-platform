@@ -74,7 +74,6 @@ const loggedInUrls = [
   '/common/metrics-policy/',
   '/common/metrics-report/',
   '/common/platform-versions/',
-  '/common/report-issue/',
   '/notifications/cases/1/reminder-task-create/',
   '/notifications/task-list/',
   '/reports/edit-report-wrapper/',
