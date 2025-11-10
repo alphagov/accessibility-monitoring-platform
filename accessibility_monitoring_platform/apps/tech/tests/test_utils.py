@@ -43,10 +43,10 @@ NUMBER_OF_PAGES_TESTED_ANDROID: str = "19"
 NUMBER_OF_ISSUES_FOUND_IOS: str = "23"
 NUMBER_OF_ISSUES_FOUND_ANDROID: str = "29"
 INITIAL_APP_COMPLIANCE_IOS: KeyValueMapping = KeyValueMapping(
-    key="not compliant", value=MobileCase.WebsiteCompliance.NOT
+    key="not compliant", value=MobileCase.AppCompliance.NOT
 )
 INITIAL_APP_COMPLIANCE_ANDROID: KeyValueMapping = KeyValueMapping(
-    key="", value=MobileCase.WebsiteCompliance.UNKNOWN
+    key="", value=MobileCase.AppCompliance.UNKNOWN
 )
 INITIAL_STATEMENT_COMPLIANCE_IOS: KeyValueMapping = KeyValueMapping(
     key="not compliant", value=MobileCase.StatementCompliance.NOT_COMPLIANT
@@ -74,10 +74,10 @@ RETEST_DATE_ANDROID: str = "22/02/1992"
 NUMBER_OF_REMAINING_ISSUES_IOS: str = "1"
 NUMBER_OF_REMAINING_ISSUES_ANDROID: str = "2"
 RETEST_APP_COMPLIANCE_IOS: KeyValueMapping = KeyValueMapping(
-    key="other", value=MobileCase.WebsiteCompliance.UNKNOWN
+    key="other", value=MobileCase.AppCompliance.UNKNOWN
 )
 RETEST_APP_COMPLIANCE_ANDROID: KeyValueMapping = KeyValueMapping(
-    key="partially compliant", value=MobileCase.WebsiteCompliance.PARTIALLY
+    key="partially compliant", value=MobileCase.AppCompliance.PARTIALLY
 )
 RETEST_STATEMENT_COMPLIANCE_IOS: KeyValueMapping = KeyValueMapping(
     key="other", value=MobileCase.StatementCompliance.UNKNOWN
@@ -265,11 +265,10 @@ def test_create_mobile_case_from_dict():
         NUMBER_OF_ISSUES_FOUND_ANDROID
     )
     assert (
-        mobile_case.initial_ios_website_compliance_state
-        == INITIAL_APP_COMPLIANCE_IOS.value
+        mobile_case.initial_ios_app_compliance_state == INITIAL_APP_COMPLIANCE_IOS.value
     )
     assert (
-        mobile_case.initial_android_website_compliance_state
+        mobile_case.initial_android_app_compliance_state
         == INITIAL_APP_COMPLIANCE_ANDROID.value
     )
     assert (
@@ -315,11 +314,10 @@ def test_create_mobile_case_from_dict():
         NUMBER_OF_REMAINING_ISSUES_ANDROID
     )
     assert (
-        mobile_case.retest_ios_website_compliance_state
-        == RETEST_APP_COMPLIANCE_IOS.value
+        mobile_case.retest_ios_app_compliance_state == RETEST_APP_COMPLIANCE_IOS.value
     )
     assert (
-        mobile_case.retest_android_website_compliance_state
+        mobile_case.retest_android_app_compliance_state
         == RETEST_APP_COMPLIANCE_ANDROID.value
     )
     assert (

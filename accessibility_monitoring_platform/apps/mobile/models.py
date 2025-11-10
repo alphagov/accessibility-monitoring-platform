@@ -43,7 +43,7 @@ class MobileCase(BaseCase):
         NO = "no", "No"
         NOT_KNOWN = "not-known", "Not known"
 
-    class WebsiteCompliance(models.TextChoices):
+    class AppCompliance(models.TextChoices):
         COMPLIANT = "compliant", "Fully compliant"
         PARTIALLY = "partially-compliant", "Partially compliant"
         NOT = "not-compliant", "Not compliant"
@@ -122,10 +122,10 @@ class MobileCase(BaseCase):
     initial_ios_test_end_date = models.DateField(null=True, blank=True)
     initial_ios_total_number_of_pages = models.IntegerField(null=True, blank=True)
     initial_ios_total_number_of_issues = models.IntegerField(null=True, blank=True)
-    initial_ios_website_compliance_state = models.CharField(
+    initial_ios_app_compliance_state = models.CharField(
         max_length=20,
-        choices=WebsiteCompliance.choices,
-        default=WebsiteCompliance.UNKNOWN,
+        choices=AppCompliance.choices,
+        default=AppCompliance.UNKNOWN,
     )
     initial_ios_statement_compliance_state = models.CharField(
         max_length=200,
@@ -149,10 +149,10 @@ class MobileCase(BaseCase):
     initial_android_test_end_date = models.DateField(null=True, blank=True)
     initial_android_total_number_of_pages = models.IntegerField(null=True, blank=True)
     initial_android_total_number_of_issues = models.IntegerField(null=True, blank=True)
-    initial_android_website_compliance_state = models.CharField(
+    initial_android_app_compliance_state = models.CharField(
         max_length=20,
-        choices=WebsiteCompliance.choices,
-        default=WebsiteCompliance.UNKNOWN,
+        choices=AppCompliance.choices,
+        default=AppCompliance.UNKNOWN,
     )
     initial_android_statement_compliance_state = models.CharField(
         max_length=200,
@@ -218,12 +218,12 @@ class MobileCase(BaseCase):
     retest_ios_result_complete_date = models.DateField(null=True, blank=True)
 
     # Reviewing changes - iOS retest result
-    retest_ios_website_compliance_state = models.CharField(
+    retest_ios_app_compliance_state = models.CharField(
         max_length=20,
-        choices=WebsiteCompliance.choices,
-        default=WebsiteCompliance.UNKNOWN,
+        choices=AppCompliance.choices,
+        default=AppCompliance.UNKNOWN,
     )
-    retest_ios_website_compliance_information = models.TextField(default="", blank=True)
+    retest_ios_app_compliance_information = models.TextField(default="", blank=True)
     retest_ios_statement_compliance_state = models.CharField(
         max_length=200,
         choices=StatementCompliance.choices,
@@ -250,14 +250,12 @@ class MobileCase(BaseCase):
     retest_android_result_complete_date = models.DateField(null=True, blank=True)
 
     # Reviewing changes - Android retest result
-    retest_android_website_compliance_state = models.CharField(
+    retest_android_app_compliance_state = models.CharField(
         max_length=20,
-        choices=WebsiteCompliance.choices,
-        default=WebsiteCompliance.UNKNOWN,
+        choices=AppCompliance.choices,
+        default=AppCompliance.UNKNOWN,
     )
-    retest_android_website_compliance_information = models.TextField(
-        default="", blank=True
-    )
+    retest_android_app_compliance_information = models.TextField(default="", blank=True)
     retest_android_statement_compliance_state = models.CharField(
         max_length=200,
         choices=StatementCompliance.choices,

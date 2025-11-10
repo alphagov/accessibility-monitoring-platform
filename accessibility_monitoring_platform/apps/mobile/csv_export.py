@@ -456,7 +456,7 @@ MOBILE_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     CSVColumn(
         column_header="iOS initial website compliance decision",
         source_class=MobileCase,
-        source_attr="initial_ios_website_compliance_state",
+        source_attr="initial_ios_app_compliance_state",
     ),
     CSVColumn(
         column_header="iOS initial statement compliance decision",
@@ -503,7 +503,7 @@ MOBILE_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     CSVColumn(
         column_header="Android initial website compliance decision",
         source_class=MobileCase,
-        source_attr="initial_android_website_compliance_state",
+        source_attr="initial_android_app_compliance_state",
     ),
     CSVColumn(
         column_header="Android initial statement compliance decision",

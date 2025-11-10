@@ -28,10 +28,10 @@ from ..notifications.models import Task
 logger = logging.getLogger(__name__)
 
 MAP_WEBSITE_COMPLIANCE: dict[str, str] = {
-    "not compliant": MobileCase.WebsiteCompliance.NOT,
-    "": MobileCase.WebsiteCompliance.UNKNOWN,
-    "other": MobileCase.WebsiteCompliance.UNKNOWN,
-    "partially compliant": MobileCase.WebsiteCompliance.PARTIALLY,
+    "not compliant": MobileCase.AppCompliance.NOT,
+    "": MobileCase.AppCompliance.UNKNOWN,
+    "other": MobileCase.AppCompliance.UNKNOWN,
+    "partially compliant": MobileCase.AppCompliance.PARTIALLY,
 }
 MAP_STATEMENT_COMPLIANCE: dict[str, str] = {
     "not compliant": MobileCase.StatementCompliance.NOT_COMPLIANT,
@@ -232,11 +232,11 @@ def create_mobile_case_from_dict(
             initial_android_total_number_of_issues=get_number_from_string(
                 row["Number of issues found (Android)"]
             ),
-            initial_ios_website_compliance_state=MAP_WEBSITE_COMPLIANCE.get(
+            initial_ios_app_compliance_state=MAP_WEBSITE_COMPLIANCE.get(
                 row["Initial app compliance decision (iOS)"].lower(),
                 DetailedCase.WebsiteCompliance.UNKNOWN,
             ),
-            initial_android_website_compliance_state=(
+            initial_android_app_compliance_state=(
                 MAP_WEBSITE_COMPLIANCE.get(
                     row["Initial app compliance decision (Android)"].lower(),
                     DetailedCase.WebsiteCompliance.UNKNOWN,
@@ -294,11 +294,11 @@ def create_mobile_case_from_dict(
             retest_android_total_number_of_issues=get_number_from_string(
                 row["Total number of remaining issues (Android)"]
             ),
-            retest_ios_website_compliance_state=MAP_WEBSITE_COMPLIANCE.get(
+            retest_ios_app_compliance_state=MAP_WEBSITE_COMPLIANCE.get(
                 row["Retest app compliance decision (iOS)"].lower(),
                 DetailedCase.WebsiteCompliance.UNKNOWN,
             ),
-            retest_android_website_compliance_state=MAP_WEBSITE_COMPLIANCE.get(
+            retest_android_app_compliance_state=MAP_WEBSITE_COMPLIANCE.get(
                 row["Retest app compliance decision (Android)"].lower(),
                 DetailedCase.WebsiteCompliance.UNKNOWN,
             ),

@@ -299,9 +299,9 @@ class MobileInitialTestiOSOutcomeUpdateForm(VersionForm):
         label="Number of issues found · Included in export",
         help_text="This does not include best practice issues",
     )
-    initial_ios_website_compliance_state = AMPChoiceRadioField(
-        label="Initial website compliance decision",
-        choices=MobileCase.WebsiteCompliance.choices,
+    initial_ios_app_compliance_state = AMPChoiceRadioField(
+        label="Initial app compliance decision",
+        choices=MobileCase.AppCompliance.choices,
     )
     initial_ios_statement_compliance_state = AMPChoiceRadioField(
         label="Initial statement compliance decision",
@@ -320,7 +320,7 @@ class MobileInitialTestiOSOutcomeUpdateForm(VersionForm):
             "initial_ios_test_end_date",
             "initial_ios_total_number_of_pages",
             "initial_ios_total_number_of_issues",
-            "initial_ios_website_compliance_state",
+            "initial_ios_app_compliance_state",
             "initial_ios_statement_compliance_state",
             "initial_ios_disproportionate_burden_claim",
             "initial_ios_outcome_complete_date",
@@ -360,9 +360,9 @@ class MobileInitialTestAndroidOutcomeUpdateForm(VersionForm):
         label="Number of issues found · Included in export",
         help_text="This does not include best practice issues",
     )
-    initial_android_website_compliance_state = AMPChoiceRadioField(
-        label="Initial website compliance decision",
-        choices=MobileCase.WebsiteCompliance.choices,
+    initial_android_app_compliance_state = AMPChoiceRadioField(
+        label="Initial app compliance decision",
+        choices=MobileCase.AppCompliance.choices,
     )
     initial_android_statement_compliance_state = AMPChoiceRadioField(
         label="Initial statement compliance decision",
@@ -381,7 +381,7 @@ class MobileInitialTestAndroidOutcomeUpdateForm(VersionForm):
             "initial_android_test_end_date",
             "initial_android_total_number_of_pages",
             "initial_android_total_number_of_issues",
-            "initial_android_website_compliance_state",
+            "initial_android_app_compliance_state",
             "initial_android_statement_compliance_state",
             "initial_android_disproportionate_burden_claim",
             "initial_android_outcome_complete_date",
@@ -582,12 +582,12 @@ class MobileRetestiOSResultUpdateForm(VersionForm):
 class MobileRetestiOSComplianceDecisionsUpdateForm(VersionForm):
     """Form for updating reviewing changes iOS retest result page"""
 
-    retest_ios_website_compliance_state = AMPChoiceRadioField(
-        label="Retest website compliance decision · Included in export",
-        choices=MobileCase.WebsiteCompliance.choices,
+    retest_ios_app_compliance_state = AMPChoiceRadioField(
+        label="Retest app compliance decision · Included in export",
+        choices=MobileCase.AppCompliance.choices,
     )
-    retest_ios_website_compliance_information = AMPTextField(
-        label="Retest website compliance decision information"
+    retest_ios_app_compliance_information = AMPTextField(
+        label="Retest app compliance decision information"
     )
     retest_ios_statement_compliance_state = AMPChoiceRadioField(
         label="Retest statement compliance decision · Included in export",
@@ -609,8 +609,8 @@ class MobileRetestiOSComplianceDecisionsUpdateForm(VersionForm):
         model = MobileCase
         fields = [
             "version",
-            "retest_ios_website_compliance_state",
-            "retest_ios_website_compliance_information",
+            "retest_ios_app_compliance_state",
+            "retest_ios_app_compliance_information",
             "retest_ios_statement_compliance_state",
             "retest_ios_statement_compliance_information",
             "retest_ios_disproportionate_burden_claim",
@@ -643,12 +643,12 @@ class MobileRetestAndroidResultUpdateForm(VersionForm):
 class MobileRetestAndroidComplianceDecisionsUpdateForm(VersionForm):
     """Form for updating reviewing changes Android retest result page"""
 
-    retest_android_website_compliance_state = AMPChoiceRadioField(
-        label="Retest website compliance decision · Included in export",
-        choices=MobileCase.WebsiteCompliance.choices,
+    retest_android_app_compliance_state = AMPChoiceRadioField(
+        label="Retest app compliance decision · Included in export",
+        choices=MobileCase.AppCompliance.choices,
     )
-    retest_android_website_compliance_information = AMPTextField(
-        label="Retest website compliance decision information"
+    retest_android_app_compliance_information = AMPTextField(
+        label="Retest app compliance decision information"
     )
     retest_android_statement_compliance_state = AMPChoiceRadioField(
         label="Retest statement compliance decision · Included in export",
@@ -670,8 +670,8 @@ class MobileRetestAndroidComplianceDecisionsUpdateForm(VersionForm):
         model = MobileCase
         fields = [
             "version",
-            "retest_android_website_compliance_state",
-            "retest_android_website_compliance_information",
+            "retest_android_app_compliance_state",
+            "retest_android_app_compliance_information",
             "retest_android_statement_compliance_state",
             "retest_android_statement_compliance_information",
             "retest_android_disproportionate_burden_claim",
