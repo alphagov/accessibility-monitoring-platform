@@ -18,6 +18,7 @@ class KeyValueMapping:
 
 
 ORGANISTION_NAME: str = "Organisation name"
+ORGANISTION_URL: str = "https://orgisation.com"
 APP_NAME: str = "App name"
 APP_STORE_URL_IOS: str = "https://appstore.com/ios"
 APP_STORE_URL_ANDROID: str = "https://appstore.com/android"
@@ -117,6 +118,7 @@ ENFORCEMENT_BODY_STATE: KeyValueMapping = KeyValueMapping(
 ROW: dict[str, str] = {
     "Record ": "M1",
     "Status": "Case closed and sent to equality body",
+    "Organisation URL": ORGANISTION_URL,
     "Organisation name": ORGANISTION_NAME,
     "Parent org (if relevant)": "",
     "App name ": APP_NAME,
