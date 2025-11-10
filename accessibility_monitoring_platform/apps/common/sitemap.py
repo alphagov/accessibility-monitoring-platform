@@ -1847,7 +1847,6 @@ SITE_MAP: list[PlatformPageGroup] = (
                 DetailedCasePlatformPage(
                     name="Detailed case history", url_name="detailed:case-history"
                 ),
-                PlatformPage(name="Issue reports", url_name="tech:issue-reports-list"),
                 PlatformPage(
                     name="Reference implementation",
                     url_name="tech:reference-implementation",
@@ -1897,7 +1896,6 @@ SITE_MAP: list[PlatformPageGroup] = (
                     name="Accessibility statement",
                     url_name="common:accessibility-statement",
                 ),
-                PlatformPage(name="Report an issue", url_name="common:issue-report"),
                 PlatformPage(name="Contact admin", url_name="common:contact-admin"),
                 PlatformPage(name="Dashboard", url_name="dashboard:home"),
                 PlatformPage(name="Tasks", url_name="notifications:task-list"),

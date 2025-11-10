@@ -80,7 +80,6 @@ const loggedInUrls = [
   '/reports/edit-report-wrapper/',
   '/reports/1/report-metrics-view/',
   '/tech/',
-  '/tech/issue-reports-list/',
   '/tech/platform-checking/',
   '/user/1/edit-user/'
 ]

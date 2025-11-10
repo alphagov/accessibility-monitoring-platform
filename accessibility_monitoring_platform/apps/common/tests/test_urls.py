@@ -1,6 +1,7 @@
 """
 Test urls of common app
 """
+
 import pytest
 from django.http.response import HttpResponse
 from django.urls import reverse
@@ -12,7 +13,6 @@ from django.urls import reverse
         "common:contact-admin",
         "common:edit-active-qa-auditor",
         "common:platform-history",
-        "common:issue-report",
         "common:markdown-cheatsheet",
     ],
 )

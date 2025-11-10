@@ -415,26 +415,6 @@ class PlatformCheckingForm(forms.Form):
     message = AMPCharFieldWide(label="Message", initial="Test log message")
 
 
-class AMPIssueReportForm(forms.ModelForm):
-    """
-    Form used to record issue reported by user in database.
-    """
-
-    page_url = forms.CharField(widget=forms.HiddenInput())
-    page_title = AMPCharFieldWide(label="Page where the problem occurred")
-    goal_description = AMPTextField(label="What were you doing?")
-    issue_description = AMPTextField(label="What went wrong?")
-
-    class Meta:
-        model = IssueReport
-        fields = [
-            "page_url",
-            "page_title",
-            "goal_description",
-            "issue_description",
-        ]
-
-
 class AMPTopMenuForm(forms.Form):
     """
     Form for searching for cases in the top menu bar

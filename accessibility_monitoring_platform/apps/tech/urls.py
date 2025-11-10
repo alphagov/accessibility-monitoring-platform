@@ -6,7 +6,6 @@ from django.urls import path
 from .views import (
     ImportCSV,
     ImportTrelloComments,
-    IssueReportListView,
     PlatformCheckingView,
     ReferenceImplementaionView,
 )
@@ -22,11 +21,6 @@ urlpatterns = [
         "platform-checking/",
         login_required(PlatformCheckingView.as_view()),
         name="platform-checking",
-    ),
-    path(
-        "issue-reports-list/",
-        login_required(IssueReportListView.as_view()),
-        name="issue-reports-list",
     ),
     path(
         "import-csv/",
