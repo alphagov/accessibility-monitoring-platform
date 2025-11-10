@@ -1,6 +1,5 @@
 """
-Test for init_int_test_data command which resets the contents of the database
-for integration tests. Also used to reset data for development.
+Test for send_reminders_email command which should only email the users on a Monday.
 """
 
 import os
