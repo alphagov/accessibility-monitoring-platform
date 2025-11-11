@@ -509,9 +509,9 @@ def import_trello_comments(csv_data: str, reset_data: bool = False) -> None:
 
     # Add description text
     for mobile_case, description_text in card_descriptions.items():
-        DetailedCaseHistory.objects.create(
+        MobileCaseHistory.objects.create(
             mobile_case=mobile_case,
-            event_type=DetailedCaseHistory.EventType.NOTE,
+            event_type=MobileCaseHistory.EventType.NOTE,
             value=description_text.replace(' "\u200c")', ")"),
             label=TRELLO_DESCRIPTION_LABEL,
             created_by=default_user,
