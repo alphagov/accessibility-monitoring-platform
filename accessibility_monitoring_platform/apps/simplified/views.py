@@ -58,7 +58,7 @@ from .forms import (
     CaseMetadataUpdateForm,
     CaseNoPSBContactUpdateForm,
     CaseOneWeekContactDetailsUpdateForm,
-    CaseOneWeekFollowupFinalUpdateForm,
+    CaseOneWeekFollowup12WeekUpdateForm,
     CasePublishReportUpdateForm,
     CaseQAApprovalUpdateForm,
     CaseQAAuditorUpdateForm,
@@ -654,13 +654,13 @@ class CaseTwelveWeekUpdateRequestedUpdateView(CaseUpdateView):
         return super().form_valid(form)
 
 
-class CaseOneWeekFollowupFinalUpdateView(CaseUpdateView):
+class CaseOneWeekFollowup12WeekUpdateView(CaseUpdateView):
     """
-    View to update One week followup for final update
+    View to update One week followup for 12-week update
     """
 
-    form_class: type[CaseOneWeekFollowupFinalUpdateForm] = (
-        CaseOneWeekFollowupFinalUpdateForm
+    form_class: type[CaseOneWeekFollowup12WeekUpdateForm] = (
+        CaseOneWeekFollowup12WeekUpdateForm
     )
     template_name: str = "simplified/forms/12_week_one_week_followup_final.html"
 

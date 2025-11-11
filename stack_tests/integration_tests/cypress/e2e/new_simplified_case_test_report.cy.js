@@ -147,7 +147,7 @@ describe('Create simplified case, tests and report', () => {
     cy.title().should('eq', `${newOrganisationName} | 12-week update requested`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | One week follow-up for final update`)
+    cy.title().should('eq', `${newOrganisationName} | One week follow-up for 12-week update`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | 12-week update request acknowledged`)
