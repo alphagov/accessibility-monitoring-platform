@@ -116,7 +116,8 @@ ENFORCEMENT_BODY_STATE: KeyValueMapping = KeyValueMapping(
     key="Yes", value=MobileCase.EnforcementBodyClosedCase.IN_PROGRESS
 )
 ROW: dict[str, str] = {
-    "Record ": "M1",
+    "platform_id": "M1",
+    "old_record_id": "M1",
     "Status": "Case closed and sent to equality body",
     "Organisation URL": ORGANISTION_URL,
     "Organisation name": ORGANISTION_NAME,

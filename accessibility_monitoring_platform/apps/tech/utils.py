@@ -138,8 +138,9 @@ def create_mobile_case_from_dict(
     # app_os: str = row["Type"]  # Combined / iOS / Android
     # url: str = validate_url(row["URL"])
     # row["Sub-category"] is empty
-    legacy_case_number: str = row["Record "]
-    case_identifier = f"#M-{legacy_case_number.split()[0][1:]}"
+    platform_id: str = row["platform_id"]
+    legacy_case_number: str = row["old_record_id"]
+    case_identifier = f"#M-{platform_id[1:]}"
     home_page_url = validate_url(row["Organisation URL"])
     ios_app_store_url = validate_url(row["URL (iOS)"])
     ios_test_included = (
