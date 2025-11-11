@@ -16,9 +16,10 @@ from django.views.generic import TemplateView
 from ..cases.models import TestType
 from ..common.utils import checks_if_2fa_is_enabled, get_recent_changes_to_platform
 from ..detailed.models import DetailedCase
+from ..mobile.models import MobileCase
 from ..notifications.utils import build_task_list, get_task_type_counts
 from ..simplified.models import SimplifiedCase
-from .utils import group_cases_by_status, group_detailed_cases_by_status
+from .utils import group_cases_by_status, group_detailed_or_mobile_cases_by_status
 
 
 class DashboardView(TemplateView):
@@ -33,9 +34,7 @@ class DashboardView(TemplateView):
         type_param: str | None = self.request.GET.get("type")
         filter_param: str | None = self.request.GET.get("filter")
 
-        test_type: TestType = (
-            TestType.SIMPLIFIED if type_param is None else TestType.DETAILED
-        )
+        test_type: TestType = TestType.SIMPLIFIED if type_param is None else type_param
 
         if test_type == TestType.SIMPLIFIED:
             cases: QuerySet[SimplifiedCase] = (
@@ -49,12 +48,16 @@ class DashboardView(TemplateView):
                     ]
                 )
             )
-        else:
+        elif test_type == TestType.DETAILED:
             cases: QuerySet[DetailedCase] = DetailedCase.objects.all().select_related(
                 "auditor", "reviewer"
             )
+        else:
+            cases: QuerySet[MobileCase] = MobileCase.objects.all().select_related(
+                "auditor", "reviewer"
+            )
 
-        qa_cases: QuerySet[SimplifiedCase | DetailedCase] = cases.filter(
+        qa_cases: QuerySet[SimplifiedCase | DetailedCase | MobileCase] = cases.filter(
             status__in=[
                 SimplifiedCase.Status.QA_IN_PROGRESS,
                 SimplifiedCase.Status.READY_TO_QA,
@@ -66,7 +69,7 @@ class DashboardView(TemplateView):
                 cases: QuerySet[SimplifiedCase] = cases.filter(
                     Q(auditor=user) | Q(status=SimplifiedCase.Status.UNASSIGNED)
                 )
-            else:  # Detailed cases
+            elif test_type == TestType.DETAILED:
                 cases: QuerySet[DetailedCase] = cases.filter(
                     Q(auditor=user)
                     | Q(
@@ -79,8 +82,21 @@ class DashboardView(TemplateView):
                         ]
                     )
                 )
+            else:  # Mobile cases
+                cases: QuerySet[MobileCase] = cases.filter(
+                    Q(auditor=user)
+                    | Q(
+                        status__in=[
+                            SimplifiedCase.Status.UNASSIGNED,
+                            MobileCase.Status.PSB_INFO_REQ,
+                            MobileCase.Status.PSB_INFO_CHASING,
+                            MobileCase.Status.PSB_INFO_REQ_ACK,
+                            MobileCase.Status.PSB_INFO_RECEIVED,
+                        ]
+                    )
+                )
         elif filter_param == "qa-filter":
-            cases: QuerySet[SimplifiedCase | DetailedCase] = qa_cases
+            cases: QuerySet[SimplifiedCase | DetailedCase | MobileCase] = qa_cases
 
         cases_by_status: dict[
             str, list[SimplifiedCase] | dict[str, list[DetailedCase] | str]
@@ -91,7 +107,13 @@ class DashboardView(TemplateView):
             )
         elif cases and test_type == TestType.DETAILED:
             cases_by_status: dict[str, dict[str, list[DetailedCase] | str]] = (
-                group_detailed_cases_by_status(detailed_cases=cases)
+                group_detailed_or_mobile_cases_by_status(cases=cases)
+            )
+        elif cases and test_type == TestType.MOBILE:
+            cases_by_status: dict[str, dict[str, list[MobileCase] | str]] = (
+                group_detailed_or_mobile_cases_by_status(
+                    cases=cases, test_type=TestType.MOBILE
+                )
             )
 
         context.update(
