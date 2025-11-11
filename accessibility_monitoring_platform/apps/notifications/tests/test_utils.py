@@ -1046,7 +1046,9 @@ def test_email_all_specialists_all_detailed_reminders_due(mailoutbox):
     specialist_group.user_set.add(specialist_2)
 
     detailed_case_1: DetailedCase = DetailedCase.objects.create(
-        organisation_name="Detailed Organisation One"
+        organisation_name="Detailed Organisation One",
+        website_name="Website name",
+        auditor=specialist_1,
     )
     Task.objects.create(
         type=Task.Type.REMINDER,
@@ -1090,3 +1092,5 @@ def test_email_all_specialists_all_detailed_reminders_due(mailoutbox):
     assert "First reminder description" in mailoutbox[0].body
     assert "Second reminder description" in mailoutbox[0].body
     assert "Third reminder description" not in mailoutbox[0].body
+
+    # print(mailoutbox[0].message())  # Visible when run with pytest -s
