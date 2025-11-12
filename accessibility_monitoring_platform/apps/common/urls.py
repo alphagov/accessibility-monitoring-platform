@@ -14,7 +14,6 @@ from .views import (
     ContactAdminView,
     FooterLinkFormsetTemplateView,
     FrequentlyUsedLinkFormsetTemplateView,
-    IssueReportView,
     MarkdownCheatsheetTemplateView,
     MetricsCaseTemplateView,
     MetricsPolicyTemplateView,
@@ -35,9 +34,6 @@ urlpatterns: list[URLPattern] = [
         "platform-versions/",
         login_required(ChangeToPlatformListView.as_view()),
         name="platform-history",
-    ),
-    path(
-        "report-issue/", login_required(IssueReportView.as_view()), name="issue-report"
     ),
     path(
         "accessibility-statement/",

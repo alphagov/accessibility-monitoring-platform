@@ -586,19 +586,19 @@ class SimplifiedCaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
         ]
 
 
-class SimplifiedCaseOneWeekFollowupFinalUpdateForm(VersionForm):
+class SimplifiedCaseOneWeekFollowup12WeekUpdateForm(VersionForm):
     """
-    Form to update One week followup for final update
+    Form to update One week followup for 12-week update
     """
 
     twelve_week_1_week_chaser_sent_date = AMPDateField(
-        label="One week follow-up for final update sent date"
+        label="One week follow-up sent date"
     )
     twelve_week_1_week_chaser_due_date = AMPDateField(
-        label="Final update one-week follow-up due date"
+        label="One-week follow-up due date"
     )
     twelve_week_1_week_chaser_sent_to_email = AMPCharFieldWide(
-        label="One week follow-up for final update sent to (email address)"
+        label="One week follow-up for 12-week update sent to (email address)"
     )
     twelve_week_correspondence_notes = AMPTextField(
         label="12-week correspondence notes"

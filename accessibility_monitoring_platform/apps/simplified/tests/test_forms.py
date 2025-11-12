@@ -14,7 +14,7 @@ from ...s3_read_write.models import S3Report
 from ..forms import (
     SimplifiedCaseCloseUpdateForm,
     SimplifiedCaseMetadataUpdateForm,
-    SimplifiedCaseOneWeekFollowupFinalUpdateForm,
+    SimplifiedCaseOneWeekFollowup12WeekUpdateForm,
     SimplifiedCasePublishReportUpdateForm,
     SimplifiedCaseReportFourWeekFollowupUpdateForm,
     SimplifiedCaseReportOneWeekFollowupUpdateForm,
@@ -148,16 +148,16 @@ def test_one_week_followup_final_hidden_when_12_week_cores_ack():
     has been acknowledged
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    form: SimplifiedCaseOneWeekFollowupFinalUpdateForm = (
-        SimplifiedCaseOneWeekFollowupFinalUpdateForm(instance=simplified_case)
+    form: SimplifiedCaseOneWeekFollowup12WeekUpdateForm = (
+        SimplifiedCaseOneWeekFollowup12WeekUpdateForm(instance=simplified_case)
     )
 
     hidden_fields: list[str] = [field.name for field in form.hidden_fields()]
     assert hidden_fields == ["version"]
 
     simplified_case.twelve_week_correspondence_acknowledged_date = TODAY
-    form: SimplifiedCaseOneWeekFollowupFinalUpdateForm = (
-        SimplifiedCaseOneWeekFollowupFinalUpdateForm(instance=simplified_case)
+    form: SimplifiedCaseOneWeekFollowup12WeekUpdateForm = (
+        SimplifiedCaseOneWeekFollowup12WeekUpdateForm(instance=simplified_case)
     )
     hidden_fields: list[str] = [field.name for field in form.hidden_fields()]
 

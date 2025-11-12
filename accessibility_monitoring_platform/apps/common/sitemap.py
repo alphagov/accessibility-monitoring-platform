@@ -92,7 +92,7 @@ from ..simplified.forms import (
     SimplifiedCaseMetadataUpdateForm,
     SimplifiedCaseNoPSBContactUpdateForm,
     SimplifiedCaseOneWeekContactDetailsUpdateForm,
-    SimplifiedCaseOneWeekFollowupFinalUpdateForm,
+    SimplifiedCaseOneWeekFollowup12WeekUpdateForm,
     SimplifiedCaseQAApprovalUpdateForm,
     SimplifiedCaseQAAuditorUpdateForm,
     SimplifiedCaseReportAcknowledgedUpdateForm,
@@ -1035,10 +1035,10 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 next_page_url_name="simplified:edit-12-week-one-week-followup-final",
             ),
             SimplifiedCasePlatformPage(
-                name="One week follow-up for final update",
+                name="One week follow-up for 12-week update",
                 url_name="simplified:edit-12-week-one-week-followup-final",
                 complete_flag_name="one_week_followup_final_complete_date",
-                case_details_form_class=SimplifiedCaseOneWeekFollowupFinalUpdateForm,
+                case_details_form_class=SimplifiedCaseOneWeekFollowup12WeekUpdateForm,
                 case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:edit-12-week-update-request-ack",
             ),
@@ -2223,7 +2223,6 @@ SITE_MAP: list[PlatformPageGroup] = (
                 MobileCasePlatformPage(
                     name="Mobile case history", url_name="mobile:case-history"
                 ),
-                PlatformPage(name="Issue reports", url_name="tech:issue-reports-list"),
                 PlatformPage(
                     name="Reference implementation",
                     url_name="tech:reference-implementation",
@@ -2273,7 +2272,6 @@ SITE_MAP: list[PlatformPageGroup] = (
                     name="Accessibility statement",
                     url_name="common:accessibility-statement",
                 ),
-                PlatformPage(name="Report an issue", url_name="common:issue-report"),
                 PlatformPage(name="Contact admin", url_name="common:contact-admin"),
                 PlatformPage(name="Dashboard", url_name="dashboard:home"),
                 PlatformPage(name="Tasks", url_name="notifications:task-list"),

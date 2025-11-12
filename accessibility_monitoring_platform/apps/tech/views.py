@@ -5,25 +5,17 @@ from typing import Any
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import BadRequest, PermissionDenied
-from django.db.models.query import Q, QuerySet
 from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
-from django.views.generic.list import ListView
 
-from ..common.models import Boolean, IssueReport
-from ..common.utils import get_url_parameters_for_pagination
+from ..common.models import Boolean
 from ..detailed.models import DetailedCase
 from ..mobile.models import MobileCase
 from ..reports.models import Report
 from ..simplified.models import SimplifiedCase
-from .forms import (
-    ImportCSVForm,
-    ImportTrelloCommentsForm,
-    IssueReportSearchForm,
-    PlatformCheckingForm,
-)
+from .forms import ImportCSVForm, ImportTrelloCommentsForm, PlatformCheckingForm
 from .utils import import_mobile_cases_csv, import_trello_comments
 
 logger = logging.getLogger(__name__)
@@ -79,61 +71,6 @@ class ReferenceImplementaionView(StaffRequiredMixin, TemplateView):
         context["banner_case_archived"] = SimplifiedCase.objects.exclude(
             archive=""
         ).first()
-        return context
-
-
-class IssueReportListView(ListView):
-    """View of list of issue reports"""
-
-    model: type[IssueReport] = IssueReport
-    template_name: str = "tech/issue_report_list.html"
-    context_object_name: str = "issue_reports"
-    paginate_by: int = 10
-
-    def get(self, request, *args, **kwargs):
-        """Populate filter form"""
-        if self.request.GET:
-            self.issue_report_search_form: IssueReportSearchForm = (
-                IssueReportSearchForm(self.request.GET)
-            )
-            self.issue_report_search_form.is_valid()
-        else:
-            self.issue_report_search_form = IssueReportSearchForm()
-        return super().get(request, *args, **kwargs)
-
-    def get_queryset(self) -> QuerySet[IssueReport]:
-        """Add filters to queryset"""
-        if self.issue_report_search_form.errors:
-            return IssueReport.objects.none()
-
-        if hasattr(self.issue_report_search_form, "cleaned_data"):
-            search_str: str | None = self.issue_report_search_form.cleaned_data.get(
-                "issue_report_search"
-            )
-
-            if search_str:
-                return IssueReport.objects.filter(
-                    Q(issue_number__icontains=search_str)
-                    | Q(page_url__icontains=search_str)
-                    | Q(page_title__icontains=search_str)
-                    | Q(goal_description__icontains=search_str)
-                    | Q(issue_description__icontains=search_str)
-                    | Q(created_by__first_name__icontains=search_str)
-                    | Q(created_by__last_name__icontains=search_str)
-                    | Q(trello_ticket__icontains=search_str)
-                    | Q(notes__icontains=search_str)
-                )
-
-        return IssueReport.objects.all()
-
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Get context data for template rendering"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        context["staff_view"] = self.request.GET.get("staff_view")
-        context["issue_report_search_form"] = self.issue_report_search_form
-        context["url_parameters"] = get_url_parameters_for_pagination(
-            request=self.request
-        )
         return context
 
 
