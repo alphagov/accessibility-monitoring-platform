@@ -13,7 +13,13 @@
     <table class="govuk-table">
         <thead class="govuk-table__head">
             <tr class="govuk-table__row">
-                <th scope="col" class="govuk-table__header amp-width-15-percent">Date created</th>
+                <th scope="col" class="govuk-table__header amp-width-15-percent">
+                    {% if filter == 'qa-filter' and type == 'detailed' %}
+                        Date of test
+                    {% else %}
+                        Date created
+                    {% endif %}
+                </th>
                 <th scope="col" class="govuk-table__header amp-width-one-quarter">Case</th>
                 <th scope="col" class="govuk-table__header amp-width-one-quarter">Full URL</th>
                 <th scope="col" class="govuk-table__header amp-width-one-quarter">Auditor</th>
@@ -22,7 +28,13 @@
         <tbody class="govuk-table__body">
             {% for case in cases %}
                 <tr class="govuk-table__row ">
-                    <th scope="row" class="govuk-table__header amp-width-15-percent govuk-!-font-weight-regular">{{ case.created|amp_date_trunc }}</th>
+                    <th scope="row" class="govuk-table__header amp-width-15-percent govuk-!-font-weight-regular">
+                        {% if filter == 'qa-filter' and type == 'detailed' %}
+                            {{ case.initial_test_start_date|amp_date_trunc }}
+                        {% else %}
+                            {{ case.created|amp_date_trunc }}
+                        {% endif %}
+                    </th>
                     <td class="govuk-table__cell amp-width-one-quarter">
                         <a href="{{ case.get_absolute_url }}" class="govuk-link">{{ case.organisation_name|truncatechars:25 }}</a>
                     </td>
