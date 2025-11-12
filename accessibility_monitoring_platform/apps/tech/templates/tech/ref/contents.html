@@ -56,12 +56,6 @@
         <h2 class="govuk-heading-m">Tech team pages</h2>
         <ul class="govuk-list">
             <li>
-                <a href="{% url 'tech:issue-reports-list' %}{% if user.is_staff %}?staff_view=True{% endif %}" class="govuk-link govuk-link--no-visited-state">
-                    Issue reports</a>
-                (<a href="{% url 'admin:common_issuereport_changelist' %}?complete__exact=0" class="govuk-link govuk-link--no-visited-state"
-                    >admin</a>)
-            </li>
-            <li>
                 <a href="{% url 'tech:platform-checking' %}" class="govuk-link govuk-link--no-visited-state">
                     Tools and sitemap</a>
                 (<a href="{% url 'tech:platform-checking' %}#id_sitemap" class="govuk-link govuk-link--no-visited-state"

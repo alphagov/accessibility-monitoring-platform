@@ -34,8 +34,6 @@ NOT_FOUND_DOMAIN: str = "not-found"
 FOUND_DOMAIN: str = "found"
 EMAIL_SUBJECT: str = "Email subject"
 EMAIL_MESSAGE: str = "Email message"
-ISSUE_REPORT_LINK: str = """<a class="govuk-footer__link" href="/common/report-issue/?page_url=/&page_title=Dashboard"
-target="_blank">Report an issue</a>"""
 METRIC_OVER_LAST_30_DAYS: str = """<p id="{metric_id}" class="govuk-body-m">
     <span class="govuk-!-font-size-48"><b>{number_last_30_days}</b></span>
     <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -165,7 +163,6 @@ LOG_MESSAGE: str = "Hello"
         ("common:contact-admin", "Contact admin"),
         ("common:edit-active-qa-auditor", ">Active QA auditor</h1>"),
         ("common:platform-history", ">Platform version history</h1>"),
-        ("common:issue-report", ">Report an issue</h1>"),
         ("common:accessibility-statement", ">Accessibility statement</h1>"),
         ("common:privacy-notice", ">Privacy notice</h1>"),
         ("common:markdown-cheatsheet", ">Markdown cheatsheet</h1>"),
@@ -276,29 +273,6 @@ def test_view_privacy_notice(client):
         """<h1>Privacy notice header</h1>""",
         html=True,
     )
-
-
-@pytest.mark.parametrize(
-    "prototype_name,issue_report_link_expected",
-    [
-        ("", True),
-        ("TEST", True),
-        ("anything-else", False),
-    ],
-)
-def test_issue_report_link(prototype_name, issue_report_link_expected, admin_client):
-    """
-    Test issue report link is rendered on live and test platforms
-    but not on prototypes.
-    """
-    settings.AMP_PROTOTYPE_NAME = prototype_name
-    response: HttpResponse = admin_client.get(reverse("dashboard:home"))
-
-    assert response.status_code == 200
-    if issue_report_link_expected:
-        assertContains(response, ISSUE_REPORT_LINK, html=True)
-    else:
-        assertNotContains(response, ISSUE_REPORT_LINK, html=True)
 
 
 @pytest.mark.parametrize(
@@ -1399,30 +1373,3 @@ def test_navbar_tasks_emboldened(admin_client, admin_user):
         </li>""",
         html=True,
     )
-
-
-@pytest.mark.parametrize(
-    "url, expected_page_name",
-    [
-        ("/", "Your cases"),
-        ("/cases/1/edit-case-metadata/", "Case metadata"),
-        ("/audits/1/edit-audit-metadata/", "Initial test metadata"),
-    ],
-)
-def test_page_name(url, expected_page_name, admin_client):
-    """
-    Test that the page renders and problem page's url and name are populated
-    as expected.
-    """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(simplified_case=simplified_case)
-
-    response: HttpResponse = admin_client.get(
-        f"/common/report-issue/?page_url={url}&page_title={expected_page_name}"
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, "Report an issue")
-    assertContains(response, url)
-    assertContains(response, expected_page_name)
