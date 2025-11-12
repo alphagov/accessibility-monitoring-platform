@@ -161,7 +161,7 @@ UNRESOLVED_EQUALITY_BODY_NOTES: str = "Unresolved equality body correspondence n
 STATEMENT_CHECK_RESULT_REPORT_COMMENT: str = "Statement check result report comment"
 STATEMENT_CHECK_RESULT_RETEST_COMMENT: str = "Statement check result retest comment"
 TWELVE_WEEK_CORES_ACKNOWLEDGED_WARNING: str = (
-    "The request for a final update has been acknowledged by the organisation"
+    "The request for a 12-week update has been acknowledged by the organisation"
 )
 RECOMMENDATION_NOTE: str = "Recommendation note"
 ZENDESK_URL: str = "https://zendesk.com/ticket"
@@ -1726,7 +1726,7 @@ def test_case_report_four_week_followup_contains_followup_due_date(admin_client)
 
 def test_case_report_twelve_week_1_week_chaser_contains_followup_due_date(admin_client):
     """
-    Test that the one week followup for final update view contains the one week chaser due date
+    Test that the one week followup for 12-week update view contains the one week chaser due date
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         twelve_week_1_week_chaser_due_date=ONE_WEEK_CHASER_DUE_DATE,
@@ -1751,7 +1751,7 @@ def test_case_report_twelve_week_1_week_chaser_shows_warning_if_12_week_cores_ac
     admin_client,
 ):
     """
-    Test that the one week followup for final update view shows a warning if the 12-week
+    Test that the one week followup for 12-week update view shows a warning if the 12-week
     correspondence has been acknowledged
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
@@ -1974,7 +1974,7 @@ def test_case_navigation_shown_on_edit_contact_page(admin_client):
         (
             "simplified:edit-12-week-one-week-followup-final",
             "one_week_followup_final_complete_date",
-            "One week follow-up for final update",
+            "One week follow-up for 12-week update",
         ),
         (
             "simplified:edit-12-week-update-request-ack",
@@ -2925,7 +2925,7 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
         ),
         (
             "simplified:edit-12-week-one-week-followup-final",
-            "One week follow-up for final update",
+            "One week follow-up for 12-week update",
         ),
         (
             "simplified:edit-12-week-update-request-ack",

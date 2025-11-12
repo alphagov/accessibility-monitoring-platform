@@ -22,7 +22,7 @@ from .views import (
     CaseMetadataUpdateView,
     CaseNoPSBResponseUpdateView,
     CaseOneWeekContactDetailsUpdateView,
-    CaseOneWeekFollowupFinalUpdateView,
+    CaseOneWeekFollowup12WeekUpdateView,
     CaseOutstandingIssuesDetailView,
     CasePublishReportUpdateView,
     CaseQAApprovalUpdateView,
@@ -190,7 +190,7 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-12-week-one-week-followup-final/",
-        login_required(CaseOneWeekFollowupFinalUpdateView.as_view()),
+        login_required(CaseOneWeekFollowup12WeekUpdateView.as_view()),
         name="edit-12-week-one-week-followup-final",
     ),
     path(

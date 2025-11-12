@@ -249,7 +249,7 @@ class SimplifiedCase(BaseCase):
     twelve_week_correspondence_notes = models.TextField(default="", blank=True)
     twelve_week_update_requested_complete_date = models.DateField(null=True, blank=True)
 
-    # One week followup for final update page
+    # One week followup for 12-week update page
     twelve_week_1_week_chaser_sent_date = models.DateField(null=True, blank=True)
     twelve_week_1_week_chaser_due_date = models.DateField(null=True, blank=True)
     twelve_week_1_week_chaser_sent_to_email = models.CharField(
@@ -1240,7 +1240,8 @@ class CaseStatus(models.Model):
             return CaseStatus.Status.AWAITING_12_WEEK_DEADLINE
         elif (
             self.simplified_case.twelve_week_update_requested_date
-            and self.simplified_case.twelve_week_correspondence_acknowledged_date is None
+            and self.simplified_case.twelve_week_correspondence_acknowledged_date
+            is None
         ):
             return CaseStatus.Status.AFTER_12_WEEK_CORES
         elif (
