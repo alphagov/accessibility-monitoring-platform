@@ -9,9 +9,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.mail import EmailMessage
 from django.db.models.query import QuerySet
-from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView, UpdateView
@@ -26,7 +24,6 @@ from ..simplified.utils import (
 from .forms import (
     ActiveQAAuditorUpdateForm,
     AMPContactAdminForm,
-    AMPIssueReportForm,
     BulkURLSearchForm,
     FooterLinkFormset,
     FooterLinkOneExtraFormset,
@@ -44,13 +41,7 @@ from .metrics import (
     get_report_progress_metrics,
     get_report_yearly_metrics,
 )
-from .models import (
-    ChangeToPlatform,
-    FooterLink,
-    FrequentlyUsedLink,
-    IssueReport,
-    Platform,
-)
+from .models import ChangeToPlatform, FooterLink, FrequentlyUsedLink, Platform
 from .platform_template_view import PlatformTemplateView
 from .utils import extract_domain_from_url, get_platform_settings, sanitise_domain
 
@@ -133,63 +124,6 @@ class ContactAdminView(FormView):
                 to=[settings.CONTACT_ADMIN_EMAIL],
             )
             email.send()
-
-
-class IssueReportView(FormView):
-    """
-    Save user feedback
-    """
-
-    form_class: type[AMPIssueReportForm] = AMPIssueReportForm
-    template_name: str = "common/issue_report.html"
-    success_url: str = reverse_lazy("dashboard:home")
-
-    def get(self, request, *args, **kwargs):
-        """Populate form"""
-        target_page_url: str = self.request.GET.get("page_url", "")
-        target_page_title: str = self.request.GET.get("page_title", "Unknown page")
-
-        goal_description: str = self.request.GET.get("goal_description", "")
-        issue_description: str = self.request.GET.get("issue_description", "")
-        self.form: AMPIssueReportForm = self.form_class(
-            {
-                "page_url": target_page_url,
-                "page_title": target_page_title,
-                "goal_description": goal_description,
-                "issue_description": issue_description,
-            }
-        )
-        self.form.is_valid()
-        return super().get(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs) -> dict[str, Any]:
-        """Add field values into context"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        context["form"] = self.form
-        return context
-
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        issue_report: IssueReport = form.save(commit=False)
-        issue_report.created_by = self.request.user
-        issue_report.save()
-        self.send_mail(issue_report)
-        return redirect(issue_report.page_url)
-
-    def send_mail(self, issue_report: IssueReport) -> None:
-        email: EmailMessage = EmailMessage(
-            subject=f"Platform issue on {issue_report.page_title}",
-            body=f"""Reported by: {issue_report.created_by}
-
-URL: https://{self.request.get_host()}{issue_report.page_url}
-
-Goal: {issue_report.goal_description}
-
-Issue: {issue_report.issue_description}""",
-            from_email=self.request.user.email,
-            to=[settings.CONTACT_ADMIN_EMAIL],
-        )
-        email.send()
 
 
 class ActiveQAAuditorUpdateView(UpdateView):
