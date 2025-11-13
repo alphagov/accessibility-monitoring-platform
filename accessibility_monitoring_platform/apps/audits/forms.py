@@ -61,6 +61,7 @@ class AuditMetadataUpdateForm(VersionForm):
     exemptions_state = AMPChoiceRadioField(
         label="Exemptions?",
         choices=Audit.Exemptions.choices,
+        help_text="Accessibility regulations do not apply to this website",
     )
     exemptions_notes = AMPTextField(label="Notes")
     audit_metadata_complete_date = AMPDatePageCompleteField()
