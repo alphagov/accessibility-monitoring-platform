@@ -511,7 +511,7 @@ class CorrespondenceTwelveWeekRequestUpdateView(CorrespondenceUpdateView):
 
 
 class CorrespondenceTwelveWeekReceivedUpdateView(CorrespondenceUpdateView):
-    """View to update correspondence 12-week received"""
+    """View to update correspondence 12-week update received"""
 
     form_class: type[TwelveWeekReceivedUpdateForm] = TwelveWeekReceivedUpdateForm
 
