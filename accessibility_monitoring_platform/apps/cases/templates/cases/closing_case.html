@@ -7,6 +7,9 @@
         {% elif case.test_type == 'detailed' %}
             {% include 'detailed/helpers/contacts_list.html' %}
             {% include 'detailed/helpers/zendesk_tickets.html' %}
+        {% elif case.test_type == 'mobile' %}
+            {% include 'mobile/helpers/contacts_list.html' %}
+            {% include 'mobile/helpers/zendesk_tickets.html' %}
         {% endif %}
     </div>
 {% if not required_data_missing_columns %}

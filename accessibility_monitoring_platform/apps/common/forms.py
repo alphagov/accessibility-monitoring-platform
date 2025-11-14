@@ -11,7 +11,14 @@ from zoneinfo import ZoneInfo
 from django import forms
 from django.contrib.auth.models import User
 
-from .models import FooterLink, FrequentlyUsedLink, IssueReport, Platform
+from .models import (
+    AUDITOR_GROUP_NAME,
+    QA_AUDITOR_GROUP_NAME,
+    FooterLink,
+    FrequentlyUsedLink,
+    IssueReport,
+    Platform,
+)
 from .utils import convert_date_to_datetime, validate_url
 
 DEFAULT_START_DATE: datetime = datetime(
@@ -310,7 +317,7 @@ class AMPAuditorModelChoiceField(AMPModelChoiceField):
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault(
             "queryset",
-            User.objects.filter(groups__name="Auditor").order_by(
+            User.objects.filter(groups__name=AUDITOR_GROUP_NAME).order_by(
                 "first_name", "last_name"
             ),
         )
@@ -331,7 +338,7 @@ class AMPQAAuditorModelChoiceField(AMPAuditorModelChoiceField):
     def __init__(self, *args, **kwargs) -> None:
         kwargs.setdefault(
             "queryset",
-            User.objects.filter(groups__name="QA auditor").order_by(
+            User.objects.filter(groups__name=QA_AUDITOR_GROUP_NAME).order_by(
                 "first_name", "last_name"
             ),
         )

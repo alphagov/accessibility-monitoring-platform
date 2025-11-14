@@ -1,0 +1,59 @@
+{% extends 'mobile/base.html' %}
+
+{% block preform %}
+<p class="govuk-body amp-margin-bottom-30">
+    <a href="{% url 'mobile:edit-contact-create' mobile_case.id %}" class="govuk-link govuk-link--no-visited-state">
+        + Add contact
+    </a>
+</p>
+<div class="amp-margin-bottom-40">
+    {% for contact in mobile_case.contacts %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-full">
+                        <h3 class="govuk-heading-m amp-margin-bottom-10">
+                            Contact {{ forloop.counter }}
+                            &nbsp;
+                            <a href="{% url 'mobile:edit-contact-update' contact.id %}" class="govuk-link govuk-link--no-visited-state govuk-body-m">
+                                Edit
+                            </a>
+                        </h3>
+                    </div>
+                </div>
+                <table class="govuk-body">
+                    <tr>
+                        <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Name</b></td>
+                        <td class="amp-padding-bottom-10">{{ contact.name }}</td>
+                    </tr>
+                    <tr>
+                        <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Job title</b></td>
+                        <td class="amp-padding-bottom-10">{{ contact.job_title }}</td>
+                    </tr>
+                    <tr>
+                        <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Contact details</b></td>
+                        <td class="amp-padding-bottom-10">{{ contact.contact_details }}</td>
+                    </tr>
+                    <tr>
+                        <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Preferred contact</b></td>
+                        <td class="amp-padding-bottom-10">{{ contact.get_preferred_display }}</td>
+                    </tr>
+                    <tr>
+                        <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Added by</b></td>
+                        <td class="amp-padding-bottom-10">{{ contact.created_by.get_full_name }}</td>
+                    </tr>
+                    <tr>
+                        <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Date added</b></td>
+                        <td class="amp-padding-bottom-10">{{ contact.created|amp_date }}</td>
+                    </tr>
+                    <tr class="govuk-body">
+                        <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Contact information</b></td>
+                        <td class="amp-padding-bottom-10 amp-notes">{{ contact.information|markdown_to_html }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <hr class="amp-width-100 amp-margin-bottom-30 hr-grey" />
+    {% endfor %}
+</div>
+{% endblock %}

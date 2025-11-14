@@ -1,11 +1,13 @@
 """Tests - test for comments model"""
 
 import pytest
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.http import HttpRequest
 
-from ...common.models import Platform
+from ...common.models import QA_AUDITOR_GROUP_NAME, Platform
 from ...common.utils import get_platform_settings
+from ...detailed.models import DetailedCase
+from ...mobile.models import MobileCase
 from ...notifications.models import Task
 from ...simplified.models import SimplifiedCase, SimplifiedEventHistory
 from ..models import Comment
@@ -94,3 +96,44 @@ def test_add_comment_notification_to_on_call_qa(rf):
 
     assert task.user == second_user
     assert task.type == Task.Type.QA_COMMENT
+
+
+@pytest.mark.parametrize("case_class", [DetailedCase, MobileCase, SimplifiedCase])
+@pytest.mark.django_db
+def test_add_comment_notification_to_all_qa_auditors(case_class, rf):
+    """
+    Test comment notifications are also sent to all QA auditors when for a detailed
+    or mobile case with no auditor set.
+    """
+    case: DetailedCase | MobileCase | SimplifiedCase = case_class.objects.create()
+
+    requesting_user: User = User.objects.create(
+        username="first", first_name="First", last_name="User"
+    )
+    request: HttpRequest = rf.get("/")
+    request.user = requesting_user
+
+    first_qa_auditor: User = User.objects.create(
+        username="second", first_name="Second", last_name="User"
+    )
+    second_qa_auditor: User = User.objects.create(
+        username="third", first_name="Third", last_name="User"
+    )
+
+    qa_group: Group = Group.objects.create(name=QA_AUDITOR_GROUP_NAME)
+    qa_group.user_set.add(requesting_user)
+    qa_group.user_set.add(first_qa_auditor)
+    qa_group.user_set.add(second_qa_auditor)
+
+    comment: Comment = Comment.objects.create(
+        base_case=case,
+        user=requesting_user,
+        body=COMMENT_BODY,
+    )
+
+    assert add_comment_notification(request=request, comment=comment)
+
+    if case_class == SimplifiedCase:
+        assert Task.objects.count() == 0
+    else:
+        assert Task.objects.count() == 2

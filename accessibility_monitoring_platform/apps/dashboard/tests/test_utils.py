@@ -10,7 +10,7 @@ from ...simplified.models import SimplifiedCase
 from ..utils import (
     get_all_cases_in_qa,
     group_cases_by_status,
-    group_detailed_cases_by_status,
+    group_detailed_or_mobile_cases_by_status,
     return_cases_requiring_user_review,
 )
 
@@ -382,8 +382,8 @@ def test_group_cases_by_status():
 
 def test_group_detailed_cases_by_status():
     """Test detailed cases are grouped by status and sorted"""
-    detailed_cases_by_status: dict = group_detailed_cases_by_status(
-        detailed_cases=MOCK_DETAILED_CASES
+    detailed_cases_by_status: dict = group_detailed_or_mobile_cases_by_status(
+        cases=MOCK_DETAILED_CASES
     )
 
     assert len(detailed_cases_by_status) == len(DetailedCase.Status.choices)

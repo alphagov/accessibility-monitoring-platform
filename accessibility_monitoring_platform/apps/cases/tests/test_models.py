@@ -298,6 +298,7 @@ def test_case_get_case():
     [
         ("https://...gov.uk/simplified/1/view/", 1),
         ("https://...gov.uk/detailed/2/case-detail/", 2),
+        ("https://...gov.uk/mobile/3/case-detail/", 3),
         ("", None),
         ("https://...gov.uk/audit/191/view/", None),
     ],
@@ -313,6 +314,7 @@ def test_extract_id_from_case_url(case_url, case_id):
     [
         ("https://...gov.uk/simplified/1/view/", "#S-1"),
         ("https://...gov.uk/detailed/1/case-detail/", "#D-1"),
+        ("https://...gov.uk/mobile/1/case-detail/", "#M-1"),
         ("", None),
         ("https://...gov.uk/audit/191/view/", None),
     ],
@@ -322,6 +324,8 @@ def test_previous_case_identifier(previous_case_url, previous_case_identifier):
     """Test previous case identifier derived from url"""
     if "detailed" in previous_case_url:
         DetailedCase.objects.create()
+    elif "mobile" in previous_case_url:
+        MobileCase.objects.create()
     else:
         SimplifiedCase.objects.create()
 
