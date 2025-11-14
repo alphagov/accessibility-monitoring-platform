@@ -173,7 +173,7 @@ def amp_format_date(date_to_format: date) -> str:
     return f"{date_to_format:%-d %B %Y}" if date_to_format else ""
 
 
-def amp_format_trunc_date(date_to_format: date) -> str:
+def amp_format_date_short_month(date_to_format: date) -> str:
     """Format date according to GDS style guide"""
     return f"{date_to_format:%-d %b %Y}" if date_to_format else ""
 
@@ -187,6 +187,17 @@ def amp_format_datetime(datetime_to_format: datetime) -> str:
     """Format date and time according to GDS style guide"""
     return (
         f"{amp_format_date(datetime_to_format)} {amp_format_time(datetime_to_format)}"
+        if datetime_to_format
+        else ""
+    )
+
+
+def amp_format_datetime_short_month(datetime_to_format: datetime) -> str:
+    """
+    Format date and time according to GDS style guide with short month name (e.g. Jan)
+    """
+    return (
+        f"{amp_format_date_short_month(datetime_to_format)} {amp_format_time(datetime_to_format)}"
         if datetime_to_format
         else ""
     )

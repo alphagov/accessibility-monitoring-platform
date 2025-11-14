@@ -1,13 +1,16 @@
 """
 Test templatetags of common app
 """
+
 from datetime import date, datetime, timezone
 
 import pytest
 
 from ..templatetags.common_tags import (
     amp_date,
+    amp_date_trunc,
     amp_datetime,
+    amp_datetime_short_month,
     list_item_by_index,
     markdown_to_html,
 )
@@ -60,6 +63,18 @@ def test_amp_date(date_to_format, expected_result):
 
 
 @pytest.mark.parametrize(
+    "date_to_format,expected_result",
+    [
+        (date(2021, 4, 1), "1 Apr 2021"),
+        (None, ""),
+    ],
+)
+def test_amp_date_trunc(date_to_format, expected_result):
+    """Test date formatted according to GDS style guide."""
+    assert amp_date_trunc(date_to_format) == expected_result
+
+
+@pytest.mark.parametrize(
     "datetime_to_format,expected_result",
     [
         (datetime(2021, 1, 4, 9, 1, 0, 0, timezone.utc), "4 January 2021 9:01am"),
@@ -70,3 +85,16 @@ def test_amp_date(date_to_format, expected_result):
 def test_amp_datetime(datetime_to_format, expected_result):
     """Test date and time formatted according to GDS style guide."""
     assert amp_datetime(datetime_to_format) == expected_result
+
+
+@pytest.mark.parametrize(
+    "datetime_to_format,expected_result",
+    [
+        (datetime(2021, 1, 4, 9, 1, 0, 0, timezone.utc), "4 Jan 2021 9:01am"),
+        (datetime(2021, 7, 4, 8, 1, 0, 0, timezone.utc), "4 Jul 2021 9:01am"),
+        (None, ""),
+    ],
+)
+def test_amp_datetime_short_month(datetime_to_format, expected_result):
+    """Test date and time formatted according to GDS style guide."""
+    assert amp_datetime_short_month(datetime_to_format) == expected_result
