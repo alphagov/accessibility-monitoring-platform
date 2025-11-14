@@ -25,7 +25,9 @@ from ..models import ChangeToPlatform, Platform
 from ..utils import (
     SessionExpiry,
     amp_format_date,
+    amp_format_date_short_month,
     amp_format_datetime,
+    amp_format_datetime_short_month,
     amp_format_time,
     build_filters,
     calculate_percentage,
@@ -355,6 +357,18 @@ def test_amp_format_date(date_to_format, expected_result):
 
 
 @pytest.mark.parametrize(
+    "date_to_format,expected_result",
+    [
+        (date(2021, 4, 1), "1 Apr 2021"),
+        (None, ""),
+    ],
+)
+def test_amp_format_date_trunc(date_to_format, expected_result):
+    """Test date formatted according to GDS style guide with a short month name"""
+    assert amp_format_date_short_month(date_to_format) == expected_result
+
+
+@pytest.mark.parametrize(
     "datetime_to_format,expected_result",
     [
         (datetime(2021, 4, 1, 9, 1), "9:01am"),
@@ -376,6 +390,20 @@ def test_amp_format_time(datetime_to_format, expected_result):
 def test_amp_format_datetime(datetime_to_format, expected_result):
     """Test date and time formatted according to GDS style guide."""
     assert amp_format_datetime(datetime_to_format) == expected_result
+
+
+@pytest.mark.parametrize(
+    "datetime_to_format,expected_result",
+    [
+        (datetime(2021, 4, 1, 9, 1), "1 Apr 2021 9:01am"),
+        (None, ""),
+    ],
+)
+def test_amp_format_datetime_short_month(datetime_to_format, expected_result):
+    """
+    Test date and time formatted according to GDS style guide with a short month.
+    """
+    assert amp_format_datetime_short_month(datetime_to_format) == expected_result
 
 
 def test_undo_double_escapes():
