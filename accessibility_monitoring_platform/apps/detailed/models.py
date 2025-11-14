@@ -263,7 +263,24 @@ class DetailedCase(BaseCase):
         )
 
     def notes_history(self) -> QuerySet["DetailedCaseHistory"]:
-        return self.detailed_case_history
+        return (
+            self.detailedcasehistory_set.filter(
+                event_type__in=[
+                    DetailedCaseHistory.EventType.NOTE,
+                    DetailedCaseHistory.EventType.TRELLO_DESCRIPTION,
+                ]
+            )
+            .annotate(
+                position_trello_desc_last=DjangoCase(
+                    When(
+                        event_type=DetailedCaseHistory.EventType.TRELLO_DESCRIPTION.value,
+                        then=1,
+                    ),
+                    default=0,
+                )
+            )
+            .order_by("position_trello_desc_last", "-created")
+        )
 
     @property
     def most_recent_history(self):

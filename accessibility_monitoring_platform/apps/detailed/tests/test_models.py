@@ -95,7 +95,7 @@ def test_detailed_case_notes_history():
         )
     )
 
-    assert detailed_case_history_status in detailed_case.notes_history()
+    assert detailed_case_history_status not in detailed_case.notes_history()
     assert detailed_case_history_note in detailed_case.notes_history()
 
 
