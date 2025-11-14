@@ -759,4 +759,9 @@ SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_class=SimplifiedCase,
         source_attr="is_feedback_requested",
     ),
+    CSVColumn(
+        column_header="Compliance decision email sent to",
+        source_class=SimplifiedCase,
+        source_attr="compliance_decision_sent_to_email",
+    ),
 ]
