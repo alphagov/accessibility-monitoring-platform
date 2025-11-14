@@ -53,7 +53,7 @@
                 </b>
             </p>
             <p class="govuk-body amp-margin-bottom-5">{{ mobile_case_event.created_by.get_full_name }}</p>
-            <p class="govuk-body amp-margin-bottom-5">{{ mobile_case_event.created|amp_datetime }}</p>
+            <p class="govuk-body amp-margin-bottom-5">{{ mobile_case_event.created|amp_datetime_short_month }}</p>
             {% if mobile_case_event.event_type == 'note' %}
                 <p class="govuk-body amp-margin-bottom-5">
                     <a href="{% url 'mobile:edit-case-note' mobile_case_event.id %}"
