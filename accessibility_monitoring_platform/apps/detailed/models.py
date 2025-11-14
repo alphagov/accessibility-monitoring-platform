@@ -8,7 +8,8 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models.query import QuerySet
+from django.db.models import Case as DjangoCase
+from django.db.models import QuerySet, When
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
@@ -262,17 +263,27 @@ class DetailedCase(BaseCase):
         )
 
     def notes_history(self) -> QuerySet["DetailedCaseHistory"]:
-        return self.detailedcasehistory_set.filter(
-            event_type=DetailedCaseHistory.EventType.NOTE
-        )
-
-    @property
-    def zendesk_tickets(self) -> QuerySet["ZendeskTicket"]:
-        return self.zendeskticket_set.filter(is_deleted=False)
+        return self.detailed_case_history
 
     @property
     def most_recent_history(self):
         return self.detailedcasehistory_set.first()
+
+    @property
+    def detailed_case_history(self) -> QuerySet["DetailedCaseHistory"]:
+        return self.detailedcasehistory_set.annotate(
+            position_trello_desc_last=DjangoCase(
+                When(
+                    event_type=DetailedCaseHistory.EventType.TRELLO_DESCRIPTION.value,
+                    then=1,
+                ),
+                default=0,
+            )
+        ).order_by("position_trello_desc_last", "-created")
+
+    @property
+    def zendesk_tickets(self) -> QuerySet["ZendeskTicket"]:
+        return self.zendeskticket_set.filter(is_deleted=False)
 
     @property
     def contacts(self) -> QuerySet["Contact"]:
@@ -400,6 +411,7 @@ class DetailedCaseHistory(models.Model):
     class EventType(models.TextChoices):
         NOTE = "note", "Entered note"
         STATUS = "status", "Changed status"
+        TRELLO_DESCRIPTION = "trello-description", "Description imported from Trello"
 
     detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
     event_type = models.CharField(

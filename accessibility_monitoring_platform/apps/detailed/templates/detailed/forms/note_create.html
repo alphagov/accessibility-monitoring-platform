@@ -40,7 +40,7 @@
 {% include 'common/amp_search_widget.html' with search_label='Search notes' %}
 <br/>
 <br/>
-{% for detailed_case_event in case.detailedcasehistory_set.all %}
+{% for detailed_case_event in case.detailed_case_history %}
     <div class="govuk-grid-row amp-searchable amp-margin-bottom-30">
         <div class="govuk-grid-column-one-quarter">
             <p class="govuk-body amp-margin-bottom-5">

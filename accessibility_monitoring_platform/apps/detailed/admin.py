@@ -37,7 +37,7 @@ class DetailedCaseHistoryAdmin(admin.ModelAdmin):
 
     readonly_fields = ["detailed_case", "event_type", "created_by", "created"]
     search_fields = [
-        "detailed_case__case_number",
+        "detailed_case__case_identifier",
         "detailed_case__organisation_name",
         "label",
         "value",

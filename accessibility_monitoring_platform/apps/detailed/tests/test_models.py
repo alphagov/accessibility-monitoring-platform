@@ -77,7 +77,7 @@ def test_detailed_case_status_history():
 
 @pytest.mark.django_db
 def test_detailed_case_notes_history():
-    """Test DetailedCase.notes_history returns only relevant events"""
+    """Test DetailedCase.notes_history returns relevant events"""
     detailed_case: DetailedCase = DetailedCase.objects.create()
     user: User = User.objects.create()
     detailed_case_history_status: DetailedCaseHistory = (
@@ -95,7 +95,7 @@ def test_detailed_case_notes_history():
         )
     )
 
-    assert detailed_case_history_status not in detailed_case.notes_history()
+    assert detailed_case_history_status in detailed_case.notes_history()
     assert detailed_case_history_note in detailed_case.notes_history()
 
 

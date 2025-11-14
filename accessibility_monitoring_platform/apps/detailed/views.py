@@ -284,7 +284,6 @@ class DetailedCaseNoteCreateView(HideCaseNavigationMixin, CreateView):
         )
         context: dict[str, Any] = super().get_context_data(**kwargs)
         context["detailed_case"] = detailed_case
-        context["detailed_case_history"] = detailed_case.detailedcasehistory_set.all()
         return context
 
     def form_valid(self, form: DetailedCaseHistoryCreateForm):
