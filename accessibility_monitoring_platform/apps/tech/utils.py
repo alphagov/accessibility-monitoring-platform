@@ -12,9 +12,6 @@ from django.contrib.auth.models import User
 from ..cases.models import Sector
 from ..comments.models import Comment
 from ..common.models import ZENDESK_URL_PREFIX, Boolean
-
-# from ..common.utils import extract_domain_from_url
-from ..detailed.models import DetailedCase, DetailedCaseHistory
 from ..mobile.models import (
     EventHistory,
     MobileCase,
@@ -27,7 +24,7 @@ from ..notifications.models import Task
 
 logger = logging.getLogger(__name__)
 
-MAP_WEBSITE_COMPLIANCE: dict[str, str] = {
+MAP_APP_COMPLIANCE: dict[str, str] = {
     "not compliant": MobileCase.AppCompliance.NOT,
     "": MobileCase.AppCompliance.UNKNOWN,
     "other": MobileCase.AppCompliance.UNKNOWN,
@@ -76,6 +73,7 @@ MAP_CASE_STATUS: dict[str, str] = {
 DEFAULT_USER_ID: int = 3
 TRELLO_COMMENT_LABEL: str = "Imported from Trello"
 TRELLO_DESCRIPTION_LABEL: str = "Description imported from Trello"
+TRELLO_DESCRIPTION_TIME: datetime = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 
 def convert_windows_line_breaks_to_linux(windows: str) -> str:
@@ -180,9 +178,6 @@ def create_mobile_case_from_dict(
         mobile_case: MobileCase = MobileCase.objects.create(
             created_by_id=default_user.id,
             updated=updated,
-            # No home_page_url column on spreadsheet
-            # No website name column on spreadsheet
-            # domain=extract_domain_from_url(url),
             status=status,
             home_page_url=home_page_url,
             organisation_name=row["Organisation name"],
@@ -196,7 +191,7 @@ def create_mobile_case_from_dict(
             # sub_category column on spreadsheet is empty
             enforcement_body=row["Enforcement body"].lower(),
             psb_location=MAP_PSB_LOCATION.get(
-                row["Public sector body location"], DetailedCase.PsbLocation.UNKNOWN
+                row["Public sector body location"], MobileCase.PsbLocation.UNKNOWN
             ),
             previous_case_url=validate_url(row["URL to previous case "]),
             is_complaint=row["Is it a complaint?"].lower(),
@@ -235,35 +230,35 @@ def create_mobile_case_from_dict(
             initial_android_total_number_of_issues=get_number_from_string(
                 row["Number of issues found (Android)"]
             ),
-            initial_ios_app_compliance_state=MAP_WEBSITE_COMPLIANCE.get(
+            initial_ios_app_compliance_state=MAP_APP_COMPLIANCE.get(
                 row["Initial app compliance decision (iOS)"].lower(),
-                DetailedCase.WebsiteCompliance.UNKNOWN,
+                MobileCase.AppCompliance.UNKNOWN,
             ),
             initial_android_app_compliance_state=(
-                MAP_WEBSITE_COMPLIANCE.get(
+                MAP_APP_COMPLIANCE.get(
                     row["Initial app compliance decision (Android)"].lower(),
-                    DetailedCase.WebsiteCompliance.UNKNOWN,
+                    MobileCase.AppCompliance.UNKNOWN,
                 )
             ),
             initial_ios_statement_compliance_state=(
                 MAP_STATEMENT_COMPLIANCE.get(
                     row["Initial statement compliance decision (iOS)"].lower(),
-                    DetailedCase.StatementCompliance.UNKNOWN,
+                    MobileCase.StatementCompliance.UNKNOWN,
                 )
             ),
             initial_android_statement_compliance_state=(
                 MAP_STATEMENT_COMPLIANCE.get(
                     row["Initial statement compliance decision (Android)"].lower(),
-                    DetailedCase.StatementCompliance.UNKNOWN,
+                    MobileCase.StatementCompliance.UNKNOWN,
                 )
             ),
             initial_ios_disproportionate_burden_claim=MAP_DISPROPORTIONATE_BURDEN_CLAIM.get(
                 row["Initial disproportionate burden claim (iOS)"],
-                DetailedCase.DisproportionateBurden.NOT_CHECKED,
+                MobileCase.DisproportionateBurden.NOT_CHECKED,
             ),
             initial_android_disproportionate_burden_claim=MAP_DISPROPORTIONATE_BURDEN_CLAIM.get(
                 row["Initial disproportionate burden claim (Android)"],
-                DetailedCase.DisproportionateBurden.NOT_CHECKED,
+                MobileCase.DisproportionateBurden.NOT_CHECKED,
             ),
             reviewer=qa_auditor,
             equality_body_report_url_ios=validate_url(
@@ -297,24 +292,24 @@ def create_mobile_case_from_dict(
             retest_android_total_number_of_issues=get_number_from_string(
                 row["Total number of remaining issues (Android)"]
             ),
-            retest_ios_app_compliance_state=MAP_WEBSITE_COMPLIANCE.get(
+            retest_ios_app_compliance_state=MAP_APP_COMPLIANCE.get(
                 row["Retest app compliance decision (iOS)"].lower(),
-                DetailedCase.WebsiteCompliance.UNKNOWN,
+                MobileCase.AppCompliance.UNKNOWN,
             ),
-            retest_android_app_compliance_state=MAP_WEBSITE_COMPLIANCE.get(
+            retest_android_app_compliance_state=MAP_APP_COMPLIANCE.get(
                 row["Retest app compliance decision (Android)"].lower(),
-                DetailedCase.WebsiteCompliance.UNKNOWN,
+                MobileCase.AppCompliance.UNKNOWN,
             ),
             retest_ios_statement_compliance_state=(
                 MAP_STATEMENT_COMPLIANCE.get(
                     row["Accessibility Statement Decision (iOS)"].lower(),
-                    DetailedCase.StatementCompliance.UNKNOWN,
+                    MobileCase.StatementCompliance.UNKNOWN,
                 )
             ),
             retest_android_statement_compliance_state=(
                 MAP_STATEMENT_COMPLIANCE.get(
                     row["Accessibility Statement Decision (Android)"].lower(),
-                    DetailedCase.StatementCompliance.UNKNOWN,
+                    MobileCase.StatementCompliance.UNKNOWN,
                 )
             ),
             retest_ios_statement_compliance_information=convert_windows_line_breaks_to_linux(
@@ -326,13 +321,13 @@ def create_mobile_case_from_dict(
             retest_ios_disproportionate_burden_claim=(
                 MAP_DISPROPORTIONATE_BURDEN_CLAIM.get(
                     row["Disproportionate Burden Claimed? (iOS)"],
-                    DetailedCase.DisproportionateBurden.NOT_CHECKED,
+                    MobileCase.DisproportionateBurden.NOT_CHECKED,
                 )
             ),
             retest_android_disproportionate_burden_claim=(
                 MAP_DISPROPORTIONATE_BURDEN_CLAIM.get(
                     row["Disproportionate Burden Claimed? (Android)"],
-                    DetailedCase.DisproportionateBurden.NOT_CHECKED,
+                    MobileCase.DisproportionateBurden.NOT_CHECKED,
                 )
             ),
             retest_ios_disproportionate_burden_information=convert_windows_line_breaks_to_linux(
@@ -346,7 +341,7 @@ def create_mobile_case_from_dict(
             ),
             recommendation_for_enforcement=MAP_ENFORCEMENT_RECOMMENDATION.get(
                 row["Enforcement Recommendation (iOS)"],
-                DetailedCase.RecommendationForEnforcement.UNKNOWN,
+                MobileCase.RecommendationForEnforcement.UNKNOWN,
             ),
             recommendation_info=convert_windows_line_breaks_to_linux(
                 row["Enforcement Recommendation Notes (iOS)"]
@@ -354,11 +349,11 @@ def create_mobile_case_from_dict(
             # Need spearate fields for mobile OSes:
             # recommendation_for_enforcement_ios=MAP_ENFORCEMENT_RECOMMENDATION.get(
             #     row["Enforcement Recommendation (iOS)"],
-            #     DetailedCase.RecommendationForEnforcement.UNKNOWN,
+            #     MobileCase.RecommendationForEnforcement.UNKNOWN,
             # ),
             # recommendation_for_enforcement_android=MAP_ENFORCEMENT_RECOMMENDATION.get(
             #     row["Enforcement Recommendation (Android)"],
-            #     DetailedCase.RecommendationForEnforcement.UNKNOWN,
+            #     MobileCase.RecommendationForEnforcement.UNKNOWN,
             # ),
             # recommendation_info_ios=row["Enforcement Recommendation Notes (iOS)"],
             # recommendation_info_android=row["Enforcement Recommendation Notes (Android)"],
@@ -380,7 +375,7 @@ def create_mobile_case_from_dict(
             ),
             enforcement_body_closed_case_state=MAP_ENFORCEMENT_BODY_CLOSED_CASE.get(
                 row["Active case with enforcement body?"],
-                DetailedCase.CaseCloseDecision.NO_DECISION,
+                MobileCase.CaseCloseDecision.NO_DECISION,
             ),
             # Reporting year not imported
         )
@@ -476,7 +471,7 @@ def import_trello_comments(csv_data: str, reset_data: bool = False) -> None:
     if reset_data:
         MobileCaseHistory.objects.filter(label=TRELLO_COMMENT_LABEL).delete()
         MobileCaseHistory.objects.filter(label=TRELLO_DESCRIPTION_LABEL).delete()
-    card_descriptions: dict[DetailedCase, str] = {}
+    card_descriptions: dict[MobileCase, str] = {}
     reader: Any = csv.DictReader(io.StringIO(csv_data))
     for row in reader:
         case_no: str = row["case_no"]
@@ -509,11 +504,12 @@ def import_trello_comments(csv_data: str, reset_data: bool = False) -> None:
                 logger.warning("MobileCase not found: %s", case_identifier)
 
     # Add description text
-    for mobile_case, description_text in card_descriptions.items():
-        MobileCaseHistory.objects.create(
-            mobile_case=mobile_case,
-            event_type=MobileCaseHistory.EventType.NOTE,
-            value=description_text.replace(' "\u200c")', ")"),
-            label=TRELLO_DESCRIPTION_LABEL,
-            created_by=default_user,
-        )
+    with patch("django.utils.timezone.now", Mock(return_value=TRELLO_DESCRIPTION_TIME)):
+        for mobile_case, description_text in card_descriptions.items():
+            MobileCaseHistory.objects.create(
+                mobile_case=mobile_case,
+                event_type=MobileCaseHistory.EventType.NOTE,
+                value=description_text.replace(' "\u200c")', ")"),
+                label=TRELLO_DESCRIPTION_LABEL,
+                created_by=default_user,
+            )
