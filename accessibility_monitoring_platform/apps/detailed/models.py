@@ -22,6 +22,7 @@ from ..common.models import Boolean, VersionModel
 from ..common.utils import extract_domain_from_url
 
 ZENDESK_URL_PREFIX: str = "https://govuk.zendesk.com/agent/tickets/"
+REMINDER_LABEL: str = "Reminder"
 
 
 class DetailedCase(BaseCase):

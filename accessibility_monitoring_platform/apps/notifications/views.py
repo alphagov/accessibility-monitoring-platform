@@ -12,6 +12,8 @@ from django.views.generic import ListView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
 from ..cases.models import BaseCase
+from ..common.utils import amp_format_date
+from ..detailed.models import REMINDER_LABEL, DetailedCaseHistory
 from .forms import ReminderForm
 from .models import Task
 from .utils import (
@@ -141,6 +143,17 @@ class ReminderTaskCreateView(CreateView):
                 reminder_task: Task = Task.objects.get(
                     base_case=base_case, type=Task.Type.REMINDER, read=False
                 )
+                if (
+                    base_case.test_type == BaseCase.TestType.DETAILED
+                    and reminder_task.description != form.cleaned_data["description"]
+                ):
+                    DetailedCaseHistory.objects.create(
+                        detailed_case=base_case.get_case(),
+                        event_type=DetailedCaseHistory.EventType.NOTE,
+                        value=f'Due {amp_format_date(form.cleaned_data["date"])}:\n\n{form.cleaned_data["description"]}',
+                        label=REMINDER_LABEL,
+                        created_by=self.request.user,
+                    )
                 reminder_task.date = form.cleaned_data["date"]
                 reminder_task.user = user
                 reminder_task.description = form.cleaned_data["description"]
@@ -163,6 +176,15 @@ class ReminderTaskCreateView(CreateView):
                     model_object=self.object,
                     base_case=base_case,
                 )
+                if base_case.test_type == BaseCase.TestType.DETAILED:
+                    DetailedCaseHistory.objects.create(
+                        detailed_case=base_case.get_case(),
+                        event_type=DetailedCaseHistory.EventType.NOTE,
+                        value=f'Due {amp_format_date(form.cleaned_data["date"])}:\n\n{form.cleaned_data["description"]}',
+                        label=REMINDER_LABEL,
+                        created_by=self.request.user,
+                    )
+
         return HttpResponseRedirect(base_case.get_absolute_url())
 
     def get_success_url(self) -> str:
@@ -196,6 +218,16 @@ class ReminderTaskUpdateView(UpdateView):
             self.object.user = (
                 base_case.auditor if base_case.auditor else self.request.user
             )
+            if base_case.test_type == BaseCase.TestType.DETAILED:
+                reminder_on_db: Task = Task.objects.get(id=self.object.id)
+                if reminder_on_db != form.cleaned_data["description"]:
+                    DetailedCaseHistory.objects.create(
+                        detailed_case=base_case.get_case(),
+                        event_type=DetailedCaseHistory.EventType.NOTE,
+                        value=f'Due {amp_format_date(form.cleaned_data["date"])}:\n\n{form.cleaned_data["description"]}',
+                        label=REMINDER_LABEL,
+                        created_by=self.request.user,
+                    )
             record_case_model_update_event(
                 user=self.request.user,
                 model_object=self.object,
