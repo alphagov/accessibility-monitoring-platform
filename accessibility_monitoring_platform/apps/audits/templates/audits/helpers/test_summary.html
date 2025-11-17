@@ -24,8 +24,8 @@
                 </tr>
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Issues remaining at 12-weeks</b></td>
-                    <td class="amp-padding-bottom-10"> 
-                        {{ case.audit.unfixed_check_results.count }} issues                
+                    <td class="amp-padding-bottom-10">
+                        {{ case.audit.unfixed_check_results.count }} issues
                         {% if case.audit %}
                             ({{ case.audit.percentage_wcag_issues_fixed }}% fixed)
                         {% endif %}
@@ -33,12 +33,12 @@
                 </tr>
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Pages removed at 12-weeks</b></td>
-                    <td class="amp-padding-bottom-10">                    
+                    <td class="amp-padding-bottom-10">
                         {{ case.audit.missing_at_retest_pages.count }}
                         ({{ case.audit.missing_at_retest_check_results.count }} issues)
                     </td>
                 </tr>
-            </table>    
+            </table>
             <br/>
         </div>
     </div>
@@ -112,8 +112,8 @@
                 </tr>
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Issues remaining at 12-weeks</b></td>
-                    <td class="amp-padding-bottom-10"> 
-                        {{ case.audit.unfixed_check_results.count }} issues                
+                    <td class="amp-padding-bottom-10">
+                        {{ case.audit.unfixed_check_results.count }} issues
                         {% if case.audit %}
                             ({{ case.audit.percentage_wcag_issues_fixed }}% fixed)
                         {% endif %}
@@ -130,7 +130,7 @@
                         {% endif %}
                     </td>
                 </tr>
-            </table>    
+            </table>
             <br/>
             <h2 class="govuk-heading-s">Statement assessment contents</h2>
             <div class="amp-border-left">
@@ -266,6 +266,13 @@
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-full">
                     <h2 id="wcag-{{ wcag_definition.id }}" class="govuk-heading-m govuk-body govuk-!-font-size-19 govuk-!-font-weight-bold">{{ wcag_definition.name }} ({{ failures|length }})</h2>
+                    {% if failures|length > 1 %}
+                        <p class="govuk-body-m">
+                            Issue identifiers:
+                            [{{ wcag_definition.issue_identifiers }}]
+                            {% include 'common/copy_text_to_clipboard.html' with text_to_copy=wcag_definition.issue_identifiers %}
+                        </p>
+                    {% endif %}
                     {% if wcag_definition.description %}
                         <p class="govuk-body-m">{{ wcag_definition.description }}</p>
                     {% endif %}
