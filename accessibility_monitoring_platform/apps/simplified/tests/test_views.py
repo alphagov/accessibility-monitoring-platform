@@ -4026,7 +4026,7 @@ def test_bulk_copy_issue_ids_to_clipboard(admin_client):
 
     assertContains(
         response,
-        f"[{check_result_1.issue_identifier} {check_result_2.issue_identifier}]",
+        "Copy all issue IDs",
     )
     assertContains(
         response,
