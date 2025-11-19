@@ -106,7 +106,7 @@
     </li>
 </ul>
 
-<h2 class="govuk-heading-s amp-margin-bottom-5">Report acknowledged waiting for 12-week deadline {% if case.twelve_week_update_requested_date %}[COMPLETE]{% endif %}</h2>
+<h2 class="govuk-heading-s amp-margin-bottom-5">Waiting for 12-week deadline {% if case.twelve_week_update_requested_date %}[COMPLETE]{% endif %}</h2>
 <ul class="govuk-list govuk-list--bullet">
     <li>
         <a href="{% url 'simplified:edit-12-week-update-requested' case.id %}" class="govuk-link govuk-link--no-visited-state">
@@ -146,7 +146,7 @@
     </li>
 </ul>
 
-<h2 class="govuk-heading-s amp-margin-bottom-5">Case closed and waiting to be sent to equalities body</h2>
+<h2 class="govuk-heading-s amp-margin-bottom-5">Waiting to be sent to equalities body</h2>
 <ul class="govuk-list govuk-list--bullet">
     <li>
         <a href="{% url 'simplified:edit-equality-body-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">
@@ -156,7 +156,7 @@
     </li>
 </ul>
 
-<h2 class="govuk-heading-s amp-margin-bottom-5">Case closed and sent to equalities body {% if case.enforcement_body_closed_case != 'no' %}[COMPLETE]{% endif %}</h2>
+<h2 class="govuk-heading-s amp-margin-bottom-5">Sent to equalities body {% if case.enforcement_body_closed_case != 'no' %}[COMPLETE]{% endif %}</h2>
 <ul class="govuk-list govuk-list--bullet">
     <li>
         <a href="{% url 'simplified:edit-equality-body-metadata' case.id %}" class="govuk-link govuk-link--no-visited-state">

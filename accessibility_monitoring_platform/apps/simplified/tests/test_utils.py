@@ -820,6 +820,7 @@ def test_download_feedback_survey_cases():
         "",  # Contact email
         SIMPLIFIED_CONTACT_NOTES,  # Contact notes
         "No",  # Feedback survey sent
+        "",  # Compliance decision email sent to
     ]
 
     validate_csv_response(
