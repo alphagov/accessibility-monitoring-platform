@@ -1,5 +1,5 @@
 /*
-All user to filter frequently used links by case type.
+Allow user to filter frequently used links by case type.
 */
 const caseTypeRadioButtons = document.querySelectorAll('input[name="case_type_filter"]')
 caseTypeRadioButtons.forEach(typeRadioButton => {
