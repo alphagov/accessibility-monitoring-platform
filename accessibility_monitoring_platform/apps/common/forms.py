@@ -509,3 +509,22 @@ class ImportCSVForm(forms.Form):
 
 class ImportTrelloCommentsForm(forms.Form):
     data = AMPTextField(label="CSV data")
+
+
+class FrequentlyUsedLinksFilterForm(forms.Form):
+    """Form for filtering frequently used links"""
+
+    case_type_filter = AMPChoiceRadioField(
+        label="Filter by case type",
+        choices=FrequentlyUsedLink.CaseType.choices,
+        initial=FrequentlyUsedLink.CaseType.SIMPLIFIED,
+        widget=AMPRadioSelectWidget(
+            attrs={
+                "horizontal": True,
+                "small": True,
+            }
+        ),
+    )
+
+    class Meta:
+        fields: list[str] = ["case_type_filter"]
