@@ -9,7 +9,6 @@ from django.urls import reverse
 from pytest_django.asserts import assertContains
 
 from ...audits.models import Audit
-from ...common.models import IssueReport
 from ...reports.models import Report
 from ...simplified.models import SimplifiedCase
 from ...users.tests.test_views import VALID_PASSWORD, VALID_USER_EMAIL, create_user
