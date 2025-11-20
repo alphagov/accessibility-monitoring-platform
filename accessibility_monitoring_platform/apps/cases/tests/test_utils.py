@@ -32,8 +32,8 @@ WEBSITE_NAME: str = "Website name"
 SUBCATEGORY_NAME: str = "Sub-category name"
 CASE_IDENTIFIER: str = "#M-1"
 APP_NAME: str = "App name"
-IOS_APP_STORE_URL: str = "https://appstore.com/ios"
-ANDROID_APP_STORE_URL: str = "https://appstore.com/android"
+IOS_APP_URL: str = "https://appstore.com/ios"
+ANDROID_APP_URL: str = "https://appstore.com/android"
 CASE_NUMBER: int = 99
 
 PAST_DATE: date = date(1900, 1, 1)
@@ -283,8 +283,8 @@ def test_case_filtered_by_case_number_search_string():
         SUBCATEGORY_NAME,
         CASE_IDENTIFIER,
         APP_NAME,
-        IOS_APP_STORE_URL,
-        ANDROID_APP_STORE_URL,
+        IOS_APP_URL,
+        ANDROID_APP_URL,
     ],
 )
 @pytest.mark.django_db
@@ -301,8 +301,8 @@ def test_case_filtered_by_search_string(search_string):
         website_name=WEBSITE_NAME,
         subcategory=subcategory,
         app_name=APP_NAME,
-        ios_app_store_url=IOS_APP_STORE_URL,
-        android_app_store_url=ANDROID_APP_STORE_URL,
+        ios_app_url=IOS_APP_URL,
+        android_app_url=ANDROID_APP_URL,
     )
     form: MockForm = MockForm(cleaned_data={"case_search": search_string})
 

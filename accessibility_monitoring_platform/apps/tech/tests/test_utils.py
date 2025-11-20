@@ -20,8 +20,8 @@ class KeyValueMapping:
 ORGANISTION_NAME: str = "Organisation name"
 ORGANISTION_URL: str = "https://orgisation.com"
 APP_NAME: str = "App name"
-APP_STORE_URL_IOS: str = "https://appstore.com/ios"
-APP_STORE_URL_ANDROID: str = "https://appstore.com/android"
+APP_URL_IOS: str = "https://appstore.com/ios"
+APP_URL_ANDROID: str = "https://appstore.com/android"
 SECTOR_NAME: str = "Sector name"
 ENFORCEMENT_BODY: str = "EHRC"
 PUBLIC_SECTOR_BODY_LOCATION: str = "England"
@@ -39,8 +39,8 @@ TEST_START_DATE_IOS: str = "14/01/1992"
 TEST_START_DATE_ANDROID: str = "15/01/1992"
 TEST_END_DATE_IOS: str = "14/02/1992"
 TEST_END_DATE_ANDROID: str = "15/02/1992"
-NUMBER_OF_PAGES_TESTED_IOS: str = "17"
-NUMBER_OF_PAGES_TESTED_ANDROID: str = "19"
+NUMBER_OF_SCREENS_TESTED_IOS: str = "17"
+NUMBER_OF_SCREENS_TESTED_ANDROID: str = "19"
 NUMBER_OF_ISSUES_FOUND_IOS: str = "23"
 NUMBER_OF_ISSUES_FOUND_ANDROID: str = "29"
 INITIAL_APP_COMPLIANCE_IOS: KeyValueMapping = KeyValueMapping(
@@ -123,8 +123,8 @@ ROW: dict[str, str] = {
     "Organisation name": ORGANISTION_NAME,
     "Parent org (if relevant)": "",
     "App name ": APP_NAME,
-    "URL (iOS)": APP_STORE_URL_IOS,
-    "URL (Android)": APP_STORE_URL_ANDROID,
+    "URL (iOS)": APP_URL_IOS,
+    "URL (Android)": APP_URL_ANDROID,
     "Type": "Combined",
     "Sector": SECTOR_NAME,
     "Sub-category": "",
@@ -145,8 +145,8 @@ ROW: dict[str, str] = {
     "Link to monitor doc": "https:/drive.com/monitor_doc_folder",
     "Test end date (iOS)": TEST_END_DATE_IOS,
     "Test end date (Android)": TEST_END_DATE_ANDROID,
-    "Number of pages tested (iOS)": NUMBER_OF_PAGES_TESTED_IOS,
-    "Number of pages tested (Android)": NUMBER_OF_PAGES_TESTED_ANDROID,
+    "Number of pages tested (iOS)": NUMBER_OF_SCREENS_TESTED_IOS,
+    "Number of pages tested (Android)": NUMBER_OF_SCREENS_TESTED_ANDROID,
     "Number of issues found (iOS)": NUMBER_OF_ISSUES_FOUND_IOS,
     "Number of issues found (Android)": NUMBER_OF_ISSUES_FOUND_ANDROID,
     "Initial app compliance decision (iOS)": INITIAL_APP_COMPLIANCE_IOS.key,
@@ -219,8 +219,8 @@ def test_create_mobile_case_from_dict():
 
     assert mobile_case.organisation_name == ORGANISTION_NAME
     assert mobile_case.app_name == APP_NAME
-    assert mobile_case.ios_app_store_url == APP_STORE_URL_IOS
-    assert mobile_case.android_app_store_url == APP_STORE_URL_ANDROID
+    assert mobile_case.ios_app_url == APP_URL_IOS
+    assert mobile_case.android_app_url == APP_URL_ANDROID
     assert mobile_case.sector == sector
     assert mobile_case.enforcement_body == ENFORCEMENT_BODY.lower()
     assert mobile_case.psb_location == PUBLIC_SECTOR_BODY_LOCATION.lower()
@@ -255,11 +255,11 @@ def test_create_mobile_case_from_dict():
     assert mobile_case.initial_android_test_end_date == get_date_from_string(
         TEST_END_DATE_ANDROID
     )
-    assert mobile_case.initial_ios_total_number_of_pages == int(
-        NUMBER_OF_PAGES_TESTED_IOS
+    assert mobile_case.initial_ios_total_number_of_screens == int(
+        NUMBER_OF_SCREENS_TESTED_IOS
     )
-    assert mobile_case.initial_android_total_number_of_pages == int(
-        NUMBER_OF_PAGES_TESTED_ANDROID
+    assert mobile_case.initial_android_total_number_of_screens == int(
+        NUMBER_OF_SCREENS_TESTED_ANDROID
     )
     assert mobile_case.initial_ios_total_number_of_issues == int(
         NUMBER_OF_ISSUES_FOUND_IOS

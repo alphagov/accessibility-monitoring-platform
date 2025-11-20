@@ -90,11 +90,11 @@ class MobileCase(BaseCase):
     ios_test_included = models.CharField(
         max_length=20, choices=TestIncluded.choices, default=TestIncluded.NOT_KNOWN
     )
-    ios_app_store_url = models.TextField(default="", blank=True)
+    ios_app_url = models.TextField(default="", blank=True)
     android_test_included = models.CharField(
         max_length=20, choices=TestIncluded.choices, default=TestIncluded.NOT_KNOWN
     )
-    android_app_store_url = models.TextField(default="", blank=True)
+    android_app_url = models.TextField(default="", blank=True)
     case_folder_url = models.TextField(default="", blank=True)
     previous_case_url = models.TextField(default="", blank=True)
     trello_url = models.TextField(default="", blank=True)
@@ -114,13 +114,13 @@ class MobileCase(BaseCase):
 
     # Initial test - iOS details
     # ios_test_included
-    # ios_app_store_url
+    # ios_app_url
     initial_ios_test_start_date = models.DateField(null=True, blank=True)
     initial_ios_details_complete_date = models.DateField(null=True, blank=True)
 
     # Initial test - iOS outcome
     initial_ios_test_end_date = models.DateField(null=True, blank=True)
-    initial_ios_total_number_of_pages = models.IntegerField(null=True, blank=True)
+    initial_ios_total_number_of_screens = models.IntegerField(null=True, blank=True)
     initial_ios_total_number_of_issues = models.IntegerField(null=True, blank=True)
     initial_ios_app_compliance_state = models.CharField(
         max_length=20,
@@ -141,13 +141,13 @@ class MobileCase(BaseCase):
 
     # Initial test - Android details
     # android_test_included
-    # android_app_store_url
+    # android_app_url
     initial_android_test_start_date = models.DateField(null=True, blank=True)
     initial_android_details_complete_date = models.DateField(null=True, blank=True)
 
     # Initial test - Android outcome
     initial_android_test_end_date = models.DateField(null=True, blank=True)
-    initial_android_total_number_of_pages = models.IntegerField(null=True, blank=True)
+    initial_android_total_number_of_screens = models.IntegerField(null=True, blank=True)
     initial_android_total_number_of_issues = models.IntegerField(null=True, blank=True)
     initial_android_app_compliance_state = models.CharField(
         max_length=20,

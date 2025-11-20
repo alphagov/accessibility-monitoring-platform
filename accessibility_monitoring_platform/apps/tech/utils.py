@@ -140,15 +140,13 @@ def create_mobile_case_from_dict(
     legacy_case_number: str = row["old_record_id"]
     case_identifier = f"#M-{platform_id[1:]}"
     home_page_url = validate_url(row["Organisation URL"])
-    ios_app_store_url = validate_url(row["URL (iOS)"])
+    ios_app_url = validate_url(row["URL (iOS)"])
     ios_test_included = (
-        MobileCase.TestIncluded.YES if ios_app_store_url else MobileCase.TestIncluded.NO
+        MobileCase.TestIncluded.YES if ios_app_url else MobileCase.TestIncluded.NO
     )
-    android_app_store_url = validate_url(row["URL (Android)"])
+    android_app_url = validate_url(row["URL (Android)"])
     android_test_included = (
-        MobileCase.TestIncluded.YES
-        if android_app_store_url
-        else MobileCase.TestIncluded.NO
+        MobileCase.TestIncluded.YES if android_app_url else MobileCase.TestIncluded.NO
     )
 
     first_contact_date: str = get_datetime_from_string(
@@ -185,8 +183,8 @@ def create_mobile_case_from_dict(
             app_name=row["App name "],
             ios_test_included=ios_test_included,
             android_test_included=android_test_included,
-            ios_app_store_url=ios_app_store_url,
-            android_app_store_url=android_app_store_url,
+            ios_app_url=ios_app_url,
+            android_app_url=android_app_url,
             sector=sectors[row["Sector"]],
             # sub_category column on spreadsheet is empty
             enforcement_body=row["Enforcement body"].lower(),
@@ -218,10 +216,10 @@ def create_mobile_case_from_dict(
             initial_android_test_end_date=get_datetime_from_string(
                 row["Test end date (Android)"]
             ),
-            initial_ios_total_number_of_pages=get_number_from_string(
+            initial_ios_total_number_of_screens=get_number_from_string(
                 row["Number of pages tested (iOS)"]
             ),
-            initial_android_total_number_of_pages=get_number_from_string(
+            initial_android_total_number_of_screens=get_number_from_string(
                 row["Number of pages tested (Android)"]
             ),
             initial_ios_total_number_of_issues=get_number_from_string(

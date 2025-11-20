@@ -1883,7 +1883,7 @@ MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
         name="Report QA",
         pages=[
             MobileCasePlatformPage(
-                name="Report ready for QA",
+                name="Reports ready for QA",
                 url_name="mobile:edit-report-ready-for-qa",
                 complete_flag_name="report_ready_for_qa_complete_date",
                 case_details_form_class=MobileReportReadyForQAUpdateForm,
@@ -1922,7 +1922,7 @@ MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 next_page_url_name="mobile:edit-final-report",
             ),
             MobileCasePlatformPage(
-                name="Final report",
+                name="Final reports",
                 url_name="mobile:edit-final-report",
                 complete_flag_name="final_report_complete_date",
                 case_details_form_class=MobileFinalReportUpdateForm,
@@ -1935,7 +1935,7 @@ MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
         name="Correspondence",
         pages=[
             MobileCasePlatformPage(
-                name="Report sent",
+                name="Reports sent",
                 url_name="mobile:edit-report-sent",
                 complete_flag_name="report_sent_complete_date",
                 case_details_form_class=MobileReportSentUpdateForm,
@@ -1951,7 +1951,7 @@ MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 next_page_url_name="mobile:edit-report-acknowledged",
             ),
             MobileCasePlatformPage(
-                name="Report acknowledged",
+                name="Reports acknowledged",
                 url_name="mobile:edit-report-acknowledged",
                 complete_flag_name="report_acknowledged_complete_date",
                 case_details_form_class=MobileReportAcknowledgedUpdateForm,

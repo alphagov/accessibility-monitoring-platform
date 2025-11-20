@@ -9,8 +9,6 @@ import pytest
 from ..forms import MobileCaseMetadataUpdateForm
 from ..models import MobileCase
 
-APP_STORE_URL: str = "https://example.com"
-
 
 @pytest.mark.parametrize(
     "previous_case_url, requests_status, expected_error_message",
@@ -53,7 +51,6 @@ def test_clean_previous_case_url(
     form: MobileCaseMetadataUpdateForm = MobileCaseMetadataUpdateForm(
         data={
             "version": mobile_case.version,
-            "app_store_url": APP_STORE_URL,
             "enforcement_body": "ehrc",
             "previous_case_url": previous_case_url,
         },

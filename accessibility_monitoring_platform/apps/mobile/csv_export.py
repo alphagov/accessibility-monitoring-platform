@@ -335,14 +335,14 @@ MOBILE_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="app_name",
     ),
     CSVColumn(
-        column_header="Android app store URL",
+        column_header="Android app URL",
         source_class=MobileCase,
-        source_attr="android_store_url",
+        source_attr="android_app_url",
     ),
     CSVColumn(
-        column_header="iOS app store URL",
+        column_header="iOS app URL",
         source_class=MobileCase,
-        source_attr="ios_app_store_url",
+        source_attr="ios_app_app_url",
     ),
     CSVColumn(column_header="Sector", source_class=MobileCase, source_attr="sector"),
     CSVColumn(
@@ -444,9 +444,9 @@ MOBILE_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="initial_ios_test_end_date",
     ),
     CSVColumn(
-        column_header="iOS number of pages tested",
+        column_header="iOS number of screens tested",
         source_class=MobileCase,
-        source_attr="initial_ios_total_number_of_pages",
+        source_attr="initial_ios_total_number_of_screens",
     ),
     CSVColumn(
         column_header="iOS number of issues found · Included in export",
@@ -491,9 +491,9 @@ MOBILE_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="initial_android_test_end_date",
     ),
     CSVColumn(
-        column_header="Android number of pages tested",
+        column_header="Android number of screens tested",
         source_class=MobileCase,
-        source_attr="initial_android_total_number_of_pages",
+        source_attr="initial_android_total_number_of_screens",
     ),
     CSVColumn(
         column_header="Android number of issues found · Included in export",
@@ -848,10 +848,10 @@ def populate_mobile_equality_body_columns(
 
             # column.required_data_missing = (
             #     mobile_case.ios_test_included == MobileCase.TestIncluded.YES
-            #     and MobileCase.ios_app_store_url == ""
+            #     and MobileCase.ios_app_url == ""
             # ) or (
             #     mobile_case.android_test_included == MobileCase.TestIncluded.YES
-            #     and MobileCase.android_app_store_url == ""
+            #     and MobileCase.android_app_url == ""
             # )
 
             column.formatted_data = getattr(mobile_case, column.source_attr)

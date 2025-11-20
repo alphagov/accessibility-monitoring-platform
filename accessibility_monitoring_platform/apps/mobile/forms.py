@@ -40,13 +40,13 @@ class MobileCaseCreateForm(PreviousCaseURLForm):
         choices=MobileCase.TestIncluded.choices,
         initial=MobileCase.TestIncluded.NOT_KNOWN,
     )
-    ios_app_store_url = AMPURLField(label="iOS app store URL")
+    ios_app_url = AMPURLField(label="iOS app URL")
     android_test_included = AMPChoiceRadioField(
         label="Case includes Android test?",
         choices=MobileCase.TestIncluded.choices,
         initial=MobileCase.TestIncluded.NOT_KNOWN,
     )
-    android_app_store_url = AMPURLField(label="Android app store URL")
+    android_app_url = AMPURLField(label="Android app URL")
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     subcategory = AMPModelChoiceField(
         label="Sub-category",
@@ -78,9 +78,9 @@ class MobileCaseCreateForm(PreviousCaseURLForm):
             "parental_organisation_name",
             "app_name",
             "ios_test_included",
-            "ios_app_store_url",
+            "ios_app_url",
             "android_test_included",
-            "android_app_store_url",
+            "android_app_url",
             "sector",
             "subcategory",
             "enforcement_body",
@@ -275,7 +275,7 @@ class MobileInitialTestiOSDetailsUpdateForm(VersionForm):
         label="Case includes iOS test?",
         choices=MobileCase.TestIncluded.choices,
     )
-    ios_app_store_url = AMPURLField(label="iOS app store URL")
+    ios_app_url = AMPURLField(label="iOS app URL")
     initial_ios_test_start_date = AMPDateField(label="Test start date")
     initial_ios_details_complete_date = AMPDatePageCompleteField()
 
@@ -284,7 +284,7 @@ class MobileInitialTestiOSDetailsUpdateForm(VersionForm):
         fields = [
             "version",
             "ios_test_included",
-            "ios_app_store_url",
+            "ios_app_url",
             "initial_ios_test_start_date",
             "initial_ios_details_complete_date",
         ]
@@ -294,7 +294,9 @@ class MobileInitialTestiOSOutcomeUpdateForm(VersionForm):
     """Form for updating initial test iOS outcome page"""
 
     initial_ios_test_end_date = AMPDateField(label="Test end date")
-    initial_ios_total_number_of_pages = AMPIntegerField(label="Number of pages tested")
+    initial_ios_total_number_of_screens = AMPIntegerField(
+        label="Number of screens tested"
+    )
     initial_ios_total_number_of_issues = AMPIntegerField(
         label="Number of issues found · Included in export",
         help_text="This does not include best practice issues",
@@ -318,7 +320,7 @@ class MobileInitialTestiOSOutcomeUpdateForm(VersionForm):
         fields = [
             "version",
             "initial_ios_test_end_date",
-            "initial_ios_total_number_of_pages",
+            "initial_ios_total_number_of_screens",
             "initial_ios_total_number_of_issues",
             "initial_ios_app_compliance_state",
             "initial_ios_statement_compliance_state",
@@ -334,7 +336,7 @@ class MobileInitialTestAndroidDetailsUpdateForm(VersionForm):
         label="Case includes Android test?",
         choices=MobileCase.TestIncluded.choices,
     )
-    android_app_store_url = AMPURLField(label="Android app store URL")
+    android_app_url = AMPURLField(label="Android app URL")
     initial_android_test_start_date = AMPDateField(label="Test start date")
     initial_android_details_complete_date = AMPDatePageCompleteField()
 
@@ -343,7 +345,7 @@ class MobileInitialTestAndroidDetailsUpdateForm(VersionForm):
         fields = [
             "version",
             "android_test_included",
-            "android_app_store_url",
+            "android_app_url",
             "initial_android_test_start_date",
             "initial_android_details_complete_date",
         ]
@@ -353,8 +355,8 @@ class MobileInitialTestAndroidOutcomeUpdateForm(VersionForm):
     """Form for updating initial test Android outcome page"""
 
     initial_android_test_end_date = AMPDateField(label="Test end date")
-    initial_android_total_number_of_pages = AMPIntegerField(
-        label="Number of pages tested"
+    initial_android_total_number_of_screens = AMPIntegerField(
+        label="Number of screens tested"
     )
     initial_android_total_number_of_issues = AMPIntegerField(
         label="Number of issues found · Included in export",
@@ -379,7 +381,7 @@ class MobileInitialTestAndroidOutcomeUpdateForm(VersionForm):
         fields = [
             "version",
             "initial_android_test_end_date",
-            "initial_android_total_number_of_pages",
+            "initial_android_total_number_of_screens",
             "initial_android_total_number_of_issues",
             "initial_android_app_compliance_state",
             "initial_android_statement_compliance_state",
@@ -392,7 +394,7 @@ class MobileReportReadyForQAUpdateForm(VersionForm):
     """Form for updating report ready for QA page"""
 
     report_ready_for_qa = AMPChoiceRadioField(
-        label="Report ready for QA process?",
+        label="Reports ready for QA process?",
         choices=Boolean.choices,
     )
     report_ready_for_qa_complete_date = AMPDatePageCompleteField()
@@ -443,7 +445,7 @@ class MobileQAApprovalUpdateForm(VersionForm):
     """Form for updating report QA approval page"""
 
     report_approved_status = AMPChoiceRadioField(
-        label="Report approved?",
+        label="Reports approved?",
         choices=MobileCase.ReportApprovedStatus.choices,
     )
     qa_approval_complete_date = AMPDatePageCompleteField()
@@ -481,7 +483,7 @@ class MobileFinalReportUpdateForm(VersionForm):
 class MobileReportSentUpdateForm(VersionForm):
     """Form for updating correspondence report sent page"""
 
-    report_sent_date = AMPDateField(label="Report sent on · Included in export")
+    report_sent_date = AMPDateField(label="Reports sent on · Included in export")
     report_sent_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -497,7 +499,7 @@ class MobileReportAcknowledgedUpdateForm(VersionForm):
     """Form for updating correspondence report acknowledged page"""
 
     report_acknowledged_date = AMPDateField(
-        label="Report acknowledged on · Included in export"
+        label="Reports acknowledged on · Included in export"
     )
     report_acknowledged_complete_date = AMPDatePageCompleteField()
 

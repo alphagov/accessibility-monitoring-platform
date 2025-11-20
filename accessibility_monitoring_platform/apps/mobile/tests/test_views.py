@@ -34,7 +34,7 @@ ZENDESK_URL: str = "https://zendesk.com/tickets/1"
 TODAY: date = date.today()
 QA_COMMENT_BODY: str = "QA comment body"
 ORGANISATION_NAME: str = "Organisation name"
-APP_STORE_URL: str = "https://appstore.com"
+APP_URL: str = "https://appstore.com"
 HOME_PAGE_URL: str = "https://organisation.com/homepage"
 RECOMMENDATION_INFO: str = "Recommendation note"
 EQUALITY_BODY_REPORT_URL_IOS: str = "https://eb-report.com/ios"
@@ -454,7 +454,7 @@ def test_closing_the_case_page_no_missing_data(admin_client):
     mobile_case: MobileCase = MobileCase.objects.create(
         home_page_url=HOME_PAGE_URL,
         organisation_name=ORGANISATION_NAME,
-        android_app_store_url=APP_STORE_URL,
+        android_app_url=APP_URL,
         equality_body_report_url_ios=EQUALITY_BODY_REPORT_URL_IOS,
         equality_body_report_url_android=EQUALITY_BODY_REPORT_URL_ANDROID,
         recommendation_for_enforcement=MobileCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
