@@ -11,7 +11,7 @@ from zoneinfo import ZoneInfo
 from django import forms
 from django.contrib.auth.models import User
 
-from .models import FooterLink, FrequentlyUsedLink, IssueReport, Platform
+from .models import FooterLink, FrequentlyUsedLink, Platform
 from .utils import convert_date_to_datetime, validate_url
 
 DEFAULT_START_DATE: datetime = datetime(

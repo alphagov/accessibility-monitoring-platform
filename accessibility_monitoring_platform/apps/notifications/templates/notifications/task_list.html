@@ -222,12 +222,22 @@
                                 {% endif %}
                                 <div class="amp-margin-bottom-10 amp-column-view-parent">
                                     <div class="amp-min-width-170 ">
-                                        <b>Description</b>
+                                        <b>Case status</b>
                                     </div>
                                     <div>
-                                        {{ task.description }}
+                                        {{ task.base_case.get_status_display }}
                                     </div>
                                 </div>
+                                {% if task.description != task.base_case.get_status_display %}
+                                    <div class="amp-margin-bottom-10 amp-column-view-parent">
+                                        <div class="amp-min-width-170 ">
+                                            <b>Description</b>
+                                        </div>
+                                        <div>
+                                            {{ task.description }}
+                                        </div>
+                                    </div>
+                                {% endif %}
                                 <div class="amp-margin-bottom-10 amp-column-view-parent">
                                     <div class="amp-min-width-170 ">
                                         <b>Action required</b>
