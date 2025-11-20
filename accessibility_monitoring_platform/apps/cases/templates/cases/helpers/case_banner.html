@@ -46,7 +46,7 @@
             {% if case.reminder %}
                 Reminder:
                 <a href="{% url 'notifications:edit-reminder-task' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">
-                    {{ case.reminder.date|amp_date }}
+                    {{ case.reminder.date|date:'j M'}}
                 </a>
             {% else %}
                 <a href="{% url 'notifications:reminder-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
@@ -94,7 +94,7 @@
         <p>
             {% if case.test_type == 'detailed' %}
                 <a href="{% url 'detailed:create-case-note' case.id %}" target="_blank" class="govuk-link govuk-link--no-visited-state">
-                    Open case notes</a>
+                    Case notes</a>
                 <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span>
             {% elif case.test_type == 'mobile' %}
                 <a href="{% url 'mobile:create-case-note' case.id %}" target="_blank" class="govuk-link govuk-link--no-visited-state">

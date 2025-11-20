@@ -154,13 +154,13 @@ CASE_STATUSES: list[CaseStatusChoice] = [
     CaseStatusChoice(
         name="AWAITING_REPORT_ACK",
         value="110-awaiting-report-ack",
-        label="Waiting for response",
+        label="Waiting for report response",
         test_types=[TestType.DETAILED],
     ),
     CaseStatusChoice(
         name="AWAITING_12_WEEK_DEADLINE",
         value="120-in-12-week-period",
-        label="Report acknowledged waiting for 12-week deadline",
+        label="Waiting for 12-week deadline",
         test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
     ),
     CaseStatusChoice(
@@ -190,13 +190,13 @@ CASE_STATUSES: list[CaseStatusChoice] = [
     CaseStatusChoice(
         name="CASE_CLOSED_WAITING_TO_SEND",
         value="170-case-closed-waiting-to-be-sent",
-        label="Case closed and waiting to be sent to equalities body",
+        label="Waiting to be sent to equalities body",
         test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
     ),
     CaseStatusChoice(
         name="CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY",
         value="180-case-closed-sent-to-equalities-body",
-        label="Case closed and sent to equalities body",
+        label="Sent to equalities body",
         test_types=[TestType.SIMPLIFIED, TestType.DETAILED, TestType.MOBILE],
     ),
     CaseStatusChoice(
