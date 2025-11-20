@@ -16,7 +16,6 @@ from .models import (
     QA_AUDITOR_GROUP_NAME,
     FooterLink,
     FrequentlyUsedLink,
-    IssueReport,
     Platform,
 )
 from .utils import convert_date_to_datetime, validate_url
