@@ -35,18 +35,6 @@ class MobileCaseCreateForm(PreviousCaseURLForm):
     organisation_name = AMPCharFieldWide(label="Organisation name")
     parental_organisation_name = AMPCharFieldWide(label="Parent organisation name")
     app_name = AMPCharFieldWide(label="App name")
-    ios_test_included = AMPChoiceRadioField(
-        label="Case includes iOS test?",
-        choices=MobileCase.TestIncluded.choices,
-        initial=MobileCase.TestIncluded.NOT_KNOWN,
-    )
-    ios_app_url = AMPURLField(label="iOS app URL")
-    android_test_included = AMPChoiceRadioField(
-        label="Case includes Android test?",
-        choices=MobileCase.TestIncluded.choices,
-        initial=MobileCase.TestIncluded.NOT_KNOWN,
-    )
-    android_app_url = AMPURLField(label="Android app URL")
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     subcategory = AMPModelChoiceField(
         label="Sub-category",
@@ -61,6 +49,10 @@ class MobileCaseCreateForm(PreviousCaseURLForm):
         label="Public sector body location",
         choices=MobileCase.PsbLocation.choices,
         initial=MobileCase.PsbLocation.ENGLAND,
+    )
+    previous_case_url = AMPURLField(
+        label="URL to previous case · Included in export",
+        help_text="If the app has been previously audited, include a link to the case below",
     )
     is_complaint = AMPChoiceCheckboxField(
         label="Complaint?",
@@ -77,10 +69,6 @@ class MobileCaseCreateForm(PreviousCaseURLForm):
             "organisation_name",
             "parental_organisation_name",
             "app_name",
-            "ios_test_included",
-            "ios_app_url",
-            "android_test_included",
-            "android_app_url",
             "sector",
             "subcategory",
             "enforcement_body",
@@ -109,6 +97,10 @@ class MobileCaseMetadataUpdateForm(PreviousCaseURLForm, VersionForm):
         label="Public sector body location",
         choices=MobileCase.PsbLocation.choices,
         initial=MobileCase.PsbLocation.ENGLAND,
+    )
+    previous_case_url = AMPURLField(
+        label="URL to previous case · Included in export",
+        help_text="If the app has been previously audited, include a link to the case below",
     )
     is_complaint = AMPChoiceCheckboxField(
         label="Complaint?",
