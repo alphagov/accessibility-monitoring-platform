@@ -44,7 +44,7 @@ describe('Create mobile case', () => {
     cy.title().should('eq', `${newOrganisationName} | Android outcome`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Report ready for QA`)
+    cy.title().should('eq', `${newOrganisationName} | Reports ready for QA`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | QA auditor`)
@@ -58,16 +58,16 @@ describe('Create mobile case', () => {
     cy.get('[name="report_approved_status"]').check('yes')
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Final report`)
+    cy.title().should('eq', `${newOrganisationName} | Final reports`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Report sent`)
+    cy.title().should('eq', `${newOrganisationName} | Reports sent`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | 12-week deadline`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Report acknowledged`)
+    cy.title().should('eq', `${newOrganisationName} | Reports acknowledged`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | 12-week update requested`)

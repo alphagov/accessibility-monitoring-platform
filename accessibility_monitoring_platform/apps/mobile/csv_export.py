@@ -22,6 +22,7 @@ class MobileEqualityBodyCSVColumn:
 
     column_header: str
     source_attr: str
+    source_class: MobileCase = MobileCase
     mobile_equality_body_csv_column: bool = True
     ios_edit_url_name: str | None = None
     ios_edit_url_label: str = "Edit iOS"
