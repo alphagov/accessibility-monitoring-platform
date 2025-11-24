@@ -15,7 +15,7 @@ function updateFreqLinkFiltering (event) {
 
   freqLinkElements.forEach(freqLinkElement => {
     freqLinkElement.style.display = 'block'
-    if (caseTypeFilterValue !== '' && freqLinkElement.getAttribute('data-case-type') !== caseTypeFilterValue) {
+    if (caseTypeFilterValue !== 'none' && freqLinkElement.getAttribute('data-case-type') !== 'all' && freqLinkElement.getAttribute('data-case-type') !== caseTypeFilterValue) {
       freqLinkElement.style.display = 'none'
     }
 

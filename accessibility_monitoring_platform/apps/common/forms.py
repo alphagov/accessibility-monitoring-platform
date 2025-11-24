@@ -23,10 +23,16 @@ LOG_LEVEL_CHOICES: list[tuple[int, str]] = [
     (logging.ERROR, "Error"),
     (logging.CRITICAL, "Critical"),
 ]
-IMPORT_MODEL_CHOICES: list[tuple[int, str]] = [
+IMPORT_MODEL_CHOICES: list[tuple[str, str]] = [
     ("detailed", "Detailed testing case"),
     ("mobile", "Mobile testing case"),
 ]
+SHOW_ALL_FREQUENTLY_USED_LINKS_CHOICE: tuple[str, str] = ("none", "All links")
+FREQUENTLY_USED_LINK_FILTER_CHOICES: list[tuple[str, str]] = [
+    choice
+    for choice in FrequentlyUsedLink.CaseType.choices
+    if choice[0] != FrequentlyUsedLink.CaseType.ALL.value
+] + [SHOW_ALL_FREQUENTLY_USED_LINKS_CHOICE]
 
 logger = logging.getLogger(__name__)
 
@@ -516,8 +522,8 @@ class FrequentlyUsedLinksFilterForm(forms.Form):
 
     case_type_filter = AMPChoiceRadioField(
         label="Filter by case type",
-        choices=FrequentlyUsedLink.CaseType.choices,
-        initial=FrequentlyUsedLink.CaseType.SIMPLIFIED,
+        choices=FREQUENTLY_USED_LINK_FILTER_CHOICES,
+        initial=SHOW_ALL_FREQUENTLY_USED_LINKS_CHOICE,
         widget=AMPRadioSelectWidget(
             attrs={
                 "horizontal": True,
