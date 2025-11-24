@@ -266,15 +266,15 @@
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-full">
                     <h2 id="wcag-{{ wcag_definition.id }}" class="govuk-heading-m govuk-body govuk-!-font-size-19 govuk-!-font-weight-bold">{{ wcag_definition.name }} ({{ failures|length }})</h2>
+                    {% if wcag_definition.description %}
+                        <p class="govuk-body-m">{{ wcag_definition.description }}</p>
+                    {% endif %}
                     {% if failures|length > 1 %}
                         <p class="govuk-body-m">
                             Issue identifiers:
                             [{{ wcag_definition.issue_identifiers }}]
                             {% include 'common/copy_text_to_clipboard.html' with text_to_copy=wcag_definition.issue_identifiers %}
                         </p>
-                    {% endif %}
-                    {% if wcag_definition.description %}
-                        <p class="govuk-body-m">{{ wcag_definition.description }}</p>
                     {% endif %}
                     <table class="govuk-table">
                         <thead class="govuk-table__head">
