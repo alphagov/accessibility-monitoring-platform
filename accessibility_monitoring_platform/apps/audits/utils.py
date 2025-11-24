@@ -410,9 +410,16 @@ def get_audit_summary_context(request: HttpRequest, audit: Audit) -> dict[str, A
         items=check_results, group_by_attr="page"
     )
     context["pages_with_retest_notes"] = audit.testable_pages.exclude(retest_notes="")
-    context["audit_failures_by_wcag"] = list_to_dictionary_of_lists(
-        items=check_results, group_by_attr="wcag_definition"
+    audit_failures_by_wcag: dict[WcagDefinition : list[CheckResult]] = (
+        list_to_dictionary_of_lists(
+            items=check_results, group_by_attr="wcag_definition"
+        )
     )
+    for wcag_definition, failures in audit_failures_by_wcag.items():
+        wcag_definition.issue_identifiers = " ".join(
+            [failure.issue_identifier for failure in failures]
+        )
+    context["audit_failures_by_wcag"] = audit_failures_by_wcag
 
     statement_check_results: QuerySet[StatementCheckResult] = (
         audit.statement_check_results
