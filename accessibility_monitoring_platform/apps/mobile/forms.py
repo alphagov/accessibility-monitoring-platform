@@ -677,9 +677,7 @@ class MobileRetestAndroidComplianceDecisionsUpdateForm(VersionForm):
 class MobileCaseRecommendationUpdateForm(VersionForm):
     """Form for updating the case recommendation page"""
 
-    psb_progress_info = AMPTextField(
-        label="Progress summary and PSB response · Included in export"
-    )
+    psb_progress_info = AMPTextField(label="Case progress notes")
     recommendation_for_enforcement = AMPChoiceRadioField(
         label="Enforcement recommendation · Included in export",
         choices=MobileCase.RecommendationForEnforcement.choices,
