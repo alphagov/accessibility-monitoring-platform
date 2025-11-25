@@ -472,11 +472,11 @@ def import_trello_comments(csv_data: str, reset_data: bool = False) -> None:
     card_descriptions: dict[MobileCase, str] = {}
     reader: Any = csv.DictReader(io.StringIO(csv_data))
     for row in reader:
-        case_no: str = row["case_no"]
-        if case_no == "":
+        platform_id: str = row["platform_id"]
+        if platform_id == "":
             continue
-        if row["case_no"].startswith("M"):
-            case_identifier: str = f"#M-{case_no[1:]}"
+        if row["platform_id"].startswith("M"):
+            case_identifier: str = f"#M-{platform_id[1:]}"
             try:
                 mobile_case: MobileCase = MobileCase.objects.get(
                     case_identifier=case_identifier
