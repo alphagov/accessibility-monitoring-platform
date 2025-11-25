@@ -297,6 +297,10 @@ class ReportReadyForQAUpdateForm(VersionForm):
         label="Report ready for QA process?",
         choices=Boolean.choices,
     )
+    status = AMPChoiceField(
+        label="Status",
+        choices=DetailedCase.Status.choices,
+    )
     report_ready_for_qa_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -304,6 +308,7 @@ class ReportReadyForQAUpdateForm(VersionForm):
         fields = [
             "version",
             "report_ready_for_qa",
+            "status",
             "report_ready_for_qa_complete_date",
         ]
 

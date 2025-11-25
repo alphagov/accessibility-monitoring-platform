@@ -220,6 +220,13 @@ class DetailedCaseUpdateView(NextPlatformPageMixin, UpdateView):
                 user=user, model_object=self.object, detailed_case=self.object
             )
             self.object.save()
+            if "status" in form.changed_data:
+                add_to_detailed_case_history(
+                    detailed_case=self.object,
+                    user=self.request.user,
+                    value=self.object.get_status_display(),
+                    event_type=DetailedCaseHistory.EventType.STATUS,
+                )
 
         return HttpResponseRedirect(self.get_success_url())
 
@@ -238,35 +245,13 @@ class DetailedCaseMetadataUpdateView(DetailedCaseUpdateView):
         return super().form_valid(form)
 
 
-class DetailedCaseStatusUpdateView(HideCaseNavigationMixin, UpdateView):
+class DetailedCaseStatusUpdateView(HideCaseNavigationMixin, DetailedCaseUpdateView):
     """View to update detailed case status"""
 
     model: type[DetailedCase] = DetailedCase
     form_class: type[DetailedCaseStatusUpdateForm] = DetailedCaseStatusUpdateForm
     context_object_name: str = "detailed_case"
     template_name: str = "detailed/forms/case_status.html"
-
-    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
-        """Add message on change of case"""
-        if form.changed_data:
-            self.object: DetailedCase = form.save(commit=False)
-            user: User = self.request.user
-            record_detailed_model_update_event(
-                user=user, model_object=self.object, detailed_case=self.object
-            )
-            self.object.save()
-            add_to_detailed_case_history(
-                detailed_case=self.object,
-                user=user,
-                value=self.object.get_status_display(),
-                event_type=DetailedCaseHistory.EventType.STATUS,
-            )
-
-        return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self) -> str:
-        """Stay on page"""
-        return self.request.path
 
 
 class DetailedCaseNoteCreateView(HideCaseNavigationMixin, CreateView):
