@@ -4000,3 +4000,40 @@ def test_next_page_name_with_audit(path_name, expected_next_page, admin_client):
     assert response.status_code == 200
 
     assertContains(response, f"<b>{expected_next_page}</b>", html=True)
+
+
+def test_bulk_copy_issue_ids_to_clipboard(admin_client):
+    """
+    Test summary pages include option to bulk copy all issue ids for a single WCAG
+    """
+    audit: Audit = create_audit_and_check_results()
+    page: Page = Page.objects.filter(audit=audit).first()
+    wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
+    check_result_1: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+    )
+    check_result_2: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+    )
+    url: str = reverse(
+        "simplified:outstanding-issues", kwargs={"pk": audit.simplified_case.id}
+    )
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"[{check_result_1.issue_identifier} {check_result_2.issue_identifier}]",
+    )
+    assertContains(
+        response,
+        f'data-text-to-copy="{check_result_1.issue_identifier} {check_result_2.issue_identifier}"',
+    )

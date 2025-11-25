@@ -5,7 +5,6 @@ Forms - cases
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.utils.safestring import mark_safe
 
 from ..cases.csv_export import populate_equality_body_columns
 from ..cases.forms import PreviousCaseURLForm
@@ -710,9 +709,7 @@ class SimplifiedCaseReviewChangesUpdateForm(VersionForm):
     retested_website_date = AMPDateField(
         label="Retested website? (included in equality body export)"
     )
-    psb_progress_notes = AMPTextField(
-        label="Summary of progress made from public sector body"
-    )
+    psb_progress_notes = AMPTextField(label="Case progress notes")
     is_ready_for_final_decision = AMPChoiceRadioField(
         label="Is this case ready for final decision?",
         help_text="This field affects the case status",
@@ -748,10 +745,6 @@ class SimplifiedCaseEnforcementRecommendationUpdateForm(VersionForm):
     )
     recommendation_notes = AMPTextField(
         label="Enforcement recommendation notes including exemptions (included in equality body export)",
-        help_text=mark_safe(
-            '<span id="amp-copy-text-control" class="amp-control" tabindex="0">Fill text field</span>'
-            " with notes from Summary of progress made from public sector body"
-        ),
     )
     enforcement_recommendation_complete_date = AMPDatePageCompleteField()
 

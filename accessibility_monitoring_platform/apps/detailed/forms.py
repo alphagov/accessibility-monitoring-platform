@@ -518,7 +518,7 @@ class DetailedRetestComplianceDecisionsUpdateForm(VersionForm):
 class DetailedCaseRecommendationUpdateForm(VersionForm):
     """Form for updating the case recommendation page"""
 
-    psb_progress_info = AMPTextField(label="Progress summary and PSB response")
+    psb_progress_info = AMPTextField(label="Case progress notes")
     recommendation_for_enforcement = AMPChoiceRadioField(
         label="Enforcement recommendation · Included in export",
         choices=DetailedCase.RecommendationForEnforcement.choices,
