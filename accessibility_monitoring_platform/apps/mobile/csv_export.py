@@ -777,6 +777,11 @@ MOBILE_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         column_header="Case no.", source_class=MobileCase, source_attr="case_number"
     ),
     CSVColumn(
+        column_header="App name",
+        source_class=MobileCase,
+        source_attr="app_name",
+    ),
+    CSVColumn(
         column_header="Organisation name",
         source_class=MobileCase,
         source_attr="organisation_name",
