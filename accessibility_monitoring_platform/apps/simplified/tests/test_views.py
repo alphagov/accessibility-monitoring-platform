@@ -25,7 +25,12 @@ from ...audits.models import (
 )
 from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_results
 from ...comments.models import Comment
-from ...common.models import Boolean, EmailTemplate
+from ...common.models import (
+    AUDITOR_GROUP_NAME,
+    QA_AUDITOR_GROUP_NAME,
+    Boolean,
+    EmailTemplate,
+)
 from ...common.utils import amp_format_date
 from ...notifications.models import Task
 from ...reports.models import Report
@@ -188,9 +193,9 @@ class MockMessages:
 
 
 def add_user_to_auditor_groups(user: User) -> None:
-    auditor_group: Group = Group.objects.create(name="Auditor")
+    auditor_group: Group = Group.objects.create(name=AUDITOR_GROUP_NAME)
     historic_auditor_group: Group = Group.objects.create(name="Historic auditor")
-    qa_auditor_group: Group = Group.objects.create(name="QA auditor")
+    qa_auditor_group: Group = Group.objects.create(name=QA_AUDITOR_GROUP_NAME)
     auditor_group.user_set.add(user)
     historic_auditor_group.user_set.add(user)
     qa_auditor_group.user_set.add(user)

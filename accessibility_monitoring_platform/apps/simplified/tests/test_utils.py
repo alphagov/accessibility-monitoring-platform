@@ -68,8 +68,6 @@ PARENTAL_ORGANISATION_NAME: str = "Parent organisation"
 WEBSITE_NAME: str = "Website name"
 SUBCATEGORY_NAME: str = "Sub-category name"
 CASE_IDENTIFIER: str = "#S-1"
-APP_NAME: str = "App name"
-APP_STORE_URL: str = "https://appstore.com"
 SIMPLIFIED_CONTACT_NOTES: str = "Simplified case contact notes"
 
 

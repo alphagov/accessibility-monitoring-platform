@@ -16,15 +16,17 @@ from ...audits.models import (
     RetestPage,
     WcagDefinition,
 )
+from ...cases.models import BaseCase
 from ...comments.models import Comment
 from ...common.models import EmailTemplate
+from ...detailed.models import Contact as DetailedContact
 from ...detailed.models import DetailedCase
 from ...exports.models import Export
-from ...mobile.models import MobileCase
+from ...mobile.models import MobileCase, MobileContact
 from ...notifications.models import Task
 from ...reports.models import Report
+from ...simplified.models import Contact as SimplifiedContact
 from ...simplified.models import (
-    Contact,
     EqualityBodyCorrespondence,
     SimplifiedCase,
     ZendeskTicket,
@@ -35,7 +37,7 @@ from ..sitemap import (
     AuditPagesPlatformPage,
     AuditPlatformPage,
     AuditRetestPagesPlatformPage,
-    CaseCommentsPlatformPage,
+    BaseCaseCommentsPlatformPage,
     CaseContactsPlatformPage,
     DetailedCasePlatformPage,
     DetailedCasePlatformPageGroup,
@@ -238,8 +240,8 @@ def test_platform_page_populate_from_case():
 def test_populate_from_request(rf):
     """Test PlatformPage.populate_from_request sets the instance"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    contact: Contact = Contact.objects.create(
-        simplified_case=simplified_case, name="Contact name"
+    contact: SimplifiedContact = SimplifiedContact.objects.create(
+        simplified_case=simplified_case, name="SimplifiedContact name"
     )
 
     request_user: User = User.objects.create(
@@ -254,13 +256,13 @@ def test_populate_from_request(rf):
         name="Edit contact {instance}",
         url_name="simplified:edit-contact-update",
         url_kwarg_key="pk",
-        instance_class=Contact,
+        instance_class=SimplifiedContact,
     )
 
     platform_page.populate_from_request(request=request)
 
     assert platform_page.instance == contact
-    assert platform_page.get_name() == "Edit contact Contact name"
+    assert platform_page.get_name() == "Edit contact SimplifiedContact name"
     assert (
         platform_page.url == f"/simplified/contacts/{contact.id}/edit-contact-update/"
     )
@@ -393,12 +395,12 @@ def test_mobile_case_platform_page():
 @pytest.mark.django_db
 def test_case_comments_platform_page():
     """Test CaseCommentsPlatformPage"""
-    case_comments_platform_page: CaseCommentsPlatformPage = (
+    case_comments_platform_page: BaseCaseCommentsPlatformPage = (
         get_platform_page_by_url_name(url_name="simplified:edit-qa-comments")
     )
 
-    assert isinstance(case_comments_platform_page, CaseCommentsPlatformPage)
-    assert case_comments_platform_page.instance_class == SimplifiedCase
+    assert isinstance(case_comments_platform_page, BaseCaseCommentsPlatformPage)
+    assert case_comments_platform_page.instance_class == BaseCase
     assert case_comments_platform_page.url_kwarg_key == "pk"
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
@@ -430,8 +432,12 @@ def test_case_contacts_platform_page():
     assert case_contacts_platform_page.url_kwarg_key == "pk"
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Contact.objects.create(simplified_case=simplified_case, name="Contact One")
-    Contact.objects.create(simplified_case=simplified_case, name="Contact Two")
+    SimplifiedContact.objects.create(
+        simplified_case=simplified_case, name="SimplifiedContact One"
+    )
+    SimplifiedContact.objects.create(
+        simplified_case=simplified_case, name="SimplifiedContact Two"
+    )
 
     case_contacts_platform_page.populate_from_case(case=simplified_case)
 
@@ -439,10 +445,12 @@ def test_case_contacts_platform_page():
     assert len(case_contacts_platform_page.subpages) == 3
     assert case_contacts_platform_page.subpages[0].get_name() == "Add contact"
     assert (
-        case_contacts_platform_page.subpages[1].get_name() == "Edit contact Contact Two"
+        case_contacts_platform_page.subpages[1].get_name()
+        == "Edit contact SimplifiedContact Two"
     )
     assert (
-        case_contacts_platform_page.subpages[2].get_name() == "Edit contact Contact One"
+        case_contacts_platform_page.subpages[2].get_name()
+        == "Edit contact SimplifiedContact One"
     )
 
 
@@ -886,7 +894,7 @@ def test_case_sitemap(rf):
         ("/audits/pages/1/edit-audit-page-checks/", "Pagename page test"),
         (
             "/simplified/contacts/1/edit-contact-update/",
-            "Edit contact Contact Name a.b@example.com",
+            "Edit contact SimplifiedContact Name a.b@example.com",
         ),
         ("/audits/retests/1/retest-metadata-update/", "Retest #1 | Retest metadata"),
         ("/audits/retest-pages/1/retest-page-checks/", "Retest #1 | Pagename"),
@@ -894,7 +902,9 @@ def test_case_sitemap(rf):
         ("/notifications/1/edit-reminder-task/", "Reminder"),
         ("/simplified/1/edit-equality-body-correspondence/", "Edit Zendesk ticket"),
         ("/simplified/1/update-zendesk-ticket/", "Edit PSB Zendesk ticket"),
-        ("/comments/1/edit-qa-comment/", "Edit or delete comment"),
+        ("/comments/1/edit-qa-comment-simplified/", "Edit or delete comment"),
+        ("/comments/1/edit-qa-comment-detailed/", "Edit or delete comment"),
+        ("/comments/1/edit-qa-comment-mobile/", "Edit or delete comment"),
         ("/exports/export-create/?enforcement_body=ecni", "New ECNI CSV export"),
         ("/exports/1/export-detail/", "EHRC CSV export 1 September 2024"),
         ("/user/1/edit-user/", "Account details"),
@@ -911,8 +921,10 @@ def test_page_name(url, expected_page_name, admin_client):
     audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     page: Page = Page.objects.create(audit=audit, name="Pagename")
     Report.objects.create(base_case=simplified_case)
-    Contact.objects.create(
-        simplified_case=simplified_case, name="Contact Name", email="a.b@example.com"
+    SimplifiedContact.objects.create(
+        simplified_case=simplified_case,
+        name="SimplifiedContact Name",
+        email="a.b@example.com",
     )
     retest: Retest = Retest.objects.create(simplified_case=simplified_case)
     RetestPage.objects.create(retest=retest, page=page)
@@ -1080,3 +1092,56 @@ def test_number_complete():
     mock_instance_1.complete_flag = True
 
     assert platform_page_group.number_complete() == 1
+
+
+@pytest.mark.django_db
+def test_set_instance_from_related_model_simplified(rf):
+    """Test SimplifiedPlatformPage.set_instance sets the instance"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    contact: SimplifiedContact = SimplifiedContact.objects.create(
+        simplified_case=simplified_case, name="SimplifiedContact name"
+    )
+
+    simplified_platform_page: SimplifiedCasePlatformPage = SimplifiedCasePlatformPage(
+        name=PLATFORM_PAGE_NAME
+    )
+
+    simplified_platform_page.set_instance(instance=contact)
+
+    assert simplified_platform_page.instance == simplified_case
+
+
+@pytest.mark.django_db
+def test_set_instance_from_related_model_detailed(rf):
+    """Test DetailedPlatformPage.set_instance sets the instance"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+    user: User = User.objects.create()
+    contact: DetailedContact = DetailedContact.objects.create(
+        detailed_case=detailed_case, name="DetailedContact name", created_by=user
+    )
+
+    detailed_platform_page: DetailedCasePlatformPage = DetailedCasePlatformPage(
+        name=PLATFORM_PAGE_NAME
+    )
+
+    detailed_platform_page.set_instance(instance=contact)
+
+    assert detailed_platform_page.instance == detailed_case
+
+
+@pytest.mark.django_db
+def test_set_instance_from_related_model_mobile(rf):
+    """Test MobilePlatformPage.set_instance sets the instance"""
+    mobile_case: MobileCase = MobileCase.objects.create()
+    user: User = User.objects.create()
+    contact: MobileContact = MobileContact.objects.create(
+        mobile_case=mobile_case, name="MobileContact name", created_by=user
+    )
+
+    mobile_platform_page: MobileCasePlatformPage = MobileCasePlatformPage(
+        name=PLATFORM_PAGE_NAME
+    )
+
+    mobile_platform_page.set_instance(instance=contact)
+
+    assert mobile_platform_page.instance == mobile_case
