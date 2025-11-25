@@ -594,7 +594,7 @@ DETAILED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     ),
     # Closing the case - Closing the case
     CSVColumn(
-        column_header="Progress summary and PSB response · Included in export",
+        column_header="Case progress notes",
         source_class=DetailedCase,
         source_attr="psb_progress_info",
     ),
