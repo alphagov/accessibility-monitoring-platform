@@ -80,7 +80,7 @@ def test_populate_feedback_survey_columns():
         column_definitions=SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
     )
 
-    assert len(row) == 10
+    assert len(row) == 11
 
 
 @pytest.mark.django_db
