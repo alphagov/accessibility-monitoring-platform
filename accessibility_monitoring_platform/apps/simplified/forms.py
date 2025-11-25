@@ -710,9 +710,7 @@ class CaseReviewChangesUpdateForm(VersionForm):
     retested_website_date = AMPDateField(
         label="Retested website? (included in equality body export)"
     )
-    psb_progress_notes = AMPTextField(
-        label="Summary of progress made from public sector body"
-    )
+    psb_progress_notes = AMPTextField(label="Case progress notes")
     is_ready_for_final_decision = AMPChoiceRadioField(
         label="Is this case ready for final decision?",
         help_text="This field affects the case status",

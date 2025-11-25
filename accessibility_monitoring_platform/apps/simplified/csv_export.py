@@ -521,7 +521,7 @@ SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="twelve_week_retest_complete_date",
     ),
     CSVColumn(
-        column_header="Summary of progress made from public sector body",
+        column_header="Case progress notes",
         source_class=SimplifiedCase,
         source_attr="psb_progress_notes",
     ),
