@@ -692,6 +692,11 @@ DETAILED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         column_header="Case no.", source_class=DetailedCase, source_attr="case_number"
     ),
     CSVColumn(
+        column_header="Website name",
+        source_class=DetailedCase,
+        source_attr="website_name",
+    ),
+    CSVColumn(
         column_header="Organisation name",
         source_class=DetailedCase,
         source_attr="organisation_name",

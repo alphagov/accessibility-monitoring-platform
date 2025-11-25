@@ -812,6 +812,7 @@ def test_download_feedback_survey_cases():
     ]
     expected_first_data_row: list[str] = [
         "1",  # Case no.
+        "",  # Website name
         "",  # Organisation name
         "16/12/2022",  # Closing the case date
         "Not selected",  # Enforcement recommendation
