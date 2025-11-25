@@ -2,12 +2,13 @@
     <p>{{ case.case_identifier }}{% if case.archive %} [ARCHIVED]{% endif %}</p>
     <h1>
         {% if case.website_name %}
-            {{ case.website_name }} |
-        {% endif %}
-        {% if case.organisation_name %}
-            {{ case.organisation_name }}
-        {% else %}
+            {{ case.website_name }}
+            ({{ case.organisation_name }})
+        {% elif case.app_name %}
             {{ case.app_name }}
+            ({{ case.organisation_name }})
+        {% else %}
+            {{ case.organisation_name }}
         {% endif %}
     </h1>
 </div>
@@ -25,8 +26,9 @@
         </div>
         <p>
             {% if case.test_type == 'mobile' %}
-                {{ case.get_status_display }}
-                <span class="amp-todo">TODO update mobile status</span>
+                <a href="{% url 'mobile:edit-case-status' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    {{ case.get_status_display }}
+                </a>
             {% elif case.test_type == 'detailed' %}
                 <a href="{% url 'detailed:edit-case-status' case.id %}" class="govuk-link govuk-link--no-visited-state">
                     {{ case.get_status_display }}
@@ -41,19 +43,15 @@
             &nbsp
         </div>
         <p>
-            {% if case.test_type == 'mobile' %}
-                <span class="amp-todo">TODO mobile reminder</span>
+            {% if case.reminder %}
+                Reminder:
+                <a href="{% url 'notifications:edit-reminder-task' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">
+                    {{ case.reminder.date|date:'j M'}}
+                </a>
             {% else %}
-                {% if case.reminder %}
-                    Reminder:
-                    <a href="{% url 'notifications:edit-reminder-task' case.reminder.id %}" class="govuk-link govuk-link--no-visited-state">
-                        {{ case.reminder.date|date:'j M'}}
-                    </a>
-                {% else %}
-                    <a href="{% url 'notifications:reminder-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                        No reminder set
-                    </a>
-                {% endif %}
+                <a href="{% url 'notifications:reminder-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    No reminder set
+                </a>
             {% endif %}
         </p>
         <div class="amp-vertical-line">
@@ -61,7 +59,15 @@
         </div>
         <p>
             {% if case.test_type == 'mobile' %}
-                <span class="amp-todo">TODO mobile report</span>
+                {% if case.case_folder_url %}
+                    <a href="{{ case.case_folder_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                        Case folder
+                    </a>
+                {% else %}
+                    <a href="{% url 'mobile:edit-case-metadata' case.id %}#id_case_folder_url-label" class="govuk-link govuk-link--no-visited-state">
+                        Enter case folder URL
+                    </a>
+                {% endif %}
             {% elif case.test_type == 'detailed' %}
                 {% if case.case_folder_url %}
                     <a href="{{ case.case_folder_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
@@ -91,7 +97,9 @@
                     Case notes</a>
                 <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span>
             {% elif case.test_type == 'mobile' %}
-                <span class="amp-todo">TODO link to mobile app?</span>
+                <a href="{% url 'mobile:create-case-note' case.id %}" target="_blank" class="govuk-link govuk-link--no-visited-state">
+                    Open case notes</a>
+                <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span>
             {% else %}
                 <a href="{{ case.home_page_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
                     View website

@@ -16,6 +16,7 @@ from ..common.csv_export import (
 )
 from ..detailed.models import Contact as DetailedContact
 from ..detailed.models import DetailedCase
+from ..mobile.models import MobileCase, MobileContact
 from ..reports.models import Report
 from ..simplified.csv_export import SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT
 from ..simplified.models import CaseCompliance, CaseStatus
@@ -25,7 +26,7 @@ from ..simplified.models import SimplifiedCase
 DOWNLOAD_CASES_CHUNK_SIZE: int = 500
 
 EqualityBodySourceClasses = (
-    Audit | DetailedCase | CaseCompliance | Report | SimplifiedCase | None
+    Audit | DetailedCase | CaseCompliance | Report | SimplifiedCase | MobileCase | None
 )
 
 
@@ -79,7 +80,12 @@ def populate_csv_columns(
     source_instances: dict[ExportableClasses] = {}
     if isinstance(case, DetailedCase):
         source_instances[DetailedCase] = case
-        source_instances[DetailedContact] = case.contact_set.filter(
+        source_instances[DetailedContact] = case.detailed_contacts.filter(
+            is_deleted=False
+        ).first()
+    if isinstance(case, MobileCase):
+        source_instances[MobileCase] = case
+        source_instances[MobileContact] = case.mobile_contacts.filter(
             is_deleted=False
         ).first()
     elif isinstance(case, SimplifiedCase):
@@ -101,7 +107,7 @@ def populate_csv_columns(
 
 
 def csv_output_generator(
-    cases: QuerySet[SimplifiedCase] | QuerySet[DetailedCase],
+    cases: QuerySet[SimplifiedCase] | QuerySet[DetailedCase] | QuerySet[MobileCase],
     columns_for_export: list[CSVColumn],
     equality_body_csv: bool = False,
 ) -> Generator[str, None, None]:
