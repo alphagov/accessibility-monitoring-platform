@@ -852,14 +852,6 @@ def populate_mobile_equality_body_columns(
                 if column.android_edit_url_anchor:
                     column.android_edit_url += f"#{column.android_edit_url_anchor}"
 
-            # column.required_data_missing = (
-            #     mobile_case.ios_test_included == MobileCase.TestIncluded.YES
-            #     and MobileCase.ios_app_url == ""
-            # ) or (
-            #     mobile_case.android_test_included == MobileCase.TestIncluded.YES
-            #     and MobileCase.android_app_url == ""
-            # )
-
             column.formatted_data = getattr(mobile_case, column.source_attr)
             if isinstance(column.formatted_data, str):
                 column.formatted_ui_data = column.formatted_data.replace(
