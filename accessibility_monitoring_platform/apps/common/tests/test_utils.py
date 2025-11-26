@@ -24,6 +24,7 @@ from ..mark_deleted_util import get_id_from_button_name, mark_object_as_deleted
 from ..models import ChangeToPlatform, Platform
 from ..utils import (
     SessionExpiry,
+    add_12_weeks_to_date,
     amp_format_date,
     amp_format_date_short_month,
     amp_format_datetime,
@@ -654,3 +655,8 @@ def test_replace_search_key_with_case_search():
     assert replace_search_key_with_case_search(
         {"search": "value", "other_key": "other value"}
     ) == {"case_search": "value", "other_key": "other value"}
+
+
+def test_add_12_weeks_to_date():
+    """Test add_12_weeks_to_date"""
+    assert add_12_weeks_to_date(anchor_date=date(2025, 1, 1)) == date(2025, 3, 26)
