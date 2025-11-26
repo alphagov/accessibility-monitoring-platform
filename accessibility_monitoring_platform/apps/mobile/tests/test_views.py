@@ -17,7 +17,7 @@ from ..csv_export import (
     MOBILE_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
     MOBILE_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
 )
-from ..models import EventHistory, MobileCase, MobileZendeskTicket
+from ..models import EventHistory, MobileCase, MobileCaseHistory, MobileZendeskTicket
 from ..views import mark_qa_comments_as_read
 
 CASE_FOLDER_URL: str = "https://drive.google.com/drive/folders/xxxxxxx"
@@ -472,3 +472,22 @@ def test_closing_the_case_page_no_missing_data(admin_client):
         response, "The case has missing data and can not be submitted to EHRC."
     )
     assertContains(response, "All fields are complete and the case can now be closed.")
+
+
+def test_status_update_creates_history(admin_client, admin_user):
+    """Test status update adds to history"""
+    mobile_case: MobileCase = MobileCase.objects.create()
+
+    assert MobileCaseHistory.objects.filter(mobile_case=mobile_case).count() == 0
+
+    response: HttpResponse = admin_client.post(
+        reverse("mobile:edit-case-status", kwargs={"pk": mobile_case.id}),
+        {
+            "save": "Button value",
+            "version": mobile_case.version,
+            "status": "200-complete",
+        },
+    )
+    assert response.status_code == 302
+
+    assert MobileCaseHistory.objects.filter(mobile_case=mobile_case).count() == 1
