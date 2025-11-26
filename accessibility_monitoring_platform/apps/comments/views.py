@@ -39,10 +39,5 @@ class QACommentUpdateView(UpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         case_pk: dict[str, int] = {"pk": self.object.base_case.id}  # type: ignore
-        if self.object.base_case.test_type == BaseCase.TestType.DETAILED:
-            return (
-                f"{reverse('detailed:edit-qa-comments', kwargs=case_pk)}?#qa-discussion"
-            )
-        return (
-            f"{reverse('simplified:edit-qa-comments', kwargs=case_pk)}?#qa-discussion"
-        )
+        url_name: str = f"{self.object.base_case.test_type}:edit-qa-comments"
+        return f"{reverse(url_name, kwargs=case_pk)}?#qa-discussion"

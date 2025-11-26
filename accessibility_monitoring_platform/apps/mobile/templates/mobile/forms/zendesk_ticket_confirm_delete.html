@@ -1,0 +1,33 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+<p class="govuk-body amp-margin-bottom-5"><b>Time added</b></p>
+<p class="govuk-body">{{ zendesk_ticket.created|amp_date_trunc }}</p>
+<p class="govuk-body amp-margin-bottom-5"><b>Zendesk URL</b></p>
+<p class="govuk-body">
+    <a href="{{ zendesk_ticket.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+        Ticket #{{ zendesk_ticket.id_within_case }}</a>
+</p>
+<p class="govuk-body amp-margin-bottom-5"><b>Summary</b></p>
+<p class="govuk-body">{{ zendesk_ticket.summary }}</p>
+{% endblock %}
+
+{% block formbuttons %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full govuk-button-group">
+        <input
+            type="submit"
+            value="Remove ticket"
+            name="delete"
+            class="govuk-button govuk-button--warning"
+            data-module="govuk-button"
+        />
+        <a
+            href="{% url 'mobile:zendesk-tickets' zendesk_ticket.mobile_case.id %}"
+            class="govuk-link govuk-link--no-visited-state"
+        >
+            Cancel
+        </a>
+    </div>
+</div>
+{% endblock %}

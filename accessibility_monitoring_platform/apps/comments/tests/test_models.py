@@ -15,6 +15,8 @@ from ...audits.models import (
     StatementCheckResult,
     WcagDefinition,
 )
+from ...detailed.models import DetailedCase
+from ...mobile.models import MobileCase
 from ...simplified.models import SimplifiedCase
 from ..models import (
     Comment,
@@ -206,3 +208,20 @@ def test_get_initial_statement_check_result_url_from_issue_identifier():
             )
             == f"/audits/1/edit-statement-{statement_check_type}/"
         )
+
+
+@pytest.mark.parametrize(
+    "case_model, expected_absolute_url",
+    [
+        (DetailedCase, "/comments/1/edit-qa-comment-detailed/"),
+        (MobileCase, "/comments/1/edit-qa-comment-mobile/"),
+        (SimplifiedCase, "/comments/1/edit-qa-comment-simplified/"),
+    ],
+)
+@pytest.mark.django_db
+def test_comment_get_absolute_url(case_model, expected_absolute_url):
+    """Test the comment absolute URL is determined by the base case testing type"""
+    case: SimplifiedCase | DetailedCase | MobileCase = case_model.objects.create()
+    comment: Comment = Comment.objects.create(base_case=case)
+
+    assert comment.get_absolute_url() == expected_absolute_url

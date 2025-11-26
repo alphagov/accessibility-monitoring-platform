@@ -170,7 +170,7 @@ class DetailedCaseHistoryUpdateForm(forms.ModelForm):
         ]
 
 
-class ManageContactsUpdateForm(VersionForm):
+class DetailedManageContactsUpdateForm(VersionForm):
     """Form for updating contacts list page"""
 
     manage_contacts_complete_date = AMPDatePageCompleteField()
@@ -183,7 +183,7 @@ class ManageContactsUpdateForm(VersionForm):
         ]
 
 
-class ContactCreateForm(forms.ModelForm):
+class DetailedContactCreateForm(forms.ModelForm):
     """Form for creating a contact"""
 
     name = AMPCharFieldWide(label="Name")
@@ -201,7 +201,7 @@ class ContactCreateForm(forms.ModelForm):
         fields = ["name", "job_title", "contact_details", "preferred", "information"]
 
 
-class ContactUpdateForm(VersionForm, ContactCreateForm):
+class DetailedContactUpdateForm(VersionForm, DetailedContactCreateForm):
     """Form for updating a contact"""
 
     class Meta:
@@ -216,7 +216,7 @@ class ContactUpdateForm(VersionForm, ContactCreateForm):
         ]
 
 
-class ContactInformationRequestUpdateForm(VersionForm):
+class DetailedContactInformationRequestUpdateForm(VersionForm):
     """Form for updating contact information request page"""
 
     contact_information_request_start_date = AMPDateField(
@@ -236,7 +236,7 @@ class ContactInformationRequestUpdateForm(VersionForm):
         ]
 
 
-class InitialTestingDetailsUpdateForm(VersionForm):
+class DetailedInitialTestingDetailsUpdateForm(VersionForm):
     """Form for updating initial testing details page"""
 
     auditor = AMPAuditorModelChoiceField(label="Auditor")
@@ -253,7 +253,7 @@ class InitialTestingDetailsUpdateForm(VersionForm):
         ]
 
 
-class InitialTestingOutcomeUpdateForm(VersionForm):
+class DetailedInitialTestingOutcomeUpdateForm(VersionForm):
     """Form for updating initial testing outcome page"""
 
     initial_test_end_date = AMPDateField(label="Test end date")
@@ -290,7 +290,7 @@ class InitialTestingOutcomeUpdateForm(VersionForm):
         ]
 
 
-class ReportReadyForQAUpdateForm(VersionForm):
+class DetailedReportReadyForQAUpdateForm(VersionForm):
     """Form for updating report ready for QA page"""
 
     report_ready_for_qa = AMPChoiceRadioField(
@@ -313,7 +313,7 @@ class ReportReadyForQAUpdateForm(VersionForm):
         ]
 
 
-class QAAuditorUpdateForm(VersionForm):
+class DetailedQAAuditorUpdateForm(VersionForm):
     """Form for updating report QA auditor page"""
 
     reviewer = AMPAuditorModelChoiceField(label="QA auditor")
@@ -328,7 +328,7 @@ class QAAuditorUpdateForm(VersionForm):
         ]
 
 
-class QACommentsUpdateForm(VersionForm):
+class DetailedQACommentsUpdateForm(VersionForm):
     """
     Form for updating QA comments page
     """
@@ -346,7 +346,7 @@ class QACommentsUpdateForm(VersionForm):
         ]
 
 
-class QAApprovalUpdateForm(VersionForm):
+class DetailedQAApprovalUpdateForm(VersionForm):
     """Form for updating report QA approval page"""
 
     report_approved_status = AMPChoiceRadioField(
@@ -364,7 +364,7 @@ class QAApprovalUpdateForm(VersionForm):
         ]
 
 
-class FinalReportUpdateForm(VersionForm):
+class DetailedFinalReportUpdateForm(VersionForm):
     """Form for updating publish report page"""
 
     equality_body_report_url = AMPURLField(
@@ -381,7 +381,7 @@ class FinalReportUpdateForm(VersionForm):
         ]
 
 
-class ReportSentUpdateForm(VersionForm):
+class DetailedReportSentUpdateForm(VersionForm):
     """Form for updating correspondence report sent page"""
 
     report_sent_date = AMPDateField(label="Report sent on · Included in export")
@@ -396,7 +396,7 @@ class ReportSentUpdateForm(VersionForm):
         ]
 
 
-class ReportAcknowledgedUpdateForm(VersionForm):
+class DetailedReportAcknowledgedUpdateForm(VersionForm):
     """Form for updating correspondence report acknowledged page"""
 
     report_acknowledged_date = AMPDateField(
@@ -413,7 +413,7 @@ class ReportAcknowledgedUpdateForm(VersionForm):
         ]
 
 
-class TwelveWeekDeadlineUpdateForm(VersionForm):
+class DetailedTwelveWeekDeadlineUpdateForm(VersionForm):
     """Form for updating correspondence 12-week deadline page"""
 
     twelve_week_deadline_date = AMPDateField(
@@ -431,7 +431,7 @@ class TwelveWeekDeadlineUpdateForm(VersionForm):
         ]
 
 
-class TwelveWeekRequestUpdateForm(VersionForm):
+class DetailedTwelveWeekRequestUpdateForm(VersionForm):
     """Form for updating correspondence 12-week update request page"""
 
     twelve_week_update_date = AMPDateField(label="12-week update requested")
@@ -446,7 +446,7 @@ class TwelveWeekRequestUpdateForm(VersionForm):
         ]
 
 
-class TwelveWeekReceivedUpdateForm(VersionForm):
+class DetailedTwelveWeekReceivedUpdateForm(VersionForm):
     """Form for updating correspondence 12-week update received page"""
 
     twelve_week_received_date = AMPDateField(label="12-week update received")
@@ -461,7 +461,7 @@ class TwelveWeekReceivedUpdateForm(VersionForm):
         ]
 
 
-class RetestResultUpdateForm(VersionForm):
+class DetailedRetestResultUpdateForm(VersionForm):
     """Form for updating reviewing changes retesting page"""
 
     retest_start_date = AMPDateField(label="Latest retest date · Included in export")
@@ -480,7 +480,7 @@ class RetestResultUpdateForm(VersionForm):
         ]
 
 
-class RetestComplianceDecisionsUpdateForm(VersionForm):
+class DetailedRetestComplianceDecisionsUpdateForm(VersionForm):
     """Form for updating reviewing changes retest result page"""
 
     retest_website_compliance_state = AMPChoiceRadioField(
@@ -520,10 +520,10 @@ class RetestComplianceDecisionsUpdateForm(VersionForm):
         ]
 
 
-class CaseRecommendationUpdateForm(VersionForm):
+class DetailedCaseRecommendationUpdateForm(VersionForm):
     """Form for updating the case recommendation page"""
 
-    psb_progress_info = AMPTextField(label="Progress summary and PSB response")
+    psb_progress_info = AMPTextField(label="Case progress notes")
     recommendation_for_enforcement = AMPChoiceRadioField(
         label="Enforcement recommendation · Included in export",
         choices=DetailedCase.RecommendationForEnforcement.choices,
@@ -566,7 +566,7 @@ class CaseRecommendationUpdateForm(VersionForm):
         ]
 
 
-class CaseCloseUpdateForm(VersionForm):
+class DetailedCaseCloseUpdateForm(VersionForm):
     """Form for updating closing the case page"""
 
     case_close_decision_state = AMPChoiceRadioField(
@@ -584,7 +584,7 @@ class CaseCloseUpdateForm(VersionForm):
         ]
 
 
-class StatementEnforcementUpdateForm(VersionForm):
+class DetailedStatementEnforcementUpdateForm(VersionForm):
     """Form for updating the statement enforcement page"""
 
     psb_statement_appeal_information = AMPTextField(
@@ -601,7 +601,7 @@ class StatementEnforcementUpdateForm(VersionForm):
         ]
 
 
-class EnforcementBodyMetadataUpdateForm(VersionForm):
+class DetailedEnforcementBodyMetadataUpdateForm(VersionForm):
     """Form for updating closing the case page"""
 
     enforcement_body_sent_date = AMPDateField(label="Date sent to equality body")
@@ -633,7 +633,7 @@ class EnforcementBodyMetadataUpdateForm(VersionForm):
         ]
 
 
-class ZendeskTicketCreateUpdateForm(forms.ModelForm):
+class DetailedZendeskTicketCreateUpdateForm(forms.ModelForm):
     """
     Form for updating a zendesk ticket
     """
@@ -646,7 +646,7 @@ class ZendeskTicketCreateUpdateForm(forms.ModelForm):
         fields = ["summary", "url"]
 
 
-class ZendeskTicketConfirmDeleteUpdateForm(forms.ModelForm):
+class DetailedZendeskTicketConfirmDeleteUpdateForm(forms.ModelForm):
     """
     Form for confirming the deletion of a zendesk ticket
     """
@@ -662,7 +662,7 @@ class ZendeskTicketConfirmDeleteUpdateForm(forms.ModelForm):
         fields = ["is_deleted"]
 
 
-class UnresponsivePSBUpdateForm(VersionForm):
+class DetailedUnresponsivePSBUpdateForm(VersionForm):
     """Form for recording an unresponsive PSB"""
 
     no_psb_contact = AMPChoiceCheckboxField(

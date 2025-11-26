@@ -93,6 +93,14 @@
                         >admin</a>)
                 </li>
             {% endif %}
+            {% if mobile_case %}
+                <li>
+                    <a href="{% url 'mobile:case-history' mobile_case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        {{ mobile_case }}</a>
+                    (<a href="{% url 'admin:mobile_eventhistory_changelist' %}?q={{ mobile_case.case_number }}" class="govuk-link govuk-link--no-visited-state"
+                        >admin</a>)
+                </li>
+            {% endif %}
         </ul>
     </div>
 </div>

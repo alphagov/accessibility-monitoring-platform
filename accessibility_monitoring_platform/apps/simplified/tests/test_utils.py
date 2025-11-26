@@ -68,8 +68,6 @@ PARENTAL_ORGANISATION_NAME: str = "Parent organisation"
 WEBSITE_NAME: str = "Website name"
 SUBCATEGORY_NAME: str = "Sub-category name"
 CASE_IDENTIFIER: str = "#S-1"
-APP_NAME: str = "App name"
-APP_STORE_URL: str = "https://appstore.com"
 SIMPLIFIED_CONTACT_NOTES: str = "Simplified case contact notes"
 
 
@@ -812,6 +810,7 @@ def test_download_feedback_survey_cases():
     ]
     expected_first_data_row: list[str] = [
         "1",  # Case no.
+        "",  # Website name
         "",  # Organisation name
         "16/12/2022",  # Closing the case date
         "Not selected",  # Enforcement recommendation

@@ -1,36 +1,32 @@
-{% extends 'base.html' %}
+{% extends 'mobile/base.html' %}
 
 {% load static %}
 
-{% block title %}{{ mobile_case.app_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
+{% block breadcrumbs %}
+{% include 'common/breadcrumbs_no_case.html' %}
+{% endblock %}
 
-{% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'cases/helpers/case_banner.html' %}
+{% block maincontent %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <div class="govuk-button-group">
+            <h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">{{ sitemap.current_platform_page.get_name }}</h1>
         </div>
     </div>
-    {% include 'common/breadcrumbs_no_case.html' %}
-    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                <div class="govuk-button-group">
-                    <h1 class="govuk-heading-xl amp-margin-bottom-15 amp-padding-right-20">{{ sitemap.current_platform_page.get_name }}</h1>
-                </div>
-            </div>
-        </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-half">
-                {% include 'simplified/details/search_in_case.html' %}
-                <span class="amp-todo">TODO search</span>
-                <hr class="amp-width-100 amp-margin-bottom-30" />
-                {% include 'cases/helpers/case_nav.html' with case_nav_type='mobile_case_nav' %}
-            </div>
-            <div class="govuk-grid-column-one-half">
-                {% include 'mobile/helpers/overview.html' %}
-            </div>
-        </div>
-    </main>
 </div>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+        {% include 'mobile/details/search_in_case.html' %}
+        <hr class="amp-width-100 amp-margin-bottom-30" />
+        {% include 'cases/helpers/case_nav.html' with case_nav_type='mobile_case_nav' %}
+    </div>
+    <div class="govuk-grid-column-one-half">
+        {% include 'mobile/helpers/overview.html' %}
+    </div>
+</div>
+{% include 'mobile/details/sections.html' with hide_sections=True %}
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'js/cases_search_in_case.js' %}"></script>
 {% endblock %}

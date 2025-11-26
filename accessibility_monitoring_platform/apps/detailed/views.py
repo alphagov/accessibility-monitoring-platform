@@ -37,36 +37,36 @@ from .csv_export import (
     DETAILED_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
 )
 from .forms import (
-    CaseCloseUpdateForm,
-    CaseRecommendationUpdateForm,
-    ContactCreateForm,
-    ContactInformationRequestUpdateForm,
-    ContactUpdateForm,
+    DetailedCaseCloseUpdateForm,
     DetailedCaseCreateForm,
     DetailedCaseHistoryCreateForm,
     DetailedCaseHistoryUpdateForm,
     DetailedCaseMetadataUpdateForm,
+    DetailedCaseRecommendationUpdateForm,
     DetailedCaseStatusUpdateForm,
-    EnforcementBodyMetadataUpdateForm,
-    FinalReportUpdateForm,
-    InitialTestingDetailsUpdateForm,
-    InitialTestingOutcomeUpdateForm,
-    ManageContactsUpdateForm,
-    QAApprovalUpdateForm,
-    QAAuditorUpdateForm,
-    QACommentsUpdateForm,
-    ReportAcknowledgedUpdateForm,
-    ReportReadyForQAUpdateForm,
-    ReportSentUpdateForm,
-    RetestComplianceDecisionsUpdateForm,
-    RetestResultUpdateForm,
-    StatementEnforcementUpdateForm,
-    TwelveWeekDeadlineUpdateForm,
-    TwelveWeekReceivedUpdateForm,
-    TwelveWeekRequestUpdateForm,
-    UnresponsivePSBUpdateForm,
-    ZendeskTicketConfirmDeleteUpdateForm,
-    ZendeskTicketCreateUpdateForm,
+    DetailedContactCreateForm,
+    DetailedContactInformationRequestUpdateForm,
+    DetailedContactUpdateForm,
+    DetailedEnforcementBodyMetadataUpdateForm,
+    DetailedFinalReportUpdateForm,
+    DetailedInitialTestingDetailsUpdateForm,
+    DetailedInitialTestingOutcomeUpdateForm,
+    DetailedManageContactsUpdateForm,
+    DetailedQAApprovalUpdateForm,
+    DetailedQAAuditorUpdateForm,
+    DetailedQACommentsUpdateForm,
+    DetailedReportAcknowledgedUpdateForm,
+    DetailedReportReadyForQAUpdateForm,
+    DetailedReportSentUpdateForm,
+    DetailedRetestComplianceDecisionsUpdateForm,
+    DetailedRetestResultUpdateForm,
+    DetailedStatementEnforcementUpdateForm,
+    DetailedTwelveWeekDeadlineUpdateForm,
+    DetailedTwelveWeekReceivedUpdateForm,
+    DetailedTwelveWeekRequestUpdateForm,
+    DetailedUnresponsivePSBUpdateForm,
+    DetailedZendeskTicketConfirmDeleteUpdateForm,
+    DetailedZendeskTicketCreateUpdateForm,
 )
 from .models import (
     Contact,
@@ -115,7 +115,7 @@ class DetailedCaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
     model: type[DetailedCase] = DetailedCase
     form_class: type[DetailedCaseCreateForm] = DetailedCaseCreateForm
     context_object_name: str = "detailed_case"
-    template_name: str = "detailed/forms/create.html"
+    template_name: str = "cases/forms/create.html"
 
     def form_valid(self, form: DetailedCaseCreateForm):
         """Process contents of valid form"""
@@ -306,7 +306,7 @@ class DetailedCaseNoteUpdateView(HideCaseNavigationMixin, UpdateView):
     context_object_name: str = "detailed_case_history"
     template_name: str = "detailed/forms/note_update.html"
 
-    def form_valid(self, form: ContactUpdateForm):
+    def form_valid(self, form: DetailedContactUpdateForm):
         """Mark contact as deleted if button is pressed"""
         detailed_case_history: DetailedCaseHistory = form.save(commit=False)
         record_detailed_model_update_event(
@@ -327,7 +327,9 @@ class DetailedCaseNoteUpdateView(HideCaseNavigationMixin, UpdateView):
 class ManageContactDetailsUpdateView(DetailedCaseUpdateView):
     """View to list detailed case contacts"""
 
-    form_class: type[ManageContactsUpdateForm] = ManageContactsUpdateForm
+    form_class: type[DetailedManageContactsUpdateForm] = (
+        DetailedManageContactsUpdateForm
+    )
     template_name: str = "detailed/forms/manage_contacts.html"
 
 
@@ -336,10 +338,10 @@ class ContactCreateView(AddDetailedCaseToContextMixin, CreateView):
 
     model: type[Contact] = Contact
     context_object_name: str = "contact"
-    form_class: type[ContactCreateForm] = ContactCreateForm
+    form_class: type[DetailedContactCreateForm] = DetailedContactCreateForm
     template_name: str = "detailed/forms/contact_create.html"
 
-    def form_valid(self, form: ContactCreateForm):
+    def form_valid(self, form: DetailedContactCreateForm):
         """Populate detailed case of contact"""
         detailed_case: DetailedCase = get_object_or_404(
             DetailedCase, id=self.kwargs.get("case_id")
@@ -367,7 +369,7 @@ class ContactUpdateView(UpdateView):
 
     model: type[Contact] = Contact
     context_object_name: str = "contact"
-    form_class: type[ContactUpdateForm] = ContactUpdateForm
+    form_class: type[DetailedContactUpdateForm] = DetailedContactUpdateForm
     template_name: str = "detailed/forms/contact_update.html"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
@@ -376,7 +378,7 @@ class ContactUpdateView(UpdateView):
         context["detailed_case"] = self.object.detailed_case
         return context
 
-    def form_valid(self, form: ContactUpdateForm):
+    def form_valid(self, form: DetailedContactUpdateForm):
         """Mark contact as deleted if button is pressed"""
         contact: Contact = form.save(commit=False)
         if "delete_contact" in self.request.POST:
@@ -405,39 +407,45 @@ class CorrespondenceUpdateView(DetailedCaseUpdateView):
 class ContactInformationRequestUpdateView(CorrespondenceUpdateView):
     """View to update request information for contact"""
 
-    form_class: type[ContactInformationRequestUpdateForm] = (
-        ContactInformationRequestUpdateForm
+    form_class: type[DetailedContactInformationRequestUpdateForm] = (
+        DetailedContactInformationRequestUpdateForm
     )
 
 
 class InitialTestingDetailsUpdateView(DetailedCaseUpdateView):
     """View to update initial testing details"""
 
-    form_class: type[InitialTestingDetailsUpdateForm] = InitialTestingDetailsUpdateForm
+    form_class: type[DetailedInitialTestingDetailsUpdateForm] = (
+        DetailedInitialTestingDetailsUpdateForm
+    )
 
 
 class InitialTestingOutcomeUpdateView(DetailedCaseUpdateView):
     """View to update initial testing outcome"""
 
-    form_class: type[InitialTestingOutcomeUpdateForm] = InitialTestingOutcomeUpdateForm
+    form_class: type[DetailedInitialTestingOutcomeUpdateForm] = (
+        DetailedInitialTestingOutcomeUpdateForm
+    )
 
 
 class ReportReadyForQAUpdateView(DetailedCaseUpdateView):
     """View to update report draft"""
 
-    form_class: type[ReportReadyForQAUpdateForm] = ReportReadyForQAUpdateForm
+    form_class: type[DetailedReportReadyForQAUpdateForm] = (
+        DetailedReportReadyForQAUpdateForm
+    )
 
 
 class QAAuditorUpdateView(DetailedCaseUpdateView):
     """View to update QA auditor"""
 
-    form_class: type[QAAuditorUpdateForm] = QAAuditorUpdateForm
+    form_class: type[DetailedQAAuditorUpdateForm] = DetailedQAAuditorUpdateForm
 
 
 class QACommentsUpdateView(DetailedCaseUpdateView):
     """View to add or update QA comments"""
 
-    form_class: type[QACommentsUpdateForm] = QACommentsUpdateForm
+    form_class: type[DetailedQACommentsUpdateForm] = DetailedQACommentsUpdateForm
     template_name: str = "detailed/forms/qa_comments.html"
 
     def form_valid(self, form: ModelForm):
@@ -462,71 +470,81 @@ class QACommentsUpdateView(DetailedCaseUpdateView):
 class QAApprovalUpdateView(DetailedCaseUpdateView):
     """View to update report QA approval"""
 
-    form_class: type[QAApprovalUpdateForm] = QAApprovalUpdateForm
+    form_class: type[DetailedQAApprovalUpdateForm] = DetailedQAApprovalUpdateForm
 
 
 class FinalReportUpdateView(DetailedCaseUpdateView):
     """View to update publish report"""
 
-    form_class: type[FinalReportUpdateForm] = FinalReportUpdateForm
+    form_class: type[DetailedFinalReportUpdateForm] = DetailedFinalReportUpdateForm
 
 
 class CorrespondenceReportSentUpdateView(CorrespondenceUpdateView):
     """View to update correspondence report sent"""
 
-    form_class: type[ReportSentUpdateForm] = ReportSentUpdateForm
+    form_class: type[DetailedReportSentUpdateForm] = DetailedReportSentUpdateForm
 
 
 class CorrespondenceReportAcknowledgedUpdateView(CorrespondenceUpdateView):
     """View to update correspondence report acknowledged"""
 
-    form_class: type[ReportAcknowledgedUpdateForm] = ReportAcknowledgedUpdateForm
+    form_class: type[DetailedReportAcknowledgedUpdateForm] = (
+        DetailedReportAcknowledgedUpdateForm
+    )
 
 
 class CorrespondenceTwelveWeekDeadlineUpdateView(CorrespondenceUpdateView):
     """View to update correspondence 12-week deadline"""
 
-    form_class: type[TwelveWeekDeadlineUpdateForm] = TwelveWeekDeadlineUpdateForm
+    form_class: type[DetailedTwelveWeekDeadlineUpdateForm] = (
+        DetailedTwelveWeekDeadlineUpdateForm
+    )
 
 
 class CorrespondenceTwelveWeekRequestUpdateView(CorrespondenceUpdateView):
     """View to update correspondence 12-week update request"""
 
-    form_class: type[TwelveWeekRequestUpdateForm] = TwelveWeekRequestUpdateForm
+    form_class: type[DetailedTwelveWeekRequestUpdateForm] = (
+        DetailedTwelveWeekRequestUpdateForm
+    )
 
 
 class CorrespondenceTwelveWeekReceivedUpdateView(CorrespondenceUpdateView):
     """View to update correspondence 12-week update received"""
 
-    form_class: type[TwelveWeekReceivedUpdateForm] = TwelveWeekReceivedUpdateForm
+    form_class: type[DetailedTwelveWeekReceivedUpdateForm] = (
+        DetailedTwelveWeekReceivedUpdateForm
+    )
 
 
 class RetestResultUpdateView(DetailedCaseUpdateView):
     """View to update reviewing changes retesting"""
 
-    form_class: type[RetestResultUpdateForm] = RetestResultUpdateForm
+    form_class: type[DetailedRetestResultUpdateForm] = DetailedRetestResultUpdateForm
     template_name: str = "detailed/forms/retesting.html"
 
 
 class RetestComplianceDecisionsUpdateView(DetailedCaseUpdateView):
     """View to update reviewing changes retest result"""
 
-    form_class: type[RetestComplianceDecisionsUpdateForm] = (
-        RetestComplianceDecisionsUpdateForm
+    form_class: type[DetailedRetestComplianceDecisionsUpdateForm] = (
+        DetailedRetestComplianceDecisionsUpdateForm
     )
 
 
 class CaseRecommendationUpdateView(DetailedCaseUpdateView):
     """View to update case recommendation"""
 
-    form_class: type[CaseRecommendationUpdateForm] = CaseRecommendationUpdateForm
+    form_class: type[DetailedCaseRecommendationUpdateForm] = (
+        DetailedCaseRecommendationUpdateForm
+    )
     template_name: str = "detailed/forms/recommendation.html"
 
 
 class CaseCloseUpdateView(DetailedCaseUpdateView):
     """View to update closing the case"""
 
-    form_class: type[CaseCloseUpdateForm] = CaseCloseUpdateForm
+    form_class: type[DetailedCaseCloseUpdateForm] = DetailedCaseCloseUpdateForm
     template_name: str = "cases/closing_case.html"
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
@@ -583,14 +601,16 @@ class CaseCloseUpdateView(DetailedCaseUpdateView):
 class StatementEnforcementUpdateView(DetailedCaseUpdateView):
     """View to update post case statement enforcement"""
 
-    form_class: type[StatementEnforcementUpdateForm] = StatementEnforcementUpdateForm
+    form_class: type[DetailedStatementEnforcementUpdateForm] = (
+        DetailedStatementEnforcementUpdateForm
+    )
 
 
 class EnforcementBodyMetadataUpdateView(DetailedCaseUpdateView):
     """View to update post case equality body metadata"""
 
-    form_class: type[EnforcementBodyMetadataUpdateForm] = (
-        EnforcementBodyMetadataUpdateForm
+    form_class: type[DetailedEnforcementBodyMetadataUpdateForm] = (
+        DetailedEnforcementBodyMetadataUpdateForm
     )
 
 
@@ -612,7 +632,9 @@ class ZendeskTicketCreateView(HideCaseNavigationMixin, CreateView):
     """
 
     model: type[DetailedCase] = ZendeskTicket
-    form_class: type[ZendeskTicketCreateUpdateForm] = ZendeskTicketCreateUpdateForm
+    form_class: type[DetailedZendeskTicketCreateUpdateForm] = (
+        DetailedZendeskTicketCreateUpdateForm
+    )
     template_name: str = "detailed/forms/zendesk_ticket_create.html"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
@@ -652,7 +674,9 @@ class ZendeskTicketUpdateView(HideCaseNavigationMixin, UpdateView):
     """
 
     model: type[ZendeskTicket] = ZendeskTicket
-    form_class: type[ZendeskTicketCreateUpdateForm] = ZendeskTicketCreateUpdateForm
+    form_class: type[DetailedZendeskTicketCreateUpdateForm] = (
+        DetailedZendeskTicketCreateUpdateForm
+    )
     context_object_name: str = "zendesk_ticket"
     template_name: str = "detailed/forms/zendesk_ticket_update.html"
 
@@ -681,8 +705,8 @@ class ZendeskTicketConfirmDeleteUpdateView(ZendeskTicketUpdateView):
     View to confirm delete of Zendesk ticket
     """
 
-    form_class: type[ZendeskTicketConfirmDeleteUpdateForm] = (
-        ZendeskTicketConfirmDeleteUpdateForm
+    form_class: type[DetailedZendeskTicketConfirmDeleteUpdateForm] = (
+        DetailedZendeskTicketConfirmDeleteUpdateForm
     )
     template_name: str = "detailed/forms/zendesk_ticket_confirm_delete.html"
 
@@ -692,7 +716,9 @@ class UnresponsivePSBUpdateView(
 ):
     """View to set unresponsive PSB flag"""
 
-    form_class: type[UnresponsivePSBUpdateForm] = UnresponsivePSBUpdateForm
+    form_class: type[DetailedUnresponsivePSBUpdateForm] = (
+        DetailedUnresponsivePSBUpdateForm
+    )
     template_name: str = "detailed/forms/unresponsive_psb.html"
 
 

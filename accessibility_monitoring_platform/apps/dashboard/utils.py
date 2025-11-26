@@ -7,6 +7,7 @@ from django.db.models.query import QuerySet
 
 from ..cases.models import CASE_STATUSES, TestType
 from ..detailed.models import DetailedCase
+from ..mobile.models import MobileCase
 from ..simplified.models import SimplifiedCase
 
 STATUS_PARAMETRES: list[tuple[str, str, str]] = [  # final dict key, status, and sort
@@ -109,24 +110,27 @@ def group_cases_by_status(
     return cases_by_status
 
 
-def group_detailed_cases_by_status(
-    detailed_cases: QuerySet[DetailedCase],
-) -> dict[str, dict[str, list[DetailedCase] | str]]:
-    """Group detailed cases by values, include label & ID information and sort by ID"""
-    detailed_cases_by_status = {}
+def group_detailed_or_mobile_cases_by_status(
+    cases: QuerySet[DetailedCase | MobileCase], test_type: TestType = TestType.DETAILED
+) -> dict[str, dict[str, list[DetailedCase | MobileCase] | str]]:
+    """
+    Group detailed or mobile cases by values, include label & ID information and sort
+    by ID
+    """
+    cases_by_status = {}
     for status in CASE_STATUSES:
-        if TestType.DETAILED in status.test_types:
-            detailed_cases_by_status[status.value] = {}
-            detailed_cases_by_status[status.value]["label"] = status.label
-            detailed_cases_by_status[status.value]["cases"] = []
+        if test_type in status.test_types:
+            cases_by_status[status.value] = {}
+            cases_by_status[status.value]["label"] = status.label
+            cases_by_status[status.value]["cases"] = []
 
-    for detailed_case in detailed_cases:
-        detailed_cases_by_status[detailed_case.status]["cases"].append(detailed_case)
+    for case in cases:
+        cases_by_status[case.status]["cases"].append(case)
 
-    for status in detailed_cases_by_status.values():
+    for status in cases_by_status.values():
         status["cases"] = sorted(status["cases"], key=lambda c: c.id)
 
-    return detailed_cases_by_status
+    return cases_by_status
 
 
 def get_all_cases_in_qa(all_cases: list[SimplifiedCase]) -> list[SimplifiedCase]:
