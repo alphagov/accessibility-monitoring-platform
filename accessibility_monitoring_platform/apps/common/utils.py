@@ -19,6 +19,8 @@ from django_otp.plugins.otp_email.models import EmailDevice
 from .models import ChangeToPlatform, Platform
 
 SESSION_EXPIRY_WARNING_WINDOW: timedelta = timedelta(hours=12)
+ONE_WEEK_IN_DAYS: int = 7
+TWELVE_WEEKS_IN_DAYS: int = 12 * ONE_WEEK_IN_DAYS
 
 
 class SessionExpiry:
@@ -292,3 +294,8 @@ def replace_search_key_with_case_search(request_get: QueryDict) -> dict[str, str
     if "search" in search_args:
         search_args["case_search"] = search_args.pop("search")
     return search_args
+
+
+def add_12_weeks_to_date(anchor_date: date) -> date:
+    """Return date 12-weeks after anchor date"""
+    return anchor_date + timedelta(days=TWELVE_WEEKS_IN_DAYS)
