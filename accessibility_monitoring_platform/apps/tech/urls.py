@@ -7,6 +7,7 @@ from .views import (
     EqualityBodyCsvMetadataView,
     PlatformCheckingView,
     ReferenceImplementaionView,
+    SitemapView,
 )
 
 app_name = "tech"
@@ -25,5 +26,10 @@ urlpatterns = [
         "platform-checking/",
         login_required(PlatformCheckingView.as_view()),
         name="platform-checking",
+    ),
+    path(
+        "sitemap/",
+        login_required(SitemapView.as_view()),
+        name="sitemap",
     ),
 ]
