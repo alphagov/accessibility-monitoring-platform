@@ -13,40 +13,8 @@
             </div>
         </div>
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                <nav role="navigation" class="amp-margin-bottom-40">
-                    <h2 class="govuk-heading-m">Contents</h2>
-                    <div class="amp-left-border">
-                        <ul class="govuk-list">
-                            <li>
-                                <a href="#id_tools" class="govuk-link govuk-link--no-visited-state">
-                                    Tools</a>
-                                <ul class="govuk-list govuk-list--bullet amp-margin-bottom-0">
-                                    <li>
-                                        <a href="#id_write_to_log" class="govuk-link govuk-link--no-visited-state">
-                                            Write to log</a>
-                                    </li>
-                                    <li>
-                                        <a href="#id_raise_exception" class="govuk-link govuk-link--no-visited-state">
-                                            Raise exception</a>
-                                    </li>
-                                    <li>
-                                        <a href="#id_housekeeping" class="govuk-link govuk-link--no-visited-state">
-                                            Housekeeping</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li>
-                                <a href="#id_sitemap" class="govuk-link govuk-link--no-visited-state">
-                                    Sitemap</a>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
-            </div>
-            <div class="govuk-grid-column-two-thirds">
-                <h2 id="id_tools" class="govuk-heading-l">Tools</h2>
-                <h3 id="id_write_to_log" class="govuk-heading-m">Write to log</h3>
+            <div class="govuk-grid-column-full">
+                <h2 id="id_write_to_log" class="govuk-heading-m">Write to log</h2>
                 <form method="post" action="{% url 'tech:platform-checking' %}">
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
@@ -69,20 +37,14 @@
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
                                 type="submit"
-                                value="Post"
+                                value="Post log message"
                                 name="submit"
                                 class="govuk-button"
                                 data-module="govuk-button"
                             />
-                            <a
-                                href="{% url 'tech:reference-implementation' %}"
-                                class="govuk-link govuk-link--no-visited-state"
-                            >
-                                Reference implementation
-                            </a>
                         </div>
                     </div>
-                    <h3 id="id_raise_exception" class="govuk-heading-m">Raise exception</h3>
+                    <h2 id="id_raise_exception" class="govuk-heading-m">Raise exception</h2>
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
@@ -109,22 +71,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-        </div>
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                <h2 id="id_sitemap" class="govuk-heading-l">Sitemap</h2>
-                <ol class="govuk-list govuk-list--number">
-                    {% for platform_page_group in sitemap.platform_page_groups %}
-                        <li>
-                            <b>{% if platform_page_group.name %}{{ platform_page_group.name }}{% else %}ANONYMOUS{% endif %}</b>
-                            (type <code>{{ platform_page_group.type }}</code>):
-                            {% if platform_page_group.pages %}
-                                {% include 'tech/platform_subpages.html' with pages=platform_page_group.pages %}
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                </ol>
             </div>
         </div>
     </main>

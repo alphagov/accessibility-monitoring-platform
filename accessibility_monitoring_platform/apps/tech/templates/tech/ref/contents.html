@@ -56,14 +56,16 @@
         <h2 class="govuk-heading-m">Tech team pages</h2>
         <ul class="govuk-list">
             <li>
+                <a href="{% url 'tech:platform-checking' %}" class="govuk-link govuk-link--no-visited-state">
+                    Check logging and exceptions</a>
+            </li>
+            <li>
                 <a href="{% url 'tech:equality-body-csv-metadata' %}" class="govuk-link govuk-link--no-visited-state">
                     Equality body CSV metadata</a>
             </li>
             <li>
-                <a href="{% url 'tech:platform-checking' %}" class="govuk-link govuk-link--no-visited-state">
-                    Tools and sitemap</a>
-                (<a href="{% url 'tech:platform-checking' %}#id_sitemap" class="govuk-link govuk-link--no-visited-state"
-                    >sitemap</a>)
+                <a href="{% url 'tech:sitemap' %}" class="govuk-link govuk-link--no-visited-state"
+                    >Sitemap</a>
             </li>
             <li>
                 <a href="{% url 'tech:import-csv' %}" class="govuk-link govuk-link--no-visited-state">
@@ -83,12 +85,14 @@
         </ul>
         <h2 class="govuk-heading-m">Case history</h2>
         <ul class="govuk-list">
-            <li>
-                <a href="{% url 'simplified:case-history' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                    {{ case }}</a>
-                (<a href="{% url 'admin:simplified_simplifiedeventhistory_changelist' %}?q={{ case.case_number }}" class="govuk-link govuk-link--no-visited-state"
-                    >admin</a>)
-            </li>
+            {% if case %}
+                <li>
+                    <a href="{% url 'simplified:case-history' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        {{ case }}</a>
+                    (<a href="{% url 'admin:simplified_simplifiedeventhistory_changelist' %}?q={{ case.case_number }}" class="govuk-link govuk-link--no-visited-state"
+                        >admin</a>)
+                </li>
+            {% endif %}
             {% if detailed_case %}
                 <li>
                     <a href="{% url 'detailed:case-history' detailed_case.id %}" class="govuk-link govuk-link--no-visited-state">

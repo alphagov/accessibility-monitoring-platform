@@ -74,7 +74,7 @@ class ReferenceImplementaionView(StaffRequiredMixin, TemplateView):
 
 class EqualityBodyCsvMetadataView(StaffRequiredMixin, TemplateView):
     """
-    View showing euality body CSV metadata for simplified, detailed and mobile cases
+    View showing equality body CSV metadata for simplified, detailed and mobile cases
     and highlighting differences.
     """
 
@@ -107,23 +107,27 @@ class EqualityBodyCsvMetadataView(StaffRequiredMixin, TemplateView):
 
 
 class PlatformCheckingView(StaffRequiredMixin, FormView):
-    """Write log message"""
+    """Test writing log messages and raiseing exceptions"""
 
     form_class = PlatformCheckingForm
     template_name: str = "tech/platform_checking.html"
     success_url: str = reverse_lazy("tech:platform-checking")
 
     def form_valid(self, form):
-        if "trigger_400" in self.request.POST:
+        if "raise_400" in self.request.POST:
             raise BadRequest
-        if "trigger_403" in self.request.POST:
+        if "raise_403" in self.request.POST:
             raise PermissionDenied
-        if "trigger_500" in self.request.POST:
+        if "raise_500" in self.request.POST:
             1 / 0
         logger.log(
             level=int(form.cleaned_data["level"]), msg=form.cleaned_data["message"]
         )
         return super().form_valid(form)
+
+
+class SitemapView(StaffRequiredMixin, TemplateView):
+    template_name: str = "tech/sitemap.html"
 
 
 class ImportCSV(StaffRequiredMixin, FormView):
