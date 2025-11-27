@@ -3,7 +3,11 @@
 from django.contrib.auth.decorators import login_required
 from django.urls import path
 
-from .views import PlatformCheckingView, ReferenceImplementaionView
+from .views import (
+    EqualityBodyCsvMetadataView,
+    PlatformCheckingView,
+    ReferenceImplementaionView,
+)
 
 app_name = "tech"
 urlpatterns = [
@@ -11,6 +15,11 @@ urlpatterns = [
         "",
         login_required(ReferenceImplementaionView.as_view()),
         name="reference-implementation",
+    ),
+    path(
+        "equality-body-csv-metadata/",
+        login_required(EqualityBodyCsvMetadataView.as_view()),
+        name="equality-body-csv-metadata",
     ),
     path(
         "platform-checking/",
