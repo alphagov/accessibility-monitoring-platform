@@ -13,7 +13,7 @@ from django.views.generic.edit import CreateView, UpdateView
 
 from ..cases.models import BaseCase
 from ..common.utils import amp_format_date
-from ..detailed.models import REMINDER_LABEL, DetailedCaseHistory
+from ..detailed.models import DetailedCaseHistory
 from .forms import ReminderForm
 from .models import Task
 from .utils import (
@@ -24,6 +24,8 @@ from .utils import (
     record_case_model_create_event,
     record_case_model_update_event,
 )
+
+REMINDER_LABEL: str = "Reminder"
 
 
 class TaskListView(TemplateView):

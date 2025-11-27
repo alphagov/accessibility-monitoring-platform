@@ -1,0 +1,64 @@
+{% extends 'common/case_form.html' %}
+
+{% load static %}
+
+{% block preform %}
+    {% include 'simplified/helpers/qa_links.html' %}
+{% endblock %}
+
+{% block formfields %}
+{% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+{% include 'common/amp_field.html' with field=form.body %}
+{% include 'common/preview_markdown.html' with field_id=form.body.auto_id %}
+{% endblock %}
+
+{% block formbuttons %}
+<div class="govuk-grid-row amp-margin-top-30">
+    <div class="govuk-grid-column-full govuk-button-group">
+        <input
+            type="submit"
+            value="Save and continue"
+            name="save_continue"
+            class="govuk-button"
+            data-module="govuk-button"
+        />
+        <input
+            type="submit"
+            value="Save"
+            name="save"
+            class="govuk-button govuk-button--secondary"
+            data-module="govuk-button"
+        />
+        <a
+            href="{{ case.get_absolute_url }}"
+            class="govuk-link govuk-link--no-visited-state"
+        >
+            Return to overview
+        </a>
+        <a
+            href="{% url 'mobile:mark-qa-comments-as-read' case.id %}"
+            class="govuk-link govuk-link--no-visited-state"
+        >
+            Mark case tasks as seen
+        </a>
+    </div>
+</div>
+{% include 'common/next_platform_page.html' %}
+{% endblock %}
+
+{% block postform %}
+    <div id="qa-discussion" class="govuk-grid-row">
+        <div class="govuk-grid-column-full amp-margin-top-30">
+            {% for comment in case.qa_comments %}
+                <hr class="amp-width-100  amp-margin-bottom-30" />
+                {% include "comments/helpers/comment.html" %}
+
+            {% endfor %}
+            <hr class="amp-width-100  amp-margin-bottom-30" />
+        </div>
+    </div>
+{% endblock %}
+
+{% block extrascript %}
+    <script src="{% static 'js/markdown_preview.js' %}"></script>
+{% endblock %}

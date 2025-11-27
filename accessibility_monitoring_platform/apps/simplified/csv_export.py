@@ -521,7 +521,7 @@ SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="twelve_week_retest_complete_date",
     ),
     CSVColumn(
-        column_header="Summary of progress made from public sector body",
+        column_header="Case progress notes",
         source_class=SimplifiedCase,
         source_attr="psb_progress_notes",
     ),
@@ -720,6 +720,11 @@ SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         column_header="Case no.", source_class=SimplifiedCase, source_attr="case_number"
     ),
     CSVColumn(
+        column_header="Website name",
+        source_class=SimplifiedCase,
+        source_attr="website_name",
+    ),
+    CSVColumn(
         column_header="Organisation name",
         source_class=SimplifiedCase,
         source_attr="organisation_name",
@@ -758,5 +763,10 @@ SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         column_header="Feedback survey sent?",
         source_class=SimplifiedCase,
         source_attr="is_feedback_requested",
+    ),
+    CSVColumn(
+        column_header="Compliance decision email sent to",
+        source_class=SimplifiedCase,
+        source_attr="compliance_decision_sent_to_email",
     ),
 ]

@@ -73,3 +73,8 @@ def amp_datetime_short_month(datetime_to_format: datetime) -> str:
         return amp_format_datetime_short_month(timezone.localtime(datetime_to_format))
     else:
         return ""
+
+
+@register.filter
+def to_class_name(value):
+    return value.__class__.__name__

@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path
 
 from .views import (
+    EqualityBodyCsvMetadataView,
     ImportCSV,
     ImportTrelloComments,
     PlatformCheckingView,
@@ -16,6 +17,11 @@ urlpatterns = [
         "",
         login_required(ReferenceImplementaionView.as_view()),
         name="reference-implementation",
+    ),
+    path(
+        "equality-body-csv-metadata/",
+        login_required(EqualityBodyCsvMetadataView.as_view()),
+        name="equality-body-csv-metadata",
     ),
     path(
         "platform-checking/",

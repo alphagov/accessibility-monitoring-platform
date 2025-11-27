@@ -11,8 +11,18 @@ from .views import QACommentUpdateView
 app_name: str = "comments"
 urlpatterns: list[URLPattern] = [
     path(
-        "<int:pk>/edit-qa-comment/",
+        "<int:pk>/edit-qa-comment-simplified/",
         login_required(QACommentUpdateView.as_view()),
-        name="edit-qa-comment",
+        name="edit-qa-comment-simplified",
+    ),
+    path(
+        "<int:pk>/edit-qa-comment-detailed/",
+        login_required(QACommentUpdateView.as_view()),
+        name="edit-qa-comment-detailed",
+    ),
+    path(
+        "<int:pk>/edit-qa-comment-mobile/",
+        login_required(QACommentUpdateView.as_view()),
+        name="edit-qa-comment-mobile",
     ),
 ]

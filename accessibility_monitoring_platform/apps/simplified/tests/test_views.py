@@ -25,7 +25,12 @@ from ...audits.models import (
 )
 from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_results
 from ...comments.models import Comment
-from ...common.models import Boolean, EmailTemplate
+from ...common.models import (
+    AUDITOR_GROUP_NAME,
+    QA_AUDITOR_GROUP_NAME,
+    Boolean,
+    EmailTemplate,
+)
 from ...common.utils import amp_format_date
 from ...notifications.models import Task
 from ...reports.models import Report
@@ -188,9 +193,9 @@ class MockMessages:
 
 
 def add_user_to_auditor_groups(user: User) -> None:
-    auditor_group: Group = Group.objects.create(name="Auditor")
+    auditor_group: Group = Group.objects.create(name=AUDITOR_GROUP_NAME)
     historic_auditor_group: Group = Group.objects.create(name="Historic auditor")
-    qa_auditor_group: Group = Group.objects.create(name="QA auditor")
+    qa_auditor_group: Group = Group.objects.create(name=QA_AUDITOR_GROUP_NAME)
     auditor_group.user_set.add(user)
     historic_auditor_group.user_set.add(user)
     qa_auditor_group.user_set.add(user)
@@ -3995,3 +4000,40 @@ def test_next_page_name_with_audit(path_name, expected_next_page, admin_client):
     assert response.status_code == 200
 
     assertContains(response, f"<b>{expected_next_page}</b>", html=True)
+
+
+def test_bulk_copy_issue_ids_to_clipboard(admin_client):
+    """
+    Test summary pages include option to bulk copy all issue ids for a single WCAG
+    """
+    audit: Audit = create_audit_and_check_results()
+    page: Page = Page.objects.filter(audit=audit).first()
+    wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
+    check_result_1: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+    )
+    check_result_2: CheckResult = CheckResult.objects.create(
+        audit=audit,
+        page=page,
+        wcag_definition=wcag_definition,
+        check_result_state=CheckResult.Result.ERROR,
+    )
+    url: str = reverse(
+        "simplified:outstanding-issues", kwargs={"pk": audit.simplified_case.id}
+    )
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        f"[{check_result_1.issue_identifier} {check_result_2.issue_identifier}]",
+    )
+    assertContains(
+        response,
+        f'data-text-to-copy="{check_result_1.issue_identifier} {check_result_2.issue_identifier}"',
+    )

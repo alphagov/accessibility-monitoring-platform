@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ sitemap.current_platform_page.get_name }}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'tech/breadcrumbs.html' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+    </main>
+</div>
+{% endblock %}

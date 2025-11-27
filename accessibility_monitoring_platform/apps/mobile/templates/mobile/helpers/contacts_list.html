@@ -1,0 +1,17 @@
+<details class="govuk-details amp-margin-bottom-10" data-module="govuk-details">
+   <summary class="govuk-details__summary">
+        <span class="govuk-details__summary-text">List of preferred contacts ({{ mobile_case.preferred_contacts.count }})</span>
+    </summary>
+    <div class="govuk-details__text">
+        {% for contact in mobile_case.preferred_contacts %}
+            <h2 class="govuk-heading-s amp-margin-bottom-0">Contact {{ forloop.counter }}</h2>
+            <p class="govuk-body amp-margin-bottom-0">{{ contact.name }}</p>
+            <p class="govuk-body amp-margin-bottom-0">{{ contact.job_title }}</p>
+            <p class="govuk-body">{{ contact.contact_details }}</p>
+        {% endfor %}
+        <p class="govuk-body">
+            <a href="{% url 'mobile:manage-contact-details' mobile_case.id %}" class="govuk-link govuk-link--no-visited-state">
+                Edit contacts</a>
+        </p>
+    </div>
+</details>

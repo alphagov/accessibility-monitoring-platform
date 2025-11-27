@@ -39,16 +39,15 @@ function searchInCase() {
     let resultsString = ''
     matchingSearchables.forEach(searchable => {
       let childElementsString = ''
-      searchable.childElements.forEach(childElement => childElementsString += `
-        <div class="govuk-body amp-margin-bottom-5">
-          ${childElement.innerHTML.replaceAll(notInsideHTMLTagRegex, '<b>$&</b>')}
-        </div>`
-      )
+      childElementsString += searchable.childElements[0].outerHTML.replaceAll(notInsideHTMLTagRegex, '<b>$&</b>')
+
+      if (searchable.childElements.length > 1) {
+        childElementsString += searchable.childElements[1].outerHTML.replaceAll(notInsideHTMLTagRegex, '<b>$&</b>')
+      }
+
       resultsString += `
-        <div class="govuk-grid-row amp-margin-bottom-30">
-          <div class="govuk-grid-column-full">
+        <div class="govuk-grid-row amp-margin-bottom-50">
             ${childElementsString}
-          </div>
         </div>`
     })
     const resultsLabel = matchingSearchables.length == 1 ? 'result' : 'results'
@@ -56,7 +55,7 @@ function searchInCase() {
       <p class="govuk-body">
         Found ${numberOfMatches} ${resultsLabel} for <b>${searchInputElement.value}</b>
       </p>
-      ${resultsString}<hr class="amp-width-100 amp-margin-bottom-60">`
+      ${resultsString}<hr class="amp-width-100 amp-margin-bottom-15">`
     searchResultsElement.style.display = 'block'
   }
 }

@@ -28,6 +28,8 @@
                         {% include "cases/helpers/case_nav.html" with case_nav_type='simplified_case_nav' %}
                     {% elif case.test_type == 'detailed' %}
                         {% include "cases/helpers/case_nav.html" with case_nav_type='detailed_case_nav' %}
+                    {% elif case.test_type == 'mobile' %}
+                        {% include "cases/helpers/case_nav.html" with case_nav_type='mobile_case_nav' %}
                     {% endif %}
                 {% endblock %}
             </div>
