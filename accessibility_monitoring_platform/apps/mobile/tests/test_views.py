@@ -491,3 +491,56 @@ def test_status_update_creates_history(admin_client, admin_user):
     assert response.status_code == 302
 
     assert MobileCaseHistory.objects.filter(mobile_case=mobile_case).count() == 1
+
+
+@pytest.mark.parametrize(
+    "old_report_sent_date, new_report_sent_date, old_twelve_week_deadline_date, expected_twelve_week_deadline_date",
+    [
+        (None, None, None, None),
+        (None, date(2020, 1, 1), None, date(2020, 3, 25)),
+        (None, date(2020, 1, 1), date(2020, 1, 2), date(2020, 1, 2)),
+        (date(2020, 1, 2), date(2020, 1, 1), None, date(2020, 3, 25)),
+        (date(2020, 1, 1), date(2020, 1, 1), None, None),
+    ],
+)
+def test_report_sent_date_populates_12_week_deadline(
+    old_report_sent_date,
+    new_report_sent_date,
+    old_twelve_week_deadline_date,
+    expected_twelve_week_deadline_date,
+    admin_client,
+):
+    """Test that populating the report sent date populates the 12-week deadline"""
+    mobile_case: MobileCase = MobileCase.objects.create(
+        report_sent_date=old_report_sent_date,
+        twelve_week_deadline_date=old_twelve_week_deadline_date,
+    )
+
+    if new_report_sent_date:
+        new_report_sent_date_day: int = new_report_sent_date.day
+        new_report_sent_date_month: int = new_report_sent_date.month
+        new_report_sent_date_year: int = new_report_sent_date.year
+    else:
+        new_report_sent_date_day: str = ""
+        new_report_sent_date_month: str = ""
+        new_report_sent_date_year: str = ""
+
+    response: HttpResponse = admin_client.post(
+        reverse("mobile:edit-report-sent", kwargs={"pk": mobile_case.id}),
+        {
+            "version": mobile_case.version,
+            "report_sent_date_0": new_report_sent_date_day,
+            "report_sent_date_1": new_report_sent_date_month,
+            "report_sent_date_2": new_report_sent_date_year,
+            "save": "Save",
+        },
+    )
+
+    assert response.status_code == 302
+
+    updated_mobile_case: MobileCase = MobileCase.objects.get(id=mobile_case.id)
+
+    assert (
+        updated_mobile_case.twelve_week_deadline_date
+        == expected_twelve_week_deadline_date
+    )

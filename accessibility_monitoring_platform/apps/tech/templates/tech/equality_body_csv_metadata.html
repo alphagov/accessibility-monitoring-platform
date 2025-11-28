@@ -1,0 +1,59 @@
+{% extends 'tech/base.html' %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'tech/breadcrumbs.html' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ sitemap.current_platform_page.get_name }}</h1>
+                <p class="govuk-body">
+                    For Simplified, Detailed and Mobile Case comparison.
+                </p>
+                <p class="govuk-body">
+                    Each cell contains CSV column name, source model and source attribute.
+                </p>
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                <p class="govuk-body">Highlighting key:</p>
+            </div>
+            <div class="govuk-grid-column-two-thirds">
+                <ul class="govuk-list">
+                    <li><span class="amp-case-banner-title-simplified">Detailed or Mobile source attribute different from Simplified</span></li>
+                    <li><span class="amp-case-banner-title-detailed">Mobile source attribute different from Simplified and Detailed</span></li>
+                    <li><span class="amp-case-banner-title-mobile">Mobile source attribute matches Simplified but differs from Detailed</span></li>
+                </ul>
+            </div>
+        </div>
+        <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Simplified</th>
+                    <th class="govuk-table__header">Detailed</th>
+                    <th class="govuk-table__header">Mobile</th>
+                <tr>
+            </thead>
+            <tbody class="govuk-table__body">
+                <tr class="govuk-table__row"><th colspan="3" class="govuk-table__header">Metadata</th><tr>
+                {% for simplified, detailed, mobile in metadata %}
+                    {% include 'tech/equality_body_csv_metadata_row.html' %}
+                {% endfor %}
+                <tr class="govuk-table__row"><th colspan="3" class="govuk-table__header">Report</th><tr>
+                {% for simplified, detailed, mobile in report %}
+                    {% include 'tech/equality_body_csv_metadata_row.html' %}
+                {% endfor %}
+                <tr class="govuk-table__row"><th colspan="3" class="govuk-table__header">Correspondence</th><tr>
+                {% for simplified, detailed, mobile in correspondence %}
+                    {% include 'tech/equality_body_csv_metadata_row.html' %}
+                {% endfor %}
+                <tr class="govuk-table__row"><th colspan="3" class="govuk-table__header">Test summary</th><tr>
+                {% for simplified, detailed, mobile in test_summary %}
+                    {% include 'tech/equality_body_csv_metadata_row.html' %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+</div>
+{% endblock %}
