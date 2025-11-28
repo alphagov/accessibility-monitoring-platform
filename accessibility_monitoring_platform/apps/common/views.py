@@ -16,6 +16,7 @@ from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
 from ..cases.models import BaseCase
+from ..common.forms import FrequentlyUsedLinksFilterForm
 from ..common.sitemap import PlatformPage, Sitemap
 from ..simplified.utils import (
     record_simplified_model_create_event,
@@ -236,6 +237,7 @@ class FrequentlyUsedLinkFormsetTemplateView(TemplateView):
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
+        context["filter_form"] = FrequentlyUsedLinksFilterForm()
         if self.request.POST:
             links_formset = FrequentlyUsedLinkFormset(self.request.POST)
         else:

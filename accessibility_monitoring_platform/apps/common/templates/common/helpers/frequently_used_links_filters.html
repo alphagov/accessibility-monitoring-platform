@@ -1,0 +1,9 @@
+<div class="amp-filter-form">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'common/amp_form_snippet.html' with form=filter_form %}
+        </div>
+    </div>
+    <p class="govuk-body-m" id="filter_summary">Showing {{ links_formset.forms|length }} links</p>
+    <hr class="amp-width-100" />
+</div>
