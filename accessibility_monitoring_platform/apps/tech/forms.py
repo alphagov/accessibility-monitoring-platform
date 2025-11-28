@@ -4,14 +4,7 @@ import logging
 
 from django import forms
 
-from ..common.forms import (
-    AMPCharFieldWide,
-    AMPChoiceCheckboxField,
-    AMPChoiceCheckboxWidget,
-    AMPChoiceField,
-    AMPTextField,
-)
-from ..common.models import Boolean
+from ..common.forms import AMPCharFieldWide, AMPChoiceField
 
 LOG_LEVEL_CHOICES: list[tuple[int, str]] = [
     (logging.WARNING, "Warning"),
@@ -31,16 +24,3 @@ class PlatformCheckingForm(forms.Form):
 
     level = AMPChoiceField(label="Level", choices=LOG_LEVEL_CHOICES)
     message = AMPCharFieldWide(label="Message", initial="Test log message")
-
-
-class ImportCSVForm(forms.Form):
-    data = AMPTextField(label="CSV data")
-
-
-class ImportTrelloCommentsForm(forms.Form):
-    data = AMPTextField(label="CSV data")
-    reset_data = AMPChoiceCheckboxField(
-        label="Reset existing data",
-        choices=Boolean.choices,
-        widget=AMPChoiceCheckboxWidget(attrs={"label": "Delete existing data"}),
-    )

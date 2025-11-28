@@ -5,12 +5,10 @@ from typing import Any
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import BadRequest, PermissionDenied
-from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
-from ..common.models import Boolean
 from ..detailed.csv_export import (
     DETAILED_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
     DETAILED_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
@@ -33,8 +31,7 @@ from ..simplified.csv_export import (
     SIMPLIFIED_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
 )
 from ..simplified.models import SimplifiedCase
-from .forms import ImportCSVForm, ImportTrelloCommentsForm, PlatformCheckingForm
-from .utils import import_mobile_cases_csv, import_trello_comments
+from .forms import PlatformCheckingForm
 
 logger = logging.getLogger(__name__)
 
@@ -128,40 +125,3 @@ class PlatformCheckingView(StaffRequiredMixin, FormView):
 
 class SitemapView(StaffRequiredMixin, TemplateView):
     template_name: str = "tech/sitemap.html"
-
-
-class ImportCSV(StaffRequiredMixin, FormView):
-    """Reset mobile Cases data from CSV"""
-
-    form_class = ImportCSVForm
-    template_name: str = "tech/import_csv.html"
-    success_url: str = reverse_lazy("tech:import-csv")
-
-    def post(
-        self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
-    ) -> HttpResponseRedirect:
-        context: dict[str, Any] = self.get_context_data()
-        form = context["form"]
-        if form.is_valid():
-            csv_data: str = form.cleaned_data["data"]
-            import_mobile_cases_csv(csv_data)
-        return self.render_to_response(self.get_context_data())
-
-
-class ImportTrelloComments(StaffRequiredMixin, FormView):
-    """Import Trello comments for Detailed cases from CSV data"""
-
-    form_class = ImportTrelloCommentsForm
-    template_name: str = "tech/import_trello_comments.html"
-    success_url: str = reverse_lazy("tech:import-trello-comments")
-
-    def post(
-        self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
-    ) -> HttpResponseRedirect:
-        context: dict[str, Any] = self.get_context_data()
-        form = context["form"]
-        if form.is_valid():
-            csv_data: str = form.cleaned_data["data"]
-            reset_data: bool = form.cleaned_data["reset_data"] == Boolean.YES
-            import_trello_comments(csv_data, reset_data)
-        return self.render_to_response(self.get_context_data())
