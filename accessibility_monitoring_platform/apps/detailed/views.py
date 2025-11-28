@@ -22,7 +22,11 @@ from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 from ..common.csv_export import EqualityBodyCSVColumn
 from ..common.sitemap import Sitemap
-from ..common.utils import extract_domain_from_url, replace_search_key_with_case_search
+from ..common.utils import (
+    add_12_weeks_to_date,
+    extract_domain_from_url,
+    replace_search_key_with_case_search,
+)
 from ..common.views import (
     HideCaseNavigationMixin,
     NextPlatformPageMixin,
@@ -498,6 +502,21 @@ class CorrespondenceReportSentUpdateView(CorrespondenceUpdateView):
     """View to update correspondence report sent"""
 
     form_class: type[DetailedReportSentUpdateForm] = DetailedReportSentUpdateForm
+
+    def form_valid(self, form: DetailedReportSentUpdateForm):
+        """
+        Populate 12-week deadline if report sent date has changed
+        """
+        self.object: DetailedCase = form.save(commit=False)
+        if (
+            "report_sent_date" in form.changed_data
+            and form.cleaned_data["report_sent_date"]
+            and self.object.twelve_week_deadline_date is None
+        ):
+            self.object.twelve_week_deadline_date = add_12_weeks_to_date(
+                anchor_date=form.cleaned_data["report_sent_date"]
+            )
+        return super().form_valid(form)
 
 
 class CorrespondenceReportAcknowledgedUpdateView(CorrespondenceUpdateView):
