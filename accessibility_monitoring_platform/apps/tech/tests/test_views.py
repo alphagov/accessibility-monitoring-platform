@@ -17,17 +17,24 @@ LOG_MESSAGE: str = "Hello"
 
 
 @pytest.mark.parametrize(
-    "url_name,expected_header",
+    "url_name, page_name",
     [
-        ("tech:platform-checking", ">Tools and sitemap</h1>"),
+        ("tech:reference-implementation", ">Reference implementation</h1>"),
+        ("tech:platform-checking", ">Check logging and exceptions</h1>"),
+        ("tech:equality-body-csv-metadata", ">Equality body CSV metadata</h1>"),
+        ("tech:sitemap", ">Sitemap</h1>"),
     ],
 )
-def test_page_renders(url_name, expected_header, admin_client):
+def test_page_renders(url_name, page_name, admin_client):
     """Test common page is rendered"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Audit.objects.create(simplified_case=simplified_case)
+    Report.objects.create(base_case=simplified_case)
+
     response: HttpResponse = admin_client.get(reverse(url_name))
 
     assert response.status_code == 200
-    assertContains(response, expected_header)
+    assertContains(response, page_name)
 
 
 def test_platform_checking_writes_log(admin_client, caplog):
@@ -47,39 +54,48 @@ def test_platform_checking_writes_log(admin_client, caplog):
     ]
 
 
+@pytest.mark.parametrize(
+    "url_name, page_name",
+    [
+        ("tech:reference-implementation", "Reference implementation"),
+        ("tech:platform-checking", "Check logging and exceptions"),
+        ("tech:equality-body-csv-metadata", "Equality body CSV metadata"),
+        ("tech:sitemap", "Sitemap"),
+    ],
+)
 @pytest.mark.django_db
-def test_platform_checking_staff_access(client):
-    """Tests if staff users can access platform checking"""
+def test_tech_page_staff_access(url_name, page_name, client):
+    """Tests if staff users can access tech pages"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Audit.objects.create(simplified_case=simplified_case)
+    Report.objects.create(base_case=simplified_case)
+
     user: User = create_user()
     user.is_staff = True
     user.save()
     client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
 
-    response: HttpResponse = client.get(reverse("tech:platform-checking"))
+    response: HttpResponse = client.get(reverse(url_name))
 
     assert response.status_code == 200
-    assertContains(response, "Tools and sitemap")
+    assertContains(response, page_name)
 
 
+@pytest.mark.parametrize(
+    "url_name",
+    [
+        "tech:reference-implementation",
+        "tech:platform-checking",
+        "tech:equality-body-csv-metadata",
+        "tech:sitemap",
+    ],
+)
 @pytest.mark.django_db
-def test_platform_checking_non_staff_access(client):
-    """Tests non-staff users cannot access platform checking"""
+def test_platform_checking_non_staff_access(url_name, client):
+    """Tests non-staff users cannot access tech pages"""
     create_user()
     client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
 
-    response: HttpResponse = client.get(reverse("tech:platform-checking"))
+    response: HttpResponse = client.get(reverse(url_name))
 
     assert response.status_code == 403
-
-
-def test_reference_implementations_page(admin_client):
-    """Test that the reference implementation page renders"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(simplified_case=simplified_case)
-    Report.objects.create(base_case=simplified_case)
-
-    response: HttpResponse = admin_client.get(reverse("tech:reference-implementation"))
-
-    assert response.status_code == 200
-
-    assertContains(response, "Reference implementation")

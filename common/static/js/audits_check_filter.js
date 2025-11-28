@@ -1,5 +1,5 @@
 /*
-All user to filter checks displayed by type, if check has been tested and WCAG definition name.
+Allow user to filter checks displayed by type, if check has been tested and WCAG definition name.
 */
 const testPage = document.getElementById('id_form-0-check_result_state_0') !== null
 const checkStateNameSuffix = testPage ? 'check_result_state' : 'retest_state'

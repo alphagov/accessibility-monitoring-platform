@@ -19,7 +19,12 @@ from ...detailed.csv_export import (
     DETAILED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
 )
 from ...notifications.models import Task
-from ..models import DetailedCase, DetailedEventHistory, ZendeskTicket
+from ..models import (
+    DetailedCase,
+    DetailedCaseHistory,
+    DetailedEventHistory,
+    ZendeskTicket,
+)
 from ..views import mark_qa_comments_as_read
 
 CASE_FOLDER_URL: str = "https://drive.google.com/drive/folders/xxxxxxx"
@@ -474,3 +479,75 @@ def test_closing_the_case_page_no_missing_data(admin_client):
         response, "The case has missing data and can not be submitted to EHRC."
     )
     assertContains(response, "All fields are complete and the case can now be closed.")
+
+
+def test_status_update_creates_history(admin_client, admin_user):
+    """Test status update adds to history"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+
+    assert DetailedCaseHistory.objects.filter(detailed_case=detailed_case).count() == 0
+
+    response: HttpResponse = admin_client.post(
+        reverse("detailed:edit-case-status", kwargs={"pk": detailed_case.id}),
+        {
+            "save": "Button value",
+            "version": detailed_case.version,
+            "status": "200-complete",
+        },
+    )
+    assert response.status_code == 302
+
+    assert DetailedCaseHistory.objects.filter(detailed_case=detailed_case).count() == 1
+
+
+@pytest.mark.parametrize(
+    "old_report_sent_date, new_report_sent_date, old_twelve_week_deadline_date, expected_twelve_week_deadline_date",
+    [
+        (None, None, None, None),
+        (None, date(2020, 1, 1), None, date(2020, 3, 25)),
+        (None, date(2020, 1, 1), date(2020, 1, 2), date(2020, 1, 2)),
+        (date(2020, 1, 2), date(2020, 1, 1), None, date(2020, 3, 25)),
+        (date(2020, 1, 1), date(2020, 1, 1), None, None),
+    ],
+)
+def test_report_sent_date_populates_12_week_deadline(
+    old_report_sent_date,
+    new_report_sent_date,
+    old_twelve_week_deadline_date,
+    expected_twelve_week_deadline_date,
+    admin_client,
+):
+    """Test that populating the report sent date populates the 12-week deadline"""
+    detailed_case: DetailedCase = DetailedCase.objects.create(
+        report_sent_date=old_report_sent_date,
+        twelve_week_deadline_date=old_twelve_week_deadline_date,
+    )
+
+    if new_report_sent_date:
+        new_report_sent_date_day: int = new_report_sent_date.day
+        new_report_sent_date_month: int = new_report_sent_date.month
+        new_report_sent_date_year: int = new_report_sent_date.year
+    else:
+        new_report_sent_date_day: str = ""
+        new_report_sent_date_month: str = ""
+        new_report_sent_date_year: str = ""
+
+    response: HttpResponse = admin_client.post(
+        reverse("detailed:edit-report-sent", kwargs={"pk": detailed_case.id}),
+        {
+            "version": detailed_case.version,
+            "report_sent_date_0": new_report_sent_date_day,
+            "report_sent_date_1": new_report_sent_date_month,
+            "report_sent_date_2": new_report_sent_date_year,
+            "save": "Save",
+        },
+    )
+
+    assert response.status_code == 302
+
+    updated_detailed_case: DetailedCase = DetailedCase.objects.get(id=detailed_case.id)
+
+    assert (
+        updated_detailed_case.twelve_week_deadline_date
+        == expected_twelve_week_deadline_date
+    )

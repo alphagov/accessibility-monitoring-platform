@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load l10n %}
+{% load static %}
 
 {% block title %}{{ sitemap.current_platform_page.get_name }}{% endblock %}
 
@@ -14,6 +15,7 @@
             </div>
             <div class="govuk-grid-column-three-quarters">
                 <h1 class="govuk-heading-xl amp-margin-bottom-25">{{ sitemap.current_platform_page.get_name }}</h1>
+                {% include 'common/helpers/frequently_used_links_filters.html' %}
                 {% include 'common/formset_error_summary.html' with formset=links_formset %}
                 <form method="post" action="{% url 'common:edit-frequently-used-links' %}">
                     {% csrf_token %}
@@ -22,7 +24,7 @@
                         <table class="govuk-table">
                             <tbody class="govuk-table__body">
                                 {% for form in links_formset %}
-                                    <tr class="govuk-table__row">
+                                    <tr class="govuk-table__row" data-case-type="{{ form.initial.case_type }}">
                                         <td class="govuk-table__cell">
                                             <div class="govuk-grid-row">
                                                 <div class="govuk-grid-column-full">
@@ -71,4 +73,8 @@
         </div>
     </main>
 </div>
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'js/freq_links_filter.js' %}"></script>
 {% endblock %}

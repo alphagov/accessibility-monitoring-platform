@@ -2228,8 +2228,14 @@ SITE_MAP: list[PlatformPageGroup] = (
                     url_name="tech:reference-implementation",
                 ),
                 PlatformPage(
-                    name="Tools and sitemap", url_name="tech:platform-checking"
+                    name="Equality body CSV metadata",
+                    url_name="tech:equality-body-csv-metadata",
                 ),
+                PlatformPage(
+                    name="Check logging and exceptions",
+                    url_name="tech:platform-checking",
+                ),
+                PlatformPage(name="Sitemap", url_name="tech:sitemap"),
                 PlatformPage(
                     name="Reset mobile case data",
                     url_name="tech:import-csv",
