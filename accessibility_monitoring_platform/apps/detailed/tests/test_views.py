@@ -19,7 +19,12 @@ from ...detailed.csv_export import (
     DETAILED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
 )
 from ...notifications.models import Task
-from ..models import DetailedCase, DetailedEventHistory, ZendeskTicket
+from ..models import (
+    DetailedCase,
+    DetailedCaseHistory,
+    DetailedEventHistory,
+    ZendeskTicket,
+)
 from ..views import mark_qa_comments_as_read
 
 CASE_FOLDER_URL: str = "https://drive.google.com/drive/folders/xxxxxxx"
@@ -474,6 +479,25 @@ def test_closing_the_case_page_no_missing_data(admin_client):
         response, "The case has missing data and can not be submitted to EHRC."
     )
     assertContains(response, "All fields are complete and the case can now be closed.")
+
+
+def test_status_update_creates_history(admin_client, admin_user):
+    """Test status update adds to history"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+
+    assert DetailedCaseHistory.objects.filter(detailed_case=detailed_case).count() == 0
+
+    response: HttpResponse = admin_client.post(
+        reverse("detailed:edit-case-status", kwargs={"pk": detailed_case.id}),
+        {
+            "save": "Button value",
+            "version": detailed_case.version,
+            "status": "200-complete",
+        },
+    )
+    assert response.status_code == 302
+
+    assert DetailedCaseHistory.objects.filter(detailed_case=detailed_case).count() == 1
 
 
 @pytest.mark.parametrize(

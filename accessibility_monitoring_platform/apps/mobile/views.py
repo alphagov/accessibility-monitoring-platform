@@ -241,6 +241,13 @@ class MobileCaseUpdateView(NextPlatformPageMixin, UpdateView):
                 user=user, model_object=self.object, mobile_case=self.object
             )
             self.object.save()
+        if "status" in form.changed_data:
+            add_to_mobile_case_history(
+                mobile_case=self.object,
+                user=self.request.user,
+                value=self.object.get_status_display(),
+                event_type=MobileCaseHistory.EventType.STATUS,
+            )
 
         return HttpResponseRedirect(self.get_success_url())
 
@@ -259,31 +266,13 @@ class MobileCaseMetadataUpdateView(MobileCaseUpdateView):
         return super().form_valid(form)
 
 
-class MobileCaseStatusUpdateView(HideCaseNavigationMixin, UpdateView):
+class MobileCaseStatusUpdateView(MobileCaseUpdateView):
     """View to update mobile case status"""
 
     model: type[MobileCase] = MobileCase
     form_class: type[MobileCaseStatusUpdateForm] = MobileCaseStatusUpdateForm
     context_object_name: str = "mobile_case"
     template_name: str = "mobile/forms/case_status.html"
-
-    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
-        """Add message on change of case"""
-        if form.changed_data:
-            self.object: MobileCase = form.save(commit=False)
-            user: User = self.request.user
-            record_mobile_model_update_event(
-                user=user, model_object=self.object, mobile_case=self.object
-            )
-            self.object.save()
-            add_to_mobile_case_history(
-                mobile_case=self.object,
-                user=user,
-                value=self.object.get_status_display(),
-                event_type=MobileCaseHistory.EventType.STATUS,
-            )
-
-        return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
         """Stay on page"""
