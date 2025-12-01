@@ -1,16 +1,7 @@
 <div class="amp-case-banner {% if case.archive %}amp-case-banner-title-archive{% else %}amp-case-banner-title-{{ case.test_type }}{% endif %}">
     <p>{{ case.case_identifier }}{% if case.archive %} [ARCHIVED]{% endif %}</p>
-    <h1>
-        {% if case.website_name %}
-            {{ case.website_name }}
-            ({{ case.organisation_name }})
-        {% elif case.app_name %}
-            {{ case.app_name }}
-            ({{ case.organisation_name }})
-        {% else %}
-            {{ case.organisation_name }}
-        {% endif %}
-    </h1>
+    <h1>{{ case.name_prefix }}</h1>
+    <p>{{ case.name_suffix }}</p>
 </div>
 <div class="amp-case-banner amp-case-banner-body amp-margin-bottom-10">
     <div class="amp-case-banner-row">

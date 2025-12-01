@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 
 from ..common.models import Boolean, Sector, SubCategory, VersionModel
 
@@ -337,10 +338,6 @@ class BaseCase(VersionModel):
     home_page_url = models.TextField(default="", blank=True)
     domain = models.TextField(default="", blank=True)
 
-    @property
-    def domain_clean(self):
-        return self.domain.replace("www.", "")
-
     organisation_name = models.TextField(default="", blank=True)
     psb_location = models.CharField(
         max_length=20,
@@ -405,6 +402,23 @@ class BaseCase(VersionModel):
 
     def get_absolute_url(self) -> str:
         return reverse(f"{self.test_type}:case-detail", kwargs={"pk": self.pk})
+
+    @property
+    def name_prefix(self):
+        name_prefix: str = self.website_name if self.website_name else self.domain
+        return name_prefix
+
+    @property
+    def name_suffix(self):
+        return self.organisation_name
+
+    @property
+    def full_name(self):
+        return mark_safe(f"{self.name_prefix} &middot; {self.name_suffix}")
+
+    @property
+    def domain_clean(self):
+        return self.domain.replace("www.", "")
 
     @property
     def reminder(self):
