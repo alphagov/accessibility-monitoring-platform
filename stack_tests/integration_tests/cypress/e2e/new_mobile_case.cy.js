@@ -20,86 +20,86 @@ describe('Create mobile case', () => {
     cy.get('#id_sector').select('Private Sector Business')
     cy.contains('Save and continue case').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Case metadata`)
+    cy.title().should('eq', `None · ${newOrganisationName} | Case metadata`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Contact details`)
+    cy.title().should('eq', `None · ${newOrganisationName} | Contact details`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Information request`)
+    cy.title().should('eq', `None · ${newOrganisationName} | Information request`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Auditor`)
+    cy.title().should('eq', `None · ${newOrganisationName} | Auditor`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | iOS details`)
+    cy.title().should('eq', `None · ${newOrganisationName} | iOS details`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | iOS outcome`)
+    cy.title().should('eq', `None · ${newOrganisationName} | iOS outcome`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Android details`)
+    cy.title().should('eq', `None · ${newOrganisationName} | Android details`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Android outcome`)
+    cy.title().should('eq', `None · ${newOrganisationName} | Android outcome`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Reports ready for QA`)
+    cy.title().should('eq', `None · ${newOrganisationName} | Reports ready for QA`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | QA auditor`)
+    cy.title().should('eq', `None · ${newOrganisationName} | QA auditor`)
     cy.get('#id_reviewer').select('QA Auditor')
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | QA comments`)
+    cy.title().should('eq', `None · ${newOrganisationName} | QA comments`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | QA approval`)
+    cy.title().should('eq', `None · ${newOrganisationName} | QA approval`)
     cy.get('[name="report_approved_status"]').check('yes')
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Final reports`)
+    cy.title().should('eq', `None · ${newOrganisationName} | Final reports`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Reports sent`)
+    cy.title().should('eq', `None · ${newOrganisationName} | Reports sent`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week deadline`)
+    cy.title().should('eq', `None · ${newOrganisationName} | 12-week deadline`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Reports acknowledged`)
+    cy.title().should('eq', `None · ${newOrganisationName} | Reports acknowledged`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week update requested`)
+    cy.title().should('eq', `None · ${newOrganisationName} | 12-week update requested`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | 12-week update received`)
+    cy.title().should('eq', `None · ${newOrganisationName} | 12-week update received`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | iOS retesting`)
+    cy.title().should('eq', `None · ${newOrganisationName} | iOS retesting`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | iOS retest result`)
+    cy.title().should('eq', `None · ${newOrganisationName} | iOS retest result`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Android retesting`)
+    cy.title().should('eq', `None · ${newOrganisationName} | Android retesting`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Android retest result`)
+    cy.title().should('eq', `None · ${newOrganisationName} | Android retest result`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Recommendation`)
+    cy.title().should('eq', `None · ${newOrganisationName} | Recommendation`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Closing the case`)
+    cy.title().should('eq', `None · ${newOrganisationName} | Closing the case`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Statement enforcement`)
+    cy.title().should('eq', `None · ${newOrganisationName} | Statement enforcement`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Equality body metadata`)
+    cy.title().should('eq', `None · ${newOrganisationName} | Equality body metadata`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | Mobile case overview`)
+    cy.title().should('eq', `None · ${newOrganisationName} | Mobile case overview`)
   })
 })
