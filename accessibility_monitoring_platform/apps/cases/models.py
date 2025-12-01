@@ -417,10 +417,6 @@ class BaseCase(VersionModel):
         return mark_safe(f"{self.name_prefix} &middot; {self.name_suffix}")
 
     @property
-    def domain_clean(self):
-        return self.domain.replace("www.", "")
-
-    @property
     def reminder(self):
         return self.task_set.filter(type="reminder", read=False).first()
 

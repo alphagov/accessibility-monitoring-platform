@@ -336,21 +336,6 @@ def test_previous_case_identifier(previous_case_url, previous_case_identifier):
     assert get_previous_case_identifier(previous_case_url) == previous_case_identifier
 
 
-@pytest.mark.parametrize(
-    "domain, expected_domain",
-    [
-        ("www.example.com", "example.com"),
-        ("example.com", "example.com"),
-    ],
-)
-@pytest.mark.django_db
-def test_clean_domain(domain, expected_domain):
-    """Test cleaning of domain"""
-    base_case: BaseCase = BaseCase.objects.create(domain=domain)
-
-    assert base_case.domain_clean == expected_domain
-
-
 @pytest.mark.django_db
 def test_base_case_name_prefix():
     """Test case name_prefix for base case"""

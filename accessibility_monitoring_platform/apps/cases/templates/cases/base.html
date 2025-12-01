@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ case.full_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock title %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% block casebanner %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'cases/helpers/case_banner.html' %}
+        </div>
+    </div>
+    {% endblock casebanner %}
+    {% block breadcrumbs %}
+    {% include 'common/breadcrumbs.html' %}
+    {% endblock breadcrumbs %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+    {% block maincontent %}
+    {% endblock maincontent %}
+    </main>
+</div>
+{% endblock content %}
