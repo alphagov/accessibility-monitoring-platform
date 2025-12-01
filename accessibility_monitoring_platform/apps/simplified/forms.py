@@ -323,7 +323,7 @@ class SimplifiedContactCreateForm(forms.ModelForm):
     job_title = AMPCharFieldWide(label="Job title (included in equality body export)")
     email = AMPCharFieldWide(label="Email (included in equality body export)")
     preferred = AMPChoiceRadioField(
-        label="Preferred contact?", choices=Contact.Preferred.choices
+        label="Active contact?", choices=Contact.Preferred.choices
     )
 
     class Meta:
@@ -340,7 +340,7 @@ class SimplifiedContactUpdateForm(VersionForm):
     job_title = AMPCharFieldWide(label="Job title (included in equality body export)")
     email = AMPCharFieldWide(label="Email (included in equality body export)")
     preferred = AMPChoiceRadioField(
-        label="Preferred contact?", choices=Contact.Preferred.choices
+        label="Active contact?", choices=Contact.Preferred.choices
     )
 
     class Meta:
