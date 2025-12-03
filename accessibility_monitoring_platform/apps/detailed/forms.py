@@ -535,7 +535,7 @@ class DetailedCaseRecommendationUpdateForm(VersionForm):
         label="Date decision email sent · Included in export"
     )
     recommendation_decision_sent_to = AMPCharFieldWide(
-        label="Decision sent to · Included in export"
+        label="Compliance decision sent to · Included in export"
     )
     is_case_added_to_stats = AMPChoiceCheckboxField(
         label="Case stats",
