@@ -542,13 +542,6 @@ class DetailedCaseRecommendationUpdateForm(VersionForm):
         choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(attrs={"label": "Case added to stats tab?"}),
     )
-    is_feedback_requested = AMPChoiceCheckboxField(
-        label="Feedback survey sent",
-        choices=Boolean.choices,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={"label": "Feedback survey sent to this organisation?"}
-        ),
-    )
     case_recommendation_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -561,7 +554,6 @@ class DetailedCaseRecommendationUpdateForm(VersionForm):
             "recommendation_decision_sent_date",
             "recommendation_decision_sent_to",
             "is_case_added_to_stats",
-            "is_feedback_requested",
             "case_recommendation_complete_date",
         ]
 
