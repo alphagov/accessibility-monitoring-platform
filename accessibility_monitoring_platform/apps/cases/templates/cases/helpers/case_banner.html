@@ -1,7 +1,7 @@
 <div class="amp-case-banner {% if case.archive %}amp-case-banner-title-archive{% else %}amp-case-banner-title-{{ case.test_type }}{% endif %}">
-    <p>{{ case.case_identifier }}{% if case.archive %} [ARCHIVED]{% endif %}</p>
-    <h1>{{ case.name_prefix }}</h1>
-    <p>{{ case.name_suffix }}</p>
+    <p class="amp-margin-bottom-10 govuk-!-font-size-19">{{ case.case_identifier }}{% if case.archive %} [ARCHIVED]{% endif %}</p>
+    <h1 class="govuk-!-font-size-36">{{ case.name_prefix }}</h1>
+    <p class="govuk-!-font-size-24">{{ case.name_suffix }}</p>
 </div>
 <div class="amp-case-banner amp-case-banner-body amp-margin-bottom-10">
     <div class="amp-case-banner-row">

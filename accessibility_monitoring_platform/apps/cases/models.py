@@ -405,7 +405,7 @@ class BaseCase(VersionModel):
 
     @property
     def name_prefix(self):
-        name_prefix: str = self.website_name if self.website_name else self.domain
+        name_prefix: str = self.website_name if self.website_name else self.domain.replace("www.", "")
         return name_prefix
 
     @property
