@@ -363,6 +363,14 @@ class MobileCase(BaseCase):
         return self.mobile_contacts.filter(is_deleted=False)
 
     @property
+    def contact_exists(self) -> bool:
+        return self.contacts.exists()
+
+    @property
+    def manage_contacts_url(self) -> str:
+        return reverse("mobile:manage-contact-details", kwargs={"pk": self.id})
+
+    @property
     def preferred_contacts(self) -> QuerySet["MobileContact"]:
         return self.contacts.filter(preferred=MobileContact.Preferred.YES)
 
@@ -610,6 +618,10 @@ class MobileContact(VersionModel):
         return reverse(
             "mobile:manage-contact-details", kwargs={"pk": self.mobile_case.id}
         )
+
+    @property
+    def email(self) -> str:
+        return self.contact_details
 
 
 class MobileZendeskTicket(models.Model):

@@ -277,6 +277,14 @@ class DetailedCase(BaseCase):
         return self.detailed_contacts.filter(is_deleted=False)
 
     @property
+    def contact_exists(self) -> bool:
+        return self.contacts.exists()
+
+    @property
+    def manage_contacts_url(self) -> str:
+        return reverse("detailed:manage-contact-details", kwargs={"pk": self.id})
+
+    @property
     def preferred_contacts(self) -> QuerySet["Contact"]:
         return self.contacts.filter(preferred=Contact.Preferred.YES)
 
@@ -470,6 +478,10 @@ class Contact(VersionModel):
         return reverse(
             "detailed:manage-contact-details", kwargs={"pk": self.detailed_case.id}
         )
+
+    @property
+    def email(self) -> str:
+        return self.contact_details
 
 
 class ZendeskTicket(models.Model):
