@@ -313,7 +313,10 @@ class DetailedCase(BaseCase):
 
     @property
     def number_of_issues_fixed(self) -> int | None:
-        if self.initial_total_number_of_issues and self.retest_total_number_of_issues:
+        if (
+            self.initial_total_number_of_issues
+            and self.retest_total_number_of_issues is not None
+        ):
             return (
                 self.initial_total_number_of_issues - self.retest_total_number_of_issues
             )

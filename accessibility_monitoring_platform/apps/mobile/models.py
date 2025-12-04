@@ -431,6 +431,46 @@ class MobileCase(BaseCase):
         return 0
 
     @property
+    def percentage_of_ios_issues_fixed(self) -> int | str:
+        if (
+            self.initial_ios_total_number_of_issues is not None
+            and self.retest_ios_total_number_of_issues is not None
+        ):
+            number_of_ios_issues_fixed: int = (
+                self.initial_ios_total_number_of_issues
+                - self.retest_ios_total_number_of_issues
+            )
+            if self.initial_ios_total_number_of_issues > 0:
+                return int(
+                    number_of_ios_issues_fixed
+                    * 100
+                    / self.initial_ios_total_number_of_issues
+                )
+            else:
+                return 100
+        return "None"
+
+    @property
+    def percentage_of_android_issues_fixed(self) -> int | str:
+        if (
+            self.initial_android_total_number_of_issues is not None
+            and self.retest_android_total_number_of_issues is not None
+        ):
+            number_of_android_issues_fixed: int = (
+                self.initial_android_total_number_of_issues
+                - self.retest_android_total_number_of_issues
+            )
+            if self.initial_android_total_number_of_issues > 0:
+                return int(
+                    number_of_android_issues_fixed
+                    * 100
+                    / self.initial_android_total_number_of_issues
+                )
+            else:
+                return 100
+        return "None"
+
+    @property
     def equality_body_export_statement_found_at_retest(self) -> str:
         if self.retest_ios_statement_compliance_state in [
             MobileCase.StatementCompliance.COMPLIANT,

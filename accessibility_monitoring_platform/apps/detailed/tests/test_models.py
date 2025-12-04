@@ -302,6 +302,12 @@ def test_detailed_case_percentage_of_issues_fixed():
         ).percentage_of_issues_fixed
         == -20
     )
+    assert (
+        DetailedCase(
+            initial_total_number_of_issues=50, retest_total_number_of_issues=0
+        ).percentage_of_issues_fixed
+        == 100
+    )
 
 
 def test_detailed_case_equality_body_export_statement_found_at_retest():
