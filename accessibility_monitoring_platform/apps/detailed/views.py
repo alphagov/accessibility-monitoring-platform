@@ -549,6 +549,7 @@ class RetestComplianceDecisionsUpdateView(DetailedCaseUpdateView):
     form_class: type[DetailedRetestComplianceDecisionsUpdateForm] = (
         DetailedRetestComplianceDecisionsUpdateForm
     )
+    template_name: str = "detailed/forms/retesting.html"
 
 
 class CaseRecommendationUpdateView(DetailedCaseUpdateView):

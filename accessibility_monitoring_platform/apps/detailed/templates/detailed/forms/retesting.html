@@ -11,6 +11,10 @@
             <p class="govuk-body amp-margin-bottom-5"><b>Initial test | Number of issues found</b></p>
             <p class="govuk-body">{{ case.initial_total_number_of_issues }}</p>
         </div>
+        <div class="govuk-body amp-margin-bottom-40">
+            <p class="govuk-body amp-margin-bottom-5"><b>Retesting | Total number of fixed issues as a percentage</b></p>
+            <p class="govuk-body">{{ case.percentage_of_issues_fixed }}</p>
+        </div>
     </div>
 </div>
 {% endblock %}
