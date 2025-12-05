@@ -148,7 +148,7 @@ def test_extract_domain_from_url_http():
 
 def test_extract_domain_from_url_no_protocol():
     """Tests that the domain is extracted from a url with no protocol"""
-    assert extract_domain_from_url(url="example.com") == "example.com"
+    assert extract_domain_from_url(url="www.example.com") == "www.example.com"
 
 
 @pytest.mark.parametrize(

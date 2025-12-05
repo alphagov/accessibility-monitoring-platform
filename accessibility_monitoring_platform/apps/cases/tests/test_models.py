@@ -336,18 +336,24 @@ def test_previous_case_identifier(previous_case_url, previous_case_identifier):
     assert get_previous_case_identifier(previous_case_url) == previous_case_identifier
 
 
+@pytest.mark.parametrize(
+    "website_name, domain, expected_result",
+    [
+        ("", "example.com", "example.com"),
+        ("", "www.example.com", "example.com"),
+        ("", "examplewww.com", "examplewww.com"),
+        ("Website name", "example.com", "Website name"),
+    ],
+)
 @pytest.mark.django_db
-def test_base_case_name_prefix():
+def test_base_case_name_prefix(website_name, domain, expected_result):
     """Test case name_prefix for base case"""
     base_case: BaseCase = BaseCase.objects.create(
-        organisation_name=ORGANISATION_NAME, domain="example.com"
+        website_name=website_name,
+        domain=domain,
     )
 
-    assert base_case.name_prefix == "example.com"
-
-    base_case.website_name = WEBSITE_NAME
-
-    assert base_case.name_prefix == WEBSITE_NAME
+    assert base_case.name_prefix == expected_result
 
 
 @pytest.mark.django_db
