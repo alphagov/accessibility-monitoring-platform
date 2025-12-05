@@ -270,6 +270,12 @@ def test_detailed_case_number_of_issues_fixed():
     )
     assert (
         DetailedCase(
+            initial_total_number_of_issues=50, retest_total_number_of_issues=0
+        ).number_of_issues_fixed
+        == 50
+    )
+    assert (
+        DetailedCase(
             initial_total_number_of_issues=50, retest_total_number_of_issues=20
         ).number_of_issues_fixed
         == 30
