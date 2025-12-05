@@ -5,8 +5,6 @@ from django.urls import path
 
 from .views import (
     EqualityBodyCsvMetadataView,
-    ImportCSV,
-    ImportTrelloComments,
     PlatformCheckingView,
     ReferenceImplementaionView,
     SitemapView,
@@ -33,15 +31,5 @@ urlpatterns = [
         "sitemap/",
         login_required(SitemapView.as_view()),
         name="sitemap",
-    ),
-    path(
-        "import-csv/",
-        login_required(ImportCSV.as_view()),
-        name="import-csv",
-    ),
-    path(
-        "import-trello-comments/",
-        login_required(ImportTrelloComments.as_view()),
-        name="import-trello-comments",
     ),
 ]

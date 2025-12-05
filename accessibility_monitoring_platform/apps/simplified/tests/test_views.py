@@ -678,6 +678,86 @@ def test_create_contact_page_loads(admin_client):
     )
 
 
+def test_creating_preferred_contact(admin_client):
+    """
+    Test that the creating a preferred Contact sets other preferred contects to no
+    """
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Contact.objects.create(
+        simplified_case=simplified_case,
+        name="Old Name",
+        preferred=Contact.Preferred.YES,
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "simplified:edit-contact-create", kwargs={"case_id": simplified_case.id}
+        ),
+        {
+            "preferred": Contact.Preferred.YES,
+            "name": "New Name",
+        },
+    )
+
+    assert response.status_code == 302
+
+    assert (
+        Contact.objects.filter(
+            simplified_case=simplified_case, preferred=Contact.Preferred.YES
+        ).count()
+        == 1
+    )
+    assert (
+        Contact.objects.filter(
+            simplified_case=simplified_case, preferred=Contact.Preferred.YES
+        )
+        .first()
+        .name
+        == "New Name"
+    )
+
+
+def test_updating_preferred_contact(admin_client):
+    """
+    Test that the updating a Contact to preferred sets other preferred contects to no
+    """
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Contact.objects.create(
+        simplified_case=simplified_case,
+        name="Other Contact",
+        preferred=Contact.Preferred.YES,
+    )
+    contact_to_update: Contact = Contact.objects.create(
+        simplified_case=simplified_case,
+        name="Updated Contact",
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("simplified:edit-contact-update", kwargs={"pk": contact_to_update.id}),
+        {
+            "version": contact_to_update.version,
+            "preferred": Contact.Preferred.YES,
+        },
+    )
+
+    assert response.status_code == 302
+
+    assert (
+        Contact.objects.filter(
+            simplified_case=simplified_case, preferred=Contact.Preferred.YES
+        ).count()
+        == 1
+    )
+    assert (
+        Contact.objects.filter(
+            simplified_case=simplified_case, preferred=Contact.Preferred.YES
+        )
+        .first()
+        .name
+        == "Updated Contact"
+    )
+
+
 def test_update_contact_page_loads(admin_client):
     """Test that the update Contact page loads"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()

@@ -491,6 +491,14 @@ class ContactCreateView(CreateView):
         simplified_case: SimplifiedCase = get_object_or_404(
             SimplifiedCase, id=self.kwargs.get("case_id")
         )
+        if "preferred" in form.changed_data:
+            if form.cleaned_data["preferred"] == Contact.Preferred.YES:
+                for contact in Contact.objects.filter(
+                    simplified_case=simplified_case,
+                    preferred=Contact.Preferred.YES,
+                ):
+                    contact.preferred = Contact.Preferred.NO
+                    contact.save()
         contact: Contact = form.save(commit=False)
         contact.simplified_case = simplified_case
         return super().form_valid(form)
@@ -516,6 +524,14 @@ class ContactUpdateView(UpdateView):
 
     def form_valid(self, form: SimplifiedContactUpdateForm):
         """Mark contact as deleted if button is pressed"""
+        if "preferred" in form.changed_data:
+            if form.cleaned_data["preferred"] == Contact.Preferred.YES:
+                for contact in Contact.objects.filter(
+                    simplified_case=self.object.simplified_case,
+                    preferred=Contact.Preferred.YES,
+                ):
+                    contact.preferred = Contact.Preferred.NO
+                    contact.save()
         contact: Contact = form.save(commit=False)
         if "delete_contact" in self.request.POST:
             contact.is_deleted = True
