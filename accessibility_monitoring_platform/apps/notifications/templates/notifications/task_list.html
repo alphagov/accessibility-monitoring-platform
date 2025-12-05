@@ -203,7 +203,7 @@
                                         <b>Case</b>
                                     </div>
                                     <div>
-                                        <a href="{{ task.base_case.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">{{ task.base_case.organisation_name }}</a>
+                                        <a href="{{ task.base_case.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">{{ task.base_case.get_case.full_name }}</a>
                                     </div>
                                 </div>
                                 {% if show_all_detailed_reminders %}

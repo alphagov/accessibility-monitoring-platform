@@ -1,8 +1,8 @@
-{% extends 'common/case_form.html' %}
+{% extends 'cases/base.html' %}
 
 {% load static %}
 
-{% block preform %}
+{% block maincontent %}
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
         <p class="govuk-body-m">
@@ -39,8 +39,6 @@
 </div>
 {% include 'mobile/details/sections.html' %}
 {% endblock %}
-
-{% block form %}{% endblock %}
 
 {% block extrascript %}
 <script src="{% static 'js/cases_search_in_case.js' %}"></script>

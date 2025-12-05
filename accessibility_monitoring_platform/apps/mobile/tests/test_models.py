@@ -19,6 +19,7 @@ from ..models import (
 
 ORGANISATION_NAME: str = "Organisation Name"
 WEBSITE_NAME: str = "Website Name"
+APP_NAME: str = "App Name"
 EXPECTED_FORMATTED_CONTACTS: str = """Name 2
 Job title 2
 email2
@@ -535,3 +536,17 @@ def test_retest_disproportionate_burden_information():
 def test_format_ios_and_android_str(ios: str, android: str, expected_result: str):
     """Test format_ios_and_android_str"""
     assert format_ios_and_android_str(ios=ios, android=android) == expected_result
+
+
+@pytest.mark.django_db
+def test_mobile_case_name_prefix():
+    """Test case name_prefix for mobile case"""
+    mobile_case: MobileCase = MobileCase.objects.create(
+        organisation_name=ORGANISATION_NAME
+    )
+
+    assert mobile_case.name_prefix == "None"
+
+    mobile_case.app_name = APP_NAME
+
+    assert mobile_case.name_prefix == APP_NAME

@@ -1,4 +1,4 @@
-{% extends 'detailed/base.html' %}
+{% extends 'cases/base.html' %}
 
 {% load l10n %}
 
@@ -34,8 +34,7 @@
                     <thead class="govuk-table__head">
                         <tr class="govuk-table__row">
                             <th class="govuk-table__header amp-width-one-quarter">Date created</th>
-                            <th class="govuk-table__header amp-width-one-quarter">Case</th>
-                            <th class="govuk-table__header amp-width-one-quarter">Full URL</th>
+                            <th class="govuk-table__header amp-width-one-half">Case</th>
                             <th class="govuk-table__header amp-width-one-quarter">Status</th>
                         </tr>
                     </thead>
@@ -44,13 +43,12 @@
                             <tr class="govuk-table__row">
                                 <td class="govuk-table__cell">{{ case.created|amp_date }}</td>
                                 <td class="govuk-table__cell">
+                                    {{ case.case_identifier }}
                                     <a href="{{ case.get_absolute_url }}"
                                         class="govuk-link govuk-link--no-visited-state">
-                                       {{ case.organisation_name }}
+                                       {{ case.full_name }}
                                     </a>
-                                    {{ case.case_identifier }}
                                 </td>
-                                <td class="govuk-table__cell">{{ case.home_page_url }}</td>
                                 <td class="govuk-table__cell">{{ case.get_status_display }}</td>
                             </tr>
                         {% endfor %}

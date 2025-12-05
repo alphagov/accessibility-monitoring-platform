@@ -74,7 +74,7 @@
                                     class="govuk-link govuk-link--no-visited-state"
                                     target="_blank"
                                 >
-                                    {{ export_case.simplified_case.case_number }}</a>
+                                    {{ export_case.simplified_case.case_identifier }}</a>
                                 {% if export.enforcement_body == 'ecni' %}
                                     (<a
                                         href="{% url 'exports:export-case-as-email' export.id export_case.simplified_case.id %}"
@@ -83,7 +83,7 @@
                                 {% endif %}
                             </td>
                             <td class="govuk-table__cell">
-                                {{ export_case.simplified_case.organisation_name }}
+                                {{ export_case.simplified_case.full_name }}
                             </td>
                             <td class="govuk-table__cell">
                                 {{ export_case.simplified_case.auditor.get_full_name }}

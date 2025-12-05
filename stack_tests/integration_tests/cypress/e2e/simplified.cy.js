@@ -39,7 +39,7 @@ describe('Case overview', () => {
     cy.get('[name="case_details_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('li', /#S-1\b/).click()
-    cy.title().should('eq', `${organisationName} | Simplified case overview`)
+    cy.title().should('eq', `example.com · ${organisationName} | Simplified case overview`)
     cy.contains(caseDetailsNote)
   })
 
@@ -138,6 +138,6 @@ describe('Case overview', () => {
   it('can reach statement enforcement', () => {
     cy.get('details').contains('Post case').click()
     cy.contains(/^Statement enforcement$/).click()
-    cy.title().should('eq', `${organisationName} | Statement enforcement`)
+    cy.title().should('eq', `example.com · ${organisationName} | Statement enforcement`)
   })
 })
