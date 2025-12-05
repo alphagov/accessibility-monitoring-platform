@@ -23,6 +23,7 @@ Job title 1
 email1
 Information 1
 """
+CONTACT_DETAILS: str = "Contact details"
 
 
 @pytest.mark.django_db
@@ -332,3 +333,36 @@ def test_detailed_case_equality_body_export_statement_found_at_retest():
         ).equality_body_export_statement_found_at_retest
         == "No"
     )
+
+
+@pytest.mark.django_db
+def test_contact_exists():
+    """Test DetailedCase.contact_exists is working"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+
+    assert detailed_case.contact_exists is False
+
+    user: User = User.objects.create()
+    Contact.objects.create(detailed_case=detailed_case, created_by=user)
+
+    assert detailed_case.contact_exists is True
+
+
+@pytest.mark.django_db
+def test_manage_contacts_url():
+    """Test DetailedCase.manage_contacts_url is working"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+
+    assert detailed_case.manage_contacts_url == "/detailed/1/manage-contact-details/"
+
+
+@pytest.mark.django_db
+def test_contact_email():
+    """Test Contact.email is working"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+    user: User = User.objects.create()
+    contact: Contact = Contact.objects.create(
+        detailed_case=detailed_case, created_by=user, contact_details=CONTACT_DETAILS
+    )
+
+    assert contact.email == CONTACT_DETAILS

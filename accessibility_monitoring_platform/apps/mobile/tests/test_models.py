@@ -29,6 +29,7 @@ Job title 1
 email1
 Information 1
 """
+CONTACT_DETAILS: str = "Contact details"
 
 
 @pytest.mark.django_db
@@ -535,3 +536,36 @@ def test_retest_disproportionate_burden_information():
 def test_format_ios_and_android_str(ios: str, android: str, expected_result: str):
     """Test format_ios_and_android_str"""
     assert format_ios_and_android_str(ios=ios, android=android) == expected_result
+
+
+@pytest.mark.django_db
+def test_contact_exists():
+    """Test MobileCase.contact_exists is working"""
+    mobile_case: MobileCase = MobileCase.objects.create()
+
+    assert mobile_case.contact_exists is False
+
+    user: User = User.objects.create()
+    MobileContact.objects.create(mobile_case=mobile_case, created_by=user)
+
+    assert mobile_case.contact_exists is True
+
+
+@pytest.mark.django_db
+def test_manage_contacts_url():
+    """Test MobileCase.manage_contacts_url is working"""
+    mobile_case: MobileCase = MobileCase.objects.create()
+
+    assert mobile_case.manage_contacts_url == "/mobile/1/manage-contact-details/"
+
+
+@pytest.mark.django_db
+def test_contact_email():
+    """Test MobileContact.email is working"""
+    mobile_case: MobileCase = MobileCase.objects.create()
+    user: User = User.objects.create()
+    contact: MobileContact = MobileContact.objects.create(
+        mobile_case=mobile_case, created_by=user, contact_details=CONTACT_DETAILS
+    )
+
+    assert contact.email == CONTACT_DETAILS

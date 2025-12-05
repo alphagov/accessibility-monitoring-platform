@@ -26,7 +26,7 @@
 {% block formfields %}
 {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
 {% include 'simplified/helpers/amp_due_date_field.html' with field=form.twelve_week_update_requested_date due_date=case.report_followup_week_12_due_date due_date_field=form.report_followup_week_12_due_date %}
-{% include 'simplified/helpers/amp_email_field.html' with field=form.twelve_week_update_request_sent_to_email %}
+{% include 'common/amp_email_field.html' with field=form.twelve_week_update_request_sent_to_email %}
 {% include 'common/amp_field.html' with field=form.twelve_week_correspondence_notes %}
 {% include 'common/amp_field.html' with field=form.twelve_week_update_requested_complete_date %}
 {% endblock %}

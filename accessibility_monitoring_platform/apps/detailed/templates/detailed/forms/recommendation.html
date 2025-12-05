@@ -1,8 +1,26 @@
 {% extends 'common/case_form.html' %}
 
+{% load static %}
+
 {% block preform %}
     <div class="amp-margin-bottom-40">
         {% include 'detailed/helpers/contacts_list.html' %}
         {% include 'detailed/helpers/zendesk_tickets.html' %}
     </div>
+{% endblock %}
+
+{% block formfields %}
+{% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+{% include 'common/amp_field.html' with field=form.psb_progress_info %}
+{% include 'common/amp_field.html' with field=form.recommendation_for_enforcement %}
+{% include 'common/amp_field.html' with field=form.recommendation_info %}
+{% include 'common/amp_field.html' with field=form.recommendation_decision_sent_date %}
+{% include 'common/amp_email_field.html' with field=form.recommendation_decision_sent_to %}
+{% include 'common/amp_field.html' with field=form.is_case_added_to_stats %}
+{% include 'common/amp_field.html' with field=form.is_feedback_requested%}
+{% include 'common/amp_field.html' with field=form.case_recommendation_complete_date %}
+{% endblock %}
+
+{% block extrascript %}
+<script src="{% static 'js/cases_copy_text.js' %}"></script>
 {% endblock %}
