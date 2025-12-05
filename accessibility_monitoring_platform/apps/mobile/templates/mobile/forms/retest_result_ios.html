@@ -11,6 +11,10 @@
             <p class="govuk-body amp-margin-bottom-5"><b>iOS outcome | Number of issues found</b></p>
             <p class="govuk-body">{{ case.initial_ios_total_number_of_issues }}</p>
         </div>
+        <div class="govuk-body amp-margin-bottom-40">
+            <p class="govuk-body amp-margin-bottom-5"><b>iOS retesting | Total number of remaining issues</b></p>
+            <p class="govuk-body">{{ case.retest_ios_total_number_of_issues }}</p>
+        </div>
     </div>
 </div>
 {% endblock %}
