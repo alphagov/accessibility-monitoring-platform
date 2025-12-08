@@ -3,7 +3,6 @@
 {% load static %}
 
 {% block preform %}
-
 <div class="amp-margin-bottom-60">
     {% include 'simplified/helpers/zendesk_tickets.html' %}
 
@@ -96,7 +95,7 @@
 {% block formfields %}
 {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
 {% include 'common/amp_field.html' with field=form.compliance_email_sent_date %}
-{% include 'simplified/helpers/amp_email_field.html' with field=form.compliance_decision_sent_to_email %}
+{% include 'common/amp_email_field.html' with field=form.compliance_decision_sent_to_email %}
 {% include 'common/amp_field.html' with field=form.recommendation_for_enforcement %}
 {% include 'common/amp_field.html' with field=form.recommendation_notes %}
 {% include 'common/amp_field.html' with field=form.enforcement_recommendation_complete_date %}
