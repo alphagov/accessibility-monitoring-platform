@@ -1580,7 +1580,7 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 next_page_url_name="detailed:edit-qa-comments",
             ),
             BaseCaseCommentsPlatformPage(
-                name="QA comments",
+                name="QA comments ({instance.qa_comments_count})",
                 url_name="detailed:edit-qa-comments",
                 subpages=[
                     PlatformPage(
@@ -1899,7 +1899,7 @@ MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 next_page_url_name="mobile:edit-qa-comments",
             ),
             BaseCaseCommentsPlatformPage(
-                name="QA comments",
+                name="QA comments ({instance.qa_comments_count})",
                 url_name="mobile:edit-qa-comments",
                 subpages=[
                     PlatformPage(

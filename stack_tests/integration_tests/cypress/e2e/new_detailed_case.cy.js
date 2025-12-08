@@ -44,7 +44,7 @@ describe('Create detailed case', () => {
     cy.get('#id_reviewer').select('QA Auditor')
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newOrganisationName} | QA comments`)
+    cy.title().should('eq', `${newOrganisationName} | QA comments (0)`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newOrganisationName} | QA approval`)
