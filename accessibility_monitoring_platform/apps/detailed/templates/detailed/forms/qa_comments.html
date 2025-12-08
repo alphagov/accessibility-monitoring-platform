@@ -50,11 +50,10 @@
     <div id="qa-discussion" class="govuk-grid-row">
         <div class="govuk-grid-column-full amp-margin-top-30">
             {% for comment in case.qa_comments %}
-                <hr class="amp-width-100  amp-margin-bottom-30" />
+                <hr class="amp-width-100 amp-margin-bottom-30" />
                 {% include "comments/helpers/comment.html" %}
-
             {% endfor %}
-            <hr class="amp-width-100  amp-margin-bottom-30" />
+            <hr class="amp-width-100 amp-margin-bottom-30" />
         </div>
     </div>
 {% endblock %}
