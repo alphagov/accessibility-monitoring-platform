@@ -2,10 +2,6 @@
 
 {% load static %}
 
-{% block preform %}
-    {% include 'simplified/helpers/qa_links.html' %}
-{% endblock %}
-
 {% block formfields %}
 {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
 {% include 'common/amp_field.html' with field=form.body %}
