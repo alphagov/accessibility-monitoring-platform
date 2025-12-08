@@ -605,6 +605,10 @@ class SimplifiedCase(BaseCase):
         return self.contacts.exists()
 
     @property
+    def manage_contacts_url(self) -> str:
+        return reverse("simplified:manage-contact-details", kwargs={"pk": self.id})
+
+    @property
     def equality_body_export_contact_details(self) -> QuerySet["Contact"]:
         """
         Concatenate the values for all the contacts and return as a single string.
