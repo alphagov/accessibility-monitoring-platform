@@ -44,22 +44,20 @@ class SimplifiedCaseCreateForm(PreviousCaseURLForm):
     Form for creating a case
     """
 
-    home_page_url = AMPURLField(label="Full URL (included in equality body export)")
+    home_page_url = AMPURLField(label="Full URL · Included in export")
     organisation_name = AMPCharFieldWide(
-        label="Organisation name (included in equality body export)",
+        label="Organisation name · Included in export",
     )
     parental_organisation_name = AMPCharFieldWide(
-        label="Parent organisation name (included in equality body export)"
+        label="Parent organisation name · Included in export"
     )
-    website_name = AMPCharFieldWide(
-        label="Website name (included in equality body export)"
-    )
+    website_name = AMPCharFieldWide(label="Website name · Included in export")
     subcategory = AMPModelChoiceField(
-        label="Sub-category (included in equality body export)",
+        label="Sub-category · Included in export",
         queryset=SubCategory.objects.all(),
     )
     enforcement_body = AMPChoiceRadioField(
-        label="Which equalities body will check the case? (included in equality body export)",
+        label="Which equalities body will check the case? · Included in export",
         choices=SimplifiedCase.EnforcementBody.choices,
         initial=SimplifiedCase.EnforcementBody.EHRC,
     )
@@ -70,7 +68,7 @@ class SimplifiedCaseCreateForm(PreviousCaseURLForm):
     )
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     is_complaint = AMPChoiceCheckboxField(
-        label="Complaint? (included in equality body export)",
+        label="Complaint? · Included in export",
         choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Did this case originate from a complaint?"}
@@ -114,10 +112,6 @@ class SimplifiedCaseMetadataUpdateForm(SimplifiedCaseCreateForm, VersionForm):
 
     auditor = AMPAuditorModelChoiceField(
         label="Auditor", help_text="This field affects the case status"
-    )
-    previous_case_url = AMPURLField(
-        label="URL to previous case",
-        help_text="If the website has been previously audited, include a link to the case below",
     )
     trello_url = AMPURLField(label="Trello ticket URL")
     is_feedback_requested = AMPChoiceCheckboxField(
@@ -319,11 +313,13 @@ class SimplifiedContactCreateForm(forms.ModelForm):
     Form for creating a contact
     """
 
-    name = AMPCharFieldWide(label="Name (included in equality body export)")
-    job_title = AMPCharFieldWide(label="Job title (included in equality body export)")
-    email = AMPCharFieldWide(label="Email (included in equality body export)")
+    name = AMPCharFieldWide(label="Name · Included in export")
+    job_title = AMPCharFieldWide(label="Job title · Included in export")
+    email = AMPCharFieldWide(label="Email · Included in export")
     preferred = AMPChoiceRadioField(
-        label="Active contact?", choices=Contact.Preferred.choices
+        label="Active contact?",
+        choices=Contact.Preferred.choices,
+        initial=Contact.Preferred.UNKNOWN,
     )
 
     class Meta:
@@ -331,17 +327,10 @@ class SimplifiedContactCreateForm(forms.ModelForm):
         fields = ["name", "job_title", "email", "preferred"]
 
 
-class SimplifiedContactUpdateForm(VersionForm):
+class SimplifiedContactUpdateForm(SimplifiedContactCreateForm, VersionForm):
     """
     Form for updating a contact
     """
-
-    name = AMPCharFieldWide(label="Name (included in equality body export)")
-    job_title = AMPCharFieldWide(label="Job title (included in equality body export)")
-    email = AMPCharFieldWide(label="Email (included in equality body export)")
-    preferred = AMPChoiceRadioField(
-        label="Active contact?", choices=Contact.Preferred.choices
-    )
 
     class Meta:
         model = Contact
@@ -435,7 +424,7 @@ class SimplifiedCaseReportSentOnUpdateForm(VersionForm):
     """
 
     report_sent_date = AMPDateField(
-        label="Report sent on (included in equality body export)",
+        label="Report sent on · Included in export",
         help_text="This field affects the case status",
     )
     report_sent_to_email = AMPCharFieldWide(label="Report sent to (email address)")
@@ -533,7 +522,7 @@ class SimplifiedCaseReportAcknowledgedUpdateForm(VersionForm):
     """
 
     report_acknowledged_date = AMPDateField(
-        label="Report acknowledged date (included in equality body export)",
+        label="Report acknowledged date · Included in export",
         help_text="This field affects the case status",
     )
     report_acknowledged_by_email = AMPCharFieldWide(
@@ -563,7 +552,7 @@ class SimplifiedCaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
         help_text="This field affects the case status",
     )
     report_followup_week_12_due_date = AMPDateField(
-        label="12-week deadline (included in equality body export)"
+        label="12-week deadline · Included in export"
     )
     twelve_week_update_request_sent_to_email = AMPCharFieldWide(
         label="12-week request sent to (email address)"
@@ -706,9 +695,7 @@ class SimplifiedCaseReviewChangesUpdateForm(VersionForm):
     Form to record review of changes made by PSB
     """
 
-    retested_website_date = AMPDateField(
-        label="Retested website? (included in equality body export)"
-    )
+    retested_website_date = AMPDateField(label="Retested website? · Included in export")
     psb_progress_notes = AMPTextField(label="Case progress notes")
     is_ready_for_final_decision = AMPChoiceRadioField(
         label="Is this case ready for final decision?",
@@ -734,17 +721,17 @@ class SimplifiedCaseEnforcementRecommendationUpdateForm(VersionForm):
     """
 
     compliance_email_sent_date = AMPDateField(
-        label="Date when compliance decision email sent to public sector body (included in equality body export)"
+        label="Date when compliance decision email sent to public sector body · Included in export"
     )
     compliance_decision_sent_to_email = AMPCharFieldWide(
         label="Compliance decision sent to · Included in export"
     )
     recommendation_for_enforcement = AMPChoiceRadioField(
-        label="Recommendation for equality body (included in equality body export)",
+        label="Recommendation for equality body · Included in export",
         choices=SimplifiedCase.RecommendationForEnforcement.choices,
     )
     recommendation_notes = AMPTextField(
-        label="Enforcement recommendation notes including exemptions (included in equality body export)",
+        label="Enforcement recommendation notes including exemptions · Included in export",
     )
     enforcement_recommendation_complete_date = AMPDatePageCompleteField()
 

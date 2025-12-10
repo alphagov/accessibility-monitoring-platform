@@ -3,6 +3,7 @@ Models - mobile cases
 """
 
 import json
+from datetime import date
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -404,6 +405,17 @@ class MobileCase(BaseCase):
             if self.report_acknowledged_date and self.no_psb_contact == Boolean.NO
             else "No"
         )
+
+    @property
+    def retest_start_date(self) -> date:
+        if self.retest_ios_start_date and self.retest_android_start_date:
+            if self.retest_ios_start_date < self.retest_android_start_date:
+                return self.retest_ios_start_date
+            return self.retest_android_start_date
+        if self.retest_ios_start_date:
+            return self.retest_ios_start_date
+        if self.retest_android_start_date:
+            return self.retest_android_start_date
 
     @property
     def initial_total_number_of_issues(self) -> int:
