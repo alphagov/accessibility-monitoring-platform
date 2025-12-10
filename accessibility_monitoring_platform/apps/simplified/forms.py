@@ -323,7 +323,7 @@ class SimplifiedContactCreateForm(forms.ModelForm):
     job_title = AMPCharFieldWide(label="Job title (included in equality body export)")
     email = AMPCharFieldWide(label="Email (included in equality body export)")
     preferred = AMPChoiceRadioField(
-        label="Preferred contact?", choices=Contact.Preferred.choices
+        label="Active contact?", choices=Contact.Preferred.choices
     )
 
     class Meta:
@@ -340,7 +340,7 @@ class SimplifiedContactUpdateForm(VersionForm):
     job_title = AMPCharFieldWide(label="Job title (included in equality body export)")
     email = AMPCharFieldWide(label="Email (included in equality body export)")
     preferred = AMPChoiceRadioField(
-        label="Preferred contact?", choices=Contact.Preferred.choices
+        label="Active contact?", choices=Contact.Preferred.choices
     )
 
     class Meta:
@@ -737,7 +737,7 @@ class SimplifiedCaseEnforcementRecommendationUpdateForm(VersionForm):
         label="Date when compliance decision email sent to public sector body (included in equality body export)"
     )
     compliance_decision_sent_to_email = AMPCharFieldWide(
-        label="Compliance decision sent to (email address)"
+        label="Compliance decision sent to · Included in export"
     )
     recommendation_for_enforcement = AMPChoiceRadioField(
         label="Recommendation for equality body (included in equality body export)",

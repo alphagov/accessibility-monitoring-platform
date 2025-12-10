@@ -582,18 +582,12 @@ class MobileRetestiOSComplianceDecisionsUpdateForm(VersionForm):
     """Form for updating reviewing changes iOS retest result page"""
 
     retest_ios_app_compliance_state = AMPChoiceRadioField(
-        label="Retest app compliance decision · Included in export",
+        label="Retest iOS app compliance decision · Included in export",
         choices=MobileCase.AppCompliance.choices,
-    )
-    retest_ios_app_compliance_information = AMPTextField(
-        label="Retest app compliance decision information"
     )
     retest_ios_statement_compliance_state = AMPChoiceRadioField(
         label="Retest statement compliance decision · Included in export",
         choices=MobileCase.StatementCompliance.choices,
-    )
-    retest_ios_statement_compliance_information = AMPTextField(
-        label="Retest statement compliance decision information"
     )
     retest_ios_disproportionate_burden_claim = AMPChoiceRadioField(
         label="Retest disproportionate burden claim · Included in export",
@@ -609,9 +603,7 @@ class MobileRetestiOSComplianceDecisionsUpdateForm(VersionForm):
         fields = [
             "version",
             "retest_ios_app_compliance_state",
-            "retest_ios_app_compliance_information",
             "retest_ios_statement_compliance_state",
-            "retest_ios_statement_compliance_information",
             "retest_ios_disproportionate_burden_claim",
             "retest_ios_disproportionate_burden_information",
             "retest_ios_compliance_decisions_complete_date",
@@ -643,18 +635,12 @@ class MobileRetestAndroidComplianceDecisionsUpdateForm(VersionForm):
     """Form for updating reviewing changes Android retest result page"""
 
     retest_android_app_compliance_state = AMPChoiceRadioField(
-        label="Retest app compliance decision · Included in export",
+        label="Retest Android app compliance decision · Included in export",
         choices=MobileCase.AppCompliance.choices,
-    )
-    retest_android_app_compliance_information = AMPTextField(
-        label="Retest app compliance decision information"
     )
     retest_android_statement_compliance_state = AMPChoiceRadioField(
         label="Retest statement compliance decision · Included in export",
         choices=MobileCase.StatementCompliance.choices,
-    )
-    retest_android_statement_compliance_information = AMPTextField(
-        label="Retest statement compliance decision information"
     )
     retest_android_disproportionate_burden_claim = AMPChoiceRadioField(
         label="Retest disproportionate burden claim · Included in export",
@@ -670,9 +656,7 @@ class MobileRetestAndroidComplianceDecisionsUpdateForm(VersionForm):
         fields = [
             "version",
             "retest_android_app_compliance_state",
-            "retest_android_app_compliance_information",
             "retest_android_statement_compliance_state",
-            "retest_android_statement_compliance_information",
             "retest_android_disproportionate_burden_claim",
             "retest_android_disproportionate_burden_information",
             "retest_android_compliance_decisions_complete_date",
@@ -694,19 +678,12 @@ class MobileCaseRecommendationUpdateForm(VersionForm):
         label="Date decision email sent · Included in export"
     )
     recommendation_decision_sent_to = AMPCharFieldWide(
-        label="Decision sent to · Included in export"
+        label="Compliance decision sent to · Included in export"
     )
     is_case_added_to_stats = AMPChoiceCheckboxField(
         label="Case stats",
         choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(attrs={"label": "Case added to stats tab?"}),
-    )
-    is_feedback_requested = AMPChoiceCheckboxField(
-        label="Feedback survey sent",
-        choices=Boolean.choices,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={"label": "Feedback survey sent to this organisation?"}
-        ),
     )
     case_recommendation_complete_date = AMPDatePageCompleteField()
 
@@ -720,7 +697,6 @@ class MobileCaseRecommendationUpdateForm(VersionForm):
             "recommendation_decision_sent_date",
             "recommendation_decision_sent_to",
             "is_case_added_to_stats",
-            "is_feedback_requested",
             "case_recommendation_complete_date",
         ]
 

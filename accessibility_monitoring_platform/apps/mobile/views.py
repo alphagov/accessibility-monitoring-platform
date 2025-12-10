@@ -594,7 +594,7 @@ class RetestiOSComplianceDecisionsUpdateView(MobileCaseUpdateView):
     form_class: type[MobileRetestiOSComplianceDecisionsUpdateForm] = (
         MobileRetestiOSComplianceDecisionsUpdateForm
     )
-    template_name: str = "mobile/forms/retesting_ios.html"
+    template_name: str = "mobile/forms/retest_result_ios.html"
 
 
 class RetestAndroidResultUpdateView(MobileCaseUpdateView):
@@ -612,7 +612,7 @@ class RetestAndroidComplianceDecisionsUpdateView(MobileCaseUpdateView):
     form_class: type[MobileRetestAndroidComplianceDecisionsUpdateForm] = (
         MobileRetestAndroidComplianceDecisionsUpdateForm
     )
-    template_name: str = "mobile/forms/retesting_android.html"
+    template_name: str = "mobile/forms/retest_result_android.html"
 
 
 class CaseRecommendationUpdateView(MobileCaseUpdateView):

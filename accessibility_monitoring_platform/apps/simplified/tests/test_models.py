@@ -1927,3 +1927,13 @@ Job title 1
 email1
 """
     )
+
+
+@pytest.mark.django_db
+def test_manage_contacts_url():
+    """Test SimplifiedCase.manage_contacts_url is working"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+
+    assert (
+        simplified_case.manage_contacts_url == "/simplified/1/manage-contact-details/"
+    )

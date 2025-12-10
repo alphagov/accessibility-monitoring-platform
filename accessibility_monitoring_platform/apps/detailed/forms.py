@@ -535,19 +535,12 @@ class DetailedCaseRecommendationUpdateForm(VersionForm):
         label="Date decision email sent · Included in export"
     )
     recommendation_decision_sent_to = AMPCharFieldWide(
-        label="Decision sent to · Included in export"
+        label="Compliance decision sent to · Included in export"
     )
     is_case_added_to_stats = AMPChoiceCheckboxField(
         label="Case stats",
         choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(attrs={"label": "Case added to stats tab?"}),
-    )
-    is_feedback_requested = AMPChoiceCheckboxField(
-        label="Feedback survey sent",
-        choices=Boolean.choices,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={"label": "Feedback survey sent to this organisation?"}
-        ),
     )
     case_recommendation_complete_date = AMPDatePageCompleteField()
 
@@ -561,7 +554,6 @@ class DetailedCaseRecommendationUpdateForm(VersionForm):
             "recommendation_decision_sent_date",
             "recommendation_decision_sent_to",
             "is_case_added_to_stats",
-            "is_feedback_requested",
             "case_recommendation_complete_date",
         ]
 
