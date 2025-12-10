@@ -407,7 +407,7 @@ class MobileCase(BaseCase):
         )
 
     @property
-    def retest_start_date(self) -> date:
+    def retest_start_date(self) -> date | None:
         if self.retest_ios_start_date and self.retest_android_start_date:
             if self.retest_ios_start_date < self.retest_android_start_date:
                 return self.retest_ios_start_date
