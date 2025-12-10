@@ -35,6 +35,16 @@ class MobileCaseCreateForm(PreviousCaseURLForm):
     organisation_name = AMPCharFieldWide(label="Organisation name")
     parental_organisation_name = AMPCharFieldWide(label="Parent organisation name")
     app_name = AMPCharFieldWide(label="App name")
+    ios_test_included = AMPChoiceRadioField(
+        label="Case includes iOS test?",
+        choices=MobileCase.TestIncluded.choices,
+    )
+    ios_app_url = AMPURLField(label="iOS app URL")
+    android_test_included = AMPChoiceRadioField(
+        label="Case includes Android test?",
+        choices=MobileCase.TestIncluded.choices,
+    )
+    android_app_url = AMPURLField(label="Android app URL")
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     subcategory = AMPModelChoiceField(
         label="Sub-category",
@@ -69,6 +79,10 @@ class MobileCaseCreateForm(PreviousCaseURLForm):
             "organisation_name",
             "parental_organisation_name",
             "app_name",
+            "ios_test_included",
+            "ios_app_url",
+            "android_test_included",
+            "android_app_url",
             "sector",
             "subcategory",
             "enforcement_body",
@@ -78,37 +92,7 @@ class MobileCaseCreateForm(PreviousCaseURLForm):
         ]
 
 
-class MobileCaseMetadataUpdateForm(PreviousCaseURLForm, VersionForm):
-    home_page_url = AMPURLField(label="Organisation URL")
-    organisation_name = AMPCharFieldWide(label="Organisation name")
-    parental_organisation_name = AMPCharFieldWide(label="Parent organisation name")
-    app_name = AMPCharFieldWide(label="App name")
-    sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
-    subcategory = AMPModelChoiceField(
-        label="Sub-category",
-        queryset=SubCategory.objects.all(),
-    )
-    enforcement_body = AMPChoiceRadioField(
-        label="Which equalities body will check the case?",
-        choices=MobileCase.EnforcementBody.choices,
-        initial=MobileCase.EnforcementBody.EHRC,
-    )
-    psb_location = AMPChoiceRadioField(
-        label="Public sector body location",
-        choices=MobileCase.PsbLocation.choices,
-        initial=MobileCase.PsbLocation.ENGLAND,
-    )
-    previous_case_url = AMPURLField(
-        label="URL to previous case · Included in export",
-        help_text="If the app has been previously audited, include a link to the case below",
-    )
-    is_complaint = AMPChoiceCheckboxField(
-        label="Complaint?",
-        choices=Boolean.choices,
-        widget=AMPChoiceCheckboxWidget(
-            attrs={"label": "Did this case originate from a complaint?"}
-        ),
-    )
+class MobileCaseMetadataUpdateForm(MobileCaseCreateForm, VersionForm):
     case_folder_url = AMPURLField(label="Link to case folder")
     is_feedback_requested = AMPChoiceCheckboxField(
         label="Feedback survey sent?",
@@ -131,6 +115,10 @@ class MobileCaseMetadataUpdateForm(PreviousCaseURLForm, VersionForm):
             "organisation_name",
             "parental_organisation_name",
             "app_name",
+            "ios_test_included",
+            "ios_app_url",
+            "android_test_included",
+            "android_app_url",
             "sector",
             "subcategory",
             "enforcement_body",
