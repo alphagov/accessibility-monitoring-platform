@@ -2,6 +2,15 @@
 
 {% load static %}
 
+{% block preform %}
+<p class="govuk-body amp-margin-bottom-5"><b>Status</b></p>
+<p class="govuk-body">
+    {{ case.get_status_display }}
+    <a href="{% url 'mobile:edit-case-status' case.id %}" class="govuk-link govuk-link--no-visited-state">
+        Edit</a>
+</p>
+{% endblock %}
+
 {% block form %}
 <form method="post" action="{% url sitemap.current_platform_page.url_name case.id %}">
     {% csrf_token %}
