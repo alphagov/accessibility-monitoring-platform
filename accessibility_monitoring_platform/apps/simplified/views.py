@@ -1127,9 +1127,7 @@ class CaseRetestCreateErrorTemplateView(TemplateView):
         return context
 
 
-class CaseZendeskTicketsDetailView(
-    HideCaseNavigationMixin, ShowGoBackJSWidgetMixin, DetailView
-):
+class CaseZendeskTicketsDetailView(HideCaseNavigationMixin, DetailView):
     """
     View of Zendesk tickets for a case
     """
