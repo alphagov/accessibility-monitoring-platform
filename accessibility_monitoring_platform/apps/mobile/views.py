@@ -697,9 +697,7 @@ class EnforcementBodyMetadataUpdateView(MobileCaseUpdateView):
     )
 
 
-class CaseZendeskTicketsDetailView(
-    HideCaseNavigationMixin, ShowGoBackJSWidgetMixin, DetailView
-):
+class CaseZendeskTicketsDetailView(HideCaseNavigationMixin, DetailView):
     """
     View of Zendesk tickets for a mobile case
     """
