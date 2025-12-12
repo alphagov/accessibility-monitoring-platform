@@ -341,6 +341,11 @@ class MobileCase(BaseCase):
         title = f"{self.app_name} &nbsp;|&nbsp; {self.case_identifier}"
         return mark_safe(title)
 
+    @property
+    def name_prefix(self) -> str:
+        name_prefix: str = self.app_name if self.app_name else "None"
+        return name_prefix
+
     def status_history(self) -> QuerySet["MobileCaseHistory"]:
         return self.mobilecasehistory_set.filter(
             event_type=MobileCaseHistory.EventType.STATUS

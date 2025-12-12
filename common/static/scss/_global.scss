@@ -17,10 +17,14 @@ pre {
     font-family: "GDS Transport",arial,sans-serif;
     font-size: 1rem;
     padding: 20px;
-
-    h1, p {
-        margin: 0;
+    p {
+        margin: 0px 0px 5px 0px;
     }
+
+    h1 {
+        margin: 0px 0px 5px 0px;
+    }
+
 }
 .amp-case-banner-title-simplified {
     color: govuk-colour("white");

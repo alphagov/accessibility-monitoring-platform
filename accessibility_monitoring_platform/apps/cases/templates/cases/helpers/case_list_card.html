@@ -3,8 +3,7 @@
         <p class="govuk-body-l">
             <a href="{{ case.get_absolute_url }}"
                 class="govuk-link govuk-link--no-visited-state">
-                {% if case.website_name %}{{ case.website_name }} |{% endif %}
-                {% if case.organisation_name %}{{ case.organisation_name }}{% elif case.test_type == 'mobile' %}{{ case.mobilecase.app_name }}{% endif %}
+                {{ case.full_name }}
             </a>
         </p>
     </div>
@@ -49,3 +48,50 @@
         </p>
     </div>
 </div>
+{% if case.latest_psb_zendesk_url or case.trello_url or case.audit or case.report or case.report_final_pdf_url %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <div class="govuk-button-group">
+                {% if case.latest_psb_zendesk_url %}
+                    <a href="{{ case.latest_psb_zendesk_url }}"
+                        class="govuk-link amp-margin-bottom-0"
+                        rel="noreferrer noopener"
+                        target="_blank"
+                        rel="noreferrer noopener">Zendesk</a>
+                {% endif %}
+                {% if case.trello_url %}
+                    <a href="{{ case.trello_url }}"
+                        class="govuk-link amp-margin-bottom-0"
+                        rel="noreferrer noopener"
+                        target="_blank"
+                        rel="noreferrer noopener">Trello</a>
+                {% endif %}
+                {% if case.audit %}
+                    <a
+                        href="{{ case.audit.get_absolute_url }}"
+                        class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0"
+                    >
+                        View test
+                    </a>
+                {% endif %}
+                {% if case.report %}
+                    <a
+                        href="{% url 'simplified:edit-publish-report' case.id %}"
+                        class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0"
+                    >
+                        Report publisher
+                    </a>
+                {% elif case.report_final_pdf_url %}
+                    <a
+                        href="{{ case.report_final_pdf_url }}"
+                        class="govuk-link govuk-link--no-visited-state amp-margin-bottom-0"
+                        rel="noreferrer noopener"
+                        target="_blank"
+                    >
+                        View final PDF report
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endif %}
