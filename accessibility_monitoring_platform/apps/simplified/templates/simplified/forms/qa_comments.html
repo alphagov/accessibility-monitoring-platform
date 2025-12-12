@@ -1,5 +1,9 @@
 {% extends 'cases/forms/qa_comments.html' %}
 
+{% block preform %}
+    {% include 'simplified/helpers/qa_links.html' %}
+{% endblock %}
+
 {% block extraformbuttons %}
     <a
         href="{% url 'simplified:mark-qa-comments-as-read' case.id %}"
