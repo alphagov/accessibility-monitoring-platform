@@ -498,11 +498,11 @@ class AuditInitialDisproportionateBurdenUpdateForm(VersionForm):
     """
 
     initial_disproportionate_burden_claim = AMPChoiceRadioField(
-        label="Initial disproportionate burden claim (included in equality body export)",
+        label="Initial disproportionate burden claim",
         choices=Audit.DisproportionateBurden.choices,
     )
     initial_disproportionate_burden_notes = AMPTextField(
-        label="Initial disproportionate burden claim details (included in equality body export)"
+        label="Initial disproportionate burden claim details"
     )
     initial_disproportionate_burden_complete_date = AMPDatePageCompleteField()
 
@@ -522,7 +522,7 @@ class CaseComplianceStatementInitialUpdateForm(VersionForm):
     """
 
     statement_compliance_state_initial = AMPChoiceRadioField(
-        label="Initial statement compliance decision (included in equality body export)",
+        label="Initial statement compliance decision",
         help_text="This field effects the case status",
         choices=CaseCompliance.StatementCompliance.choices,
     )
@@ -977,11 +977,11 @@ class AuditTwelveWeekDisproportionateBurdenUpdateForm(VersionForm):
     """
 
     twelve_week_disproportionate_burden_claim = AMPChoiceRadioField(
-        label="12-week disproportionate burden claim (included in equality body export)",
+        label="12-week disproportionate burden claim · Included in export",
         choices=Audit.DisproportionateBurden.choices,
     )
     twelve_week_disproportionate_burden_notes = AMPTextField(
-        label="12-week disproportionate burden claim details (included in equality body export)"
+        label="12-week disproportionate burden claim details · Included in export"
     )
     twelve_week_disproportionate_burden_complete_date = AMPDatePageCompleteField()
 
@@ -1001,7 +1001,7 @@ class CaseComplianceStatement12WeekUpdateForm(VersionForm):
     """
 
     statement_compliance_state_12_week = AMPChoiceRadioField(
-        label="12-week statement compliance decision (included in equality body export)",
+        label="12-week statement compliance decision · Included in export",
         choices=CaseCompliance.StatementCompliance.choices,
     )
     statement_compliance_notes_12_week = AMPTextField(

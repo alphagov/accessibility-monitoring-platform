@@ -31,27 +31,31 @@ class MobileCaseCreateForm(PreviousCaseURLForm):
     Form for creating a case
     """
 
-    home_page_url = AMPURLField(label="Organisation URL")
-    organisation_name = AMPCharFieldWide(label="Organisation name")
-    parental_organisation_name = AMPCharFieldWide(label="Parent organisation name")
-    app_name = AMPCharFieldWide(label="App name")
+    home_page_url = AMPURLField(label="Organisation URL · Included in export")
+    organisation_name = AMPCharFieldWide(label="Organisation name · Included in export")
+    parental_organisation_name = AMPCharFieldWide(
+        label="Parent organisation name · Included in export"
+    )
+    app_name = AMPCharFieldWide(label="App name · Included in export")
     ios_test_included = AMPChoiceRadioField(
         label="Case includes iOS test?",
         choices=MobileCase.TestIncluded.choices,
+        initial=MobileCase.TestIncluded.NOT_KNOWN,
     )
     ios_app_url = AMPURLField(label="iOS app URL")
     android_test_included = AMPChoiceRadioField(
         label="Case includes Android test?",
         choices=MobileCase.TestIncluded.choices,
+        initial=MobileCase.TestIncluded.NOT_KNOWN,
     )
     android_app_url = AMPURLField(label="Android app URL")
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
     subcategory = AMPModelChoiceField(
-        label="Sub-category",
+        label="Sub-category · Included in export",
         queryset=SubCategory.objects.all(),
     )
     enforcement_body = AMPChoiceRadioField(
-        label="Which equalities body will check the case?",
+        label="Which equalities body will check the case? · Included in export",
         choices=MobileCase.EnforcementBody.choices,
         initial=MobileCase.EnforcementBody.EHRC,
     )
@@ -65,7 +69,7 @@ class MobileCaseCreateForm(PreviousCaseURLForm):
         help_text="If the app has been previously audited, include a link to the case below",
     )
     is_complaint = AMPChoiceCheckboxField(
-        label="Complaint?",
+        label="Complaint? · Included in export",
         choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
             attrs={"label": "Did this case originate from a complaint?"}
@@ -183,15 +187,15 @@ class MobileManageContactsUpdateForm(VersionForm):
 class MobileContactCreateForm(forms.ModelForm):
     """Form for creating a contact"""
 
-    name = AMPCharFieldWide(label="Name")
-    job_title = AMPCharFieldWide(label="Job title")
-    contact_details = AMPCharFieldWide(label="Contact details")
+    name = AMPCharFieldWide(label="Name · Included in export")
+    job_title = AMPCharFieldWide(label="Job title · Included in export")
+    contact_details = AMPCharFieldWide(label="Contact details · Included in export")
     preferred = AMPChoiceRadioField(
         label="Preferred contact",
         choices=MobileContact.Preferred.choices,
         initial=MobileContact.Preferred.UNKNOWN,
     )
-    information = AMPTextField(label="Information about contact")
+    information = AMPTextField(label="Information about contact · Included in export")
 
     class Meta:
         model = MobileContact
@@ -793,7 +797,9 @@ class MobileUnresponsivePSBUpdateForm(VersionForm):
         help_text="Also add a case note with more information",
         choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
-            attrs={"label": "Mark the PSB as unresponsive to this case"}
+            attrs={
+                "label": "Mark the PSB as unresponsive to this case · Included in export"
+            }
         ),
     )
     no_psb_contact_info = AMPTextField(

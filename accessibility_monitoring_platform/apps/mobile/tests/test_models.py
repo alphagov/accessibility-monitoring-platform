@@ -569,3 +569,25 @@ def test_contact_email():
     )
 
     assert contact.email == CONTACT_DETAILS
+
+
+@pytest.mark.parametrize(
+    "retest_ios_start_date, retest_android_start_date, expected_result",
+    [
+        (None, None, None),
+        (date(2020, 1, 1), None, date(2020, 1, 1)),
+        (date(2020, 1, 1), None, date(2020, 1, 1)),
+        (date(2020, 1, 1), date(2020, 1, 2), date(2020, 1, 1)),
+    ],
+)
+@pytest.mark.django_db
+def test_retest_start_date(
+    retest_ios_start_date, retest_android_start_date, expected_result
+):
+    """Test MobileCase.retest_start_date"""
+    mobile_case: MobileCase = MobileCase.objects.create(
+        retest_ios_start_date=retest_ios_start_date,
+        retest_android_start_date=retest_android_start_date,
+    )
+
+    assert mobile_case.retest_start_date == expected_result
