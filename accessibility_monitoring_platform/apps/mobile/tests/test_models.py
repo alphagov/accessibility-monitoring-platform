@@ -379,6 +379,79 @@ def test_mobile_case_percentage_of_issues_fixed():
     )
 
 
+def test_mobile_case_percentage_of_ios_issues_fixed():
+    """Test the MobileCase.percentage_of_ios_issues_fixed"""
+
+    assert MobileCase().percentage_of_ios_issues_fixed == "None"
+    assert (
+        MobileCase(initial_ios_total_number_of_issues=50).percentage_of_ios_issues_fixed
+        == "None"
+    )
+    assert (
+        MobileCase(retest_ios_total_number_of_issues=0).percentage_of_ios_issues_fixed
+        == "None"
+    )
+    assert (
+        MobileCase(
+            initial_ios_total_number_of_issues=50, retest_ios_total_number_of_issues=0
+        ).percentage_of_ios_issues_fixed
+        == 100
+    )
+    assert (
+        MobileCase(
+            initial_ios_total_number_of_issues=50,
+            retest_ios_total_number_of_issues=20,
+        ).percentage_of_ios_issues_fixed
+        == 60
+    )
+    assert (
+        MobileCase(
+            initial_ios_total_number_of_issues=50,
+            retest_ios_total_number_of_issues=60,
+        ).percentage_of_ios_issues_fixed
+        == -20
+    )
+
+
+def test_mobile_case_percentage_of_android_issues_fixed():
+    """Test the MobileCase.percentage_of_android_issues_fixed"""
+
+    assert MobileCase().percentage_of_android_issues_fixed == "None"
+    assert (
+        MobileCase(
+            initial_android_total_number_of_issues=50
+        ).percentage_of_android_issues_fixed
+        == "None"
+    )
+    assert (
+        MobileCase(
+            retest_android_total_number_of_issues=0
+        ).percentage_of_android_issues_fixed
+        == "None"
+    )
+    assert (
+        MobileCase(
+            initial_android_total_number_of_issues=50,
+            retest_android_total_number_of_issues=0,
+        ).percentage_of_android_issues_fixed
+        == 100
+    )
+    assert (
+        MobileCase(
+            initial_android_total_number_of_issues=50,
+            retest_android_total_number_of_issues=20,
+        ).percentage_of_android_issues_fixed
+        == 60
+    )
+    assert (
+        MobileCase(
+            initial_android_total_number_of_issues=50,
+            retest_android_total_number_of_issues=60,
+        ).percentage_of_android_issues_fixed
+        == -20
+    )
+
+
 def test_mobile_case_equality_body_export_statement_found_at_retest():
     """Test the MobileCase.equality_body_export_statement_found_at_retest"""
 
