@@ -40,11 +40,13 @@ class MobileCaseCreateForm(PreviousCaseURLForm):
     ios_test_included = AMPChoiceRadioField(
         label="Case includes iOS test?",
         choices=MobileCase.TestIncluded.choices,
+        initial=MobileCase.TestIncluded.NOT_KNOWN,
     )
     ios_app_url = AMPURLField(label="iOS app URL")
     android_test_included = AMPChoiceRadioField(
         label="Case includes Android test?",
         choices=MobileCase.TestIncluded.choices,
+        initial=MobileCase.TestIncluded.NOT_KNOWN,
     )
     android_app_url = AMPURLField(label="Android app URL")
     sector = AMPModelChoiceField(label="Sector", queryset=Sector.objects.all())
