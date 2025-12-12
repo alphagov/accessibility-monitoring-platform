@@ -5,8 +5,7 @@
         <thead class="govuk-table__head">
             <tr class="govuk-table__row amp-width-one-quarter">
                 <th scope="col" class="govuk-table__header amp-width-15-percent">Date created</th>
-                <th scope="col" class="govuk-table__header amp-width-one-quarter">Case</th>
-                <th scope="col" class="govuk-table__header amp-width-one-quarter">Full URL</th>
+                <th scope="col" class="govuk-table__header amp-width-one-half">Case</th>
                 {% if filter == "all-cases" %}
                     <th scope="col" class="govuk-table__header amp-width-one-quarter">Auditor</th>
                 {% else %}
@@ -18,10 +17,9 @@
             {% for case in cases %}
                 <tr class="govuk-table__row">
                     <th scope="row" class="govuk-table__header amp-width-15-percent govuk-!-font-weight-regular">{{ case.created|amp_date_trunc }} </th>
-                    <td class="govuk-table__cell amp-width-one-quarter">
-                        <a href="{{ case.get_absolute_url }}" class="govuk-link">{{ case.organisation_name|truncatechars:25 }}</a>
+                    <td class="govuk-table__cell amp-width-one-half">
+                        <a href="{{ case.get_absolute_url }}" class="govuk-link">{{ case.full_name }}</a>
                     </td>
-                    <td class="govuk-table__cell amp-width-one-quarter">{{ case.domain_clean|truncatechars:25 }}</td>
                     <td class="govuk-table__cell amp-width-one-quarter">
                         {% if filter == "all-cases" %}
                             <a href="{% url 'cases:case-list' %}?auditor={{ case.auditor.id }}" class="govuk-link"> {{ case.auditor.get_full_name }} </a>

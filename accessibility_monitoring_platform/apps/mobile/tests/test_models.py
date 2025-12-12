@@ -19,6 +19,7 @@ from ..models import (
 
 ORGANISATION_NAME: str = "Organisation Name"
 WEBSITE_NAME: str = "Website Name"
+APP_NAME: str = "App Name"
 EXPECTED_FORMATTED_CONTACTS: str = """Name 2
 Job title 2
 email2
@@ -379,6 +380,79 @@ def test_mobile_case_percentage_of_issues_fixed():
     )
 
 
+def test_mobile_case_percentage_of_ios_issues_fixed():
+    """Test the MobileCase.percentage_of_ios_issues_fixed"""
+
+    assert MobileCase().percentage_of_ios_issues_fixed == "None"
+    assert (
+        MobileCase(initial_ios_total_number_of_issues=50).percentage_of_ios_issues_fixed
+        == "None"
+    )
+    assert (
+        MobileCase(retest_ios_total_number_of_issues=0).percentage_of_ios_issues_fixed
+        == "None"
+    )
+    assert (
+        MobileCase(
+            initial_ios_total_number_of_issues=50, retest_ios_total_number_of_issues=0
+        ).percentage_of_ios_issues_fixed
+        == 100
+    )
+    assert (
+        MobileCase(
+            initial_ios_total_number_of_issues=50,
+            retest_ios_total_number_of_issues=20,
+        ).percentage_of_ios_issues_fixed
+        == 60
+    )
+    assert (
+        MobileCase(
+            initial_ios_total_number_of_issues=50,
+            retest_ios_total_number_of_issues=60,
+        ).percentage_of_ios_issues_fixed
+        == -20
+    )
+
+
+def test_mobile_case_percentage_of_android_issues_fixed():
+    """Test the MobileCase.percentage_of_android_issues_fixed"""
+
+    assert MobileCase().percentage_of_android_issues_fixed == "None"
+    assert (
+        MobileCase(
+            initial_android_total_number_of_issues=50
+        ).percentage_of_android_issues_fixed
+        == "None"
+    )
+    assert (
+        MobileCase(
+            retest_android_total_number_of_issues=0
+        ).percentage_of_android_issues_fixed
+        == "None"
+    )
+    assert (
+        MobileCase(
+            initial_android_total_number_of_issues=50,
+            retest_android_total_number_of_issues=0,
+        ).percentage_of_android_issues_fixed
+        == 100
+    )
+    assert (
+        MobileCase(
+            initial_android_total_number_of_issues=50,
+            retest_android_total_number_of_issues=20,
+        ).percentage_of_android_issues_fixed
+        == 60
+    )
+    assert (
+        MobileCase(
+            initial_android_total_number_of_issues=50,
+            retest_android_total_number_of_issues=60,
+        ).percentage_of_android_issues_fixed
+        == -20
+    )
+
+
 def test_mobile_case_equality_body_export_statement_found_at_retest():
     """Test the MobileCase.equality_body_export_statement_found_at_retest"""
 
@@ -539,6 +613,20 @@ def test_format_ios_and_android_str(ios: str, android: str, expected_result: str
 
 
 @pytest.mark.django_db
+def test_mobile_case_name_prefix():
+    """Test case name_prefix for mobile case"""
+    mobile_case: MobileCase = MobileCase.objects.create(
+        organisation_name=ORGANISATION_NAME
+    )
+
+    assert mobile_case.name_prefix == "None"
+
+    mobile_case.app_name = APP_NAME
+
+    assert mobile_case.name_prefix == APP_NAME
+
+
+@pytest.mark.django_db
 def test_contact_exists():
     """Test MobileCase.contact_exists is working"""
     mobile_case: MobileCase = MobileCase.objects.create()
@@ -569,3 +657,25 @@ def test_contact_email():
     )
 
     assert contact.email == CONTACT_DETAILS
+
+
+@pytest.mark.parametrize(
+    "retest_ios_start_date, retest_android_start_date, expected_result",
+    [
+        (None, None, None),
+        (date(2020, 1, 1), None, date(2020, 1, 1)),
+        (date(2020, 1, 1), None, date(2020, 1, 1)),
+        (date(2020, 1, 1), date(2020, 1, 2), date(2020, 1, 1)),
+    ],
+)
+@pytest.mark.django_db
+def test_retest_start_date(
+    retest_ios_start_date, retest_android_start_date, expected_result
+):
+    """Test MobileCase.retest_start_date"""
+    mobile_case: MobileCase = MobileCase.objects.create(
+        retest_ios_start_date=retest_ios_start_date,
+        retest_android_start_date=retest_android_start_date,
+    )
+
+    assert mobile_case.retest_start_date == expected_result

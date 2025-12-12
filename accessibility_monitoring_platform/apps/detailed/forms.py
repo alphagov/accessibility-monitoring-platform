@@ -186,15 +186,15 @@ class DetailedManageContactsUpdateForm(VersionForm):
 class DetailedContactCreateForm(forms.ModelForm):
     """Form for creating a contact"""
 
-    name = AMPCharFieldWide(label="Name")
-    job_title = AMPCharFieldWide(label="Job title")
-    contact_details = AMPCharFieldWide(label="Contact details")
+    name = AMPCharFieldWide(label="Name · Included in export")
+    job_title = AMPCharFieldWide(label="Job title · Included in export")
+    contact_details = AMPCharFieldWide(label="Contact details · Included in export")
     preferred = AMPChoiceRadioField(
         label="Preferred contact",
         choices=Contact.Preferred.choices,
         initial=Contact.Preferred.UNKNOWN,
     )
-    information = AMPTextField(label="Information about contact")
+    information = AMPTextField(label="Information about contact · Included in export")
 
     class Meta:
         model = Contact
@@ -662,7 +662,9 @@ class DetailedUnresponsivePSBUpdateForm(VersionForm):
         help_text="Also add a case note with more information",
         choices=Boolean.choices,
         widget=AMPChoiceCheckboxWidget(
-            attrs={"label": "Mark the PSB as unresponsive to this case"}
+            attrs={
+                "label": "Mark the PSB as unresponsive to this case · Included in export"
+            }
         ),
     )
     no_psb_contact_info = AMPTextField(

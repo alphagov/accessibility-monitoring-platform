@@ -27,6 +27,10 @@ from ..models import (
 )
 
 REMINDER_DUE_DATE: date = date(2022, 1, 1)
+ORGANISATION_NAME: str = "Organisation Name"
+HOME_PAGE_URL: str = "https://example.com"
+WEBSITE_NAME: str = "Website"
+APP_NAME: str = "App name"
 
 
 def test_case_status_choice_all_choices_label():
@@ -330,3 +334,73 @@ def test_previous_case_identifier(previous_case_url, previous_case_identifier):
         SimplifiedCase.objects.create()
 
     assert get_previous_case_identifier(previous_case_url) == previous_case_identifier
+
+
+@pytest.mark.parametrize(
+    "website_name, domain, expected_result",
+    [
+        ("", "example.com", "example.com"),
+        ("", "www.example.com", "example.com"),
+        ("", "examplewww.com", "examplewww.com"),
+        ("Website name", "example.com", "Website name"),
+    ],
+)
+@pytest.mark.django_db
+def test_base_case_name_prefix(website_name, domain, expected_result):
+    """Test case name_prefix for base case"""
+    base_case: BaseCase = BaseCase.objects.create(
+        website_name=website_name,
+        domain=domain,
+    )
+
+    assert base_case.name_prefix == expected_result
+
+
+@pytest.mark.django_db
+def test_base_case_name_suffix():
+    """Test case name_suffix for base case"""
+    base_case: BaseCase = BaseCase.objects.create(organisation_name=ORGANISATION_NAME)
+
+    assert base_case.name_suffix == ORGANISATION_NAME
+
+
+@pytest.mark.django_db
+def test_detailed_case_full_name():
+    """Test case full name for detailed case"""
+    detailed_case: DetailedCase = DetailedCase.objects.create(
+        organisation_name=ORGANISATION_NAME, home_page_url=HOME_PAGE_URL
+    )
+
+    assert detailed_case.full_name == "example.com &middot; Organisation Name"
+
+    detailed_case.website_name = WEBSITE_NAME
+
+    assert detailed_case.full_name == "Website &middot; Organisation Name"
+
+
+@pytest.mark.django_db
+def test_simplified_case_name():
+    """Test case full name for simplified case"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        organisation_name=ORGANISATION_NAME, home_page_url=HOME_PAGE_URL
+    )
+
+    assert simplified_case.full_name == "example.com &middot; Organisation Name"
+
+    simplified_case.website_name = WEBSITE_NAME
+
+    assert simplified_case.full_name == "Website &middot; Organisation Name"
+
+
+@pytest.mark.django_db
+def test_mobile_case_name():
+    """Test case full name for mobile case"""
+    mobile_case: MobileCase = MobileCase.objects.create(
+        organisation_name=ORGANISATION_NAME, home_page_url=HOME_PAGE_URL
+    )
+
+    assert mobile_case.full_name == "None &middot; Organisation Name"
+
+    mobile_case.app_name = APP_NAME
+
+    assert mobile_case.full_name == "App name &middot; Organisation Name"

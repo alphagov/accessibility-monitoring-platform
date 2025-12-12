@@ -3,6 +3,7 @@ Models - mobile cases
 """
 
 import json
+from datetime import date
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -340,6 +341,11 @@ class MobileCase(BaseCase):
         title = f"{self.app_name} &nbsp;|&nbsp; {self.case_identifier}"
         return mark_safe(title)
 
+    @property
+    def name_prefix(self) -> str:
+        name_prefix: str = self.app_name if self.app_name else "None"
+        return name_prefix
+
     def status_history(self) -> QuerySet["MobileCaseHistory"]:
         return self.mobilecasehistory_set.filter(
             event_type=MobileCaseHistory.EventType.STATUS
@@ -406,6 +412,17 @@ class MobileCase(BaseCase):
         )
 
     @property
+    def retest_start_date(self) -> date | None:
+        if self.retest_ios_start_date and self.retest_android_start_date:
+            if self.retest_ios_start_date < self.retest_android_start_date:
+                return self.retest_ios_start_date
+            return self.retest_android_start_date
+        if self.retest_ios_start_date:
+            return self.retest_ios_start_date
+        if self.retest_android_start_date:
+            return self.retest_android_start_date
+
+    @property
     def initial_total_number_of_issues(self) -> int:
         number_of_issues: int = 0
         if self.initial_ios_total_number_of_issues is not None:
@@ -437,6 +454,46 @@ class MobileCase(BaseCase):
                 self.number_of_issues_fixed * 100 / self.initial_total_number_of_issues
             )
         return 0
+
+    @property
+    def percentage_of_ios_issues_fixed(self) -> int | str:
+        if (
+            self.initial_ios_total_number_of_issues is not None
+            and self.retest_ios_total_number_of_issues is not None
+        ):
+            number_of_ios_issues_fixed: int = (
+                self.initial_ios_total_number_of_issues
+                - self.retest_ios_total_number_of_issues
+            )
+            if self.initial_ios_total_number_of_issues > 0:
+                return int(
+                    number_of_ios_issues_fixed
+                    * 100
+                    / self.initial_ios_total_number_of_issues
+                )
+            else:
+                return 100
+        return "None"
+
+    @property
+    def percentage_of_android_issues_fixed(self) -> int | str:
+        if (
+            self.initial_android_total_number_of_issues is not None
+            and self.retest_android_total_number_of_issues is not None
+        ):
+            number_of_android_issues_fixed: int = (
+                self.initial_android_total_number_of_issues
+                - self.retest_android_total_number_of_issues
+            )
+            if self.initial_android_total_number_of_issues > 0:
+                return int(
+                    number_of_android_issues_fixed
+                    * 100
+                    / self.initial_android_total_number_of_issues
+                )
+            else:
+                return 100
+        return "None"
 
     @property
     def equality_body_export_statement_found_at_retest(self) -> str:

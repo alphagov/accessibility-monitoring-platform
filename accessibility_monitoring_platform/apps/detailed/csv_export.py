@@ -294,33 +294,33 @@ DETAILED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     ),
     # Case details - Case metadata
     CSVColumn(
-        column_header="Full URL · Included in export",
+        column_header="Full URL",
         source_class=DetailedCase,
         source_attr="home_page_url",
     ),
     CSVColumn(
-        column_header="Organisation name · Included in export",
+        column_header="Organisation name",
         source_class=DetailedCase,
         source_attr="organisation_name",
     ),
     CSVColumn(
-        column_header="Parent organisation name · Included in export",
+        column_header="Parent organisation name",
         source_class=DetailedCase,
         source_attr="parental_organisation_name",
     ),
     CSVColumn(
-        column_header="Website name · Included in export",
+        column_header="Website name",
         source_class=DetailedCase,
         source_attr="website_name",
     ),
     CSVColumn(column_header="Sector", source_class=DetailedCase, source_attr="sector"),
     CSVColumn(
-        column_header="Sub-category · Included in export",
+        column_header="Sub-category",
         source_class=DetailedCase,
         source_attr="subcategory",
     ),
     CSVColumn(
-        column_header="Which equalities body will check the case? · Included in export",
+        column_header="Which equalities body will check the case?",
         source_class=DetailedCase,
         source_attr="enforcement_body",
     ),
@@ -335,12 +335,12 @@ DETAILED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="psb_location",
     ),
     CSVColumn(
-        column_header="URL to previous case · Included in export",
+        column_header="URL to previous case",
         source_class=DetailedCase,
         source_attr="previous_case_url",
     ),
     CSVColumn(
-        column_header="Complaint? · Included in export",
+        column_header="Complaint?",
         source_class=DetailedCase,
         source_attr="is_complaint",
     ),
@@ -417,7 +417,7 @@ DETAILED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="initial_total_number_of_pages",
     ),
     CSVColumn(
-        column_header="Number of issues found · Included in export",
+        column_header="Number of issues found",
         source_class=DetailedCase,
         source_attr="initial_total_number_of_issues",
     ),
@@ -476,7 +476,7 @@ DETAILED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     ),
     # Report - Final report
     CSVColumn(
-        column_header="Link to equality body PDF report · Included in export",
+        column_header="Link to equality body PDF report",
         source_class=DetailedCase,
         source_attr="equality_body_report_url",
     ),
@@ -487,7 +487,7 @@ DETAILED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     ),
     # Correspondence - Report sent
     CSVColumn(
-        column_header="Report sent on · Included in export",
+        column_header="Report sent on",
         source_class=DetailedCase,
         source_attr="report_sent_date",
     ),
@@ -498,7 +498,7 @@ DETAILED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     ),
     # Correspondence - 12-week deadline
     CSVColumn(
-        column_header="12-week deadline · Included in export",
+        column_header="12-week deadline",
         source_class=DetailedCase,
         source_attr="twelve_week_deadline_date",
     ),
@@ -509,7 +509,7 @@ DETAILED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     ),
     # Correspondence - Report acknowledged
     CSVColumn(
-        column_header="Report acknowledged on · Included in export",
+        column_header="Report acknowledged on",
         source_class=DetailedCase,
         source_attr="report_acknowledged_date",
     ),
@@ -542,12 +542,12 @@ DETAILED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     ),
     # Reviewing changes - Retest result
     CSVColumn(
-        column_header="Latest retest date · Included in export",
+        column_header="Latest retest date",
         source_class=DetailedCase,
         source_attr="retest_start_date",
     ),
     CSVColumn(
-        column_header="Total number of remaining issues · Included in export",
+        column_header="Total number of remaining issues",
         source_class=DetailedCase,
         source_attr="retest_total_number_of_issues",
     ),
@@ -558,7 +558,7 @@ DETAILED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     ),
     # Reviewing changes - Compliance decisions
     CSVColumn(
-        column_header="Retest website compliance decision · Included in export",
+        column_header="Retest website compliance decision",
         source_class=DetailedCase,
         source_attr="retest_website_compliance_state",
     ),
@@ -568,7 +568,7 @@ DETAILED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="retest_website_compliance_information",
     ),
     CSVColumn(
-        column_header="Retest statement compliance decision · Included in export",
+        column_header="Retest statement compliance decision",
         source_class=DetailedCase,
         source_attr="retest_statement_compliance_state",
     ),
@@ -578,12 +578,12 @@ DETAILED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="retest_statement_compliance_information",
     ),
     CSVColumn(
-        column_header="Retest disproportionate burden claim · Included in export",
+        column_header="Retest disproportionate burden claim",
         source_class=DetailedCase,
         source_attr="retest_disproportionate_burden_claim",
     ),
     CSVColumn(
-        column_header="Retest disproportionate burden information · Included in export",
+        column_header="Retest disproportionate burden information",
         source_class=DetailedCase,
         source_attr="retest_disproportionate_burden_information",
     ),
@@ -599,22 +599,22 @@ DETAILED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="psb_progress_info",
     ),
     CSVColumn(
-        column_header="Enforcement recommendation · Included in export",
+        column_header="Enforcement recommendation",
         source_class=DetailedCase,
         source_attr="recommendation_for_enforcement",
     ),
     CSVColumn(
-        column_header="Enforcement recommendation details · Included in export",
+        column_header="Enforcement recommendation details",
         source_class=DetailedCase,
         source_attr="recommendation_info",
     ),
     CSVColumn(
-        column_header="Date decision email sent · Included in export",
+        column_header="Date decision email sent",
         source_class=DetailedCase,
         source_attr="recommendation_decision_sent_date",
     ),
     CSVColumn(
-        column_header="Decision sent to · Included in export",
+        column_header="Decision sent to",
         source_class=DetailedCase,
         source_attr="recommendation_decision_sent_to",
     ),
