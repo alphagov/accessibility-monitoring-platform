@@ -346,6 +346,10 @@ class DetailedCase(BaseCase):
         return "No"
 
     @property
+    def email_template_list_url(self) -> str:
+        return reverse("detailed:email-template-list", kwargs={"case_id": self.id})
+
+    @property
     def email_template_preview_url_name(self) -> str:
         return "detailed:email-template-preview"
 

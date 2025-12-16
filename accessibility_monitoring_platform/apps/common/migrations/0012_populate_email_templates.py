@@ -8,7 +8,15 @@ EMAIL_TEMPLATES: list[dict[str, str]] = [
     {
         "name": "1. Initial contact - request for info",
         "template_name": "d1-initial-contact-request-info",
-    }
+    },
+    {
+        "name": "2. Initial contact - no contact details",
+        "template_name": "d2-initial-contact-no-details",
+    },
+    {
+        "name": "3. Initial contact - Chaser",
+        "template_name": "d3-initial-contact-chaser",
+    },
 ]
 
 

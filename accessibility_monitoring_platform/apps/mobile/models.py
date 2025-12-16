@@ -542,6 +542,10 @@ class MobileCase(BaseCase):
         )
 
     @property
+    def email_template_list_url(self) -> str:
+        return reverse("mobile:email-template-list", kwargs={"case_id": self.id})
+
+    @property
     def email_template_preview_url_name(self) -> str:
         return "mobile:email-template-preview"
 

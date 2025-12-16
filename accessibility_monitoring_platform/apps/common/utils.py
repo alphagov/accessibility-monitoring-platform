@@ -304,5 +304,6 @@ def add_12_weeks_to_date(anchor_date: date) -> date:
 def get_texts_detailed_mobile_email_template_context():
     """Return extra context needed to render detailed and mobile email templates"""
     return {
+        "7_days_from_now": date.today() + timedelta(days=7),
         "15_days_from_now": date.today() + timedelta(days=15),
     }
