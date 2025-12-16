@@ -55,6 +55,7 @@ class EmailTemplateAdmin(admin.ModelAdmin):
         "is_deleted",
     ]
     list_filter = [
+        "case_type",
         "is_deleted",
     ]
     readonly_fields = [
