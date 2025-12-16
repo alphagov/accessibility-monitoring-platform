@@ -345,6 +345,10 @@ class DetailedCase(BaseCase):
             return "Yes"
         return "No"
 
+    @property
+    def email_template_preview_url_name(self) -> str:
+        return "detailed:email-template-preview"
+
 
 class DetailedEventHistory(models.Model):
     """Model to record events on platform"""

@@ -1432,7 +1432,6 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 subpages=[
                     CaseEmailTemplatePreviewPlatformPage(
                         name="{instance.name}",
-                        show_flag_name="not_archived",
                         url_name="simplified:email-template-preview",
                     ),
                 ],
@@ -1735,7 +1734,6 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 subpages=[
                     CaseEmailTemplatePreviewPlatformPage(
                         name="{instance.name}",
-                        show_flag_name="not_archived",
                         url_name="detailed:email-template-preview",
                     ),
                 ],
@@ -2082,7 +2080,6 @@ MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 subpages=[
                     CaseEmailTemplatePreviewPlatformPage(
                         name="{instance.name}",
-                        show_flag_name="not_archived",
                         url_name="mobile:email-template-preview",
                     ),
                 ],

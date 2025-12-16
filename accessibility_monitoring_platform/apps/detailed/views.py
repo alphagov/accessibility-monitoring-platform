@@ -2,6 +2,7 @@
 Views for cases app
 """
 
+from datetime import date, timedelta
 from typing import Any
 
 from django.contrib import messages
@@ -27,6 +28,7 @@ from ..common.sitemap import Sitemap
 from ..common.utils import (
     add_12_weeks_to_date,
     extract_domain_from_url,
+    get_texts_detailed_mobile_email_template_context,
     replace_search_key_with_case_search,
 )
 from ..common.views import (
@@ -847,4 +849,5 @@ class CaseEmailTemplatePreviewDetailView(
         context["email_template_name"] = (
             f"common/emails/templates/{self.object.template_name}.html"
         )
-        return context
+        extra_context = get_texts_detailed_mobile_email_template_context()
+        return {**extra_context, **context}

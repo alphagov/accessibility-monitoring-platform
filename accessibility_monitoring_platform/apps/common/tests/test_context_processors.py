@@ -95,8 +95,6 @@ def test_platform_page_template_context():
     assert custom_footer_links.label == LINK_LABEL
     assert custom_footer_links.url == LINK_URL
 
-    assert platform_page_context["request_user"] == user
-
 
 @pytest.mark.django_db
 def test_platform_page_case_sitemap_template_context():

@@ -15,7 +15,7 @@ EMAIL_TEMPLATES: list[dict[str, str]] = [
 def populate_email_templates(apps, schema_editor):  # pylint: disable=unused-argument
     User = apps.get_model("auth", "User")
     user = User.objects.filter(id=CREATED_BY_USER_ID).first()
-    if user is not None:  # In testing environment
+    if user is not None:  # Not in testing environment
         EmailTemplate = apps.get_model("common", "EmailTemplate")
         for email_template in EMAIL_TEMPLATES:
             EmailTemplate.objects.create(

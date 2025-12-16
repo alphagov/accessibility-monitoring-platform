@@ -613,6 +613,10 @@ class SimplifiedCase(BaseCase):
         return reverse("simplified:email-template-list", kwargs={"case_id": self.id})
 
     @property
+    def email_template_preview_url_name(self) -> str:
+        return "simplified:email-template-preview"
+
+    @property
     def equality_body_export_contact_details(self) -> QuerySet["Contact"]:
         """
         Concatenate the values for all the contacts and return as a single string.

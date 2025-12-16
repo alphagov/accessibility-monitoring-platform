@@ -16,13 +16,7 @@
                     </td>
                     <td class="govuk-table__cell amp-width-one-third">
                         <a
-                            {% if case.test_type == 'simplified' %}
-                                href="{% url 'simplified:email-template-preview' case.id email_template.id %}"
-                            {% elif case.test_type == 'detailed' %}
-                                href="{% url 'detailed:email-template-preview' case.id email_template.id %}"
-                            {% else %}
-                                href="{% url 'mobile:email-template-preview' case.id email_template.id %}"
-                            {% endif %}
+                            href="{% url case.email_template_preview_url_name case.id email_template.id %}"
                             class="govuk-link govuk-link--no-visited-state"
                         >
                             View email template

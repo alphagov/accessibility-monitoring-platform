@@ -541,6 +541,10 @@ class MobileCase(BaseCase):
             android=self.retest_android_disproportionate_burden_information,
         )
 
+    @property
+    def email_template_preview_url_name(self) -> str:
+        return "mobile:email-template-preview"
+
 
 class EventHistory(models.Model):
     """Model to record events on platform"""

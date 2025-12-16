@@ -34,5 +34,4 @@ def platform_page(
         "custom_footer_links": FooterLink.objects.filter(is_deleted=False),
         "sitemap": sitemap,
         "case": sitemap.current_platform_page.get_case(),
-        "request_user": request.user,
     }
