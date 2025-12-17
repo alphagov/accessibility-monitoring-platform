@@ -3,10 +3,16 @@ Dear {{ case.organisation_name }},
 <br>
 <br>
 Thank you for the information you have provided. We have completed accessibility testing on your {{ case.target_of_test }}.
+<br>
+<br>
 <h2>What we found</h2>
+<br>
 We found some accessibility issues with your {{ case.target_of_test }}.
 Please see the attached report for details.
+<br>
+<br>
 <h2>What you must do</h2>
+<br>
 Under the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 your {{ case.target_of_test }}
 must meet Web Content Accessibility Guidelines (WCAG 2.2 AA standards).
 <br>
@@ -24,7 +30,7 @@ After 12 weeks, {{ 12_weeks_from_now|amp_date }}, we will contact you and ask fo
 <br>
 <br>
 Any remaining accessibility issues and information regarding our monitoring will be passed to the
-{{ case.get_enforcement_body_display }}.
+{{ case.get_enforcement_body_display }} ({{ case.enforcement_body|upper }}).
 They will decide if further action is required. A list of websites and mobile applications without correct accessibility statements may be published by the Department for Science, Innovation and Technology.
 <br>
 <br>
