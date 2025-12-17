@@ -236,10 +236,6 @@ class SubCategory(models.Model):
 class EmailTemplate(models.Model):
     """Email template"""
 
-    class CaseType(models.TextChoices):
-        SIMPLIFIED = "simplified", "Simplified"
-        DETAILED_MOBILE = "det-mob", "Detailed and mobile"
-
     name = models.TextField(default="Default")
     template_name = models.CharField(max_length=250, default="")
     created_by = models.ForeignKey(
@@ -259,9 +255,9 @@ class EmailTemplate(models.Model):
     )
     updated = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False)
-    case_type = models.CharField(
-        max_length=10, choices=CaseType.choices, default=CaseType.SIMPLIFIED
-    )
+    is_simplified = models.BooleanField(default=False)
+    is_detailed = models.BooleanField(default=False)
+    is_mobile = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["name"]

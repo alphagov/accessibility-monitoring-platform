@@ -825,9 +825,7 @@ class CaseEmailTemplateListView(
 
     def get_queryset(self) -> QuerySet[EmailTemplate]:
         """Add filters to queryset"""
-        return EmailTemplate.objects.filter(
-            is_deleted=False, case_type=EmailTemplate.CaseType.DETAILED_MOBILE
-        )
+        return EmailTemplate.objects.filter(is_deleted=False, is_detailed=True)
 
 
 class CaseEmailTemplatePreviewDetailView(
