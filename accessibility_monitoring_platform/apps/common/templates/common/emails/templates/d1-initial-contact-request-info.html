@@ -9,7 +9,10 @@ I am {{ request.user.get_full_name }} from the accessibility monitoring team at 
 <br>
 <br>
 We monitor the accessibility of public sector websites, digital services and mobile applications. The
-{% include 'common/emails/templates/website-service-app-name.html' %}
+{{ case.target_of_test }}
+{% if case.target_of_test == "website" %}
+(<a href="{{ case.home_page_url }}">{{ case.home_page_url}}</a>)
+{% endif %}
 was chosen from a random sample to be monitored using a detailed audit.
 <br>
 <br>
@@ -17,8 +20,7 @@ was chosen from a random sample to be monitored using a detailed audit.
 <br>
 <br>
 We are required to test a proportion of websites and mobile applications that we have previously tested. Your
-{% include 'common/emails/templates/website-service-app-name.html' %}
-was chosen from a random sample to be monitored again, using a detailed audit.
+{{ case.target_of_test }} was chosen from a random sample to be monitored again, using a detailed audit.
 <br>
 <br>
 <span class="amp-email-placeholder">[If it’s a complaint] ------------------------------------</span>
@@ -28,7 +30,7 @@ We monitor the accessibility of public sector websites, digital services and mob
 <br>
 <br>
 We have been referred a complaint from the Equality Advisory and Support Service who were contacted by a member of the public about your
-{% include 'common/emails/templates/website-service-app-name.html' %}.
+{{ case.target_of_test }}.
 They experienced accessibility issues, and it may not meet the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018
 (<a href="https://gov.uk/accessibility-regulations">https://gov.uk/accessibility-regulations</a>).
 As a result we need to complete a detailed accessibility audit.
@@ -42,8 +44,7 @@ It is a requirement of The Public Sector Bodies (Websites and Mobile Application
 <br>
 <h2>What you have to do</h2>
 <br>
-Under the Regulations your
-{% include 'common/emails/templates/website-service-app-name.html' %}
+Under the Regulations your {{ case.target_of_test }}
 must meet Web Content Accessibility Guidelines (WCAG 2.2 AA standards) and we require further information.
 <br>
 <br>

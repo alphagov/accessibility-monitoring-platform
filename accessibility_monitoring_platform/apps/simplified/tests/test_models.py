@@ -1958,3 +1958,8 @@ def test_email_template_preview_url_name():
         simplified_case.email_template_preview_url_name
         == "simplified:email-template-preview"
     )
+
+
+def test_target_of_test():
+    """Test SimplifiedCase.target_of_test"""
+    assert SimplifiedCase().target_of_test == "website"

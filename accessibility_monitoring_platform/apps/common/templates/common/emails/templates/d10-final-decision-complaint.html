@@ -1,0 +1,55 @@
+Subject: {% include 'common/emails/templates/subject-line.html' with subject_suffix='accessibility monitoring' %}
+Dear {{ case.organisation_name }},
+<br>
+<br>
+Thank you for your response.
+<br>
+<h2>What happens next</h2>
+<br>
+<br>
+<h3>Accessibility compliance</h3>
+<br>
+<br>
+As your {{ case.target_of_test }} was monitored following a complaint from a member of the public, I need to send the details to the
+{{ case.get_enforcement_body_display }} ({{ case.enforcement_body|upper }})
+who enforce the accessibility requirement as set out in The Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 and will make a decision on this complaint.
+<br>
+<br>
+They will contact you if they believe further action is required.
+<br>
+<h3>Accessibility Statement</h3>
+<br>
+<br>
+On behalf of the Secretary of State for Science, Innovation and Technology, we make a decision on the compliance of accessibility statements.
+<br>
+<br>
+<span class="amp-email-placeholder">[If compliant]</span>
+<br>
+We have determined that your statement is compliant.
+<br>
+<br>
+<span class="amp-email-placeholder">OR--------</span>
+<br>
+<span class="amp-email-placeholder">[If non compliant - REMEMBER TO SAVE A COPY OF THE STATEMENT AGAIN]</span>
+<br>
+We have determined that your statement is not compliant. <span class="amp-email-placeholder">[Give reasons]</span>
+<br>
+<br>
+<span class="amp-email-placeholder">[If the statement is not found:]</span>
+<br>
+We could not find an accessibility statement so this does not comply with the requirement to publish a statement.
+<br>
+<br>
+Public sector bodies may request a review where they disagree with this decision. Any request for a review must be made in writing (via email) within 28 days of the decision and state the reason for the review. A list of websites without correct accessibility statements may be published by the Department for Science, Innovation and Technology (DSIT).
+<br>
+<h2>Future monitoring</h2>
+<br>
+<br>
+Our monitoring is based on a sampling process. It is possible that your {{ case.target_of_test }}
+may be put forward for further testing in the future. It is important that accessibility standards are maintained.
+<br>
+<br>
+Many thanks,
+<br>
+<br>
+{{ request.user.get_full_name }}

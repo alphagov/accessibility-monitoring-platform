@@ -697,3 +697,23 @@ def test_email_template_preview_url_name():
     assert (
         mobile_case.email_template_preview_url_name == "mobile:email-template-preview"
     )
+
+
+def test_target_of_test():
+    """Test MobileCase.target_of_test"""
+    assert MobileCase().target_of_test == "mobile application"
+    assert (
+        MobileCase(ios_test_included=MobileCase.TestIncluded.YES).target_of_test
+        == "iOS mobile application"
+    )
+    assert (
+        MobileCase(android_test_included=MobileCase.TestIncluded.YES).target_of_test
+        == "Android mobile application"
+    )
+    assert (
+        MobileCase(
+            ios_test_included=MobileCase.TestIncluded.YES,
+            android_test_included=MobileCase.TestIncluded.YES,
+        ).target_of_test
+        == "iOS/Android mobile application"
+    )

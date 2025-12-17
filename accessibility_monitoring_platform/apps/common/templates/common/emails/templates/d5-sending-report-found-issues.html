@@ -1,0 +1,41 @@
+Subject: {% include 'common/emails/templates/subject-line.html' with subject_suffix='accessibility monitoring' %}
+Dear {{ case.organisation_name }},
+<br>
+<br>
+Thank you for the information you have provided. We have completed accessibility testing on your {{ case.target_of_test }}.
+<h2>What we found</h2>
+We found some accessibility issues with your {{ case.target_of_test }}.
+Please see the attached report for details.
+<h2>What you must do</h2>
+Under the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 your {{ case.target_of_test }}
+must meet Web Content Accessibility Guidelines (WCAG 2.2 AA standards).
+<br>
+<br>
+We are asking that you:
+<ul>
+<li>email us within 7 days to confirm you have received the report</li>
+<li>send us your disproportionate burden assessment evidence within 7 days <span class="amp-email-placeholder">[delete if there is no disproportionate burden claim or you already have the evidence in the initial info]</span></li>
+<li>fix the issues on your {{ case.target_of_test }} within 12 weeks</li>
+<li>update the accessibility statement for your {{ case.target_of_test }} if required</li>
+</ul>
+<br>
+After 12 weeks, {{ 12_weeks_from_now|amp_date }}, we will contact you and ask for an update on your progress, and we will retest your
+{{ case.target_of_test }} to check that any accessibility issues have been fixed.
+<br>
+<br>
+Any remaining accessibility issues and information regarding our monitoring will be passed to the
+{{ case.get_enforcement_body_display }}.
+They will decide if further action is required. A list of websites and mobile applications without correct accessibility statements may be published by the Department for Science, Innovation and Technology.
+<br>
+<br>
+Where possible we will direct you to resources and information that may help you to increase the accessibility of your {{ case.target_of_test }}.
+<br>
+<br>
+To find out more about the accessibility monitoring and the legislation go to
+<a href="https://www.gov.uk/guidance/public-sector-website-and-mobile-application-accessibility-monitoring">https://www.gov.uk/guidance/public-sector-website-and-mobile-application-accessibility-monitoring</a>
+<br>
+<br>
+Many thanks,
+<br>
+<br>
+{{ request.user.get_full_name }}

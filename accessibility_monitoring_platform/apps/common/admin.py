@@ -56,6 +56,7 @@ class EmailTemplateAdmin(admin.ModelAdmin):
         "is_detailed",
         "is_mobile",
         "is_deleted",
+        "position",
     ]
     list_filter = [
         "is_simplified",

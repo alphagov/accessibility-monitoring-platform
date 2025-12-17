@@ -1143,6 +1143,10 @@ class SimplifiedCase(BaseCase):
             ),
         )
 
+    @property
+    def target_of_test(self) -> str:
+        return "website"
+
 
 class CaseStatus(models.Model):
     """

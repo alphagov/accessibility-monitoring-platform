@@ -397,3 +397,15 @@ def test_email_template_preview_url_name():
         detailed_case.email_template_preview_url_name
         == "detailed:email-template-preview"
     )
+
+
+def test_target_of_test():
+    """Test DetailedCase.target_of_test"""
+    assert (
+        DetailedCase(service_type=DetailedCase.ServiceType.WEBSITE).target_of_test
+        == "website"
+    )
+    assert (
+        DetailedCase(service_type=DetailedCase.ServiceType.SERVICE).target_of_test
+        == "service"
+    )

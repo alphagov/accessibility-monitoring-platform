@@ -258,9 +258,10 @@ class EmailTemplate(models.Model):
     is_simplified = models.BooleanField(default=False)
     is_detailed = models.BooleanField(default=False)
     is_mobile = models.BooleanField(default=False)
+    position = models.IntegerField(default=0)
 
     class Meta:
-        ordering = ["name"]
+        ordering = ["position"]
 
     def __str__(self) -> str:
         return self.name

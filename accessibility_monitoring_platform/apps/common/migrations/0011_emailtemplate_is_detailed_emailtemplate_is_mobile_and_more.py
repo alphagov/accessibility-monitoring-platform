@@ -12,6 +12,11 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="emailtemplate",
+            name="position",
+            field=models.IntegerField(default=0),
+        ),
+        migrations.AddField(
+            model_name="emailtemplate",
             name="is_detailed",
             field=models.BooleanField(default=False),
         ),

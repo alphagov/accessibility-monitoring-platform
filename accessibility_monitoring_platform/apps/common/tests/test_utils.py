@@ -670,4 +670,5 @@ def test_get_detailed_mobile_email_template_context():
         assert get_detailed_mobile_email_template_context() == {
             "7_days_from_now": date(2023, 2, 8),
             "15_days_from_now": date(2023, 2, 16),
+            "12_weeks_from_now": date(2023, 4, 26),
         }

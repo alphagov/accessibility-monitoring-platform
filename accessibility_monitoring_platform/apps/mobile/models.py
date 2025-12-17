@@ -549,6 +549,22 @@ class MobileCase(BaseCase):
     def email_template_preview_url_name(self) -> str:
         return "mobile:email-template-preview"
 
+    @property
+    def target_of_test(self) -> str:
+        os_prefix: str = ""
+        if (
+            self.ios_test_included == MobileCase.TestIncluded.YES
+            and self.android_test_included == MobileCase.TestIncluded.YES
+        ):
+            os_prefix: str = "iOS/Android"
+        elif self.ios_test_included == MobileCase.TestIncluded.YES:
+            os_prefix: str = "iOS"
+        elif self.android_test_included == MobileCase.TestIncluded.YES:
+            os_prefix: str = "Android"
+        if os_prefix:
+            return f"{os_prefix} mobile application"
+        return "mobile application"
+
 
 class EventHistory(models.Model):
     """Model to record events on platform"""

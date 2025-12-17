@@ -1,0 +1,80 @@
+Subject: {% include 'common/emails/templates/subject-line.html' with subject_suffix='accessibility monitoring' %}
+Dear {{ case.organisation_name }},
+<br>
+<br>
+Thank you for providing an update on progress since we sent you an accessibility report.
+<br>
+<br>
+I have reviewed some of the issues we originally raised and the accessibility statement.
+<br>
+<br>
+<span class="amp-email-placeholder">[Respond to any questions or queries they have raised]</span>
+<br>
+<br>
+<span class="amp-email-placeholder">[Wording to use for missing ‘scope’ in statement]</span>
+<br>
+In 2020, the sample template on GOV.UK was updated to include an extra mandatory piece of information to outline the scope of your accessibility statement. This is missing from your statement. Please include this now to ensure you have a legally compliant statement.
+<br>
+<br>
+<h2>What happens next</h2>
+<br>
+<br>
+<h3>Accessibility Compliance</h3>
+<br>
+As part of our reporting process we provide the {{ case.get_enforcement_body_display }} ({{ case.enforcement_body|upper }})
+with details about public sector bodies that are tested.
+<br>
+<br>
+<span class="amp-email-placeholder">[if we want to recommend no further action:]</span>
+<br>
+Based on the information you have provided we will be recommending to the {{ case.enforcement_body|upper }} that no further action is taken.
+<br>
+<br>
+The {{ case.enforcement_body|upper }} has the right to overturn this recommendation. They will contact you if they need to take further action.
+<br>
+<br>
+<span class="amp-email-placeholder">[If we don’t have enough info or are not satisfied to make a ‘no further action’ decision:]</span>
+<br>
+We will now pass on information regarding your {{ case.target_of_test }} to the {{ case.enforcement_body|upper }} so that they can decide if any further enforcement action is needed.
+<br>
+<br>
+They may contact you directly if they think further action is needed.
+<br>
+<h3>Accessibility Statement</h3>
+<br>
+<br>
+On behalf of the Secretary of State for Science, Innovation and Technology, we make a decision on the compliance of accessibility statements.
+<br>
+<br>
+<span class="amp-email-placeholder">[If the statement is compliant:]</span>
+<br>
+We have determined that your statement is compliant.
+<br>
+<br>
+<span class="amp-email-placeholder">OR ----------------------</span>
+<br>
+<span class="amp-email-placeholder">[If the statement is non compliant - REMEMBER TO SAVE A COPY OF THE STATEMENT AGAIN:]</span>
+<br>
+We have determined that your statement is not compliant.
+<br>
+<br>
+<span class="amp-email-placeholder">[If the statement is not found:]</span>
+<br>
+We were not able to find an accessibility statement and this does not comply with the requirement to publish a statement.
+<br>
+<br>
+Public sector bodies may request a review where they disagree with this decision. Any request for a review must be made in writing (via email) within 28 days of the decision and state the reason for the review. A list of websites without correct accessibility statements may be published by the Department for Science, Innovation and Technology (DSIT).
+<br>
+<span class="amp-email-placeholder">[End of 'If the statement is non compliant' or 'if statement is not found']</span>
+<br>
+<h2>Future monitoring</h2>
+<br>
+<br>
+Our monitoring is based on a sampling process. It is possible that your {{ case.target_of_test }}
+may be put forward for further testing in the future. It is important that accessibility standards are maintained.
+<br>
+<br>
+Many thanks,
+<br>
+<br>
+{{ request.user.get_full_name }}

@@ -16,18 +16,50 @@ EMAIL_TEMPLATE_NAMES: list[dict[str, str]] = [
         "name": "3. Initial contact - Chaser",
         "template_name": "d3-initial-contact-chaser",
     },
+    {
+        "name": "4. We will review your information",
+        "template_name": "d4-review-information",
+    },
+    {
+        "name": "5. Sending report - found issues",
+        "template_name": "d5-sending-report-found-issues",
+    },
+    {
+        "name": "6. Sending report - 7 day no response",
+        "template_name": "d6-7-day-no-response",
+    },
+    {
+        "name": "7. 12 weeks - request for info",
+        "template_name": "d7-12-week-request-info",
+    },
+    {
+        "name": "8. 12 weeks - 7 day chaser",
+        "template_name": "d8-12-week-7-day-chaser",
+    },
+    {
+        "name": "9. Final decision - generic",
+        "template_name": "d9-final-decision-generic",
+    },
+    {
+        "name": "10. Final decision - complaint",
+        "template_name": "d10-final-decision-complaint",
+    },
 ]
 
 
 def populate_email_templates(apps, schema_editor):  # pylint: disable=unused-argument
     EmailTemplate = apps.get_model("common", "EmailTemplate")
-    for email_template in EmailTemplate.objects.all():
+    position: int = 0
+    for email_template in EmailTemplate.objects.all().order_by("name"):
+        position += 1
+        email_template.position = position * 10
         email_template.is_simplified = True
         email_template.save()
     User = apps.get_model("auth", "User")
     user = User.objects.filter(id=CREATED_BY_USER_ID).first()
     if user is not None:  # Not in testing environment
         for email_template_name in EMAIL_TEMPLATE_NAMES:
+            position += 1
             EmailTemplate.objects.create(
                 name=email_template_name["name"],
                 template_name=email_template_name["template_name"],
@@ -35,6 +67,7 @@ def populate_email_templates(apps, schema_editor):  # pylint: disable=unused-arg
                 is_mobile=True,
                 created_by=user,
                 updated_by=user,
+                position=position * 10,
             )
 
 
