@@ -20,13 +20,13 @@ EMAIL_TEMPLATE_NAMES: list[dict[str, str]] = [
 
 
 def populate_email_templates(apps, schema_editor):  # pylint: disable=unused-argument
+    EmailTemplate = apps.get_model("common", "EmailTemplate")
+    for email_template in EmailTemplate.objects.all():
+        email_template.is_simplified = True
+        email_template.save()
     User = apps.get_model("auth", "User")
     user = User.objects.filter(id=CREATED_BY_USER_ID).first()
     if user is not None:  # Not in testing environment
-        EmailTemplate = apps.get_model("common", "EmailTemplate")
-        for email_template in EmailTemplate.objects.all():
-            email_template.is_simplified = True
-            email_template.save()
         for email_template_name in EMAIL_TEMPLATE_NAMES:
             EmailTemplate.objects.create(
                 name=email_template_name["name"],
