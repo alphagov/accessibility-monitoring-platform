@@ -40,9 +40,7 @@ def populate_email_templates(apps, schema_editor):  # pylint: disable=unused-arg
 
 def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
     EmailTemplate = apps.get_model("common", "EmailTemplate")
-    for email_template in EmailTemplate.objects.filter(
-        case_type=DETAILED_MOBILE_CASE_TYPE
-    ):
+    for email_template in EmailTemplate.objects.all().exclude(is_simplified=True):
         email_template.delete()
 
 
