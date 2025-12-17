@@ -824,7 +824,6 @@ class CaseEmailTemplateListView(
     context_object_name: str = "email_templates"
 
     def get_queryset(self) -> QuerySet[EmailTemplate]:
-        """Add filters to queryset"""
         return EmailTemplate.objects.filter(is_deleted=False, is_detailed=True)
 
 
@@ -838,14 +837,8 @@ class CaseEmailTemplatePreviewDetailView(
     context_object_name: str = "email_template"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
-        """Add case and email template to context"""
+        """Add case and email template context to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        detailed_case: DetailedCase = get_object_or_404(
-            DetailedCase, id=self.kwargs.get("case_id")
-        )
-        context["case"] = detailed_case
-        context["email_template_name"] = (
-            f"common/emails/templates/{self.object.template_name}.html"
-        )
+        context["case"] = get_object_or_404(DetailedCase, id=self.kwargs.get("case_id"))
         extra_context = get_detailed_mobile_email_template_context()
         return {**extra_context, **context}

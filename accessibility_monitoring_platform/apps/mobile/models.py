@@ -551,18 +551,15 @@ class MobileCase(BaseCase):
 
     @property
     def target_of_test(self) -> str:
-        os_prefix: str = ""
         if (
             self.ios_test_included == MobileCase.TestIncluded.YES
             and self.android_test_included == MobileCase.TestIncluded.YES
         ):
-            os_prefix: str = "iOS/Android"
+            return "iOS/Android mobile application"
         elif self.ios_test_included == MobileCase.TestIncluded.YES:
-            os_prefix: str = "iOS"
+            return "iOS mobile application"
         elif self.android_test_included == MobileCase.TestIncluded.YES:
-            os_prefix: str = "Android"
-        if os_prefix:
-            return f"{os_prefix} mobile application"
+            return "Android mobile application"
         return "mobile application"
 
 

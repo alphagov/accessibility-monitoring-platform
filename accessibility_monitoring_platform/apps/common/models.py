@@ -265,3 +265,7 @@ class EmailTemplate(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    @property
+    def template_path(self) -> str:
+        return f"common/emails/templates/{self.template_name}.html"
