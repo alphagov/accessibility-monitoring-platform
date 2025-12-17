@@ -1947,3 +1947,14 @@ def test_email_template_list_url():
     assert (
         simplified_case.email_template_list_url == "/simplified/1/email-template-list/"
     )
+
+
+@pytest.mark.django_db
+def test_email_template_preview_url_name():
+    """Test SimplifiedCase.email_template_preview_url_name is working"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+
+    assert (
+        simplified_case.email_template_preview_url_name
+        == "simplified:email-template-preview"
+    )

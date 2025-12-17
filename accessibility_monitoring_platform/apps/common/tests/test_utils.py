@@ -40,6 +40,7 @@ from ..utils import (
     format_outstanding_issues,
     format_statement_check_overview,
     get_days_ago_timestamp,
+    get_detailed_mobile_email_template_context,
     get_dict_without_page_items,
     get_first_of_this_month_last_year,
     get_platform_settings,
@@ -660,3 +661,13 @@ def test_replace_search_key_with_case_search():
 def test_add_12_weeks_to_date():
     """Test add_12_weeks_to_date"""
     assert add_12_weeks_to_date(anchor_date=date(2025, 1, 1)) == date(2025, 3, 26)
+
+
+def test_get_detailed_mobile_email_template_context():
+    """Test get_detailed_mobile_email_template_context"""
+    with patch("accessibility_monitoring_platform.apps.common.utils.date") as mock_date:
+        mock_date.today.return_value = date(2023, 2, 1)
+        assert get_detailed_mobile_email_template_context() == {
+            "7_days_from_now": date(2023, 2, 8),
+            "15_days_from_now": date(2023, 2, 16),
+        }
