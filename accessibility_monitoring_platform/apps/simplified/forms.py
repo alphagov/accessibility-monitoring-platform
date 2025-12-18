@@ -4,7 +4,6 @@ Forms - cases
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.db import models
 
 from ..cases.csv_export import populate_equality_body_columns
 from ..cases.forms import PreviousCaseURLForm
@@ -31,12 +30,6 @@ from .models import (
     SimplifiedCase,
     ZendeskTicket,
 )
-
-
-class DateType(models.TextChoices):
-    START = "audit_basecase__date_of_test", "Date test started"
-    SENT = "sent_to_enforcement_body_sent_date", "Date sent to EB"
-    UPDATED = "case_updated_date", "Case updated"
 
 
 class SimplifiedCaseCreateForm(PreviousCaseURLForm):
@@ -784,27 +777,6 @@ class SimplifiedCaseCloseUpdateForm(VersionForm):
                     "Ensure all the required fields are complete before you close the case to send to the equalities body"
                 )
         return self.cleaned_data
-
-
-class SimplifiedPostCaseUpdateForm(VersionForm):
-    """
-    Form to record post case notes
-    """
-
-    post_case_notes = AMPTextField(label="Summary of events after the case was closed")
-    case_updated_date = AMPDateField(label="Case updated")
-    post_case_complete_date = AMPDatePageCompleteField()
-    psb_appeal_notes = AMPTextField(label="Public sector body statement appeal notes")
-
-    class Meta:
-        model = SimplifiedCase
-        fields = [
-            "version",
-            "post_case_notes",
-            "case_updated_date",
-            "psb_appeal_notes",
-            "post_case_complete_date",
-        ]
 
 
 class SimplifiedCaseDeactivateForm(VersionForm):

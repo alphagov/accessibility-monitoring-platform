@@ -81,7 +81,6 @@ from .forms import (
     SimplifiedContactUpdateForm,
     SimplifiedEqualityBodyCorrespondenceCreateForm,
     SimplifiedManageContactDetailsUpdateForm,
-    SimplifiedPostCaseUpdateForm,
     SimplifiedZendeskTicketConfirmDeleteUpdateForm,
     SimplifiedZendeskTicketCreateUpdateForm,
 )
@@ -821,22 +820,6 @@ class CaseCloseUpdateView(CaseUpdateView):
         )
         context["required_data_missing_columns"] = required_data_missing_columns
         return context
-
-
-class PostCaseUpdateView(CaseUpdateView):
-    """
-    View to record post case notes
-    """
-
-    form_class: type[SimplifiedPostCaseUpdateForm] = SimplifiedPostCaseUpdateForm
-    template_name: str = "simplified/forms/post_case.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_exit" in self.request.POST:
-            case_pk: dict[str, int] = {"pk": self.object.id}
-            return reverse("simplified:case-detail", kwargs=case_pk)
-        return super().get_success_url()
 
 
 class CaseDeactivateUpdateView(CaseUpdateView):

@@ -51,7 +51,6 @@ from .views import (
     EqualityBodyCorrespondenceCreateView,
     ListCaseEqualityBodyCorrespondenceUpdateView,
     ManageContactDetailsUpdateView,
-    PostCaseUpdateView,
     ZendeskTicketConfirmDeleteUpdateView,
     ZendeskTicketCreateView,
     ZendeskTicketUpdateView,
@@ -217,11 +216,6 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-case-close/",
         login_required(CaseCloseUpdateView.as_view()),
         name="edit-case-close",
-    ),
-    path(
-        "<int:pk>/edit-post-case/",
-        login_required(PostCaseUpdateView.as_view()),
-        name="edit-post-case",
     ),
     path(
         "<int:pk>/deactivate-case/",
