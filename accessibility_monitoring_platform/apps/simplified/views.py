@@ -21,7 +21,7 @@ from ..audits.utils import get_audit_summary_context, report_data_updated
 from ..cases.csv_export import populate_equality_body_columns
 from ..cases.forms import CaseSearchForm
 from ..cases.models import TestType
-from ..cases.utils import find_duplicate_cases
+from ..cases.utils import filter_cases, find_duplicate_cases
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 from ..common.csv_export import EqualityBodyCSVColumn
@@ -97,7 +97,6 @@ from .models import (
 from .utils import (
     download_simplified_cases,
     download_simplified_feedback_survey_cases,
-    filter_cases,
     get_simplified_case_detail_sections,
     record_case_event,
     record_simplified_model_create_event,
