@@ -49,7 +49,6 @@ CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
 ]
 
 
-SESSION_EXPIRY_WARNING_WINDOW: timedelta = timedelta(hours=12)
 ONE_WEEK_IN_DAYS: int = 7
 TWELVE_WEEKS_IN_DAYS: int = 12 * ONE_WEEK_IN_DAYS
 
