@@ -609,6 +609,14 @@ class SimplifiedCase(BaseCase):
         return reverse("simplified:manage-contact-details", kwargs={"pk": self.id})
 
     @property
+    def email_template_list_url(self) -> str:
+        return reverse("simplified:email-template-list", kwargs={"case_id": self.id})
+
+    @property
+    def email_template_preview_url_name(self) -> str:
+        return "simplified:email-template-preview"
+
+    @property
     def equality_body_export_contact_details(self) -> QuerySet["Contact"]:
         """
         Concatenate the values for all the contacts and return as a single string.
@@ -1134,6 +1142,10 @@ class SimplifiedCase(BaseCase):
                 url=reverse("simplified:edit-case-metadata", kwargs={"pk": self.id}),
             ),
         )
+
+    @property
+    def target_of_test(self) -> str:
+        return "website"
 
 
 class CaseStatus(models.Model):

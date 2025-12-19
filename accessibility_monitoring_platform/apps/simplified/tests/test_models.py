@@ -1937,3 +1937,29 @@ def test_manage_contacts_url():
     assert (
         simplified_case.manage_contacts_url == "/simplified/1/manage-contact-details/"
     )
+
+
+@pytest.mark.django_db
+def test_email_template_list_url():
+    """Test SimplifiedCase.email_template_list_url is working"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+
+    assert (
+        simplified_case.email_template_list_url == "/simplified/1/email-template-list/"
+    )
+
+
+@pytest.mark.django_db
+def test_email_template_preview_url_name():
+    """Test SimplifiedCase.email_template_preview_url_name is working"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+
+    assert (
+        simplified_case.email_template_preview_url_name
+        == "simplified:email-template-preview"
+    )
+
+
+def test_target_of_test():
+    """Test SimplifiedCase.target_of_test"""
+    assert SimplifiedCase().target_of_test == "website"

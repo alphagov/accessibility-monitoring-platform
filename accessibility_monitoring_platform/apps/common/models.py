@@ -255,9 +255,17 @@ class EmailTemplate(models.Model):
     )
     updated = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False)
+    is_simplified = models.BooleanField(default=False)
+    is_detailed = models.BooleanField(default=False)
+    is_mobile = models.BooleanField(default=False)
+    position = models.IntegerField(default=0)
 
     class Meta:
-        ordering = ["name"]
+        ordering = ["position"]
 
     def __str__(self) -> str:
         return self.name
+
+    @property
+    def template_path(self) -> str:
+        return f"common/emails/templates/{self.template_name}.html"

@@ -5,6 +5,7 @@ Utility functions for cases app
 import copy
 import json
 from collections.abc import Callable
+from datetime import date, timedelta
 from functools import partial
 from typing import Any
 
@@ -24,6 +25,7 @@ from ..common.form_extract_utils import (
 )
 from ..common.sitemap import PlatformPageGroup, Sitemap
 from ..common.utils import build_filters, diff_model_fields
+from ..reports.utils import build_issues_tables
 from .csv_export import (
     SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
     SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
@@ -45,6 +47,10 @@ CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
     ("sector", "sector_id"),
     ("subcategory", "subcategory_id"),
 ]
+
+
+ONE_WEEK_IN_DAYS: int = 7
+TWELVE_WEEKS_IN_DAYS: int = 12 * ONE_WEEK_IN_DAYS
 
 
 def get_simplified_case_detail_sections(
@@ -370,3 +376,22 @@ def download_simplified_feedback_survey_cases(
     )
     response["Content-Disposition"] = f"attachment; filename={filename}"
     return response
+
+
+def get_email_template_context(simplified_case: SimplifiedCase) -> dict[str, Any]:
+    """Collect data to add to context of email template previews"""
+    context: dict[str, Any] = {}
+    context["12_weeks_from_today"] = date.today() + timedelta(days=TWELVE_WEEKS_IN_DAYS)
+    context["case"] = simplified_case
+    context["retest"] = simplified_case.retests.first()
+    if simplified_case.audit is not None:
+        context["issues_tables"] = build_issues_tables(
+            pages=simplified_case.audit.testable_pages,
+            check_results_attr="unfixed_check_results",
+        )
+        context["retest_issues_tables"] = build_issues_tables(
+            pages=simplified_case.audit.retestable_pages,
+            use_retest_notes=True,
+            check_results_attr="unfixed_check_results",
+        )
+    return context

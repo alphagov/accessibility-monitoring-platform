@@ -15,7 +15,7 @@ from django.db.models import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
 
-from ...audits.models import Audit
+from ...audits.models import Audit, Retest
 from ...cases.forms import DateType
 from ...cases.utils import CaseDetailSection
 from ...common.models import Boolean, Sector, SubCategory
@@ -39,6 +39,7 @@ from ..utils import (
     download_simplified_cases,
     download_simplified_feedback_survey_cases,
     filter_cases,
+    get_email_template_context,
     get_simplified_case_detail_sections,
     record_case_event,
     record_simplified_model_create_event,
@@ -846,3 +847,61 @@ def test_get_simplified_case_detail_sections(rf):
     )
 
     assert sections[0].pages[0].display_fields[2].value == ORGANISATION_NAME
+
+
+@pytest.mark.django_db
+def test_get_email_template_context_new_case():
+    """Test get_email_template_context for new Case"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    email_template_context: dict[str, Any] = get_email_template_context(
+        simplified_case=simplified_case
+    )
+
+    assert "12_weeks_from_today" in email_template_context
+    assert email_template_context["case"] == simplified_case
+    assert email_template_context["retest"] is None
+
+
+@pytest.mark.django_db
+def test_get_email_template_context_12_weeks_from_today():
+    """Test get_email_template_context 12_weeks_from_today present and correct"""
+    with patch(
+        "accessibility_monitoring_platform.apps.simplified.utils.date"
+    ) as mock_date:
+        mock_date.today.return_value = date(2023, 2, 1)
+        simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+        email_template_context: dict[str, Any] = get_email_template_context(
+            simplified_case=simplified_case
+        )
+
+        assert "12_weeks_from_today" in email_template_context
+        assert email_template_context["12_weeks_from_today"] == date(2023, 4, 26)
+
+
+@pytest.mark.django_db
+def test_get_email_template_context_with_audit():
+    """Test get_email_template_context for Case with test"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Audit.objects.create(simplified_case=simplified_case)
+    email_template_context: dict[str, Any] = get_email_template_context(
+        simplified_case=simplified_case
+    )
+
+    assert email_template_context["case"] == simplified_case
+    assert email_template_context["retest"] is None
+
+    assert "issues_tables" in email_template_context
+    assert "retest_issues_tables" in email_template_context
+
+
+@pytest.mark.django_db
+def test_get_email_template_context_with_retest():
+    """Test get_email_template_context for Case with equality body retest"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
+    email_template_context: dict[str, Any] = get_email_template_context(
+        simplified_case=simplified_case
+    )
+
+    assert email_template_context["case"] == simplified_case
+    assert email_template_context["retest"] == retest

@@ -1,4 +1,6 @@
-{% if case.website_name %}
+{% if case.app_name %}
+{{ case.app_name }} ({{ case.organisation_name }}) {{ subject_suffix }}
+{% elif case.website_name %}
 {{ case.website_name }} ({{ case.organisation_name }}) {{ subject_suffix }}
 {% else %}
 {{ case.organisation_name }} {{ subject_suffix }}
