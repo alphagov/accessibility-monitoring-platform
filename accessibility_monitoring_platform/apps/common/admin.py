@@ -52,9 +52,16 @@ class EmailTemplateAdmin(admin.ModelAdmin):
     list_display = [
         "name",
         "template_name",
+        "is_simplified",
+        "is_detailed",
+        "is_mobile",
         "is_deleted",
+        "position",
     ]
     list_filter = [
+        "is_simplified",
+        "is_detailed",
+        "is_mobile",
         "is_deleted",
     ]
     readonly_fields = [

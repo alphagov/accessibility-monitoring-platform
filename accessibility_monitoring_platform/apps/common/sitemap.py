@@ -1429,7 +1429,6 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 subpages=[
                     CaseEmailTemplatePreviewPlatformPage(
                         name="{instance.name}",
-                        show_flag_name="not_archived",
                         url_name="simplified:email-template-preview",
                     ),
                 ],
@@ -1724,6 +1723,17 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             DetailedCasePlatformPage(
                 name="View and search all case data",
                 url_name="detailed:case-view-and-search",
+            ),
+            DetailedCasePlatformPage(
+                name="Email templates",
+                url_name="detailed:email-template-list",
+                url_kwarg_key="case_id",
+                subpages=[
+                    CaseEmailTemplatePreviewPlatformPage(
+                        name="{instance.name}",
+                        url_name="detailed:email-template-preview",
+                    ),
+                ],
             ),
             DetailedCasePlatformPage(
                 name="PSB Zendesk tickets",
@@ -2059,6 +2069,17 @@ MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             MobileCasePlatformPage(
                 name="View and search all case data",
                 url_name="mobile:case-view-and-search",
+            ),
+            MobileCasePlatformPage(
+                name="Email templates",
+                url_name="mobile:email-template-list",
+                url_kwarg_key="case_id",
+                subpages=[
+                    CaseEmailTemplatePreviewPlatformPage(
+                        name="{instance.name}",
+                        url_name="mobile:email-template-preview",
+                    ),
+                ],
             ),
             MobileCasePlatformPage(
                 name="PSB Zendesk tickets",

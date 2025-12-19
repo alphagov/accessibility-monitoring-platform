@@ -1,0 +1,54 @@
+Subject: {% include 'common/emails/templates/subject-line.html' with subject_suffix='accessibility monitoring' %}
+Dear {{ case.organisation_name }},
+<br>
+<br>
+We emailed you on <span class="amp-email-placeholder">(date of previous email)</span>
+asking for an update on progress made since our initial report on <span class="amp-email-placeholder">(date report was sent)</span>.
+<br>
+<br>
+We have not yet received a response to the request. Please respond to us within 5 working days.
+<br>
+<br>
+After this time, we will review your {{ case.target_of_test }} and information regarding the accessibility of your {{ case.target_of_test }}
+will be sent to the {{ case.get_enforcement_body_display }} ({{ case.enforcement_body|upper }}) who will determine if further action is required.
+<br>
+<br>
+Many thanks,
+<br>
+<br>
+{{ request.user.get_full_name }}
+<br>
+<br>
+<span class="amp-email-placeholder">-----------------------------------------------</span>
+<br>
+<br>
+<h2>Stronger language version</h2>
+<br>
+If we find that we are not getting enough replies then we can go back to the original text we used from simplified testing as follows
+<span class="amp-email-placeholder">(link to the simplified equivalent)</span>:
+<br>
+<br>
+<span class="amp-email-placeholder">-----------------------------------------------</span>
+<br>
+<br>
+We emailed you on <span class="amp-email-placeholder">(date of previous email)</span>
+asking for an update on progress made since our initial report on <span class="amp-email-placeholder">(date report was sent)</span>.
+<br>
+<br>
+We have had no response to the request.
+<br>
+<br>
+This is our final attempt to contact you.
+<br>
+<br>
+If we do not hear from you, information regarding the accessibility of your {{ case.target_of_test }}
+will be sent to the {{ case.enforcement_body|upper }} ({{ case.enforcement_body|upper }}) who will determine if further action is required.
+<br>
+<br>
+You must contact us within 5 working days.
+<br>
+<br>
+Many thanks,
+<br>
+<br>
+{{ request.user.get_full_name }}

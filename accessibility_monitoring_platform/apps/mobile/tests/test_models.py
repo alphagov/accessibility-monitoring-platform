@@ -679,3 +679,41 @@ def test_retest_start_date(
     )
 
     assert mobile_case.retest_start_date == expected_result
+
+
+@pytest.mark.django_db
+def test_email_template_list_url():
+    """Test MobileCase.email_template_list_url is working"""
+    mobile_case: MobileCase = MobileCase.objects.create()
+
+    assert mobile_case.email_template_list_url == "/mobile/1/email-template-list/"
+
+
+@pytest.mark.django_db
+def test_email_template_preview_url_name():
+    """Test MobileCase.email_template_preview_url_name is working"""
+    mobile_case: MobileCase = MobileCase.objects.create()
+
+    assert (
+        mobile_case.email_template_preview_url_name == "mobile:email-template-preview"
+    )
+
+
+def test_target_of_test():
+    """Test MobileCase.target_of_test"""
+    assert MobileCase().target_of_test == "mobile application"
+    assert (
+        MobileCase(ios_test_included=MobileCase.TestIncluded.YES).target_of_test
+        == "iOS mobile application"
+    )
+    assert (
+        MobileCase(android_test_included=MobileCase.TestIncluded.YES).target_of_test
+        == "Android mobile application"
+    )
+    assert (
+        MobileCase(
+            ios_test_included=MobileCase.TestIncluded.YES,
+            android_test_included=MobileCase.TestIncluded.YES,
+        ).target_of_test
+        == "iOS/Android mobile application"
+    )

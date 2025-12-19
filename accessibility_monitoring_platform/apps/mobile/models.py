@@ -541,6 +541,27 @@ class MobileCase(BaseCase):
             android=self.retest_android_disproportionate_burden_information,
         )
 
+    @property
+    def email_template_list_url(self) -> str:
+        return reverse("mobile:email-template-list", kwargs={"case_id": self.id})
+
+    @property
+    def email_template_preview_url_name(self) -> str:
+        return "mobile:email-template-preview"
+
+    @property
+    def target_of_test(self) -> str:
+        if (
+            self.ios_test_included == MobileCase.TestIncluded.YES
+            and self.android_test_included == MobileCase.TestIncluded.YES
+        ):
+            return "iOS/Android mobile application"
+        elif self.ios_test_included == MobileCase.TestIncluded.YES:
+            return "iOS mobile application"
+        elif self.android_test_included == MobileCase.TestIncluded.YES:
+            return "Android mobile application"
+        return "mobile application"
+
 
 class EventHistory(models.Model):
     """Model to record events on platform"""
