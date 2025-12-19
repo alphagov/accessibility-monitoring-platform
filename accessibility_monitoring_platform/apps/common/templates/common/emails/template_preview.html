@@ -9,7 +9,7 @@
             {% include 'common/breadcrumb_home.html' %}
             {% include 'common/breadcrumb_case.html' %}
             <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="{% url 'simplified:email-template-list' case.id %}">Email templates</a>
+                <a class="govuk-breadcrumbs__link" href="{{ case.email_template_list_url }}">Email templates</a>
             </li>
             {% include 'common/breadcrumb_page.html' %}
         </ol>
@@ -31,7 +31,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <div id="email-text" class="amp-email-template">
-                {% include email_template_name %}
+                {% include email_template.template_path %}
             </div>
         </div>
     </div>

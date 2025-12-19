@@ -1,0 +1,20 @@
+Subject: {% include 'common/emails/templates/subject-line.html' with subject_suffix='accessibility monitoring' %}
+Dear {{ case.organisation_name }},
+<br>
+<br>
+Many thanks for your response.
+<br>
+<br>
+We will review the information and myself or another team member will be in contact if we need any further details.
+<br>
+<br>
+Using the information provided, a sample of your site will be tested against WCAG 2.2 level AA standard. You will receive a report soon after this.
+<br>
+<br>
+Please note that we currently have a small backlog of work, so it may be some time before you hear from us. If you would like an update on the progress of your case, please feel free to get in touch at any time.
+<br>
+<br>
+Many thanks,
+<br>
+<br>
+{{ request.user.get_full_name }}

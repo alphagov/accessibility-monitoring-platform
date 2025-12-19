@@ -1,0 +1,96 @@
+Subject: {% include 'common/emails/templates/subject-line.html' with subject_suffix='accessibility monitoring' %}
+Dear {{ case.organisation_name }},
+<br>
+<br>
+My name is {{ request.user.get_full_name }} from the accessibility monitoring team at Government Digital Service.
+<br>
+<br>
+We initially emailed {{ case.organisation_name }} on <span class="amp-email-placeholder">(date of first email)</span> via <span class="amp-email-placeholder">(original email address)</span> about meeting the accessibility regulations.
+<a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps">https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps</a>
+<br>
+<br>
+<span class="amp-email-placeholder">[Start: If we’ve had an acknowledgement] ------------------------------------</span>
+<br>
+<br>
+We are following up as the initial 2 week deadline has passed for you to send information about your {{ case.target_of_test }}.
+<br>
+<br>
+<span class="amp-email-placeholder">[End:  If we’ve had an acknowledgement] ------------------------------------</span>
+<br>
+<br>
+<span class="amp-email-placeholder">[Start: If we’ve had no response] ------------------------------------</span>
+<br>
+<br>
+We are following up as we have not received any response from your organisation with information about your {{ case.target_of_test }}.
+<br>
+<br>
+<span class="amp-email-placeholder">[Start: If we’ve tried contacting multiple times] ------------------------------------</span>
+<br>
+<br>
+We have also attempted to contact your organisation as follows:
+<ul>
+<li>Emailed <span class="amp-email-placeholder">(email address(es))</span> on <span class="amp-email-placeholder">(date)</span></li>
+<li>Emailed <span class="amp-email-placeholder">(email address(es))</span> on <span class="amp-email-placeholder">(date)</span></li>
+<li><span class="amp-email-placeholder">(Also include any other contact attempts in the list for example contact forms, phone calls and social media)</span></li>
+</ul>
+<br>
+All emails were sent from this address.
+<br>
+<br>
+<span class="amp-email-placeholder">[End: If we tried contacting multiple times] ------------------------------------</span>
+<br>
+<br>
+<span class="amp-email-placeholder">[End: If we’ve had no response] ------------------------------------</span>
+<br>
+<br>
+You need to send us the following information:
+<br>
+<br>
+<span class="amp-email-placeholder">[For websites]</span>
+<ul>
+<li>A short overview of the website and any other information you think is relevant, for example a previous accessibility audit</li>
+<li>Analytics on the most popular pages, forms and services</li>
+<li>Examples of different templates used across the site</li>
+</ul>
+<br>
+<span class="amp-email-placeholder">[For services]</span>
+<ul>
+<li>A short overview of the service, how many users it has, and any information you have on how many are estimated to have disabilities</li>
+<li>A copy of your latest accessibility audit report and a summary of any fixes made since then</li>
+<li>Analytics on the most viewed pages or user journeys through the service</li>
+<li>Login access for protected or account areas of the service, or access to a test environment when using the live service is not possible</li>
+<li>Any test data that can be used to submit forms</li>
+<li>Examples of different templates used across the service</li>
+<li>Any disproportionate burden assessments, if applicable</li>
+</ul>
+<br>
+<span class="amp-email-placeholder">[For mobile apps]</span>
+<ul>
+<li>A short overview of the application and any other information you think is relevant, for example a previous accessibility audit</li>
+<li>A summary of the main user journeys through the app</li>
+<li>Examples of different template styles used across the app</li>
+<li>Contact details for iOS and Android app teams </li>
+</ul>
+<br>
+If you cannot provide this information you must pass this email to the appropriate team.
+<br>
+<br>
+The information must be provided within 1 week, by the end of {{ 7_days_from_now|amp_date }}.
+<br>
+<br>
+<span class="amp-email-placeholder">[Start: add when sending the final chaser] ------------------------------------</span>
+<br>
+<br>
+This is our final attempt to contact your organisation. If we do not hear from you we will pass on details to the {{ case.get_enforcement_body_display }} ({{ case.enforcement_body|upper }}) who are the enforcement body for the accessibility regulations.
+<br>
+<br>
+<span class="amp-email-placeholder">[End: add when sending the final chaser] ------------------------------------</span>
+<br>
+<br>
+We look forward to receiving your response.
+<br>
+<br>
+Many thanks,
+<br>
+<br>
+{{ request.user.get_full_name }}

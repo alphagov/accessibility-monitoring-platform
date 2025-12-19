@@ -8,6 +8,8 @@ from django.urls.resolvers import URLPattern
 
 from .views import (
     CaseCloseUpdateView,
+    CaseEmailTemplateListView,
+    CaseEmailTemplatePreviewDetailView,
     CaseRecommendationUpdateView,
     CaseSearchView,
     CaseZendeskTicketsDetailView,
@@ -267,6 +269,16 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-unresponsive-psb/",
         login_required(UnresponsivePSBUpdateView.as_view()),
         name="edit-unresponsive-psb",
+    ),
+    path(
+        "<int:case_id>/email-template-list/",
+        login_required(CaseEmailTemplateListView.as_view()),
+        name="email-template-list",
+    ),
+    path(
+        "<int:case_id>/<int:pk>/email-template-preview/",
+        login_required(CaseEmailTemplatePreviewDetailView.as_view()),
+        name="email-template-preview",
     ),
     path(
         "<int:pk>/history/",

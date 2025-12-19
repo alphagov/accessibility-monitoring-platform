@@ -21,11 +21,10 @@ from ..audits.utils import get_audit_summary_context, report_data_updated
 from ..cases.csv_export import populate_equality_body_columns
 from ..cases.forms import CaseSearchForm
 from ..cases.models import TestType
-from ..cases.utils import find_duplicate_cases
+from ..cases.utils import filter_cases, find_duplicate_cases
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 from ..common.csv_export import EqualityBodyCSVColumn
-from ..common.email_template_utils import get_email_template_context
 from ..common.mark_deleted_util import get_id_from_button_name
 from ..common.models import EmailTemplate
 from ..common.sitemap import PlatformPage, Sitemap, get_platform_page_by_url_name
@@ -81,7 +80,6 @@ from .forms import (
     SimplifiedContactUpdateForm,
     SimplifiedEqualityBodyCorrespondenceCreateForm,
     SimplifiedManageContactDetailsUpdateForm,
-    SimplifiedPostCaseUpdateForm,
     SimplifiedZendeskTicketConfirmDeleteUpdateForm,
     SimplifiedZendeskTicketCreateUpdateForm,
 )
@@ -98,7 +96,7 @@ from .models import (
 from .utils import (
     download_simplified_cases,
     download_simplified_feedback_survey_cases,
-    filter_cases,
+    get_email_template_context,
     get_simplified_case_detail_sections,
     record_case_event,
     record_simplified_model_create_event,
@@ -823,22 +821,6 @@ class CaseCloseUpdateView(CaseUpdateView):
         return context
 
 
-class PostCaseUpdateView(CaseUpdateView):
-    """
-    View to record post case notes
-    """
-
-    form_class: type[SimplifiedPostCaseUpdateForm] = SimplifiedPostCaseUpdateForm
-    template_name: str = "simplified/forms/post_case.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_exit" in self.request.POST:
-            case_pk: dict[str, int] = {"pk": self.object.id}
-            return reverse("simplified:case-detail", kwargs=case_pk)
-        return super().get_success_url()
-
-
 class CaseDeactivateUpdateView(CaseUpdateView):
     """
     View to deactivate case
@@ -1225,50 +1207,33 @@ class ZendeskTicketConfirmDeleteUpdateView(ZendeskTicketUpdateView):
 class CaseEmailTemplateListView(
     HideCaseNavigationMixin, ShowGoBackJSWidgetMixin, ListView
 ):
-    """
-    View of list of email templates for the case.
-    """
+    """View of list of email templates for the case"""
 
     model: type[EmailTemplate] = EmailTemplate
-    template_name: str = "simplified/emails/template_list.html"
+    template_name: str = "common/emails/template_list.html"
     context_object_name: str = "email_templates"
 
-    def get_context_data(self, **kwargs) -> dict[str, Any]:
-        """Add current case to context"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        self.simplified_case = get_object_or_404(
-            SimplifiedCase, id=self.kwargs.get("case_id")
-        )
-        context["case"] = self.simplified_case
-        return context
-
-    def get_queryset(self) -> QuerySet[SimplifiedCase]:
-        """Add filters to queryset"""
-        return EmailTemplate.objects.filter(is_deleted=False)
+    def get_queryset(self) -> QuerySet[EmailTemplate]:
+        return EmailTemplate.objects.filter(is_deleted=False, is_simplified=True)
 
 
 class CaseEmailTemplatePreviewDetailView(
     HideCaseNavigationMixin, ShowGoBackJSWidgetMixin, DetailView
 ):
-    """
-    View email template populated with case data
-    """
+    """View email template populated with case data"""
 
     model: type[EmailTemplate] = EmailTemplate
-    template_name: str = "simplified/emails/template_preview.html"
+    template_name: str = "common/emails/template_preview.html"
     context_object_name: str = "email_template"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
-        """Add case and email template to context"""
+        """Add case and email template context to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
         simplified_case: SimplifiedCase = get_object_or_404(
             SimplifiedCase, id=self.kwargs.get("case_id")
         )
         extra_context: dict[str, Any] = get_email_template_context(
             simplified_case=simplified_case
-        )
-        context["email_template_name"] = (
-            f"common/emails/templates/{self.object.template_name}.html"
         )
         return {**extra_context, **context}
 

@@ -5,6 +5,7 @@ Utility functions for cases app
 import copy
 import json
 from collections.abc import Callable
+from datetime import date, timedelta
 from functools import partial
 from typing import Any
 
@@ -24,6 +25,7 @@ from ..common.form_extract_utils import (
 )
 from ..common.sitemap import PlatformPageGroup, Sitemap
 from ..common.utils import build_filters, diff_model_fields
+from ..reports.utils import build_issues_tables
 from .csv_export import (
     SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
     SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
@@ -45,6 +47,10 @@ CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
     ("sector", "sector_id"),
     ("subcategory", "subcategory_id"),
 ]
+
+
+ONE_WEEK_IN_DAYS: int = 7
+TWELVE_WEEKS_IN_DAYS: int = 12 * ONE_WEEK_IN_DAYS
 
 
 def get_simplified_case_detail_sections(
@@ -97,90 +103,6 @@ def get_simplified_case_detail_sections(
                 )
             )
     return view_sections
-
-
-def filter_cases(form) -> QuerySet[SimplifiedCase]:  # noqa: C901
-    """Return a queryset of SimplifiedCases filtered by the values in CaseSearchForm"""
-    filters: dict = {}
-    search_query = Q()
-    sort_by: str = Sort.NEWEST
-
-    if hasattr(form, "cleaned_data"):
-        field_and_filter_names: list[tuple[str, str]] = copy.copy(
-            CASE_FIELD_AND_FILTER_NAMES
-        )
-        if "date_type" in form.cleaned_data:
-            date_range_field: str = form.cleaned_data["date_type"]
-            if date_range_field.startswith("simplifiedcase__"):
-                # Form is for BaseCase so remove simplifiedcase prefix
-                # as this filter is on SimplifiedCase
-                date_range_field = date_range_field[len("simplifiedcase__") :]
-            field_and_filter_names.append(("date_start", f"{date_range_field}__gte"))
-            field_and_filter_names.append(("date_end", f"{date_range_field}__lte"))
-        filters: dict[str, Any] = build_filters(
-            cleaned_data=form.cleaned_data,
-            field_and_filter_names=field_and_filter_names,
-        )
-        sort_by: str = form.cleaned_data.get("sort_by", Sort.NEWEST)
-        if form.cleaned_data.get("case_search"):
-            search: str = form.cleaned_data["case_search"]
-            if (
-                search.isdigit()
-            ):  # if its just a number, it presumes its an ID and returns that case
-                search_query = Q(case_number=search)
-            else:
-                search_query = (
-                    Q(  # pylint: disable=unsupported-binary-operation
-                        organisation_name__icontains=search
-                    )
-                    | Q(home_page_url__icontains=search)
-                    | Q(psb_location__icontains=search)
-                    | Q(sector__name__icontains=search)
-                    | Q(parental_organisation_name__icontains=search)
-                    | Q(website_name__icontains=search)
-                    | Q(subcategory__name__icontains=search)
-                    | Q(case_identifier__icontains=search)
-                )
-        for filter_name in [
-            "is_complaint",
-            "enforcement_body",
-            "recommendation_for_enforcement",
-        ]:
-            filter_value: str = form.cleaned_data.get(filter_name, "")
-            if filter_value != "":
-                filters[filter_name] = filter_value
-
-    if str(filters.get("casestatus__status", "")) == CaseStatus.Status.READY_TO_QA:
-        filters["qa_status"] = SimplifiedCase.QAStatus.UNASSIGNED
-        del filters["casestatus__status"]
-
-    if "status" in filters:
-        filters["casestatus__status"] = filters["status"]
-        del filters["status"]
-
-    # Auditor and reviewer may be filtered by unassigned
-    if "auditor_id" in filters and filters["auditor_id"] == "none":
-        filters["auditor_id"] = None
-    if "reviewer_id" in filters and filters["reviewer_id"] == "none":
-        filters["reviewer_id"] = None
-
-    if not sort_by:
-        return (
-            SimplifiedCase.objects.filter(search_query, **filters)
-            .annotate(
-                position_unassigned_first=DjangoCase(
-                    When(casestatus__status=CaseStatus.Status.UNASSIGNED, then=0),
-                    default=1,
-                )
-            )
-            .order_by("position_unassigned_first", "-id")
-            .select_related("auditor", "reviewer")
-        )
-    return (
-        SimplifiedCase.objects.filter(search_query, **filters)
-        .order_by(sort_by)
-        .select_related("auditor", "reviewer")
-    )
 
 
 def record_case_event(
@@ -370,3 +292,22 @@ def download_simplified_feedback_survey_cases(
     )
     response["Content-Disposition"] = f"attachment; filename={filename}"
     return response
+
+
+def get_email_template_context(simplified_case: SimplifiedCase) -> dict[str, Any]:
+    """Collect data to add to context of email template previews"""
+    context: dict[str, Any] = {}
+    context["12_weeks_from_today"] = date.today() + timedelta(days=TWELVE_WEEKS_IN_DAYS)
+    context["case"] = simplified_case
+    context["retest"] = simplified_case.retests.first()
+    if simplified_case.audit is not None:
+        context["issues_tables"] = build_issues_tables(
+            pages=simplified_case.audit.testable_pages,
+            check_results_attr="unfixed_check_results",
+        )
+        context["retest_issues_tables"] = build_issues_tables(
+            pages=simplified_case.audit.retestable_pages,
+            use_retest_notes=True,
+            check_results_attr="unfixed_check_results",
+        )
+    return context

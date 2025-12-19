@@ -345,6 +345,20 @@ class DetailedCase(BaseCase):
             return "Yes"
         return "No"
 
+    @property
+    def email_template_list_url(self) -> str:
+        return reverse("detailed:email-template-list", kwargs={"case_id": self.id})
+
+    @property
+    def email_template_preview_url_name(self) -> str:
+        return "detailed:email-template-preview"
+
+    @property
+    def target_of_test(self) -> str:
+        if self.service_type == DetailedCase.ServiceType.WEBSITE:
+            return "website"
+        return "service"
+
 
 class DetailedEventHistory(models.Model):
     """Model to record events on platform"""

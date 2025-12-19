@@ -2,6 +2,7 @@
 Views for cases app
 """
 
+from datetime import date, timedelta
 from typing import Any
 
 from django.contrib import messages
@@ -13,6 +14,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.list import ListView
 
 from ..cases.csv_export import populate_equality_body_columns
 from ..cases.forms import CaseSearchForm
@@ -21,10 +23,12 @@ from ..cases.utils import filter_cases, find_duplicate_cases
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 from ..common.csv_export import EqualityBodyCSVColumn
+from ..common.models import EmailTemplate
 from ..common.sitemap import Sitemap
 from ..common.utils import (
     add_12_weeks_to_date,
     extract_domain_from_url,
+    get_detailed_mobile_email_template_context,
     replace_search_key_with_case_search,
 )
 from ..common.views import (
@@ -808,3 +812,33 @@ def export_equality_body_cases(request: HttpRequest) -> HttpResponse:
     return download_detailed_equality_body_cases(
         cases=filter_cases(form=case_search_form)
     )
+
+
+class CaseEmailTemplateListView(
+    HideCaseNavigationMixin, ShowGoBackJSWidgetMixin, ListView
+):
+    """View of list of email templates for the case"""
+
+    model: type[EmailTemplate] = EmailTemplate
+    template_name: str = "common/emails/template_list.html"
+    context_object_name: str = "email_templates"
+
+    def get_queryset(self) -> QuerySet[EmailTemplate]:
+        return EmailTemplate.objects.filter(is_deleted=False, is_detailed=True)
+
+
+class CaseEmailTemplatePreviewDetailView(
+    HideCaseNavigationMixin, ShowGoBackJSWidgetMixin, DetailView
+):
+    """View email template populated with case data"""
+
+    model: type[EmailTemplate] = EmailTemplate
+    template_name: str = "common/emails/template_preview.html"
+    context_object_name: str = "email_template"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add case and email template context to context"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        context["case"] = get_object_or_404(DetailedCase, id=self.kwargs.get("case_id"))
+        extra_context = get_detailed_mobile_email_template_context()
+        return {**extra_context, **context}

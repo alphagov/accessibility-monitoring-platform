@@ -1,0 +1,22 @@
+Subject: {% include 'common/emails/templates/subject-line.html' with subject_suffix='accessibility monitoring' %}
+Dear {{ case.organisation_name }},
+<br>
+<br>
+We recently sent you an email on <span class="amp-email-placeholder">(date of previous email)</span>
+with an accessibility report for your {{ case.target_of_test }} to help you meet the regulations:
+<a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps">https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps</a>
+<br>
+<br>
+We are following up as we have not received any response from you.
+<br>
+<br>
+Please respond within the next 7 days to acknowledge receipt of the report.
+<br>
+<br>
+We look forward to receiving your response.
+<br>
+<br>
+Many thanks,
+<br>
+<br>
+{{ request.user.get_full_name }}

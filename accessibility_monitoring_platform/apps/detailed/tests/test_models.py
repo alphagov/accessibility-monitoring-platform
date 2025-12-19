@@ -378,3 +378,34 @@ def test_contact_email():
     )
 
     assert contact.email == CONTACT_DETAILS
+
+
+@pytest.mark.django_db
+def test_email_template_list_url():
+    """Test DetailedCase.email_template_list_url is working"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+
+    assert detailed_case.email_template_list_url == "/detailed/1/email-template-list/"
+
+
+@pytest.mark.django_db
+def test_email_template_preview_url_name():
+    """Test DetailedCase.email_template_preview_url_name is working"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+
+    assert (
+        detailed_case.email_template_preview_url_name
+        == "detailed:email-template-preview"
+    )
+
+
+def test_target_of_test():
+    """Test DetailedCase.target_of_test"""
+    assert (
+        DetailedCase(service_type=DetailedCase.ServiceType.WEBSITE).target_of_test
+        == "website"
+    )
+    assert (
+        DetailedCase(service_type=DetailedCase.ServiceType.SERVICE).target_of_test
+        == "service"
+    )

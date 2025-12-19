@@ -1913,7 +1913,6 @@ def test_no_psb_response_redirects_to_enforcement_recommendation(admin_client):
         "simplified:edit-review-changes",
         "simplified:edit-enforcement-recommendation",
         "simplified:edit-case-close",
-        "simplified:edit-post-case",
         "simplified:status-workflow",
         "simplified:edit-statement-enforcement",
         "simplified:edit-equality-body-metadata",
