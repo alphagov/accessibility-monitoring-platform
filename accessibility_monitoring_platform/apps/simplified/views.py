@@ -21,7 +21,7 @@ from ..audits.utils import get_audit_summary_context, report_data_updated
 from ..cases.csv_export import populate_equality_body_columns
 from ..cases.forms import CaseSearchForm
 from ..cases.models import TestType
-from ..cases.utils import find_duplicate_cases
+from ..cases.utils import filter_cases, find_duplicate_cases
 from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 from ..common.csv_export import EqualityBodyCSVColumn
@@ -80,7 +80,6 @@ from .forms import (
     SimplifiedContactUpdateForm,
     SimplifiedEqualityBodyCorrespondenceCreateForm,
     SimplifiedManageContactDetailsUpdateForm,
-    SimplifiedPostCaseUpdateForm,
     SimplifiedZendeskTicketConfirmDeleteUpdateForm,
     SimplifiedZendeskTicketCreateUpdateForm,
 )
@@ -97,7 +96,6 @@ from .models import (
 from .utils import (
     download_simplified_cases,
     download_simplified_feedback_survey_cases,
-    filter_cases,
     get_email_template_context,
     get_simplified_case_detail_sections,
     record_case_event,
@@ -821,22 +819,6 @@ class CaseCloseUpdateView(CaseUpdateView):
         )
         context["required_data_missing_columns"] = required_data_missing_columns
         return context
-
-
-class PostCaseUpdateView(CaseUpdateView):
-    """
-    View to record post case notes
-    """
-
-    form_class: type[SimplifiedPostCaseUpdateForm] = SimplifiedPostCaseUpdateForm
-    template_name: str = "simplified/forms/post_case.html"
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "save_exit" in self.request.POST:
-            case_pk: dict[str, int] = {"pk": self.object.id}
-            return reverse("simplified:case-detail", kwargs=case_pk)
-        return super().get_success_url()
 
 
 class CaseDeactivateUpdateView(CaseUpdateView):

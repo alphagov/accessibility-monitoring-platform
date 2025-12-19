@@ -37,7 +37,6 @@ const loggedInUrls = [
   '/simplified/1/edit-case-close/',
   '/simplified/1/edit-case-metadata/',
   '/simplified/1/edit-no-psb-response/',
-  '/simplified/1/edit-post-case/',
   '/simplified/1/edit-qa-auditor/',
   '/simplified/1/edit-qa-comments/',
   '/simplified/1/edit-qa-approval/',

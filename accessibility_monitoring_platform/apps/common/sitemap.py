@@ -661,9 +661,6 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 name="Deactivate case", url_name="simplified:deactivate-case"
             ),
             SimplifiedCasePlatformPage(
-                name="Post case summary", url_name="simplified:edit-post-case"
-            ),
-            SimplifiedCasePlatformPage(
                 name="Reactivate case", url_name="simplified:reactivate-case"
             ),
             SimplifiedCasePlatformPage(
