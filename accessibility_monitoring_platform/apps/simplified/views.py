@@ -26,7 +26,7 @@ from ..comments.models import Comment
 from ..comments.utils import add_comment_notification
 from ..common.csv_export import EqualityBodyCSVColumn
 from ..common.mark_deleted_util import get_id_from_button_name
-from ..common.models import EmailTemplate
+from ..common.models import Boolean, EmailTemplate
 from ..common.sitemap import PlatformPage, Sitemap, get_platform_page_by_url_name
 from ..common.utils import (
     amp_format_date,
@@ -605,6 +605,24 @@ class CaseNoPSBResponseUpdateView(
         SimplifiedCaseNoPSBContactUpdateForm
     )
     template_name: str = "simplified/forms/no_psb_response.html"
+
+    def get_success_url(self) -> str:
+        """Return to the list of contact details"""
+        simplified_case: SimplifiedCase = self.object
+        if (
+            simplified_case.no_psb_contact == Boolean.YES
+            and simplified_case.audit is not None
+        ):
+            if simplified_case.show_start_12_week_retest is True:
+                return reverse(
+                    "simplified:edit-twelve-week-retest",
+                    kwargs={"pk": simplified_case.id},
+                )
+            return reverse(
+                "audits:edit-audit-retest-statement-pages",
+                kwargs={"pk": simplified_case.audit.id},
+            )
+        return super().get_success_url()
 
 
 class CaseReportSentOnUpdateView(CaseUpdateView):
