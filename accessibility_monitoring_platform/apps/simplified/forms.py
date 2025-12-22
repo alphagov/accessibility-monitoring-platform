@@ -342,7 +342,6 @@ class SimplifiedCaseRequestContactDetailsUpdateForm(VersionForm):
     seven_day_no_contact_request_sent_to = AMPCharFieldWide(
         label="Initial request sent to"
     )
-    correspondence_notes = AMPTextField(label="Correspondence notes")
     request_contact_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -351,7 +350,6 @@ class SimplifiedCaseRequestContactDetailsUpdateForm(VersionForm):
             "version",
             "seven_day_no_contact_email_sent_date",
             "seven_day_no_contact_request_sent_to",
-            "correspondence_notes",
             "request_contact_details_complete_date",
         ]
 
@@ -368,7 +366,6 @@ class SimplifiedCaseOneWeekContactDetailsUpdateForm(VersionForm):
         label="No contact details 1-week chaser due date"
     )
     no_contact_one_week_chaser_sent_to = AMPCharFieldWide(label="1-week chaser sent to")
-    correspondence_notes = AMPTextField(label="Correspondence notes")
     one_week_contact_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -378,7 +375,6 @@ class SimplifiedCaseOneWeekContactDetailsUpdateForm(VersionForm):
             "no_contact_one_week_chaser_sent_date",
             "no_contact_one_week_chaser_due_date",
             "no_contact_one_week_chaser_sent_to",
-            "correspondence_notes",
             "one_week_contact_details_complete_date",
         ]
 
@@ -397,7 +393,6 @@ class SimplifiedCaseFourWeekContactDetailsUpdateForm(VersionForm):
     no_contact_four_week_chaser_sent_to = AMPCharFieldWide(
         label="4-week chaser sent to"
     )
-    correspondence_notes = AMPTextField(label="Correspondence notes")
     four_week_contact_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -407,7 +402,6 @@ class SimplifiedCaseFourWeekContactDetailsUpdateForm(VersionForm):
             "no_contact_four_week_chaser_sent_date",
             "no_contact_four_week_chaser_due_date",
             "no_contact_four_week_chaser_sent_to",
-            "correspondence_notes",
             "four_week_contact_details_complete_date",
         ]
 
@@ -422,7 +416,6 @@ class SimplifiedCaseReportSentOnUpdateForm(VersionForm):
         help_text="This field affects the case status",
     )
     report_sent_to_email = AMPCharFieldWide(label="Report sent to (email address)")
-    correspondence_notes = AMPTextField(label="Correspondence notes")
     report_sent_on_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -431,7 +424,6 @@ class SimplifiedCaseReportSentOnUpdateForm(VersionForm):
             "version",
             "report_sent_date",
             "report_sent_to_email",
-            "correspondence_notes",
             "report_sent_on_complete_date",
         ]
 
@@ -450,7 +442,6 @@ class SimplifiedCaseReportOneWeekFollowupUpdateForm(VersionForm):
     one_week_followup_sent_to_email = AMPCharFieldWide(
         label="One week follow-up sent to (email address)"
     )
-    correspondence_notes = AMPTextField(label="Correspondence notes")
     one_week_followup_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -460,7 +451,6 @@ class SimplifiedCaseReportOneWeekFollowupUpdateForm(VersionForm):
             "report_followup_week_1_sent_date",
             "report_followup_week_1_due_date",
             "one_week_followup_sent_to_email",
-            "correspondence_notes",
             "one_week_followup_complete_date",
         ]
 
@@ -487,7 +477,6 @@ class SimplifiedCaseReportFourWeekFollowupUpdateForm(VersionForm):
     four_week_followup_sent_to_email = AMPCharFieldWide(
         label="Four week follow-up sent to (email address)"
     )
-    correspondence_notes = AMPTextField(label="Correspondence notes")
     four_week_followup_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -497,7 +486,6 @@ class SimplifiedCaseReportFourWeekFollowupUpdateForm(VersionForm):
             "report_followup_week_4_sent_date",
             "report_followup_week_4_due_date",
             "four_week_followup_sent_to_email",
-            "correspondence_notes",
             "four_week_followup_complete_date",
         ]
 
@@ -522,7 +510,6 @@ class SimplifiedCaseReportAcknowledgedUpdateForm(VersionForm):
     report_acknowledged_by_email = AMPCharFieldWide(
         label="Report acknowledged by (email address)"
     )
-    correspondence_notes = AMPTextField(label="Correspondence notes")
     report_acknowledged_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -531,7 +518,6 @@ class SimplifiedCaseReportAcknowledgedUpdateForm(VersionForm):
             "version",
             "report_acknowledged_date",
             "report_acknowledged_by_email",
-            "correspondence_notes",
             "report_acknowledged_complete_date",
         ]
 
@@ -551,9 +537,6 @@ class SimplifiedCaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
     twelve_week_update_request_sent_to_email = AMPCharFieldWide(
         label="12-week request sent to (email address)"
     )
-    twelve_week_correspondence_notes = AMPTextField(
-        label="12-week correspondence notes"
-    )
     twelve_week_update_requested_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -563,7 +546,6 @@ class SimplifiedCaseTwelveWeekUpdateRequestedUpdateForm(VersionForm):
             "twelve_week_update_requested_date",
             "report_followup_week_12_due_date",
             "twelve_week_update_request_sent_to_email",
-            "twelve_week_correspondence_notes",
             "twelve_week_update_requested_complete_date",
         ]
 
@@ -582,9 +564,6 @@ class SimplifiedCaseOneWeekFollowup12WeekUpdateForm(VersionForm):
     twelve_week_1_week_chaser_sent_to_email = AMPCharFieldWide(
         label="One week follow-up for 12-week update sent to (email address)"
     )
-    twelve_week_correspondence_notes = AMPTextField(
-        label="12-week correspondence notes"
-    )
     one_week_followup_final_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -594,7 +573,6 @@ class SimplifiedCaseOneWeekFollowup12WeekUpdateForm(VersionForm):
             "twelve_week_1_week_chaser_sent_date",
             "twelve_week_1_week_chaser_due_date",
             "twelve_week_1_week_chaser_sent_to_email",
-            "twelve_week_correspondence_notes",
             "one_week_followup_final_complete_date",
         ]
 
@@ -627,9 +605,6 @@ class SimplifiedCaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
     twelve_week_correspondence_acknowledged_by_email = AMPCharFieldWide(
         label="12-week update request acknowledged by (email address)"
     )
-    twelve_week_correspondence_notes = AMPTextField(
-        label="12-week correspondence notes"
-    )
     twelve_week_update_request_ack_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -638,7 +613,6 @@ class SimplifiedCaseTwelveWeekUpdateAcknowledgedUpdateForm(VersionForm):
             "version",
             "twelve_week_correspondence_acknowledged_date",
             "twelve_week_correspondence_acknowledged_by_email",
-            "twelve_week_correspondence_notes",
             "twelve_week_update_request_ack_complete_date",
         ]
 
@@ -656,16 +630,12 @@ class SimplifiedCaseNoPSBContactUpdateForm(VersionForm):
             attrs={"label": "Mark the PSB as unresponsive to this case"}
         ),
     )
-    no_psb_contact_notes = AMPTextField(
-        label="Public sector body is unresponsive notes"
-    )
 
     class Meta:
         model = SimplifiedCase
         fields = [
             "version",
             "no_psb_contact",
-            "no_psb_contact_notes",
         ]
 
 
@@ -690,7 +660,6 @@ class SimplifiedCaseReviewChangesUpdateForm(VersionForm):
     """
 
     retested_website_date = AMPDateField(label="Retested website? · Included in export")
-    psb_progress_notes = AMPTextField(label="Case progress notes")
     is_ready_for_final_decision = AMPChoiceRadioField(
         label="Is this case ready for final decision?",
         help_text="This field affects the case status",
@@ -703,7 +672,6 @@ class SimplifiedCaseReviewChangesUpdateForm(VersionForm):
         fields = [
             "version",
             "retested_website_date",
-            "psb_progress_notes",
             "is_ready_for_final_decision",
             "review_changes_complete_date",
         ]
@@ -801,14 +769,12 @@ class SimplifiedCaseStatementEnforcementUpdateForm(VersionForm):
     """
 
     post_case_notes = AMPTextField(label="Summary of events after the case was closed")
-    psb_appeal_notes = AMPTextField(label="Public sector body appeal notes")
 
     class Meta:
         model = SimplifiedCase
         fields = [
             "version",
             "post_case_notes",
-            "psb_appeal_notes",
         ]
 
 
@@ -833,7 +799,6 @@ class SimplifiedCaseEqualityBodyMetadataUpdateForm(VersionForm):
     enforcement_body_finished_date = AMPDateField(
         label="Date equality body completed the case",
     )
-    equality_body_notes = AMPTextField(label="Equality body notes")
 
     class Meta:
         model = SimplifiedCase
@@ -844,7 +809,6 @@ class SimplifiedCaseEqualityBodyMetadataUpdateForm(VersionForm):
             "enforcement_body_case_owner",
             "enforcement_body_closed_case",
             "enforcement_body_finished_date",
-            "equality_body_notes",
         ]
 
 

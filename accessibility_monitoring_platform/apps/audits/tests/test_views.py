@@ -1919,10 +1919,6 @@ def test_website_decision_saved_on_case(admin_client):
         updated_case.compliance.website_compliance_state_initial
         == WEBSITE_COMPLIANCE_STATE
     )
-    assert (
-        updated_case.compliance.website_compliance_notes_initial
-        == WEBSITE_COMPLIANCE_NOTES
-    )
 
 
 @pytest.mark.parametrize(
@@ -2112,10 +2108,6 @@ def test_statement_decision_saved_on_case(admin_client):
     assert (
         updated_case.compliance.statement_compliance_state_initial
         == STATEMENT_COMPLIANCE_STATE
-    )
-    assert (
-        updated_case.compliance.statement_compliance_notes_initial
-        == STATEMENT_COMPLIANCE_NOTES
     )
 
 
@@ -2442,7 +2434,6 @@ def test_retest_website_decision_saved_on_case(admin_client):
             "save": "Button value",
             "case-compliance-version": audit.simplified_case.compliance.version,
             "case-compliance-website_compliance_state_12_week": WEBSITE_COMPLIANCE_STATE,
-            "case-compliance-website_compliance_notes_12_week": WEBSITE_COMPLIANCE_NOTES,
         },
     )
 
@@ -2455,10 +2446,6 @@ def test_retest_website_decision_saved_on_case(admin_client):
     assert (
         updated_case.compliance.website_compliance_state_12_week
         == WEBSITE_COMPLIANCE_STATE
-    )
-    assert (
-        updated_case.compliance.website_compliance_notes_12_week
-        == WEBSITE_COMPLIANCE_NOTES
     )
 
 
@@ -2474,7 +2461,6 @@ def test_retest_statement_decision_saved_on_case(admin_client):
             "save": "Button value",
             "case-compliance-version": audit.simplified_case.compliance.version,
             "case-compliance-statement_compliance_state_12_week": STATEMENT_COMPLIANCE_STATE,
-            "case-compliance-statement_compliance_notes_12_week": STATEMENT_COMPLIANCE_NOTES,
         },
     )
 
@@ -2487,10 +2473,6 @@ def test_retest_statement_decision_saved_on_case(admin_client):
     assert (
         updated_case.compliance.statement_compliance_state_12_week
         == STATEMENT_COMPLIANCE_STATE
-    )
-    assert (
-        updated_case.compliance.statement_compliance_notes_12_week
-        == STATEMENT_COMPLIANCE_NOTES
     )
 
 

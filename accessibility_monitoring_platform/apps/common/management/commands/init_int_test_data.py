@@ -50,6 +50,7 @@ from ....simplified.models import Contact as SimplifiedContact
 from ....simplified.models import (
     EqualityBodyCorrespondence,
     SimplifiedCase,
+    SimplifiedCaseHistory,
     SimplifiedEventHistory,
     ZendeskTicket,
 )
@@ -115,6 +116,7 @@ class Command(BaseCommand):
                 UserCacheUniqueHash,
                 CaseCompliance,
                 CaseStatus,
+                SimplifiedCaseHistory,
             ]
         )
         delete_from_tables(

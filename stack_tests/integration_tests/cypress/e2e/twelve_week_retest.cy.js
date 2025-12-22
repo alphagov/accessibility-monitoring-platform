@@ -1,10 +1,7 @@
 /* global cy before Cypress */
 
-const retestMetadataNote = '12-week retest metadata note'
 const retestErrorText = 'Retest error note'
-const websiteComplianceNote = 'Website compliance note'
 const statementCheckResultRetestComment = 'Statement check result retest comment'
-const statementComplianceNote = 'Accessibility statement compliance note'
 
 describe('12-week retest', () => {
   beforeEach(() => {
@@ -16,12 +13,10 @@ describe('12-week retest', () => {
     cy.contains('12-week WCAG test').click()
     cy.contains(/^12-week retest metadata$/).click()
     cy.contains('Populate with today\'s date').click()
-    cy.get('[name="audit_retest_metadata_notes"]').clear().type(retestMetadataNote)
     cy.get('[name="audit_retest_metadata_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('li', /#S-1\b/).click()
     cy.title().should('eq', 'example.com · Simplified Organisation | Simplified case overview')
-    cy.contains(retestMetadataNote)
   })
 
   it('can edit 12-week retesting home', () => {
