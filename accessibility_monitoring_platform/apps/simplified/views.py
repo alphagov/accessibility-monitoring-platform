@@ -55,6 +55,8 @@ from .forms import (
     SimplifiedCaseEnforcementRecommendationUpdateForm,
     SimplifiedCaseEqualityBodyMetadataUpdateForm,
     SimplifiedCaseFourWeekContactDetailsUpdateForm,
+    SimplifiedCaseHistoryCreateForm,
+    SimplifiedCaseHistoryUpdateForm,
     SimplifiedCaseMetadataUpdateForm,
     SimplifiedCaseNoPSBContactUpdateForm,
     SimplifiedCaseOneWeekContactDetailsUpdateForm,
@@ -90,6 +92,7 @@ from .models import (
     Contact,
     EqualityBodyCorrespondence,
     SimplifiedCase,
+    SimplifiedCaseHistory,
     SimplifiedEventHistory,
     ZendeskTicket,
 )
@@ -1286,3 +1289,75 @@ def mark_qa_comments_as_read(request: HttpRequest, pk: int) -> HttpResponseRedir
     return redirect(
         reverse("simplified:edit-qa-comments", kwargs={"pk": simplified_case.id})
     )
+
+
+class SimplifiedCaseNoteCreateView(HideCaseNavigationMixin, CreateView):
+    """View to add a note to the SimplifiedCaseHistory"""
+
+    model: type[SimplifiedCaseHistory] = SimplifiedCaseHistory
+    form_class: type[SimplifiedCaseHistoryCreateForm] = SimplifiedCaseHistoryCreateForm
+    context_object_name: str = "simplified_case_history"
+    template_name: str = "simplified/forms/note_create.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add field values into context"""
+        simplified_case: SimplifiedCase = get_object_or_404(
+            SimplifiedCase, id=self.kwargs.get("case_id")
+        )
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        context["simplified_case"] = simplified_case
+        context["simplified_case_history"] = (
+            simplified_case.simplifiedcasehistory_set.all()
+        )
+        return context
+
+    def form_valid(self, form: SimplifiedCaseHistoryCreateForm):
+        """Process contents of valid form"""
+        simplified_case: SimplifiedCase = get_object_or_404(
+            SimplifiedCase, id=self.kwargs.get("case_id")
+        )
+        simplified_case_history: SimplifiedCaseHistory = form.save(commit=False)
+        simplified_case_history.simplified_case = simplified_case
+        simplified_case_history.created_by = self.request.user
+        simplified_case_history.label = simplified_case.get_status_display()
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        simplified_case_history: SimplifiedCaseHistory = self.object
+        simplified_case: SimplifiedCase = simplified_case_history.simplified_case
+        user: User = self.request.user
+        record_simplified_model_create_event(
+            user=user,
+            model_object=simplified_case_history,
+            simplified_case=simplified_case,
+        )
+        return reverse(
+            "simplified:create-case-note", kwargs={"case_id": simplified_case.id}
+        )
+
+
+class SimplifiedCaseNoteUpdateView(HideCaseNavigationMixin, UpdateView):
+    """View to edit a note on the SimplifiedCaseHistory"""
+
+    model: type[SimplifiedCaseHistory] = SimplifiedCaseHistory
+    form_class: type[SimplifiedCaseHistoryUpdateForm] = SimplifiedCaseHistoryUpdateForm
+    context_object_name: str = "simplified_case_history"
+    template_name: str = "simplified/forms/note_update.html"
+
+    def form_valid(self, form: SimplifiedContactUpdateForm):
+        """Mark contact as deleted if button is pressed"""
+        simplified_case_history: SimplifiedCaseHistory = form.save(commit=False)
+        record_simplified_model_update_event(
+            user=self.request.user,
+            model_object=simplified_case_history,
+            simplified_case=simplified_case_history.simplified_case,
+        )
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Return to notes page"""
+        return reverse(
+            "simplified:create-case-note",
+            kwargs={"case_id": self.object.simplified_case.id},
+        )

@@ -4,6 +4,15 @@
         <h2 class="govuk-heading-s amp-margin-bottom-10">{{ platform_page_group.name }}</h2>
         <div class="amp-nav-steps">
             <ul class="govuk-list">
+                <li>
+                {% if case.report.latest_s3_report %}
+                    <a href="{{ case.published_report_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                        View published report
+                    </a>
+                {% else %}
+                        No published report
+                {% endif %}
+                </li>
                 {% for platform_page in platform_page_group.pages %}
                     {% if platform_page.show %}
                         <li>

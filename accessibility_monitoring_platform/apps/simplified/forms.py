@@ -28,6 +28,7 @@ from .models import (
     Contact,
     EqualityBodyCorrespondence,
     SimplifiedCase,
+    SimplifiedCaseHistory,
     ZendeskTicket,
 )
 
@@ -910,3 +911,25 @@ class SimplifiedZendeskTicketConfirmDeleteUpdateForm(forms.ModelForm):
     class Meta:
         model = ZendeskTicket
         fields = ["is_deleted"]
+
+
+class SimplifiedCaseHistoryCreateForm(forms.ModelForm):
+    value = AMPTextField(label="New note")
+
+    class Meta:
+        model = SimplifiedCaseHistory
+        fields = [
+            "value",
+        ]
+
+
+class SimplifiedCaseHistoryUpdateForm(forms.ModelForm):
+    label = AMPCharFieldWide(label="Label")
+    value = AMPTextField(label="New note")
+
+    class Meta:
+        model = SimplifiedCaseHistory
+        fields = [
+            "label",
+            "value",
+        ]

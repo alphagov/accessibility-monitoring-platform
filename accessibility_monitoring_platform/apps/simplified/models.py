@@ -1147,6 +1147,11 @@ class SimplifiedCase(BaseCase):
     def target_of_test(self) -> str:
         return "website"
 
+    def notes_history(self) -> QuerySet["SimplifiedCaseHistory"]:
+        return self.simplifiedcasehistory_set.filter(
+            event_type=SimplifiedCaseHistory.EventType.NOTE
+        )
+
 
 class CaseStatus(models.Model):
     """
@@ -1533,3 +1538,44 @@ class SimplifiedEventHistory(models.Model):
                 }
             )
         return variable_list
+
+
+class SimplifiedCaseHistory(models.Model):
+    """Model to record history of changes to SimplifiedCase"""
+
+    class EventType(models.TextChoices):
+        NOTE = "note", "Entered note"
+        STATUS = "status", "Changed status"
+
+    simplified_case = models.ForeignKey(SimplifiedCase, on_delete=models.PROTECT)
+    event_type = models.CharField(
+        max_length=20, choices=EventType.choices, default=EventType.NOTE
+    )
+    id_within_case = models.IntegerField(default=0, blank=True)
+    simplified_case_status = models.CharField(
+        max_length=200,
+        choices=SimplifiedCase.Status.choices,
+        default=SimplifiedCase.Status.UNASSIGNED,
+    )
+    value = models.TextField(default="", blank=True)
+    label = models.CharField(max_length=200, default="", blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs) -> None:
+        if not self.id:
+            self.simplified_case_status = self.simplified_case.status
+            if self.event_type == SimplifiedCaseHistory.EventType.NOTE:
+                self.id_within_case = self.simplified_case.notes_history().count() + 1
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return (
+            f"{self.simplified_case} {self.event_type} {self.created} {self.created_by}"
+        )
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name_plural = "Simplified Case history"
