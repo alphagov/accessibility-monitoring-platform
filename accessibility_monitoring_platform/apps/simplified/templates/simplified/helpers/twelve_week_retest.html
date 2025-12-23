@@ -3,22 +3,12 @@
     <td class="govuk-table__cell amp-width-one-half">{{ case.audit.retest_date|amp_date }}</td>
 </tr>
 <tr class="govuk-table__row">
-    <th scope="row" class="govuk-table__header amp-width-one-half">Notes</th>
-    <td class="govuk-table__cell amp-width-one-half amp-notes">
-        {{ case.audit.audit_retest_metadata_notes|markdown_to_html }}
-    </td>
-</tr>
-<tr class="govuk-table__row">
     <th scope="row" class="govuk-table__header amp-width-one-half">Website issues</th>
     <td class="govuk-table__cell amp-width-one-half">{{ case.overview_issues_website }}</td>
 </tr>
 <tr class="govuk-table__row">
     <th scope="row" class="govuk-table__header amp-width-one-half">12-week website compliance decision</th>
     <td class="govuk-table__cell amp-width-one-half">{{ case.compliance.get_website_compliance_state_12_week_display }}</td>
-</tr>
-<tr class="govuk-table__row">
-    <th scope="row" class="govuk-table__header amp-width-one-half">12-week website compliance notes</th>
-    <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.compliance.website_compliance_notes_12_week|markdown_to_html }}</td>
 </tr>
 <tr class="govuk-table__row">
     <th scope="row" class="govuk-table__header amp-width-one-half">Statement exists</th>

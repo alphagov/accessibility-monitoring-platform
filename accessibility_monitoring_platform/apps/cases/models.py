@@ -18,17 +18,6 @@ ONE_WEEK_IN_DAYS: int = 7
 MAX_LENGTH_OF_FORMATTED_URL: int = 25
 PSB_APPEAL_WINDOW_IN_DAYS: int = 28
 
-COMPLIANCE_FIELDS: list[str] = [
-    "website_compliance_state_initial",
-    "website_compliance_notes_initial",
-    "statement_compliance_state_initial",
-    "statement_compliance_notes_initial",
-    "website_compliance_state_12_week",
-    "website_compliance_notes_12_week",
-    "statement_compliance_state_12_week",
-    "statement_compliance_notes_12_week",
-]
-
 UPDATE_SEPARATOR: str = " -> "
 
 
