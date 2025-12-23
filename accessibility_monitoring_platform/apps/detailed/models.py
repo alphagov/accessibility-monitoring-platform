@@ -18,7 +18,7 @@ from ..cases.models import (
     DetailedCaseStatus,
     get_previous_case_identifier,
 )
-from ..common.models import ZENDESK_URL_PREFIX, Boolean, VersionModel
+from ..common.models import ZENDESK_URL_PREFIX, Boolean, CaseHistory, VersionModel
 from ..common.utils import extract_domain_from_url
 
 
@@ -417,29 +417,15 @@ class DetailedEventHistory(models.Model):
         return variable_list
 
 
-class DetailedCaseHistory(models.Model):
+class DetailedCaseHistory(CaseHistory):
     """Model to record history of changes to DetailedCase"""
 
-    class EventType(models.TextChoices):
-        NOTE = "note", "Entered note"
-        STATUS = "status", "Changed status"
-
     detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
-    event_type = models.CharField(
-        max_length=20, choices=EventType.choices, default=EventType.NOTE
-    )
-    id_within_case = models.IntegerField(default=0, blank=True)
     detailed_case_status = models.CharField(
         max_length=200,
         choices=DetailedCase.Status.choices,
         default=DetailedCase.Status.UNASSIGNED,
     )
-    value = models.TextField(default="", blank=True)
-    label = models.CharField(max_length=200, default="", blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-    is_deleted = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs) -> None:
         if not self.id:
@@ -454,7 +440,6 @@ class DetailedCaseHistory(models.Model):
         )
 
     class Meta:
-        ordering = ["-created"]
         verbose_name_plural = "Detailed Case history"
 
 

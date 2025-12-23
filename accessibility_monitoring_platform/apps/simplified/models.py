@@ -19,7 +19,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from ..cases.models import BaseCase, SimplifiedCaseStatus, get_previous_case_identifier
-from ..common.models import Boolean, EmailTemplate, Link, VersionModel
+from ..common.models import Boolean, CaseHistory, EmailTemplate, Link, VersionModel
 from ..common.utils import (
     extract_domain_from_url,
     format_outstanding_issues,
@@ -1536,29 +1536,15 @@ class SimplifiedEventHistory(models.Model):
         return variable_list
 
 
-class SimplifiedCaseHistory(models.Model):
+class SimplifiedCaseHistory(CaseHistory):
     """Model to record history of changes to SimplifiedCase"""
 
-    class EventType(models.TextChoices):
-        NOTE = "note", "Entered note"
-        STATUS = "status", "Changed status"
-
     simplified_case = models.ForeignKey(SimplifiedCase, on_delete=models.PROTECT)
-    event_type = models.CharField(
-        max_length=20, choices=EventType.choices, default=EventType.NOTE
-    )
-    id_within_case = models.IntegerField(default=0, blank=True)
     simplified_case_status = models.CharField(
         max_length=200,
         choices=SimplifiedCase.Status.choices,
         default=SimplifiedCase.Status.UNASSIGNED,
     )
-    value = models.TextField(default="", blank=True)
-    label = models.CharField(max_length=200, default="", blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-    is_deleted = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs) -> None:
         if not self.id:
@@ -1573,5 +1559,4 @@ class SimplifiedCaseHistory(models.Model):
         )
 
     class Meta:
-        ordering = ["-created"]
         verbose_name_plural = "Simplified Case history"
