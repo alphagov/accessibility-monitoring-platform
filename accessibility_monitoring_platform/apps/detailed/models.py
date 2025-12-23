@@ -440,6 +440,7 @@ class DetailedCaseHistory(CaseHistory):
         )
 
     class Meta:
+        ordering = ["-created"]
         verbose_name_plural = "Detailed Case history"
 
 

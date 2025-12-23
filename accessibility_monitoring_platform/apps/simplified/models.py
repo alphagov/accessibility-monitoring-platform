@@ -1559,4 +1559,5 @@ class SimplifiedCaseHistory(CaseHistory):
         )
 
     class Meta:
+        ordering = ["-created"]
         verbose_name_plural = "Simplified Case history"

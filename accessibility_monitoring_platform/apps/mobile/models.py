@@ -641,6 +641,7 @@ class MobileCaseHistory(CaseHistory):
         return f"{self.mobile_case} {self.event_type} {self.created} {self.created_by}"
 
     class Meta:
+        ordering = ["-created"]
         verbose_name_plural = "Mobile Case history"
 
 
