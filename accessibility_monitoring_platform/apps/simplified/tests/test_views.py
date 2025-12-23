@@ -46,6 +46,7 @@ from ..models import (
     Contact,
     EqualityBodyCorrespondence,
     SimplifiedCase,
+    SimplifiedCaseHistory,
     SimplifiedEventHistory,
     ZendeskTicket,
 )
@@ -182,6 +183,7 @@ CORRESPONDENCE_PROCESS_PAGES: list[tuple[str, str]] = [
     ("edit-one-week-contact-details", "One-week follow-up"),
     ("edit-four-week-contact-details", "Four-week follow-up"),
 ]
+CASE_NOTE: str = "A case note"
 
 
 class MockMessages:
@@ -4116,3 +4118,86 @@ def test_bulk_copy_issue_ids_to_clipboard(admin_client):
         response,
         f'data-text-to-copy="{check_result_1.issue_identifier} {check_result_2.issue_identifier}"',
     )
+
+
+def test_create_case_note(admin_client):
+    """Test creating a case note"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+
+    assert (
+        SimplifiedCaseHistory.objects.filter(simplified_case=simplified_case).count()
+        == 0
+    )
+
+    url: str = reverse(
+        "simplified:create-case-note", kwargs={"case_id": simplified_case.id}
+    )
+
+    response: HttpResponse = admin_client.post(
+        url,
+        {
+            "value": CASE_NOTE,
+            "save": "Save",
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == url
+
+    assert (
+        SimplifiedCaseHistory.objects.filter(simplified_case=simplified_case).count()
+        == 1
+    )
+
+    simplified_case_history: SimplifiedCaseHistory = SimplifiedCaseHistory.objects.get(
+        simplified_case=simplified_case
+    )
+
+    assert simplified_case_history.value == CASE_NOTE
+    assert simplified_case_history.label == simplified_case.get_status_display()
+
+    response: HttpResponse = admin_client.get(url)
+    assertContains(response, CASE_NOTE)
+
+    content_type: ContentType = ContentType.objects.get_for_model(SimplifiedCaseHistory)
+    event_history: SimplifiedEventHistory = SimplifiedEventHistory.objects.get(
+        content_type=content_type, object_id=simplified_case_history.id
+    )
+
+    assert event_history.event_type == SimplifiedEventHistory.Type.CREATE
+
+
+def test_update_case_note(admin_user, admin_client):
+    """Test updating a case note"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case_history: SimplifiedCaseHistory = (
+        SimplifiedCaseHistory.objects.create(
+            simplified_case=simplified_case,
+            created_by=admin_user,
+        )
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("simplified:edit-case-note", kwargs={"pk": simplified_case_history.id}),
+        {
+            "label": "Case note label",
+            "value": CASE_NOTE,
+            "save_return": "Save and return",
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "simplified:create-case-note", kwargs={"case_id": simplified_case.id}
+    )
+
+    simplified_case_history: SimplifiedCaseHistory = SimplifiedCaseHistory.objects.get(
+        simplified_case=simplified_case
+    )
+
+    content_type: ContentType = ContentType.objects.get_for_model(SimplifiedCaseHistory)
+    event_history: SimplifiedEventHistory = SimplifiedEventHistory.objects.get(
+        content_type=content_type, object_id=simplified_case_history.id
+    )
+
+    assert event_history.event_type == SimplifiedEventHistory.Type.UPDATE
