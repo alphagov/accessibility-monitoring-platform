@@ -255,15 +255,16 @@ class DetailedCase(BaseCase):
         title += f"{self.organisation_name} &nbsp;|&nbsp; {self.case_identifier}"
         return mark_safe(title)
 
+    def case_history(self) -> QuerySet["DetailedCaseHistory"]:
+        return self.detailedcasehistory_set.filter(is_deleted=False)
+
     def status_history(self) -> QuerySet["DetailedCaseHistory"]:
-        return self.detailedcasehistory_set.filter(
+        return self.case_history().filter(
             event_type=DetailedCaseHistory.EventType.STATUS
         )
 
     def notes_history(self) -> QuerySet["DetailedCaseHistory"]:
-        return self.detailedcasehistory_set.filter(
-            event_type=DetailedCaseHistory.EventType.NOTE, is_deleted=False
-        )
+        return self.case_history().filter(event_type=DetailedCaseHistory.EventType.NOTE)
 
     @property
     def zendesk_tickets(self) -> QuerySet["ZendeskTicket"]:

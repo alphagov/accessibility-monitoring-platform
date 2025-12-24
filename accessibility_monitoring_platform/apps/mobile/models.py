@@ -352,10 +352,11 @@ class MobileCase(BaseCase):
             event_type=MobileCaseHistory.EventType.STATUS
         )
 
+    def case_history(self) -> QuerySet["MobileCaseHistory"]:
+        return self.mobilecasehistory_set.filter(is_deleted=False)
+
     def notes_history(self) -> QuerySet["MobileCaseHistory"]:
-        return self.mobilecasehistory_set.filter(
-            event_type=MobileCaseHistory.EventType.NOTE, is_deleted=False
-        )
+        return self.case_history().filter(event_type=MobileCaseHistory.EventType.NOTE)
 
     @property
     def zendesk_tickets(self) -> QuerySet["MobileZendeskTicket"]:
@@ -627,6 +628,10 @@ class MobileCaseHistory(CaseHistory):
         default=MobileCase.Status.UNASSIGNED,
     )
 
+    class Meta:
+        ordering = ["-created"]
+        verbose_name_plural = "Mobile Case history"
+
     def save(self, *args, **kwargs) -> None:
         if not self.id:
             self.mobile_case_status = self.mobile_case.status
@@ -637,9 +642,8 @@ class MobileCaseHistory(CaseHistory):
     def __str__(self):
         return f"{self.mobile_case} {self.event_type} {self.created} {self.created_by}"
 
-    class Meta:
-        ordering = ["-created"]
-        verbose_name_plural = "Mobile Case history"
+    def get_absolute_url(self) -> str:
+        return reverse("mobile:edit-case-note", kwargs={"pk": self.mobile_case.id})
 
 
 class MobileContact(VersionModel):

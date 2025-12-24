@@ -12,77 +12,11 @@
 {% endblock %}
 
 {% block form %}
-<form method="post" action="{% url sitemap.current_platform_page.url_name case.id %}">
-    {% csrf_token %}
-    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
-            {% include 'common/amp_field.html' with field=form.value %}
-            {% include 'common/preview_markdown.html' with field_id=form.value.auto_id %}
-        </div>
-    </div>
-    <div class="govuk-grid-row amp-margin-top-30">
-        <div class="govuk-grid-column-full govuk-button-group">
-            <input
-                type="submit"
-                value="Save"
-                name="save"
-                class="govuk-button"
-                data-module="govuk-button"
-            />
-            <a
-                href="{{ case.get_absolute_url }}"
-                class="govuk-link govuk-link--no-visited-state"
-            >
-                Return to overview
-            </a>
-        </div>
-    </div>
-</form>
+{% include 'cases/helpers/case_history_form.html' %}
 {% endblock %}
 
 {% block postform %}
-<div class="amp-margin-bottom-40">
-    <hr class="amp-width-100" />
-</div>
-{% include 'common/amp_search_widget.html' with search_label='Search notes' %}
-<br/>
-<br/>
-{% for mobile_case_event in case.mobilecasehistory_set.all %}
-    <div class="govuk-grid-row amp-searchable amp-margin-bottom-30">
-        <div class="govuk-grid-column-one-quarter">
-            <p class="govuk-body amp-margin-bottom-5">
-                <b>
-                {% if mobile_case_event.label %}
-                    {{ mobile_case_event.label }}
-                {% else %}
-                    {{ mobile_case_event.get_event_type_display }}
-                {% endif %}
-                </b>
-            </p>
-            <p class="govuk-body amp-margin-bottom-5">{{ mobile_case_event.created_by.get_full_name }}</p>
-            <p class="govuk-body amp-margin-bottom-5">{{ mobile_case_event.created|amp_datetime_short_month }}</p>
-            {% if mobile_case_event.event_type == 'note' %}
-                <p class="govuk-body amp-margin-bottom-5">
-                    <a href="{% url 'mobile:edit-case-note' mobile_case_event.id %}"
-                        class="govuk-link govuk-link--no-visited-state">Edit</a>
-                </p>
-                {% if mobile_case_event.updated|amp_datetime != mobile_case_event.created|amp_datetime %}
-                    <p class="govuk-body-s">Edited {{ mobile_case_event.updated|amp_datetime }}</p>
-                {% endif %}
-            {% endif %}
-        </div>
-        <div class="govuk-grid-column-three-quarters govuk-body amp-notes">
-            {{ mobile_case_event.value|markdown_to_html }}
-        </div>
-    </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full amp-margin-bottom-30">
-            <hr class="amp-width-100" />
-        </div>
-    </div>
-{% endfor %}
+{% include 'cases/helpers/case_history.html' %}
 {% endblock %}
 
 {% block extrascript %}

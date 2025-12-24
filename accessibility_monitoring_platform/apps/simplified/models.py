@@ -1148,9 +1148,12 @@ class SimplifiedCase(BaseCase):
     def target_of_test(self) -> str:
         return "website"
 
+    def case_history(self) -> QuerySet["SimplifiedCaseHistory"]:
+        return self.simplifiedcasehistory_set.filter(is_deleted=False)
+
     def notes_history(self) -> QuerySet["SimplifiedCaseHistory"]:
-        return self.simplifiedcasehistory_set.filter(
-            event_type=SimplifiedCaseHistory.EventType.NOTE, is_deleted=False
+        return self.case_history().filter(
+            event_type=SimplifiedCaseHistory.EventType.NOTE
         )
 
 

@@ -77,6 +77,31 @@ def test_detailed_case_status_history():
 
 
 @pytest.mark.django_db
+def test_detailed_case_case_history():
+    """Test DetailedCase.case_history returns only undeleted events"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+    user: User = User.objects.create()
+    detailed_case_history_status: DetailedCaseHistory = (
+        DetailedCaseHistory.objects.create(
+            detailed_case=detailed_case,
+            event_type=DetailedCaseHistory.EventType.STATUS,
+            created_by=user,
+        )
+    )
+    detailed_case_history_note: DetailedCaseHistory = (
+        DetailedCaseHistory.objects.create(
+            detailed_case=detailed_case,
+            event_type=DetailedCaseHistory.EventType.NOTE,
+            created_by=user,
+            is_deleted=True,
+        )
+    )
+
+    assert detailed_case_history_status in detailed_case.case_history()
+    assert detailed_case_history_note not in detailed_case.case_history()
+
+
+@pytest.mark.django_db
 def test_detailed_case_notes_history():
     """Test DetailedCase.notes_history returns only relevant events"""
     detailed_case: DetailedCase = DetailedCase.objects.create()
