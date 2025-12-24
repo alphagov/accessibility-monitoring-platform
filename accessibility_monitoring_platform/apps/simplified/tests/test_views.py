@@ -1869,10 +1869,10 @@ def test_case_report_twelve_week_1_week_chaser_shows_warning_if_12_week_cores_ac
     assertContains(response, TWELVE_WEEK_CORES_ACKNOWLEDGED_WARNING)
 
 
-def test_no_psb_response_redirects_to_enforcement_recommendation(admin_client):
-    """Test no PSB response redirects to enforcement recommendation"""
+def test_no_psb_response_redirects_to_case_detail(admin_client):
+    """Test no PSB response redirects to Case overview if there is no test"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        no_psb_contact=Boolean.YES,
+        no_psb_contact=Boolean.NO,
     )
 
     response: HttpResponse = admin_client.post(
@@ -1880,6 +1880,76 @@ def test_no_psb_response_redirects_to_enforcement_recommendation(admin_client):
         {
             "version": simplified_case.version,
             "no_psb_contact": "on",
+            "save_continue": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+    assert (
+        response.url
+        == f'{reverse("simplified:case-detail", kwargs={"pk": simplified_case.id})}'
+    )
+
+
+def test_no_psb_response_redirects_to_start_12_week_retest(admin_client):
+    """Test no PSB response redirects to start 12-week retest if there is no retest"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        no_psb_contact=Boolean.NO,
+    )
+    Audit.objects.create(simplified_case=simplified_case)
+
+    response: HttpResponse = admin_client.post(
+        reverse("simplified:edit-no-psb-response", kwargs={"pk": simplified_case.id}),
+        {
+            "version": simplified_case.version,
+            "no_psb_contact": "on",
+            "save_continue": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+    assert (
+        response.url
+        == f'{reverse("simplified:edit-twelve-week-retest", kwargs={"pk": simplified_case.id})}'
+    )
+
+
+def test_no_psb_response_redirects_to_12_week_retest_statement_links(admin_client):
+    """Test no PSB response redirects to 12-week retest statement links"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        no_psb_contact=Boolean.NO,
+    )
+    audit: Audit = Audit.objects.create(
+        simplified_case=simplified_case, retest_date=date.today()
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("simplified:edit-no-psb-response", kwargs={"pk": simplified_case.id}),
+        {
+            "version": simplified_case.version,
+            "no_psb_contact": "on",
+            "save_continue": "Button value",
+        },
+    )
+
+    assert response.status_code == 302
+    assert (
+        response.url
+        == f'{reverse("audits:edit-audit-retest-statement-pages", kwargs={"pk": audit.id})}'
+    )
+
+
+def test_no_psb_response_redirects_to_case_detail_on_response(admin_client):
+    """Test no PSB response redirects to case detail when the PSB has responded"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        no_psb_contact=Boolean.YES,
+    )
+    Audit.objects.create(simplified_case=simplified_case, retest_date=date.today())
+
+    response: HttpResponse = admin_client.post(
+        reverse("simplified:edit-no-psb-response", kwargs={"pk": simplified_case.id}),
+        {
+            "version": simplified_case.version,
             "save_continue": "Button value",
         },
     )
