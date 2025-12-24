@@ -27,7 +27,7 @@ The report viewer is a public-facing application used for public service bodies 
 ## Requirements
 
 - Docker
-- Python 3.11
+- Python 3.12
 - PostgreSQL
 - Node and NPM
 - Standard JS Globally installed (if using VSCode)
