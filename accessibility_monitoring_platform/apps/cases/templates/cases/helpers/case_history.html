@@ -1,0 +1,40 @@
+<div class="amp-margin-bottom-40">
+    <hr class="amp-width-100" />
+</div>
+{% include 'common/amp_search_widget.html' with search_label='Search notes' %}
+<br/>
+<br/>
+{% for case_event in case.case_history %}
+    <div class="govuk-grid-row amp-searchable amp-margin-bottom-30">
+        <div class="govuk-grid-column-one-quarter">
+            <p class="govuk-body amp-margin-bottom-5">
+                <b>
+                {% if case_event.label %}
+                    {{ case_event.label }}
+                {% else %}
+                    {{ case_event.get_event_type_display }}
+                {% endif %}
+                </b>
+            </p>
+            <p class="govuk-body amp-margin-bottom-5">{{ case_event.created_by.get_full_name }}</p>
+            <p class="govuk-body amp-margin-bottom-5">{{ case_event.created|amp_datetime_short_month }}</p>
+            {% if case_event.event_type == 'note' %}
+                <p class="govuk-body amp-margin-bottom-5">
+                    <a href="{{ case_event.get_absolute_url }}"
+                        class="govuk-link govuk-link--no-visited-state">Edit</a>
+                </p>
+                {% if case_event.updated|amp_datetime != case_event.created|amp_datetime %}
+                    <p class="govuk-body-s">Edited {{ case_event.updated|amp_datetime }}</p>
+                {% endif %}
+            {% endif %}
+        </div>
+        <div class="govuk-grid-column-three-quarters govuk-body amp-notes amp-markdown">
+            {{ case_event.value|markdown_to_html }}
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full amp-margin-bottom-30">
+            <hr class="amp-width-100" />
+        </div>
+    </div>
+{% endfor %}

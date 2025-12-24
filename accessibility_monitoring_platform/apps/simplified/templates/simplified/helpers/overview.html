@@ -21,6 +21,15 @@
                 </a>
             {% endif %}
         </p>
+        <h2 class="govuk-heading-s amp-margin-bottom-5 govuk-!-font-size-16"><b>Last note added</b></h2>
+        <p class="govuk-body-s amp-margin-bottom-10">
+            {% if case.most_recent_case_note %}
+                <a href="{% url 'simplified:create-case-note' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    {{ case.most_recent_case_note.created|amp_date }}</a>
+            {% else %}
+                None
+            {% endif %}
+        </p>
         <h2 class="govuk-heading-s amp-margin-bottom-5 govuk-!-font-size-16">Reminder{% if case.reminder %} on {{ case.reminder.date|amp_date }}{% endif %}</h2>
         <p class="govuk-body-s amp-margin-bottom-10">
             {% if case.reminder %}

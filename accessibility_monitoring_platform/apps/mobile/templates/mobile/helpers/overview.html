@@ -8,9 +8,9 @@
     <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-15">{{ case.updated|amp_date }}</p>
     <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-5"><b>Last note added</b></p>
     <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-15">
-        {% if case.most_recent_history %}
+        {% if case.most_recent_case_note %}
             <a href="{% url 'mobile:create-case-note' case.id %}" class="govuk-link govuk-link--no-visited-state">
-                {{ case.most_recent_history.created|amp_date }}</a>
+                {{ case.most_recent_case_note.created|amp_date }}</a>
         {% else %}
             None
         {% endif %}

@@ -2,7 +2,6 @@
 Views for cases app
 """
 
-from datetime import date, timedelta
 from typing import Any
 
 from django.contrib import messages

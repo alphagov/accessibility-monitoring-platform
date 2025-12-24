@@ -61,28 +61,8 @@
                                 <div class="govuk-hint">{{ retest.simplified_case.audit.get_exemptions_state_display }}</div>
                             </div>
                             <div class="govuk-form-group">
-                                <label class="govuk-label"><b>Notes (initial test)</b></label>
-                                <div class="govuk-hint amp-notes">
-                                    {% if retest.simplified_case.audit.exemptions_notes %}
-                                        {{ retest.simplified_case.audit.exemptions_notes|markdown_to_html }}
-                                    {% else %}
-                                        None
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Date of retest (12-week retest)</b></label>
                                 <div class="govuk-hint">{{ retest.simplified_case.audit.date_of_test|amp_date }}</div>
-                            </div>
-                            <div class="govuk-form-group">
-                                <label class="govuk-label"><b>Notes (12-week retest)</b></label>
-                                <div class="govuk-hint amp-notes">
-                                    {% if retest.simplified_case.audit.audit_retest_metadata_notes %}
-                                        {{ retest.simplified_case.audit.audit_retest_metadata_notes|markdown_to_html }}
-                                    {% else %}
-                                        None
-                                    {% endif %}
-                                </div>
                             </div>
                             {% include 'common/amp_field.html' with field=form.complete_date %}
                         </div>

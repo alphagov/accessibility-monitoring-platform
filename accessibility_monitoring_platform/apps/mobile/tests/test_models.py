@@ -80,6 +80,27 @@ def test_mobile_case_status_history():
 
 
 @pytest.mark.django_db
+def test_mobile_case_case_history():
+    """Test MobileCase.case_history returns only undeleted events"""
+    mobile_case: MobileCase = MobileCase.objects.create()
+    user: User = User.objects.create()
+    mobile_case_history_status: MobileCaseHistory = MobileCaseHistory.objects.create(
+        mobile_case=mobile_case,
+        event_type=MobileCaseHistory.EventType.STATUS,
+        created_by=user,
+    )
+    mobile_case_history_note: MobileCaseHistory = MobileCaseHistory.objects.create(
+        mobile_case=mobile_case,
+        event_type=MobileCaseHistory.EventType.NOTE,
+        created_by=user,
+        is_deleted=True,
+    )
+
+    assert mobile_case_history_status in mobile_case.case_history()
+    assert mobile_case_history_note not in mobile_case.case_history()
+
+
+@pytest.mark.django_db
 def test_mobile_case_notes_history():
     """Test MobileCase.notes_history returns only relevant events"""
     mobile_case: MobileCase = MobileCase.objects.create()
@@ -113,8 +134,8 @@ def test_mobile_case_zendesk_tickets():
 
 
 @pytest.mark.django_db
-def test_mobile_case_most_recent_history():
-    """Test MobileCase.most_recent_history returns the most recent event"""
+def test_mobile_case_most_recent_case_note():
+    """Test MobileCase.most_recent_case_note returns the most recent note"""
     mobile_case: MobileCase = MobileCase.objects.create()
     user: User = User.objects.create()
     MobileCaseHistory.objects.create(
@@ -128,7 +149,7 @@ def test_mobile_case_most_recent_history():
         created_by=user,
     )
 
-    assert mobile_case.most_recent_history == mobile_case_history_last
+    assert mobile_case.most_recent_case_note == mobile_case_history_last
 
 
 @pytest.mark.django_db

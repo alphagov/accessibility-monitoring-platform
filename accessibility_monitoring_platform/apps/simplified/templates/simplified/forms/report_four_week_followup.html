@@ -11,7 +11,6 @@
 {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
 {% include 'simplified/helpers/amp_due_date_field.html' with field=form.report_followup_week_4_sent_date due_date=case.report_followup_week_4_due_date due_date_field=form.report_followup_week_4_due_date %}
 {% include 'common/amp_email_field.html' with field=form.four_week_followup_sent_to_email %}
-{% include 'common/amp_field.html' with field=form.correspondence_notes %}
 {% include 'common/amp_field.html' with field=form.four_week_followup_complete_date %}
 {% endblock %}
 

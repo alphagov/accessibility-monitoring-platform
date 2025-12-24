@@ -353,19 +353,9 @@ SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="statement_compliance_state_initial",
     ),
     CSVColumn(
-        column_header="Initial accessibility statement compliance notes",
-        source_class=CaseCompliance,
-        source_attr="statement_compliance_notes_initial",
-    ),
-    CSVColumn(
         column_header="Initial website compliance decision",
         source_class=CaseCompliance,
         source_attr="website_compliance_state_initial",
-    ),
-    CSVColumn(
-        column_header="Initial website compliance notes",
-        source_class=CaseCompliance,
-        source_attr="website_compliance_notes_initial",
     ),
     CSVColumn(
         column_header="Testing details page complete",
@@ -451,11 +441,6 @@ SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="zendesk_url",
     ),
     CSVColumn(
-        column_header="Report correspondence notes",
-        source_class=SimplifiedCase,
-        source_attr="correspondence_notes",
-    ),
-    CSVColumn(
         column_header="Report correspondence page complete",
         source_class=SimplifiedCase,
         source_attr="report_acknowledged_complete_date",
@@ -496,11 +481,6 @@ SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="twelve_week_correspondence_acknowledged_date",
     ),
     CSVColumn(
-        column_header="12-week correspondence notes",
-        source_class=SimplifiedCase,
-        source_attr="twelve_week_correspondence_notes",
-    ),
-    CSVColumn(
         column_header="Mark the case as having no response to 12 week deadline",
         source_class=SimplifiedCase,
         source_attr="organisation_response",
@@ -521,11 +501,6 @@ SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="twelve_week_retest_complete_date",
     ),
     CSVColumn(
-        column_header="Case progress notes",
-        source_class=SimplifiedCase,
-        source_attr="psb_progress_notes",
-    ),
-    CSVColumn(
         column_header="Retested website?",
         source_class=SimplifiedCase,
         source_attr="retested_website_date",
@@ -544,11 +519,6 @@ SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         column_header="12-week website compliance decision",
         source_class=CaseCompliance,
         source_attr="website_compliance_state_12_week",
-    ),
-    CSVColumn(
-        column_header="12-week website compliance decision notes",
-        source_class=CaseCompliance,
-        source_attr="website_compliance_notes_12_week",
     ),
     CSVColumn(
         column_header="Final website compliance decision page complete (spreadsheet testing)",
@@ -574,11 +544,6 @@ SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         column_header="12-week accessibility statement compliance decision",
         source_class=CaseCompliance,
         source_attr="statement_compliance_state_12_week",
-    ),
-    CSVColumn(
-        column_header="12-week accessibility statement compliance notes",
-        source_class=CaseCompliance,
-        source_attr="statement_compliance_notes_12_week",
     ),
     CSVColumn(
         column_header="Final accessibility statement compliance decision page complete (spreadsheet testing)",
@@ -616,11 +581,6 @@ SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         source_attr="case_close_complete_date",
     ),
     CSVColumn(
-        column_header="Public sector body statement appeal notes",
-        source_class=SimplifiedCase,
-        source_attr="psb_appeal_notes",
-    ),
-    CSVColumn(
         column_header="Summary of events after the case was closed",
         source_class=SimplifiedCase,
         source_attr="post_case_notes",
@@ -649,11 +609,6 @@ SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
         column_header="Equality body has officially closed the case?",
         source_class=SimplifiedCase,
         source_attr="enforcement_body_closed_case",
-    ),
-    CSVColumn(
-        column_header="Equality body correspondence notes",
-        source_class=SimplifiedCase,
-        source_attr="enforcement_body_correspondence_notes",
     ),
     CSVColumn(
         column_header="Equality body summary page complete",

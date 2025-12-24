@@ -50,9 +50,7 @@ NEW_PAGE_URL: str = "https://example.com/extra"
 UPDATED_PAGE_NAME: str = "Updated page name"
 UPDATED_PAGE_URL: str = "https://example.com/updated"
 WEBSITE_COMPLIANCE_STATE: str = "partially-compliant"
-WEBSITE_COMPLIANCE_NOTES: str = "Website decision notes"
 STATEMENT_COMPLIANCE_STATE: str = "not-compliant"
-STATEMENT_COMPLIANCE_NOTES: str = "Accessibility statement notes"
 FIXED_ERROR_NOTES: str = "Fixed error notes"
 UNFIXED_ERROR_NOTES: str = "Unfixed error notes"
 WCAG_DEFINITION_TYPE: str = "axe"
@@ -1905,7 +1903,6 @@ def test_website_decision_saved_on_case(admin_client):
             "save": "Button value",
             "case-compliance-version": audit.simplified_case.compliance.version,
             "case-compliance-website_compliance_state_initial": WEBSITE_COMPLIANCE_STATE,
-            "case-compliance-website_compliance_notes_initial": WEBSITE_COMPLIANCE_NOTES,
         },
     )
 
@@ -1919,10 +1916,6 @@ def test_website_decision_saved_on_case(admin_client):
         updated_case.compliance.website_compliance_state_initial
         == WEBSITE_COMPLIANCE_STATE
     )
-    assert (
-        updated_case.compliance.website_compliance_notes_initial
-        == WEBSITE_COMPLIANCE_NOTES
-    )
 
 
 @pytest.mark.parametrize(
@@ -1933,7 +1926,6 @@ def test_website_decision_saved_on_case(admin_client):
             "partially-compliant",
             True,
         ),
-        ("case-compliance-website_compliance_notes_initial", "blah", False),
         ("audit_website_decision_complete_date", timezone.now(), False),
     ],
 )
@@ -2099,7 +2091,6 @@ def test_statement_decision_saved_on_case(admin_client):
             "save": "Button value",
             "case-compliance-version": audit.simplified_case.compliance.version,
             "case-compliance-statement_compliance_state_initial": STATEMENT_COMPLIANCE_STATE,
-            "case-compliance-statement_compliance_notes_initial": STATEMENT_COMPLIANCE_NOTES,
         },
     )
 
@@ -2112,10 +2103,6 @@ def test_statement_decision_saved_on_case(admin_client):
     assert (
         updated_case.compliance.statement_compliance_state_initial
         == STATEMENT_COMPLIANCE_STATE
-    )
-    assert (
-        updated_case.compliance.statement_compliance_notes_initial
-        == STATEMENT_COMPLIANCE_NOTES
     )
 
 
@@ -2442,7 +2429,6 @@ def test_retest_website_decision_saved_on_case(admin_client):
             "save": "Button value",
             "case-compliance-version": audit.simplified_case.compliance.version,
             "case-compliance-website_compliance_state_12_week": WEBSITE_COMPLIANCE_STATE,
-            "case-compliance-website_compliance_notes_12_week": WEBSITE_COMPLIANCE_NOTES,
         },
     )
 
@@ -2455,10 +2441,6 @@ def test_retest_website_decision_saved_on_case(admin_client):
     assert (
         updated_case.compliance.website_compliance_state_12_week
         == WEBSITE_COMPLIANCE_STATE
-    )
-    assert (
-        updated_case.compliance.website_compliance_notes_12_week
-        == WEBSITE_COMPLIANCE_NOTES
     )
 
 
@@ -2474,7 +2456,6 @@ def test_retest_statement_decision_saved_on_case(admin_client):
             "save": "Button value",
             "case-compliance-version": audit.simplified_case.compliance.version,
             "case-compliance-statement_compliance_state_12_week": STATEMENT_COMPLIANCE_STATE,
-            "case-compliance-statement_compliance_notes_12_week": STATEMENT_COMPLIANCE_NOTES,
         },
     )
 
@@ -2487,10 +2468,6 @@ def test_retest_statement_decision_saved_on_case(admin_client):
     assert (
         updated_case.compliance.statement_compliance_state_12_week
         == STATEMENT_COMPLIANCE_STATE
-    )
-    assert (
-        updated_case.compliance.statement_compliance_notes_12_week
-        == STATEMENT_COMPLIANCE_NOTES
     )
 
 

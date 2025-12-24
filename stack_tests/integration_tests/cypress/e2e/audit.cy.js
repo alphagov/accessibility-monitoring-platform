@@ -1,11 +1,8 @@
 /* global cy before Cypress */
 
-const exemptionsNote = 'Test exemptions note'
 const accessibilityStatementURL = 'https://example.com/accessibility-statement'
 const errorText = 'Error detail text'
 const statementCheckResultComment = "Statement check result comment"
-const websiteComplianceNote = 'Website compliance note'
-const accessibilityStatementComplianceNote = 'Accessibility statement compliance note'
 const reportOptionsNote = 'Report options note'
 
 describe('View test', () => {
@@ -20,11 +17,8 @@ describe('View test', () => {
     cy.contains('Populate with today\'s date').click()
     cy.get('#id_screen_size').select('15 inch')
     cy.get('[name="exemptions_state"]').check('no')
-    cy.get('[name="exemptions_notes"]').clear().type(exemptionsNote)
-    cy.get('[name="audit_metadata_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('li', /#S-1\b/).click()
-    cy.contains(exemptionsNote)
   })
 
   it('can edit pages', () => {
@@ -50,11 +44,9 @@ describe('View test', () => {
     cy.contains('Initial WCAG test').click()
     cy.contains(/^Compliance decision$/).click()
     cy.get('[name="case-compliance-website_compliance_state_initial"]').check('partially-compliant')
-    cy.get('[name="case-compliance-website_compliance_notes_initial"]').clear().type(websiteComplianceNote)
     cy.get('[name="audit_website_decision_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('li', /#S-1\b/).click()
-    cy.contains(websiteComplianceNote)
   })
 
   it('can edit WCAG test summary', () => {
@@ -83,10 +75,8 @@ describe('View test', () => {
     cy.contains('Initial statement').click()
     cy.contains(/^Statement compliance$/).click()
     cy.get('[name="case-compliance-statement_compliance_state_initial"]').check('not-compliant')
-    cy.get('[name="case-compliance-statement_compliance_notes_initial"]').clear().type(accessibilityStatementComplianceNote)
     cy.get('[name="audit_statement_decision_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('li', /#S-1\b/).click()
-    cy.contains(accessibilityStatementComplianceNote)
   })
 })

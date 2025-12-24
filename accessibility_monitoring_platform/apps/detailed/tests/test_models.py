@@ -77,6 +77,31 @@ def test_detailed_case_status_history():
 
 
 @pytest.mark.django_db
+def test_detailed_case_case_history():
+    """Test DetailedCase.case_history returns only undeleted events"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+    user: User = User.objects.create()
+    detailed_case_history_status: DetailedCaseHistory = (
+        DetailedCaseHistory.objects.create(
+            detailed_case=detailed_case,
+            event_type=DetailedCaseHistory.EventType.STATUS,
+            created_by=user,
+        )
+    )
+    detailed_case_history_note: DetailedCaseHistory = (
+        DetailedCaseHistory.objects.create(
+            detailed_case=detailed_case,
+            event_type=DetailedCaseHistory.EventType.NOTE,
+            created_by=user,
+            is_deleted=True,
+        )
+    )
+
+    assert detailed_case_history_status in detailed_case.case_history()
+    assert detailed_case_history_note not in detailed_case.case_history()
+
+
+@pytest.mark.django_db
 def test_detailed_case_notes_history():
     """Test DetailedCase.notes_history returns only relevant events"""
     detailed_case: DetailedCase = DetailedCase.objects.create()
@@ -101,8 +126,8 @@ def test_detailed_case_notes_history():
 
 
 @pytest.mark.django_db
-def test_detailed_case_most_recent_history():
-    """Test DetailedCase.most_recent_history returns the most recent event"""
+def test_detailed_case_most_recent_case_note():
+    """Test DetailedCase.most_recent_case_note returns the most recent note"""
     detailed_case: DetailedCase = DetailedCase.objects.create()
     user: User = User.objects.create()
     DetailedCaseHistory.objects.create(
@@ -118,7 +143,7 @@ def test_detailed_case_most_recent_history():
         )
     )
 
-    assert detailed_case.most_recent_history == detailed_case_history_last
+    assert detailed_case.most_recent_case_note == detailed_case_history_last
 
 
 @pytest.mark.django_db

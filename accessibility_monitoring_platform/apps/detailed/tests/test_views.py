@@ -44,6 +44,7 @@ ORGANISATION_NAME: str = "Organisation name"
 HOME_PAGE_URL: str = "https://domain.com"
 RECOMMENDATION_INFO: str = "Recommendation note"
 EQUALITY_BODY_REPORT_URL: str = "https://eb-report.com"
+CASE_NOTE: str = "A case note"
 
 
 class MockMessages:
@@ -551,3 +552,78 @@ def test_report_sent_date_populates_12_week_deadline(
         updated_detailed_case.twelve_week_deadline_date
         == expected_twelve_week_deadline_date
     )
+
+
+def test_create_case_note(admin_client):
+    """Test creating a case note"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+
+    assert DetailedCaseHistory.objects.filter(detailed_case=detailed_case).count() == 0
+
+    url: str = reverse(
+        "detailed:create-case-note", kwargs={"case_id": detailed_case.id}
+    )
+
+    response: HttpResponse = admin_client.post(
+        url,
+        {
+            "value": CASE_NOTE,
+            "save": "Save",
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == url
+
+    assert DetailedCaseHistory.objects.filter(detailed_case=detailed_case).count() == 1
+
+    detailed_case_history: DetailedCaseHistory = DetailedCaseHistory.objects.get(
+        detailed_case=detailed_case
+    )
+
+    assert detailed_case_history.value == CASE_NOTE
+    assert detailed_case_history.label == detailed_case.get_status_display()
+
+    response: HttpResponse = admin_client.get(url)
+    assertContains(response, CASE_NOTE)
+
+    content_type: ContentType = ContentType.objects.get_for_model(DetailedCaseHistory)
+    event_history: DetailedEventHistory = DetailedEventHistory.objects.get(
+        content_type=content_type, object_id=detailed_case_history.id
+    )
+
+    assert event_history.event_type == DetailedEventHistory.Type.CREATE
+
+
+def test_update_case_note(admin_user, admin_client):
+    """Test updating a case note"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+    detailed_case_history: DetailedCaseHistory = DetailedCaseHistory.objects.create(
+        detailed_case=detailed_case,
+        created_by=admin_user,
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("detailed:edit-case-note", kwargs={"pk": detailed_case_history.id}),
+        {
+            "label": "Case note label",
+            "value": CASE_NOTE,
+            "save_return": "Save and return",
+        },
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "detailed:create-case-note", kwargs={"case_id": detailed_case.id}
+    )
+
+    detailed_case_history: DetailedCaseHistory = DetailedCaseHistory.objects.get(
+        detailed_case=detailed_case
+    )
+
+    content_type: ContentType = ContentType.objects.get_for_model(DetailedCaseHistory)
+    event_history: DetailedEventHistory = DetailedEventHistory.objects.get(
+        content_type=content_type, object_id=detailed_case_history.id
+    )
+
+    assert event_history.event_type == DetailedEventHistory.Type.UPDATE
