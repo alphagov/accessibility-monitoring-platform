@@ -269,25 +269,3 @@ class EmailTemplate(models.Model):
     @property
     def template_path(self) -> str:
         return f"common/emails/templates/{self.template_name}.html"
-
-
-class CaseHistory(models.Model):
-    """Model to record history of changes to a case"""
-
-    class EventType(models.TextChoices):
-        NOTE = "note", "Entered note"
-        STATUS = "status", "Changed status"
-
-    event_type = models.CharField(
-        max_length=20, choices=EventType.choices, default=EventType.NOTE
-    )
-    id_within_case = models.IntegerField(default=0, blank=True)
-    value = models.TextField(default="", blank=True)
-    label = models.CharField(max_length=200, default="", blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-    is_deleted = models.BooleanField(default=False)
-
-    class Meta:
-        abstract = True

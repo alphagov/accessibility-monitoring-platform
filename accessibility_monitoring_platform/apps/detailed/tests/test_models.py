@@ -101,8 +101,8 @@ def test_detailed_case_notes_history():
 
 
 @pytest.mark.django_db
-def test_detailed_case_most_recent_history():
-    """Test DetailedCase.most_recent_history returns the most recent event"""
+def test_detailed_case_most_recent_case_note():
+    """Test DetailedCase.most_recent_case_note returns the most recent note"""
     detailed_case: DetailedCase = DetailedCase.objects.create()
     user: User = User.objects.create()
     DetailedCaseHistory.objects.create(
@@ -118,7 +118,7 @@ def test_detailed_case_most_recent_history():
         )
     )
 
-    assert detailed_case.most_recent_history == detailed_case_history_last
+    assert detailed_case.most_recent_case_note == detailed_case_history_last
 
 
 @pytest.mark.django_db

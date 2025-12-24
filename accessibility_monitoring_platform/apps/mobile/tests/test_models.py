@@ -113,8 +113,8 @@ def test_mobile_case_zendesk_tickets():
 
 
 @pytest.mark.django_db
-def test_mobile_case_most_recent_history():
-    """Test MobileCase.most_recent_history returns the most recent event"""
+def test_mobile_case_most_recent_case_note():
+    """Test MobileCase.most_recent_case_note returns the most recent note"""
     mobile_case: MobileCase = MobileCase.objects.create()
     user: User = User.objects.create()
     MobileCaseHistory.objects.create(
@@ -128,7 +128,7 @@ def test_mobile_case_most_recent_history():
         created_by=user,
     )
 
-    assert mobile_case.most_recent_history == mobile_case_history_last
+    assert mobile_case.most_recent_case_note == mobile_case_history_last
 
 
 @pytest.mark.django_db

@@ -15,10 +15,11 @@ from django.utils.safestring import mark_safe
 from ..cases.models import (
     UPDATE_SEPARATOR,
     BaseCase,
+    CaseHistory,
     DetailedCaseStatus,
     get_previous_case_identifier,
 )
-from ..common.models import ZENDESK_URL_PREFIX, Boolean, CaseHistory, VersionModel
+from ..common.models import ZENDESK_URL_PREFIX, Boolean, VersionModel
 from ..common.utils import extract_domain_from_url
 
 
@@ -261,16 +262,12 @@ class DetailedCase(BaseCase):
 
     def notes_history(self) -> QuerySet["DetailedCaseHistory"]:
         return self.detailedcasehistory_set.filter(
-            event_type=DetailedCaseHistory.EventType.NOTE
+            event_type=DetailedCaseHistory.EventType.NOTE, is_deleted=False
         )
 
     @property
     def zendesk_tickets(self) -> QuerySet["ZendeskTicket"]:
         return self.detailed_zendesktickets.filter(is_deleted=False)
-
-    @property
-    def most_recent_history(self):
-        return self.detailedcasehistory_set.first()
 
     @property
     def contacts(self) -> QuerySet["Contact"]:

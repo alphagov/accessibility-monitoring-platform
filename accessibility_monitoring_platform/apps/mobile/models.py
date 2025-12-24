@@ -16,10 +16,11 @@ from django.utils.safestring import mark_safe
 from ..cases.models import (
     UPDATE_SEPARATOR,
     BaseCase,
+    CaseHistory,
     MobileCaseStatus,
     get_previous_case_identifier,
 )
-from ..common.models import ZENDESK_URL_PREFIX, Boolean, CaseHistory, VersionModel
+from ..common.models import ZENDESK_URL_PREFIX, Boolean, VersionModel
 from ..common.utils import extract_domain_from_url
 
 IOS_ANDROID_SEPARATOR: str = "\n\n"
@@ -353,16 +354,12 @@ class MobileCase(BaseCase):
 
     def notes_history(self) -> QuerySet["MobileCaseHistory"]:
         return self.mobilecasehistory_set.filter(
-            event_type=MobileCaseHistory.EventType.NOTE
+            event_type=MobileCaseHistory.EventType.NOTE, is_deleted=False
         )
 
     @property
     def zendesk_tickets(self) -> QuerySet["MobileZendeskTicket"]:
         return self.mobile_zendesktickets.filter(is_deleted=False)
-
-    @property
-    def most_recent_history(self):
-        return self.mobilecasehistory_set.first()
 
     @property
     def contacts(self) -> QuerySet["MobileContact"]:

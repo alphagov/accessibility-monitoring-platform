@@ -18,8 +18,13 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
-from ..cases.models import BaseCase, SimplifiedCaseStatus, get_previous_case_identifier
-from ..common.models import Boolean, CaseHistory, EmailTemplate, Link, VersionModel
+from ..cases.models import (
+    BaseCase,
+    CaseHistory,
+    SimplifiedCaseStatus,
+    get_previous_case_identifier,
+)
+from ..common.models import Boolean, EmailTemplate, Link, VersionModel
 from ..common.utils import (
     extract_domain_from_url,
     format_outstanding_issues,
@@ -1145,7 +1150,7 @@ class SimplifiedCase(BaseCase):
 
     def notes_history(self) -> QuerySet["SimplifiedCaseHistory"]:
         return self.simplifiedcasehistory_set.filter(
-            event_type=SimplifiedCaseHistory.EventType.NOTE
+            event_type=SimplifiedCaseHistory.EventType.NOTE, is_deleted=False
         )
 
 

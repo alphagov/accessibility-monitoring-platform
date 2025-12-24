@@ -1988,3 +1988,24 @@ def test_simplified_case_notes_history():
 
     assert simplified_case_history_status not in simplified_case.notes_history()
     assert simplified_case_history_note in simplified_case.notes_history()
+
+
+@pytest.mark.django_db
+def test_simplified_case_most_recent_case_note():
+    """Test SimplifiedCase.most_recent_case_note returns the most recent note"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    user: User = User.objects.create()
+    SimplifiedCaseHistory.objects.create(
+        simplified_case=simplified_case,
+        event_type=SimplifiedCaseHistory.EventType.NOTE,
+        created_by=user,
+    )
+    simplified_case_history_last: SimplifiedCaseHistory = (
+        SimplifiedCaseHistory.objects.create(
+            simplified_case=simplified_case,
+            event_type=SimplifiedCaseHistory.EventType.NOTE,
+            created_by=user,
+        )
+    )
+
+    assert simplified_case.most_recent_case_note == simplified_case_history_last
