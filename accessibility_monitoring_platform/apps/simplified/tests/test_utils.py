@@ -237,12 +237,15 @@ def test_create_case_and_compliance():
 @pytest.mark.django_db
 def test_record_model_create_event():
     """Test creation of model create event"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     user: User = User.objects.create()
-    record_simplified_model_create_event(user=user, model_object=user)
+    record_simplified_model_create_event(
+        user=user, model_object=user, simplified_case=simplified_case
+    )
 
     content_type: ContentType = ContentType.objects.get_for_model(User)
     event: SimplifiedEventHistory = SimplifiedEventHistory.objects.get(
-        content_type=content_type, object_id=user.id
+        content_type=content_type, object_id=user.id, simplified_case=simplified_case
     )
 
     assert event.event_type == SimplifiedEventHistory.Type.CREATE
@@ -260,13 +263,16 @@ def test_record_model_create_event():
 @pytest.mark.django_db
 def test_record_model_update_event():
     """Test creation of model update event"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     user: User = User.objects.create()
     user.first_name = "Changed"
-    record_simplified_model_update_event(user=user, model_object=user)
+    record_simplified_model_update_event(
+        user=user, model_object=user, simplified_case=simplified_case
+    )
 
     content_type: ContentType = ContentType.objects.get_for_model(User)
     event: SimplifiedEventHistory = SimplifiedEventHistory.objects.get(
-        content_type=content_type, object_id=user.id
+        content_type=content_type, object_id=user.id, simplified_case=simplified_case
     )
 
     assert event.event_type == SimplifiedEventHistory.Type.UPDATE

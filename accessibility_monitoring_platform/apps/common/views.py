@@ -18,10 +18,6 @@ from django.views.generic.list import ListView
 from ..cases.models import BaseCase
 from ..common.forms import FrequentlyUsedLinksFilterForm
 from ..common.sitemap import PlatformPage, Sitemap
-from ..simplified.utils import (
-    record_simplified_model_create_event,
-    record_simplified_model_update_event,
-)
 from .forms import (
     ActiveQAAuditorUpdateForm,
     AMPContactAdminForm,
@@ -44,7 +40,13 @@ from .metrics import (
 )
 from .models import ChangeToPlatform, FooterLink, FrequentlyUsedLink, Platform
 from .platform_template_view import PlatformTemplateView
-from .utils import extract_domain_from_url, get_platform_settings, sanitise_domain
+from .utils import (
+    extract_domain_from_url,
+    get_platform_settings,
+    record_model_create_event,
+    record_model_update_event,
+    sanitise_domain,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -262,13 +264,9 @@ class FrequentlyUsedLinkFormsetTemplateView(TemplateView):
             for link in links:
                 if not link.id:
                     link.save()
-                    record_simplified_model_create_event(
-                        user=self.request.user, model_object=link
-                    )
+                    record_model_create_event(user=self.request.user, model_object=link)
                 else:
-                    record_simplified_model_update_event(
-                        user=self.request.user, model_object=link
-                    )
+                    record_model_update_event(user=self.request.user, model_object=link)
                     link.save()
         else:
             return self.render_to_response(
@@ -321,13 +319,9 @@ class FooterLinkFormsetTemplateView(TemplateView):
             for link in links:
                 if not link.id:
                     link.save()
-                    record_simplified_model_create_event(
-                        user=self.request.user, model_object=link
-                    )
+                    record_model_create_event(user=self.request.user, model_object=link)
                 else:
-                    record_simplified_model_update_event(
-                        user=self.request.user, model_object=link
-                    )
+                    record_model_update_event(user=self.request.user, model_object=link)
                     link.save()
         else:
             return self.render_to_response(

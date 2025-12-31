@@ -11,8 +11,7 @@ from typing import Any
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Case as DjangoCase
-from django.db.models import Q, QuerySet, When
+from django.db.models import QuerySet
 from django.http import StreamingHttpResponse
 from django.urls import reverse
 
@@ -24,7 +23,7 @@ from ..common.form_extract_utils import (
     extract_form_labels_and_values,
 )
 from ..common.sitemap import PlatformPageGroup, Sitemap
-from ..common.utils import build_filters, diff_model_fields
+from ..common.utils import diff_model_fields
 from ..reports.utils import build_issues_tables
 from .csv_export import (
     SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
@@ -34,10 +33,8 @@ from .models import (
     COMPLIANCE_FIELDS,
     CaseCompliance,
     CaseEvent,
-    CaseStatus,
     SimplifiedCase,
     SimplifiedEventHistory,
-    Sort,
 )
 
 CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
@@ -223,7 +220,7 @@ def create_case_and_compliance(**kwargs) -> SimplifiedCase:
 def record_simplified_model_update_event(
     user: User,
     model_object: models.Model,
-    simplified_case: SimplifiedCase | None = None,
+    simplified_case: SimplifiedCase,
 ) -> None:
     """Record model update event"""
     previous_object = model_object.__class__.objects.get(pk=model_object.id)
@@ -246,7 +243,7 @@ def record_simplified_model_update_event(
 def record_simplified_model_create_event(
     user: User,
     model_object: models.Model,
-    simplified_case: SimplifiedCase | None = None,
+    simplified_case: SimplifiedCase,
 ) -> None:
     """Record model create event"""
     model_object_fields = copy.copy(vars(model_object))

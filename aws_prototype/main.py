@@ -9,7 +9,8 @@ import subprocess
 import boto3
 import yaml
 from django.core.management.utils import get_random_secret_key
-from utils import (
+
+from .utils import (
     create_burner_account,
     get_aws_resource_tags,
     write_prototype_platform_metadata,
@@ -64,7 +65,7 @@ def switch_cp_apps():
 
 
 def does_copilot_env_already_exist(env_name: str) -> bool:
-    copilot_command: list[str] = "copilot env ls".split(" ")
+    copilot_command: list[LiteralString] = "copilot env ls".split(" ")
     output = subprocess.check_output(copilot_command).decode("utf-8")
     if env_name in output:
         return True

@@ -1142,7 +1142,7 @@ class ZendeskTicketCreateView(HideCaseNavigationMixin, CreateView):
     View to create a Zendesk ticket
     """
 
-    model: type[SimplifiedCase] = ZendeskTicket
+    model: type[ZendeskTicket] = ZendeskTicket
     form_class: type[SimplifiedZendeskTicketCreateUpdateForm] = (
         SimplifiedZendeskTicketCreateUpdateForm
     )

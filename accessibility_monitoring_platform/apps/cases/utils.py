@@ -7,6 +7,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
+from django import forms
 from django.db.models import Case as DjangoCase
 from django.db.models import Q, QuerySet, When
 
@@ -34,7 +35,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class CaseDetailPage:
     page: PlatformPage
-    display_fields: list[FieldLabelAndValue] = None
+    display_fields: list[FieldLabelAndValue] | None = None
 
 
 @dataclass
@@ -43,10 +44,10 @@ class CaseDetailSection:
     pages: list[CaseDetailPage]
 
 
-def filter_cases(form) -> QuerySet[BaseCase]:
+def filter_cases(form: forms.Form) -> QuerySet[BaseCase]:
     """Return a queryset of Cases filtered by the values in CaseSearchForm"""
     filters: dict = {}
-    search_query = Q()
+    search_query: Q = Q()
     sort_by: str = Sort.NEWEST
 
     if hasattr(form, "cleaned_data"):
@@ -70,7 +71,7 @@ def filter_cases(form) -> QuerySet[BaseCase]:
             search_query = Q(case_number=form.cleaned_data["case_number"])
         elif form.cleaned_data.get("case_search"):
             search: str = form.cleaned_data["case_search"]
-            search_query = (
+            search_query: Q = (
                 Q(organisation_name__icontains=search)
                 | Q(home_page_url__icontains=search)
                 | Q(psb_location__icontains=search)

@@ -149,15 +149,15 @@ def create_mobile_case_from_dict(
         MobileCase.TestIncluded.YES if android_app_url else MobileCase.TestIncluded.NO
     )
 
-    first_contact_date: str = get_datetime_from_string(
+    first_contact_date: datetime | None = get_datetime_from_string(
         row["First contact date"]
     )  # dd/mm/yyyy
-    if first_contact_date:
+    if first_contact_date is not None:
         created: datetime = first_contact_date
     else:
         created: datetime = datetime.now().astimezone(timezone.utc)
     last_date: str = row["Date decision email sent"]  # dd/mm/yyyy
-    updated: datetime = get_datetime_from_string(last_date)
+    updated: datetime | None = get_datetime_from_string(last_date)
     if updated is None:
         updated: datetime = created
     auditor: User = auditors.get(row["Auditor"], default_user)

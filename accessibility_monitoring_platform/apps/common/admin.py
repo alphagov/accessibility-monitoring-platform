@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from .models import (
     ChangeToPlatform,
     EmailTemplate,
+    EventHistory,
     FooterLink,
     FrequentlyUsedLink,
     IssueReport,
@@ -161,6 +162,24 @@ class SubCategorysAdmin(admin.ModelAdmin):
     list_display = ["name"]
 
 
+class EventHistoryAdmin(admin.ModelAdmin):
+    """Django admin configuration for EventHistory model"""
+
+    list_display = [
+        "event_type",
+        "content_type",
+        "created",
+        "created_by",
+        "difference",
+    ]
+    list_filter = [
+        "event_type",
+        ("content_type", admin.RelatedOnlyFieldListFilter),
+        ("created_by", admin.RelatedOnlyFieldListFilter),
+    ]
+    show_facets = admin.ShowFacets.ALWAYS
+
+
 admin.site.register(EmailTemplate, EmailTemplateAdmin)
 admin.site.register(IssueReport, IssueReportAdmin)
 admin.site.register(Platform)
@@ -170,3 +189,4 @@ admin.site.register(UserCacheUniqueHash, UserCacheUniqueHashAdmin)
 admin.site.register(FrequentlyUsedLink, FrequentlyUsedLinksAdmin)
 admin.site.register(FooterLink, FooterLinksAdmin)
 admin.site.register(SubCategory, SubCategorysAdmin)
+admin.site.register(EventHistory, EventHistoryAdmin)
