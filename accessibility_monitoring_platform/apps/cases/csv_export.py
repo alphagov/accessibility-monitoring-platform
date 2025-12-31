@@ -32,7 +32,9 @@ EqualityBodySourceClasses = (
 
 def populate_equality_body_columns(
     case: DetailedCase | SimplifiedCase,
-    column_definitions: list[CSVColumn] = SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
+    column_definitions: list[
+        EqualityBodyCSVColumn
+    ] = SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
 ) -> list[EqualityBodyCSVColumn]:
     """
     Collect data for a case to export to the equality body

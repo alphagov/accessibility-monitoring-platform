@@ -12,7 +12,7 @@ import pytest
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import QuerySet
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, StreamingHttpResponse
 from django.urls import reverse
 
 from ...audits.models import Audit, Retest
@@ -292,7 +292,7 @@ def test_download_cases_simplified():
     simplified_cases: list[SimplifiedCase] = [simplified_case]
     Contact.objects.create(simplified_case=simplified_case, email="test@example.com")
 
-    response: HttpResponse = download_simplified_cases(
+    response: StreamingHttpResponse = download_simplified_cases(
         simplified_cases=simplified_cases, filename=CSV_EXPORT_FILENAME
     )
 
@@ -422,7 +422,7 @@ def test_download_feedback_survey_cases():
     CaseCompliance.objects.create(simplified_case=simplified_case)
     simplified_cases: list[SimplifiedCase] = [simplified_case]
 
-    response: HttpResponse = download_simplified_feedback_survey_cases(
+    response: StreamingHttpResponse = download_simplified_feedback_survey_cases(
         cases=simplified_cases, filename=CSV_EXPORT_FILENAME
     )
 
@@ -475,6 +475,7 @@ def test_get_simplified_case_detail_sections(rf):
         simplified_case=simplified_case, sitemap=sitemap
     )
 
+    assert sections[0].pages[0].display_fields is not None
     assert sections[0].pages[0].display_fields[2].value == ORGANISATION_NAME
 
 

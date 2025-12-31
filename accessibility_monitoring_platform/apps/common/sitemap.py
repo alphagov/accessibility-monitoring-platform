@@ -123,14 +123,15 @@ def populate_subpages_with_instance(
 ) -> list[PlatformPage]:
     """Set instance on each subpage where instance class matches"""
     subpages: list[PlatformPage] = []
-    for subpage in platform_page.subpages:
-        if subpage.instance_class is not None and isinstance(
-            instance, subpage.instance_class
-        ):
-            bound_subpage: PlatformPage = copy.copy(subpage)
-            bound_subpage.instance = instance
-            bound_subpage.populate_subpage_instances()
-            subpages.append(bound_subpage)
+    if platform_page.subpages is not None:
+        for subpage in platform_page.subpages:
+            if subpage.instance_class is not None and isinstance(
+                instance, subpage.instance_class
+            ):
+                bound_subpage: PlatformPage = copy.copy(subpage)
+                bound_subpage.instance = instance
+                bound_subpage.populate_subpage_instances()
+                subpages.append(bound_subpage)
     return subpages
 
 
@@ -553,16 +554,16 @@ class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestPlatformPage):
 @dataclass
 class PlatformPageGroup:
     class Type(StrEnum):
-        SIMPLIFIED_CASE_NAV: str = auto()
-        DETAILED_CASE_NAV: str = auto()
-        MOBILE_CASE_NAV: str = auto()
-        SIMPLIFIED_CASE_TOOLS: str = auto()
-        DETAILED_CASE_TOOLS: str = auto()
-        MOBILE_CASE_TOOLS: str = auto()
-        DEFAULT: str = auto()
+        SIMPLIFIED_CASE_NAV: auto = auto()
+        DETAILED_CASE_NAV: auto = auto()
+        MOBILE_CASE_NAV: auto = auto()
+        SIMPLIFIED_CASE_TOOLS: auto = auto()
+        DETAILED_CASE_TOOLS: auto = auto()
+        MOBILE_CASE_TOOLS: auto = auto()
+        DEFAULT: auto = auto()
 
     name: str
-    type: Type = Type.DEFAULT
+    type: Type[auto] = Type.DEFAULT
     show_flag_name: str | None = None
     case_nav_group: bool = True
     pages: list[PlatformPage] | None = None

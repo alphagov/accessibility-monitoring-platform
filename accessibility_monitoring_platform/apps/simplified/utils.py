@@ -67,33 +67,37 @@ def get_simplified_case_detail_sections(
             or page_group.type == PlatformPageGroup.Type.SIMPLIFIED_CASE_TOOLS
         ):
             case_detail_pages: list[CaseDetailPage] = []
-            for page in page_group.pages:
-                if page.show:
-                    display_fields: list[FieldLabelAndValue] = []
-                    if page.case_details_form_class:
-                        if page.case_details_form_class._meta.model == SimplifiedCase:
-                            display_fields = get_case_rows(
-                                form=page.case_details_form_class()
-                            )
-                        elif page.case_details_form_class._meta.model == Audit:
-                            display_fields = get_audit_rows(
-                                form=page.case_details_form_class()
-                            )
-                    if page.case_details_template_name:
-                        case_detail_pages.append(
-                            CaseDetailPage(
-                                page=page,
-                                display_fields=display_fields,
-                            )
-                        )
-                    if page.subpages is not None:
-                        for subpage in page.subpages:
-                            if subpage.case_details_template_name:
-                                case_detail_pages.append(
-                                    CaseDetailPage(
-                                        page=subpage,
-                                    )
+            if page_group.pages is not None:
+                for page in page_group.pages:
+                    if page.show:
+                        display_fields: list[FieldLabelAndValue] = []
+                        if page.case_details_form_class:
+                            if (
+                                page.case_details_form_class._meta.model
+                                == SimplifiedCase
+                            ):
+                                display_fields = get_case_rows(
+                                    form=page.case_details_form_class()
                                 )
+                            elif page.case_details_form_class._meta.model == Audit:
+                                display_fields = get_audit_rows(
+                                    form=page.case_details_form_class()
+                                )
+                        if page.case_details_template_name:
+                            case_detail_pages.append(
+                                CaseDetailPage(
+                                    page=page,
+                                    display_fields=display_fields,
+                                )
+                            )
+                        if page.subpages is not None:
+                            for subpage in page.subpages:
+                                if subpage.case_details_template_name:
+                                    case_detail_pages.append(
+                                        CaseDetailPage(
+                                            page=subpage,
+                                        )
+                                    )
             view_sections.append(
                 CaseDetailSection(
                     page_group_name=page_group.name, pages=case_detail_pages

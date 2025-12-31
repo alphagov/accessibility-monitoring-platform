@@ -4,6 +4,7 @@ Tests for cases views
 
 import json
 from datetime import date, timedelta
+from typing import Any
 
 import pytest
 from django.contrib.auth.models import Group, User
@@ -97,7 +98,7 @@ ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
 CONTACT_STATEMENT_URL: str = "https://example.com/contact"
 TODAY: date = date.today()
 QA_COMMENT_BODY: str = "QA comment body"
-CASE_ARCHIVE: list[dict] = {
+CASE_ARCHIVE: dict[str, Any] = {
     "sections": [
         {
             "name": "Archived section one",

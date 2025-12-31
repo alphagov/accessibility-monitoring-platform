@@ -448,7 +448,7 @@ class MobileCase(BaseCase):
         )
 
     @property
-    def percentage_of_issues_fixed(self) -> int | None:
+    def percentage_of_issues_fixed(self) -> int:
         if self.initial_total_number_of_issues > 0:
             return int(
                 self.number_of_issues_fixed * 100 / self.initial_total_number_of_issues

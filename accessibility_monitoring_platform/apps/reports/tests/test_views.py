@@ -210,7 +210,7 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     Test that the report details page tells user to review report
     """
     report: Report = create_report()
-    simplified_case: SimplifiedCase = report.base_case
+    simplified_case: SimplifiedCase = report.base_case.get_case()
     case_pk_kwargs: dict[str, int] = {"pk": simplified_case.id}
     user = User.objects.create()
     simplified_case.home_page_url = "https://www.website.com"
@@ -241,7 +241,7 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
 def test_report_metrics_displays_in_report_logs(admin_client):
     report: Report = create_report()
     report_pk_kwargs: dict[str, int] = {"pk": report.id}
-    simplified_case: SimplifiedCase = report.base_case
+    simplified_case: SimplifiedCase = report.base_case.get_case()
     simplified_case.save()
 
     ReportVisitsMetrics.objects.create(
@@ -301,7 +301,7 @@ def test_report_metrics_unique_vists_shows_only_current_report(admin_client):
     """
     report: Report = create_report()
     report_pk_kwargs: dict[str, int] = {"pk": report.id}
-    simplified_case: SimplifiedCase = report.base_case
+    simplified_case: SimplifiedCase = report.base_case.get_case()
     other_simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     ReportVisitsMetrics.objects.create(
@@ -374,7 +374,7 @@ def test_report_republish_button_show(admin_client):
     """
     report: Report = create_report()
     report_pk_kwargs: dict[str, int] = {"pk": report.id}
-    simplified_case: SimplifiedCase = report.base_case.simplifiedcase
+    simplified_case: SimplifiedCase = report.base_case.get_case()
     simplified_case.report_approved_status = (
         SimplifiedCase.ReportApprovedStatus.APPROVED
     )
