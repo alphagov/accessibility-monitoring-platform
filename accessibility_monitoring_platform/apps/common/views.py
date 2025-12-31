@@ -43,8 +43,8 @@ from .platform_template_view import PlatformTemplateView
 from .utils import (
     extract_domain_from_url,
     get_platform_settings,
-    record_model_create_event,
-    record_model_update_event,
+    record_common_model_create_event,
+    record_common_model_update_event,
     sanitise_domain,
 )
 
@@ -264,9 +264,13 @@ class FrequentlyUsedLinkFormsetTemplateView(TemplateView):
             for link in links:
                 if not link.id:
                     link.save()
-                    record_model_create_event(user=self.request.user, model_object=link)
+                    record_common_model_create_event(
+                        user=self.request.user, model_object=link
+                    )
                 else:
-                    record_model_update_event(user=self.request.user, model_object=link)
+                    record_common_model_update_event(
+                        user=self.request.user, model_object=link
+                    )
                     link.save()
         else:
             return self.render_to_response(
@@ -319,9 +323,13 @@ class FooterLinkFormsetTemplateView(TemplateView):
             for link in links:
                 if not link.id:
                     link.save()
-                    record_model_create_event(user=self.request.user, model_object=link)
+                    record_common_model_create_event(
+                        user=self.request.user, model_object=link
+                    )
                 else:
-                    record_model_update_event(user=self.request.user, model_object=link)
+                    record_common_model_update_event(
+                        user=self.request.user, model_object=link
+                    )
                     link.save()
         else:
             return self.render_to_response(

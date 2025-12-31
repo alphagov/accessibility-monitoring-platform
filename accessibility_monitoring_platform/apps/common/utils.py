@@ -313,7 +313,7 @@ def get_detailed_mobile_email_template_context():
     }
 
 
-def record_model_update_event(
+def record_common_model_update_event(
     user: User,
     model_object: models.Model,
 ) -> None:
@@ -334,7 +334,7 @@ def record_model_update_event(
         )
 
 
-def record_model_create_event(
+def record_common_model_create_event(
     user: User,
     model_object: models.Model,
 ) -> None:

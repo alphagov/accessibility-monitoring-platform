@@ -17,8 +17,8 @@ from ...common.mark_deleted_util import mark_object_as_deleted
 from ...common.utils import (
     amp_format_date,
     get_url_parameters_for_pagination,
-    record_model_create_event,
-    record_model_update_event,
+    record_common_model_create_event,
+    record_common_model_update_event,
 )
 from ...common.views import NextPlatformPageMixin
 from ...simplified.models import CaseEvent, SimplifiedCase
@@ -311,7 +311,9 @@ class WcagDefinitionCreateView(CreateView):
 
     def get_success_url(self) -> str:
         """Return to list of WCAG definitions"""
-        record_model_create_event(user=self.request.user, model_object=self.object)
+        record_common_model_create_event(
+            user=self.request.user, model_object=self.object
+        )
         return reverse("audits:wcag-definition-list")
 
 
@@ -329,7 +331,7 @@ class WcagDefinitionUpdateView(UpdateView):
         """Add record event on change of WCAG definition"""
         if form.changed_data:
             wcag_definition: WcagDefinition = form.save(commit=False)
-            record_model_update_event(
+            record_common_model_update_event(
                 user=self.request.user, model_object=wcag_definition
             )
         return super().form_valid(form)
@@ -400,7 +402,9 @@ class StatementCheckCreateView(CreateView):
 
     def get_success_url(self) -> str:
         """Return to list of statement checks"""
-        record_model_create_event(user=self.request.user, model_object=self.object)
+        record_common_model_create_event(
+            user=self.request.user, model_object=self.object
+        )
         return reverse("audits:statement-check-list")
 
 
@@ -418,7 +422,9 @@ class StatementCheckUpdateView(UpdateView):
         """Add record event on change of statement check"""
         if form.changed_data:
             self.object: StatementCheck = form.save(commit=False)
-            record_model_update_event(user=self.request.user, model_object=self.object)
+            record_common_model_update_event(
+                user=self.request.user, model_object=self.object
+            )
         return super().form_valid(form)
 
 

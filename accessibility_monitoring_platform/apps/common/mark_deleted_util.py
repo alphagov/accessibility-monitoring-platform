@@ -3,7 +3,7 @@
 from django.http import HttpRequest
 from django.http.request import QueryDict
 
-from ..common.utils import record_model_update_event
+from ..common.utils import record_common_model_update_event
 from ..simplified.utils import record_simplified_model_update_event
 
 
@@ -43,5 +43,7 @@ def mark_object_as_deleted(
                 simplified_case=object_to_delete.simplified_case,
             )
         else:
-            record_model_update_event(user=request.user, model_object=object_to_delete)
+            record_common_model_update_event(
+                user=request.user, model_object=object_to_delete
+            )
         object_to_delete.save()
