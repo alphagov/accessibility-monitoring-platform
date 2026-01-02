@@ -120,7 +120,9 @@ def test_populate_equality_body_columns():
     SimplifiedContact.objects.create(
         simplified_case=simplified_case, email=SIMPLIFIED_CONTACT_EMAIL
     )
-    row: list[CSVColumn] = populate_equality_body_columns(case=simplified_case)
+    row: list[EqualityBodyCSVColumn] = populate_equality_body_columns(
+        case=simplified_case
+    )
 
     assert len(row) == 29
 

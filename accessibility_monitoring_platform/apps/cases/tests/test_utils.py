@@ -599,7 +599,7 @@ def test_cases_sorted_by_name():
     ],
 )
 @pytest.mark.django_db
-def test_find_duplicate_cases(url, domain, expected_number_of_duplicates) -> BaseCase:
+def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
     """Test find_duplicate_cases returns matching cases"""
     organisation_name_case: BaseCase = BaseCase.objects.create(
         organisation_name=ORGANISATION_NAME
