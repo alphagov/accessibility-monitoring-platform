@@ -2369,7 +2369,7 @@ def get_platform_page_by_url_name(
     Find platform page in sitemap; Set platform page instance and return
     the platform page.
     """
-    if url_name in SITEMAP_BY_URL_NAME:
+    if SITEMAP_BY_URL_NAME is not None and url_name in SITEMAP_BY_URL_NAME:
         platform_page: PlatformPage = copy.copy(SITEMAP_BY_URL_NAME[url_name])
         platform_page.set_instance(instance=instance)
         return platform_page
