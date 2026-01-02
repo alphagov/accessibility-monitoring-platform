@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.detail import DetailView
@@ -41,6 +41,7 @@ from .csv_export import (
     MOBILE_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
     MOBILE_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
     MOBILE_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
+    MobileEqualityBodyCSVColumn,
     populate_mobile_equality_body_columns,
 )
 from .forms import (
@@ -129,7 +130,7 @@ class MobileCaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
     context_object_name: str = "mobile_case"
     template_name: str = "cases/forms/create.html"
 
-    def form_valid(self, form: MobileCaseCreateForm):
+    def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         if "allow_duplicate_cases" in self.request.GET:
             mobile_case: MobileCase = form.save(commit=False)
@@ -300,7 +301,7 @@ class MobileCaseNoteCreateView(HideCaseNavigationMixin, CreateView):
         context["mobile_case_history"] = mobile_case.mobilecasehistory_set.all()
         return context
 
-    def form_valid(self, form: MobileCaseHistoryCreateForm):
+    def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         mobile_case: MobileCase = get_object_or_404(
             MobileCase, id=self.kwargs.get("case_id")
@@ -332,7 +333,7 @@ class MobileCaseNoteUpdateView(HideCaseNavigationMixin, UpdateView):
     context_object_name: str = "mobile_case_history"
     template_name: str = "mobile/forms/note_update.html"
 
-    def form_valid(self, form: MobileContactUpdateForm):
+    def form_valid(self, form: ModelForm):
         """Mark contact as deleted if button is pressed"""
         mobile_case_history: MobileCaseHistory = form.save(commit=False)
         record_mobile_model_update_event(
@@ -365,7 +366,7 @@ class ContactCreateView(AddMobileCaseToContextMixin, CreateView):
     form_class: type[MobileContactCreateForm] = MobileContactCreateForm
     template_name: str = "mobile/forms/contact_create.html"
 
-    def form_valid(self, form: MobileContactCreateForm):
+    def form_valid(self, form: ModelForm):
         """Populate mobile case of contact"""
         mobile_case: MobileCase = get_object_or_404(
             MobileCase, id=self.kwargs.get("case_id")
@@ -402,7 +403,7 @@ class ContactUpdateView(UpdateView):
         context["mobile_case"] = self.object.mobile_case
         return context
 
-    def form_valid(self, form: MobileContactUpdateForm):
+    def form_valid(self, form: ModelForm):
         """Mark contact as deleted if button is pressed"""
         contact: MobileContact = form.save(commit=False)
         if "delete_contact" in self.request.POST:
@@ -536,7 +537,7 @@ class CorrespondenceReportSentUpdateView(CorrespondenceUpdateView):
 
     form_class: type[MobileReportSentUpdateForm] = MobileReportSentUpdateForm
 
-    def form_valid(self, form: MobileReportSentUpdateForm):
+    def form_valid(self, form: ModelForm):
         """
         Populate 12-week deadline if report sent date has changed
         """
@@ -637,37 +638,39 @@ class CaseCloseUpdateView(MobileCaseUpdateView):
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
         mobile_case: MobileCase = self.object
-        equality_body_metadata_columns: list[EqualityBodyCSVColumn] = (
-            populate_mobile_equality_body_columns(
-                mobile_case=mobile_case,
-                column_definitions=MOBILE_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
-            )
+        equality_body_metadata_columns: list[
+            EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn
+        ] = populate_mobile_equality_body_columns(
+            mobile_case=mobile_case,
+            column_definitions=MOBILE_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
         )
-        equality_body_report_columns: list[EqualityBodyCSVColumn] = (
-            populate_mobile_equality_body_columns(
-                mobile_case=mobile_case,
-                column_definitions=MOBILE_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
-            )
+        equality_body_report_columns: list[
+            EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn
+        ] = populate_mobile_equality_body_columns(
+            mobile_case=mobile_case,
+            column_definitions=MOBILE_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT,
         )
-        equality_body_correspondence_columns: list[EqualityBodyCSVColumn] = (
-            populate_mobile_equality_body_columns(
-                mobile_case=mobile_case,
-                column_definitions=MOBILE_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
-            )
+        equality_body_correspondence_columns: list[
+            EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn
+        ] = populate_mobile_equality_body_columns(
+            mobile_case=mobile_case,
+            column_definitions=MOBILE_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
         )
-        equality_body_test_summary_columns: list[EqualityBodyCSVColumn] = (
-            populate_mobile_equality_body_columns(
-                mobile_case=mobile_case,
-                column_definitions=MOBILE_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
-            )
+        equality_body_test_summary_columns: list[
+            EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn
+        ] = populate_mobile_equality_body_columns(
+            mobile_case=mobile_case,
+            column_definitions=MOBILE_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
         )
-        all_equality_body_columns: list[EqualityBodyCSVColumn] = (
+        all_equality_body_columns: list[
+            EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn
+        ] = (
             equality_body_metadata_columns
             + equality_body_report_columns
             + equality_body_correspondence_columns
             + equality_body_test_summary_columns
         )
-        required_data_missing_columns: list[EqualityBodyCSVColumn] = [
+        required_data_missing_columns: list[MobileEqualityBodyCSVColumn] = [
             column
             for column in all_equality_body_columns
             if column.required_data_missing
@@ -838,7 +841,7 @@ def mark_qa_comments_as_read(request: HttpRequest, pk: int) -> HttpResponseRedir
     return redirect(reverse("mobile:edit-qa-comments", kwargs={"pk": mobile_case.id}))
 
 
-def export_mobile_cases(request: HttpRequest) -> HttpResponse:
+def export_mobile_cases(request: HttpRequest) -> StreamingHttpResponse:
     """View to export mobile cases"""
     search_parameters: dict[str, str] = replace_search_key_with_case_search(request.GET)
     search_parameters["test_type"] = TestType.MOBILE
@@ -850,7 +853,7 @@ def export_mobile_cases(request: HttpRequest) -> HttpResponse:
     return download_mobile_cases(mobile_cases=filter_cases(form=case_search_form))
 
 
-def export_feedback_survey_cases(request: HttpRequest) -> HttpResponse:
+def export_feedback_survey_cases(request: HttpRequest) -> StreamingHttpResponse:
     """View to export cases for feedback survey"""
     search_parameters: dict[str, str] = replace_search_key_with_case_search(request.GET)
     search_parameters["test_type"] = TestType.MOBILE
@@ -861,7 +864,7 @@ def export_feedback_survey_cases(request: HttpRequest) -> HttpResponse:
     )
 
 
-def export_equality_body_cases(request: HttpRequest) -> HttpResponse:
+def export_equality_body_cases(request: HttpRequest) -> StreamingHttpResponse:
     """View to export cases for equality body survey"""
     search_parameters: dict[str, str] = replace_search_key_with_case_search(request.GET)
     search_parameters["test_type"] = TestType.MOBILE

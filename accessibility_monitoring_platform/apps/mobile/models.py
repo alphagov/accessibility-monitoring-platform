@@ -381,7 +381,7 @@ class MobileCase(BaseCase):
         return self.contacts.filter(preferred=MobileContact.Preferred.YES)
 
     @property
-    def previous_case_identifier(self) -> str:
+    def previous_case_identifier(self) -> str | None:
         return get_previous_case_identifier(previous_case_url=self.previous_case_url)
 
     @property

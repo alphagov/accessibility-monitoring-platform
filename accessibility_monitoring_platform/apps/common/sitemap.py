@@ -193,9 +193,9 @@ class PlatformPage:
         return repr
 
     @property
-    def url(self) -> str | None:
+    def url(self) -> str:
         if self.url_name is None:
-            return None
+            return ""
         if self.name.startswith("Page not found for "):
             return ""
         if self.url_kwarg_key and self.instance is not None:

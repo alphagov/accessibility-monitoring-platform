@@ -289,7 +289,7 @@ class DetailedCase(BaseCase):
         return self.contacts.filter(preferred=Contact.Preferred.YES)
 
     @property
-    def previous_case_identifier(self) -> str:
+    def previous_case_identifier(self) -> str | None:
         return get_previous_case_identifier(previous_case_url=self.previous_case_url)
 
     @property

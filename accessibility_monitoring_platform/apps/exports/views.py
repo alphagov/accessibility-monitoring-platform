@@ -8,7 +8,7 @@ from typing import Any
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.detail import DetailView
@@ -181,7 +181,7 @@ class ExportConfirmDeleteUpdateView(UpdateView):
         return f'{reverse("exports:export-list")}?enforcement_body={self.object.enforcement_body}'
 
 
-def export_all_cases(request: HttpRequest, pk: int) -> HttpResponse:
+def export_all_cases(request: HttpRequest, pk: int) -> StreamingHttpResponse:
     """View to export all cases"""
     export: Export = get_object_or_404(Export, id=pk)
     return download_equality_body_simplified_cases(
@@ -190,7 +190,7 @@ def export_all_cases(request: HttpRequest, pk: int) -> HttpResponse:
     )
 
 
-def export_ready_cases(request: HttpRequest, pk: int) -> HttpResponse:
+def export_ready_cases(request: HttpRequest, pk: int) -> StreamingHttpResponse:
     """View to export only ready cases."""
     export: Export = get_object_or_404(Export, pk=pk)
     return download_equality_body_simplified_cases(

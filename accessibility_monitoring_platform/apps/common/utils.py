@@ -35,8 +35,8 @@ class SessionExpiry:
                 > self.session_expiry_date
             )
         else:
-            self.session_expiry_date = None
-            self.show_session_expiry_warning = False
+            self.session_expiry_date: None = None
+            self.show_session_expiry_warning: None = False
 
 
 def extract_domain_from_url(url: str) -> str:

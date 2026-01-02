@@ -12,7 +12,7 @@ import pytest
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import QuerySet
-from django.http import HttpRequest, HttpResponse, StreamingHttpResponse
+from django.http import HttpRequest, StreamingHttpResponse
 from django.urls import reverse
 
 from ...audits.models import Audit, Retest

@@ -113,7 +113,7 @@ def test_platform_page_repr():
 
 def test_platform_page_url():
     """Test PlatformPage.url"""
-    assert PlatformPage(name=PLATFORM_PAGE_NAME).url is None
+    assert PlatformPage(name=PLATFORM_PAGE_NAME).url == ""
     assert (
         PlatformPage(name=PLATFORM_PAGE_NAME, url_name="cases:case-list").url
         == "/cases/"

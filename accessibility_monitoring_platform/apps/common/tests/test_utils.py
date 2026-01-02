@@ -54,20 +54,20 @@ from ..utils import (
     validate_url,
 )
 
-CHANGED_FIELD_OLD_FIELDS: str = {"field1": "value1", "field2": "value2"}
-CHANGED_FIELD_NEW_FIELDS: str = {"field1": "value1a", "field2": "value2"}
-CHANGED_FIELD_DIFF: str = {"field1": "value1 -> value1a"}
+CHANGED_FIELD_OLD_FIELDS: dict[str, str] = {"field1": "value1", "field2": "value2"}
+CHANGED_FIELD_NEW_FIELDS: dict[str, str] = {"field1": "value1a", "field2": "value2"}
+CHANGED_FIELD_DIFF: dict[str, str] = {"field1": "value1 -> value1a"}
 
 CREATE_ROW_OLD_FIELDS: str = ""
-CREATE_ROW_NEW_FIELDS: str = {"field1": "value1", "field2": "value2"}
+CREATE_ROW_NEW_FIELDS: dict[str, str] = {"field1": "value1", "field2": "value2"}
 
-ADD_FIELD_OLD_FIELDS: str = {"field1": "value1"}
-ADD_FIELD_NEW_FIELDS: str = {"field1": "value1", "field2": "value2"}
-ADD_FIELD_DIFF: str = {"field2": "-> value2"}
+ADD_FIELD_OLD_FIELDS: dict[str, str] = {"field1": "value1"}
+ADD_FIELD_NEW_FIELDS: dict[str, str] = {"field1": "value1", "field2": "value2"}
+ADD_FIELD_DIFF: dict[str, str] = {"field2": "-> value2"}
 
-REMOVE_FIELD_OLD_FIELDS: str = {"field1": "value1", "field2": "value2"}
-REMOVE_FIELD_NEW_FIELDS: str = {"field1": "value1"}
-REMOVE_FIELD_DIFF: str = {"field2": "value2 ->"}
+REMOVE_FIELD_OLD_FIELDS: dict[str, str] = {"field1": "value1", "field2": "value2"}
+REMOVE_FIELD_NEW_FIELDS: dict[str, str] = {"field1": "value1"}
+REMOVE_FIELD_DIFF: dict[str, str] = {"field2": "value2 ->"}
 
 
 class MockModel:

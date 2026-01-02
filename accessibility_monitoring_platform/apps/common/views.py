@@ -83,9 +83,11 @@ class NextPlatformPageMixin:
     page, adds it to context and returns its URL on success.
     """
 
-    def get_next_platform_page(self) -> PlatformPage:
+    def get_next_platform_page(self) -> PlatformPage | None:
         sitemap: Sitemap = Sitemap(request=self.request)
-        next_platform_page: PlatformPage = sitemap.current_platform_page.next_page
+        next_platform_page: PlatformPage | None = (
+            sitemap.current_platform_page.next_page
+        )
         if next_platform_page is not None:
             next_platform_page.set_instance(instance=self.object)
         return next_platform_page
@@ -139,7 +141,7 @@ class ActiveQAAuditorUpdateView(UpdateView):
     form_class: type[ActiveQAAuditorUpdateForm] = ActiveQAAuditorUpdateForm
     template_name: str = "common/settings/active_qa_auditor.html"
 
-    def get_object(self) -> Platform:
+    def get_object(self, queryset=None) -> Platform:
         """Return the platform-wide settings"""
         return get_platform_settings()
 
@@ -394,3 +396,5 @@ class BulkURLSearchView(FormView):
             return self.render_to_response(
                 self.get_context_data(bulk_search_results=bulk_search_results)
             )
+        else:
+            return self.form_invalid(form)

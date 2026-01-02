@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 import pytest
 from django.contrib.auth.models import User
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, StreamingHttpResponse
 from django.urls import reverse
 
 from ...cases.utils import CaseDetailSection
@@ -46,6 +46,7 @@ def test_get_detailed_case_detail_sections(rf):
         detailed_case=detailed_case, sitemap=sitemap
     )
 
+    assert sections[0].pages[0].display_fields is not None
     assert sections[0].pages[0].display_fields[1].value == ORGANISATION_NAME
 
 
@@ -67,7 +68,7 @@ def test_download_cases_detailed():
         created_by=user,
     )
 
-    response: HttpResponse = download_detailed_cases(
+    response: StreamingHttpResponse = download_detailed_cases(
         detailed_cases=detailed_cases, filename=CSV_EXPORT_FILENAME
     )
 
@@ -195,7 +196,7 @@ def test_download_feedback_survey_detailed_cases():
     )
     detailed_cases: list[DetailedCase] = [detailed_case]
 
-    response: HttpResponse = download_detailed_feedback_survey_cases(
+    response: StreamingHttpResponse = download_detailed_feedback_survey_cases(
         cases=detailed_cases, filename=CSV_EXPORT_FILENAME
     )
 
@@ -249,7 +250,7 @@ def test_download_equality_body_detailed_cases():
     )
     detailed_cases: list[DetailedCase] = [detailed_case]
 
-    response: HttpResponse = download_detailed_equality_body_cases(
+    response: StreamingHttpResponse = download_detailed_equality_body_cases(
         cases=detailed_cases, filename=CSV_EXPORT_FILENAME
     )
 
