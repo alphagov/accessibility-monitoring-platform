@@ -18,7 +18,6 @@ def port_non_case_event_history(apps, schema_editor):  # pylint: disable=unused-
             EventHistory.objects.create(
                 content_type=simplified_event_history.content_type,
                 object_id=simplified_event_history.object_id,
-                # parent=simplified_event_history.parent,
                 event_type=simplified_event_history.event_type,
                 difference=simplified_event_history.difference,
                 created_by_id=simplified_event_history.created_by_id,
@@ -38,7 +37,6 @@ def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
             SimplifiedEventHistory.objects.create(
                 content_type=event_history.content_type,
                 object_id=event_history.object_id,
-                # parent=event_history.parent,
                 event_type=event_history.event_type,
                 difference=event_history.difference,
                 created_by_id=event_history.created_by_id,

@@ -163,7 +163,7 @@ class ExportConfirmDeleteUpdateView(UpdateView):
     context_object_name: str = "export"
     template_name: str = "exports/export_confirm_delete.html"
 
-    def get_form(self):
+    def get_form(self, form_class=None):
         """Populate next page select field"""
         form = super().get_form()
         export: Export = self.object

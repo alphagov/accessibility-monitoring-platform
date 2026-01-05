@@ -563,16 +563,16 @@ class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestPlatformPage):
 @dataclass
 class PlatformPageGroup:
     class Type(StrEnum):
-        SIMPLIFIED_CASE_NAV: auto = auto()
-        DETAILED_CASE_NAV: auto = auto()
-        MOBILE_CASE_NAV: auto = auto()
-        SIMPLIFIED_CASE_TOOLS: auto = auto()
-        DETAILED_CASE_TOOLS: auto = auto()
-        MOBILE_CASE_TOOLS: auto = auto()
-        DEFAULT: auto = auto()
+        SIMPLIFIED_CASE_NAV = auto()
+        DETAILED_CASE_NAV = auto()
+        MOBILE_CASE_NAV = auto()
+        SIMPLIFIED_CASE_TOOLS = auto()
+        DETAILED_CASE_TOOLS = auto()
+        MOBILE_CASE_TOOLS = auto()
+        DEFAULT = auto()
 
     name: str
-    type: Type[auto] = Type.DEFAULT
+    type: Type = Type.DEFAULT
     show_flag_name: str | None = None
     case_nav_group: bool = True
     pages: list[PlatformPage] | None = None

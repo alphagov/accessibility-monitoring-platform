@@ -7,10 +7,10 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
-from django import forms
 from django.db.models import Case as DjangoCase
 from django.db.models import Q, QuerySet, When
 
+from ..cases.forms import CaseSearchForm
 from ..common.form_extract_utils import FieldLabelAndValue
 from ..common.sitemap import PlatformPage
 from ..common.utils import build_filters, extract_domain_from_url
@@ -44,9 +44,9 @@ class CaseDetailSection:
     pages: list[CaseDetailPage]
 
 
-def filter_cases(form: forms.Form) -> QuerySet[BaseCase]:
+def filter_cases(form: CaseSearchForm) -> QuerySet[BaseCase]:
     """Return a queryset of Cases filtered by the values in CaseSearchForm"""
-    filters: dict = {}
+    filters: dict[str, Any] = {}
     search_query: Q = Q()
     sort_by: str = Sort.NEWEST
 

@@ -75,7 +75,7 @@ def sanitise_domain(domain: str) -> str:
 
 
 def build_filters(
-    cleaned_data: dict, field_and_filter_names: list[tuple[str, str]]
+    cleaned_data: dict[str, Any], field_and_filter_names: list[tuple[str, str]]
 ) -> dict[str, Any]:
     """
     Given the form cleaned_data, work through a list of field and filter names

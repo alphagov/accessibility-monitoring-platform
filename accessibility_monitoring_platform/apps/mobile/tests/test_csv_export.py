@@ -174,7 +174,7 @@ def test_populate_mobile_equality_body_columns_combined_os():
         populate_mobile_equality_body_columns(mobile_case=mobile_case)
     )
 
-    total_number_of_issues: list[
+    total_number_of_issues_column: list[
         EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn
     ] = [
         cell
@@ -182,10 +182,10 @@ def test_populate_mobile_equality_body_columns_combined_os():
         if cell.column_header == "Total number of accessibility issues"
     ]
 
-    assert len(total_number_of_issues) == 1
+    assert len(total_number_of_issues_column) == 1
 
     total_number_of_issues_cell: EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn = (
-        total_number_of_issues[0]
+        total_number_of_issues_column[0]
     )
 
     assert total_number_of_issues_cell.formatted_data == TOTAL_NUMBER_OF_ISSUES

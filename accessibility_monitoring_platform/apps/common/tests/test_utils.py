@@ -4,6 +4,7 @@ Test - common utility functions
 
 import csv
 import io
+import json
 from datetime import date, datetime, timedelta
 from datetime import timezone as datetime_timezone
 from typing import Any
@@ -12,6 +13,7 @@ from zoneinfo import ZoneInfo
 
 import pytest
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 from django.http import HttpRequest, StreamingHttpResponse
@@ -21,7 +23,7 @@ from django_otp.plugins.otp_email.models import EmailDevice
 
 from ...simplified.models import Contact, SimplifiedCase
 from ..mark_deleted_util import get_id_from_button_name, mark_object_as_deleted
-from ..models import ChangeToPlatform, Platform
+from ..models import ChangeToPlatform, EventHistory, Platform
 from ..utils import (
     SessionExpiry,
     add_12_weeks_to_date,
@@ -47,6 +49,8 @@ from ..utils import (
     get_recent_changes_to_platform,
     get_url_parameters_for_pagination,
     list_to_dictionary_of_lists,
+    record_common_model_create_event,
+    record_common_model_update_event,
     replace_search_key_with_case_search,
     replace_whole_words,
     sanitise_domain,
@@ -672,3 +676,42 @@ def test_get_detailed_mobile_email_template_context():
             "15_days_from_now": date(2023, 2, 16),
             "12_weeks_from_now": date(2023, 4, 26),
         }
+
+
+@pytest.mark.django_db
+def test_record_model_create_event():
+    """Test creation of model create event"""
+    user: User = User.objects.create()
+    record_common_model_create_event(user=user, model_object=user)
+
+    content_type: ContentType = ContentType.objects.get_for_model(User)
+    event: EventHistory = EventHistory.objects.get(
+        content_type=content_type, object_id=user.id
+    )
+
+    assert event.event_type == EventHistory.Type.CREATE
+
+    difference_dict: dict[str, Any] = json.loads(event.difference)
+
+    assert "last_login" in difference_dict
+    assert difference_dict["last_login"] is None
+    assert "is_active" in difference_dict
+    assert difference_dict["is_active"] is True
+    assert "is_staff" in difference_dict
+    assert difference_dict["is_staff"] is False
+
+
+@pytest.mark.django_db
+def test_record_model_update_event():
+    """Test creation of model update event"""
+    user: User = User.objects.create()
+    user.first_name = "Changed"
+    record_common_model_update_event(user=user, model_object=user)
+
+    content_type: ContentType = ContentType.objects.get_for_model(User)
+    event: EventHistory = EventHistory.objects.get(
+        content_type=content_type, object_id=user.id
+    )
+
+    assert event.event_type == EventHistory.Type.UPDATE
+    assert event.difference == '{"first_name": " -> Changed"}'
