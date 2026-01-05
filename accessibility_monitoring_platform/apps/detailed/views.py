@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.detail import DetailView
@@ -652,7 +652,7 @@ class ZendeskTicketCreateView(HideCaseNavigationMixin, CreateView):
     View to create a Zendesk ticket
     """
 
-    model: type[DetailedCase] = ZendeskTicket
+    model: type[ZendeskTicket] = ZendeskTicket
     form_class: type[DetailedZendeskTicketCreateUpdateForm] = (
         DetailedZendeskTicketCreateUpdateForm
     )
@@ -779,7 +779,7 @@ def mark_qa_comments_as_read(request: HttpRequest, pk: int) -> HttpResponseRedir
     )
 
 
-def export_detailed_cases(request: HttpRequest) -> HttpResponse:
+def export_detailed_cases(request: HttpRequest) -> StreamingHttpResponse:
     """View to export detailed cases"""
     search_parameters: dict[str, str] = replace_search_key_with_case_search(request.GET)
     search_parameters["test_type"] = TestType.DETAILED
@@ -791,7 +791,7 @@ def export_detailed_cases(request: HttpRequest) -> HttpResponse:
     return download_detailed_cases(detailed_cases=filter_cases(form=case_search_form))
 
 
-def export_feedback_survey_cases(request: HttpRequest) -> HttpResponse:
+def export_feedback_survey_cases(request: HttpRequest) -> StreamingHttpResponse:
     """View to export cases for feedback survey"""
     search_parameters: dict[str, str] = replace_search_key_with_case_search(request.GET)
     search_parameters["test_type"] = TestType.DETAILED
@@ -802,7 +802,7 @@ def export_feedback_survey_cases(request: HttpRequest) -> HttpResponse:
     )
 
 
-def export_equality_body_cases(request: HttpRequest) -> HttpResponse:
+def export_equality_body_cases(request: HttpRequest) -> StreamingHttpResponse:
     """View to export cases for equality body survey"""
     search_parameters: dict[str, str] = replace_search_key_with_case_search(request.GET)
     search_parameters["test_type"] = TestType.DETAILED

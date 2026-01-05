@@ -6,7 +6,6 @@ import copy
 import logging
 from dataclasses import dataclass
 from enum import StrEnum, auto
-from typing import ClassVar
 
 from django import forms
 from django.contrib.auth.models import User

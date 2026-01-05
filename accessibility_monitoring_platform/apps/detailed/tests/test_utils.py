@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 import pytest
 from django.contrib.auth.models import User
-from django.http import HttpRequest, HttpResponse, StreamingHttpResponse
+from django.http import HttpRequest, StreamingHttpResponse
 from django.urls import reverse
 
 from ...cases.utils import CaseDetailSection
