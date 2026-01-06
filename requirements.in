@@ -13,6 +13,5 @@ moto
 django-axes
 django-two-factor-auth
 phonenumbers
-django-csp
 pytest-django
 webdriver-manager

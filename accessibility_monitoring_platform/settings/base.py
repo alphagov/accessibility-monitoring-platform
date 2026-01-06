@@ -15,6 +15,7 @@ import os
 import sys
 from pathlib import Path
 
+from django.utils.csp import CSP
 from dotenv import load_dotenv
 
 DEBUG = os.getenv("DEBUG") == "TRUE"
@@ -103,7 +104,7 @@ MIDDLEWARE = [
     "django_otp.middleware.OTPMiddleware",
     "accessibility_monitoring_platform.apps.common.middleware.permissions_policy_middleware.PermissionsPolicyMiddleware",
     "accessibility_monitoring_platform.apps.common.middleware.cache_user_id_middleware.CacheUserUniqueID",
-    "csp.middleware.CSPMiddleware",
+    "django.middleware.csp.ContentSecurityPolicyMiddleware",
     # AxesMiddleware should be the last middleware in the MIDDLEWARE list.
     "axes.middleware.AxesMiddleware",
 ]
@@ -293,11 +294,13 @@ PERMISSIONS_POLICY = {
     "usb": [],
 }
 
-CSP_DEFAULT_SRC = ("'none'",)
-CSP_STYLE_SRC = "'self'"
-CSP_SCRIPT_SRC = ("'self'",)
-CSP_FONT_SRC = ("'self'",)
-CSP_IMG_SRC = ("'self'", "data:")
+SECURE_CSP = {
+    "default-src": [CSP.NONE],
+    "style-src": [CSP.SELF],
+    "script-src": [CSP.SELF],
+    "font-src": [CSP.SELF],
+    "img-src": [CSP.SELF, "data:"],
+}
 
 AWS_PROTOTYPE_FILE: Path = Path("aws_prototype.json")
 if AWS_PROTOTYPE_FILE.exists() and UNDER_TEST is False:
