@@ -1554,6 +1554,10 @@ class SimplifiedCaseHistory(CaseHistory):
         default=SimplifiedCase.Status.UNASSIGNED,
     )
 
+    class Meta:
+        ordering = ["-created"]
+        verbose_name_plural = "Simplified Case history"
+
     def save(self, *args, **kwargs) -> None:
         if not self.id:
             self.simplified_case_status = self.simplified_case.status
@@ -1566,6 +1570,5 @@ class SimplifiedCaseHistory(CaseHistory):
             f"{self.simplified_case} {self.event_type} {self.created} {self.created_by}"
         )
 
-    class Meta:
-        ordering = ["-created"]
-        verbose_name_plural = "Simplified Case history"
+    def get_absolute_url(self) -> str:
+        return reverse("simplified:edit-case-note", kwargs={"pk": self.id})

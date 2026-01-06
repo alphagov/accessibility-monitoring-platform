@@ -1967,7 +1967,25 @@ def test_target_of_test():
 
 
 @pytest.mark.django_db
-def test_simplified_case_case_history():
+def test_simplified_history_get_absolute_url():
+    """Test SimplifiedCaseHistory.get_absolute_url"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    user: User = User.objects.create()
+    simplified_case_history: SimplifiedCaseHistory = (
+        SimplifiedCaseHistory.objects.create(
+            simplified_case=simplified_case,
+            event_type=SimplifiedCaseHistory.EventType.STATUS,
+            created_by=user,
+        )
+    )
+
+    assert simplified_case_history.get_absolute_url() == reverse(
+        "simplified:edit-case-note", kwargs={"pk": simplified_case_history.id}
+    )
+
+
+@pytest.mark.django_db
+def test_simplified_case_case_history_undeleted():
     """Test SimplifiedCase.case_history returns only undeleted events"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     user: User = User.objects.create()
@@ -1992,7 +2010,7 @@ def test_simplified_case_case_history():
 
 
 @pytest.mark.django_db
-def test_simplified_case_notes_history():
+def test_simplified_case_notes_history_relevant():
     """Test SimplifiedCase.notes_history returns only relevant events"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     user: User = User.objects.create()

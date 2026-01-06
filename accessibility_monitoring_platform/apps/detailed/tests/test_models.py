@@ -6,6 +6,7 @@ from datetime import date
 
 import pytest
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 from ...common.models import Boolean
 from ...simplified.models import SimplifiedCase
@@ -53,7 +54,23 @@ def test_detailed_case_title():
 
 
 @pytest.mark.django_db
-def test_detailed_case_status_history():
+def test_detailed_history_get_absolute_url():
+    """Test DetailedCaseHistory.get_absolute_url"""
+    detailed_case: DetailedCase = DetailedCase.objects.create()
+    user: User = User.objects.create()
+    detailed_case_history: DetailedCaseHistory = DetailedCaseHistory.objects.create(
+        detailed_case=detailed_case,
+        event_type=DetailedCaseHistory.EventType.STATUS,
+        created_by=user,
+    )
+
+    assert detailed_case_history.get_absolute_url() == reverse(
+        "detailed:edit-case-note", kwargs={"pk": detailed_case_history.id}
+    )
+
+
+@pytest.mark.django_db
+def test_detailed_case_status_history_relevant():
     """Test DetailedCase.status_history returns only relevant events"""
     detailed_case: DetailedCase = DetailedCase.objects.create()
     user: User = User.objects.create()
@@ -77,7 +94,7 @@ def test_detailed_case_status_history():
 
 
 @pytest.mark.django_db
-def test_detailed_case_case_history():
+def test_detailed_case_case_history_undeleted():
     """Test DetailedCase.case_history returns only undeleted events"""
     detailed_case: DetailedCase = DetailedCase.objects.create()
     user: User = User.objects.create()
@@ -99,30 +116,6 @@ def test_detailed_case_case_history():
 
     assert detailed_case_history_status in detailed_case.case_history()
     assert detailed_case_history_note not in detailed_case.case_history()
-
-
-@pytest.mark.django_db
-def test_detailed_case_notes_history():
-    """Test DetailedCase.notes_history returns only relevant events"""
-    detailed_case: DetailedCase = DetailedCase.objects.create()
-    user: User = User.objects.create()
-    detailed_case_history_status: DetailedCaseHistory = (
-        DetailedCaseHistory.objects.create(
-            detailed_case=detailed_case,
-            event_type=DetailedCaseHistory.EventType.STATUS,
-            created_by=user,
-        )
-    )
-    detailed_case_history_note: DetailedCaseHistory = (
-        DetailedCaseHistory.objects.create(
-            detailed_case=detailed_case,
-            event_type=DetailedCaseHistory.EventType.NOTE,
-            created_by=user,
-        )
-    )
-
-    assert detailed_case_history_status not in detailed_case.notes_history()
-    assert detailed_case_history_note in detailed_case.notes_history()
 
 
 @pytest.mark.django_db

@@ -643,7 +643,7 @@ class MobileCaseHistory(CaseHistory):
         return f"{self.mobile_case} {self.event_type} {self.created} {self.created_by}"
 
     def get_absolute_url(self) -> str:
-        return reverse("mobile:edit-case-note", kwargs={"pk": self.mobile_case.id})
+        return reverse("mobile:edit-case-note", kwargs={"pk": self.id})
 
 
 class MobileContact(VersionModel):

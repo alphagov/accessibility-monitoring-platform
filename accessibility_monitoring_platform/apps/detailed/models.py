@@ -425,6 +425,10 @@ class DetailedCaseHistory(CaseHistory):
         default=DetailedCase.Status.UNASSIGNED,
     )
 
+    class Meta:
+        ordering = ["-created"]
+        verbose_name_plural = "Detailed Case history"
+
     def save(self, *args, **kwargs) -> None:
         if not self.id:
             self.detailed_case_status = self.detailed_case.status
@@ -437,9 +441,8 @@ class DetailedCaseHistory(CaseHistory):
             f"{self.detailed_case} {self.event_type} {self.created} {self.created_by}"
         )
 
-    class Meta:
-        ordering = ["-created"]
-        verbose_name_plural = "Detailed Case history"
+    def get_absolute_url(self) -> str:
+        return reverse("detailed:edit-case-note", kwargs={"pk": self.id})
 
 
 class Contact(VersionModel):
