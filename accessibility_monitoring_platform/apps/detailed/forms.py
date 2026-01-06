@@ -487,15 +487,9 @@ class DetailedRetestComplianceDecisionsUpdateForm(VersionForm):
         label="Retest website compliance decision · Included in export",
         choices=DetailedCase.WebsiteCompliance.choices,
     )
-    retest_website_compliance_information = AMPTextField(
-        label="Retest website compliance decision information"
-    )
     retest_statement_compliance_state = AMPChoiceRadioField(
         label="Retest statement compliance decision · Included in export",
         choices=DetailedCase.StatementCompliance.choices,
-    )
-    retest_statement_compliance_information = AMPTextField(
-        label="Retest statement compliance decision information"
     )
     retest_disproportionate_burden_claim = AMPChoiceRadioField(
         label="Retest disproportionate burden claim · Included in export",
@@ -511,9 +505,7 @@ class DetailedRetestComplianceDecisionsUpdateForm(VersionForm):
         fields = [
             "version",
             "retest_website_compliance_state",
-            "retest_website_compliance_information",
             "retest_statement_compliance_state",
-            "retest_statement_compliance_information",
             "retest_disproportionate_burden_claim",
             "retest_disproportionate_burden_information",
             "retest_compliance_decisions_complete_date",

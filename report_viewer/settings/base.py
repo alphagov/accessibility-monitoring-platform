@@ -15,6 +15,7 @@ import os
 import sys
 from pathlib import Path
 
+from django.utils.csp import CSP
 from dotenv import load_dotenv
 
 DEBUG = os.getenv("DEBUG") == "TRUE"
@@ -89,7 +90,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "accessibility_monitoring_platform.apps.common.middleware.permissions_policy_middleware.PermissionsPolicyMiddleware",
-    "csp.middleware.CSPMiddleware",
+    "django.middleware.csp.ContentSecurityPolicyMiddleware",
     "report_viewer.apps.viewer.middleware.report_views_middleware.ReportMetrics",
 ]
 
@@ -273,8 +274,10 @@ PERMISSIONS_POLICY = {
     "usb": [],
 }
 
-CSP_DEFAULT_SRC = ("'none'",)
-CSP_STYLE_SRC = "'self'"
-CSP_SCRIPT_SRC = ("'self'",)
-CSP_FONT_SRC = ("'self'",)
-CSP_IMG_SRC = ("'self'", "data:")
+SECURE_CSP = {
+    "default-src": [CSP.NONE],
+    "style-src": [CSP.SELF],
+    "script-src": [CSP.SELF],
+    "font-src": [CSP.SELF],
+    "img-src": [CSP.SELF, "data:"],
+}
