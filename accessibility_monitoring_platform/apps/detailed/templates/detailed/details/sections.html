@@ -14,6 +14,36 @@
                     {% include case_detail_page.page.case_details_template_name %}
                 {% endfor %}
             {% endfor %}
+            {% if case.retest_website_compliance_information or case.retest_statement_compliance_information %}
+                <div class="amp_case_search_list_header">
+                    <h2 id="removed-fields" class="govuk-heading-m">Fields removed from UI</h2>
+                    <a href="#" class="govuk-link">Return to top</a>
+                </div>
+                <table class="govuk-table" data-search-target-page-name="Removed from UI" data-search-target-label="View and search all case data" data-search-target-url="{% url 'detailed:case-view-and-search' case.id %}#removed-fields">
+                    <tbody class="govuk-table__body">
+                        {% if case.retest_website_compliance_information %}
+                            <tr class="govuk-table__row">
+                                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                                    Retest website compliance decision information
+                                </th>
+                                <td class="govuk-table__cell amp-width-one-half amp-notes">
+                                    {{ case.retest_website_compliance_information|markdown_to_html }}
+                                </td>
+                            </tr>
+                        {% endif %}
+                        {% if case.retest_statement_compliance_information %}
+                            <tr class="govuk-table__row">
+                                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                                    Retest statement compliance decision information
+                                </th>
+                                <td class="govuk-table__cell amp-width-one-half amp-notes">
+                                    {{ case.retest_statement_compliance_information|markdown_to_html }}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            {% endif %}
         </div>
     </div>
 </div>
