@@ -21,6 +21,11 @@
                             {{ case_detail_section.page_group_name }}</a>
                     </li>
                 {% endfor %}
+                {% if case.retest_website_compliance_information or case.retest_statement_compliance_information %}
+                    <li>
+                        <a href="#removed-fields" class="govuk-link govuk-link--no-visited-state">Fields removed from UI</a>
+                    </li>
+                {% endif %}
             </ul>
         </div>
         <br/>
