@@ -13,16 +13,16 @@ attrs==25.4.0
     # via
     #   outcome
     #   trio
-boto3==1.42.16
+boto3==1.42.23
     # via
     #   -r requirements.in
     #   moto
-botocore==1.42.16
+botocore==1.42.23
     # via
     #   boto3
     #   moto
     #   s3transfer
-certifi==2025.11.12
+certifi==2026.1.4
     # via
     #   requests
     #   selenium
@@ -32,7 +32,7 @@ charset-normalizer==3.4.4
     # via requests
 cryptography==46.0.3
     # via moto
-django==6.0
+django==6.0.1
     # via
     #   -r requirements.in
     #   django-axes
@@ -75,7 +75,7 @@ markupsafe==3.0.3
     # via
     #   jinja2
     #   werkzeug
-moto==5.1.18
+moto==5.1.19
     # via -r requirements.in
 notifications-python-client==10.0.1
     # via -r requirements.in
