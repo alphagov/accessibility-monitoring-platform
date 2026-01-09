@@ -461,7 +461,7 @@ class AuditRetestNew12WeekCustomIssueCreateForm(forms.ModelForm):
     """
 
     retest_comment = AMPTextField(label="Issue description for organisation")
-    auditor_notes = AMPTextField(label="12-week internal notes")
+    auditor_notes = AMPTextField(label="12-week retest information")
 
     class Meta:
         model = StatementCheckResult
@@ -474,7 +474,7 @@ class New12WeekCustomStatementCheckResultUpdateForm(forms.ModelForm):
     """
 
     retest_comment = AMPTextField(label="Issue description for organisation")
-    auditor_notes = AMPTextField(label="12-week internal notes")
+    auditor_notes = AMPTextField(label="12-week retest information")
     retest_state = AMPChoiceRadioField(
         label="Mark this statement as resolved",
         choices=StatementCheckResult.Result.choices,
@@ -779,7 +779,7 @@ class AuditRetestStatementCheckResultForm(forms.ModelForm):
         choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
-    retest_comment = AMPTextField(label="12-week internal notes")
+    retest_comment = AMPTextField(label="12-week retest information")
 
     class Meta:
         model = StatementCheckResult

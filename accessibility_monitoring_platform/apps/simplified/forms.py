@@ -68,7 +68,7 @@ class SimplifiedCaseCreateForm(PreviousCaseURLForm):
             attrs={"label": "Did this case originate from a complaint?"}
         ),
     )
-    notes = AMPTextField(label="Notes")
+    notes = AMPTextField(label="Case information")
 
     class Meta:
         model = SimplifiedCase
@@ -290,7 +290,7 @@ class SimplifiedManageContactDetailsUpdateForm(VersionForm):
     Form for updating test results
     """
 
-    contact_notes = AMPTextField(label="Contact detail notes")
+    contact_notes = AMPTextField(label="Contact information")
     manage_contact_details_complete_date = AMPDatePageCompleteField()
 
     class Meta:
