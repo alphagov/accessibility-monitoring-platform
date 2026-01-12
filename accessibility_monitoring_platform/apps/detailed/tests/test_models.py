@@ -24,6 +24,7 @@ email1
 Information 1
 """
 CONTACT_DETAILS: str = "Contact details"
+CONTACT_NAME: str = "Contact Name"
 
 
 @pytest.mark.django_db
@@ -409,3 +410,23 @@ def test_target_of_test():
         DetailedCase(service_type=DetailedCase.ServiceType.SERVICE).target_of_test
         == "service"
     )
+
+
+@pytest.mark.django_db
+def test_preferred_contact_name():
+    """Test DetailedCase.preferred_contact_name is working"""
+    detailed_case: DetailedCase = DetailedCase.objects.create(
+        organisation_name=ORGANISATION_NAME
+    )
+
+    assert detailed_case.preferred_contact_name == ORGANISATION_NAME
+
+    user: User = User.objects.create()
+    Contact.objects.create(
+        detailed_case=detailed_case,
+        name=CONTACT_NAME,
+        preferred=Contact.Preferred.YES,
+        created_by=user,
+    )
+
+    assert detailed_case.preferred_contact_name == CONTACT_NAME
