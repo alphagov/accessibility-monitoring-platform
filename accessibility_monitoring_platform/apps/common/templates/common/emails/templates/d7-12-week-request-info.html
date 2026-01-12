@@ -1,5 +1,4 @@
-Subject: {% include 'common/emails/templates/subject-line.html' with subject_suffix='accessibility monitoring' %}
-Dear {{ case.organisation_name }},
+{% include 'common/emails/templates/helpers/dear-name.html' %}
 <br>
 <br>
 We emailed you an accessibility report on <span class="amp-email-placeholder">(date)</span>
@@ -33,4 +32,3 @@ the Department for Science, Innovation and Technology.
 Many thanks,
 <br>
 <br>
-{{ request.user.get_full_name }}

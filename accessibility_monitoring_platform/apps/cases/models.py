@@ -432,8 +432,14 @@ class BaseCase(VersionModel):
         return self.comment_basecase.filter(hidden=False).order_by("-created_date")
 
     @property
-    def qa_comments_count(self):
+    def qa_comments_count(self) -> int:
         return self.qa_comments.count()
+
+    @property
+    def complaint_referrer_name(self) -> str:
+        if self.enforcement_body == BaseCase.EnforcementBody.ECNI:
+            return self.get_enforcement_body_display()
+        return "Equality Advisory and Support Service"
 
     def get_case(self):
         if self.test_type == TestType.SIMPLIFIED:

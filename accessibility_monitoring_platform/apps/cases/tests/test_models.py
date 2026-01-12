@@ -404,3 +404,37 @@ def test_mobile_case_name():
     mobile_case.app_name = APP_NAME
 
     assert mobile_case.full_name == "App name &middot; Organisation Name"
+
+
+@pytest.mark.parametrize(
+    "enforcement_body, expected_result",
+    [
+        (BaseCase.EnforcementBody.ECNI, "Equality Commission for Northern Ireland"),
+        (BaseCase.EnforcementBody.EHRC, "Equality Advisory and Support Service"),
+    ],
+)
+@pytest.mark.django_db
+def test_detailed_case_complaint_referrer_name(enforcement_body, expected_result):
+    """Test complaint referrer name for detailed case"""
+    detailed_case: DetailedCase = DetailedCase.objects.create(
+        enforcement_body=enforcement_body
+    )
+
+    assert detailed_case.complaint_referrer_name == expected_result
+
+
+@pytest.mark.parametrize(
+    "enforcement_body, expected_result",
+    [
+        (BaseCase.EnforcementBody.ECNI, "Equality Commission for Northern Ireland"),
+        (BaseCase.EnforcementBody.EHRC, "Equality Advisory and Support Service"),
+    ],
+)
+@pytest.mark.django_db
+def test_mobile_case_complaint_referrer_name(enforcement_body, expected_result):
+    """Test complaint referrer name for mobile case"""
+    mobile_case: MobileCase = MobileCase.objects.create(
+        enforcement_body=enforcement_body
+    )
+
+    assert mobile_case.complaint_referrer_name == expected_result
