@@ -669,6 +669,6 @@ def test_get_detailed_mobile_email_template_context():
         mock_date.today.return_value = date(2023, 2, 1)
         assert get_detailed_mobile_email_template_context() == {
             "7_days_from_now": date(2023, 2, 8),
-            "15_days_from_now": date(2023, 2, 16),
+            "14_days_from_now": date(2023, 2, 15),
             "12_weeks_from_now": date(2023, 4, 26),
         }

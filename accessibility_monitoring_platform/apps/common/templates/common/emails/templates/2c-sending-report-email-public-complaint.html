@@ -1,8 +1,8 @@
-{% include 'common/emails/templates/subject-line.html' with subject_suffix='Website accessibility monitoring' %}
+{% include 'common/emails/templates/helpers/subject-line.html' with subject_suffix='Website accessibility monitoring' %}
 Dear {{ case.organisation_name }},
 <br>
 <br>
-We have been referred a complaint from the Equality Advisory and Support Service who were contacted by a member of the public.
+We have been referred a complaint from the {{ case.complaint_referrer_name }} who were contacted by a member of the public.
 Your website
 (<a href="{{ case.home_page_url }}">{{ case.home_page_url }}</a>)
 may not meet the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018

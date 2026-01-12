@@ -1,5 +1,4 @@
-Subject: {% include 'common/emails/templates/subject-line.html' with subject_suffix='accessibility monitoring' %}
-Dear {{ case.organisation_name }},
+{% include 'common/emails/templates/helpers/dear-name.html' %}
 <br>
 <br>
 We emailed you on <span class="amp-email-placeholder">(date of previous email)</span>
@@ -51,4 +50,3 @@ You must contact us within 5 working days.
 Many thanks,
 <br>
 <br>
-{{ request.user.get_full_name }}
