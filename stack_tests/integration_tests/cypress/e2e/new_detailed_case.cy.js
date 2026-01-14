@@ -13,6 +13,7 @@ describe('Create detailed case', () => {
     cy.visit('/cases')
 
     cy.title().should('eq', 'Search cases')
+    cy.contains('Filter and options').click()
     cy.contains('Create detailed case').click()
 
     cy.title().should('eq', 'Create detailed case')
