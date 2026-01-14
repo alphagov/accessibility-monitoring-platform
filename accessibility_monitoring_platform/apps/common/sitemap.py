@@ -110,6 +110,7 @@ from ..simplified.models import (
     Contact,
     EqualityBodyCorrespondence,
     SimplifiedCase,
+    SimplifiedCaseHistory,
     ZendeskTicket,
 )
 from .models import EmailTemplate
@@ -679,6 +680,12 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             ),
             SimplifiedCasePlatformPage(
                 name="Status workflow", url_name="simplified:status-workflow"
+            ),
+            PlatformPage(
+                name="Edit case note #{instance.id_within_case}",
+                url_name="simplified:edit-case-note",
+                url_kwarg_key="pk",
+                instance_class=SimplifiedCaseHistory,
             ),
         ],
     ),
@@ -1474,6 +1481,12 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 case_details_form_class=SimplifiedCaseNoPSBContactUpdateForm,
                 case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:case-detail",
+            ),
+            SimplifiedCasePlatformPage(
+                name="Case notes",
+                url_name="simplified:create-case-note",
+                url_kwarg_key="case_id",
+                case_details_template_name="simplified/details/details_case_notes.html",
             ),
         ],
     ),

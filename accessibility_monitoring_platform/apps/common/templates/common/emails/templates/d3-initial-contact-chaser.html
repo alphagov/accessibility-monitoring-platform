@@ -1,4 +1,3 @@
-Subject: {% include 'common/emails/templates/subject-line.html' with subject_suffix='accessibility monitoring' %}
 Dear {{ case.organisation_name }},
 <br>
 <br>
@@ -46,31 +45,24 @@ All emails were sent from this address.
 You need to send us the following information:
 <br>
 <br>
-<span class="amp-email-placeholder">[For websites]</span>
-<ul>
-<li>A short overview of the website and any other information you think is relevant, for example a previous accessibility audit</li>
-<li>Analytics on the most popular pages, forms and services</li>
-<li>Examples of different templates used across the site</li>
-</ul>
-<br>
-<span class="amp-email-placeholder">[For services]</span>
-<ul>
-<li>A short overview of the service, how many users it has, and any information you have on how many are estimated to have disabilities</li>
-<li>A copy of your latest accessibility audit report and a summary of any fixes made since then</li>
-<li>Analytics on the most viewed pages or user journeys through the service</li>
-<li>Login access for protected or account areas of the service, or access to a test environment when using the live service is not possible</li>
-<li>Any test data that can be used to submit forms</li>
-<li>Examples of different templates used across the service</li>
-<li>Any disproportionate burden assessments, if applicable</li>
-</ul>
-<br>
-<span class="amp-email-placeholder">[For mobile apps]</span>
+{% if case.test_type == 'mobile' %}
 <ul>
 <li>A short overview of the application and any other information you think is relevant, for example a previous accessibility audit</li>
 <li>A summary of the main user journeys through the app</li>
 <li>Examples of different template styles used across the app</li>
 <li>Contact details for iOS and Android app teams </li>
 </ul>
+{% elif case.target_of_test == 'service' %}
+<ul>
+<li>[AWAITING NEW TEXT]</li>
+</ul>
+{% else %}
+<ul>
+<li>A short overview of the website and any other information you think is relevant, for example a previous accessibility audit</li>
+<li>Analytics on the most popular pages, forms and services</li>
+<li>Examples of different templates used across the website</li>
+</ul>
+{% endif %}
 <br>
 If you cannot provide this information you must pass this email to the appropriate team.
 <br>
@@ -93,4 +85,3 @@ We look forward to receiving your response.
 Many thanks,
 <br>
 <br>
-{{ request.user.get_full_name }}

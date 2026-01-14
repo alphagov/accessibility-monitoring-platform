@@ -1,5 +1,4 @@
-Subject: {% include 'common/emails/templates/subject-line.html' with subject_suffix='accessibility monitoring' %}
-Dear {{ case.organisation_name }},
+{% include 'common/emails/templates/helpers/dear-name.html' %}
 <br>
 <br>
 Thank you for the information you have provided. We have completed accessibility testing on your {{ case.target_of_test }}.
@@ -44,4 +43,3 @@ To find out more about the accessibility monitoring and the legislation go to
 Many thanks,
 <br>
 <br>
-{{ request.user.get_full_name }}

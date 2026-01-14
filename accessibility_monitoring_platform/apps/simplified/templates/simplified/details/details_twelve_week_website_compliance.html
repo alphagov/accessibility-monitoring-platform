@@ -5,8 +5,4 @@
         <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">12-week website compliance decision</th>
         <td class="govuk-table__cell amp-width-one-half">{{ case.compliance.get_website_compliance_state_12_week_display }}</td>
     </tr>
-    <tr class="govuk-table__row">
-        <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">12-week website compliance notes</th>
-        <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.compliance.website_compliance_notes_12_week|markdown_to_html }}</td>
-    </tr>
 {% endblock %}

@@ -308,7 +308,7 @@ def get_detailed_mobile_email_template_context():
     """Return extra context needed to render detailed and mobile email templates"""
     return {
         "7_days_from_now": date.today() + timedelta(days=7),
-        "15_days_from_now": date.today() + timedelta(days=15),
+        "14_days_from_now": date.today() + timedelta(days=14),
         "12_weeks_from_now": date.today() + timedelta(days=TWELVE_WEEKS_IN_DAYS),
     }
 

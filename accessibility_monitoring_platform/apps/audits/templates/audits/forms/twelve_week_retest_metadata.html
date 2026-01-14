@@ -15,16 +15,6 @@
                 <label class="govuk-label"><b>Original exemptions</b></label>
                 <div class="govuk-hint">{{ audit.get_exemptions_state_display }}</div>
             </div>
-            <div class="govuk-form-group">
-                <label class="govuk-label"><b>Original notes</b></label>
-                <div class="govuk-hint amp-notes">
-                    {% if audit.exemptions_notes %}
-                        {{ audit.exemptions_notes|markdown_to_html }}
-                    {% else %}
-                        None
-                    {% endif %}
-                </div>
-            </div>
         </div>
     </div>
 {% endblock %}
