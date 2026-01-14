@@ -161,6 +161,13 @@ pre {
     font-family: sans-serif;
 }
 
+.amp-case-name {
+    max-width: 450px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .amp-display-none {
     display: none;
 }
@@ -183,6 +190,10 @@ pre {
 
 .amp-width-15-percent {
     width: 15%;
+}
+
+.amp-width-12-percent {
+    width: 12%;
 }
 
 .amp-width-100 {

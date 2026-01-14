@@ -63,7 +63,7 @@ class CaseSearchForm(AMPDateRangeForm):
 
     test_type = AMPChoiceField(label="Testing type", choices=TEST_TYPE_CHOICES)
     sort_by = AMPChoiceField(label="Sort by", choices=Sort.choices)
-    case_search = AMPCharFieldWide(label="Search")
+    case_search = AMPCharFieldWide(label="Search term")
     auditor = AMPChoiceField(label="Auditor")
     reviewer = AMPChoiceField(label="QA Auditor")
     status = AMPChoiceField(label="Status", choices=STATUS_CHOICES)
