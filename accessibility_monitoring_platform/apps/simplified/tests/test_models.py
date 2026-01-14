@@ -33,6 +33,7 @@ from ..models import (
     Contact,
     EqualityBodyCorrespondence,
     SimplifiedCase,
+    SimplifiedCaseHistory,
     SimplifiedEventHistory,
     ZendeskTicket,
 )
@@ -1963,3 +1964,91 @@ def test_email_template_preview_url_name():
 def test_target_of_test():
     """Test SimplifiedCase.target_of_test"""
     assert SimplifiedCase().target_of_test == "website"
+
+
+@pytest.mark.django_db
+def test_simplified_history_get_absolute_url():
+    """Test SimplifiedCaseHistory.get_absolute_url"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    user: User = User.objects.create()
+    simplified_case_history: SimplifiedCaseHistory = (
+        SimplifiedCaseHistory.objects.create(
+            simplified_case=simplified_case,
+            event_type=SimplifiedCaseHistory.EventType.STATUS,
+            created_by=user,
+        )
+    )
+
+    assert simplified_case_history.get_absolute_url() == reverse(
+        "simplified:edit-case-note", kwargs={"pk": simplified_case_history.id}
+    )
+
+
+@pytest.mark.django_db
+def test_simplified_case_case_history_undeleted():
+    """Test SimplifiedCase.case_history returns only undeleted events"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    user: User = User.objects.create()
+    simplified_case_history_status: SimplifiedCaseHistory = (
+        SimplifiedCaseHistory.objects.create(
+            simplified_case=simplified_case,
+            event_type=SimplifiedCaseHistory.EventType.STATUS,
+            created_by=user,
+        )
+    )
+    simplified_case_history_note: SimplifiedCaseHistory = (
+        SimplifiedCaseHistory.objects.create(
+            simplified_case=simplified_case,
+            event_type=SimplifiedCaseHistory.EventType.NOTE,
+            created_by=user,
+            is_deleted=True,
+        )
+    )
+
+    assert simplified_case_history_status in simplified_case.case_history()
+    assert simplified_case_history_note not in simplified_case.case_history()
+
+
+@pytest.mark.django_db
+def test_simplified_case_notes_history_relevant():
+    """Test SimplifiedCase.notes_history returns only relevant events"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    user: User = User.objects.create()
+    simplified_case_history_status: SimplifiedCaseHistory = (
+        SimplifiedCaseHistory.objects.create(
+            simplified_case=simplified_case,
+            event_type=SimplifiedCaseHistory.EventType.STATUS,
+            created_by=user,
+        )
+    )
+    simplified_case_history_note: SimplifiedCaseHistory = (
+        SimplifiedCaseHistory.objects.create(
+            simplified_case=simplified_case,
+            event_type=SimplifiedCaseHistory.EventType.NOTE,
+            created_by=user,
+        )
+    )
+
+    assert simplified_case_history_status not in simplified_case.notes_history()
+    assert simplified_case_history_note in simplified_case.notes_history()
+
+
+@pytest.mark.django_db
+def test_simplified_case_most_recent_case_note():
+    """Test SimplifiedCase.most_recent_case_note returns the most recent note"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    user: User = User.objects.create()
+    SimplifiedCaseHistory.objects.create(
+        simplified_case=simplified_case,
+        event_type=SimplifiedCaseHistory.EventType.NOTE,
+        created_by=user,
+    )
+    simplified_case_history_last: SimplifiedCaseHistory = (
+        SimplifiedCaseHistory.objects.create(
+            simplified_case=simplified_case,
+            event_type=SimplifiedCaseHistory.EventType.NOTE,
+            created_by=user,
+        )
+    )
+
+    assert simplified_case.most_recent_case_note == simplified_case_history_last
