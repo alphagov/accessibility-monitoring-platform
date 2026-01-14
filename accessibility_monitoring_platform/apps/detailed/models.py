@@ -15,6 +15,7 @@ from django.utils.safestring import mark_safe
 from ..cases.models import (
     UPDATE_SEPARATOR,
     BaseCase,
+    CaseHistory,
     DetailedCaseStatus,
     get_previous_case_identifier,
 )
@@ -254,23 +255,20 @@ class DetailedCase(BaseCase):
         title += f"{self.organisation_name} &nbsp;|&nbsp; {self.case_identifier}"
         return mark_safe(title)
 
+    def case_history(self) -> QuerySet["DetailedCaseHistory"]:
+        return self.detailedcasehistory_set.filter(is_deleted=False)
+
     def status_history(self) -> QuerySet["DetailedCaseHistory"]:
-        return self.detailedcasehistory_set.filter(
+        return self.case_history().filter(
             event_type=DetailedCaseHistory.EventType.STATUS
         )
 
     def notes_history(self) -> QuerySet["DetailedCaseHistory"]:
-        return self.detailedcasehistory_set.filter(
-            event_type=DetailedCaseHistory.EventType.NOTE
-        )
+        return self.case_history().filter(event_type=DetailedCaseHistory.EventType.NOTE)
 
     @property
     def zendesk_tickets(self) -> QuerySet["ZendeskTicket"]:
         return self.detailed_zendesktickets.filter(is_deleted=False)
-
-    @property
-    def most_recent_history(self):
-        return self.detailedcasehistory_set.first()
 
     @property
     def contacts(self) -> QuerySet["Contact"]:
@@ -424,29 +422,19 @@ class DetailedEventHistory(models.Model):
         return variable_list
 
 
-class DetailedCaseHistory(models.Model):
+class DetailedCaseHistory(CaseHistory):
     """Model to record history of changes to DetailedCase"""
 
-    class EventType(models.TextChoices):
-        NOTE = "note", "Entered note"
-        STATUS = "status", "Changed status"
-
     detailed_case = models.ForeignKey(DetailedCase, on_delete=models.PROTECT)
-    event_type = models.CharField(
-        max_length=20, choices=EventType.choices, default=EventType.NOTE
-    )
-    id_within_case = models.IntegerField(default=0, blank=True)
     detailed_case_status = models.CharField(
         max_length=200,
         choices=DetailedCase.Status.choices,
         default=DetailedCase.Status.UNASSIGNED,
     )
-    value = models.TextField(default="", blank=True)
-    label = models.CharField(max_length=200, default="", blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name_plural = "Detailed Case history"
 
     def save(self, *args, **kwargs) -> None:
         if not self.id:
@@ -460,9 +448,8 @@ class DetailedCaseHistory(models.Model):
             f"{self.detailed_case} {self.event_type} {self.created} {self.created_by}"
         )
 
-    class Meta:
-        ordering = ["-created"]
-        verbose_name_plural = "Detailed Case history"
+    def get_absolute_url(self) -> str:
+        return reverse("detailed:edit-case-note", kwargs={"pk": self.id})
 
 
 class Contact(VersionModel):

@@ -18,7 +18,12 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
-from ..cases.models import BaseCase, SimplifiedCaseStatus, get_previous_case_identifier
+from ..cases.models import (
+    BaseCase,
+    CaseHistory,
+    SimplifiedCaseStatus,
+    get_previous_case_identifier,
+)
 from ..common.models import Boolean, EmailTemplate, Link, VersionModel
 from ..common.utils import (
     extract_domain_from_url,
@@ -32,13 +37,9 @@ PSB_APPEAL_WINDOW_IN_DAYS: int = 28
 
 COMPLIANCE_FIELDS: list[str] = [
     "website_compliance_state_initial",
-    "website_compliance_notes_initial",
     "statement_compliance_state_initial",
-    "statement_compliance_notes_initial",
     "website_compliance_state_12_week",
-    "website_compliance_notes_12_week",
     "statement_compliance_state_12_week",
-    "statement_compliance_notes_12_week",
 ]
 
 UPDATE_SEPARATOR: str = " -> "
@@ -1147,6 +1148,14 @@ class SimplifiedCase(BaseCase):
     def target_of_test(self) -> str:
         return "website"
 
+    def case_history(self) -> QuerySet["SimplifiedCaseHistory"]:
+        return self.simplifiedcasehistory_set.filter(is_deleted=False)
+
+    def notes_history(self) -> QuerySet["SimplifiedCaseHistory"]:
+        return self.case_history().filter(
+            event_type=SimplifiedCaseHistory.EventType.NOTE
+        )
+
 
 class CaseStatus(models.Model):
     """
@@ -1533,3 +1542,33 @@ class SimplifiedEventHistory(models.Model):
                 }
             )
         return variable_list
+
+
+class SimplifiedCaseHistory(CaseHistory):
+    """Model to record history of changes to SimplifiedCase"""
+
+    simplified_case = models.ForeignKey(SimplifiedCase, on_delete=models.PROTECT)
+    simplified_case_status = models.CharField(
+        max_length=200,
+        choices=SimplifiedCase.Status.choices,
+        default=SimplifiedCase.Status.UNASSIGNED,
+    )
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name_plural = "Simplified Case history"
+
+    def save(self, *args, **kwargs) -> None:
+        if not self.id:
+            self.simplified_case_status = self.simplified_case.status
+            if self.event_type == SimplifiedCaseHistory.EventType.NOTE:
+                self.id_within_case = self.simplified_case.notes_history().count() + 1
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return (
+            f"{self.simplified_case} {self.event_type} {self.created} {self.created_by}"
+        )
+
+    def get_absolute_url(self) -> str:
+        return reverse("simplified:edit-case-note", kwargs={"pk": self.id})
