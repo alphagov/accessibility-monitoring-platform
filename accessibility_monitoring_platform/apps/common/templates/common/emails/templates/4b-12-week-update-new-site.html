@@ -4,10 +4,10 @@ Dear {{ case.organisation_name }},
 We emailed you an accessibility report on {{ case.report_sent_date|amp_date }} with a deadline of {{ case.report_followup_week_12_due_date }}. to review the accessibility of {{ case.domain }} and fix any issues.
 <br>
 <br>
-You informed us that you were replacing the site we tested.
+You informed us that you were replacing the {{ case.target_of_test }}  we tested.
 <br>
 <br>
-Please provide an update on your progress including whether the new site is live or your timelines for the new site going live.
+Please provide an update on your progress including whether the new {{ case.target_of_test }} is live or your timelines for the new site going live.
 <br>
 <br>
 We will check your accessibility statement to check that it meets the accessibility regulations.

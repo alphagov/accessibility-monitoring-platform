@@ -32,6 +32,7 @@ email1
 Information 1
 """
 CONTACT_DETAILS: str = "Contact details"
+CONTACT_NAME: str = "Contact Name"
 
 
 @pytest.mark.django_db
@@ -755,3 +756,23 @@ def test_target_of_test():
         ).target_of_test
         == "iOS/Android mobile application"
     )
+
+
+@pytest.mark.django_db
+def test_preferred_contact_name():
+    """Test MobileCase.preferred_contact_name is working"""
+    mobile_case: MobileCase = MobileCase.objects.create(
+        organisation_name=ORGANISATION_NAME
+    )
+
+    assert mobile_case.preferred_contact_name == ORGANISATION_NAME
+
+    user: User = User.objects.create()
+    MobileContact.objects.create(
+        mobile_case=mobile_case,
+        name=CONTACT_NAME,
+        preferred=MobileContact.Preferred.YES,
+        created_by=user,
+    )
+
+    assert mobile_case.preferred_contact_name == CONTACT_NAME
