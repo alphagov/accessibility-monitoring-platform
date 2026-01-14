@@ -872,10 +872,26 @@ svg {
     font-weight: bold;
 }
 
-.amp-advanced-search {
-    select {
-        min-width: auto
+.amp-filter-options {
+    details {
+        margin-bottom: 20px;
     }
+
+    select {
+        min-width: auto;
+    }
+
+    .govuk-details__text {
+        border-left: None;
+        padding-left: 0;
+
+        fieldset:last-child, div:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    background-color: govuk-colour("light-grey");
+    border-left: None;
 }
 
 
@@ -1031,4 +1047,32 @@ svg {
     line-height: 1.3157894737;
     direction: ltr;
     vertical-align: top;
+}
+
+.amp-table-small-text {
+    font-size: 1rem;
+}
+
+.amp-tag-case-simplified {
+    padding: 2px 5px;
+    color: govuk-colour("white");
+    background-color: govuk-colour("blue");
+}
+
+.amp-tag-case-detailed {
+    padding: 2px 5px;
+    color: govuk-colour("white");
+    background-color: govuk-colour("black");
+}
+
+.amp-tag-case-mobile {
+    padding: 2px 5px;
+    color: govuk-colour("white");
+    background-color: govuk-colour("green");
+}
+
+.amp-tag-case-archive {
+    padding: 2px 5px;
+    color: govuk-colour("white");
+    background-color: govuk-colour("dark-grey");
 }
