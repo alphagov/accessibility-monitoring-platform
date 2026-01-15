@@ -146,7 +146,7 @@ class AuditRetestPageChecksFormView(AuditPageChecksBaseFormView):
         page: Page = self.page
         return get_next_platform_page_twelve_week(audit=page.audit, current_page=page)
 
-    def get_form(self):
+    def get_form(self, form_class=None):
         """Populate next page fields"""
         form = super().get_form()
         form.fields["retest_complete_date"].initial = self.page.retest_complete_date

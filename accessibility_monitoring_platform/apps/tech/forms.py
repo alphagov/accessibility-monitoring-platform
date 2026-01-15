@@ -11,7 +11,7 @@ LOG_LEVEL_CHOICES: list[tuple[int, str]] = [
     (logging.ERROR, "Error"),
     (logging.CRITICAL, "Critical"),
 ]
-IMPORT_MODEL_CHOICES: list[tuple[int, str]] = [
+IMPORT_MODEL_CHOICES: list[tuple[str, str]] = [
     ("detailed", "Detailed testing case"),
     ("mobile", "Mobile testing case"),
 ]

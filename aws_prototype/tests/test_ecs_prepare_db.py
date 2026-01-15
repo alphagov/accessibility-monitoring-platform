@@ -16,7 +16,7 @@ from ..ecs_prepare_db import (
     upload_db_backup,
 )
 
-TEST_POSTGRES_CREDENTIALS: dict[str, str] = {
+TEST_POSTGRES_CREDENTIALS: dict[str, str | int] = {
     "password": "PASSWORD",
     "dbname": "accessibility_monitoring_app",
     "engine": "postgres",

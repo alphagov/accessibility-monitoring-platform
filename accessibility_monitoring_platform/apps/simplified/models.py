@@ -788,7 +788,7 @@ class SimplifiedCase(BaseCase):
         return self.total_website_issues - self.total_website_issues_fixed
 
     @property
-    def percentage_website_issues_fixed(self) -> int:
+    def percentage_website_issues_fixed(self) -> int | str:
         if self.audit is None:
             return "n/a"
         failed_checks_count: int = self.audit.failed_check_results.count()
@@ -1185,7 +1185,7 @@ class CaseStatus(models.Model):
 
     def calculate_status(self) -> str:  # noqa: C901
         try:
-            compliance: CaseCompliance = self.simplified_case.compliance
+            compliance: CaseCompliance | None = self.simplified_case.compliance
         except CaseCompliance.DoesNotExist:
             compliance = None
 

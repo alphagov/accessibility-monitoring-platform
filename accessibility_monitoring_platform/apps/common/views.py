@@ -18,10 +18,6 @@ from django.views.generic.list import ListView
 from ..cases.models import BaseCase
 from ..common.forms import FrequentlyUsedLinksFilterForm
 from ..common.sitemap import PlatformPage, Sitemap
-from ..simplified.utils import (
-    record_simplified_model_create_event,
-    record_simplified_model_update_event,
-)
 from .forms import (
     ActiveQAAuditorUpdateForm,
     AMPContactAdminForm,
@@ -44,7 +40,13 @@ from .metrics import (
 )
 from .models import ChangeToPlatform, FooterLink, FrequentlyUsedLink, Platform
 from .platform_template_view import PlatformTemplateView
-from .utils import extract_domain_from_url, get_platform_settings, sanitise_domain
+from .utils import (
+    extract_domain_from_url,
+    get_platform_settings,
+    record_common_model_create_event,
+    record_common_model_update_event,
+    sanitise_domain,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -81,9 +83,11 @@ class NextPlatformPageMixin:
     page, adds it to context and returns its URL on success.
     """
 
-    def get_next_platform_page(self) -> PlatformPage:
+    def get_next_platform_page(self) -> PlatformPage | None:
         sitemap: Sitemap = Sitemap(request=self.request)
-        next_platform_page: PlatformPage = sitemap.current_platform_page.next_page
+        next_platform_page: PlatformPage | None = (
+            sitemap.current_platform_page.next_page
+        )
         if next_platform_page is not None:
             next_platform_page.set_instance(instance=self.object)
         return next_platform_page
@@ -137,7 +141,7 @@ class ActiveQAAuditorUpdateView(UpdateView):
     form_class: type[ActiveQAAuditorUpdateForm] = ActiveQAAuditorUpdateForm
     template_name: str = "common/settings/active_qa_auditor.html"
 
-    def get_object(self) -> Platform:
+    def get_object(self, queryset=None) -> Platform:
         """Return the platform-wide settings"""
         return get_platform_settings()
 
@@ -262,11 +266,11 @@ class FrequentlyUsedLinkFormsetTemplateView(TemplateView):
             for link in links:
                 if not link.id:
                     link.save()
-                    record_simplified_model_create_event(
+                    record_common_model_create_event(
                         user=self.request.user, model_object=link
                     )
                 else:
-                    record_simplified_model_update_event(
+                    record_common_model_update_event(
                         user=self.request.user, model_object=link
                     )
                     link.save()
@@ -321,11 +325,11 @@ class FooterLinkFormsetTemplateView(TemplateView):
             for link in links:
                 if not link.id:
                     link.save()
-                    record_simplified_model_create_event(
+                    record_common_model_create_event(
                         user=self.request.user, model_object=link
                     )
                 else:
-                    record_simplified_model_update_event(
+                    record_common_model_update_event(
                         user=self.request.user, model_object=link
                     )
                     link.save()
@@ -392,3 +396,5 @@ class BulkURLSearchView(FormView):
             return self.render_to_response(
                 self.get_context_data(bulk_search_results=bulk_search_results)
             )
+        else:
+            return self.form_invalid(form)

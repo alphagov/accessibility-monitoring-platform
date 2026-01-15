@@ -8,7 +8,7 @@ from typing import Any
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.detail import DetailView
@@ -16,12 +16,13 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from ..cases.csv_export import populate_equality_body_columns
+from ..common.utils import (
+    record_common_model_create_event,
+    record_common_model_update_event,
+)
 from ..common.views import HideCaseNavigationMixin
 from ..simplified.models import SimplifiedCase
-from ..simplified.utils import (
-    record_simplified_model_create_event,
-    record_simplified_model_update_event,
-)
+from ..simplified.utils import record_simplified_model_update_event
 from .forms import ExportConfirmForm, ExportCreateForm, ExportDeleteForm
 from .models import Export, ExportCase
 from .utils import download_equality_body_simplified_cases
@@ -90,7 +91,7 @@ class ExportCreateView(EnforcementBodyMixin, CreateView):
         """Detect the submit button used and act accordingly"""
         export: Export = self.object
         user: User = self.request.user
-        record_simplified_model_create_event(user=user, model_object=export)
+        record_common_model_create_event(user=user, model_object=export)
         return reverse("exports:export-detail", kwargs={"pk": export.id})
 
 
@@ -145,7 +146,7 @@ class ConfirmExportUpdateView(UpdateView):
             simplified_case.update_case_status()
         export.status = Export.Status.EXPORTED
         export.export_date = today
-        record_simplified_model_update_event(user=user, model_object=export)
+        record_common_model_update_event(user=user, model_object=export)
         export.save()
         return HttpResponseRedirect(
             reverse("exports:export-ready-cases", kwargs={"pk": export.id})
@@ -162,7 +163,7 @@ class ExportConfirmDeleteUpdateView(UpdateView):
     context_object_name: str = "export"
     template_name: str = "exports/export_confirm_delete.html"
 
-    def get_form(self):
+    def get_form(self, form_class=None):
         """Populate next page select field"""
         form = super().get_form()
         export: Export = self.object
@@ -173,14 +174,14 @@ class ExportConfirmDeleteUpdateView(UpdateView):
         """Process contents of valid form"""
         export: Export = form.save(commit=False)
         user: User = self.request.user
-        record_simplified_model_update_event(user=user, model_object=export)
+        record_common_model_update_event(user=user, model_object=export)
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
         return f'{reverse("exports:export-list")}?enforcement_body={self.object.enforcement_body}'
 
 
-def export_all_cases(request: HttpRequest, pk: int) -> HttpResponse:
+def export_all_cases(request: HttpRequest, pk: int) -> StreamingHttpResponse:
     """View to export all cases"""
     export: Export = get_object_or_404(Export, id=pk)
     return download_equality_body_simplified_cases(
@@ -189,7 +190,7 @@ def export_all_cases(request: HttpRequest, pk: int) -> HttpResponse:
     )
 
 
-def export_ready_cases(request: HttpRequest, pk: int) -> HttpResponse:
+def export_ready_cases(request: HttpRequest, pk: int) -> StreamingHttpResponse:
     """View to export only ready cases."""
     export: Export = get_object_or_404(Export, pk=pk)
     return download_equality_body_simplified_cases(

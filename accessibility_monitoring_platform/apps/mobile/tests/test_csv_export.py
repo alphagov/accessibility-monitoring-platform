@@ -87,8 +87,8 @@ def test_populate_mobile_equality_body_columns():
         job_title=MOBILE_CONTACT_TITLE,
         contact_details=MOBILE_CONTACT_DETAILS,
     )
-    row: list[CSVColumn] = populate_mobile_equality_body_columns(
-        mobile_case=mobile_case
+    row: list[EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn] = (
+        populate_mobile_equality_body_columns(mobile_case=mobile_case)
     )
 
     assert len(row) == 29
@@ -135,8 +135,8 @@ def test_populate_mobile_equality_body_columns_separate_os():
     iOS and Android data is shown separately
     """
     mobile_case: MobileCase = MobileCase.objects.create()
-    row: list[CSVColumn] = populate_mobile_equality_body_columns(
-        mobile_case=mobile_case
+    row: list[EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn] = (
+        populate_mobile_equality_body_columns(mobile_case=mobile_case)
     )
 
     published_report: list[MobileEqualityBodyCSVColumn] = [
@@ -170,19 +170,23 @@ def test_populate_mobile_equality_body_columns_combined_os():
         initial_ios_total_number_of_issues=IOS_NUMBER_OF_ISSUES,
         initial_android_total_number_of_issues=ANDROID_NUMBER_OF_ISSUES,
     )
-    row: list[CSVColumn] = populate_mobile_equality_body_columns(
-        mobile_case=mobile_case
+    row: list[EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn] = (
+        populate_mobile_equality_body_columns(mobile_case=mobile_case)
     )
 
-    total_number_of_issues: list[MobileEqualityBodyCSVColumn] = [
+    total_number_of_issues_column: list[
+        EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn
+    ] = [
         cell
         for cell in row
         if cell.column_header == "Total number of accessibility issues"
     ]
 
-    assert len(total_number_of_issues) == 1
+    assert len(total_number_of_issues_column) == 1
 
-    total_number_of_issues_cell: MobileEqualityBodyCSVColumn = total_number_of_issues[0]
+    total_number_of_issues_cell: EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn = (
+        total_number_of_issues_column[0]
+    )
 
     assert total_number_of_issues_cell.formatted_data == TOTAL_NUMBER_OF_ISSUES
     assert (

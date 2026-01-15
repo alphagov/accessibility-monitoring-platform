@@ -420,7 +420,7 @@ def test_get_all_possible_check_results_for_page():
     WcagDefinition.objects.create(type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME)
     wcag_definitions: list[WcagDefinition] = list(WcagDefinition.objects.all())
 
-    all_check_results: list[dict[str, str | WcagDefinition]] = (
+    all_check_results: list[dict[str, str | WcagDefinition | CheckResult]] = (
         get_page_check_results_formset_initial(
             page=page_home, wcag_definitions=wcag_definitions
         )

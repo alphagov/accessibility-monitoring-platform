@@ -31,10 +31,10 @@ class FieldLabelAndValue:
     """Data to use in html table row of view details pages"""
 
     class Type(StrEnum):
-        DATE: str = auto()
-        NOTES: str = auto()
-        URL: str = auto()
-        TEXT: str = auto()
+        DATE = auto()
+        NOTES = auto()
+        URL = auto()
+        TEXT = auto()
 
     value: str | date | None
     label: str | None
@@ -45,7 +45,7 @@ class FieldLabelAndValue:
 
 def extract_form_labels_and_values(
     instance: models.Model,
-    form: type[forms.Form],
+    form: forms.Form,
 ) -> list[FieldLabelAndValue]:
     """Extract field labels from form and values from case for use in html rows"""
     display_rows: list[FieldLabelAndValue] = []
@@ -56,7 +56,7 @@ def extract_form_labels_and_values(
             PAGE_COMPLETE_DATE_SUFFIX
         ):
             continue
-        type_of_value: str = FieldLabelAndValue.Type.TEXT
+        type_of_value: FieldLabelAndValue.Type = FieldLabelAndValue.Type.TEXT
         value: Any = getattr(instance, field_name)
         if isinstance(value, User):
             value = value.get_full_name()
@@ -69,11 +69,11 @@ def extract_form_labels_and_values(
         elif isinstance(field, forms.ChoiceField):
             value = getattr(instance, f"get_{field_name}_display")()
         elif isinstance(field, AMPURLField):
-            type_of_value = FieldLabelAndValue.Type.URL
+            type_of_value: FieldLabelAndValue.Type = FieldLabelAndValue.Type.URL
         elif isinstance(field, AMPTextField):
-            type_of_value = FieldLabelAndValue.Type.NOTES
+            type_of_value: FieldLabelAndValue.Type = FieldLabelAndValue.Type.NOTES
         elif isinstance(value, date):
-            type_of_value = FieldLabelAndValue.Type.DATE
+            type_of_value: FieldLabelAndValue.Type = FieldLabelAndValue.Type.DATE
         if field.label == "Notes" and not value:
             continue
         display_rows.append(
