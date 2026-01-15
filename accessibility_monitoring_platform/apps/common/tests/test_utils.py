@@ -365,7 +365,7 @@ def test_amp_format_date(date_to_format, expected_result):
 @pytest.mark.parametrize(
     "date_to_format,expected_result",
     [
-        (date(2021, 4, 1), "1 Apr 2021"),
+        (date(2021, 4, 1), "1 Apr 21"),
         (None, ""),
     ],
 )
@@ -401,7 +401,7 @@ def test_amp_format_datetime(datetime_to_format, expected_result):
 @pytest.mark.parametrize(
     "datetime_to_format,expected_result",
     [
-        (datetime(2021, 4, 1, 9, 1), "1 Apr 2021 9:01am"),
+        (datetime(2021, 4, 1, 9, 1), "1 Apr 21 9:01am"),
         (None, ""),
     ],
 )
