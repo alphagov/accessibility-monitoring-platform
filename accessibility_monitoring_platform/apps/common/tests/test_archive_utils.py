@@ -1,4 +1,5 @@
 """Test utilities used to archive data"""
+
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
 
@@ -9,12 +10,12 @@ from ..archive_utils import build_field, build_section
 
 @dataclass
 class MockModel:
-    date_field: date = None
-    datetime_field: datetime = None
-    link_field: str = None
-    string_field: str = None
-    string_with_display_field: str = None
-    markdown_field: str = None
+    date_field: date | None = None
+    datetime_field: datetime | None = None
+    link_field: str | None = None
+    string_field: str | None = None
+    string_with_display_field: str | None = None
+    markdown_field: str | None = None
 
     def get_string_with_display_field_display(self):
         return self.string_with_display_field.capitalize()

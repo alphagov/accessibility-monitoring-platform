@@ -11,6 +11,7 @@ from django.http import HttpResponse, StreamingHttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
+from ...common.models import EventHistory
 from ...simplified.models import (
     CaseCompliance,
     CaseStatus,
@@ -291,7 +292,7 @@ def test_create_export(admin_client, admin_user):
     assert export.exporter is not None
     assert export.exporter == admin_user
 
-    event_history: SimplifiedEventHistory = SimplifiedEventHistory.objects.all().first()
+    event_history: EventHistory = EventHistory.objects.all().first()
 
     assert event_history is not None
     assert event_history.parent == export
@@ -332,15 +333,17 @@ def test_confirm_export(admin_client):
         simplified_case.status == CaseStatus.Status.CASE_CLOSED_SENT_TO_ENFORCEMENT_BODY
     )
 
-    event_history: QuerySet[SimplifiedEventHistory] = (
+    event_history: QuerySet[EventHistory] = EventHistory.objects.all()
+    simplified_event_history: QuerySet[SimplifiedEventHistory] = (
         SimplifiedEventHistory.objects.all()
     )
 
-    assert len(event_history) == 2
+    assert len(event_history) == 1
     assert event_history[0].parent == export
     assert event_history[0].event_type == "model_update"
-    assert event_history[1].parent == simplified_case
-    assert event_history[1].event_type == "model_update"
+    assert len(simplified_event_history) == 1
+    assert simplified_event_history[0].parent == simplified_case
+    assert simplified_event_history[0].event_type == "model_update"
 
 
 def test_confirm_delete_export(admin_client):
@@ -364,7 +367,7 @@ def test_confirm_delete_export(admin_client):
 
     assert export_from_db.is_deleted is True
 
-    event: SimplifiedEventHistory = SimplifiedEventHistory.objects.all().first()
+    event: EventHistory = EventHistory.objects.all().first()
 
     assert event is not None
     assert event.parent == export

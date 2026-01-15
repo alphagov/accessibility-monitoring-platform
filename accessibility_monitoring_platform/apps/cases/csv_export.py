@@ -32,12 +32,16 @@ EqualityBodySourceClasses = (
 
 def populate_equality_body_columns(
     case: DetailedCase | SimplifiedCase,
-    column_definitions: list[CSVColumn] = SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
+    column_definitions: list[
+        EqualityBodyCSVColumn
+    ] = SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
 ) -> list[EqualityBodyCSVColumn]:
     """
     Collect data for a case to export to the equality body
     """
-    source_instances: dict[EqualityBodySourceClasses] = {}
+    source_instances: dict[
+        type[EqualityBodySourceClasses], EqualityBodySourceClasses
+    ] = {}
     if isinstance(case, DetailedCase):
         source_instances[DetailedCase] = case
     elif isinstance(case, SimplifiedCase):
@@ -77,7 +81,7 @@ def populate_csv_columns(
     case: DetailedCase | SimplifiedCase, column_definitions: list[CSVColumn]
 ) -> list[CSVColumn]:
     """Collect data for a case to export"""
-    source_instances: dict[ExportableClasses] = {}
+    source_instances: dict[type[ExportableClasses], ExportableClasses] = {}
     if isinstance(case, DetailedCase):
         source_instances[DetailedCase] = case
         source_instances[DetailedContact] = case.detailed_contacts.filter(

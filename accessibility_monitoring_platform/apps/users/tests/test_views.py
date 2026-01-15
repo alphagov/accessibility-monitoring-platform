@@ -2,7 +2,7 @@
 Tests for users views
 """
 
-from typing import TypedDict
+from typing import NotRequired, TypedDict
 
 import pytest
 from django.conf import settings
@@ -36,7 +36,7 @@ ENABLE_2FA: str = "yes"
 
 
 class UserUpdateFormData(TypedDict):
-    enable_2fa: str
+    enable_2fa: NotRequired[str]
     first_name: str
     last_name: str
     password: str
@@ -235,7 +235,7 @@ def test_2fa_not_enabled_on_user_update(client):
     user: User = create_user()
     client.login(username=VALID_USER_EMAIL, password=VALID_PASSWORD)
 
-    data: dict[str, str] = VALID_USER_UPDATE_FORM_DATA.copy()
+    data: UserUpdateFormData = VALID_USER_UPDATE_FORM_DATA.copy()
     del data["enable_2fa"]
 
     response: HttpResponse = client.post(

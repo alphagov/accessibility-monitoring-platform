@@ -6,7 +6,6 @@ import copy
 import logging
 from dataclasses import dataclass
 from enum import StrEnum, auto
-from typing import ClassVar
 
 from django import forms
 from django.contrib.auth.models import User
@@ -111,9 +110,13 @@ from ..simplified.models import (
     Contact,
     EqualityBodyCorrespondence,
     SimplifiedCase,
+    SimplifiedCaseHistory,
     ZendeskTicket,
 )
 from .models import EmailTemplate
+
+AnyCaseType = BaseCase | SimplifiedCase | DetailedCase | MobileCase
+
 
 logger = logging.getLogger(__name__)
 
@@ -123,14 +126,15 @@ def populate_subpages_with_instance(
 ) -> list[PlatformPage]:
     """Set instance on each subpage where instance class matches"""
     subpages: list[PlatformPage] = []
-    for subpage in platform_page.subpages:
-        if subpage.instance_class is not None and isinstance(
-            instance, subpage.instance_class
-        ):
-            bound_subpage: PlatformPage = copy.copy(subpage)
-            bound_subpage.instance = instance
-            bound_subpage.populate_subpage_instances()
-            subpages.append(bound_subpage)
+    if platform_page.subpages is not None:
+        for subpage in platform_page.subpages:
+            if subpage.instance_class is not None and isinstance(
+                instance, subpage.instance_class
+            ):
+                bound_subpage: PlatformPage = copy.copy(subpage)
+                bound_subpage.instance = instance
+                bound_subpage.populate_subpage_instances()
+                subpages.append(bound_subpage)
     return subpages
 
 
@@ -192,9 +196,9 @@ class PlatformPage:
         return repr
 
     @property
-    def url(self) -> str | None:
+    def url(self) -> str:
         if self.url_name is None:
-            return None
+            return ""
         if self.name.startswith("Page not found for "):
             return ""
         if self.url_kwarg_key and self.instance is not None:
@@ -241,7 +245,7 @@ class PlatformPage:
                     subpage_instances.append(subpage_instance)
                 self.subpages = subpage_instances
 
-    def populate_from_case(self, case: BaseCase):
+    def populate_from_case(self, case: AnyCaseType):
         if case.__class__ == BaseCase:
             case: SimplifiedCase | DetailedCase | MobileCase = case.get_case()
         if self.instance is None and isinstance(case, self.instance_class):
@@ -269,17 +273,23 @@ class PlatformPage:
             return self.name
         return self.name.format(instance=self.instance)
 
-    def get_case(self) -> BaseCase | None:
+    def get_case(self) -> AnyCaseType | None:
         if self.instance is not None:
             if isinstance(self.instance, BaseCase):
                 return self.instance.get_case()
             if hasattr(self.instance, "base_case"):
                 return self.instance.base_case.get_case()
-            if hasattr(self.instance, "simplified_case"):
+            if hasattr(self.instance, "simplified_case") and isinstance(
+                self.instance.simplified_case, SimplifiedCase
+            ):
                 return self.instance.simplified_case
-            if hasattr(self.instance, "detailed_case"):
+            if hasattr(self.instance, "detailed_case") and isinstance(
+                self.instance.detailed_case, DetailedCase
+            ):
                 return self.instance.detailed_case
-            if hasattr(self.instance, "mobile_case"):
+            if hasattr(self.instance, "mobile_case") and isinstance(
+                self.instance.mobile_case, MobileCase
+            ):
                 return self.instance.mobile_case
             if hasattr(self.instance, "audit"):
                 return self.instance.audit.simplified_case
@@ -306,7 +316,7 @@ class BaseCasePlatformPage(PlatformPage):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.instance_class: ClassVar[BaseCase] = BaseCase
+        self.instance_class: type[BaseCase] = BaseCase
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
@@ -323,27 +333,27 @@ class BaseCasePlatformPage(PlatformPage):
 class SimplifiedCasePlatformPage(BaseCasePlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.instance_class: ClassVar[SimplifiedCase] = SimplifiedCase
+        self.instance_class: type[SimplifiedCase] = SimplifiedCase
         self.case_attr_name = "simplified_case"
 
 
 class DetailedCasePlatformPage(BaseCasePlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.instance_class: ClassVar[DetailedCase] = DetailedCase
+        self.instance_class: type[DetailedCase] = DetailedCase
         self.case_attr_name = "detailed_case"
 
 
 class MobileCasePlatformPage(BaseCasePlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.instance_class: ClassVar[MobileCase] = MobileCase
+        self.instance_class: type[MobileCase] = MobileCase
         self.case_attr_name = "mobile_case"
 
 
 class CaseContactsPlatformPage(SimplifiedCasePlatformPage):
-    def populate_from_case(self, case: SimplifiedCase):
-        if case is not None:
+    def populate_from_case(self, case: AnyCaseType):
+        if isinstance(case, SimplifiedCase):
             self.set_instance(instance=case)
             if self.subpages is not None:
                 bound_subpages: list[PlatformPage] = populate_subpages_with_instance(
@@ -357,8 +367,8 @@ class CaseContactsPlatformPage(SimplifiedCasePlatformPage):
 
 
 class DetailedCaseContactsPlatformPage(DetailedCasePlatformPage):
-    def populate_from_case(self, case: DetailedCase):
-        if case is not None:
+    def populate_from_case(self, case: AnyCaseType):
+        if isinstance(case, DetailedCase):
             self.set_instance(instance=case)
             if self.subpages is not None:
                 bound_subpages: list[PlatformPage] = populate_subpages_with_instance(
@@ -372,8 +382,8 @@ class DetailedCaseContactsPlatformPage(DetailedCasePlatformPage):
 
 
 class MobileCaseContactsPlatformPage(MobileCasePlatformPage):
-    def populate_from_case(self, case: MobileCase):
-        if case is not None:
+    def populate_from_case(self, case: AnyCaseType):
+        if isinstance(case, MobileCase):
             self.set_instance(instance=case)
             if self.subpages is not None:
                 bound_subpages: list[PlatformPage] = populate_subpages_with_instance(
@@ -402,7 +412,7 @@ class BaseCaseCommentsPlatformPage(BaseCasePlatformPage):
 class AuditPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.instance_class: ClassVar[Audit] = Audit
+        self.instance_class: type[Audit] = Audit
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
@@ -410,21 +420,22 @@ class AuditPlatformPage(PlatformPage):
         if self.instance is not None:
             return self.instance.simplified_case
 
-    def set_instance(self, instance: models.Model):
+    def set_instance(self, instance: models.Model | None):
         if isinstance(instance, SimplifiedCase):
             if instance.audit is not None:
                 self.instance = instance.audit
         else:
             super().set_instance(instance=instance)
 
-    def populate_from_case(self, case: SimplifiedCase):
-        self.set_instance(instance=case.audit)
+    def populate_from_case(self, case: AnyCaseType):
+        if hasattr(case, "audit") and isinstance(case.audit, Audit):
+            self.set_instance(instance=case.audit)
         super().populate_from_case(case=case)
 
 
 class AuditPagesPlatformPage(AuditPlatformPage):
-    def populate_from_case(self, case: SimplifiedCase):
-        if case.audit is not None:
+    def populate_from_case(self, case: AnyCaseType):
+        if hasattr(case, "audit") and isinstance(case.audit, Audit):
             self.set_instance(instance=case.audit)
             if self.subpages is not None:
                 bound_subpages: list[PlatformPage] = []
@@ -436,8 +447,8 @@ class AuditPagesPlatformPage(AuditPlatformPage):
 
 
 class AuditCustomIssuesPlatformPage(AuditPlatformPage):
-    def populate_from_case(self, case: SimplifiedCase):
-        if case.audit is not None:
+    def populate_from_case(self, case: AnyCaseType):
+        if hasattr(case, "audit") and isinstance(case.audit, Audit):
             self.set_instance(instance=case.audit)
             if self.subpages is not None:
                 bound_subpages: list[PlatformPage] = populate_subpages_with_instance(
@@ -459,22 +470,22 @@ class AuditCustomIssuesPlatformPage(AuditPlatformPage):
 class ReportPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.instance_class: ClassVar[Report] = Report
+        self.instance_class: type[Report] = Report
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
-    def populate_from_case(self, case: SimplifiedCase):
-        if case.report is not None:
+    def populate_from_case(self, case: AnyCaseType):
+        if hasattr(case, "report") and isinstance(case.report, Report):
             self.set_instance(instance=case.report)
         super().populate_from_case(case=case)
 
 
 class CaseEmailTemplatePreviewPlatformPage(PlatformPage):
-    case: SimplifiedCase | None = None
+    case: AnyCaseType | None = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.instance_class: ClassVar[EmailTemplate] = EmailTemplate
+        self.instance_class: type[EmailTemplate] = EmailTemplate
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
@@ -487,14 +498,14 @@ class CaseEmailTemplatePreviewPlatformPage(PlatformPage):
             kwargs={"case_id": self.base_case.id, self.url_kwarg_key: self.instance.id},
         )
 
-    def populate_from_case(self, case: SimplifiedCase):
+    def populate_from_case(self, case: AnyCaseType | None):
         self.case = case
         super().populate_from_case(case=case)
 
 
 class AuditRetestPagesPlatformPage(AuditPlatformPage):
-    def populate_from_case(self, case: SimplifiedCase):
-        if case.audit is not None:
+    def populate_from_case(self, case: AnyCaseType):
+        if hasattr(case, "audit") and isinstance(case.audit, Audit):
             self.set_instance(instance=case.audit)
             if self.subpages is not None:
                 bound_subpages: list[PlatformPage] = []
@@ -509,7 +520,7 @@ class AuditRetestPagesPlatformPage(AuditPlatformPage):
 class EqualityBodyRetestPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.instance_class: ClassVar[Retest] = Retest
+        self.instance_class: type[models.Model] = Retest
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
@@ -517,7 +528,7 @@ class EqualityBodyRetestPlatformPage(PlatformPage):
     def show(self):
         return False
 
-    def set_instance(self, instance: models.Model):
+    def set_instance(self, instance: models.Model | None):
         if isinstance(instance, Retest):
             self.instance = instance
 
@@ -527,7 +538,7 @@ class EqualityBodyRetestPlatformPage(PlatformPage):
 
 
 class RetestOverviewPlatformPage(SimplifiedCasePlatformPage):
-    def populate_from_case(self, case: SimplifiedCase):
+    def populate_from_case(self, case: AnyCaseType):
         self.set_instance(instance=case)
         if self.subpages is not None:
             bound_subpages: list[PlatformPage] = []
@@ -553,13 +564,13 @@ class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestPlatformPage):
 @dataclass
 class PlatformPageGroup:
     class Type(StrEnum):
-        SIMPLIFIED_CASE_NAV: str = auto()
-        DETAILED_CASE_NAV: str = auto()
-        MOBILE_CASE_NAV: str = auto()
-        SIMPLIFIED_CASE_TOOLS: str = auto()
-        DETAILED_CASE_TOOLS: str = auto()
-        MOBILE_CASE_TOOLS: str = auto()
-        DEFAULT: str = auto()
+        SIMPLIFIED_CASE_NAV = auto()
+        DETAILED_CASE_NAV = auto()
+        MOBILE_CASE_NAV = auto()
+        SIMPLIFIED_CASE_TOOLS = auto()
+        DETAILED_CASE_TOOLS = auto()
+        MOBILE_CASE_TOOLS = auto()
+        DEFAULT = auto()
 
     name: str
     type: Type = Type.DEFAULT
@@ -669,6 +680,12 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             ),
             SimplifiedCasePlatformPage(
                 name="Status workflow", url_name="simplified:status-workflow"
+            ),
+            PlatformPage(
+                name="Edit case note #{instance.id_within_case}",
+                url_name="simplified:edit-case-note",
+                url_kwarg_key="pk",
+                instance_class=SimplifiedCaseHistory,
             ),
         ],
     ),
@@ -1464,6 +1481,12 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 case_details_form_class=SimplifiedCaseNoPSBContactUpdateForm,
                 case_details_template_name="cases/details/details.html",
                 next_page_url_name="simplified:case-detail",
+            ),
+            SimplifiedCasePlatformPage(
+                name="Case notes",
+                url_name="simplified:create-case-note",
+                url_kwarg_key="case_id",
+                case_details_template_name="simplified/details/details_case_notes.html",
             ),
         ],
     ),
@@ -2368,7 +2391,7 @@ def get_platform_page_by_url_name(
     Find platform page in sitemap; Set platform page instance and return
     the platform page.
     """
-    if url_name in SITEMAP_BY_URL_NAME:
+    if SITEMAP_BY_URL_NAME is not None and url_name in SITEMAP_BY_URL_NAME:
         platform_page: PlatformPage = copy.copy(SITEMAP_BY_URL_NAME[url_name])
         platform_page.set_instance(instance=instance)
         return platform_page
@@ -2383,9 +2406,7 @@ def build_sitemap_for_current_page(
     Return the case navigation subset of the sitemap if the current
     page is case-related, otherwise return the entire sitemap.
     """
-    case: SimplifiedCase | DetailedCase | MobileCase | None = (
-        current_platform_page.get_case()
-    )
+    case: AnyCaseType | None = current_platform_page.get_case()
     case_nav_type: PlatformPageGroup.Type | None = (
         MAP_TEST_TYPE_TO_CASE_NAV.get(case.test_type) if case is not None else None
     )

@@ -25,7 +25,7 @@ T = TypeVar("T")
 
 
 @register.filter
-def list_item_by_index(items: list[T], index: int) -> T:
+def list_item_by_index(items: list[T], index: int) -> T | None:
     """Given a list of items and an index, return the indexed item"""
     try:
         return items[index]

@@ -1,5 +1,7 @@
 """Common utility functions"""
 
+import copy
+import json
 import re
 import urllib
 from collections.abc import Iterable
@@ -10,13 +12,14 @@ from zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.http.request import QueryDict
 from django.utils import timezone
 from django_otp.plugins.otp_email.models import EmailDevice
 
-from .models import ChangeToPlatform, Platform
+from .models import ChangeToPlatform, EventHistory, Platform
 
 SESSION_EXPIRY_WARNING_WINDOW: timedelta = timedelta(hours=12)
 ONE_WEEK_IN_DAYS: int = 7
@@ -32,8 +35,8 @@ class SessionExpiry:
                 > self.session_expiry_date
             )
         else:
-            self.session_expiry_date = None
-            self.show_session_expiry_warning = False
+            self.session_expiry_date: None = None
+            self.show_session_expiry_warning: None = False
 
 
 def extract_domain_from_url(url: str) -> str:
@@ -72,7 +75,7 @@ def sanitise_domain(domain: str) -> str:
 
 
 def build_filters(
-    cleaned_data: dict, field_and_filter_names: list[tuple[str, str]]
+    cleaned_data: dict[str, Any], field_and_filter_names: list[tuple[str, str]]
 ) -> dict[str, Any]:
     """
     Given the form cleaned_data, work through a list of field and filter names
@@ -308,3 +311,39 @@ def get_detailed_mobile_email_template_context():
         "14_days_from_now": date.today() + timedelta(days=14),
         "12_weeks_from_now": date.today() + timedelta(days=TWELVE_WEEKS_IN_DAYS),
     }
+
+
+def record_common_model_update_event(
+    user: User,
+    model_object: models.Model,
+) -> None:
+    """Record model update event"""
+    previous_object = model_object.__class__.objects.get(pk=model_object.id)
+    previous_object_fields = copy.copy(vars(previous_object))
+    del previous_object_fields["_state"]
+    model_object_fields = copy.copy(vars(model_object))
+    del model_object_fields["_state"]
+    diff_fields: dict[str, Any] = diff_model_fields(
+        old_fields=previous_object_fields, new_fields=model_object_fields
+    )
+    if diff_fields:
+        EventHistory.objects.create(
+            created_by=user,
+            parent=model_object,
+            difference=json.dumps(diff_fields, default=str),
+        )
+
+
+def record_common_model_create_event(
+    user: User,
+    model_object: models.Model,
+) -> None:
+    """Record model create event"""
+    model_object_fields = copy.copy(vars(model_object))
+    del model_object_fields["_state"]
+    EventHistory.objects.create(
+        created_by=user,
+        parent=model_object,
+        event_type=EventHistory.Type.CREATE,
+        difference=json.dumps(model_object_fields, default=str),
+    )

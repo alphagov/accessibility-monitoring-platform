@@ -5,11 +5,11 @@ Views for cases app
 from datetime import date, timedelta
 from typing import Any
 
+from django import forms
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
-from django.forms.models import ModelForm
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import TemplateView
@@ -55,6 +55,8 @@ from .forms import (
     SimplifiedCaseEnforcementRecommendationUpdateForm,
     SimplifiedCaseEqualityBodyMetadataUpdateForm,
     SimplifiedCaseFourWeekContactDetailsUpdateForm,
+    SimplifiedCaseHistoryCreateForm,
+    SimplifiedCaseHistoryUpdateForm,
     SimplifiedCaseMetadataUpdateForm,
     SimplifiedCaseNoPSBContactUpdateForm,
     SimplifiedCaseOneWeekContactDetailsUpdateForm,
@@ -90,6 +92,7 @@ from .models import (
     Contact,
     EqualityBodyCorrespondence,
     SimplifiedCase,
+    SimplifiedCaseHistory,
     SimplifiedEventHistory,
     ZendeskTicket,
 )
@@ -208,7 +211,7 @@ class CaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
     context_object_name: str = "case"
     template_name: str = "cases/forms/create.html"
 
-    def form_valid(self, form: ModelForm):
+    def form_valid(self, form: forms.ModelForm):
         """Process contents of valid form"""
         if "allow_duplicate_cases" in self.request.GET:
             return super().form_valid(form)
@@ -263,7 +266,7 @@ class CaseUpdateView(NextPlatformPageMixin, UpdateView):
     context_object_name: str = "case"
     template_name: str = "common/case_form.html"
 
-    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+    def form_valid(self, form: forms.ModelForm) -> HttpResponseRedirect:
         """Add message on change of case"""
         if form.changed_data:
             self.object: SimplifiedCase = form.save(commit=False)
@@ -311,7 +314,7 @@ class CaseMetadataUpdateView(CaseUpdateView):
             url_name=next_page_url_name, instance=simplified_case
         )
 
-    def form_valid(self, form: ModelForm):
+    def form_valid(self, form: forms.ModelForm):
         """Process contents of valid form"""
         simplified_case: SimplifiedCase = self.object
         if simplified_case.published_report_url:
@@ -380,15 +383,15 @@ class CaseQACommentsUpdateView(CaseUpdateView):
     )
     template_name: str = "simplified/forms/qa_comments.html"
 
-    def form_valid(self, form: ModelForm):
+    def form_valid(self, form: forms.ModelForm):
         """Process contents of valid form"""
         simplified_case: SimplifiedCase = self.object
-        body: str = form.cleaned_data.get("body")
-        if body:
+        body: str | None = form.cleaned_data.get("body")
+        if body is not None and len(body) > 0:
             comment: Comment = Comment.objects.create(
                 base_case=simplified_case,
                 user=self.request.user,
-                body=form.cleaned_data.get("body"),
+                body=body,
             )
             record_simplified_model_create_event(
                 user=self.request.user,
@@ -409,7 +412,7 @@ class CaseQAApprovalUpdateView(CaseUpdateView):
     )
     template_name: str = "simplified/forms/qa_approval.html"
 
-    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+    def form_valid(self, form: forms.ModelForm) -> HttpResponseRedirect:
         """Notify auditor if case has been QA approved."""
         if form.changed_data and "report_approved_status" in form.changed_data:
             if (
@@ -417,7 +420,7 @@ class CaseQAApprovalUpdateView(CaseUpdateView):
                 == SimplifiedCase.ReportApprovedStatus.APPROVED
             ):
                 simplified_case: SimplifiedCase = self.object
-                if simplified_case.auditor:
+                if simplified_case.auditor is not None:
                     task: Task = add_task(
                         user=simplified_case.auditor,
                         base_case=simplified_case,
@@ -444,7 +447,7 @@ class CasePublishReportUpdateView(CaseUpdateView):
     )
     template_name: str = "simplified/forms/publish_report.html"
 
-    def form_valid(self, form: ModelForm):
+    def form_valid(self, form: forms.ModelForm):
         """Publish report if requested"""
         simplified_case: SimplifiedCase = self.object
         if "create_html_report" in self.request.POST:
@@ -556,7 +559,7 @@ class CaseRequestContactDetailsUpdateView(CaseUpdateView):
     )
     template_name: str = "simplified/forms/request_initial_contact.html"
 
-    def form_valid(self, form: SimplifiedCaseReportSentOnUpdateForm):
+    def form_valid(self, form: forms.ModelForm):
         """
         Recalculate followup dates if report sent date has changed;
         Otherwise set sent dates based on followup date checkboxes.
@@ -635,7 +638,7 @@ class CaseReportSentOnUpdateView(CaseUpdateView):
     )
     template_name: str = "simplified/forms/report_sent_on.html"
 
-    def form_valid(self, form: SimplifiedCaseReportSentOnUpdateForm):
+    def form_valid(self, form: forms.ModelForm):
         """
         Recalculate followup dates if report sent date has changed;
         Otherwise set sent dates based on followup date checkboxes.
@@ -692,7 +695,7 @@ class CaseTwelveWeekUpdateRequestedUpdateView(CaseUpdateView):
     )
     template_name: str = "simplified/forms/12_week_update_requested.html"
 
-    def form_valid(self, form: SimplifiedCaseTwelveWeekUpdateRequestedUpdateForm):
+    def form_valid(self, form: forms.ModelForm) -> HttpResponseRedirect:
         """
         Recalculate chaser dates if twelve week update requested date has changed;
         Otherwise set sent dates based on chaser date checkboxes.
@@ -847,7 +850,7 @@ class CaseDeactivateUpdateView(CaseUpdateView):
     form_class: type[SimplifiedCaseDeactivateForm] = SimplifiedCaseDeactivateForm
     template_name: str = "simplified/forms/deactivate.html"
 
-    def form_valid(self, form: ModelForm):
+    def form_valid(self, form: forms.ModelForm):
         """Process contents of valid form"""
         simplified_case: SimplifiedCase = form.save(commit=False)
         simplified_case.is_deactivated = True
@@ -870,7 +873,7 @@ class CaseReactivateUpdateView(CaseUpdateView):
     form_class: type[SimplifiedCaseDeactivateForm] = SimplifiedCaseDeactivateForm
     template_name: str = "simplified/forms/reactivate.html"
 
-    def form_valid(self, form: ModelForm):
+    def form_valid(self, form: forms.ModelForm):
         """Process contents of valid form"""
         simplified_case: SimplifiedCase = form.save(commit=False)
         simplified_case.is_deactivated = False
@@ -910,7 +913,7 @@ class CaseOutstandingIssuesDetailView(
         return context
 
 
-def export_cases(request: HttpRequest) -> HttpResponse:
+def export_cases(request: HttpRequest) -> StreamingHttpResponse:
     """View to export cases"""
     search_parameters: dict[str, str] = replace_search_key_with_case_search(request.GET)
     search_parameters["test_type"] = TestType.SIMPLIFIED
@@ -921,7 +924,7 @@ def export_cases(request: HttpRequest) -> HttpResponse:
     )
 
 
-def export_feedback_survey_cases(request: HttpRequest) -> HttpResponse:
+def export_feedback_survey_cases(request: HttpRequest) -> StreamingHttpResponse:
     """View to export cases for feedback survey"""
     search_parameters: dict[str, str] = replace_search_key_with_case_search(request.GET)
     search_parameters["test_type"] = TestType.SIMPLIFIED
@@ -983,7 +986,7 @@ class ListCaseEqualityBodyCorrespondenceUpdateView(CaseUpdateView):
             )
         return context
 
-    def form_valid(self, form: ModelForm):
+    def form_valid(self, form: forms.ModelForm):
         """Process contents of valid form"""
         equality_body_correspondence_id_to_toggle: int | None = get_id_from_button_name(
             button_name_prefix="toggle_status_",
@@ -1035,7 +1038,7 @@ class EqualityBodyCorrespondenceCreateView(CreateView):
         context["object"] = simplified_case
         return context
 
-    def form_valid(self, form: ModelForm):
+    def form_valid(self, form: forms.ModelForm):
         """Process contents of valid form"""
         equality_body_correspondence: EqualityBodyCorrespondence = form.save(
             commit=False
@@ -1076,7 +1079,7 @@ class CaseEqualityBodyCorrespondenceUpdateView(UpdateView):
     context_object_name: str = "equality_body_correspondence"
     template_name: str = "simplified/forms/equality_body_correspondence_update.html"
 
-    def form_valid(self, form: ModelForm):
+    def form_valid(self, form: forms.ModelForm):
         """Process contents of valid form"""
         equality_body_correspondence: EqualityBodyCorrespondence = form.save(
             commit=False
@@ -1142,7 +1145,7 @@ class ZendeskTicketCreateView(HideCaseNavigationMixin, CreateView):
     View to create a Zendesk ticket
     """
 
-    model: type[SimplifiedCase] = ZendeskTicket
+    model: type[ZendeskTicket] = ZendeskTicket
     form_class: type[SimplifiedZendeskTicketCreateUpdateForm] = (
         SimplifiedZendeskTicketCreateUpdateForm
     )
@@ -1157,7 +1160,7 @@ class ZendeskTicketCreateView(HideCaseNavigationMixin, CreateView):
         context["object"] = simplified_case
         return context
 
-    def form_valid(self, form: ModelForm):
+    def form_valid(self, form: forms.ModelForm):
         """Process contents of valid form"""
         simplified_case: SimplifiedCase = get_object_or_404(
             SimplifiedCase, id=self.kwargs.get("case_id")
@@ -1191,7 +1194,7 @@ class ZendeskTicketUpdateView(HideCaseNavigationMixin, UpdateView):
     context_object_name: str = "zendesk_ticket"
     template_name: str = "simplified/forms/zendesk_ticket_update.html"
 
-    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+    def form_valid(self, form: forms.ModelForm) -> HttpResponseRedirect:
         """Add update event"""
         if form.changed_data:
             zendesk_ticket: ZendeskTicket = form.save(commit=False)
@@ -1304,3 +1307,75 @@ def mark_qa_comments_as_read(request: HttpRequest, pk: int) -> HttpResponseRedir
     return redirect(
         reverse("simplified:edit-qa-comments", kwargs={"pk": simplified_case.id})
     )
+
+
+class SimplifiedCaseNoteCreateView(HideCaseNavigationMixin, CreateView):
+    """View to add a note to the SimplifiedCaseHistory"""
+
+    model: type[SimplifiedCaseHistory] = SimplifiedCaseHistory
+    form_class: type[SimplifiedCaseHistoryCreateForm] = SimplifiedCaseHistoryCreateForm
+    context_object_name: str = "simplified_case_history"
+    template_name: str = "simplified/forms/note_create.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add field values into context"""
+        simplified_case: SimplifiedCase = get_object_or_404(
+            SimplifiedCase, id=self.kwargs.get("case_id")
+        )
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        context["simplified_case"] = simplified_case
+        context["simplified_case_history"] = (
+            simplified_case.simplifiedcasehistory_set.all()
+        )
+        return context
+
+    def form_valid(self, form: SimplifiedCaseHistoryCreateForm):
+        """Process contents of valid form"""
+        simplified_case: SimplifiedCase = get_object_or_404(
+            SimplifiedCase, id=self.kwargs.get("case_id")
+        )
+        simplified_case_history: SimplifiedCaseHistory = form.save(commit=False)
+        simplified_case_history.simplified_case = simplified_case
+        simplified_case_history.created_by = self.request.user
+        simplified_case_history.label = simplified_case.get_status_display()
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        simplified_case_history: SimplifiedCaseHistory = self.object
+        simplified_case: SimplifiedCase = simplified_case_history.simplified_case
+        user: User = self.request.user
+        record_simplified_model_create_event(
+            user=user,
+            model_object=simplified_case_history,
+            simplified_case=simplified_case,
+        )
+        return reverse(
+            "simplified:create-case-note", kwargs={"case_id": simplified_case.id}
+        )
+
+
+class SimplifiedCaseNoteUpdateView(HideCaseNavigationMixin, UpdateView):
+    """View to edit a note on the SimplifiedCaseHistory"""
+
+    model: type[SimplifiedCaseHistory] = SimplifiedCaseHistory
+    form_class: type[SimplifiedCaseHistoryUpdateForm] = SimplifiedCaseHistoryUpdateForm
+    context_object_name: str = "simplified_case_history"
+    template_name: str = "simplified/forms/note_update.html"
+
+    def form_valid(self, form: SimplifiedContactUpdateForm):
+        """Mark contact as deleted if button is pressed"""
+        simplified_case_history: SimplifiedCaseHistory = form.save(commit=False)
+        record_simplified_model_update_event(
+            user=self.request.user,
+            model_object=simplified_case_history,
+            simplified_case=simplified_case_history.simplified_case,
+        )
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """Return to notes page"""
+        return reverse(
+            "simplified:create-case-note",
+            kwargs={"case_id": self.object.simplified_case.id},
+        )

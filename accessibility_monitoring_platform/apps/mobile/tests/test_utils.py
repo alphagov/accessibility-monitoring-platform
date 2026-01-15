@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 import pytest
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, StreamingHttpResponse
 from django.urls import reverse
 
 from ...cases.utils import CaseDetailSection
@@ -79,6 +79,7 @@ def test_get_mobile_case_detail_sections(rf):
         mobile_case=mobile_case, sitemap=sitemap
     )
 
+    assert sections[0].pages[0].display_fields is not None
     assert sections[0].pages[0].display_fields[1].value == ORGANISATION_NAME
 
 
@@ -100,7 +101,7 @@ def test_download_cases_mobile():
         contact_details=MOBILE_CONTACT_DETAILS,
     )
 
-    response: HttpResponse = download_mobile_cases(
+    response: StreamingHttpResponse = download_mobile_cases(
         mobile_cases=mobile_cases, filename=CSV_EXPORT_FILENAME
     )
 
@@ -240,7 +241,7 @@ def test_download_feedback_survey_mobile_cases():
     )
     mobile_cases: list[MobileCase] = [mobile_case]
 
-    response: HttpResponse = download_mobile_feedback_survey_cases(
+    response: StreamingHttpResponse = download_mobile_feedback_survey_cases(
         cases=mobile_cases, filename=CSV_EXPORT_FILENAME
     )
 
@@ -294,7 +295,7 @@ def test_download_equality_body_mobile_cases():
     )
     mobile_cases: list[MobileCase] = [mobile_case]
 
-    response: HttpResponse = download_mobile_equality_body_cases(
+    response: StreamingHttpResponse = download_mobile_equality_body_cases(
         mobile_cases=mobile_cases, filename=CSV_EXPORT_FILENAME
     )
 

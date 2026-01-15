@@ -2,14 +2,13 @@
 Views for cases app
 """
 
-from datetime import date, timedelta
 from typing import Any
 
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
 from django.forms.models import ModelForm
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.detail import DetailView
@@ -125,7 +124,7 @@ class DetailedCaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
     context_object_name: str = "detailed_case"
     template_name: str = "cases/forms/create.html"
 
-    def form_valid(self, form: DetailedCaseCreateForm):
+    def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         if "allow_duplicate_cases" in self.request.GET:
             detailed_case: DetailedCase = form.save(commit=False)
@@ -280,7 +279,7 @@ class DetailedCaseNoteCreateView(HideCaseNavigationMixin, CreateView):
         context["detailed_case_history"] = detailed_case.detailedcasehistory_set.all()
         return context
 
-    def form_valid(self, form: DetailedCaseHistoryCreateForm):
+    def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         detailed_case: DetailedCase = get_object_or_404(
             DetailedCase, id=self.kwargs.get("case_id")
@@ -314,7 +313,7 @@ class DetailedCaseNoteUpdateView(HideCaseNavigationMixin, UpdateView):
     context_object_name: str = "detailed_case_history"
     template_name: str = "detailed/forms/note_update.html"
 
-    def form_valid(self, form: DetailedContactUpdateForm):
+    def form_valid(self, form: ModelForm):
         """Mark contact as deleted if button is pressed"""
         detailed_case_history: DetailedCaseHistory = form.save(commit=False)
         record_detailed_model_update_event(
@@ -349,7 +348,7 @@ class ContactCreateView(AddDetailedCaseToContextMixin, CreateView):
     form_class: type[DetailedContactCreateForm] = DetailedContactCreateForm
     template_name: str = "detailed/forms/contact_create.html"
 
-    def form_valid(self, form: DetailedContactCreateForm):
+    def form_valid(self, form: ModelForm):
         """Populate detailed case of contact"""
         detailed_case: DetailedCase = get_object_or_404(
             DetailedCase, id=self.kwargs.get("case_id")
@@ -386,7 +385,7 @@ class ContactUpdateView(UpdateView):
         context["detailed_case"] = self.object.detailed_case
         return context
 
-    def form_valid(self, form: DetailedContactUpdateForm):
+    def form_valid(self, form: ModelForm):
         """Mark contact as deleted if button is pressed"""
         contact: Contact = form.save(commit=False)
         if "delete_contact" in self.request.POST:
@@ -492,7 +491,7 @@ class CorrespondenceReportSentUpdateView(CorrespondenceUpdateView):
 
     form_class: type[DetailedReportSentUpdateForm] = DetailedReportSentUpdateForm
 
-    def form_valid(self, form: DetailedReportSentUpdateForm):
+    def form_valid(self, form: ModelForm):
         """
         Populate 12-week deadline if report sent date has changed
         """
@@ -653,7 +652,7 @@ class ZendeskTicketCreateView(HideCaseNavigationMixin, CreateView):
     View to create a Zendesk ticket
     """
 
-    model: type[DetailedCase] = ZendeskTicket
+    model: type[ZendeskTicket] = ZendeskTicket
     form_class: type[DetailedZendeskTicketCreateUpdateForm] = (
         DetailedZendeskTicketCreateUpdateForm
     )
@@ -780,7 +779,7 @@ def mark_qa_comments_as_read(request: HttpRequest, pk: int) -> HttpResponseRedir
     )
 
 
-def export_detailed_cases(request: HttpRequest) -> HttpResponse:
+def export_detailed_cases(request: HttpRequest) -> StreamingHttpResponse:
     """View to export detailed cases"""
     search_parameters: dict[str, str] = replace_search_key_with_case_search(request.GET)
     search_parameters["test_type"] = TestType.DETAILED
@@ -792,7 +791,7 @@ def export_detailed_cases(request: HttpRequest) -> HttpResponse:
     return download_detailed_cases(detailed_cases=filter_cases(form=case_search_form))
 
 
-def export_feedback_survey_cases(request: HttpRequest) -> HttpResponse:
+def export_feedback_survey_cases(request: HttpRequest) -> StreamingHttpResponse:
     """View to export cases for feedback survey"""
     search_parameters: dict[str, str] = replace_search_key_with_case_search(request.GET)
     search_parameters["test_type"] = TestType.DETAILED
@@ -803,7 +802,7 @@ def export_feedback_survey_cases(request: HttpRequest) -> HttpResponse:
     )
 
 
-def export_equality_body_cases(request: HttpRequest) -> HttpResponse:
+def export_equality_body_cases(request: HttpRequest) -> StreamingHttpResponse:
     """View to export cases for equality body survey"""
     search_parameters: dict[str, str] = replace_search_key_with_case_search(request.GET)
     search_parameters["test_type"] = TestType.DETAILED

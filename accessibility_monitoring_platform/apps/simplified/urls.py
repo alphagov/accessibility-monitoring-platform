@@ -51,6 +51,8 @@ from .views import (
     EqualityBodyCorrespondenceCreateView,
     ListCaseEqualityBodyCorrespondenceUpdateView,
     ManageContactDetailsUpdateView,
+    SimplifiedCaseNoteCreateView,
+    SimplifiedCaseNoteUpdateView,
     ZendeskTicketConfirmDeleteUpdateView,
     ZendeskTicketCreateView,
     ZendeskTicketUpdateView,
@@ -301,6 +303,16 @@ urlpatterns: list[URLPattern] = [
         "<int:case_id>/<int:pk>/email-template-preview/",
         login_required(CaseEmailTemplatePreviewDetailView.as_view()),
         name="email-template-preview",
+    ),
+    path(
+        "<int:case_id>/create-case-note/",
+        login_required(SimplifiedCaseNoteCreateView.as_view()),
+        name="create-case-note",
+    ),
+    path(
+        "notes/<int:pk>/edit-case-note/",
+        login_required(SimplifiedCaseNoteUpdateView.as_view()),
+        name="edit-case-note",
     ),
     path(
         "<int:pk>/history/",

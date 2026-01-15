@@ -41,7 +41,7 @@ def test_populate_csv_columns_simplified():
         column_definitions=SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
     )
 
-    assert len(row) == 92
+    assert len(row) == 83
 
     contact_email: list[CSVColumn] = [
         cell for cell in row if cell.column_header == "Contact email"
@@ -120,7 +120,9 @@ def test_populate_equality_body_columns():
     SimplifiedContact.objects.create(
         simplified_case=simplified_case, email=SIMPLIFIED_CONTACT_EMAIL
     )
-    row: list[CSVColumn] = populate_equality_body_columns(case=simplified_case)
+    row: list[EqualityBodyCSVColumn] = populate_equality_body_columns(
+        case=simplified_case
+    )
 
     assert len(row) == 29
 

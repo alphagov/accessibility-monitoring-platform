@@ -243,7 +243,7 @@ class AuditPageChecksFormView(AuditPageChecksBaseFormView):
         page: Page = self.page
         return get_next_platform_page_initial(audit=page.audit, current_page=page)
 
-    def get_form(self):
+    def get_form(self, form_class=None):
         """Populate page form"""
         form = super().get_form()
         if "complete_date" in form.fields:

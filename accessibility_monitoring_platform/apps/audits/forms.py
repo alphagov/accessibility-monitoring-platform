@@ -63,7 +63,6 @@ class AuditMetadataUpdateForm(VersionForm):
         choices=Audit.Exemptions.choices,
         help_text="Accessibility regulations do not apply to this website",
     )
-    exemptions_notes = AMPTextField(label="Notes")
     audit_metadata_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -73,7 +72,6 @@ class AuditMetadataUpdateForm(VersionForm):
             "date_of_test",
             "screen_size",
             "exemptions_state",
-            "exemptions_notes",
             "audit_metadata_complete_date",
         ]
 
@@ -273,16 +271,12 @@ class CaseComplianceWebsiteInitialUpdateForm(VersionForm):
         help_text="This field effects the case status",
         choices=CaseCompliance.WebsiteCompliance.choices,
     )
-    website_compliance_notes_initial = AMPTextField(
-        label="Initial website compliance notes"
-    )
 
     class Meta:
         model = CaseCompliance
         fields: list[str] = [
             "version",
             "website_compliance_state_initial",
-            "website_compliance_notes_initial",
         ]
 
 
@@ -467,7 +461,7 @@ class AuditRetestNew12WeekCustomIssueCreateForm(forms.ModelForm):
     """
 
     retest_comment = AMPTextField(label="Issue description for organisation")
-    auditor_notes = AMPTextField(label="12-week internal notes")
+    auditor_notes = AMPTextField(label="12-week retest information")
 
     class Meta:
         model = StatementCheckResult
@@ -480,7 +474,7 @@ class New12WeekCustomStatementCheckResultUpdateForm(forms.ModelForm):
     """
 
     retest_comment = AMPTextField(label="Issue description for organisation")
-    auditor_notes = AMPTextField(label="12-week internal notes")
+    auditor_notes = AMPTextField(label="12-week retest information")
     retest_state = AMPChoiceRadioField(
         label="Mark this statement as resolved",
         choices=StatementCheckResult.Result.choices,
@@ -526,16 +520,12 @@ class CaseComplianceStatementInitialUpdateForm(VersionForm):
         help_text="This field effects the case status",
         choices=CaseCompliance.StatementCompliance.choices,
     )
-    statement_compliance_notes_initial = AMPTextField(
-        label="Initial statement compliance notes"
-    )
 
     class Meta:
         model = CaseCompliance
         fields: list[str] = [
             "version",
             "statement_compliance_state_initial",
-            "statement_compliance_notes_initial",
         ]
 
 
@@ -575,7 +565,6 @@ class AuditRetestMetadataUpdateForm(VersionForm):
     """
 
     retest_date = AMPDateField(label="Date of retest")
-    audit_retest_metadata_notes = AMPTextField(label="Notes")
     audit_retest_metadata_complete_date = AMPDatePageCompleteField()
 
     class Meta:
@@ -583,7 +572,6 @@ class AuditRetestMetadataUpdateForm(VersionForm):
         fields: list[str] = [
             "version",
             "retest_date",
-            "audit_retest_metadata_notes",
             "audit_retest_metadata_complete_date",
         ]
 
@@ -742,16 +730,12 @@ class CaseComplianceWebsite12WeekUpdateForm(VersionForm):
         label="12-week website compliance decision",
         choices=CaseCompliance.WebsiteCompliance.choices,
     )
-    website_compliance_notes_12_week = AMPTextField(
-        label="12-week website compliance decision notes",
-    )
 
     class Meta:
         model = CaseCompliance
         fields = [
             "version",
             "website_compliance_state_12_week",
-            "website_compliance_notes_12_week",
         ]
 
 
@@ -795,7 +779,7 @@ class AuditRetestStatementCheckResultForm(forms.ModelForm):
         choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
-    retest_comment = AMPTextField(label="12-week internal notes")
+    retest_comment = AMPTextField(label="12-week retest information")
 
     class Meta:
         model = StatementCheckResult
@@ -1004,16 +988,12 @@ class CaseComplianceStatement12WeekUpdateForm(VersionForm):
         label="12-week statement compliance decision · Included in export",
         choices=CaseCompliance.StatementCompliance.choices,
     )
-    statement_compliance_notes_12_week = AMPTextField(
-        label="12-week statement compliance notes",
-    )
 
     class Meta:
         model = CaseCompliance
         fields = [
             "version",
             "statement_compliance_state_12_week",
-            "statement_compliance_notes_12_week",
         ]
 
 

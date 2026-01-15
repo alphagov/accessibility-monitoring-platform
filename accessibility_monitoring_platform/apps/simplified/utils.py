@@ -11,8 +11,7 @@ from typing import Any
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Case as DjangoCase
-from django.db.models import Q, QuerySet, When
+from django.db.models import QuerySet
 from django.http import StreamingHttpResponse
 from django.urls import reverse
 
@@ -24,7 +23,7 @@ from ..common.form_extract_utils import (
     extract_form_labels_and_values,
 )
 from ..common.sitemap import PlatformPageGroup, Sitemap
-from ..common.utils import build_filters, diff_model_fields
+from ..common.utils import diff_model_fields
 from ..reports.utils import build_issues_tables
 from .csv_export import (
     SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
@@ -34,10 +33,8 @@ from .models import (
     COMPLIANCE_FIELDS,
     CaseCompliance,
     CaseEvent,
-    CaseStatus,
     SimplifiedCase,
     SimplifiedEventHistory,
-    Sort,
 )
 
 CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
@@ -70,33 +67,37 @@ def get_simplified_case_detail_sections(
             or page_group.type == PlatformPageGroup.Type.SIMPLIFIED_CASE_TOOLS
         ):
             case_detail_pages: list[CaseDetailPage] = []
-            for page in page_group.pages:
-                if page.show:
-                    display_fields: list[FieldLabelAndValue] = []
-                    if page.case_details_form_class:
-                        if page.case_details_form_class._meta.model == SimplifiedCase:
-                            display_fields = get_case_rows(
-                                form=page.case_details_form_class()
-                            )
-                        elif page.case_details_form_class._meta.model == Audit:
-                            display_fields = get_audit_rows(
-                                form=page.case_details_form_class()
-                            )
-                    if page.case_details_template_name:
-                        case_detail_pages.append(
-                            CaseDetailPage(
-                                page=page,
-                                display_fields=display_fields,
-                            )
-                        )
-                    if page.subpages is not None:
-                        for subpage in page.subpages:
-                            if subpage.case_details_template_name:
-                                case_detail_pages.append(
-                                    CaseDetailPage(
-                                        page=subpage,
-                                    )
+            if page_group.pages is not None:
+                for page in page_group.pages:
+                    if page.show:
+                        display_fields: list[FieldLabelAndValue] = []
+                        if page.case_details_form_class:
+                            if (
+                                page.case_details_form_class._meta.model
+                                == SimplifiedCase
+                            ):
+                                display_fields = get_case_rows(
+                                    form=page.case_details_form_class()
                                 )
+                            elif page.case_details_form_class._meta.model == Audit:
+                                display_fields = get_audit_rows(
+                                    form=page.case_details_form_class()
+                                )
+                        if page.case_details_template_name:
+                            case_detail_pages.append(
+                                CaseDetailPage(
+                                    page=page,
+                                    display_fields=display_fields,
+                                )
+                            )
+                        if page.subpages is not None:
+                            for subpage in page.subpages:
+                                if subpage.case_details_template_name:
+                                    case_detail_pages.append(
+                                        CaseDetailPage(
+                                            page=subpage,
+                                        )
+                                    )
             view_sections.append(
                 CaseDetailSection(
                     page_group_name=page_group.name, pages=case_detail_pages
@@ -223,7 +224,7 @@ def create_case_and_compliance(**kwargs) -> SimplifiedCase:
 def record_simplified_model_update_event(
     user: User,
     model_object: models.Model,
-    simplified_case: SimplifiedCase | None = None,
+    simplified_case: SimplifiedCase,
 ) -> None:
     """Record model update event"""
     previous_object = model_object.__class__.objects.get(pk=model_object.id)
@@ -246,7 +247,7 @@ def record_simplified_model_update_event(
 def record_simplified_model_create_event(
     user: User,
     model_object: models.Model,
-    simplified_case: SimplifiedCase | None = None,
+    simplified_case: SimplifiedCase,
 ) -> None:
     """Record model create event"""
     model_object_fields = copy.copy(vars(model_object))

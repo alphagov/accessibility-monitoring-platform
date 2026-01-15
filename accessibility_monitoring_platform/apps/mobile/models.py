@@ -16,6 +16,7 @@ from django.utils.safestring import mark_safe
 from ..cases.models import (
     UPDATE_SEPARATOR,
     BaseCase,
+    CaseHistory,
     MobileCaseStatus,
     get_previous_case_identifier,
 )
@@ -351,18 +352,15 @@ class MobileCase(BaseCase):
             event_type=MobileCaseHistory.EventType.STATUS
         )
 
+    def case_history(self) -> QuerySet["MobileCaseHistory"]:
+        return self.mobilecasehistory_set.filter(is_deleted=False)
+
     def notes_history(self) -> QuerySet["MobileCaseHistory"]:
-        return self.mobilecasehistory_set.filter(
-            event_type=MobileCaseHistory.EventType.NOTE
-        )
+        return self.case_history().filter(event_type=MobileCaseHistory.EventType.NOTE)
 
     @property
     def zendesk_tickets(self) -> QuerySet["MobileZendeskTicket"]:
         return self.mobile_zendesktickets.filter(is_deleted=False)
-
-    @property
-    def most_recent_history(self):
-        return self.mobilecasehistory_set.first()
 
     @property
     def contacts(self) -> QuerySet["MobileContact"]:
@@ -388,7 +386,7 @@ class MobileCase(BaseCase):
         return self.organisation_name
 
     @property
-    def previous_case_identifier(self) -> str:
+    def previous_case_identifier(self) -> str | None:
         return get_previous_case_identifier(previous_case_url=self.previous_case_url)
 
     @property
@@ -455,7 +453,7 @@ class MobileCase(BaseCase):
         )
 
     @property
-    def percentage_of_issues_fixed(self) -> int | None:
+    def percentage_of_issues_fixed(self) -> int:
         if self.initial_total_number_of_issues > 0:
             return int(
                 self.number_of_issues_fixed * 100 / self.initial_total_number_of_issues
@@ -627,29 +625,19 @@ class EventHistory(models.Model):
         return variable_list
 
 
-class MobileCaseHistory(models.Model):
+class MobileCaseHistory(CaseHistory):
     """Model to record history of changes to MobileCase"""
 
-    class EventType(models.TextChoices):
-        NOTE = "note", "Entered note"
-        STATUS = "status", "Changed status"
-
     mobile_case = models.ForeignKey(MobileCase, on_delete=models.PROTECT)
-    event_type = models.CharField(
-        max_length=20, choices=EventType.choices, default=EventType.NOTE
-    )
-    id_within_case = models.IntegerField(default=0, blank=True)
     mobile_case_status = models.CharField(
         max_length=200,
         choices=MobileCase.Status.choices,
         default=MobileCase.Status.UNASSIGNED,
     )
-    value = models.TextField(default="", blank=True)
-    label = models.CharField(max_length=200, default="", blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
-    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name_plural = "Mobile Case history"
 
     def save(self, *args, **kwargs) -> None:
         if not self.id:
@@ -661,9 +649,8 @@ class MobileCaseHistory(models.Model):
     def __str__(self):
         return f"{self.mobile_case} {self.event_type} {self.created} {self.created_by}"
 
-    class Meta:
-        ordering = ["-created"]
-        verbose_name_plural = "Mobile Case history"
+    def get_absolute_url(self) -> str:
+        return reverse("mobile:edit-case-note", kwargs={"pk": self.id})
 
 
 class MobileContact(VersionModel):

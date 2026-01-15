@@ -18,17 +18,6 @@ ONE_WEEK_IN_DAYS: int = 7
 MAX_LENGTH_OF_FORMATTED_URL: int = 25
 PSB_APPEAL_WINDOW_IN_DAYS: int = 28
 
-COMPLIANCE_FIELDS: list[str] = [
-    "website_compliance_state_initial",
-    "website_compliance_notes_initial",
-    "statement_compliance_state_initial",
-    "statement_compliance_notes_initial",
-    "website_compliance_state_12_week",
-    "website_compliance_notes_12_week",
-    "statement_compliance_state_12_week",
-    "statement_compliance_notes_12_week",
-]
-
 UPDATE_SEPARATOR: str = " -> "
 
 
@@ -436,6 +425,10 @@ class BaseCase(VersionModel):
         return self.qa_comments.count()
 
     @property
+    def most_recent_case_note(self):
+        return self.notes_history().first()
+
+    @property
     def complaint_referrer_name(self) -> str:
         if self.enforcement_body == BaseCase.EnforcementBody.ECNI:
             return self.get_enforcement_body_display()
@@ -455,3 +448,25 @@ class BaseCase(VersionModel):
             return self.detailedcase
         if self.test_type == TestType.MOBILE:
             return self.mobilecase
+
+
+class CaseHistory(models.Model):
+    """Model to record history of changes to a case"""
+
+    class EventType(models.TextChoices):
+        NOTE = "note", "Entered note"
+        STATUS = "status", "Changed status"
+
+    event_type = models.CharField(
+        max_length=20, choices=EventType.choices, default=EventType.NOTE
+    )
+    id_within_case = models.IntegerField(default=0, blank=True)
+    value = models.TextField(default="", blank=True)
+    label = models.CharField(max_length=200, default="", blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        abstract = True

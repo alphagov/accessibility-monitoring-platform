@@ -12,7 +12,6 @@ const psbProgressNote = 'PSB progress note'
 const recommendationNote = 'Recommendation note'
 const equalityBodyCorrespondenceNote = 'Equality body correspondence note'
 const postCaseNote = 'Post case note'
-const psbAppealNote = 'PSB appeal note'
 const zenUrl = 'https://zendesk.com/ticket'
 const zenSummary = 'Zendesk ticket summary'
 
@@ -105,12 +104,10 @@ describe('Case overview', () => {
     cy.contains('Closing the case').click()
     cy.contains(/^Reviewing changes$/).click()
     cy.contains('Populate with today\'s date').click()
-    cy.get('[name="psb_progress_notes"]').clear().type(psbProgressNote)
     cy.get('[name="is_ready_for_final_decision"]').check('yes')
     cy.get('[name="review_changes_complete_date"]').click()
     cy.contains('Save').click()
     cy.contains('li', /#S-1\b/).click()
-    cy.contains(psbProgressNote)
   })
 
   it('can edit enforcement recommendation', () => {

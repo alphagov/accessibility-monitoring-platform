@@ -5,8 +5,4 @@
         <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Initial website compliance decision</th>
         <td class="govuk-table__cell amp-width-one-half">{{ case.compliance.get_website_compliance_state_initial_display }}</td>
     </tr>
-    <tr class="govuk-table__row">
-        <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Initial website compliance notes</th>
-        <td class="govuk-table__cell amp-width-one-half amp-notes">{{ case.compliance.website_compliance_notes_initial|markdown_to_html }}</td>
-    </tr>
 {% endblock %}
