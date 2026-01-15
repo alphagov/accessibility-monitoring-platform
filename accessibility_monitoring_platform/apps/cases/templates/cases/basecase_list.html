@@ -11,7 +11,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <h1 class="govuk-heading-xl">{{ sitemap.current_platform_page.get_name }}</h1>
-                <h1 class="govuk-heading-l">{{ page_obj.paginator.count|intcomma }} case{% if page_obj.paginator.count != 1 %}s{% endif %} found</h1>
+                <h2 class="govuk-heading-l">{{ page_obj.paginator.count|intcomma }} case{% if page_obj.paginator.count != 1 %}s{% endif %} found</h2>
             </div>
         </div>
         <div class="govuk-grid-row">

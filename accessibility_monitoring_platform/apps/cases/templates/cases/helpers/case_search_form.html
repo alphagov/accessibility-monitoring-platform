@@ -51,42 +51,27 @@
                             <h2 id="id_header_3" class="govuk-heading-s">Simplified</h2>
                             <ul class="govuk-list">
                                 <li>
-                                    <a
-                                        href="{% url 'simplified:case-create' %}"
-                                        class="govuk-link govuk-link--no-visited-state"
-                                    >
+                                    <a href="{% url 'simplified:case-create' %}" class="govuk-link govuk-link--no-visited-state">
                                         Create simplified case
                                     </a>
                                 </li>
                                 <li>
-                                    <a
-                                        href="{% url 'simplified:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                                        class="govuk-link govuk-link--no-visited-state"
-                                    >
+                                    <a href="{% url 'simplified:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}" class="govuk-link govuk-link--no-visited-state">
                                         Export to CSV
                                     </a>
                                 </li>
                                 <li>
-                                    <a
-                                        href="{% url 'simplified:export-feedback-survey-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                                        class="govuk-link govuk-link--no-visited-state"
-                                    >
+                                    <a href="{% url 'simplified:export-feedback-survey-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}" class="govuk-link govuk-link--no-visited-state">
                                         Export to feedback survey CSV
                                     </a>
                                 </li>
                                 <li>
-                                    <a
-                                        href="{% url 'exports:export-list' %}"
-                                        class="govuk-link govuk-link--no-visited-state"
-                                    >
+                                    <a href="{% url 'exports:export-list' %}" class="govuk-link govuk-link--no-visited-state">
                                         EHRC CSV export manager
                                     </a>
                                 </li>
                                 <li>
-                                    <a
-                                        href="{% url 'exports:export-list' %}?enforcement_body=ecni"
-                                        class="govuk-link govuk-link--no-visited-state"
-                                    >
+                                    <a href="{% url 'exports:export-list' %}?enforcement_body=ecni" class="govuk-link govuk-link--no-visited-state">
                                         ECNI CSV export manager
                                     </a>
                                 </li>
@@ -96,34 +81,22 @@
                             <h2 id="id_header_3" class="govuk-heading-s">Detailed</h2>
                             <ul class="govuk-list">
                                 <li>
-                                    <a
-                                        href="{% url 'detailed:case-create' %}"
-                                        class="govuk-link govuk-link--no-visited-state"
-                                    >
+                                    <a href="{% url 'detailed:case-create' %}" class="govuk-link govuk-link--no-visited-state">
                                         Create detailed case
                                     </a>
                                 </li>
                                 <li>
-                                    <a
-                                        href="{% url 'detailed:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                                        class="govuk-link govuk-link--no-visited-state"
-                                    >
+                                    <a href="{% url 'detailed:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}" class="govuk-link govuk-link--no-visited-state">
                                         Export to CSV
                                     </a>
                                 </li>
                                 <li>
-                                    <a
-                                        href="{% url 'detailed:export-feedback-survey-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                                        class="govuk-link govuk-link--no-visited-state"
-                                    >
+                                    <a href="{% url 'detailed:export-feedback-survey-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}" class="govuk-link govuk-link--no-visited-state">
                                         Export to feedback survey CSV
                                     </a>
                                 </li>
                                 <li>
-                                    <a
-                                        href="{% url 'detailed:export-equality-body-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                                        class="govuk-link govuk-link--no-visited-state"
-                                    >
+                                    <a href="{% url 'detailed:export-equality-body-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}" class="govuk-link govuk-link--no-visited-state">
                                         Export to equality body CSV
                                     </a>
                                 </li>
@@ -133,34 +106,22 @@
                             <h2 id="id_header_3" class="govuk-heading-s">Mobile</h2>
                             <ul class="govuk-list">
                                 <li>
-                                    <a
-                                        href="{% url 'mobile:case-create' %}"
-                                        class="govuk-link govuk-link--no-visited-state"
-                                    >
+                                    <a href="{% url 'mobile:case-create' %}" class="govuk-link govuk-link--no-visited-state">
                                         Create mobile case
                                     </a>
                                 </li>
                                 <li>
-                                    <a
-                                        href="{% url 'mobile:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                                        class="govuk-link govuk-link--no-visited-state"
-                                    >
+                                    <a href="{% url 'mobile:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}" class="govuk-link govuk-link--no-visited-state">
                                         Export to CSV
                                     </a>
                                 </li>
                                 <li>
-                                    <a
-                                        href="{% url 'mobile:export-feedback-survey-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                                        class="govuk-link govuk-link--no-visited-state"
-                                    >
+                                    <a href="{% url 'mobile:export-feedback-survey-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}" class="govuk-link govuk-link--no-visited-state">
                                         Export to feedback survey CSV
                                     </a>
                                 </li>
                                 <li>
-                                    <a
-                                        href="{% url 'mobile:export-equality-body-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}"
-                                        class="govuk-link govuk-link--no-visited-state"
-                                    >
+                                    <a href="{% url 'mobile:export-equality-body-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}" class="govuk-link govuk-link--no-visited-state">
                                         Export to equality body CSV
                                     </a>
                                 </li>
@@ -172,12 +133,7 @@
         </div>
     </div>
     <div class="govuk-button-group">
-        <input
-            type="submit"
-            value="Search"
-            class="govuk-button"
-            data-module="govuk-button"
-        />
+        <input type="submit" value="Search" class="govuk-button" data-module="govuk-button" />
         <a href="{% url 'cases:case-list' %}" class="govuk-button govuk-button--secondary">
             Clear search
         </a>

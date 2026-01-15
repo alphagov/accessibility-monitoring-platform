@@ -4,12 +4,12 @@
         <code>{{ simplified.source_class|to_class_name }}</code><br>
         <code>{{ simplified.source_attr }}</code>
     </td>
-    <td class="govuk-table__cell{% if simplified.source_attr != detailed.source_attr %} amp-case-test-type-simplified{% endif %}">
+    <td class="govuk-table__cell{% if simplified.source_attr != detailed.source_attr %} amp-tech-colour-1{% endif %}">
         {{ detailed.column_header }}<br>
         <code>{{ detailed.source_class|to_class_name }}</code><br>
         <code>{{ detailed.source_attr }}</code>
     </td>
-    <td class="govuk-table__cell{% if simplified.source_attr != mobile.source_attr and detailed.source_attr != mobile.source_attr %} amp-case-test-type-detailed{% elif simplified.source_attr != mobile.source_attr %} amp-case-test-type-simplified{% elif detailed.source_attr != mobile.source_attr %} amp-case-test-type-mobile{% endif %}">
+    <td class="govuk-table__cell{% if simplified.source_attr != mobile.source_attr and detailed.source_attr != mobile.source_attr %} amp-tech-colour-2{% elif simplified.source_attr != mobile.source_attr %} amp-tech-colour-1{% elif detailed.source_attr != mobile.source_attr %} amp-tech-colour-3{% endif %}">
         {{ mobile.column_header }}<br>
         <code>{{ mobile.source_class|to_class_name }}</code><br>
         <code>{{ mobile.source_attr }}</code>

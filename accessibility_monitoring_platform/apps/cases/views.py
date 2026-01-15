@@ -84,10 +84,6 @@ class CaseListView(ListView):
         filter_fields: dict[str, str] = get_dict_without_page_items(
             self.request.GET.items()
         )
-        context["advanced_search_open"] = check_dict_for_truthy_values(
-            dictionary=filter_fields,
-            keys_to_check=TRUTHY_SEARCH_FIELDS,
-        )
         context["auditor_search_open"] = check_dict_for_truthy_values(
             dictionary=filter_fields,
             keys_to_check=AUDITOR_SEARCH_FIELDS,
@@ -99,6 +95,10 @@ class CaseListView(ListView):
         context["metadata_search_open"] = check_dict_for_truthy_values(
             dictionary=filter_fields,
             keys_to_check=METADATA_SEARCH_FIELDS,
+        )
+        context["advanced_search_open"] = check_dict_for_truthy_values(
+            dictionary=filter_fields,
+            keys_to_check=TRUTHY_SEARCH_FIELDS,
         )
         context["form"] = self.form
         context["url_parameters"] = get_url_parameters_for_pagination(

@@ -1016,6 +1016,21 @@ svg {
     vertical-align: top;
 }
 
+.amp-tech-colour-1 {
+    color: govuk-colour("white");
+    background-color: govuk-colour("blue");
+}
+
+.amp-tech-colour-2 {
+    color: govuk-colour("white");
+    background-color: govuk-colour("purple");
+}
+
+.amp-tech-colour-3 {
+    color: govuk-colour("white");
+    background-color: govuk-colour("green");
+}
+
 .amp-case-search-options {
     details {
         margin-bottom: 20px;
