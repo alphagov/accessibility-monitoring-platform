@@ -26,22 +26,23 @@ pre {
     }
 
 }
-.amp-case-banner-title-simplified {
+
+.amp-case-test-type-simplified {
     color: govuk-colour("white");
     background-color: govuk-colour("blue");
 }
 
-.amp-case-banner-title-detailed {
+.amp-case-test-type-detailed {
     color: govuk-colour("white");
     background-color: govuk-colour("black");
 }
 
-.amp-case-banner-title-mobile {
+.amp-case-test-type-mobile {
     color: govuk-colour("white");
     background-color: govuk-colour("green");
 }
 
-.amp-case-banner-title-archive {
+.amp-case-test-type-archive {
     color: govuk-colour("white");
     background-color: govuk-colour("dark-grey");
 }
@@ -161,13 +162,6 @@ pre {
     font-family: sans-serif;
 }
 
-.amp-case-name {
-    max-width: 450px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
 .amp-display-none {
     display: none;
 }
@@ -190,10 +184,6 @@ pre {
 
 .amp-width-15-percent {
     width: 15%;
-}
-
-.amp-width-12-percent {
-    width: 12%;
 }
 
 .amp-width-100 {
@@ -872,29 +862,6 @@ svg {
     font-weight: bold;
 }
 
-.amp-filter-options {
-    details {
-        margin-bottom: 20px;
-    }
-
-    select {
-        min-width: auto;
-    }
-
-    .govuk-details__text {
-        border-left: None;
-        padding-left: 0;
-
-        fieldset:last-child, div:last-child {
-            margin-bottom: 0;
-        }
-    }
-
-    background-color: govuk-colour("light-grey");
-    border-left: None;
-}
-
-
 .amp-padding-left-0 {
     padding: 0 0 0 15px;
 }
@@ -1049,30 +1016,43 @@ svg {
     vertical-align: top;
 }
 
-.amp-table-small-text {
+.amp-case-search-options {
+    details {
+        margin-bottom: 20px;
+    }
+
+    select {
+        min-width: auto;
+    }
+
+    .govuk-details__text {
+        border-left: None;
+        padding-left: 0;
+
+        fieldset:last-child, div:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    background-color: govuk-colour("light-grey");
+    border-left: None;
+}
+
+.amp-case-search-table {
     font-size: 1rem;
+
+    .amp-case-id-width {
+        width: 12%;
+    }
+
+    .amp-case-name {
+        max-width: 450px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 }
 
-.amp-tag-case-simplified {
+.amp-case-tag {
     padding: 2px 5px;
-    color: govuk-colour("white");
-    background-color: govuk-colour("blue");
-}
-
-.amp-tag-case-detailed {
-    padding: 2px 5px;
-    color: govuk-colour("white");
-    background-color: govuk-colour("black");
-}
-
-.amp-tag-case-mobile {
-    padding: 2px 5px;
-    color: govuk-colour("white");
-    background-color: govuk-colour("green");
-}
-
-.amp-tag-case-archive {
-    padding: 2px 5px;
-    color: govuk-colour("white");
-    background-color: govuk-colour("dark-grey");
 }
