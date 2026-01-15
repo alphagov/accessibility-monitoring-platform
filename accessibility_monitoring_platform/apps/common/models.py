@@ -2,10 +2,13 @@
 Models for common data used across project
 """
 
+import json
 from dataclasses import dataclass
 from datetime import date
 
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
 
@@ -21,6 +24,7 @@ More information about monitoring placeholder"""
 ZENDESK_URL_PREFIX: str = "https://govuk.zendesk.com/agent/tickets/"
 AUDITOR_GROUP_NAME: str = "Auditor"
 QA_AUDITOR_GROUP_NAME: str = "QA auditor"
+UPDATE_SEPARATOR: str = " -> "
 
 
 class Boolean(models.TextChoices):
@@ -269,3 +273,52 @@ class EmailTemplate(models.Model):
     @property
     def template_path(self) -> str:
         return f"common/emails/templates/{self.template_name}.html"
+
+
+class EventHistory(models.Model):
+    """Model to record events on platform"""
+
+    class Type(models.TextChoices):
+        UPDATE = "model_update", "Model update"
+        CREATE = "model_create", "Model create"
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
+    object_id = models.PositiveIntegerField()
+    parent = GenericForeignKey("content_type", "object_id")
+    event_type = models.CharField(
+        max_length=100, choices=Type.choices, default=Type.UPDATE
+    )
+    difference = models.TextField(default="", blank=True)
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.content_type} {self.object_id} {self.event_type} (#{self.id})"
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name_plural = "Events"
+
+    @property
+    def variables(self):
+        differences: dict[str, int | str] = json.loads(self.difference)
+
+        variable_list: list[dict[str, int | str]] = []
+        for key, value in differences.items():
+            if self.event_type == EventHistory.Type.CREATE:
+                old_value: str = ""
+                new_value: int | str = value
+            else:
+                old_value, new_value = value.split(UPDATE_SEPARATOR, maxsplit=1)
+            variable_list.append(
+                {
+                    "name": key,
+                    "old_value": old_value,
+                    "new_value": new_value,
+                }
+            )
+        return variable_list

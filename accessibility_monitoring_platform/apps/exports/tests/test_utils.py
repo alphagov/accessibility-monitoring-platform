@@ -1,5 +1,5 @@
 import pytest
-from django.http import HttpResponse
+from django.http import StreamingHttpResponse
 
 from ...audits.models import Audit
 from ...common.tests.test_utils import decode_csv_response, validate_csv_response
@@ -19,7 +19,7 @@ def test_download_equality_body_simplified_cases():
     simplified_cases: list[SimplifiedCase] = [simplified_case]
     Audit.objects.create(simplified_case=simplified_case)
 
-    response: HttpResponse = download_equality_body_simplified_cases(
+    response: StreamingHttpResponse = download_equality_body_simplified_cases(
         cases=simplified_cases, filename=CSV_EXPORT_FILENAME
     )
 

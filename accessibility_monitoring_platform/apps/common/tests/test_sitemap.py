@@ -113,7 +113,7 @@ def test_platform_page_repr():
 
 def test_platform_page_url():
     """Test PlatformPage.url"""
-    assert PlatformPage(name=PLATFORM_PAGE_NAME).url is None
+    assert PlatformPage(name=PLATFORM_PAGE_NAME).url == ""
     assert (
         PlatformPage(name=PLATFORM_PAGE_NAME, url_name="cases:case-list").url
         == "/cases/"
@@ -205,6 +205,7 @@ def test_platform_page_populate_subpage_instances():
 
     platform_page.populate_subpage_instances()
 
+    assert platform_page.subpages is not None
     assert len(platform_page.subpages) == 3
     assert platform_page.subpages[0].instance == simplified_case
     assert platform_page.subpages[1].instance == simplified_case
@@ -230,6 +231,7 @@ def test_platform_page_populate_from_case():
 
     platform_page.populate_from_case(case=simplified_case)
 
+    assert platform_page.subpages is not None
     assert len(platform_page.subpages) == 3
     assert platform_page.subpages[0].instance == simplified_case
     assert platform_page.subpages[1].instance == simplified_case
@@ -395,8 +397,8 @@ def test_mobile_case_platform_page():
 @pytest.mark.django_db
 def test_case_comments_platform_page():
     """Test CaseCommentsPlatformPage"""
-    case_comments_platform_page: BaseCaseCommentsPlatformPage = (
-        get_platform_page_by_url_name(url_name="simplified:edit-qa-comments")
+    case_comments_platform_page: PlatformPage = get_platform_page_by_url_name(
+        url_name="simplified:edit-qa-comments"
     )
 
     assert isinstance(case_comments_platform_page, BaseCaseCommentsPlatformPage)
@@ -411,6 +413,7 @@ def test_case_comments_platform_page():
     case_comments_platform_page.populate_from_case(case=simplified_case)
 
     assert case_comments_platform_page.instance == simplified_case
+    assert case_comments_platform_page.subpages is not None
     assert len(case_comments_platform_page.subpages) == 2
     assert (
         case_comments_platform_page.subpages[0].get_name() == "Edit or delete comment"
@@ -423,8 +426,8 @@ def test_case_comments_platform_page():
 @pytest.mark.django_db
 def test_case_contacts_platform_page():
     """Test CaseContactsPlatformPage"""
-    case_contacts_platform_page: CaseContactsPlatformPage = (
-        get_platform_page_by_url_name(url_name="simplified:manage-contact-details")
+    case_contacts_platform_page: PlatformPage = get_platform_page_by_url_name(
+        url_name="simplified:manage-contact-details"
     )
 
     assert isinstance(case_contacts_platform_page, CaseContactsPlatformPage)
@@ -442,6 +445,7 @@ def test_case_contacts_platform_page():
     case_contacts_platform_page.populate_from_case(case=simplified_case)
 
     assert case_contacts_platform_page.instance == simplified_case
+    assert case_contacts_platform_page.subpages is not None
     assert len(case_contacts_platform_page.subpages) == 3
     assert case_contacts_platform_page.subpages[0].get_name() == "Add contact"
     assert (
@@ -473,7 +477,7 @@ def test_audit_platform_page():
 @pytest.mark.django_db
 def test_audit_pages_platform_page():
     """Test AuditPagesPlatformPage"""
-    audit_pages_platform_page: AuditPagesPlatformPage = get_platform_page_by_url_name(
+    audit_pages_platform_page: PlatformPage = get_platform_page_by_url_name(
         url_name="audits:edit-audit-pages",
     )
 
@@ -489,6 +493,7 @@ def test_audit_pages_platform_page():
     audit_pages_platform_page.populate_from_case(case=simplified_case)
 
     assert audit_pages_platform_page.instance == audit
+    assert audit_pages_platform_page.subpages is not None
     assert len(audit_pages_platform_page.subpages) == 2
     assert audit_pages_platform_page.subpages[0].get_name() == "Page one page test"
     assert audit_pages_platform_page.subpages[1].get_name() == "Page two page test"
@@ -515,10 +520,8 @@ def test_report_platform_page():
 @pytest.mark.django_db
 def test_audit_retest_pages_platform_page():
     """Test AuditRetestPagesPlatformPage"""
-    audit_retest_pages_platform_page: AuditRetestPagesPlatformPage = (
-        get_platform_page_by_url_name(
-            url_name="audits:edit-audit-retest-pages",
-        )
+    audit_retest_pages_platform_page: PlatformPage = get_platform_page_by_url_name(
+        url_name="audits:edit-audit-retest-pages",
     )
 
     assert isinstance(audit_retest_pages_platform_page, AuditRetestPagesPlatformPage)
@@ -548,6 +551,7 @@ def test_audit_retest_pages_platform_page():
     audit_retest_pages_platform_page.populate_from_case(case=simplified_case)
 
     assert audit_retest_pages_platform_page.instance == audit
+    assert audit_retest_pages_platform_page.subpages is not None
     assert len(audit_retest_pages_platform_page.subpages) == 2
     assert (
         audit_retest_pages_platform_page.subpages[0].get_name()
@@ -572,10 +576,8 @@ def test_equality_body_retest_platform_page():
 @pytest.mark.django_db
 def test_retest_overview_platform_page():
     """Test RetestOverviewPlatformPage"""
-    retest_overview_platform_page: RetestOverviewPlatformPage = (
-        get_platform_page_by_url_name(
-            url_name="simplified:edit-retest-overview",
-        )
+    retest_overview_platform_page: PlatformPage = get_platform_page_by_url_name(
+        url_name="simplified:edit-retest-overview",
     )
 
     assert isinstance(retest_overview_platform_page, RetestOverviewPlatformPage)
@@ -590,6 +592,7 @@ def test_retest_overview_platform_page():
     retest_overview_platform_page.populate_from_case(case=simplified_case)
 
     assert retest_overview_platform_page.instance == simplified_case
+    assert retest_overview_platform_page.subpages is not None
     assert len(retest_overview_platform_page.subpages) == 2
     assert retest_overview_platform_page.subpages[0].get_name() == "Retest #2"
     assert retest_overview_platform_page.subpages[1].get_name() == "Retest #1"
@@ -627,6 +630,7 @@ def test_equality_body_retest_pages_platform_page():
     equality_body_retest_pages_platform_page.instance = retest
     equality_body_retest_pages_platform_page.populate_subpage_instances()
 
+    assert equality_body_retest_pages_platform_page.subpages is not None
     assert len(equality_body_retest_pages_platform_page.subpages) == 2
     assert (
         equality_body_retest_pages_platform_page.subpages[0].get_name()
@@ -651,25 +655,28 @@ def test_retest_overview_platform_page_populates_subpages():
     RetestPage.objects.create(retest=retest, page=page_1)
     RetestPage.objects.create(retest=retest, page=page_2)
 
-    retest_overview_platform_page: RetestOverviewPlatformPage = (
-        get_platform_page_by_url_name(
-            url_name="simplified:edit-retest-overview",
-        )
+    retest_overview_platform_page: PlatformPage = get_platform_page_by_url_name(
+        url_name="simplified:edit-retest-overview",
     )
     retest_overview_platform_page.populate_from_case(case=simplified_case)
 
     assert isinstance(retest_overview_platform_page, RetestOverviewPlatformPage)
     assert retest_overview_platform_page.instance == simplified_case
+    assert retest_overview_platform_page.subpages is not None
     assert len(retest_overview_platform_page.subpages) == 1
     assert retest_overview_platform_page.subpages[0].get_name() == "Retest #1"
 
     retest_1: PlatformPage = retest_overview_platform_page.subpages[0]
 
+    assert retest_1 is not None
+    assert retest_1.subpages is not None
     assert len(retest_1.subpages) > 2
     assert retest_1.subpages[1].get_name() == "Pages"
 
     retest_1_pages: PlatformPage = retest_1.subpages[1]
 
+    assert retest_1_pages is not None
+    assert retest_1_pages.subpages is not None
     assert len(retest_1_pages.subpages) == 2
     assert retest_1_pages.subpages[0].get_name() == f"{retest} | {page_1}"
     assert retest_1_pages.subpages[1].get_name() == f"{retest} | {page_2}"

@@ -26,7 +26,7 @@ AWS_PROTOTYPE_FILE: Path = Path("aws_prototype.json")
 if AWS_PROTOTYPE_FILE.exists():
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 elif os.getenv("NOTIFY_API_KEY"):
-    EMAIL_BACKEND = "accessibility_monitoring_platform.email.NotifyEmailBackend"
+    EMAIL_BACKEND: str = "accessibility_monitoring_platform.email.NotifyEmailBackend"
     EMAIL_NOTIFY_API_KEY = os.getenv("NOTIFY_API_KEY")
     EMAIL_NOTIFY_BASIC_TEMPLATE = os.getenv("EMAIL_NOTIFY_BASIC_TEMPLATE")
 else:

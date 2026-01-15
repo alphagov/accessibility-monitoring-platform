@@ -12,7 +12,7 @@ import pytest
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import QuerySet
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, StreamingHttpResponse
 from django.urls import reverse
 
 from ...audits.models import Audit, Retest
@@ -237,12 +237,15 @@ def test_create_case_and_compliance():
 @pytest.mark.django_db
 def test_record_model_create_event():
     """Test creation of model create event"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     user: User = User.objects.create()
-    record_simplified_model_create_event(user=user, model_object=user)
+    record_simplified_model_create_event(
+        user=user, model_object=user, simplified_case=simplified_case
+    )
 
     content_type: ContentType = ContentType.objects.get_for_model(User)
     event: SimplifiedEventHistory = SimplifiedEventHistory.objects.get(
-        content_type=content_type, object_id=user.id
+        content_type=content_type, object_id=user.id, simplified_case=simplified_case
     )
 
     assert event.event_type == SimplifiedEventHistory.Type.CREATE
@@ -260,13 +263,16 @@ def test_record_model_create_event():
 @pytest.mark.django_db
 def test_record_model_update_event():
     """Test creation of model update event"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     user: User = User.objects.create()
     user.first_name = "Changed"
-    record_simplified_model_update_event(user=user, model_object=user)
+    record_simplified_model_update_event(
+        user=user, model_object=user, simplified_case=simplified_case
+    )
 
     content_type: ContentType = ContentType.objects.get_for_model(User)
     event: SimplifiedEventHistory = SimplifiedEventHistory.objects.get(
-        content_type=content_type, object_id=user.id
+        content_type=content_type, object_id=user.id, simplified_case=simplified_case
     )
 
     assert event.event_type == SimplifiedEventHistory.Type.UPDATE
@@ -286,7 +292,7 @@ def test_download_cases_simplified():
     simplified_cases: list[SimplifiedCase] = [simplified_case]
     Contact.objects.create(simplified_case=simplified_case, email="test@example.com")
 
-    response: HttpResponse = download_simplified_cases(
+    response: StreamingHttpResponse = download_simplified_cases(
         simplified_cases=simplified_cases, filename=CSV_EXPORT_FILENAME
     )
 
@@ -407,7 +413,7 @@ def test_download_feedback_survey_cases():
     CaseCompliance.objects.create(simplified_case=simplified_case)
     simplified_cases: list[SimplifiedCase] = [simplified_case]
 
-    response: HttpResponse = download_simplified_feedback_survey_cases(
+    response: StreamingHttpResponse = download_simplified_feedback_survey_cases(
         cases=simplified_cases, filename=CSV_EXPORT_FILENAME
     )
 
@@ -460,6 +466,7 @@ def test_get_simplified_case_detail_sections(rf):
         simplified_case=simplified_case, sitemap=sitemap
     )
 
+    assert sections[0].pages[0].display_fields is not None
     assert sections[0].pages[0].display_fields[2].value == ORGANISATION_NAME
 
 

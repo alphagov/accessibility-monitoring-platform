@@ -22,7 +22,7 @@ class MobileEqualityBodyCSVColumn:
 
     column_header: str
     source_attr: str
-    source_class: MobileCase = MobileCase
+    source_class: type[MobileCase] = MobileCase
     mobile_equality_body_csv_column: bool = True
     ios_edit_url_name: str | None = None
     ios_edit_url_label: str = "Edit iOS"
@@ -38,7 +38,9 @@ class MobileEqualityBodyCSVColumn:
     ui_suffix: str = ""
 
 
-MOBILE_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
+MOBILE_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[
+    EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn
+] = [
     EqualityBodyCSVColumn(
         column_header="Equality body",
         source_class=MobileCase,
@@ -124,7 +126,9 @@ MOBILE_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = 
         edit_url_anchor="id_is_complaint-label",
     ),
 ]
-MOBILE_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
+MOBILE_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: list[
+    EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn
+] = [
     MobileEqualityBodyCSVColumn(
         column_header="Published report",
         source_attr="equality_body_report_urls",
@@ -154,7 +158,9 @@ MOBILE_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
         edit_url_anchor="id_recommendation_info-label",
     ),
 ]
-MOBILE_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
+MOBILE_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: list[
+    EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn
+] = [
     EqualityBodyCSVColumn(
         column_header="Contact details",
         source_class=MobileCase,
@@ -223,7 +229,9 @@ MOBILE_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColu
         edit_url_anchor="id_recommendation_decision_sent_to-label",
     ),
 ]
-MOBILE_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = [
+MOBILE_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: list[
+    EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn
+] = [
     MobileEqualityBodyCSVColumn(
         column_header="Total number of accessibility issues",
         source_attr="initial_total_number_of_issues",
@@ -284,7 +292,9 @@ MOBILE_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn
         android_edit_url_anchor="id_retest_android_disproportionate_burden_information-label",
     ),
 ]
-MOBILE_EQUALITY_BODY_COLUMNS_FOR_EXPORT: list[EqualityBodyCSVColumn] = (
+MOBILE_EQUALITY_BODY_COLUMNS_FOR_EXPORT: list[
+    EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn
+] = (
     MOBILE_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT
     + MOBILE_EQUALITY_BODY_REPORT_COLUMNS_FOR_EXPORT
     + MOBILE_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT
@@ -829,7 +839,7 @@ def populate_mobile_equality_body_columns(
     column_definitions: list[
         EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn
     ] = MOBILE_EQUALITY_BODY_COLUMNS_FOR_EXPORT,
-) -> list[EqualityBodyCSVColumn]:
+) -> list[EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn]:
     """Collect data for a mobile case to export to the equality body"""
 
     columns: list[EqualityBodyCSVColumn | MobileEqualityBodyCSVColumn] = copy.deepcopy(

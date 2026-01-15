@@ -106,14 +106,14 @@ class DashboardView(TemplateView):
                 simplified_cases=cases
             )
         elif cases and test_type == TestType.DETAILED:
-            cases_by_status: dict[str, dict[str, list[DetailedCase] | str]] = (
-                group_detailed_or_mobile_cases_by_status(cases=cases)
-            )
+            cases_by_status: dict[
+                str, dict[str, list[DetailedCase | MobileCase] | str]
+            ] = group_detailed_or_mobile_cases_by_status(cases=cases)
         elif cases and test_type == TestType.MOBILE:
-            cases_by_status: dict[str, dict[str, list[MobileCase] | str]] = (
-                group_detailed_or_mobile_cases_by_status(
-                    cases=cases, test_type=TestType.MOBILE
-                )
+            cases_by_status: dict[
+                str, dict[str, list[DetailedCase | MobileCase] | str]
+            ] = group_detailed_or_mobile_cases_by_status(
+                cases=cases, test_type=TestType.MOBILE
             )
 
         context.update(

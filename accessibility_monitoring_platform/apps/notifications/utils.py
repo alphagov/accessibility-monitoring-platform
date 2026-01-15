@@ -1,7 +1,7 @@
 """Add notification function for notification app"""
 
 from datetime import date, datetime, timedelta
-from typing import Any, TypedDict
+from typing import Any, TypedDict, TypeVar
 
 from django.contrib.auth.models import Group, User
 from django.core.mail import EmailMessage
@@ -32,6 +32,8 @@ from .models import Link, NotificationSetting, Task
 
 TASK_LIST_PARAMS: list[str] = ["type", "read", "deleted", "future"]
 TASK_LIST_READ_TIMEDELTA: timedelta = timedelta(days=7)
+
+TCase = TypeVar("TCase", bound=BaseCase)
 
 
 class EmailContextType(TypedDict):
@@ -136,11 +138,11 @@ def mark_tasks_as_read(user: User, base_case: BaseCase, type: Task.Type) -> None
 
 
 def exclude_cases_with_pending_reminders(
-    cases: QuerySet[BaseCase],
-) -> list[BaseCase]:
+    cases: QuerySet[TCase],
+) -> list[TCase]:
     """Return only cases without pending reminders"""
     today: date = date.today()
-    cases_without_pending_reminders: list[BaseCase] = []
+    cases_without_pending_reminders: list[TCase] = []
     for case in cases:
         if (
             Task.objects.filter(
@@ -293,7 +295,7 @@ def get_post_case_tasks(user: User) -> list[Task]:
                 description="Unresolved correspondence",
                 action="View correspondence",
             )
-            task.options = [
+            task.options: list[Link] = [
                 Link(
                     label="View correspondence",
                     url=f"{equality_body_correspondence.get_absolute_url()}?view=unresolved",
@@ -324,7 +326,7 @@ def get_post_case_tasks(user: User) -> list[Task]:
                 description="Incomplete retest",
                 action="View retest",
             )
-            task.options = [
+            task.options: list[Link] = [
                 Link(
                     label="View retest",
                     url=retest.get_absolute_url(),
@@ -335,7 +337,7 @@ def get_post_case_tasks(user: User) -> list[Task]:
     return tasks
 
 
-def build_task_list(user: User | None, **kwargs: dict[str, str]) -> list[Task]:
+def build_task_list(user: User | None, **kwargs) -> list[Task]:
     """Build list of tasks from database and items derived dynamically from Cases"""
     task_filter: dict[str, Any] = {
         "read": False,
@@ -367,11 +369,12 @@ def build_task_list(user: User | None, **kwargs: dict[str, str]) -> list[Task]:
                 description=overdue_case.get_status_display(),
                 action="Chase overdue response",
             )
-            task.options = [overdue_case.overdue_link]
+            task.options: list[Link] = [overdue_case.overdue_link]
             tasks.append(task)
 
-    if type is None or type == Task.Type.POSTCASE:
-        tasks += get_post_case_tasks(user=user)
+    if user is not None:
+        if type is None or type == Task.Type.POSTCASE:
+            tasks += get_post_case_tasks(user=user)
 
     sorted_tasks: list[Task] = sorted(
         tasks,

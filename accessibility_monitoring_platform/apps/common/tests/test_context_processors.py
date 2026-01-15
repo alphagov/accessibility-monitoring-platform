@@ -74,9 +74,9 @@ def test_platform_page_template_context():
         absolute_uri="https://prototype-name.london.cloudapps.digital/",
         user=user,
     )
-    platform_page_context: dict[str, AMPTopMenuForm | str | Platform | int] = (
-        platform_page(mock_request)
-    )
+    platform_page_context: dict[
+        str, AMPTopMenuForm | str | Platform | int | Sitemap
+    ] = platform_page(mock_request)
 
     assert platform_page_context["platform"] is not None
     assert platform_page_context["number_of_tasks"] == 0
@@ -108,9 +108,9 @@ def test_platform_page_case_sitemap_template_context():
         absolute_uri="https://prototype-name.london.cloudapps.digital/",
         user=user,
     )
-    platform_page_context: dict[str, AMPTopMenuForm | str | Platform | int] = (
-        platform_page(mock_request)
-    )
+    platform_page_context: dict[
+        str, AMPTopMenuForm | str | Platform | int | Sitemap
+    ] = platform_page(mock_request)
 
     assert platform_page_context["sitemap"] is not None
 
@@ -136,9 +136,9 @@ def test_platform_page_non_case_sitemap_template_context():
         absolute_uri="https://prototype-name.london.cloudapps.digital/",
         user=user,
     )
-    platform_page_context: dict[str, AMPTopMenuForm | str | Platform | int] = (
-        platform_page(mock_request)
-    )
+    platform_page_context: dict[
+        str, AMPTopMenuForm | str | Platform | int | Sitemap
+    ] = platform_page(mock_request)
 
     assert platform_page_context["sitemap"] is not None
 

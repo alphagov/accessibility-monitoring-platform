@@ -32,6 +32,7 @@ class CSVColumn:
     column_header: str
     source_class: ExportableClasses
     source_attr: str
+    formatted_data: str = ""
 
 
 @dataclass
