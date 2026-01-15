@@ -38,9 +38,9 @@
                                 <td class="govuk-table__cell amp-case-name">
                                     <a href="{{ base_case.get_absolute_url }}" class="govuk-link">{{ base_case.full_name }}</a>
                                 </td>
-                                <td class="govuk-table__cell">{{ base_case.get_status_display }}</td>
-                                <td class="govuk-table__cell">{{ base_case.updated|amp_date_trunc }}</td>
-                                <td class="govuk-table__cell">
+                                <td class="govuk-table__cell amp-status-width">{{ base_case.get_status_display }}</td>
+                                <td class="govuk-table__cell amp-updated-width">{{ base_case.updated|amp_date_trunc }}</td>
+                                <td class="govuk-table__cell amp-auditor-width">
                                     {% if base_case.auditor %}
                                         {{ base_case.auditor.get_full_name }}
                                     {% else %}

@@ -1057,14 +1057,26 @@ svg {
     font-size: 1rem;
 
     .amp-case-id-width {
-        width: 12%;
+        width: 11%;
     }
 
     .amp-case-name {
-        max-width: 450px;
+        max-width: 400px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+
+    .amp-status-width {
+        width: 22%;
+    }
+
+    .amp-updated-width {
+        width: 11%;
+    }
+
+    .amp-auditor-width {
+        width: 15%;
     }
 }
 
