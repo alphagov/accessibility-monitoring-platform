@@ -12,6 +12,7 @@ from .models import (
     Contact,
     EqualityBodyCorrespondence,
     SimplifiedCase,
+    SimplifiedCaseHistory,
     SimplifiedEventHistory,
     ZendeskTicket,
 )
@@ -155,6 +156,30 @@ class ZendeskTicketAdmin(admin.ModelAdmin):
     list_filter = ["is_deleted"]
 
 
+class SimplifiedCaseHistoryAdmin(admin.ModelAdmin):
+    """Django admin configuration for SimplifiedCaseHistory model"""
+
+    readonly_fields = ["simplified_case", "event_type", "created_by", "created"]
+    search_fields = [
+        "simplified_case__case_number",
+        "simplified_case__organisation_name",
+        "label",
+        "value",
+    ]
+    list_display = [
+        "simplified_case",
+        "event_type",
+        "label",
+        "created_by",
+        "created",
+    ]
+    list_filter = [
+        "event_type",
+        ("created_by", admin.RelatedOnlyFieldListFilter),
+    ]
+    show_facets = admin.ShowFacets.ALWAYS
+
+
 class SimplifiedEventHistoryAdmin(admin.ModelAdmin):
     """Django admin configuration for SimplifiedEventHistory model"""
 
@@ -186,4 +211,5 @@ admin.site.register(CaseEvent, CaseEventAdmin)
 admin.site.register(Contact, ContactAdmin)
 admin.site.register(EqualityBodyCorrespondence, EqualityBodyCorrespondenceAdmin)
 admin.site.register(ZendeskTicket, ZendeskTicketAdmin)
+admin.site.register(SimplifiedCaseHistory, SimplifiedCaseHistoryAdmin)
 admin.site.register(SimplifiedEventHistory, SimplifiedEventHistoryAdmin)
