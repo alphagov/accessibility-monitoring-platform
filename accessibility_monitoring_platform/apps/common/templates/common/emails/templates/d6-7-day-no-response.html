@@ -1,7 +1,7 @@
 {% include 'common/emails/templates/helpers/dear-name.html' %}
 <br>
 <br>
-We recently sent you an email on <span class="amp-email-placeholder">(date of previous email)</span>
+We recently sent you an email on {% if case.report_sent_date %}{{ case.report_sent_date|amp_date }}{% else %}<span class="amp-email-placeholder">(date)</span>{% endif %}
 with an accessibility report for your {{ case.target_of_test }} to help you meet the regulations:
 <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps">https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps</a>
 <br>

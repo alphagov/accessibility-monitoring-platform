@@ -740,21 +740,21 @@ def test_email_template_preview_url_name():
 
 def test_target_of_test():
     """Test MobileCase.target_of_test"""
-    assert MobileCase().target_of_test == "mobile application"
+    assert MobileCase().target_of_test == "mobile app"
     assert (
         MobileCase(ios_test_included=MobileCase.TestIncluded.YES).target_of_test
-        == "iOS mobile application"
+        == "iOS mobile app"
     )
     assert (
         MobileCase(android_test_included=MobileCase.TestIncluded.YES).target_of_test
-        == "Android mobile application"
+        == "Android mobile app"
     )
     assert (
         MobileCase(
             ios_test_included=MobileCase.TestIncluded.YES,
             android_test_included=MobileCase.TestIncluded.YES,
         ).target_of_test
-        == "iOS/Android mobile application"
+        == "iOS/Android mobile app"
     )
 
 

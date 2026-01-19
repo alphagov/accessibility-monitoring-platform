@@ -5,8 +5,6 @@ Thank you for your response.
 <br>
 <br>
 <h2>What happens next</h2>
-<br>
-<br>
 <h3>Accessibility compliance</h3>
 <br>
 As your {{ case.target_of_test }} was monitored following a complaint from a member of the public, I need to send the details to the
@@ -17,29 +15,25 @@ who enforce the accessibility requirement as set out in The Public Sector Bodies
 They will contact you if they believe further action is required.
 <br>
 <br>
-<h3>Accessibility Statement</h3>
+<h3>Accessibility statement</h3>
 <br>
 On behalf of the Secretary of State for Science, Innovation and Technology, we make a decision on the compliance of accessibility statements.
 <br>
 <br>
-<span class="amp-email-placeholder">[If compliant]</span>
-<br>
+{% if case.retest_statement_compliance_state == 'compliant' or case.retest_ios_statement_compliance_state == 'compliant' and case.retest_android_statement_compliance_state == 'compliant' %}
 We have determined that your statement is compliant.
+{% else %}
+{% if case.retest_statement_compliance_state == 'not-compliant' or case.retest_ios_statement_compliance_state == 'not-compliant' or case.retest_android_statement_compliance_state == 'not-compliant' %}
+We have determined that your statement is not compliant.
 <br>
 <br>
-<span class="amp-email-placeholder">OR--------</span>
-<br>
-<span class="amp-email-placeholder">[If non compliant - REMEMBER TO SAVE A COPY OF THE STATEMENT AGAIN]</span>
-<br>
-We have determined that your statement is not compliant. <span class="amp-email-placeholder">[Give reasons]</span>
+{% elif case.retest_statement_compliance_state == 'no-statement' or case.retest_ios_statement_compliance_state == 'no-statement' or case.retest_android_statement_compliance_state == 'no-statement' %}
+We were not able to find an accessibility statement and this does not comply with the requirement to publish a statement.
 <br>
 <br>
-<span class="amp-email-placeholder">[If the statement is not found:]</span>
-<br>
-We could not find an accessibility statement so this does not comply with the requirement to publish a statement.
-<br>
-<br>
+{% endif %}
 Public sector bodies may request a review where they disagree with this decision. Any request for a review must be made in writing (via email) within 28 days of the decision and state the reason for the review. A list of websites without correct accessibility statements may be published by the Department for Science, Innovation and Technology (DSIT).
+{% endif %}
 <br>
 <br>
 <h2>Future monitoring</h2>

@@ -1,8 +1,8 @@
 {% include 'common/emails/templates/helpers/dear-name.html' %}
 <br>
 <br>
-We emailed you an accessibility report on <span class="amp-email-placeholder">(date)</span>
-with a deadline of <span class="amp-email-placeholder">(date)</span>
+We emailed you an accessibility report on {% if case.report_sent_date %}{{ case.report_sent_date|amp_date }}{% else %}<span class="amp-email-placeholder">(date)</span>{% endif %}
+with a deadline of {% if case.twelve_week_deadline_date %}{{ case.twelve_week_deadline_date|amp_date }}{% else %}<span class="amp-email-placeholder">(date)</span>{% endif %}
 to review the accessibility of your {{ case.target_of_test }} and fix any issues.
 <br>
 <br>
