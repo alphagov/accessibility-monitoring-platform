@@ -57,7 +57,14 @@
                         {% endfor %}
                         </tbody>
                     </table>
-                    {% include "common/pagination_controls.html" %}
+                    <div class="amp-table-details">
+                        <div>
+                            &nbsp
+                        </div>
+                        <div class="justify-right">
+                                {% include "common/pagination_controls.html" %}
+                        </div>
+                    </div>
                 {% else %}
                     &nbsp;
                 {% endif %}
