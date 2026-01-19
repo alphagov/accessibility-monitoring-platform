@@ -560,12 +560,12 @@ class MobileCase(BaseCase):
             self.ios_test_included == MobileCase.TestIncluded.YES
             and self.android_test_included == MobileCase.TestIncluded.YES
         ):
-            return "iOS/Android mobile application"
+            return "iOS/Android mobile app"
         elif self.ios_test_included == MobileCase.TestIncluded.YES:
-            return "iOS mobile application"
+            return "iOS mobile app"
         elif self.android_test_included == MobileCase.TestIncluded.YES:
-            return "Android mobile application"
-        return "mobile application"
+            return "Android mobile app"
+        return "mobile app"
 
 
 class EventHistory(models.Model):
