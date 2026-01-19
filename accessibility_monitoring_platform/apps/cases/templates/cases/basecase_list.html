@@ -11,36 +11,42 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <h1 class="govuk-heading-xl">{{ sitemap.current_platform_page.get_name }}</h1>
-                <h2 class="govuk-heading-l">{{ page_obj.paginator.count|intcomma }} case{% if page_obj.paginator.count != 1 %}s{% endif %} found</h2>
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 {% include "cases/helpers/case_search_form.html" %}
                 {% if base_cases %}
-                    {% include "common/pagination_controls.html" %}
-                    <table class="govuk-table amp-case-search-table">
-                        <thead class="govuk-table__head">
-                            <tr class="govuk-table__row">
-                             <th scope="col" class="govuk-table__header">Case ID</th>
-                             <th scope="col" class="govuk-table__header">Case</th>
-                             <th scope="col" class="govuk-table__header">Status</th>
-                             <th scope="col" class="govuk-table__header">Updated</th>
-                             <th scope="col" class="govuk-table__header">Auditor</th>
+                    <div class="amp-table-details">
+                        <div>
+                            <p class="govuk-body"> Found {{ page_obj.paginator.count|intcomma }} case{% if page_obj.paginator.count != 1 %}s{% endif %} </p>
+                        </div>
+                        <div class="justify-right">
+                                {% include "common/pagination_controls.html" %}
+                        </div>
+                    </div>
+                    <table class="govuk-body govuk-!-font-size-16 amp-case-search-table">
+                        <thead class="">
+                            <tr class="">
+                             <th scope="col" class="amp-case-id-width">Case ID</th>
+                             <th scope="col" class="amp-case-name">Case</th>
+                             <th scope="col" class="amp-status-width">Status</th>
+                             <th scope="col" class="amp-updated-width">Updated</th>
+                             <th scope="col" class="amp-auditor-width">Auditor</th>
                             </tr>
                         </thead>
-                        <tbody class="govuk-table__body">
+                        <tbody class="">
                         {% for base_case in base_cases %}
-                            <tr class="govuk-table__row">
-                                <td class="govuk-table__cell amp-case-id-width">
+                            <tr class="">
+                                <td class="amp-case-id-width">
                                     <span class="amp-case-tag amp-case-test-type-{{ base_case.tag_name_suffix }}">{{ base_case.case_identifier }}</span>
                                 </td>
-                                <td class="govuk-table__cell amp-case-name">
+                                <td class="amp-case-name">
                                     <a href="{{ base_case.get_absolute_url }}" class="govuk-link">{{ base_case.full_name }}</a>
                                 </td>
-                                <td class="govuk-table__cell amp-status-width">{{ base_case.get_status_display }}</td>
-                                <td class="govuk-table__cell amp-updated-width">{{ base_case.updated|amp_date_trunc }}</td>
-                                <td class="govuk-table__cell amp-auditor-width">
+                                <td class="amp-status-width">{{ base_case.get_status_display }}</td>
+                                <td class="amp-updated-width">{{ base_case.updated|amp_date_trunc }}</td>
+                                <td class="amp-auditor-width">
                                     {% if base_case.auditor %}
                                         {{ base_case.auditor.get_full_name }}
                                     {% else %}

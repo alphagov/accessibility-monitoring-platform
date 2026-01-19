@@ -1,7 +1,9 @@
 <form method="get" action="{% url 'cases:case-list' %}">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include 'common/amp_field.html' with field=form.case_search %}
+            <div class="amp-search-input-width">
+                {% include 'common/amp_field.html' with field=form.case_search %}
+            </div>
             <details class="govuk-details" data-module="govuk-details" {% if advanced_search_open %}open{% endif %}>
                 <summary class="govuk-details__summary">
                     <span class="govuk-details__summary-text">Filter and options</span>

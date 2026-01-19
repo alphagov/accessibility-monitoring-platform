@@ -120,7 +120,7 @@ pre {
         box-shadow: 0 -2px govuk-colour("yellow"), 0 4px govuk-colour("black");
         text-decoration: none;
     }
-  }
+}
 
 .amp-control {
     text-decoration: underline;
@@ -1053,33 +1053,86 @@ svg {
     border-left: None;
 }
 
+
+.amp-table-details {
+    display: flex;
+    align-items: center;
+}
+
+.justify-right {
+    margin-left: auto;
+}
+
+.amp-centre-text {
+    align-items: center;
+    justify-content: center;
+}
+
 .amp-case-search-table {
-    font-size: 1rem;
+
+    border: 1px solid #b1b4b6;
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+
+    thead {
+        th {
+        text-align: left;
+        font-weight: 700;
+        padding: 1rem 0.75rem;
+        border-bottom: 1px solid #b1b4b6;
+        white-space: nowrap;
+        }
+    }
+
+    tbody {
+        tr {
+            border-bottom: 1px solid #b1b4b6;
+        }
+
+        td {
+            padding: 1.25rem 0.75rem;
+            vertical-align: middle;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+    }
 
     .amp-case-id-width {
-        width: 11%;
-    }
-
-    .amp-case-name {
-        max-width: 400px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .amp-status-width {
-        width: 22%;
+        width: 84px;
     }
 
     .amp-updated-width {
-        width: 11%;
+        width: 9%;
+    }
+
+    .amp-status-width {
+        width: 17%;
     }
 
     .amp-auditor-width {
-        width: 15%;
-    }
+        width: 12%;
+    }   
+}
+
+.amp-search-input-width {
+    max-width: 600px;
 }
 
 .amp-case-tag {
-    padding: 2px 5px;
+    padding: 5px 8px 4px 8px;
 }
+
+// td, th {
+//     // border: 1px solid #dddddd;
+//     text-align: left;
+//     padding: 15px 15px 15px 0px;
+// }
+
+// tr {
+//     border-top: 1px solid;
+//     padding: 0px 10px 0px 10px;
+//     background-color: blue;
+// }
+

@@ -56,7 +56,7 @@ class CaseListView(ListView):
 
     model: type[BaseCase] = BaseCase
     context_object_name: str = "base_cases"
-    paginate_by: int = 10
+    paginate_by: int = 20
     template_name: str = "cases/basecase_list.html"
 
     def get(self, request, *args, **kwargs):
