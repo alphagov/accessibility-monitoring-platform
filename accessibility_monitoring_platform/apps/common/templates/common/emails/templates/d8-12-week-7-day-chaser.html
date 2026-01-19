@@ -2,7 +2,7 @@
 <br>
 <br>
 We emailed you on {% if case.twelve_week_update_date %}{{ case.twelve_week_update_date|amp_date }}{% else %}<span class="amp-email-placeholder">(date)</span>{% endif %}
-asking for an update on progress made since our initial report on {{ case.report_sent_date|amp_date }}.
+asking for an update on progress made since our initial report on {% if case.report_sent_date %}{{ case.report_sent_date|amp_date }}{% else %}<span class="amp-email-placeholder">(date)</span>{% endif %}.
 <br>
 <br>
 We have not yet received a response to the request. Please respond to us within 5 working days.
@@ -13,9 +13,6 @@ will be sent to the {{ case.get_enforcement_body_display }} ({{ case.enforcement
 <br>
 <br>
 Many thanks,
-<br>
-<br>
-{{ request.user.get_full_name }}
 <br>
 <br>
 <span class="amp-email-placeholder">-----------------------------------------------</span>
@@ -31,7 +28,7 @@ If we find that we are not getting enough replies then we can go back to the ori
 <br>
 <br>
 We emailed you on <span class="amp-email-placeholder">(date of previous email)</span>
-asking for an update on progress made since our initial report on {{ case.report_sent_date|amp_date }}.
+asking for an update on progress made since our initial report on {% if case.report_sent_date %}{{ case.report_sent_date|amp_date }}{% else %}<span class="amp-email-placeholder">(date)</span>{% endif %}.
 <br>
 <br>
 We have had no response to the request.
