@@ -1,7 +1,7 @@
 {% include 'common/emails/templates/helpers/dear-name.html' %}
 <br>
 <br>
-We emailed you on {{ case.twelve_week_deadline_date|amp_date }}
+We emailed you on {% if case.twelve_week_update_date %}{{ case.twelve_week_update_date|amp_date }}{% else %}<span class="amp-email-placeholder">(date)</span>{% endif %}
 asking for an update on progress made since our initial report on {{ case.report_sent_date|amp_date }}.
 <br>
 <br>
