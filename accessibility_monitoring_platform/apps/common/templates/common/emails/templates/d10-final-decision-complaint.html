@@ -5,8 +5,6 @@ Thank you for your response.
 <br>
 <br>
 <h2>What happens next</h2>
-<br>
-<br>
 <h3>Accessibility compliance</h3>
 <br>
 As your {{ case.target_of_test }} was monitored following a complaint from a member of the public, I need to send the details to the
@@ -24,8 +22,6 @@ On behalf of the Secretary of State for Science, Innovation and Technology, we m
 <br>
 {% if case.retest_statement_compliance_state == 'compliant' or case.retest_ios_statement_compliance_state == 'compliant' and case.retest_android_statement_compliance_state == 'compliant' %}
 We have determined that your statement is compliant.
-<br>
-<br>
 {% else %}
 {% if case.retest_statement_compliance_state == 'not-compliant' or case.retest_ios_statement_compliance_state == 'not-compliant' or case.retest_android_statement_compliance_state == 'not-compliant' %}
 We have determined that your statement is not compliant.

@@ -11,8 +11,6 @@ I have reviewed some of the issues we originally raised and the accessibility st
 <br>
 <br>
 <h2>What happens next</h2>
-<br>
-<br>
 <h3>Accessibility Compliance</h3>
 <br>
 As part of our reporting process we provide the {{ case.get_enforcement_body_display }} ({{ case.enforcement_body|upper }})
@@ -39,8 +37,6 @@ On behalf of the Secretary of State for Science, Innovation and Technology, we m
 <br>
 {% if case.retest_statement_compliance_state == 'compliant' or case.retest_ios_statement_compliance_state == 'compliant' and case.retest_android_statement_compliance_state == 'compliant' %}
 We have determined that your statement is compliant.
-<br>
-<br>
 {% else %}
 {% if case.retest_statement_compliance_state == 'not-compliant' or case.retest_ios_statement_compliance_state == 'not-compliant' or case.retest_android_statement_compliance_state == 'not-compliant' %}
 We have determined that your statement is not compliant.
