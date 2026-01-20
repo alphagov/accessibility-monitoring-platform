@@ -434,6 +434,13 @@ class BaseCase(VersionModel):
             return self.get_enforcement_body_display()
         return "Equality Advisory and Support Service"
 
+    @property
+    def tag_name_suffix(self) -> str:
+        if self.test_type == BaseCase.TestType.SIMPLIFIED:
+            if self.simplifiedcase.archive:
+                return "archive"
+        return self.test_type
+
     def get_case(self):
         if self.test_type == TestType.SIMPLIFIED:
             return self.simplifiedcase

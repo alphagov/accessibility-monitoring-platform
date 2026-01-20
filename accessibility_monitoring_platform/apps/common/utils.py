@@ -180,7 +180,7 @@ def amp_format_date(date_to_format: date) -> str:
 
 def amp_format_date_short_month(date_to_format: date) -> str:
     """Format date according to GDS style guide"""
-    return f"{date_to_format:%-d %b %Y}" if date_to_format else ""
+    return f"{date_to_format:%-d %b %y}" if date_to_format else ""
 
 
 def amp_format_time(datetime_to_format: datetime) -> str:

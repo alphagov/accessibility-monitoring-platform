@@ -65,7 +65,7 @@ def test_amp_date(date_to_format, expected_result):
 @pytest.mark.parametrize(
     "date_to_format,expected_result",
     [
-        (date(2021, 4, 1), "1 Apr 2021"),
+        (date(2021, 4, 1), "1 Apr 21"),
         (None, ""),
     ],
 )
@@ -90,8 +90,8 @@ def test_amp_datetime(datetime_to_format, expected_result):
 @pytest.mark.parametrize(
     "datetime_to_format,expected_result",
     [
-        (datetime(2021, 1, 4, 9, 1, 0, 0, timezone.utc), "4 Jan 2021 9:01am"),
-        (datetime(2021, 7, 4, 8, 1, 0, 0, timezone.utc), "4 Jul 2021 9:01am"),
+        (datetime(2021, 1, 4, 9, 1, 0, 0, timezone.utc), "4 Jan 21 9:01am"),
+        (datetime(2021, 7, 4, 8, 1, 0, 0, timezone.utc), "4 Jul 21 9:01am"),
         (None, ""),
     ],
 )

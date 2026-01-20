@@ -17,25 +17,36 @@ from .forms import CaseSearchForm
 from .models import BaseCase
 from .utils import filter_cases
 
-TRUTHY_SEARCH_FIELDS: list[str] = [
-    "sort_by",
-    "status",
-    "case_number",
-    "recommendation_for_enforcement",
+AUDITOR_SEARCH_FIELDS: list[str] = [
     "auditor",
     "reviewer",
+]
+DATE_SEARCH_FIELDS: list[str] = [
     "date_start_0",
     "date_start_1",
     "date_start_2",
     "date_end_0",
     "date_end_1",
     "date_end_2",
+]
+METADATA_SEARCH_FIELDS: list[str] = [
+    "status",
+    "case_number",
+    "recommendation_for_enforcement",
     "sector",
     "is_complaint",
     "enforcement_body",
     "subcategory",
-    "test_type",
 ]
+TRUTHY_SEARCH_FIELDS: list[str] = (
+    [
+        "sort_by",
+        "test_type",
+    ]
+    + AUDITOR_SEARCH_FIELDS
+    + DATE_SEARCH_FIELDS
+    + METADATA_SEARCH_FIELDS
+)
 
 
 class CaseListView(ListView):
@@ -44,8 +55,8 @@ class CaseListView(ListView):
     """
 
     model: type[BaseCase] = BaseCase
-    context_object_name: str = "cases"
-    paginate_by: int = 10
+    context_object_name: str = "base_cases"
+    paginate_by: int = 20
     template_name: str = "cases/basecase_list.html"
 
     def get(self, request, *args, **kwargs):
@@ -70,8 +81,23 @@ class CaseListView(ListView):
         """Add field values into context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
 
+        filter_fields: dict[str, str] = get_dict_without_page_items(
+            self.request.GET.items()
+        )
+        context["auditor_search_open"] = check_dict_for_truthy_values(
+            dictionary=filter_fields,
+            keys_to_check=AUDITOR_SEARCH_FIELDS,
+        )
+        context["date_search_open"] = check_dict_for_truthy_values(
+            dictionary=filter_fields,
+            keys_to_check=DATE_SEARCH_FIELDS,
+        )
+        context["metadata_search_open"] = check_dict_for_truthy_values(
+            dictionary=filter_fields,
+            keys_to_check=METADATA_SEARCH_FIELDS,
+        )
         context["advanced_search_open"] = check_dict_for_truthy_values(
-            dictionary=get_dict_without_page_items(self.request.GET.items()),
+            dictionary=filter_fields,
             keys_to_check=TRUTHY_SEARCH_FIELDS,
         )
         context["form"] = self.form
