@@ -12,6 +12,7 @@ describe('Create mobile case', () => {
     cy.visit('/cases')
 
     cy.title().should('eq', 'Search cases')
+    cy.contains('Filter and options').click()
     cy.contains('Create mobile case').click()
 
     cy.title().should('eq', 'Create mobile case')

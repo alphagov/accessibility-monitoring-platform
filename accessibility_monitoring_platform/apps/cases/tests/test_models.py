@@ -438,3 +438,24 @@ def test_mobile_case_complaint_referrer_name(enforcement_body, expected_result):
     )
 
     assert mobile_case.complaint_referrer_name == expected_result
+
+
+@pytest.mark.parametrize(
+    "case_model, archive, expected_result",
+    [
+        (SimplifiedCase, "", "simplified"),
+        (SimplifiedCase, "blah", "archive"),
+        (DetailedCase, "", "detailed"),
+        (MobileCase, "", "mobile"),
+    ],
+)
+@pytest.mark.django_db
+def test_tag_name_suffix(case_model, archive, expected_result):
+    """Test tag_name_suffix for different types of case"""
+    case: case_model = case_model.objects.create()
+
+    if case_model == SimplifiedCase:
+        case.archive = archive
+        case.save()
+
+    assert case.tag_name_suffix == expected_result

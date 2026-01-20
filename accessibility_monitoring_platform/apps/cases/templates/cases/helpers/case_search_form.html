@@ -1,0 +1,143 @@
+<form method="get" action="{% url 'cases:case-list' %}">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <div class="amp-search-input-width">
+                {% include 'common/amp_field.html' with field=form.case_search %}
+            </div>
+            <details class="govuk-details" data-module="govuk-details" {% if advanced_search_open %}open{% endif %}>
+                <summary class="govuk-details__summary">
+                    <span class="govuk-details__summary-text">Filter and options</span>
+                </summary>
+                <div class="govuk-details__text amp-case-search-options">
+                    {% include 'common/amp_field.html' with field=form.test_type %}
+                    {% include 'common/amp_field.html' with field=form.sort_by %}
+                    <hr class="amp-width-100 amp-margin-bottom-20" />
+                    <details class="govuk-details" data-module="govuk-details"{% if auditor_search_open %}open{% endif %}>
+                        <summary class="govuk-details__summary">
+                            <span class="govuk-details__summary-text">Auditor</span>
+                        </summary>
+                        <div class="govuk-details__text">
+                            {% include 'common/amp_field.html' with field=form.auditor %}
+                            {% include 'common/amp_field.html' with field=form.reviewer %}
+                        </div>
+                    </details>
+                    <hr class="amp-width-100 amp-margin-bottom-20" />
+                    <details class="govuk-details" data-module="govuk-details"{% if date_search_open %}open{% endif %}>
+                        <summary class="govuk-details__summary">
+                            <span class="govuk-details__summary-text">Date filter</span>
+                        </summary>
+                        <div class="govuk-details__text">
+                            {% include 'common/amp_field.html' with field=form.date_type %}
+                            {% include 'common/amp_field.html' with field=form.date_start %}
+                            {% include 'common/amp_field.html' with field=form.date_end %}
+                        </div>
+                    </details>
+                    <hr class="amp-width-100 amp-margin-bottom-20" />
+                    <details class="govuk-details" data-module="govuk-details"{% if metadata_search_open %}open{% endif %}>
+                        <summary class="govuk-details__summary">
+                            <span class="govuk-details__summary-text">Case metadata</span>
+                        </summary>
+                        <div class="govuk-details__text">
+                            {% include 'common/amp_field.html' with field=form.status %}
+                            {% include 'common/amp_field.html' with field=form.recommendation_for_enforcement %}
+                            {% include 'common/amp_field.html' with field=form.sector %}
+                            {% include 'common/amp_field.html' with field=form.is_complaint %}
+                            {% include 'common/amp_field.html' with field=form.enforcement_body %}
+                            {% include 'common/amp_field.html' with field=form.subcategory %}
+                            {% include 'common/amp_field.html' with field=form.case_number %}
+                        </div>
+                    </details>
+                    <hr class="amp-width-100 amp-margin-bottom-20" />
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-one-third">
+                            <h2 id="id_header_3" class="govuk-heading-s">Simplified</h2>
+                            <ul class="govuk-list">
+                                <li>
+                                    <a href="{% url 'simplified:case-create' %}" class="govuk-link govuk-link--no-visited-state">
+                                        Create simplified case
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'simplified:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}" class="govuk-link govuk-link--no-visited-state">
+                                        Export to CSV
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'simplified:export-feedback-survey-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}" class="govuk-link govuk-link--no-visited-state">
+                                        Export to feedback survey CSV
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'exports:export-list' %}" class="govuk-link govuk-link--no-visited-state">
+                                        EHRC CSV export manager
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'exports:export-list' %}?enforcement_body=ecni" class="govuk-link govuk-link--no-visited-state">
+                                        ECNI CSV export manager
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="govuk-grid-column-one-third">
+                            <h2 id="id_header_3" class="govuk-heading-s">Detailed</h2>
+                            <ul class="govuk-list">
+                                <li>
+                                    <a href="{% url 'detailed:case-create' %}" class="govuk-link govuk-link--no-visited-state">
+                                        Create detailed case
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'detailed:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}" class="govuk-link govuk-link--no-visited-state">
+                                        Export to CSV
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'detailed:export-feedback-survey-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}" class="govuk-link govuk-link--no-visited-state">
+                                        Export to feedback survey CSV
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'detailed:export-equality-body-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}" class="govuk-link govuk-link--no-visited-state">
+                                        Export to equality body CSV
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="govuk-grid-column-one-third">
+                            <h2 id="id_header_3" class="govuk-heading-s">Mobile</h2>
+                            <ul class="govuk-list">
+                                <li>
+                                    <a href="{% url 'mobile:case-create' %}" class="govuk-link govuk-link--no-visited-state">
+                                        Create mobile case
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'mobile:case-export-list' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}" class="govuk-link govuk-link--no-visited-state">
+                                        Export to CSV
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'mobile:export-feedback-survey-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}" class="govuk-link govuk-link--no-visited-state">
+                                        Export to feedback survey CSV
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'mobile:export-equality-body-cases' %}{% if url_parameters %}?{{ url_parameters }}{% endif %}" class="govuk-link govuk-link--no-visited-state">
+                                        Export to equality body CSV
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </div>
+    <div class="govuk-button-group">
+        <input type="submit" value="Search" class="govuk-button" data-module="govuk-button" />
+        <a href="{% url 'cases:case-list' %}" class="govuk-button govuk-button--secondary">
+            Clear search
+        </a>
+    </div>
+</form>

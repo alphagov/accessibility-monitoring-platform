@@ -14,6 +14,7 @@ describe('Create simplified case, tests and report', () => {
     cy.visit('/cases')
 
     cy.title().should('eq', 'Search cases')
+    cy.contains('Filter and options').click()
     cy.contains('Create simplified case').click()
 
     cy.title().should('eq', 'Create simplified case')
