@@ -287,7 +287,7 @@
                         <tbody class="govuk-table__body">
                             {% for failure in failures %}
                                 <tr class="govuk-table__row ">
-                                    <td class="govuk-table__cell amp-width-one-third amp-notes">
+                                    <td class="govuk-table__cell amp-width-one-third">
                                         <p>{{ failure.page }}</p>
                                         <ul class="govuk-list">
                                             {% if failure.page.location %}
@@ -348,7 +348,7 @@
                 <tbody class="govuk-table__body">
                 {% for page in pages_with_retest_notes %}
                     <tr class="govuk-table__row ">
-                        <td class="govuk-table__cell amp-width-one-third amp-notes">
+                        <td class="govuk-table__cell amp-width-one-third">
                             <p>{{ page }}</p>
                             <ul class="govuk-list">
                             {% if page.location %}
