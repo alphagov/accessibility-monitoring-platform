@@ -42,7 +42,7 @@
                                     <span class="amp-case-tag amp-case-test-type-{{ base_case.tag_name_suffix }}">{{ base_case.case_identifier }}</span>
                                 </td>
                                 <td class="amp-case-name">
-                                    <a href="{{ base_case.get_absolute_url }}" class="govuk-link">{{ base_case.full_name }}</a>
+                                    <a href="{{ base_case.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">{{ base_case.full_name }}</a>
                                 </td>
                                 <td class="amp-status-width">{{ base_case.get_status_display }}</td>
                                 <td class="amp-updated-width">{{ base_case.updated|amp_date_trunc }}</td>

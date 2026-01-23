@@ -64,6 +64,7 @@ pre {
 }
 
 .amp-notes {
+    @extend .amp-markdown;
     ul:first-child, p:first-child {
         margin-top: 0;
     }
@@ -1113,7 +1114,7 @@ svg {
 
     .amp-auditor-width {
         width: 12%;
-    }   
+    }
 }
 
 .amp-search-input-width {
