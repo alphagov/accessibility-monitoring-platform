@@ -4,10 +4,16 @@ from unittest.mock import Mock, patch
 
 from django.db import migrations
 
+DEFAULT_CREATED_BY_USER_ID: int = 1
 DEFAULT_CREATED_DATE: datetime = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 
 def populate_casetasks(apps, schema_editor):  # pylint: disable=unused-argument
+    User = apps.get_model("auth", "User")
+    default_user = User.objects.filter(id=DEFAULT_CREATED_BY_USER_ID).first()
+    if default_user is None:  # In test environment
+        return
+
     Task = apps.get_model("notifications", "Task")
     CaseTask = apps.get_model("notifications", "CaseTask")
     for task in Task.objects.all():
@@ -20,9 +26,10 @@ def populate_casetasks(apps, schema_editor):  # pylint: disable=unused-argument
                 due_date=task.date,
                 text=task.description,
                 base_case=task.base_case,
-                created_by_id=task.user_id,
+                created_by_id=default_user.id,
                 is_complete=task.read,
             )
+            case_task.recipients.add(task.user)
         with patch(
             "django.utils.timezone.now",
             Mock(return_value=task.updated),

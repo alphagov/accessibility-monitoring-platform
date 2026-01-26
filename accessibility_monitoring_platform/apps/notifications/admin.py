@@ -45,6 +45,7 @@ class CaseTaskAdmin(admin.ModelAdmin):
     ]
     show_facets = admin.ShowFacets.ALWAYS
     readonly_fields = ["created", "updated"]
+    filter_horizontal = ("recipients",)
     fieldsets = (
         (
             None,
