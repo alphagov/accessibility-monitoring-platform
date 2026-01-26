@@ -29,7 +29,7 @@
             </div>
             <div class="govuk-grid-column-three-quarters">
                 {% for case_task in case_tasks %}
-                    <p class="govuk-body">{{ case_task }}: {{ case_task.text }}</p>
+                    {% include "dashboard/helpers/case_task_card.html" %}
                 {% endfor %}
             </div>
         </div>
