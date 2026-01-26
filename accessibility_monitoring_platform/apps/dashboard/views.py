@@ -11,12 +11,14 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.views.generic import TemplateView
 
-from ..cases.models import TestType
+from ..cases.models import BaseCase, TestType
 from ..common.utils import checks_if_2fa_is_enabled, get_recent_changes_to_platform
 from ..detailed.models import DetailedCase
 from ..mobile.models import MobileCase
+from ..notifications.models import CaseTask
 from ..notifications.utils import build_task_list, get_task_type_counts
 from ..simplified.models import SimplifiedCase
 from .utils import group_cases_by_status, group_detailed_or_mobile_cases_by_status
@@ -130,4 +132,64 @@ class DashboardView(TemplateView):
                 "qa_count": qa_cases.count(),
             }
         )
+        return context
+
+
+class InboxView(TemplateView):
+    """Filters and displays the cases into states on the landing page"""
+
+    template_name: str = "dashboard/inbox.html"
+
+    def get_context_data(self, *args, **kwargs) -> dict[str, Any]:
+        context: dict[str, Any] = super().get_context_data(*args, **kwargs)
+        # breakpoint()
+        inbox_filter: str | None = self.request.GET.get("inbox_filter")
+        inbox_user_id: int = self.request.GET.get("inbox_user_id", self.request.user.id)
+        inbox_user: User = get_object_or_404(User, id=inbox_user_id)  # type: ignore
+        context["inbox_user"] = inbox_user
+        case_tasks = inbox_user.casetask_set.filter(is_complete=False, is_deleted=False)
+        inbox_menu = [
+            {
+                "label": "All",
+                "number": case_tasks.count(),
+                "current": inbox_filter is None,
+                "link": reverse("dashboard:inbox"),
+            },
+            {
+                "label": "Unassigned cases",
+                "number": BaseCase.objects.filter(
+                    status=SimplifiedCase.Status.UNASSIGNED
+                ).count(),
+                "current": False,
+                "link": f'{reverse("cases:case-list")}?status={SimplifiedCase.Status.UNASSIGNED}',
+            },
+            {
+                "label": "Reminders",
+                "number": case_tasks.filter(type=CaseTask.Type.REMINDER).count(),
+                "current": inbox_filter == CaseTask.Type.REMINDER,
+                "link": f'{reverse("dashboard:inbox")}?inbox_filter={CaseTask.Type.REMINDER}',
+            },
+            {
+                "label": "QA comments",
+                "number": case_tasks.filter(type=CaseTask.Type.QA_COMMENT).count(),
+                "current": inbox_filter == CaseTask.Type.QA_COMMENT,
+                "link": f'{reverse("dashboard:inbox")}?inbox_filter={CaseTask.Type.QA_COMMENT}',
+            },
+            {
+                "label": "Report approved",
+                "number": case_tasks.filter(type=CaseTask.Type.REPORT_APPROVED).count(),
+                "current": inbox_filter == CaseTask.Type.REPORT_APPROVED,
+                "link": f'{reverse("dashboard:inbox")}?inbox_filter={CaseTask.Type.REPORT_APPROVED}',
+            },
+            {
+                "label": "Post case",
+                "number": case_tasks.filter(type=CaseTask.Type.POSTCASE).count(),
+                "current": inbox_filter == CaseTask.Type.POSTCASE,
+                "link": f'{reverse("dashboard:inbox")}?inbox_filter={CaseTask.Type.POSTCASE}',
+            },
+        ]
+        context["inbox_menu"] = inbox_menu
+        if inbox_filter is not None:
+            case_tasks = case_tasks.filter(type=inbox_filter)
+        context["case_tasks"] = case_tasks
         return context

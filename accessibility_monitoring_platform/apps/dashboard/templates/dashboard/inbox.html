@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}{{ sitemap.current_platform_page.get_name }}{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full amp-margin-bottom-30">
+                <h1 class="govuk-heading-xl amp-margin-bottom-10">{{ sitemap.current_platform_page.get_name }}</h1>
+                {% if user != inbox_user %}
+                    <p class="govuk-body">Tasks for {{ inbox_user.first_name }}.</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-quarter">
+                {% for item in inbox_menu %}
+                    <p class="govuk-body">
+                        {% if item.current %}
+                            <strong>
+                        {% else %}
+                            <a href="{{ item.link }}" class="govuk-link govuk-link--no-visited-state">
+                        {% endif %}
+                        {{ item.label }} &middot; {{ item.number }}
+                        {% if item.current %}</strong>{% else %}</a>{% endif %}
+                    </p>
+                {% endfor %}
+            </div>
+            <div class="govuk-grid-column-three-quarters">
+                {% for case_task in case_tasks %}
+                    <p class="govuk-body">{{ case_task }}: {{ case_task.text }}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+</div>
+
+{% endblock %}

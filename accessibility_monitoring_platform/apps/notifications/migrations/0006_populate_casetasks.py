@@ -16,7 +16,7 @@ def populate_casetasks(apps, schema_editor):  # pylint: disable=unused-argument
 
     Task = apps.get_model("notifications", "Task")
     CaseTask = apps.get_model("notifications", "CaseTask")
-    for task in Task.objects.all():
+    for task in Task.objects.all().order_by("id"):
         with patch(
             "django.utils.timezone.now",
             Mock(return_value=DEFAULT_CREATED_DATE),
