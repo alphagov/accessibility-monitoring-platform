@@ -31,7 +31,7 @@
                              <th scope="col" class="amp-case-id-width">Case ID</th>
                              <th scope="col" class="amp-case-name">Case</th>
                              <th scope="col" class="amp-status-width">Status</th>
-                             <th scope="col" class="amp-updated-width">Updated</th>
+                             <th scope="col" class="amp-updated-width">Due</th>
                              <th scope="col" class="amp-auditor-width">Auditor</th>
                             </tr>
                         </thead>
@@ -45,7 +45,7 @@
                                     {% include "cases/helpers/case_link.html" %}
                                 </td>
                                 <td class="amp-status-width">{{ base_case.get_status_display }}</td>
-                                <td class="amp-updated-width">{{ base_case.updated|amp_date_trunc }}</td>
+                                <td class="amp-updated-width">{{ base_case.due_date|amp_date_trunc }}</td>
                                 <td class="amp-auditor-width">
                                     {% if base_case.auditor %}
                                         {{ base_case.auditor.get_full_name }}

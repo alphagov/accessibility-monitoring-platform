@@ -28,7 +28,11 @@ class CaseTask(models.Model):
     )
     created = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
-        User, on_delete=models.PROTECT, related_name="casetask_createdby"
+        User,
+        on_delete=models.PROTECT,
+        related_name="casetask_createdby",
+        blank=True,
+        null=True,
     )
     is_complete = models.BooleanField(default=False)
     completed_by = models.ForeignKey(

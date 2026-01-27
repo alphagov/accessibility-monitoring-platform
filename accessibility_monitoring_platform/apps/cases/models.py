@@ -366,6 +366,7 @@ class BaseCase(VersionModel):
         choices=RecommendationForEnforcement.choices,
         default=RecommendationForEnforcement.UNKNOWN,
     )
+    due_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["-id"]

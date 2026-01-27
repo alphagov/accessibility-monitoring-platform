@@ -21,7 +21,7 @@
                             Due {{ case_task.due_date|amp_date }}
                             for
                             {% for user in case_task.recipients.all %}
-                                {{ user.get_full_name }}{% if forloop.last %}.{% else %},{% endif %}
+                                {{ user.get_full_name }}{% if forloop.last %}{% else %},{% endif %}
                             {% endfor %}
                         </p>
                         {{ case_task.text|markdown_to_html }}
@@ -30,7 +30,12 @@
                 <tr>
                     <td class="amp-notes" colspan="3">
                         <p>
-                            By {{ case_task.created_by.get_full_name }}
+                            By
+                            {% if case_task.created_by %}
+                                {{ case_task.created_by.get_full_name }}
+                            {% else %}
+                                Platform
+                            {% endif %}
                             &middot;
                             {{ case_task.created|amp_date }}
                         </p>
