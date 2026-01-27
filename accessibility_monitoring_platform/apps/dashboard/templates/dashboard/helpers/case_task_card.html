@@ -1,16 +1,18 @@
 <div class="govuk-grid-row amp-margin-bottom-10">
     <div class="govuk-grid-column-full">
         <table class="amp-case-task-table">
-            <tbody>
-                <tr>
+            <thead>
+                <tr{% if case_task.due_date < today.date %} class="amp-overdue"{% endif %}>
                     <td class="amp-case-id-width">
                         {% include "cases/helpers/case_identifier_tag.html" with base_case=case_task.base_case %}
                     </td>
                     <td class="amp-case-name">
                         {% include "cases/helpers/case_link.html" with base_case=case_task.base_case %}
                     </td>
-                    <td class="amp-status-width"><strong>{{ case_task.base_case.get_status_display }}</strong></td>
+                    <td class="govuk-body amp-status-width"><strong>{{ case_task.base_case.get_status_display }}</strong></td>
                 </tr>
+            </thead>
+            <tbody>
                 <tr>
                     <td class="amp-notes" colspan="3">
                         <p>
@@ -19,10 +21,19 @@
                             Due {{ case_task.due_date|amp_date }}
                             for
                             {% for user in case_task.recipients.all %}
-                                {{ user.first_name }}{% if forloop.last %}.{% else %},{% endif %}
+                                {{ user.get_full_name }}{% if forloop.last %}.{% else %},{% endif %}
                             {% endfor %}
                         </p>
                         {{ case_task.text|markdown_to_html }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="amp-notes" colspan="3">
+                        <p>
+                            By {{ case_task.created_by.get_full_name }}
+                            &middot;
+                            {{ case_task.created|amp_date }}
+                        </p>
                     </td>
                 </tr>
             </tbody>
