@@ -37,7 +37,7 @@
                         </thead>
                         <tbody class="">
                         {% for base_case in base_cases %}
-                            <tr class="">
+                            <tr {% if base_case.due_date < today.date %}class="amp-overdue"{% endif %}>
                                 <td class="amp-case-id-width">
                                     {% include "cases/helpers/case_identifier_tag.html" %}
                                 </td>
