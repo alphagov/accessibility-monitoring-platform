@@ -15,7 +15,11 @@ from django.urls import reverse
 from django.views.generic import TemplateView
 
 from ..cases.models import BaseCase, TestType
-from ..common.utils import checks_if_2fa_is_enabled, get_recent_changes_to_platform
+from ..common.utils import (
+    checks_if_2fa_is_enabled,
+    get_recent_changes_to_platform,
+    record_common_model_update_event,
+)
 from ..detailed.models import DetailedCase
 from ..mobile.models import MobileCase
 from ..notifications.models import CaseTask
@@ -149,6 +153,9 @@ class InboxView(TemplateView):
         if mark_complete_id is not None:
             case_task: CaseTask = CaseTask.objects.get(id=mark_complete_id)
             case_task.is_complete = True
+            record_common_model_update_event(
+                user=self.request.user, model_object=case_task
+            )
             case_task.save()
 
         inbox_filter: str | None = self.request.GET.get(
