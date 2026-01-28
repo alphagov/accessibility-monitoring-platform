@@ -153,7 +153,7 @@ class InboxView(TemplateView):
                 "label": "All",
                 "number": case_tasks.count(),
                 "current": inbox_filter is None,
-                "link": reverse("dashboard:inbox"),
+                "link": f'{reverse("dashboard:inbox")}?inbox_user_id={inbox_user_id}',
             },
             {
                 "label": "Unassigned cases",
@@ -161,31 +161,31 @@ class InboxView(TemplateView):
                     status=SimplifiedCase.Status.UNASSIGNED
                 ).count(),
                 "current": False,
-                "link": f'{reverse("cases:case-list")}?status={SimplifiedCase.Status.UNASSIGNED}',
+                "link": f'{reverse("cases:case-list")}?status={SimplifiedCase.Status.UNASSIGNED}&inbox_user_id={inbox_user_id}',
             },
             {
                 "label": "Reminders",
                 "number": case_tasks.filter(type=CaseTask.Type.REMINDER).count(),
                 "current": inbox_filter == CaseTask.Type.REMINDER,
-                "link": f'{reverse("dashboard:inbox")}?inbox_filter={CaseTask.Type.REMINDER}',
+                "link": f'{reverse("dashboard:inbox")}?inbox_filter={CaseTask.Type.REMINDER}&inbox_user_id={inbox_user_id}',
             },
             {
                 "label": "QA comments",
                 "number": case_tasks.filter(type=CaseTask.Type.QA_COMMENT).count(),
                 "current": inbox_filter == CaseTask.Type.QA_COMMENT,
-                "link": f'{reverse("dashboard:inbox")}?inbox_filter={CaseTask.Type.QA_COMMENT}',
+                "link": f'{reverse("dashboard:inbox")}?inbox_filter={CaseTask.Type.QA_COMMENT}&inbox_user_id={inbox_user_id}',
             },
             {
                 "label": "Report approved",
                 "number": case_tasks.filter(type=CaseTask.Type.REPORT_APPROVED).count(),
                 "current": inbox_filter == CaseTask.Type.REPORT_APPROVED,
-                "link": f'{reverse("dashboard:inbox")}?inbox_filter={CaseTask.Type.REPORT_APPROVED}',
+                "link": f'{reverse("dashboard:inbox")}?inbox_filter={CaseTask.Type.REPORT_APPROVED}&inbox_user_id={inbox_user_id}',
             },
             {
                 "label": "Post case",
                 "number": case_tasks.filter(type=CaseTask.Type.POSTCASE).count(),
                 "current": inbox_filter == CaseTask.Type.POSTCASE,
-                "link": f'{reverse("dashboard:inbox")}?inbox_filter={CaseTask.Type.POSTCASE}',
+                "link": f'{reverse("dashboard:inbox")}?inbox_filter={CaseTask.Type.POSTCASE}&inbox_user_id={inbox_user_id}',
             },
         ]
         context["inbox_menu"] = inbox_menu

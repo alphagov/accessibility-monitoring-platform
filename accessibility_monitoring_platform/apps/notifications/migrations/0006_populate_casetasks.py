@@ -5,9 +5,17 @@ from unittest.mock import Mock, patch
 from django.db import migrations
 
 DEFAULT_CREATED_DATE: datetime = datetime(1970, 1, 1, tzinfo=timezone.utc)
+QA_COMMENT_SEPARATOR: str = "left a message in discussion:\n\n"
+REPORT_APPROVED_SEPARATOR: str = " QA approved Case "
 
 
-def populate_casetasks(apps, schema_editor):  # pylint: disable=unused-argument
+def populate_casetasks(apps, schema_editor):
+    User = apps.get_model("auth", "User")
+    users_by_name: dict[str, User] = {
+        user.first_name: user for user in User.objects.all()
+    }
+    previous_qa_comment = None
+
     Task = apps.get_model("notifications", "Task")
     CaseTask = apps.get_model("notifications", "CaseTask")
     for task in Task.objects.all().order_by("id"):
@@ -15,14 +23,68 @@ def populate_casetasks(apps, schema_editor):  # pylint: disable=unused-argument
             "django.utils.timezone.now",
             Mock(return_value=DEFAULT_CREATED_DATE),
         ):
-            case_task = CaseTask.objects.create(
-                type=task.type,
-                due_date=task.date,
-                text=task.description,
-                base_case=task.base_case,
-                is_complete=task.read,
-            )
-            case_task.recipients.add(task.user)
+            if task.type == "report-approved" or task.type == "qa-comment":
+                creator_name: str = task.description.split()[0]
+                if (
+                    task.type == "qa-comment"
+                    and QA_COMMENT_SEPARATOR in task.description
+                ):
+                    if previous_qa_comment is not None:
+                        if (
+                            task.date == previous_qa_comment.due_date
+                            and task.base_case == previous_qa_comment.base_case
+                        ):
+                            previous_qa_comment.recipients.add(task.user)
+                            continue
+                    text: str = task.description.split(QA_COMMENT_SEPARATOR)[1]
+                    case_task = CaseTask.objects.create(
+                        type=task.type,
+                        due_date=task.date,
+                        text=text,
+                        base_case=task.base_case,
+                        is_complete=task.read,
+                        created_by=users_by_name[creator_name],
+                    )
+                    case_task.recipients.add(task.user)
+                    previous_qa_comment = case_task
+                    continue
+                else:
+                    previous_qa_comment = None
+                if (
+                    task.type == "report-approved"
+                    and REPORT_APPROVED_SEPARATOR in task.description
+                ):
+                    text: str = task.description[
+                        task.description.index(REPORT_APPROVED_SEPARATOR) + 1 :
+                    ]
+                    case_task = CaseTask.objects.create(
+                        type=task.type,
+                        due_date=task.date,
+                        text=text,
+                        base_case=task.base_case,
+                        is_complete=task.read,
+                        created_by=users_by_name[creator_name],
+                    )
+                    case_task.recipients.add(task.user)
+                    continue
+                case_task = CaseTask.objects.create(
+                    type=task.type,
+                    due_date=task.date,
+                    text=task.description,
+                    base_case=task.base_case,
+                    is_complete=task.read,
+                    created_by=users_by_name[creator_name],
+                )
+                case_task.recipients.add(task.user)
+            else:  # not qa-comment or report-approved
+                case_task = CaseTask.objects.create(
+                    type=task.type,
+                    due_date=task.date,
+                    text=task.description,
+                    base_case=task.base_case,
+                    is_complete=task.read,
+                )
+                case_task.recipients.add(task.user)
         with patch(
             "django.utils.timezone.now",
             Mock(return_value=task.updated),
@@ -32,8 +94,10 @@ def populate_casetasks(apps, schema_editor):  # pylint: disable=unused-argument
 
 def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
     CaseTask = apps.get_model("notifications", "CaseTask")
-    for case_task in CaseTask.objects.all():
-        case_task.delete()
+    recipients_qs = CaseTask.recipients.through.objects.all()
+    recipients_qs._raw_delete(recipients_qs.db)
+    case_tasks_qs = CaseTask.objects.all()
+    case_tasks_qs._raw_delete(case_tasks_qs.db)
 
 
 class Migration(migrations.Migration):
