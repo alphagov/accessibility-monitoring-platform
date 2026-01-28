@@ -9,7 +9,7 @@
                     <td class="amp-case-name">
                         {% include "cases/helpers/case_link.html" with base_case=case_task.base_case %}
                     </td>
-                    <td class="govuk-body amp-status-width"><strong>{{ case_task.base_case.get_status_display }}</strong></td>
+                    <td class="amp-status-width"><strong>{{ case_task.base_case.get_status_display }}</strong></td>
                 </tr>
             </thead>
             <tbody>
@@ -28,7 +28,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <td class="amp-notes" colspan="3">
+                    <td class="amp-notes" colspan="2">
                         <p>
                             By
                             {% if case_task.created_by %}
@@ -39,6 +39,10 @@
                             &middot;
                             {{ case_task.created|amp_date }}
                         </p>
+                    </td>
+                    <td>
+                        View &middot;
+                        <a href="{% url 'dashboard:inbox' %}?inbox_filter={{ inbox_filter }}&inbox_user_id={{ inbox_user.id }}&mark_complete_id={{ case_task.id }}" class="govuk-link govuk-link--no-visited-state">Mark as complete</a>
                     </td>
                 </tr>
             </tbody>

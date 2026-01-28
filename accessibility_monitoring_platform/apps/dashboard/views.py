@@ -23,6 +23,8 @@ from ..notifications.utils import build_task_list, get_task_type_counts
 from ..simplified.models import SimplifiedCase
 from .utils import group_cases_by_status, group_detailed_or_mobile_cases_by_status
 
+DEFAULT_INBOX_FILTER: str = "all"
+
 
 class DashboardView(TemplateView):
     """Filters and displays the cases into states on the landing page"""
@@ -142,18 +144,31 @@ class InboxView(TemplateView):
 
     def get_context_data(self, *args, **kwargs) -> dict[str, Any]:
         context: dict[str, Any] = super().get_context_data(*args, **kwargs)
-        # breakpoint()
-        inbox_filter: str | None = self.request.GET.get("inbox_filter")
+
+        mark_complete_id: int | None = self.request.GET.get("mark_complete_id")
+        if mark_complete_id is not None:
+            case_task: CaseTask = CaseTask.objects.get(id=mark_complete_id)
+            case_task.is_complete = True
+            case_task.save()
+
+        inbox_filter: str | None = self.request.GET.get(
+            "inbox_filter", DEFAULT_INBOX_FILTER
+        )
+        context["inbox_filter"] = inbox_filter
         inbox_user_id: int = self.request.GET.get("inbox_user_id", self.request.user.id)
         inbox_user: User = get_object_or_404(User, id=inbox_user_id)  # type: ignore
+
         context["inbox_user"] = inbox_user
-        case_tasks = inbox_user.casetask_set.filter(is_complete=False, is_deleted=False)
+        case_tasks = inbox_user.casetask_set.filter(
+            is_complete=False, is_deleted=False
+        ).order_by("due_date")
+
         inbox_menu = [
             {
                 "label": "All",
                 "number": case_tasks.count(),
-                "current": inbox_filter is None,
-                "link": f'{reverse("dashboard:inbox")}?inbox_user_id={inbox_user_id}',
+                "current": inbox_filter == DEFAULT_INBOX_FILTER,
+                "link": f'{reverse("dashboard:inbox")}?inbox_filter={DEFAULT_INBOX_FILTER}&inbox_user_id={inbox_user_id}',
             },
             {
                 "label": "Unassigned cases",
@@ -189,7 +204,9 @@ class InboxView(TemplateView):
             },
         ]
         context["inbox_menu"] = inbox_menu
-        if inbox_filter is not None:
+
+        if inbox_filter != DEFAULT_INBOX_FILTER:
             case_tasks = case_tasks.filter(type=inbox_filter)
+
         context["case_tasks"] = case_tasks
         return context
