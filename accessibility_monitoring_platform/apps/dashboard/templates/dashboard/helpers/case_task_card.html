@@ -6,10 +6,10 @@
                     <td class="amp-case-id-width">
                         {% include "cases/helpers/case_identifier_tag.html" with base_case=case_task.base_case %}
                     </td>
-                    <td class="amp-case-name">
+                    <td class="amp-case-name amp-fixed-width">
                         {% include "cases/helpers/case_link.html" with base_case=case_task.base_case %}
                     </td>
-                    <td class="amp-status-width"><strong>{{ case_task.base_case.get_status_display }}</strong></td>
+                    <td class="amp-status-width amp-fixed-width"><strong>{{ case_task.base_case.get_status_display }}</strong></td>
                 </tr>
             </thead>
             <tbody>

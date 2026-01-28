@@ -1139,9 +1139,12 @@ svg {
             td {
                 padding: 1.25rem 0.75rem;
                 vertical-align: middle;
-                text-overflow: ellipsis;
-                overflow: hidden;
-                white-space: nowrap;
+
+                .amp-fixed-width {
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    white-space: nowrap;
+                }
             }
         }
     }
@@ -1153,7 +1156,7 @@ svg {
     }
 
     .amp-case-id-width {
-        width: 75px;
+        width: 80px;
     }
 
     .amp-status-width {
