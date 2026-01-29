@@ -9,9 +9,7 @@
             <div class="govuk-grid-column-full amp-margin-bottom-30">
                 <h1 class="govuk-heading-xl amp-margin-bottom-10">
                     {{ sitemap.current_platform_page.get_name }}
-                    {% if user != inbox_user %}
-                        for {{ inbox_user.first_name }}
-                    {% endif %}
+                    for {{ inbox_user.first_name }}
                 </h1>
             </div>
         </div>

@@ -170,6 +170,8 @@ class InboxView(TemplateView):
             is_complete=False, is_deleted=False
         ).order_by("due_date")
 
+        today: date = date.today()
+
         inbox_menu = [
             {
                 "label": "All",
@@ -202,6 +204,14 @@ class InboxView(TemplateView):
                 "number": case_tasks.filter(type=CaseTask.Type.REPORT_APPROVED).count(),
                 "current": inbox_filter == CaseTask.Type.REPORT_APPROVED,
                 "link": f'{reverse("dashboard:inbox")}?inbox_filter={CaseTask.Type.REPORT_APPROVED}&inbox_user_id={inbox_user_id}',
+            },
+            {
+                "label": "Overdue cases",
+                "number": BaseCase.objects.filter(
+                    auditor=inbox_user, due_date__lte=today
+                ).count(),
+                "current": False,
+                "link": f'{reverse("cases:case-list")}?auditor={inbox_user_id}&date_type=due_date&date_end_0={today.day}&date_end_1={today.month}&date_end_2={today.year}',
             },
             {
                 "label": "Post case",

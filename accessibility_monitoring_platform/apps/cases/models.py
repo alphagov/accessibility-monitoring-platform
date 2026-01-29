@@ -390,6 +390,8 @@ class BaseCase(VersionModel):
         self.updated_date = now.date()
         if self.status == SimplifiedCaseStatus.UNASSIGNED and self.due_date is None:
             self.due_date = now.date() + timedelta(days=180)
+        elif self.status in BaseCase.CLOSED_CASE_STATUSES and self.due_date is not None:
+            self.due_date = None
 
         super().save(*args, **kwargs)
 
