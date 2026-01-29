@@ -1,0 +1,39 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h2 id="id_statuses" class="govuk-heading-m">Statuses</h2>
+        <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header amp-width-one-third">Value</th>
+                    <th scope="col" class="govuk-table__header amp-width-one-third">Label</th>
+                    <th scope="col" class="govuk-table__header">Detailed</th>
+                    <th scope="col" class="govuk-table__header">Mobile</th>
+                    <th scope="col" class="govuk-table__header">Simplified</th>
+            </thead>
+            <tbody class="govuk-table__body">
+                {% for case_status in case_statuses %}
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell"><code>{{ case_status.value }}</code></td>
+                        <td class="govuk-table__cell">{{ case_status.label }}</td>
+                        <td class="govuk-table__cell">
+                            {% for test_type in case_status.test_types %}
+                                {% if test_type == 'detailed' %}✓{% endif %}
+                            {% endfor %}
+                        </td>
+                        <td class="govuk-table__cell">
+                            {% for test_type in case_status.test_types %}
+                                {% if test_type == 'mobile' %}✓{% endif %}
+                            {% endfor %}
+                        </td>
+                        <td class="govuk-table__cell">
+                            {% for test_type in case_status.test_types %}
+                                {% if test_type == 'simplified' %}✓{% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <hr class="amp-width-100 amp-margin-bottom-30" />
+    </div>
+</div>

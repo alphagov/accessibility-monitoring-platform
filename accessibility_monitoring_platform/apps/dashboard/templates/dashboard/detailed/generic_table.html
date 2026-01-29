@@ -21,7 +21,13 @@
                     {% endif %}
                 </th>
                 <th scope="col" class="govuk-table__header amp-width-one-half">Case</th>
-                <th scope="col" class="govuk-table__header amp-width-one-quarter">Auditor</th>
+                <th scope="col" class="govuk-table__header amp-width-one-quarter">
+                    {% if id == '070-unassigned-qa-case' %}
+                        Current step
+                    {% else %}
+                        Auditor
+                    {% endif %}
+                </th>
             </tr>
         </thead>
         <tbody class="govuk-table__body">
@@ -35,13 +41,29 @@
                         {% endif %}
                     </th>
                     <td class="govuk-table__cell amp-width-one-half">
-                        <a href="{{ case.get_absolute_url }}" class="govuk-link">{{ case.full_name }}</a>
+                        <a href="{{ case.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">{{ case.full_name }}</a>
                     </td>
                     <td class="govuk-table__cell amp-width-one-quarter">
-                        {% if case.auditor %}
-                            <a href="{% url 'cases:case-list' %}?auditor={{ case.auditor.id }}" class="govuk-link">{{ case.auditor.get_full_name }}</a>
+                        {% if id == '070-unassigned-qa-case' %}
+                            {% if case.reviewer %}
+                                {% if case.testing_type == 'detailed' %}
+                                    <a href="{% url 'detailed:edit-qa-comments' case.id %}" class="govuk-link govuk-link--no-visited-state">QA comments</a>
+                                {% else %}
+                                    <a href="{% url 'mobile:edit-qa-comments' case.id %}" class="govuk-link govuk-link--no-visited-state">QA comments</a>
+                                {% endif %}
+                            {% else %}
+                                {% if case.testing_type == 'detailed' %}
+                                    <a href="{% url 'detailed:edit-qa-auditor' case.id %}" class="govuk-link govuk-link--no-visited-state">QA auditor</a>
+                                {% else %}
+                                    <a href="{% url 'mobile:edit-qa-auditor' case.id %}" class="govuk-link govuk-link--no-visited-state">QA auditor</a>
+                                {% endif %}
+                            {% endif %}
                         {% else %}
-                            No auditor
+                            {% if case.auditor %}
+                                <a href="{% url 'cases:case-list' %}?auditor={{ case.auditor.id }}" class="govuk-link govuk-link--no-visited-state">{{ case.auditor.get_full_name }}</a>
+                            {% else %}
+                                No auditor
+                            {% endif %}
                         {% endif %}
                     </td>
                 </tr>
