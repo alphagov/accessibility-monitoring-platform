@@ -42,7 +42,7 @@
                     </td>
                     <td>
                         View &middot;
-                        <a href="{% url 'dashboard:inbox' %}?inbox_filter={{ inbox_filter }}&inbox_user_id={{ inbox_user.id }}&mark_complete_id={{ case_task.id }}" class="govuk-link govuk-link--no-visited-state">Mark as complete</a>
+                        <a href="{% url 'dashboard:inbox' %}?inbox_filter={{ inbox_filter }}{% if show_everyone %}&show_everyone=true{% else %}&inbox_user_id={{ inbox_user.id }}{% endif %}&mark_complete_id={{ case_task.id }}" class="govuk-link govuk-link--no-visited-state">Mark as complete</a>
                     </td>
                 </tr>
             </tbody>

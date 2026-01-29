@@ -9,21 +9,47 @@
             <div class="govuk-grid-column-full amp-margin-bottom-30">
                 <h1 class="govuk-heading-xl amp-margin-bottom-10">
                     {{ sitemap.current_platform_page.get_name }}
-                    for {{ inbox_user.first_name }}
+                    for {% if show_everyone %}everyone{% else %}{{ inbox_user.first_name }}{% endif %}
                 </h1>
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-quarter">
-                {% for item in inbox_menu %}
-                    <p class="govuk-body">
-                        {% if item.current %}
+                <h2 class="govuk-heading-m">Tasks</h2>
+                {% for inbox_menu_task in inbox_menu_tasks %}
+                    <p class="govuk-body amp-margin-bottom-10">
+                        {% if inbox_menu_task.current %}
                             <strong>
                         {% else %}
-                            <a href="{{ item.link }}" class="govuk-link govuk-link--no-visited-state">
+                            <a href="{{ inbox_menu_task.link }}" class="govuk-link govuk-link--no-visited-state">
                         {% endif %}
-                        {{ item.label }} &middot; {{ item.number }}
-                        {% if item.current %}</strong>{% else %}</a>{% endif %}
+                        {{ inbox_menu_task.label }} &middot; {{ inbox_menu_task.number }}
+                        {% if inbox_menu_task.current %}</strong>{% else %}</a>{% endif %}
+                    </p>
+                {% endfor %}
+                <h2 class="govuk-heading-m">Cases</h2>
+                {% for inbox_menu_cases in inbox_menu_cases %}
+                    <p class="govuk-body amp-margin-bottom-10">
+                        <a href="{{ inbox_menu_cases.link }}" class="govuk-link govuk-link--no-visited-state">
+                        {{ inbox_menu_cases.label }} &middot; {{ inbox_menu_cases.number }}</a>
+                    </p>
+                {% endfor %}
+                <h2 class="govuk-heading-m">Filter by user</h2>
+                <p class="govuk-body amp-margin-bottom-10">
+                    {% if inbox_user %}
+                        <a href="{% url 'dashboard:inbox' %}?inbox_filter={{ inbox_filter }}&show_everyone=true" class="govuk-link govuk-link--no-visited-state">Everyone</a>
+                    {% else %}
+                        <strong>Everyone</strong>
+                    {% endif %}
+                {% for historic_auditor in historic_auditors %}
+                    <p class="govuk-body amp-margin-bottom-10">
+                        {% if historic_auditor.id == inbox_user.id %}
+                            <strong>
+                        {% else %}
+                            <a href="{% url 'dashboard:inbox' %}?inbox_filter={{ inbox_filter }}&inbox_user_id={{ historic_auditor.id}}" class="govuk-link govuk-link--no-visited-state">
+                        {% endif %}
+                        {{ historic_auditor.get_full_name }}
+                        {% if historic_auditor.id == inbox_user.id %}</strong>{% else %}</a>{% endif %}
                     </p>
                 {% endfor %}
             </div>
