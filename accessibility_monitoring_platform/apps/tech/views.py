@@ -9,6 +9,7 @@ from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
+from ..cases.models import CASE_STATUSES
 from ..detailed.csv_export import (
     DETAILED_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
     DETAILED_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
@@ -66,6 +67,7 @@ class ReferenceImplementaionView(StaffRequiredMixin, TemplateView):
         context["banner_case_archived"] = SimplifiedCase.objects.exclude(
             archive=""
         ).first()
+        context["case_statuses"] = CASE_STATUSES
         return context
 
 

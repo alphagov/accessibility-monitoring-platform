@@ -6,11 +6,7 @@
             <tr class="govuk-table__row">
                 <th scope="col" class="govuk-table__header amp-width-15-percent">Date of test</th>
                 <th scope="col" class="govuk-table__header amp-width-one-half">Case</th>
-                {% if filter == "all-cases" %}
-                    <th scope="col" class="govuk-table__header amp-width-one-quarter">QA Auditor</th>
-                {% else %}
-                    <th scope="col" class="govuk-table__header amp-width-one-quarter">Current step</th>
-                {% endif %}
+                <th scope="col" class="govuk-table__header amp-width-one-quarter">Current step</th>
             </tr>
         </thead>
         <tbody class="govuk-table__body">
@@ -18,17 +14,13 @@
                 <tr class="govuk-table__row ">
                     <th scope="row" class="govuk-table__header amp-width-15-percent govuk-!-font-weight-regular">{{ case.audit.date_of_test|amp_date_trunc }}</th>
                     <td class="govuk-table__cell amp-width-one-half">
-                        <a href="{{ case.get_absolute_url }}" class="govuk-link">{{ case.full_name }}</a>
+                        <a href="{{ case.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">{{ case.full_name }}</a>
                     </td>
                     <td class="govuk-table__cell amp-width-one-quarter">
-                        {% if filter == "all-cases" %}
-                            {% if case.reviewer %}
-                                <a href="{% url 'cases:case-list' %}?auditor={{case.reviewer.id}}" class="govuk-link"> {{case.reviewer.first_name}} {{case.reviewer.last_name}} </a>
-                            {% else %}
-                                No auditor
-                            {% endif %}
+                        {% if case.reviewer %}
+                            <a href="{% url 'simplified:edit-qa-comments' case.id %}" class="govuk-link govuk-link--no-visited-state">QA comments</a>
                         {% else %}
-                            <a href="{% url 'simplified:edit-qa-auditor' case.id %}" class="govuk-link"> {{case.get_report_approved_status_display}} </a>
+                            <a href="{% url 'simplified:edit-qa-auditor' case.id %}" class="govuk-link govuk-link--no-visited-state">QA auditor</a>
                         {% endif %}
                     </td>
                 </tr>
