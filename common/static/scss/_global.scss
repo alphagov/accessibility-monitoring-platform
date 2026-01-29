@@ -1139,12 +1139,9 @@ svg {
             td {
                 padding: 1.25rem 0.75rem;
                 vertical-align: middle;
-
-                .amp-fixed-width {
-                    text-overflow: ellipsis;
-                    overflow: hidden;
-                    white-space: nowrap;
-                }
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
             }
         }
     }
