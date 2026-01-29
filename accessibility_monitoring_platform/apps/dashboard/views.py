@@ -250,7 +250,9 @@ class InboxView(TemplateView):
         context["inbox_menu_cases"] = inbox_menu_cases
 
         historic_auditor_group: Group = Group.objects.get(name="Historic auditor")
-        context["historic_auditors"] = historic_auditor_group.user_set.all()
+        context["historic_auditors"] = historic_auditor_group.user_set.all().order_by(
+            "first_name", "last_name"
+        )
 
         if inbox_filter != DEFAULT_INBOX_FILTER:
             case_tasks = case_tasks.filter(type=inbox_filter)
