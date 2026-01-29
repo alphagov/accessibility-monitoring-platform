@@ -11,15 +11,23 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.views.generic import TemplateView
 
-from ..cases.models import TestType
-from ..common.utils import checks_if_2fa_is_enabled, get_recent_changes_to_platform
+from ..cases.models import BaseCase, TestType
+from ..common.utils import (
+    checks_if_2fa_is_enabled,
+    get_recent_changes_to_platform,
+    record_common_model_update_event,
+)
 from ..detailed.models import DetailedCase
 from ..mobile.models import MobileCase
+from ..notifications.models import CaseTask
 from ..notifications.utils import build_task_list, get_task_type_counts
 from ..simplified.models import SimplifiedCase
 from .utils import group_cases_by_status, group_detailed_or_mobile_cases_by_status
+
+DEFAULT_INBOX_FILTER: str = "all"
 
 
 class DashboardView(TemplateView):
@@ -130,4 +138,92 @@ class DashboardView(TemplateView):
                 "qa_count": qa_cases.count(),
             }
         )
+        return context
+
+
+class InboxView(TemplateView):
+    """Filters and displays the cases into states on the landing page"""
+
+    template_name: str = "dashboard/inbox.html"
+
+    def get_context_data(self, *args, **kwargs) -> dict[str, Any]:
+        context: dict[str, Any] = super().get_context_data(*args, **kwargs)
+
+        mark_complete_id: int | None = self.request.GET.get("mark_complete_id")
+        if mark_complete_id is not None:
+            case_task: CaseTask = CaseTask.objects.get(id=mark_complete_id)
+            case_task.is_complete = True
+            record_common_model_update_event(
+                user=self.request.user, model_object=case_task
+            )
+            case_task.save()
+
+        inbox_filter: str | None = self.request.GET.get(
+            "inbox_filter", DEFAULT_INBOX_FILTER
+        )
+        context["inbox_filter"] = inbox_filter
+        inbox_user_id: int = self.request.GET.get("inbox_user_id", self.request.user.id)
+        inbox_user: User = get_object_or_404(User, id=inbox_user_id)  # type: ignore
+
+        context["inbox_user"] = inbox_user
+        case_tasks = inbox_user.casetask_set.filter(
+            is_complete=False, is_deleted=False
+        ).order_by("due_date")
+
+        today: date = date.today()
+
+        inbox_menu = [
+            {
+                "label": "All",
+                "number": case_tasks.count(),
+                "current": inbox_filter == DEFAULT_INBOX_FILTER,
+                "link": f'{reverse("dashboard:inbox")}?inbox_filter={DEFAULT_INBOX_FILTER}&inbox_user_id={inbox_user_id}',
+            },
+            {
+                "label": "Unassigned cases",
+                "number": BaseCase.objects.filter(
+                    status=SimplifiedCase.Status.UNASSIGNED
+                ).count(),
+                "current": False,
+                "link": f'{reverse("cases:case-list")}?status={SimplifiedCase.Status.UNASSIGNED}&inbox_user_id={inbox_user_id}',
+            },
+            {
+                "label": "Reminders",
+                "number": case_tasks.filter(type=CaseTask.Type.REMINDER).count(),
+                "current": inbox_filter == CaseTask.Type.REMINDER,
+                "link": f'{reverse("dashboard:inbox")}?inbox_filter={CaseTask.Type.REMINDER}&inbox_user_id={inbox_user_id}',
+            },
+            {
+                "label": "QA comments",
+                "number": case_tasks.filter(type=CaseTask.Type.QA_COMMENT).count(),
+                "current": inbox_filter == CaseTask.Type.QA_COMMENT,
+                "link": f'{reverse("dashboard:inbox")}?inbox_filter={CaseTask.Type.QA_COMMENT}&inbox_user_id={inbox_user_id}',
+            },
+            {
+                "label": "Report approved",
+                "number": case_tasks.filter(type=CaseTask.Type.REPORT_APPROVED).count(),
+                "current": inbox_filter == CaseTask.Type.REPORT_APPROVED,
+                "link": f'{reverse("dashboard:inbox")}?inbox_filter={CaseTask.Type.REPORT_APPROVED}&inbox_user_id={inbox_user_id}',
+            },
+            {
+                "label": "Overdue cases",
+                "number": BaseCase.objects.filter(
+                    auditor=inbox_user, due_date__lte=today
+                ).count(),
+                "current": False,
+                "link": f'{reverse("cases:case-list")}?auditor={inbox_user_id}&date_type=due_date&date_end_0={today.day}&date_end_1={today.month}&date_end_2={today.year}',
+            },
+            {
+                "label": "Post case",
+                "number": case_tasks.filter(type=CaseTask.Type.POSTCASE).count(),
+                "current": inbox_filter == CaseTask.Type.POSTCASE,
+                "link": f'{reverse("dashboard:inbox")}?inbox_filter={CaseTask.Type.POSTCASE}&inbox_user_id={inbox_user_id}',
+            },
+        ]
+        context["inbox_menu"] = inbox_menu
+
+        if inbox_filter != DEFAULT_INBOX_FILTER:
+            case_tasks = case_tasks.filter(type=inbox_filter)
+
+        context["case_tasks"] = case_tasks
         return context

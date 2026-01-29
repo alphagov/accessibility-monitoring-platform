@@ -31,21 +31,21 @@
                              <th scope="col" class="amp-case-id-width">Case ID</th>
                              <th scope="col" class="amp-case-name">Case</th>
                              <th scope="col" class="amp-status-width">Status</th>
-                             <th scope="col" class="amp-updated-width">Updated</th>
+                             <th scope="col" class="amp-updated-width">Due</th>
                              <th scope="col" class="amp-auditor-width">Auditor</th>
                             </tr>
                         </thead>
                         <tbody class="">
                         {% for base_case in base_cases %}
-                            <tr class="">
+                            <tr {% if base_case.due_date < today.date %}class="amp-overdue"{% endif %}>
                                 <td class="amp-case-id-width">
-                                    <span class="amp-case-tag amp-case-test-type-{{ base_case.tag_name_suffix }}">{{ base_case.case_identifier }}</span>
+                                    {% include "cases/helpers/case_identifier_tag.html" %}
                                 </td>
                                 <td class="amp-case-name">
-                                    <a href="{{ base_case.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">{{ base_case.full_name }}</a>
+                                    {% include "cases/helpers/case_link.html" %}
                                 </td>
                                 <td class="amp-status-width">{{ base_case.get_status_display }}</td>
-                                <td class="amp-updated-width">{{ base_case.updated|amp_date_trunc }}</td>
+                                <td class="amp-updated-width">{{ base_case.due_date|amp_date_trunc }}</td>
                                 <td class="amp-auditor-width">
                                     {% if base_case.auditor %}
                                         {{ base_case.auditor.get_full_name }}

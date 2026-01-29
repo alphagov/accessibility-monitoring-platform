@@ -115,6 +115,7 @@ class SimplifiedCaseMetadataUpdateForm(SimplifiedCaseCreateForm, VersionForm):
             attrs={"label": "Feedback survey sent to this organisation?"}
         ),
     )
+    due_date = AMPDateField(label="Next action due date")
     case_details_complete_date = AMPDatePageCompleteField()
 
     def __init__(self, *args, **kwargs):
@@ -139,6 +140,7 @@ class SimplifiedCaseMetadataUpdateForm(SimplifiedCaseCreateForm, VersionForm):
             "notes",
             "trello_url",
             "is_feedback_requested",
+            "due_date",
             "case_details_complete_date",
         ]
 

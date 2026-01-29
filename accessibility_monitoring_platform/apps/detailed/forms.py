@@ -107,6 +107,7 @@ class DetailedCaseMetadataUpdateForm(DetailedCaseCreateForm, VersionForm):
             attrs={"label": "Feedback survey sent to this organisation?"}
         ),
     )
+    due_date = AMPDateField(label="Next action due date")
     case_metadata_complete_date = AMPDatePageCompleteField()
 
     def __init__(self, *args, **kwargs):
@@ -130,6 +131,7 @@ class DetailedCaseMetadataUpdateForm(DetailedCaseCreateForm, VersionForm):
             "is_complaint",
             "case_folder_url",
             "is_feedback_requested",
+            "due_date",
             "case_metadata_complete_date",
         ]
 

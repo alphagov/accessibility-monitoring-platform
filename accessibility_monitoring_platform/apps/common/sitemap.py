@@ -2321,6 +2321,7 @@ SITE_MAP: list[PlatformPageGroup] = (
                 ),
                 PlatformPage(name="Contact admin", url_name="common:contact-admin"),
                 PlatformPage(name="Dashboard", url_name="dashboard:home"),
+                PlatformPage(name="Inbox", url_name="dashboard:inbox"),
                 PlatformPage(name="Tasks", url_name="notifications:task-list"),
                 BaseCasePlatformPage(
                     name="Create reminder",

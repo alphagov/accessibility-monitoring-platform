@@ -17,9 +17,9 @@ class MobileCaseAdmin(admin.ModelAdmin):
     """Django admin configuration for MobileCase model"""
 
     readonly_fields = ["created"]
-    search_fields = ["case_number", "organisation_name", "domain"]
+    search_fields = ["case_identifier", "organisation_name", "domain"]
     list_display = [
-        "case_number",
+        "case_identifier",
         "organisation_name",
         "app_name",
         "auditor",
