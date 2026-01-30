@@ -29,14 +29,15 @@ def populate_casetasks(apps, schema_editor):
                     task.type == "qa-comment"
                     and QA_COMMENT_SEPARATOR in task.description
                 ):
+                    text: str = task.description.split(QA_COMMENT_SEPARATOR)[1]
                     if previous_qa_comment is not None:
                         if (
                             task.date == previous_qa_comment.due_date
                             and task.base_case == previous_qa_comment.base_case
+                            and text == previous_qa_comment.text
                         ):
                             previous_qa_comment.recipients.add(task.user)
                             continue
-                    text: str = task.description.split(QA_COMMENT_SEPARATOR)[1]
                     case_task = CaseTask.objects.create(
                         type=task.type,
                         due_date=task.date,
