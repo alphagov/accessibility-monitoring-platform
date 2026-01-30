@@ -9,6 +9,49 @@ from ..common.models import Link
 from ..common.templatetags.common_tags import amp_date
 
 
+class CaseTask(models.Model):
+    """Django model for case-specific tasks"""
+
+    class Type(models.TextChoices):
+        QA_COMMENT = "qa-comment", "QA comment"
+        REPORT_APPROVED = "report-approved", "Report approved"
+        REMINDER = "reminder"
+        POSTCASE = "postcase", "Post case"
+
+    type = models.CharField(max_length=20, choices=Type, default=Type.REMINDER)
+    recipients = models.ManyToManyField(User)
+    due_date = models.DateField()
+    text = models.TextField(default="")
+    base_case = models.ForeignKey(
+        BaseCase,
+        on_delete=models.PROTECT,
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="casetask_createdby",
+        blank=True,
+        null=True,
+    )
+    is_complete = models.BooleanField(default=False)
+    completed_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="casetask_completedby",
+        blank=True,
+        null=True,
+    )
+    updated = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.get_type_display()} {amp_date(self.due_date)}"
+
+    class Meta:
+        ordering: list[str] = ["-id"]
+
+
 class Task(models.Model):
     """Django model for user-specific tasks"""
 

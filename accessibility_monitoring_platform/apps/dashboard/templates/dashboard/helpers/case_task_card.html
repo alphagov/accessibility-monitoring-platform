@@ -1,0 +1,51 @@
+<div class="govuk-grid-row amp-margin-bottom-10">
+    <div class="govuk-grid-column-full">
+        <table class="govuk-body govuk-!-font-size-16 amp-case-task-table">
+            <thead>
+                <tr{% if case_task.due_date < today.date %} class="amp-overdue"{% endif %}>
+                    <td class="amp-case-id-width">
+                        {% include "cases/helpers/case_identifier_tag.html" with base_case=case_task.base_case %}
+                    </td>
+                    <td class="amp-case-name">
+                        {% include "cases/helpers/case_link.html" with base_case=case_task.base_case %}
+                    </td>
+                    <td class="amp-status-width"><strong>{{ case_task.base_case.get_status_display }}</strong></td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="amp-notes" colspan="3">
+                        <p>
+                            <strong>{{ case_task.get_type_display }}</strong>
+                            &middot;
+                            Due {{ case_task.due_date|amp_date }}
+                            for
+                            {% for user in case_task.recipients.all %}
+                                {{ user.get_full_name }}{% if forloop.last %}{% else %},{% endif %}
+                            {% endfor %}
+                        </p>
+                        {{ case_task.text|markdown_to_html }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="amp-notes" colspan="2">
+                        <p>
+                            By
+                            {% if case_task.created_by %}
+                                {{ case_task.created_by.get_full_name }}
+                            {% else %}
+                                Platform
+                            {% endif %}
+                            &middot;
+                            {{ case_task.created|amp_date }}
+                        </p>
+                    </td>
+                    <td>
+                        View &middot;
+                        <a href="{% url 'dashboard:inbox' %}?inbox_filter={{ inbox_filter }}{% if show_everyone %}&show_everyone=true{% else %}&inbox_user_id={{ inbox_user.id }}{% endif %}&mark_complete_id={{ case_task.id }}" class="govuk-link govuk-link--no-visited-state">Mark as complete</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

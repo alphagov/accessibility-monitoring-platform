@@ -6,6 +6,7 @@
                 <li aria-hidden="true">{{ user.first_name|title }} {{ user.last_name|title }}</li>
                 <li class="amp-padding-left-10" aria-hidden="true"> | </li>
                 <li><a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:home' %}">Dashboard</a></li>
+                <li><a class="govuk-link govuk-link--no-visited-state" href="{% url 'dashboard:inbox' %}">Inbox</a></li>
                 <li>
                     <a class="govuk-link govuk-link--no-visited-state" href="{% url 'cases:case-list' %}">Search</a>
                 </li>
