@@ -1077,11 +1077,13 @@ svg {
 
     thead {
         th {
-        text-align: left;
-        font-weight: 700;
-        padding: 1rem 0.75rem;
-        border-bottom: 1px solid #b1b4b6;
-        white-space: nowrap;
+            text-align: left;
+            padding: 1.25rem 0.75rem;
+            border-bottom: 1px solid #b1b4b6;
+            white-space: nowrap;
+            vertical-align: middle;
+            text-overflow: ellipsis;
+            overflow: hidden;
         }
     }
 
@@ -1100,7 +1102,11 @@ svg {
     }
 
     .amp-case-id-width {
-        width: 84px;
+        width: 11%;
+    }
+
+    .amp-case-name {
+        width: 51%;
     }
 
     .amp-updated-width {
