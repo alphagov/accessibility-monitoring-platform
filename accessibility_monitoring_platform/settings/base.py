@@ -82,6 +82,7 @@ INSTALLED_APPS = [
     "django_otp.plugins.otp_email",  # <- if you want email capability.
     "two_factor",
     "two_factor.plugins.email",  # <- if you want email capability.
+    "storages",
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -180,6 +181,13 @@ elif os.getenv("DB_SECRET") and os.getenv("DB_NAME"):
         "aws_region": "us-east-1",
     }
 
+# AWS
+AWS_ACCESS_KEY_ID = DATABASES["aws-s3-bucket"]["aws_access_key_id"]
+AWS_SECRET_ACCESS_KEY = DATABASES["aws-s3-bucket"]["aws_secret_access_key"]
+
+# File storage
+AWS_STORAGE_BUCKET_NAME = DATABASES["aws-s3-bucket"]["bucket_name"]
+AWS_S3_REGION_NAME = DATABASES["aws-s3-bucket"]["aws_region"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
@@ -241,8 +249,11 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "static" / "dist"
 
 STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+    },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 

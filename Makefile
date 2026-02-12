@@ -84,3 +84,9 @@ new_account_prototype:
 
 prototype_reload_database:
 	python aws_prototype/main.py -b reload_database
+
+make check_s3_files:
+	python manage.py list_s3_files
+
+make create_s3_files:
+	python manage.py create_s3_documents

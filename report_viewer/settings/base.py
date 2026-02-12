@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     "django_otp.plugins.otp_static",
     "django_otp.plugins.otp_totp",
     "django_otp.plugins.otp_email",  # <- if you want email capability.
+    "storages",
 ]
 
 MIDDLEWARE = [
@@ -168,6 +169,16 @@ elif os.getenv("DB_SECRET") and os.getenv("DB_NAME"):
         "aws_secret_access_key": None,
         "aws_region": None,
     }
+
+
+# AWS
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+
+# File storage
+AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_REGION_NAME = os.environ.get("AWS_S3_REGION_NAME")
+
 
 LOGGING = {
     "version": 1,
