@@ -4,3 +4,4 @@ pylint
 coverage
 black
 python-dotenv
+reportlab

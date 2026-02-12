@@ -1,5 +1,6 @@
 django
 django-browser-reload
+django-storages
 python-dotenv
 psycopg2
 notifications-python-client
