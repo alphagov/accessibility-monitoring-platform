@@ -11,9 +11,9 @@ class BaseCaseAdmin(admin.ModelAdmin):
     """Django admin configuration for BaseCase model"""
 
     readonly_fields = ["created"]
-    search_fields = ["case_number", "organisation_name", "domain"]
+    search_fields = ["case_identifier", "organisation_name", "domain"]
     list_display = [
-        "case_number",
+        "case_identifier",
         "organisation_name",
         "domain",
         "auditor",
