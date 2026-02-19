@@ -47,11 +47,7 @@
             {% if page.updated_location %}
                 <p class="govuk-body-m">
                     Page location:
-                    {% if page.updated_location %}
-                        {{ page.updated_location }}
-                    {% else %}
-                        N/A
-                    {% endif %}
+                    {{ page.updated_location }}
                 </p>
             {% endif %}
         </div>
