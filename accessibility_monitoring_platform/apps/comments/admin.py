@@ -10,6 +10,7 @@ class CommentAdmin(admin.ModelAdmin):
 
     readonly_fields = ["created_date"]
     search_fields = [
+        "base_case__case_identifier",
         "base_case__organisation_name",
         "user__username",
         "body",
