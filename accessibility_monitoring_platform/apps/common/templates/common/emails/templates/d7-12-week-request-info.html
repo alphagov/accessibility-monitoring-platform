@@ -3,7 +3,7 @@
 <br>
 We emailed you an accessibility report on {% if case.report_sent_date %}{{ case.report_sent_date|amp_date }}{% else %}<span class="amp-email-placeholder">(date)</span>{% endif %}
 with a deadline of {% if case.twelve_week_deadline_date %}{{ case.twelve_week_deadline_date|amp_date }}{% else %}<span class="amp-email-placeholder">(date)</span>{% endif %}
-to review the accessibility of your {{ case.target_of_test }} and fix any issues.
+to review the accessibility of the {{ case.target_of_test_first_mention|safe }} and fix any issues.
 <br>
 <br>
 You must now provide an update on the progress you have made.
@@ -16,12 +16,12 @@ You must now provide an update on each issue raised in the accessibility report 
 <li>Issues you have fixed</li>
 <li>Issues you have been unable to fix</li>
 <li>A timeline for fixing unresolved issues</li>
-<li>Any other comments about the accessibility of your {{ case.target_of_test}}</li>
+<li>Any other comments about the accessibility of the {{ case.target_of_test_subsequent_mention }}</li>
 </ul>
 Please provide the update within 7 days.
 <br>
 <br>
-We may retest parts of your {{ case.target_of_test }} to check that they meet the accessibility regulations.
+We may retest parts of the {{ case.target_of_test_subsequent_mention }} to check that they meet the accessibility regulations.
 <br>
 <br>
 Any remaining accessibility issues will be passed to the {{ case.get_enforcement_body_display }} ({{ case.enforcement_body|upper }}) for further action.

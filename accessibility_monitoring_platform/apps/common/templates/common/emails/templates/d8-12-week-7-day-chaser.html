@@ -8,7 +8,7 @@ asking for an update on progress made since our initial report on {% if case.rep
 We have not yet received a response to the request. Please respond to us within 5 working days.
 <br>
 <br>
-After this time, we will review your {{ case.target_of_test }} and information regarding the accessibility of your {{ case.target_of_test }}
+After this time, we will review the {{ case.target_of_test_first_mention|safe }} and information regarding the accessibility of the {{ case.target_of_test_subsequent_mention }}
 will be sent to the {{ case.get_enforcement_body_display }} ({{ case.enforcement_body|upper }}) who will determine if further action is required.
 <br>
 <br>
@@ -37,7 +37,7 @@ We have had no response to the request.
 This is our final attempt to contact you.
 <br>
 <br>
-If we do not hear from you, information regarding the accessibility of your {{ case.target_of_test }}
+If we do not hear from you, information regarding the accessibility of the {{ case.target_of_test_subsequent_mention }}
 will be sent to the {{ case.get_enforcement_body_display }} ({{ case.enforcement_body|upper }}) who will determine if further action is required.
 <br>
 <br>

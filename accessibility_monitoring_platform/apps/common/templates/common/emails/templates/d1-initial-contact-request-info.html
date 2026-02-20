@@ -8,20 +8,17 @@ I am {{ request.user.get_full_name }} from the accessibility monitoring team at 
 We monitor the accessibility of public sector websites, digital services and mobile applications.
 <br>
 <br>
-We have been referred a complaint from the {{ case.complaint_referrer_name }} who were contacted by a member of the public about your
-{{ case.target_of_test }}.
+We have been referred a complaint from the {{ case.complaint_referrer_name }} who were contacted by a member of the public about the
+{{ case.target_of_test_first_mention|safe }}.
 They experienced accessibility issues, and it may not meet the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018
 (<a href="https://gov.uk/accessibility-regulations">https://gov.uk/accessibility-regulations</a>).
 As a result we need to complete a detailed accessibility audit.
 {% elif case.previous_case_url %}
-We are required to test a proportion of websites and mobile applications that we have previously tested. Your
-{{ case.target_of_test }} was chosen from a random sample to be monitored again, using a detailed audit.
+We are required to test a proportion of websites and mobile applications that we have previously tested. The
+{{ case.target_of_test_first_mention|safe }} was chosen from a random sample to be monitored again, using a detailed audit.
 {% else %}
 We monitor the accessibility of public sector websites, digital services and mobile applications. The
-{{ case.target_of_test }}
-{% if case.target_of_test == "website" %}
-(<a href="{{ case.home_page_url }}">{{ case.home_page_url}}</a>)
-{% endif %}
+{{ case.target_of_test_first_mention|safe }}
 was chosen from a random sample to be monitored using a detailed audit.
 {% endif %}
 <br>
@@ -31,7 +28,7 @@ It is a requirement of The Public Sector Bodies (Websites and Mobile Application
 <br>
 <h2>What you have to do</h2>
 <br>
-Under the Regulations your {{ case.target_of_test }}
+Under the Regulations the {{ case.target_of_test_subsequent_mention }}
 must meet Web Content Accessibility Guidelines (WCAG 2.2 AA standards) and we require further information.
 <br>
 <br>
@@ -45,10 +42,10 @@ We are asking that you provide us with the following:
 <li>Examples of different template styles used across the app</li>
 <li>Contact details for iOS and Android app teams</li>
 </ul>
-{% elif case.target_of_test == 'service' %}
+{% elif case.service_type == 'service' %}
 <ul>
 <li>A short overview of the service</li>
-<li>A copy of your latest accessibility audit report and a summary of any fixes made since then</li>
+<li>A copy of the latest accessibility audit report and a summary of any fixes made since then</li>
 <li>Analytics on the most popular user journeys through the service</li>
 <li>Examples of different templates and custom components used across the service, for example where patterns are not using the gov.uk design system
 <span class="amp-email-placeholder">[remove the last part if it’s not based on the gov.uk design system, for example NHS services]</span></li>

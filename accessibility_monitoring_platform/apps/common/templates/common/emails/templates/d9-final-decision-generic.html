@@ -23,7 +23,7 @@ Based on the information you have provided we will be recommending to the {{ cas
 <br>
 The {{ case.enforcement_body|upper }} has the right to overturn this recommendation. They will contact you if they need to take further action.
 {% else %}
-We will now pass on information regarding your {{ case.target_of_test }} to the {{ case.enforcement_body|upper }} so that they can decide if any further enforcement action is needed.
+We will now pass on information regarding the {{ case.target_of_test_first_mention|safe }} to the {{ case.enforcement_body|upper }} so that they can decide if any further enforcement action is needed.
 <br>
 <br>
 They may contact you directly if they think further action is needed.
@@ -53,7 +53,7 @@ Public sector bodies may request a review where they disagree with this decision
 <br>
 <h2>Future monitoring</h2>
 <br>
-Our monitoring is based on a sampling process. It is possible that your {{ case.target_of_test }}
+Our monitoring is based on a sampling process. It is possible that the {{ case.target_of_test_subsequent_mention }}
 may be put forward for further testing in the future. It is important that accessibility standards are maintained.
 <br>
 <br>

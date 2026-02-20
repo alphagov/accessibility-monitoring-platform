@@ -44,11 +44,11 @@ pre {
 
 .amp-case-test-type-archive {
     color: govuk-colour("white");
-    background-color: govuk-colour("dark-grey");
+    background-color: govuk-colour("black", $variant: "tint-25");
 }
 
 .amp-case-banner-body {
-    background-color: govuk-colour("light-grey");
+    background-color: govuk-colour("black", $variant: "tint-95");
 }
 
 .amp-case-banner-row {
@@ -57,7 +57,7 @@ pre {
 	justify-content: space-between;
 
     .amp-vertical-line {
-        border-left: 2px solid govuk-colour("mid-grey");
+        border-left: 2px solid govuk-colour("black", $variant: "tint-80");
         padding-right: 5px;
         margin-left: 5px;
     }
@@ -341,7 +341,7 @@ img, .amp-max-width-100 {
 }
 
 .hr-grey {
-    color: govuk-colour("mid-grey");
+    color: govuk-colour("black", $variant: "tint-80");
 }
 
 .amp-custom-nav-bar {
@@ -504,7 +504,7 @@ img, .amp-max-width-100 {
     margin-left: 15px;
     margin-right: 15px;
     height:2px;
-    background: govuk-colour("mid-grey");
+    background: govuk-colour("black", $variant: "tint-80");
 }
 
 .related-content-wrapper {
@@ -524,7 +524,7 @@ img, .amp-max-width-100 {
 }
 
 .print-button {
-    border: 1px solid govuk-colour("mid-grey");
+    border: 1px solid govuk-colour("black", $variant: "tint-80");
     color: govuk-colour("blue");
     cursor: pointer;
     margin: 0;
@@ -605,7 +605,7 @@ img, .amp-max-width-100 {
     }
 
     a:hover {
-        color: govuk-colour("dark-blue");
+        color: govuk-colour("blue", $variant: "shade-50");
     }
 
     a:active {
@@ -629,7 +629,7 @@ img, .amp-max-width-100 {
 
         th, td {
             padding: 15px 15px 15px 0;
-            border-bottom: 1px solid govuk-colour("mid-grey");
+            border-bottom: 1px solid govuk-colour("black", $variant: "tint-80");
             text-align: left;
             vertical-align: top;
         }
@@ -727,7 +727,7 @@ svg {
 
 .amp-left-border {
     padding-left: 10px;
-    border-left: 3px solid govuk-colour("mid-grey");
+    border-left: 3px solid govuk-colour("black", $variant: "tint-80");
 }
 
 .amp-font-weight-normal {
@@ -763,7 +763,7 @@ svg {
 }
 
 .amp-nav-details[disabled] * {
-    color: govuk-colour("mid-grey");
+    color: govuk-colour("black", $variant: "tint-80");
     pointer-events: none;
 }
 
@@ -779,7 +779,7 @@ svg {
 }
 
 .amp-nav-details__text {
-    border-left: 1px solid govuk-colour("mid-grey");
+    border-left: 1px solid govuk-colour("black", $variant: "tint-80");
     padding-left: 12px;
     padding-top: 4px;
     margin-bottom: 10px;
@@ -805,7 +805,7 @@ svg {
 
     a[disabled] {
         pointer-events: none;
-        color: govuk-colour("mid-grey");
+        color: govuk-colour("black", $variant: "tint-80");
         text-decoration: none;
     }
 }
@@ -837,7 +837,7 @@ svg {
 
     a[disabled] {
         pointer-events: none;
-        color: govuk-colour("mid-grey");
+        color: govuk-colour("black", $variant: "tint-80");
         text-decoration: none;
     }
 }
@@ -880,12 +880,12 @@ svg {
 }
 
 .amp-disabled {
-    color: govuk-colour("mid-grey");
+    color: govuk-colour("black", $variant: "tint-80");
     pointer-events: none;
 }
 
 .amp-border-left {
-    border-left: 1px solid govuk-colour("mid-grey");
+    border-left: 1px solid govuk-colour("black", $variant: "tint-80");
     padding-left: 12px;
     margin-bottom: 10px;
 }
@@ -908,7 +908,7 @@ svg {
 
 .amp-preview {
     min-height: 25px;
-    border-left: 1px solid govuk-colour("mid-grey");
+    border-left: 1px solid govuk-colour("black", $variant: "tint-80");
     padding-left: 12px;
     padding-top: 4px;
     margin-bottom: 10px;
@@ -1050,7 +1050,7 @@ svg {
         }
     }
 
-    background-color: govuk-colour("light-grey");
+    background-color: govuk-colour("black", $variant: "tint-95");
     border-left: None;
 }
 

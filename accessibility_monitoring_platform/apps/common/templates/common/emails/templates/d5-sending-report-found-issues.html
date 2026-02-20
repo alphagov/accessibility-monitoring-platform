@@ -1,18 +1,18 @@
 {% include 'common/emails/templates/helpers/dear-name.html' %}
 <br>
 <br>
-Thank you for the information you have provided. We have completed accessibility testing on your {{ case.target_of_test }}.
+Thank you for the information you have provided. We have completed accessibility testing on the {{ case.target_of_test_first_mention|safe }}.
 <br>
 <br>
 <h2>What we found</h2>
 <br>
-We found some accessibility issues with your {{ case.target_of_test }}.
+We found some accessibility issues with the {{ case.target_of_test_subsequent_mention }}.
 Please see the attached report (in two formats) for details.
 <br>
 <br>
 <h2>What you must do</h2>
 <br>
-Under the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 your {{ case.target_of_test }}
+Under the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 the {{ case.target_of_test_subsequent_mention }}
 must meet Web Content Accessibility Guidelines (WCAG 2.2 AA standards).
 <br>
 <br>
@@ -22,14 +22,14 @@ We are asking that you:
 {% if case.initial_disproportionate_burden_claim == 'no-assessment' %}
 <li>send us your disproportionate burden assessment evidence within 7 days</li>
 {% endif %}
-<li>fix the issues on your {{ case.target_of_test }} within 12 weeks</li>
+<li>fix the issues on the {{ case.target_of_test_subsequent_mention }} within 12 weeks</li>
 {% if case.initial_statement_compliance_state != 'compliant' %}
-<li>update the accessibility statement for your {{ case.target_of_test }}</li>
+<li>update the accessibility statement for the {{ case.target_of_test_subsequent_mention }}</li>
 {% endif %}
 </ul>
 <br>
-After 12 weeks, {{ 12_weeks_from_now|amp_date }}, we will contact you and ask for an update on your progress, and we will retest your
-{{ case.target_of_test }} to check that any accessibility issues have been fixed.
+After 12 weeks, {{ 12_weeks_from_now|amp_date }}, we will contact you and ask for an update on your progress, and we will retest the
+{{ case.target_of_test_subsequent_mention }} to check that any accessibility issues have been fixed.
 <br>
 <br>
 Any remaining accessibility issues and information regarding our monitoring will be passed to the
@@ -37,7 +37,7 @@ Any remaining accessibility issues and information regarding our monitoring will
 They will decide if further action is required. A list of websites and mobile applications without correct accessibility statements may be published by the Department for Science, Innovation and Technology.
 <br>
 <br>
-Where possible we will direct you to resources and information that may help you to increase the accessibility of your {{ case.target_of_test }}.
+Where possible we will direct you to resources and information that may help you to increase the accessibility of the {{ case.target_of_test_subsequent_mention }}.
 <br>
 <br>
 To find out more about the accessibility monitoring and the legislation go to

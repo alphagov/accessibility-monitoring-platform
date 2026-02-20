@@ -2,16 +2,16 @@ Dear {{ case.organisation_name }},
 <br>
 <br>
 I am {{ request.user.get_full_name }} from the accessibility monitoring team at Government Digital Service,
-part of the Department for Science, Innovation and Technology. We are currently monitoring {{ case.target_of_test }}s
-under the accessibility regulations and have chosen your {{ case.target_of_test }}
+part of the Department for Science, Innovation and Technology. We are currently monitoring {{ case.target_of_test_first_mention|safe }}
+under the accessibility regulations and have chosen the {{ case.target_of_test_subsequent_mention }}
 from a random sample.
 <br>
 <br>
-We are contacting you as we could not find appropriate contact details on your {{ case.target_of_test }}
+We are contacting you as we could not find appropriate contact details on the {{ case.target_of_test_subsequent_mention }}
 and we require more information.
 <br>
 <br>
-Please provide an email address for the team responsible for your {{ case.target_of_test }}
+Please provide an email address for the team responsible for the {{ case.target_of_test_subsequent_mention }}
 within 1 week by {{ 7_days_from_now|amp_date }}.
 <br>
 <br>

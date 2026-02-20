@@ -11,7 +11,7 @@ We initially emailed {{ case.organisation_name }} on <span class="amp-email-plac
 <span class="amp-email-placeholder">[Start: If we’ve had an acknowledgement] ------------------------------------</span>
 <br>
 <br>
-We are following up as the initial 2 week deadline has passed for you to send information about your {{ case.target_of_test }}.
+We are following up as the initial 2 week deadline has passed for you to send information about the {{ case.target_of_test_first_mention|safe }}.
 <br>
 <br>
 <span class="amp-email-placeholder">[End:  If we’ve had an acknowledgement] ------------------------------------</span>
@@ -20,7 +20,7 @@ We are following up as the initial 2 week deadline has passed for you to send in
 <span class="amp-email-placeholder">[Start: If we’ve had no response] ------------------------------------</span>
 <br>
 <br>
-We are following up as we have not received any response from your organisation with information about your {{ case.target_of_test }}.
+We are following up as we have not received any response from your organisation with information about the {{ case.target_of_test_subsequent_mention }}.
 <br>
 <br>
 <span class="amp-email-placeholder">[Start: If we’ve tried contacting multiple times] ------------------------------------</span>
@@ -52,7 +52,7 @@ You need to send us the following information:
 <li>Examples of different template styles used across the app</li>
 <li>Contact details for iOS and Android app teams </li>
 </ul>
-{% elif case.target_of_test == 'service' %}
+{% elif case.service_type == 'service' %}
 <ul>
 <li>A short overview of the service</li>
 <li>A copy of your latest accessibility audit report and a summary of any fixes made since then</li>
