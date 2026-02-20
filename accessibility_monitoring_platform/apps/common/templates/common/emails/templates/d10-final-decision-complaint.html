@@ -7,7 +7,7 @@ Thank you for your response.
 <h2>What happens next</h2>
 <h3>Accessibility compliance</h3>
 <br>
-As your {{ case.target_of_test }} was monitored following a complaint from a member of the public, I need to send the details to the
+As the {{ case.target_of_test_first_mention|safe }} was monitored following a complaint from a member of the public, I need to send the details to the
 {{ case.get_enforcement_body_display }} ({{ case.enforcement_body|upper }})
 who enforce the accessibility requirement as set out in The Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 and will make a decision on this complaint.
 <br>
@@ -38,7 +38,7 @@ Public sector bodies may request a review where they disagree with this decision
 <br>
 <h2>Future monitoring</h2>
 <br>
-Our monitoring is based on a sampling process. It is possible that your {{ case.target_of_test }}
+Our monitoring is based on a sampling process. It is possible that the {{ case.target_of_test_subsequent_mention }}
 may be put forward for further testing in the future. It is important that accessibility standards are maintained.
 <br>
 <br>

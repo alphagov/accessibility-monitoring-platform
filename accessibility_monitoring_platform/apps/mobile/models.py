@@ -555,17 +555,22 @@ class MobileCase(BaseCase):
         return "mobile:email-template-preview"
 
     @property
-    def target_of_test(self) -> str:
+    def target_of_test_first_mention(self) -> str:
+        identifier: str = f"{self.app_name} mobile application (app) on "
         if (
             self.ios_test_included == MobileCase.TestIncluded.YES
             and self.android_test_included == MobileCase.TestIncluded.YES
         ):
-            return "iOS/Android mobile app"
+            identifier += "iOS and Android"
         elif self.ios_test_included == MobileCase.TestIncluded.YES:
-            return "iOS mobile app"
+            identifier += "iOS"
         elif self.android_test_included == MobileCase.TestIncluded.YES:
-            return "Android mobile app"
-        return "mobile app"
+            identifier += "Android"
+        return identifier
+
+    @property
+    def target_of_test_subsequent_mention(self) -> str:
+        return "app"
 
 
 class EventHistory(models.Model):

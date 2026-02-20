@@ -738,24 +738,36 @@ def test_email_template_preview_url_name():
     )
 
 
-def test_target_of_test():
-    """Test MobileCase.target_of_test"""
-    assert MobileCase().target_of_test == "mobile app"
+def test_target_of_test_first_mention():
+    """Test MobileCase.target_of_test_first_mention"""
     assert (
-        MobileCase(ios_test_included=MobileCase.TestIncluded.YES).target_of_test
-        == "iOS mobile app"
+        MobileCase(app_name=APP_NAME).target_of_test_first_mention
+        == "App Name mobile application (app) on "
     )
     assert (
-        MobileCase(android_test_included=MobileCase.TestIncluded.YES).target_of_test
-        == "Android mobile app"
+        MobileCase(
+            ios_test_included=MobileCase.TestIncluded.YES
+        ).target_of_test_first_mention
+        == " mobile application (app) on iOS"
+    )
+    assert (
+        MobileCase(
+            android_test_included=MobileCase.TestIncluded.YES
+        ).target_of_test_first_mention
+        == " mobile application (app) on Android"
     )
     assert (
         MobileCase(
             ios_test_included=MobileCase.TestIncluded.YES,
             android_test_included=MobileCase.TestIncluded.YES,
-        ).target_of_test
-        == "iOS/Android mobile app"
+        ).target_of_test_first_mention
+        == " mobile application (app) on iOS and Android"
     )
+
+
+def test_target_of_test_subsequent_mention():
+    """Test MobileCase.target_of_test_subsequent_mention"""
+    assert MobileCase().target_of_test_subsequent_mention == "app"
 
 
 @pytest.mark.django_db

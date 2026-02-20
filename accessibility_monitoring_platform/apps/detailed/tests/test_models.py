@@ -14,6 +14,7 @@ from ..models import Contact, DetailedCase, DetailedCaseHistory, ZendeskTicket
 
 ORGANISATION_NAME: str = "Organisation Name"
 WEBSITE_NAME: str = "Website Name"
+HOME_PAGE_URL: str = "http://example.com"
 EXPECTED_FORMATTED_CONTACTS: str = """Name 2
 Job title 2
 email2
@@ -418,14 +419,40 @@ def test_email_template_preview_url_name():
     )
 
 
-def test_target_of_test():
-    """Test DetailedCase.target_of_test"""
+def test_target_of_test_first_mention():
+    """Test DetailedCase.target_of_test_first_mention"""
     assert (
-        DetailedCase(service_type=DetailedCase.ServiceType.WEBSITE).target_of_test
+        DetailedCase(
+            website_name=WEBSITE_NAME, home_page_url=HOME_PAGE_URL
+        ).target_of_test_first_mention
+        == 'Website Name website <a href="http://example.com">http://example.com</a>'
+    )
+    assert (
+        DetailedCase(
+            home_page_url=HOME_PAGE_URL, service_type=DetailedCase.ServiceType.WEBSITE
+        ).target_of_test_first_mention
+        == 'website <a href="http://example.com">http://example.com</a>'
+    )
+    assert (
+        DetailedCase(
+            home_page_url=HOME_PAGE_URL, service_type=DetailedCase.ServiceType.SERVICE
+        ).target_of_test_first_mention
+        == 'service on <a href="http://example.com">http://example.com</a>'
+    )
+
+
+def test_target_of_test_subsequent_mention():
+    """Test DetailedCase.target_of_test_subsequent_mention"""
+    assert (
+        DetailedCase(
+            service_type=DetailedCase.ServiceType.WEBSITE
+        ).target_of_test_subsequent_mention
         == "website"
     )
     assert (
-        DetailedCase(service_type=DetailedCase.ServiceType.SERVICE).target_of_test
+        DetailedCase(
+            service_type=DetailedCase.ServiceType.SERVICE
+        ).target_of_test_subsequent_mention
         == "service"
     )
 

@@ -85,6 +85,7 @@
         <ul class="govuk-list">
             {% if case %}
                 <li>
+                    {{ case.case_identifier }}
                     <a href="{% url 'simplified:case-history' case.id %}" class="govuk-link govuk-link--no-visited-state">
                         {{ case.full_name }}</a>
                     (<a href="{% url 'admin:simplified_simplifiedeventhistory_changelist' %}?q={{ case.case_number }}" class="govuk-link govuk-link--no-visited-state"
@@ -93,6 +94,7 @@
             {% endif %}
             {% if detailed_case %}
                 <li>
+                    {{ detailed_case.case_identifier }}
                     <a href="{% url 'detailed:case-history' detailed_case.id %}" class="govuk-link govuk-link--no-visited-state">
                         {{ detailed_case.full_name }}</a>
                     (<a href="{% url 'admin:detailed_detailedeventhistory_changelist' %}?q={{ detailed_case.case_number }}" class="govuk-link govuk-link--no-visited-state"
@@ -101,6 +103,7 @@
             {% endif %}
             {% if mobile_case %}
                 <li>
+                    {{ mobile_case.case_identifier }}
                     <a href="{% url 'mobile:case-history' mobile_case.id %}" class="govuk-link govuk-link--no-visited-state">
                         {{ mobile_case.full_name }}</a>
                     (<a href="{% url 'admin:mobile_eventhistory_changelist' %}?q={{ mobile_case.case_number }}" class="govuk-link govuk-link--no-visited-state"
