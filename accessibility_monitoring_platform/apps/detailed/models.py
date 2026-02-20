@@ -359,7 +359,19 @@ class DetailedCase(BaseCase):
         return "detailed:email-template-preview"
 
     @property
-    def target_of_test(self) -> str:
+    def target_of_test_first_mention(self) -> str:
+        identifier: str = ""
+        if self.website_name:
+            identifier += f"{self.website_name} "
+        if self.service_type == DetailedCase.ServiceType.WEBSITE:
+            identifier += "website "
+        else:
+            identifier += "service on "
+        identifier += f'<a href="{self.home_page_url}">{self.home_page_url}</a>'
+        return identifier
+
+    @property
+    def target_of_test_subsequent_mention(self) -> str:
         if self.service_type == DetailedCase.ServiceType.WEBSITE:
             return "website"
         return "service"
