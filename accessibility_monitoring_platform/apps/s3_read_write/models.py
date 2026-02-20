@@ -1,6 +1,7 @@
 """Models for s3 read write app"""
 
 from pathlib import Path
+import os
 
 import boto3
 from django.contrib.auth.models import User
@@ -86,6 +87,8 @@ def get_invoice_s3_file_path(instance: "Invoice", filename: str) -> str:
 class Invoice(models.Model):
     cost_center = models.CharField(max_length=255)
     generated_at = models.DateTimeField(auto_now_add=True)
+    original_filename = models.CharField(max_length=255, blank=True)
+
 
     file = models.FileField(
         storage=InvoiceFileS3Storage(),
@@ -100,3 +103,10 @@ class Invoice(models.Model):
         # Usually you don't need this method at all, but if you keep it:
         self.file.open("rb")
         return self.file
+    
+    def save(self, *args, **kwargs):
+        if self.file and not self.original_filename:
+            # self.file.file is the underlying UploadedFile in many cases
+            src_name = getattr(getattr(self.file, "file", None), "name", None) or self.file.name
+            self.original_filename = os.path.basename(src_name)
+        super().save(*args, **kwargs)

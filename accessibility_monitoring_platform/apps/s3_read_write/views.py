@@ -17,6 +17,6 @@ def download_invoice(request, pk):
     return FileResponse(
         file,
         as_attachment=False,  # forces download
-        filename=f"invoice-{invoice.pk}.pdf",
+        filename=invoice.original_filename or f"invoice-{invoice.pk}.pdf",
         content_type="application/pdf",
     )
