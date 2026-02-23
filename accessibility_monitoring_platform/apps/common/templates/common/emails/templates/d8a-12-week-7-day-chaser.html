@@ -1,0 +1,18 @@
+{% include 'common/emails/templates/helpers/subject-line-detailed-mobile.html' %}
+{% include 'common/emails/templates/helpers/dear-name.html' %}
+<br>
+<br>
+We emailed you on {% if case.twelve_week_update_date %}{{ case.twelve_week_update_date|amp_date }}{% else %}<span class="amp-email-placeholder">(date of 12 week update requested)</span>{% endif %}
+asking for an update on progress made since our initial report for the {{ case.target_of_test_first_mention|safe }} on {% if case.report_sent_date %}{{ case.report_sent_date|amp_date }}{% else %}<span class="amp-email-placeholder">(date report was sent)</span>{% endif %}.
+<br>
+<br>
+We have not yet received a response to the request. Please respond to us within 1 week, by the end of {{ 1_week_from_now|amp_date }}.
+<br>
+<br>
+After this time, we will review the {{ case.target_of_test_subsequent_mention }} and information regarding the accessibility of the {{ case.target_of_test_subsequent_mention }}
+will be sent to the {{ case.get_enforcement_body_display }} ({{ case.enforcement_body|upper }}) who will determine if further action is required.
+<br>
+<br>
+Many thanks,
+<br>
+<br>
