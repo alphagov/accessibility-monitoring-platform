@@ -672,8 +672,8 @@ def test_get_detailed_mobile_email_template_context():
     with patch("accessibility_monitoring_platform.apps.common.utils.date") as mock_date:
         mock_date.today.return_value = date(2023, 2, 1)
         assert get_detailed_mobile_email_template_context() == {
-            "7_days_from_now": date(2023, 2, 8),
-            "14_days_from_now": date(2023, 2, 15),
+            "1_week_from_now": date(2023, 2, 8),
+            "2_weeks_from_now": date(2023, 2, 15),
             "12_weeks_from_now": date(2023, 4, 26),
         }
 
