@@ -1,9 +1,10 @@
+{% include 'common/emails/templates/helpers/subject-line-detailed-mobile.html' %}
 Dear {{ case.organisation_name }},
 <br>
 <br>
 I am {{ request.user.get_full_name }} from the accessibility monitoring team at Government Digital Service,
-part of the Department for Science, Innovation and Technology. We are currently monitoring {{ case.target_of_test_first_mention|safe }}
-under the accessibility regulations and have chosen the {{ case.target_of_test_subsequent_mention }}
+part of the Department for Science, Innovation and Technology. We are currently monitoring websites and mobile applications
+under the accessibility regulations and have chosen the {{ case.target_of_test_first_mention|safe }}
 from a random sample.
 <br>
 <br>
@@ -12,7 +13,7 @@ and we require more information.
 <br>
 <br>
 Please provide an email address for the team responsible for the {{ case.target_of_test_subsequent_mention }}
-within 1 week by {{ 7_days_from_now|amp_date }}.
+within 1 week by the end of {{ 1_week_from_now|amp_date }}.
 <br>
 <br>
 More information on our monitoring:

@@ -9,38 +9,7 @@ We initially emailed {{ case.organisation_name }} on <span class="amp-email-plac
 <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps">https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps</a>
 <br>
 <br>
-<span class="amp-email-placeholder">[Start: If we’ve had an acknowledgement] ------------------------------------</span>
-<br>
-<br>
-We are following up as the initial 2 week deadline has passed for you to send information about the {{ case.target_of_test_first_mention|safe }}.
-<br>
-<br>
-<span class="amp-email-placeholder">[End:  If we’ve had an acknowledgement] ------------------------------------</span>
-<br>
-<br>
-<span class="amp-email-placeholder">[Start: If we’ve had no response] ------------------------------------</span>
-<br>
-<br>
-We are following up as we have not received any response from your organisation with information about the {{ case.target_of_test_subsequent_mention }}.
-<br>
-<br>
-<span class="amp-email-placeholder">[Start: If we’ve tried contacting multiple times] ------------------------------------</span>
-<br>
-<br>
-We have also attempted to contact your organisation as follows:
-<ul>
-<li>Emailed <span class="amp-email-placeholder">(email address(es))</span> on <span class="amp-email-placeholder">(date)</span></li>
-<li>Emailed <span class="amp-email-placeholder">(email address(es))</span> on <span class="amp-email-placeholder">(date)</span></li>
-<li><span class="amp-email-placeholder">(Also include any other contact attempts in the list for example contact forms, phone calls and social media)</span></li>
-</ul>
-<br>
-All emails were sent from this address.
-<br>
-<br>
-<span class="amp-email-placeholder">[End: If we tried contacting multiple times] ------------------------------------</span>
-<br>
-<br>
-<span class="amp-email-placeholder">[End: If we’ve had no response] ------------------------------------</span>
+We are following up as we have not received the information we have requested for the {{ case.target_of_test_first_mention|safe }}.
 <br>
 <br>
 You need to send us the following information:
@@ -74,16 +43,7 @@ You need to send us the following information:
 If you cannot provide this information you must pass this email to the appropriate team.
 <br>
 <br>
-The information must be provided within 1 week, by the end of {{ 1_week_from_now|amp_date }}.
-<br>
-<br>
-<span class="amp-email-placeholder">[Start: add when sending the final chaser] ------------------------------------</span>
-<br>
-<br>
-This is our final attempt to contact your organisation. If we do not hear from you we will pass on details to the {{ case.get_enforcement_body_display }} ({{ case.enforcement_body|upper }}) who are the enforcement body for the accessibility regulations.
-<br>
-<br>
-<span class="amp-email-placeholder">[End: add when sending the final chaser] ------------------------------------</span>
+Please respond within 1 week, by the end of {{ 1_week_from_now|amp_date }}.
 <br>
 <br>
 We look forward to receiving your response.
