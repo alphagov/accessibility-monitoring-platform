@@ -1,4 +1,5 @@
-Dear {{ case.organisation_name }},
+{% include 'common/emails/templates/helpers/subject-line-detailed-mobile.html' %}
+{% include 'common/emails/templates/helpers/dear-name.html' %}
 <br>
 <br>
 I am {{ request.user.get_full_name }} from the accessibility monitoring team at the Government Digital Service.
@@ -61,7 +62,7 @@ We are asking that you provide us with the following:
 {% endif %}
 <br>
 <br>
-Please provide the information within 2 weeks, by {{ 14_days_from_now|amp_date }}.
+Please provide the information within 2 weeks, by the end of {{ 2_weeks_from_now|amp_date }}.
 <br>
 <br>
 To find out more about the accessibility monitoring and the legislation go to
