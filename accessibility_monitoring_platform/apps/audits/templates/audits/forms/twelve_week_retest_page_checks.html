@@ -9,7 +9,7 @@
             ▼ <a href="#save-and-continue-buttons" class="govuk-link govuk-link--no-visited-state">Go to save and continue</a>
         </p>
     </div>
-    <div class="govuk-grid-column-one-third govuk-button-group">
+    <div class="govuk-grid-column-one-third">
         <p class="govuk-body-m amp-margin-bottom-10">
             {% if page.url %}
                 <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link amp-margin-right-5">
@@ -27,29 +27,28 @@
         {% endif %}
     </div>
 </div>
-{% if page.updated_url %}
+{% if page.updated_url or page.updated_location %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
+        <div class="govuk-grid-column-full amp-margin-bottom-0">
             <p class="govuk-body-m amp-margin-bottom-0"><b>12-week retest</b></p>
+        </div>
+        <div class="govuk-grid-column-full">
             <p class="govuk-body-m amp-margin-bottom-0">
                 {{ page.page_title }} link:
                 {% if page.updated_url %}
                     <a href="{{ page.updated_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link amp-margin-right-5">
                         Open page in new tab
                     </a>
-                    <div class="amp-new-window"/>
+                    <div class="amp-new-window"/></div>
                 {% else %}
                     None
                 {% endif %}
             </p>
-            <p class="govuk-body-m">
-                Page location:
-                {% if page.updated_location %}
-                    {{ page.updated_location }}
-                {% else %}
-                    N/A
-                {% endif %}
-            </p>
+            {% if page.updated_location %}
+                <p class="govuk-body-m">
+                    Page location: {{ page.updated_location }}
+                </p>
+            {% endif %}
         </div>
     </div>
 {% endif %}
@@ -86,7 +85,7 @@
                                 class="amp-initial-report-text"
                                 id="amp-report-content-copy-{{forloop.counter0}}"
                                 data-report-text="{{form.initial.check_result.notes}}"
-                            > 
+                            >
                                 Copy report text to error details
                             </a>
                         {% endif %}
