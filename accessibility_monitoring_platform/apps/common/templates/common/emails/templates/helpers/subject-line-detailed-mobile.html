@@ -1,8 +1,8 @@
 {% if case.app_name %}
-{{ case.app_name }} app accessibility monitoring
-{% elif case.website_name %}
-{{ case.website_name }}{% if case.service_type == 'website' %} website{% endif %} accessibility monitoring
+{{ case.app_name }} app
 {% else %}
-{{ case.organisation_name }} accessibility monitoring
+{% if case.website_name %}{{ case.website_name }}{% else %}{{ case.organisation_name }}{% endif %}
+{% if case.service_type == 'website' %}website{% endif %}
 {% endif %}
+accessibility monitoring
 <br>
