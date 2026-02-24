@@ -2,7 +2,7 @@
 {% include 'common/emails/templates/helpers/dear-name.html' %}
 <br>
 <br>
-Thank you for providing an update on progress since we sent you an accessibility report.
+Thank you for providing an update on progress since we sent you an accessibility report for the {{ case.target_of_test_first_mention|safe }}.
 <br>
 <br>
 I have reviewed some of the issues we originally raised and the accessibility statement.
@@ -23,12 +23,15 @@ Based on the information you have provided we will be recommending to the {{ cas
 <br>
 <br>
 The {{ case.enforcement_body|upper }} has the right to overturn this recommendation. They will contact you if they need to take further action.
-{% else %}
-We will now pass on information regarding the {{ case.target_of_test_first_mention|safe }} to the {{ case.enforcement_body|upper }} so that they can decide if any further enforcement action is needed.
+<br>
+<br>
+{% endif %}
+<span class="amp-email-placeholder">[If we don’t have enough info or are not satisfied to make a ‘no further action’ decision, OR if it’s a complaint:]</span>
+<br>
+We will now pass on information regarding the {{ case.target_of_test_subsequent_mention }} to the {{ case.enforcement_body|upper }} so that they can decide if any further enforcement action is needed.
 <br>
 <br>
 They may contact you directly if they think further action is needed.
-{% endif %}
 <br>
 <br>
 <h3>Accessibility Statement</h3>
@@ -40,6 +43,8 @@ On behalf of the Secretary of State for Science, Innovation and Technology, we m
 We have determined that your statement is compliant.
 {% else %}
 {% if case.retest_statement_compliance_state == 'not-compliant' or case.retest_ios_statement_compliance_state == 'not-compliant' or case.retest_android_statement_compliance_state == 'not-compliant' %}
+<span class="amp-email-placeholder">[If the statement is non compliant - REMEMBER TO SAVE A COPY OF THE STATEMENT AGAIN:]</span>
+<br>
 We have determined that your statement is not compliant.
 <br>
 <br>
@@ -55,7 +60,7 @@ Public sector bodies may request a review where they disagree with this decision
 <h2>Future monitoring</h2>
 <br>
 Our monitoring is based on a sampling process. It is possible that the {{ case.target_of_test_subsequent_mention }}
-may be put forward for further testing in the future. It is important that accessibility standards are maintained.
+may be put forward for further testing in the future.
 <br>
 <br>
 Many thanks,
