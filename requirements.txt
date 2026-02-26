@@ -9,22 +9,20 @@ asgiref==3.11.1
     #   django
     #   django-axes
     #   django-browser-reload
-async-generator==1.10
-    # via trio-typing
 attrs==25.4.0
     # via
     #   outcome
     #   trio
-boto3==1.42.51
+boto3==1.42.57
     # via
     #   -r requirements.in
     #   moto
-botocore==1.42.51
+botocore==1.42.57
     # via
     #   boto3
     #   moto
     #   s3transfer
-certifi==2026.1.4
+certifi==2026.2.25
     # via
     #   requests
     #   selenium
@@ -63,8 +61,6 @@ idna==3.11
     # via
     #   requests
     #   trio
-importlib-metadata==8.7.1
-    # via trio-typing
 iniconfig==2.3.0
     # via pytest
 jinja2==3.1.6
@@ -81,8 +77,6 @@ markupsafe==3.0.3
     #   werkzeug
 moto==5.1.21
     # via -r requirements.in
-mypy-extensions==1.1.0
-    # via trio-typing
 notifications-python-client==10.0.1
     # via -r requirements.in
 outcome==1.3.0.post0
@@ -92,9 +86,8 @@ outcome==1.3.0.post0
 packaging==26.0
     # via
     #   pytest
-    #   trio-typing
     #   webdriver-manager
-phonenumbers==9.0.24
+phonenumbers==9.0.25
     # via -r requirements.in
 pluggy==1.6.0
     # via pytest
@@ -130,11 +123,11 @@ requests==2.32.5
     #   notifications-python-client
     #   responses
     #   webdriver-manager
-responses==0.25.8
+responses==0.26.0
     # via moto
 s3transfer==0.16.0
     # via boto3
-selenium==4.40.0
+selenium==4.41.0
     # via -r requirements.in
 six==1.17.0
     # via python-dateutil
@@ -147,20 +140,11 @@ sqlparse==0.5.5
 trio==0.33.0
     # via
     #   selenium
-    #   trio-typing
     #   trio-websocket
-trio-typing==0.10.0
-    # via selenium
 trio-websocket==0.12.2
     # via selenium
-types-certifi==2021.10.8.3
-    # via selenium
-types-urllib3==1.26.25.14
-    # via selenium
 typing-extensions==4.15.0
-    # via
-    #   selenium
-    #   trio-typing
+    # via selenium
 urllib3[socks]==2.6.3
     # via
     #   botocore
@@ -173,15 +157,13 @@ webdriver-manager==4.0.2
     # via -r requirements.in
 websocket-client==1.9.0
     # via selenium
-werkzeug==3.1.5
+werkzeug==3.1.6
     # via moto
 whitenoise==6.11.0
     # via -r requirements.in
 wsproto==1.3.2
     # via trio-websocket
-xmltodict==1.0.3
+xmltodict==1.0.4
     # via
     #   -r requirements.in
     #   moto
-zipp==3.23.0
-    # via importlib-metadata
