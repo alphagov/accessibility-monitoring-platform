@@ -150,6 +150,8 @@ class ReminderTaskCreateView(CreateView):
                     base_case=base_case,
                 )
                 reminder_task.save()
+                base_case.due_date = reminder_task.date
+                base_case.save()
             except Task.DoesNotExist:
                 self.object: Task = Task.objects.create(
                     date=form.cleaned_data["date"],
@@ -163,6 +165,8 @@ class ReminderTaskCreateView(CreateView):
                     model_object=self.object,
                     base_case=base_case,
                 )
+                base_case.due_date = self.object.date
+                base_case.save()
         return HttpResponseRedirect(base_case.get_absolute_url())
 
     def get_success_url(self) -> str:
@@ -202,6 +206,8 @@ class ReminderTaskUpdateView(UpdateView):
                 base_case=self.object.base_case,
             )
             self.object.save()
+            base_case.due_date = self.object.date
+            base_case.save()
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
