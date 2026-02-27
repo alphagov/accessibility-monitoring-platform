@@ -28,7 +28,7 @@ services:
       - "db:pgsql-server"
 
   localstack:
-    image: localstack/localstack
+    image: localstack/localstack:4.14
     restart: always
     hostname: localstack
     ports:

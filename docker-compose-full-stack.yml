@@ -51,7 +51,7 @@ services:
           - 'DB_SECRET={"dbname":"postgres","username":"admin","password":"secret","host":"db","port":5432}'
           - DB_NAME=bucketname
   localstack:
-    image: localstack/localstack
+    image: localstack/localstack:4.14
     hostname: localstack
     ports:
       - "4566:4566"
