@@ -8,6 +8,7 @@ from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -449,6 +450,10 @@ class BaseCase(VersionModel):
         if self.test_type == TestType.MOBILE:
             return self.mobilecase
 
+    @property
+    def documents(self) -> QuerySet["Document"]:
+        return Document.objects.filter(is_deleted=False, base_case=self)
+
 
 class CaseHistory(models.Model):
     """Model to record history of changes to a case"""
@@ -470,3 +475,33 @@ class CaseHistory(models.Model):
 
     class Meta:
         abstract = True
+
+
+class Document(models.Model):
+    """Metadata for case-related document uploaded to S3"""
+
+    class DocumentType(models.TextChoices):
+        STATEMENT = "statement", "Accessibility statement backup"
+        REPORT = "report", "Accessibility report (archived, detailed or mobile)"
+
+    name = models.CharField(max_length=400, default="", blank=True)
+    document_type = models.CharField(
+        max_length=20, choices=DocumentType.choices, default=DocumentType.STATEMENT
+    )
+    base_case = models.ForeignKey(BaseCase, on_delete=models.PROTECT)
+    version = models.IntegerField(default=0, blank=True)
+    uploaded_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    uploaded_time = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self) -> str:
+        return self.s3_key
+
+    @property
+    def s3_key(self) -> str:
+        s3_key: str = (
+            f"base_cases/{self.base_case.id}/{self.document_type}s/{self.name}"
+        )
+        if self.version > 1:
+            s3_key += f"-{self.version}"
+        return s3_key

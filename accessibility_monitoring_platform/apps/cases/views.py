@@ -4,7 +4,14 @@ Views for cases app
 
 from typing import Any
 
+from django import forms
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models.query import QuerySet
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from ..common.utils import (
@@ -13,8 +20,8 @@ from ..common.utils import (
     get_url_parameters_for_pagination,
     replace_search_key_with_case_search,
 )
-from .forms import CaseSearchForm
-from .models import BaseCase
+from .forms import CaseSearchForm, BaseCaseDocumentCreateUpdateForm
+from .models import BaseCase, Document
 from .utils import filter_cases
 
 AUDITOR_SEARCH_FIELDS: list[str] = [
@@ -105,3 +112,104 @@ class CaseListView(ListView):
             request=self.request
         )
         return context
+
+
+class DocumentListView(DetailView):
+    """
+    View of Documents for a case
+    """
+
+    model: type[BaseCase] = BaseCase
+    context_object_name: str = "case"
+    template_name: str = "cases/document_list.html"
+
+
+class DocumentCreateView(CreateView):
+    """
+    View to create a Document ticket
+    """
+
+    model: type[Document] = Document
+    form_class: type[BaseCaseDocumentCreateUpdateForm] = (
+        BaseCaseDocumentCreateUpdateForm
+    )
+    template_name: str = "cases/forms/document_create.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add case to context as object"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        base_case: BaseCase = get_object_or_404(BaseCase, id=self.kwargs.get("case_id"))
+        context["case"] = base_case
+        context["object"] = base_case
+        return context
+
+    def post(
+        self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
+    ) -> HttpResponseRedirect | HttpResponse:
+        """Process contents of file upload"""
+        base_case: BaseCase = get_object_or_404(BaseCase, id=self.kwargs.get("case_id"))
+        form: forms.Form = self.form_class(request.POST, request.FILES)
+        breakpoint()
+        if form.is_valid():
+            uploaded_file: InMemoryUploadedFile = request.FILES["document_to_upload"]
+            file_name: str = uploaded_file.name
+            document: Document = Document(
+                name=file_name,
+                document_type=form.cleaned_data["document_type"],
+                uploaded_by=request.user,
+                base_case=base_case,
+            )
+            # check s3 for matching document
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self) -> str:
+        """Detect the submit button used and act accordingly"""
+        document: Document = self.object
+        # user: User = self.request.user
+        # record_base_case_model_create_event(
+        #     user=user,
+        #     model_object=document,
+        #     base_case=document.base_case,
+        # )
+        case_pk: dict[str, int] = {"pk": document.base_case.id}
+        return reverse("case:document-list", kwargs=case_pk)
+
+
+class DocumentUpdateView(UpdateView):
+
+    model: type[Document] = Document
+    form_class: type[BaseCaseDocumentCreateUpdateForm] = (
+        BaseCaseDocumentCreateUpdateForm
+    )
+    context_object_name: str = "document"
+    template_name: str = "cases/forms/document_update.html"
+
+    def form_valid(self, form: forms.ModelForm) -> HttpResponseRedirect:
+        """Add update event"""
+        if form.changed_data:
+            # document: Document = form.save(commit=False)
+            # user: User = self.request.user
+            # record_base_case_model_update_event(
+            #     user=user,
+            #     model_object=document,
+            #     simplified_case=document.simplified_case,
+            # )
+            self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self) -> str:
+        """Return to zendesk tickets page on save"""
+        document: Document = self.object
+        case_pk: dict[str, int] = {"case_id": document.simplified_case.id}
+        return reverse("cases:document-list", kwargs=case_pk)
+
+
+# class DocumentConfirmDeleteUpdateView(DocumentUpdateView):
+#     """
+#     View to confirm delete of Zendesk ticket
+#     """
+
+#     form_class: type[DocumentConfirmDeleteUpdateForm] = (
+#         DocumentConfirmDeleteUpdateForm
+#     )
+#     template_name: str = "simplified/forms/zendesk_ticket_confirm_delete.html"

@@ -10,12 +10,13 @@ from typing import Any
 from django.db.models import Case as DjangoCase
 from django.db.models import Q, QuerySet, When
 
-from ..cases.forms import CaseSearchForm
 from ..common.form_extract_utils import FieldLabelAndValue
 from ..common.sitemap import PlatformPage
 from ..common.utils import build_filters, extract_domain_from_url
+from ..common.s3_utils import S3Wrapper
 from ..simplified.models import SimplifiedCase
-from .models import CASE_STATUS_UNASSIGNED, BaseCase, Sort
+from .forms import CaseSearchForm
+from .models import CASE_STATUS_UNASSIGNED, BaseCase, Document, Sort
 
 CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
     ("auditor", "auditor_id"),
@@ -123,3 +124,24 @@ def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Base
             Q(organisation_name__icontains=organisation_name) | Q(domain=domain)
         )
     return BaseCase.objects.filter(domain=domain)
+
+
+class S3ReadWriteDocument(S3Wrapper):
+    def put_document_to_s3(
+        self,
+        document: Document,
+        file_content,
+    ) -> None:
+
+        self.s3_client.put_object(
+            Body=file_content,
+            Bucket=self.bucket,
+            Key=document.s3_key,
+        )
+
+    def get_document_from_s3(self, document: Document) -> str:
+        try:
+            obj = self.s3_resource.Object(self.bucket, document.s3_key)
+            return obj.get()["Body"].read()
+        except self.s3_client.exceptions.NoSuchKey:
+            return f"No such key: {document.s3_key}"

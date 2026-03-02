@@ -13,6 +13,11 @@
                         No published report
                 {% endif %}
                 </li>
+                <li>
+                    <a href="{% url 'cases:document-list' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                        Uploaded documents
+                    </a>
+                </li>
                 {% for platform_page in platform_page_group.pages %}
                     {% if platform_page.show %}
                         <li>

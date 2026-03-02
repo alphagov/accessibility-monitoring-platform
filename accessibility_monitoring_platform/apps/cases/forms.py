@@ -12,6 +12,7 @@ from ..cases.models import (
     CASE_STATUS_UNKNOWN,
     BaseCase,
     Complaint,
+    Document,
     Sort,
     extract_id_from_case_url,
 )
@@ -20,6 +21,7 @@ from ..common.forms import (
     AMPChoiceField,
     AMPDateField,
     AMPDateRangeForm,
+    AMPFileUploadWidget,
     AMPIntegerField,
     AMPModelChoiceField,
     AMPURLField,
@@ -134,3 +136,18 @@ class PreviousCaseURLForm(forms.ModelForm):
             return previous_case_url
         else:
             raise ValidationError("Previous case not found in platform")
+
+
+class BaseCaseDocumentCreateUpdateForm(forms.ModelForm):
+    """Form for uploading a document"""
+
+    document_to_upload = forms.FileField(
+        label="Upload a file", widget=AMPFileUploadWidget()
+    )
+    document_type = AMPChoiceField(
+        label="Document type", choices=Document.DocumentType.choices
+    )
+
+    class Meta:
+        model = Document
+        fields = ["document_to_upload", "document_type"]

@@ -1,0 +1,36 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+    <div class="govuk-button-group">
+        <a href="{% url 'cases:document-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
+            + Upload document</a>
+    </div>
+    {% if case.documents %}
+        <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">Name</th>
+                    <th scope="col" class="govuk-table__header">Uploaded time</th>
+                    <th scope="col" class="govuk-table__header">Uploaded by</th>
+                </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+                {% for document in case.documents %}
+                    <tr class="govuk-table__row ">
+                        <td scope="row" class="govuk-table__cell">
+                            {{ document.name }}
+                        </td>
+                        <td scope="row" class="govuk-table__cell">
+                            {{ document.uploaded|amp_date_trunc }}
+                        </td>
+                        <td scope="row" class="govuk-table__cell">
+                            {{ document.uploaded_by.get_full_name }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}
+
+{% block form %}{% endblock %}
