@@ -21,7 +21,7 @@
                             {{ document.name }}
                         </td>
                         <td scope="row" class="govuk-table__cell">
-                            {{ document.uploaded|amp_date_trunc }}
+                            {{ document.uploaded_time|amp_datetime_short_month }}
                         </td>
                         <td scope="row" class="govuk-table__cell">
                             {{ document.uploaded_by.get_full_name }}

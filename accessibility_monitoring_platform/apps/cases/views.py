@@ -7,11 +7,11 @@ from typing import Any
 from django import forms
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models.query import QuerySet
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 
 from ..common.utils import (
@@ -20,9 +20,9 @@ from ..common.utils import (
     get_url_parameters_for_pagination,
     replace_search_key_with_case_search,
 )
-from .forms import CaseSearchForm, BaseCaseDocumentCreateUpdateForm
+from .forms import CaseSearchForm, DocumentUploadForm
 from .models import BaseCase, Document
-from .utils import filter_cases
+from .utils import filter_cases, S3ReadWriteDocument
 
 AUDITOR_SEARCH_FIELDS: list[str] = [
     "auditor",
@@ -124,63 +124,56 @@ class DocumentListView(DetailView):
     template_name: str = "cases/document_list.html"
 
 
-class DocumentCreateView(CreateView):
+class DocumentCreateView(FormView):
     """
     View to create a Document ticket
     """
 
-    model: type[Document] = Document
-    form_class: type[BaseCaseDocumentCreateUpdateForm] = (
-        BaseCaseDocumentCreateUpdateForm
-    )
+    form_class: type[DocumentUploadForm] = DocumentUploadForm
     template_name: str = "cases/forms/document_create.html"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
-        """Add case to context as object"""
+        """Add case to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
         base_case: BaseCase = get_object_or_404(BaseCase, id=self.kwargs.get("case_id"))
         context["case"] = base_case
-        context["object"] = base_case
         return context
 
-    def post(
-        self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
-    ) -> HttpResponseRedirect | HttpResponse:
+    def form_valid(self, form: forms.ModelForm) -> HttpResponseRedirect:
         """Process contents of file upload"""
         base_case: BaseCase = get_object_or_404(BaseCase, id=self.kwargs.get("case_id"))
-        form: forms.Form = self.form_class(request.POST, request.FILES)
-        breakpoint()
-        if form.is_valid():
-            uploaded_file: InMemoryUploadedFile = request.FILES["document_to_upload"]
-            file_name: str = uploaded_file.name
-            document: Document = Document(
-                name=file_name,
-                document_type=form.cleaned_data["document_type"],
-                uploaded_by=request.user,
-                base_case=base_case,
-            )
-            # check s3 for matching document
+        uploaded_file: InMemoryUploadedFile = form.cleaned_data["document_to_upload"]
+        document: Document = Document.objects.create(
+            name=uploaded_file.name,
+            document_type=form.cleaned_data["document_type"],
+            uploaded_by=self.request.user,
+            base_case=base_case,
+        )
+        s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
+        s3_read_write.put_document_to_s3(
+            document=document,
+            file_content=uploaded_file,
+        )
+        # check s3 for matching document
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
-        document: Document = self.object
+        # document: Document = self.object
         # user: User = self.request.user
         # record_base_case_model_create_event(
         #     user=user,
         #     model_object=document,
         #     base_case=document.base_case,
         # )
-        case_pk: dict[str, int] = {"pk": document.base_case.id}
-        return reverse("case:document-list", kwargs=case_pk)
+        base_case: BaseCase = get_object_or_404(BaseCase, id=self.kwargs.get("case_id"))
+        case_pk: dict[str, int] = {"pk": base_case.id}
+        return reverse("cases:document-list", kwargs=case_pk)
 
 
-class DocumentUpdateView(UpdateView):
+class DocumentUpdateView(FormView):
 
-    model: type[Document] = Document
-    form_class: type[BaseCaseDocumentCreateUpdateForm] = (
-        BaseCaseDocumentCreateUpdateForm
-    )
+    form_class: type[DocumentUploadForm] = DocumentUploadForm
     context_object_name: str = "document"
     template_name: str = "cases/forms/document_update.html"
 

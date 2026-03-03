@@ -173,12 +173,6 @@ class AMPDateWidget(forms.MultiWidget):
         return f"{year}-{month}-{day}"
 
 
-class AMPFileUploadWidget(forms.CheckboxInput):
-    """Widget for GDS design system file upload fields"""
-
-    template_name = "common/amp_file_upload_widget_template.html"
-
-
 class AMPIntegerField(forms.IntegerField):
     """Number input field in the style of GDS design system"""
 

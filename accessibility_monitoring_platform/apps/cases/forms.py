@@ -21,7 +21,6 @@ from ..common.forms import (
     AMPChoiceField,
     AMPDateField,
     AMPDateRangeForm,
-    AMPFileUploadWidget,
     AMPIntegerField,
     AMPModelChoiceField,
     AMPURLField,
@@ -138,11 +137,12 @@ class PreviousCaseURLForm(forms.ModelForm):
             raise ValidationError("Previous case not found in platform")
 
 
-class BaseCaseDocumentCreateUpdateForm(forms.ModelForm):
+class DocumentUploadForm(forms.Form):
     """Form for uploading a document"""
 
     document_to_upload = forms.FileField(
-        label="Upload a file", widget=AMPFileUploadWidget()
+        label="Upload a file",
+        widget=forms.FileInput(attrs={"class": "govuk-file-upload"}),
     )
     document_type = AMPChoiceField(
         label="Document type", choices=Document.DocumentType.choices
