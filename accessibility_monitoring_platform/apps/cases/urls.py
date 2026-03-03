@@ -9,7 +9,6 @@ from django.urls.resolvers import URLPattern
 from .views import (
     CaseListView,
     DocumentCreateView,
-    # DocumentDeleteUpdateView,
     DocumentListView,
     DocumentUpdateView,
     document_download,
@@ -24,20 +23,15 @@ urlpatterns: list[URLPattern] = [
         name="document-list",
     ),
     path(
-        "<int:case_id>/document-create/",
+        "<int:pk>/document-create/",
         login_required(DocumentCreateView.as_view()),
         name="document-create",
     ),
     path(
-        "<int:pk>/document-update/",
+        "documents/<int:pk>/document-update/",
         login_required(DocumentUpdateView.as_view()),
         name="document-update",
     ),
-    # path(
-    #     "<int:pk>/document-delete/",
-    #     login_required(DocumentDeleteUpdateView.as_view()),
-    #     name="document-delete",
-    # ),
     path(
         "documents/<int:pk>/document-download/",
         login_required(document_download),

@@ -1,21 +1,77 @@
 {% extends 'common/case_form.html' %}
 
-{% block formbuttons %}
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-full govuk-button-group">
-        <input
-            type="submit"
-            value="Save and return"
-            name="save_return"
-            class="govuk-button"
-            data-module="govuk-button"
-        />
-        <a
-            href="{% url 'cases:document-list' case.id %}"
-            class="govuk-link govuk-link--no-visited-state"
-        >
-            Cancel
-        </a>
-    </div>
+{% block breadcrumbs %}
+<div class="govuk-breadcrumbs amp-margin-bottom-25">
+    <ol class="govuk-breadcrumbs__list">
+        {% include 'common/breadcrumb_home.html' %}
+        {% include 'common/breadcrumb_case.html' %}
+        {% include 'common/breadcrumb_group.html' %}
+        <li class="govuk-breadcrumbs__list-item">
+            <a class="govuk-breadcrumbs__link" href="{% url 'cases:document-list' case.id %}">Case files manager</a>
+        </li>
+        {% include 'common/breadcrumb_page.html' %}
+    </ol>
 </div>
+{% endblock %}
+
+{% block preform %}
+    <table class="govuk-table">
+        <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+                <th scope="col" class="govuk-table__header">Uploaded</th>
+                <th scope="col" class="govuk-table__header">Filename</th>
+                <th scope="col" class="govuk-table__header">Type</th>
+                <th scope="col" class="govuk-table__header">Uploaded by</th>
+            </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+            <tr class="govuk-table__row ">
+                <td scope="row" class="govuk-table__cell">
+                    {{ document.uploaded_time|amp_datetime_short_month }}
+                </td>
+                <td scope="row" class="govuk-table__cell">
+                    {{ document.name }}
+                </td>
+                <td scope="row" class="govuk-table__cell">
+                    {{ document.get_document_type_display }}
+                </td>
+                <td scope="row" class="govuk-table__cell">
+                    {{ document.uploaded_by.get_full_name }}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block form %}
+<form method="post" action="{% url sitemap.current_platform_page.url_name document.id %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% block formfields %}
+            {% include 'common/amp_form_snippet.html' %}
+            {% endblock %}
+        </div>
+    </div>
+    {% block formbuttons %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full govuk-button-group">
+                <input
+                    type="submit"
+                    value="Save and return"
+                    name="save_return"
+                    class="govuk-button"
+                    data-module="govuk-button"
+                />
+                <a
+                    href="{% url 'cases:document-list' case.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                >
+                    Cancel
+                </a>
+            </div>
+        </div>
+    {% endblock %}
+</form>
 {% endblock %}

@@ -151,3 +151,20 @@ class DocumentUploadForm(forms.Form):
     class Meta:
         model = Document
         fields = ["document_to_upload", "document_type"]
+
+
+class DocumentUpdateForm(forms.Form):
+    """Form for updating a document"""
+
+    document_to_upload = forms.FileField(
+        label="Upload new version",
+        widget=forms.FileInput(attrs={"class": "govuk-file-upload"}),
+        required=False,
+    )
+    document_type = AMPChoiceField(
+        label="Document type", choices=Document.DocumentType.choices
+    )
+
+    class Meta:
+        model = Document
+        fields = ["document_to_upload", "document_type"]

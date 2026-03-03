@@ -3,14 +3,14 @@
 {% block preform %}
     <div class="govuk-button-group">
         <a href="{% url 'cases:document-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
-            + Upload document</a>
+            + Upload file</a>
     </div>
     {% if case.documents %}
         <table class="govuk-table">
             <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
-                    <th scope="col" class="govuk-table__header">Uploaded</th>
                     <th scope="col" class="govuk-table__header">Filename</th>
+                    <th scope="col" class="govuk-table__header">Uploaded</th>
                     <th scope="col" class="govuk-table__header">Type</th>
                     <th scope="col" class="govuk-table__header">Options</th>
                 </tr>
@@ -30,6 +30,9 @@
                         <td scope="row" class="govuk-table__cell">
                             <a href="{% url 'cases:document-download' document.id %}" class="govuk-link govuk-link--no-visited-state">
                                 View</a>
+                            &middot;
+                            <a href="{% url 'cases:document-update' document.id %}" class="govuk-link govuk-link--no-visited-state">
+                                Edit</a>
                         </td>
                     </tr>
                 {% endfor %}
