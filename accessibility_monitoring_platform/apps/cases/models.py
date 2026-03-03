@@ -452,7 +452,7 @@ class BaseCase(VersionModel):
 
     @property
     def documents(self) -> QuerySet["Document"]:
-        return Document.objects.filter(is_deleted=False, base_case=self)
+        return self.document_set.filter(is_deleted=False)
 
 
 class CaseHistory(models.Model):
@@ -481,8 +481,8 @@ class Document(models.Model):
     """Metadata for case-related document uploaded to S3"""
 
     class DocumentType(models.TextChoices):
-        STATEMENT = "statement", "Accessibility statement backup"
-        REPORT = "report", "Accessibility report (archived, detailed or mobile)"
+        STATEMENT = "statement", "Statement"
+        REPORT = "report", "Report"
 
     name = models.CharField(max_length=400, default="", blank=True)
     document_type = models.CharField(

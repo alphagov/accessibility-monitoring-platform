@@ -20,6 +20,7 @@ from ..common.utils import (
     get_url_parameters_for_pagination,
     replace_search_key_with_case_search,
 )
+from ..common.views import HideCaseNavigationMixin
 from .forms import CaseSearchForm, DocumentUploadForm
 from .models import BaseCase, Document
 from .utils import filter_cases, S3ReadWriteDocument
@@ -114,7 +115,7 @@ class CaseListView(ListView):
         return context
 
 
-class DocumentListView(DetailView):
+class DocumentListView(HideCaseNavigationMixin, DetailView):
     """
     View of Documents for a case
     """

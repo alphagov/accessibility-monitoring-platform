@@ -2308,7 +2308,7 @@ SITE_MAP: list[PlatformPageGroup] = (
             name="",
             pages=[
                 PlatformPage(name="Search cases", url_name="cases:case-list"),
-                PlatformPage(name="Uploaded documents", url_name="cases:document-list"),
+                PlatformPage(name="Case files manager", url_name="cases:document-list"),
                 PlatformPage(
                     name="Create simplified case", url_name="simplified:case-create"
                 ),
