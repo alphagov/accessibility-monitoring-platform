@@ -16,6 +16,11 @@
     </div>
 {% endblock %}
 
+{% block header %}
+    {% include "common/helpers/edit_header.html" %}
+    {% include 'cases/helpers/complaint_warning.html' %}
+{% endblock %}
+
 {% block controls %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full govuk-button-group">

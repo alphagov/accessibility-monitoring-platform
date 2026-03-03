@@ -3,6 +3,7 @@
 {% load static %}
 
 {% block preform %}
+    {% include 'cases/helpers/complaint_warning.html' %}
     <div class="amp-margin-bottom-40">
         {% include 'mobile/helpers/contacts_list.html' %}
         {% include 'mobile/helpers/zendesk_tickets.html' %}
