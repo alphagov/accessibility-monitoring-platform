@@ -12,6 +12,7 @@ from .views import (
     # DocumentDeleteUpdateView,
     DocumentListView,
     DocumentUpdateView,
+    document_download,
 )
 
 app_name: str = "cases"
@@ -37,4 +38,9 @@ urlpatterns: list[URLPattern] = [
     #     login_required(DocumentDeleteUpdateView.as_view()),
     #     name="document-delete",
     # ),
+    path(
+        "documents/<int:pk>/document-download/",
+        login_required(document_download),
+        name="document-download",
+    ),
 ]

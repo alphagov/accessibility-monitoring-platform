@@ -12,6 +12,7 @@
                     <th scope="col" class="govuk-table__header">Name</th>
                     <th scope="col" class="govuk-table__header">Uploaded time</th>
                     <th scope="col" class="govuk-table__header">Uploaded by</th>
+                    <th scope="col" class="govuk-table__header">Download</th>
                 </tr>
             </thead>
             <tbody class="govuk-table__body">
@@ -25,6 +26,10 @@
                         </td>
                         <td scope="row" class="govuk-table__cell">
                             {{ document.uploaded_by.get_full_name }}
+                        </td>
+                        <td scope="row" class="govuk-table__cell">
+                            <a href="{% url 'cases:document-download' document.id %}" class="govuk-link govuk-link--no-visited-state">
+                                View</a>
                         </td>
                     </tr>
                 {% endfor %}
