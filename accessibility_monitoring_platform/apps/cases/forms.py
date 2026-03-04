@@ -154,19 +154,17 @@ class DocumentUploadForm(forms.Form):
 
     def clean_file_to_upload(self):
         """Check document is not too big"""
-        file_to_upload: InMemoryUploadedFile = self.cleaned_data.get("file_to_upload")
-        validate_file_size(file_to_upload, max_size_mb=MAX_UPLOAD_FILE_SIZE_MB)
+        file_to_upload: InMemoryUploadedFile | None = self.cleaned_data.get(
+            "file_to_upload"
+        )
+        if file_to_upload is not None:
+            validate_file_size(file_to_upload, max_size_mb=MAX_UPLOAD_FILE_SIZE_MB)
         return file_to_upload
 
 
 class DocumentUpdateForm(DocumentUploadForm):
     """Form for updating a document"""
 
-    file_to_upload = forms.FileField(
-        label="Upload new version",
-        widget=forms.FileInput(attrs={"class": "govuk-file-upload"}),
-        required=False,
-    )
-
-    class Meta:
-        fields = ["file_to_upload", "type"]
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["file_to_upload"].required = False

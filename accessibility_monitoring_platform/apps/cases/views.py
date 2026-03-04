@@ -191,15 +191,17 @@ class DocumentUpdateView(HideCaseNavigationMixin, FormView):
             user: User = self.request.user
             document.uploaded_by = user
             document.type = form.cleaned_data["type"]
-            if "file_to_upload" in form.cleaned_data:
-                uploaded_file = form.cleaned_data["file_to_upload"]
-                document.name = uploaded_file.name
+            file_to_upload: InMemoryUploadedFile | None = form.cleaned_data.get(
+                "file_to_upload"
+            )
+            if file_to_upload is not None:
+                document.name = file_to_upload.name
                 s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
                 if s3_read_write.check_document_on_s3(document=document) is True:
                     document.version += 1
                 s3_read_write.put_document_to_s3(
                     document=document,
-                    file_content=uploaded_file,
+                    file_content=file_to_upload,
                 )
             record_update_event(
                 user=user,
