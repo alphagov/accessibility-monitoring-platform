@@ -25,7 +25,7 @@
                             {{ document.uploaded_time|amp_datetime_short_month }}
                         </td>
                         <td scope="row" class="govuk-table__cell">
-                            {{ document.get_document_type_display }}
+                            {{ document.get_type_display }}
                         </td>
                         <td scope="row" class="govuk-table__cell">
                             <a href="{% url 'cases:document-download' document.id %}" class="govuk-link govuk-link--no-visited-state">

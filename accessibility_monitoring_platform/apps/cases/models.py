@@ -480,14 +480,12 @@ class CaseHistory(models.Model):
 class Document(models.Model):
     """Metadata for case-related document uploaded to S3"""
 
-    class DocumentType(models.TextChoices):
+    class Type(models.TextChoices):
         STATEMENT = "statement", "Statement"
         REPORT = "report", "Report"
 
     name = models.CharField(max_length=400, default="", blank=True)
-    document_type = models.CharField(
-        max_length=20, choices=DocumentType.choices, default=DocumentType.STATEMENT
-    )
+    type = models.CharField(max_length=20, choices=Type.choices, default=Type.STATEMENT)
     base_case = models.ForeignKey(BaseCase, on_delete=models.PROTECT)
     version = models.IntegerField(default=0, blank=True)
     uploaded_by = models.ForeignKey(User, on_delete=models.PROTECT)
@@ -499,9 +497,7 @@ class Document(models.Model):
 
     @property
     def s3_key(self) -> str:
-        s3_key: str = (
-            f"base_cases/{self.base_case.id}/{self.document_type}s/{self.name}"
-        )
-        if self.version > 1:
+        s3_key: str = f"base_cases/{self.base_case.id}/{self.type}s/{self.name}"
+        if self.version > 0:
             s3_key += f"-{self.version}"
         return s3_key

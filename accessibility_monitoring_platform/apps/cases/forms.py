@@ -4,6 +4,7 @@ import requests
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import models
 from django.db.models import QuerySet
 
@@ -26,6 +27,7 @@ from ..common.forms import (
     AMPURLField,
 )
 from ..common.models import Sector, SubCategory
+from ..common.utils import validate_file_size
 
 TEST_TYPE_CHOICES: list[tuple[str, str]] = [("", "All")] + BaseCase.TestType.choices
 ENFORCEMENT_BODY_FILTER_CHOICES = [("", "All")] + BaseCase.EnforcementBody.choices
@@ -37,6 +39,7 @@ STATUS_CHOICES: list[tuple[str, str]] = [("", "All")] + [
 RECOMMENDATION_CHOICES: list[tuple[str, str]] = [
     ("", "All")
 ] + BaseCase.RecommendationForEnforcement.choices
+MAX_UPLOAD_FILE_SIZE_MB: int = 100
 
 
 class DateType(models.TextChoices):
@@ -140,31 +143,30 @@ class PreviousCaseURLForm(forms.ModelForm):
 class DocumentUploadForm(forms.Form):
     """Form for uploading a document"""
 
-    document_to_upload = forms.FileField(
+    file_to_upload = forms.FileField(
         label="Upload a file",
         widget=forms.FileInput(attrs={"class": "govuk-file-upload"}),
     )
-    document_type = AMPChoiceField(
-        label="Document type", choices=Document.DocumentType.choices
-    )
+    type = AMPChoiceField(label="Document type", choices=Document.Type.choices)
 
     class Meta:
-        model = Document
-        fields = ["document_to_upload", "document_type"]
+        fields = ["file_to_upload", "type"]
+
+    def clean_file_to_upload(self):
+        """Check document is not too big"""
+        file_to_upload: InMemoryUploadedFile = self.cleaned_data.get("file_to_upload")
+        validate_file_size(file_to_upload, max_size_mb=MAX_UPLOAD_FILE_SIZE_MB)
+        return file_to_upload
 
 
-class DocumentUpdateForm(forms.Form):
+class DocumentUpdateForm(DocumentUploadForm):
     """Form for updating a document"""
 
-    document_to_upload = forms.FileField(
+    file_to_upload = forms.FileField(
         label="Upload new version",
         widget=forms.FileInput(attrs={"class": "govuk-file-upload"}),
         required=False,
     )
-    document_type = AMPChoiceField(
-        label="Document type", choices=Document.DocumentType.choices
-    )
 
     class Meta:
-        model = Document
-        fields = ["document_to_upload", "document_type"]
+        fields = ["file_to_upload", "type"]

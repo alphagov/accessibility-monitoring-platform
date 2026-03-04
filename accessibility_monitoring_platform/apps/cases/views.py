@@ -139,12 +139,25 @@ class DocumentCreateView(HideCaseNavigationMixin, FormView):
     def form_valid(self, form: forms.ModelForm) -> HttpResponseRedirect:
         """Process contents of file upload"""
         base_case: BaseCase = get_object_or_404(BaseCase, id=self.kwargs.get("pk"))
-        uploaded_file: InMemoryUploadedFile = form.cleaned_data["document_to_upload"]
-        document: Document = Document.objects.create(
-            name=uploaded_file.name,
-            document_type=form.cleaned_data["document_type"],
-            uploaded_by=self.request.user,
-            base_case=base_case,
+        uploaded_file: InMemoryUploadedFile = form.cleaned_data["file_to_upload"]
+        document: Document | None = base_case.documents.filter(
+            name=uploaded_file.name
+        ).first()
+        if document is None:
+            document: Document = Document.objects.create(
+                name=uploaded_file.name,
+                type=form.cleaned_data["type"],
+                uploaded_by=self.request.user,
+                base_case=base_case,
+            )
+        s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
+        file_on_s3: str = s3_read_write.get_document_from_s3(document=document)
+        if file_on_s3 != f"No such key: {document.s3_key}":
+            document.version += 1
+            document.save()
+        s3_read_write.put_document_to_s3(
+            document=document,
+            file_content=uploaded_file,
         )
         user: User = self.request.user
         record_create_event(
@@ -152,12 +165,6 @@ class DocumentCreateView(HideCaseNavigationMixin, FormView):
             model_object=document,
             base_case=document.base_case,
         )
-        s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
-        s3_read_write.put_document_to_s3(
-            document=document,
-            file_content=uploaded_file,
-        )
-        # check s3 for matching document
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:
@@ -183,11 +190,19 @@ class DocumentUpdateView(HideCaseNavigationMixin, FormView):
         if form.changed_data:
             document: Document = get_object_or_404(Document, id=self.kwargs.get("pk"))
             user: User = self.request.user
-            if "uploaded_file" in form.cleaned_data:
-                uploaded_file = form.cleaned_data["uploaded_file"]
-                document.name = uploaded_file.name
-            document.document_type = form.cleaned_data["document_type"]
             document.uploaded_by = user
+            document.type = form.cleaned_data["type"]
+            if "file_to_upload" in form.cleaned_data:
+                uploaded_file = form.cleaned_data["file_to_upload"]
+                document.name = uploaded_file.name
+                s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
+                file_on_s3: str = s3_read_write.get_document_from_s3(document=document)
+                if file_on_s3 != f"No such key: {document.s3_key}":
+                    document.version += 1
+                s3_read_write.put_document_to_s3(
+                    document=document,
+                    file_content=uploaded_file,
+                )
             record_update_event(
                 user=user,
                 model_object=document,

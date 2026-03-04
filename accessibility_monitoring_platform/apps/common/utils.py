@@ -347,3 +347,12 @@ def record_common_model_create_event(
         event_type=EventHistory.Type.CREATE,
         difference=json.dumps(model_object_fields, default=str),
     )
+
+
+def validate_file_size(file, max_size_mb=100):
+    """Custom validator for file size"""
+    max_size = max_size_mb * 1024 * 1024  # Convert MB to bytes
+    if file.size > max_size:
+        raise ValidationError(
+            f"File size cannot exceed {max_size_mb}MB. Current size: {file.size / (1024 * 1024):.2f}MB"
+        )
