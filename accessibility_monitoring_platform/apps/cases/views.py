@@ -151,8 +151,7 @@ class DocumentCreateView(HideCaseNavigationMixin, FormView):
                 base_case=base_case,
             )
         s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
-        file_on_s3: str = s3_read_write.get_document_from_s3(document=document)
-        if file_on_s3 != f"No such key: {document.s3_key}":
+        if s3_read_write.check_document_on_s3(document=document) is True:
             document.version += 1
             document.save()
         s3_read_write.put_document_to_s3(
@@ -196,8 +195,7 @@ class DocumentUpdateView(HideCaseNavigationMixin, FormView):
                 uploaded_file = form.cleaned_data["file_to_upload"]
                 document.name = uploaded_file.name
                 s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
-                file_on_s3: str = s3_read_write.get_document_from_s3(document=document)
-                if file_on_s3 != f"No such key: {document.s3_key}":
+                if s3_read_write.check_document_on_s3(document=document) is True:
                     document.version += 1
                 s3_read_write.put_document_to_s3(
                     document=document,

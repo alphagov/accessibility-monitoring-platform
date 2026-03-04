@@ -139,6 +139,13 @@ class S3ReadWriteDocument(S3Wrapper):
             Key=document.s3_key,
         )
 
+    def check_document_on_s3(self, document: Document) -> bool:
+        try:
+            self.s3_client.head_object(Bucket=self.bucket, Key=document.s3_key)
+            return True
+        except self.s3_client.exceptions.ClientError:
+            return False
+
     def get_document_from_s3(self, document: Document) -> str:
         try:
             obj = self.s3_resource.Object(self.bucket, document.s3_key)
