@@ -6,13 +6,14 @@ from typing import Any
 
 from django import forms
 from django.contrib.auth.models import User
+from django.core.files.base import ContentFile
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models.query import QuerySet
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import FileResponse, HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import FormView, UpdateView
+from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 
 from ..common.utils import (
@@ -223,11 +224,4 @@ def document_download(request: HttpRequest, pk: int) -> HttpResponse:
     document: Document = get_object_or_404(Document, id=pk)
     s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
     file_to_download = s3_read_write.get_document_from_s3(document=document)
-    return HttpResponse(
-        file_to_download,
-        content_type="text/plain",
-        headers={
-            "Content-Disposition": f"attachment; filename={document.name}",
-            "Cache-Control": "no-cache",
-        },
-    )
+    return FileResponse(ContentFile(file_to_download, document.name))

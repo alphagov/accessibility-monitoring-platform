@@ -4,7 +4,7 @@ Admin for cases
 
 from django.contrib import admin
 
-from .models import BaseCase
+from .models import BaseCase, Document
 
 
 class BaseCaseAdmin(admin.ModelAdmin):
@@ -28,4 +28,25 @@ class BaseCaseAdmin(admin.ModelAdmin):
     show_facets = admin.ShowFacets.ALWAYS
 
 
+class DocumentAdmin(admin.ModelAdmin):
+    """Django admin configuration for Document model"""
+
+    readonly_fields = ["uploaded_time"]
+    search_fields = ["base_case__case_number", "base_case__organisation_name", "name"]
+    list_display = [
+        "name",
+        "version",
+        "base_case",
+        "uploaded_time",
+        "uploaded_by",
+        "is_deleted",
+    ]
+    list_filter = [
+        "is_deleted",
+        ("uploaded_by", admin.RelatedOnlyFieldListFilter),
+    ]
+    show_facets = admin.ShowFacets.ALWAYS
+
+
 admin.site.register(BaseCase, BaseCaseAdmin)
+admin.site.register(Document, DocumentAdmin)
