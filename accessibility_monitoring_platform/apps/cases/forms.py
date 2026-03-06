@@ -160,11 +160,3 @@ class DocumentUploadForm(forms.Form):
         if file_to_upload is not None:
             validate_file_size(file_to_upload, max_size_mb=MAX_UPLOAD_FILE_SIZE_MB)
         return file_to_upload
-
-
-class DocumentUpdateForm(DocumentUploadForm):
-    """Form for updating a document"""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["file_to_upload"].required = False

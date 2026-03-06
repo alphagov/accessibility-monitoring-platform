@@ -35,13 +35,15 @@ class DocumentAdmin(admin.ModelAdmin):
     search_fields = ["base_case__case_number", "base_case__organisation_name", "name"]
     list_display = [
         "name",
-        "version",
+        "type",
+        "id_within_case_within_type",
         "base_case",
         "uploaded_time",
         "uploaded_by",
         "is_deleted",
     ]
     list_filter = [
+        "type",
         "is_deleted",
         ("uploaded_by", admin.RelatedOnlyFieldListFilter),
     ]

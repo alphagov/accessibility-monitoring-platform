@@ -23,9 +23,9 @@ from ..common.utils import (
     replace_search_key_with_case_search,
 )
 from ..common.views import HideCaseNavigationMixin
-from .forms import CaseSearchForm, DocumentUploadForm, DocumentUpdateForm
+from .forms import CaseSearchForm, DocumentUploadForm
 from .models import BaseCase, Document
-from .record_event import record_create_event, record_update_event
+from .record_event import record_create_event
 from .utils import (
     filter_cases,
     S3ReadWriteDocument,
@@ -141,20 +141,13 @@ class DocumentCreateView(HideCaseNavigationMixin, FormView):
         """Process contents of file upload"""
         base_case: BaseCase = get_object_or_404(BaseCase, id=self.kwargs.get("pk"))
         uploaded_file: InMemoryUploadedFile = form.cleaned_data["file_to_upload"]
-        document: Document | None = base_case.documents.filter(
-            name=uploaded_file.name
-        ).first()
-        if document is None:
-            document: Document = Document.objects.create(
-                name=uploaded_file.name,
-                type=form.cleaned_data["type"],
-                uploaded_by=self.request.user,
-                base_case=base_case,
-            )
+        document: Document = Document.objects.create(
+            name=uploaded_file.name,
+            type=form.cleaned_data["type"],
+            uploaded_by=self.request.user,
+            base_case=base_case,
+        )
         s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
-        if s3_read_write.check_document_on_s3(document=document) is True:
-            document.version += 1
-            document.save()
         s3_read_write.put_document_to_s3(
             document=document,
             file_content=uploaded_file,
@@ -174,54 +167,13 @@ class DocumentCreateView(HideCaseNavigationMixin, FormView):
         return reverse("cases:document-list", kwargs=case_pk)
 
 
-class DocumentUpdateView(HideCaseNavigationMixin, FormView):
-
-    form_class: type[DocumentUpdateForm] = DocumentUpdateForm
-    template_name: str = "cases/forms/document_update.html"
-
-    def get_context_data(self, **kwargs) -> dict[str, Any]:
-        """Add field values into context"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        context["document"] = get_object_or_404(Document, id=self.kwargs.get("pk"))
-        return context
-
-    def form_valid(self, form: forms.ModelForm) -> HttpResponseRedirect:
-        """Add update event"""
-        if form.changed_data:
-            document: Document = get_object_or_404(Document, id=self.kwargs.get("pk"))
-            user: User = self.request.user
-            document.uploaded_by = user
-            document.type = form.cleaned_data["type"]
-            file_to_upload: InMemoryUploadedFile | None = form.cleaned_data.get(
-                "file_to_upload"
-            )
-            if file_to_upload is not None:
-                document.name = file_to_upload.name
-                s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
-                if s3_read_write.check_document_on_s3(document=document) is True:
-                    document.version += 1
-                s3_read_write.put_document_to_s3(
-                    document=document,
-                    file_content=file_to_upload,
-                )
-            record_update_event(
-                user=user,
-                model_object=document,
-                base_case=document.base_case,
-            )
-            document.save()
-        return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self) -> str:
-        """Return to document list page on save"""
-        document: Document = get_object_or_404(Document, id=self.kwargs.get("pk"))
-        case_pk: dict[str, int] = {"pk": document.base_case.id}
-        return reverse("cases:document-list", kwargs=case_pk)
-
-
-def document_download(request: HttpRequest, pk: int) -> HttpResponse:
+def document_download(request: HttpRequest, pk: int) -> FileResponse | HttpResponse:
     """Download document from S3"""
     document: Document = get_object_or_404(Document, id=pk)
     s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
-    file_to_download = s3_read_write.get_document_from_s3(document=document)
+    file_to_download: bytes | str = s3_read_write.get_document_from_s3(
+        document=document
+    )
+    if isinstance(file_to_download, str):
+        return HttpResponse(file_to_download)
     return FileResponse(ContentFile(file_to_download, document.name))

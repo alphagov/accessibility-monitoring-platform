@@ -1461,9 +1461,6 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                     BaseCasePlatformPage(
                         name="Upload file", url_name="cases:document-create"
                     ),
-                    DocumentPlatformPage(
-                        name="Update file", url_name="cases:document-update"
-                    ),
                 ],
             ),
             SimplifiedCasePlatformPage(

@@ -10,7 +10,6 @@ from .views import (
     CaseListView,
     DocumentCreateView,
     DocumentListView,
-    DocumentUpdateView,
     document_download,
 )
 
@@ -26,11 +25,6 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/document-create/",
         login_required(DocumentCreateView.as_view()),
         name="document-create",
-    ),
-    path(
-        "documents/<int:pk>/document-update/",
-        login_required(DocumentUpdateView.as_view()),
-        name="document-update",
     ),
     path(
         "documents/<int:pk>/document-download/",

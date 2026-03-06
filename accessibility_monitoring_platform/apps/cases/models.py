@@ -5,6 +5,7 @@ Models - cases
 import re
 from dataclasses import dataclass
 from datetime import datetime
+import uuid
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -485,19 +486,26 @@ class Document(models.Model):
         REPORT = "report", "Report"
 
     name = models.CharField(max_length=400, default="", blank=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     type = models.CharField(max_length=20, choices=Type.choices, default=Type.STATEMENT)
     base_case = models.ForeignKey(BaseCase, on_delete=models.PROTECT)
-    version = models.IntegerField(default=0, blank=True)
+    id_within_case_within_type = models.IntegerField(default=1)
     uploaded_by = models.ForeignKey(User, on_delete=models.PROTECT)
     uploaded_time = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False)
 
+    def save(self, *args, **kwargs) -> None:
+        if not self.id:
+            self.id_within_case_within_type = (
+                self.base_case.documents.filter(type=self.type).count() + 1
+            )
+        super().save(*args, **kwargs)
+
     def __str__(self) -> str:
-        return self.s3_key
+        return (
+            f"{self.get_type_display()} #{self.id_within_case_within_type}: {self.name}"
+        )
 
     @property
     def s3_key(self) -> str:
-        s3_key: str = f"base_cases/{self.base_case.id}/{self.type}s/{self.name}"
-        if self.version > 0:
-            s3_key += f"-{self.version}"
-        return s3_key
+        return f"base_cases/{self.base_case.id}/{self.type}s/{self.name} {self.uuid}"

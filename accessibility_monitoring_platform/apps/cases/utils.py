@@ -146,9 +146,10 @@ class S3ReadWriteDocument(S3Wrapper):
         except self.s3_client.exceptions.ClientError:
             return False
 
-    def get_document_from_s3(self, document: Document) -> str:
+    def get_document_from_s3(self, document: Document) -> bytes | str:
         try:
             obj = self.s3_resource.Object(self.bucket, document.s3_key)
             return obj.get()["Body"].read()
         except self.s3_client.exceptions.NoSuchKey:
-            return f"No such key: {document.s3_key}"
+            logger.error("Key not found on S3: %s", document.s3_key)
+            return f"File not found: {document.name}"
