@@ -452,8 +452,8 @@ class BaseCase(VersionModel):
             return self.mobilecase
 
     @property
-    def documents(self) -> QuerySet["Document"]:
-        return self.document_set.filter(is_deleted=False)
+    def documents(self) -> QuerySet["DocumentUpload"]:
+        return self.documentupload_set.filter(is_deleted=False)
 
 
 class CaseHistory(models.Model):
@@ -478,7 +478,7 @@ class CaseHistory(models.Model):
         abstract = True
 
 
-class Document(models.Model):
+class DocumentUpload(models.Model):
     """Metadata for case-related document uploaded to S3"""
 
     class Type(models.TextChoices):

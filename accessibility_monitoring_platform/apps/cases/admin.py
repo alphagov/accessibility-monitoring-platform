@@ -4,7 +4,7 @@ Admin for cases
 
 from django.contrib import admin
 
-from .models import BaseCase, Document
+from .models import BaseCase, DocumentUpload
 
 
 class BaseCaseAdmin(admin.ModelAdmin):
@@ -28,7 +28,7 @@ class BaseCaseAdmin(admin.ModelAdmin):
     show_facets = admin.ShowFacets.ALWAYS
 
 
-class DocumentAdmin(admin.ModelAdmin):
+class DocumentUploadAdmin(admin.ModelAdmin):
     """Django admin configuration for Document model"""
 
     readonly_fields = ["uploaded_time"]
@@ -51,4 +51,4 @@ class DocumentAdmin(admin.ModelAdmin):
 
 
 admin.site.register(BaseCase, BaseCaseAdmin)
-admin.site.register(Document, DocumentAdmin)
+admin.site.register(DocumentUpload, DocumentUploadAdmin)

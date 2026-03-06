@@ -7,7 +7,7 @@
         {% include 'common/breadcrumb_case.html' %}
         {% include 'common/breadcrumb_group.html' %}
         <li class="govuk-breadcrumbs__list-item">
-            <a class="govuk-breadcrumbs__link" href="{% url 'cases:document-list' case.id %}">Case files manager</a>
+            <a class="govuk-breadcrumbs__link" href="{% url 'cases:document-upload-list' case.id %}">Case files manager</a>
         </li>
         {% include 'common/breadcrumb_page.html' %}
     </ol>
@@ -36,7 +36,7 @@
                     data-module="govuk-button"
                 />
                 <a
-                    href="{% url 'cases:document-list' case.id %}"
+                    href="{% url 'cases:document-upload-list' case.id %}"
                     class="govuk-link govuk-link--no-visited-state"
                 >
                     Cancel

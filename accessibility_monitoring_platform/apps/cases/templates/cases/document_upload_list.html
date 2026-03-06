@@ -2,7 +2,7 @@
 
 {% block preform %}
     <div class="govuk-button-group">
-        <a href="{% url 'cases:document-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
+        <a href="{% url 'cases:document-upload-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
             + Upload file</a>
     </div>
     {% if case.documents %}
@@ -25,7 +25,7 @@
                             #{{ document.id_within_case_within_type }}
                         </td>
                         <td scope="row" class="govuk-table__cell">
-                            <a href="{% url 'cases:document-download' document.id %}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+                            <a href="{% url 'cases:document-upload-download' document.id %}" class="govuk-link govuk-link--no-visited-state" target="_blank">
                                 {{ document.name }}</a>
                         </td>
                         <td scope="row" class="govuk-table__cell">

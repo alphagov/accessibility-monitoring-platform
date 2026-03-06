@@ -123,6 +123,11 @@ urlpatterns: list[URLPattern] = [
         login_required(InitialStatementPageFormsetUpdateView.as_view()),
         name="edit-statement-pages",
     ),
+    # path(
+    #     "<int:pk>/initial-statement-backup/",
+    #     login_required(InitialStatementBackupUpdateView.as_view()),
+    #     name="initial-statement-backup",
+    # ),
     path(
         "<int:pk>/edit-statement-overview/",
         login_required(AuditStatementOverviewFormView.as_view()),

@@ -20,7 +20,7 @@ from ..audits.forms import (
     AuditTwelveWeekDisproportionateBurdenUpdateForm,
 )
 from ..audits.models import Audit, Page, Retest, RetestPage, StatementCheckResult
-from ..cases.models import BaseCase, Document
+from ..cases.models import BaseCase, DocumentUpload
 from ..comments.models import Comment
 from ..detailed.forms import (
     DetailedCaseCloseUpdateForm,
@@ -565,7 +565,7 @@ class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestPlatformPage):
 class DocumentPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.instance_class: type[models.Model] = Document
+        self.instance_class: type[models.Model] = DocumentUpload
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
@@ -574,7 +574,7 @@ class DocumentPlatformPage(PlatformPage):
         return False
 
     def set_instance(self, instance: models.Model | None):
-        if isinstance(instance, Document):
+        if isinstance(instance, DocumentUpload):
             self.instance = instance
 
     def get_case(self) -> BaseCase | None:
@@ -1456,10 +1456,10 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             ),
             BaseCasePlatformPage(
                 name="Case files manager",
-                url_name="cases:document-list",
+                url_name="cases:document-upload-list",
                 subpages=[
                     BaseCasePlatformPage(
-                        name="Upload file", url_name="cases:document-create"
+                        name="Upload file", url_name="cases:document-upload-create"
                     ),
                 ],
             ),
@@ -1779,10 +1779,10 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             ),
             BaseCasePlatformPage(
                 name="Case files manager",
-                url_name="cases:document-list",
+                url_name="cases:document-upload-list",
                 subpages=[
                     BaseCasePlatformPage(
-                        name="Upload file", url_name="cases:document-create"
+                        name="Upload file", url_name="cases:document-upload-create"
                     ),
                 ],
             ),
@@ -2134,10 +2134,10 @@ MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             ),
             BaseCasePlatformPage(
                 name="Case files manager",
-                url_name="cases:document-list",
+                url_name="cases:document-upload-list",
                 subpages=[
                     BaseCasePlatformPage(
-                        name="Upload file", url_name="cases:document-create"
+                        name="Upload file", url_name="cases:document-upload-create"
                     ),
                 ],
             ),

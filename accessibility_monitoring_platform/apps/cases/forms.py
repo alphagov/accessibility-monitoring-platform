@@ -13,7 +13,7 @@ from ..cases.models import (
     CASE_STATUS_UNKNOWN,
     BaseCase,
     Complaint,
-    Document,
+    DocumentUpload,
     Sort,
     extract_id_from_case_url,
 )
@@ -147,7 +147,7 @@ class DocumentUploadForm(forms.Form):
         label="Upload a file",
         widget=forms.FileInput(attrs={"class": "govuk-file-upload"}),
     )
-    type = AMPChoiceField(label="Document type", choices=Document.Type.choices)
+    type = AMPChoiceField(label="Document type", choices=DocumentUpload.Type.choices)
 
     class Meta:
         fields = ["file_to_upload", "type"]

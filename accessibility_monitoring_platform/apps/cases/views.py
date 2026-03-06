@@ -24,7 +24,7 @@ from ..common.utils import (
 )
 from ..common.views import HideCaseNavigationMixin
 from .forms import CaseSearchForm, DocumentUploadForm
-from .models import BaseCase, Document
+from .models import BaseCase, DocumentUpload
 from .record_event import record_create_event
 from .utils import (
     filter_cases,
@@ -121,27 +121,27 @@ class CaseListView(ListView):
         return context
 
 
-class DocumentListView(HideCaseNavigationMixin, DetailView):
+class DocumentUploadListView(HideCaseNavigationMixin, DetailView):
     """
     View of Documents for a case
     """
 
     model: type[BaseCase] = BaseCase
     context_object_name: str = "case"
-    template_name: str = "cases/document_list.html"
+    template_name: str = "cases/document_upload_list.html"
 
 
-class DocumentCreateView(HideCaseNavigationMixin, FormView):
-    """View to upload a Document"""
+class DocumentUploadView(HideCaseNavigationMixin, FormView):
+    """View to upload a Document upload"""
 
     form_class: type[DocumentUploadForm] = DocumentUploadForm
-    template_name: str = "cases/forms/document_create.html"
+    template_name: str = "cases/forms/document_upload_create.html"
 
     def form_valid(self, form: forms.ModelForm) -> HttpResponseRedirect:
         """Process contents of file upload"""
         base_case: BaseCase = get_object_or_404(BaseCase, id=self.kwargs.get("pk"))
         uploaded_file: InMemoryUploadedFile = form.cleaned_data["file_to_upload"]
-        document: Document = Document.objects.create(
+        document_upload: DocumentUpload = DocumentUpload.objects.create(
             name=uploaded_file.name,
             type=form.cleaned_data["type"],
             uploaded_by=self.request.user,
@@ -149,14 +149,14 @@ class DocumentCreateView(HideCaseNavigationMixin, FormView):
         )
         s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
         s3_read_write.put_document_to_s3(
-            document=document,
+            document_upload=document_upload,
             file_content=uploaded_file,
         )
         user: User = self.request.user
         record_create_event(
             user=user,
-            model_object=document,
-            base_case=document.base_case,
+            model_object=document_upload,
+            base_case=document_upload.base_case,
         )
         return HttpResponseRedirect(self.get_success_url())
 
@@ -164,16 +164,16 @@ class DocumentCreateView(HideCaseNavigationMixin, FormView):
         """Return to document list page on exit"""
         base_case: BaseCase = get_object_or_404(BaseCase, id=self.kwargs.get("pk"))
         case_pk: dict[str, int] = {"pk": base_case.id}
-        return reverse("cases:document-list", kwargs=case_pk)
+        return reverse("cases:document-upload-list", kwargs=case_pk)
 
 
 def document_download(request: HttpRequest, pk: int) -> FileResponse | HttpResponse:
-    """Download document from S3"""
-    document: Document = get_object_or_404(Document, id=pk)
+    """Download document upload from S3"""
+    document_upload: DocumentUpload = get_object_or_404(DocumentUpload, id=pk)
     s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
     file_to_download: bytes | str = s3_read_write.get_document_from_s3(
-        document=document
+        document_upload=document_upload
     )
     if isinstance(file_to_download, str):
         return HttpResponse(file_to_download)
-    return FileResponse(ContentFile(file_to_download, document.name))
+    return FileResponse(ContentFile(file_to_download, document_upload.name))
