@@ -651,6 +651,12 @@ def test_delete_statement_page_on_retest(admin_client):
         (
             "audits:edit-statement-pages",
             "save_continue",
+            "audits:initial-statement-backup",
+        ),
+        ("audits:initial-statement-backup", "save", "audits:initial-statement-backup"),
+        (
+            "audits:initial-statement-backup",
+            "save_continue",
             "audits:edit-statement-overview",
         ),
         (

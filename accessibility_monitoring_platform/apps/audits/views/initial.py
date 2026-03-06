@@ -24,6 +24,7 @@ from ..forms import (
     AuditExtraPageFormsetOneExtra,
     AuditExtraPageFormsetTwoExtra,
     AuditInitialDisproportionateBurdenUpdateForm,
+    AuditInitialStatementBackupUpdateForm,
     AuditMetadataUpdateForm,
     AuditPageChecksForm,
     AuditPagesUpdateForm,
@@ -46,6 +47,7 @@ from ..forms import (
     CheckResultFilterForm,
     CheckResultFormset,
     InitialCustomIssueCreateUpdateForm,
+    StatementBackupUpdateForm,
 )
 from ..models import (
     Audit,
@@ -385,6 +387,27 @@ class InitialStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
             current_url: str = reverse("audits:edit-statement-pages", kwargs=audit_pk)
             return f"{current_url}?add_extra=true#statement-page-None"
         return super().get_success_url()
+
+
+class InitialStatementBackupUpdateView(AuditUpdateView):
+    """
+    View to backup statement pages in initial test
+    """
+
+    form_class: type[AuditInitialStatementBackupUpdateForm] = (
+        AuditInitialStatementBackupUpdateForm
+    )
+    template_name: str = "audits/forms/initial_statement_backup.html"
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Get context data for template rendering"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        if self.request.POST:
+            statement_backup_form = StatementBackupUpdateForm(self.request.POST)
+        else:
+            statement_backup_form = StatementBackupUpdateForm()
+        context["statement_backup_form"] = statement_backup_form
+        return context
 
 
 class AuditStatementOverviewFormView(AuditStatementCheckingView):

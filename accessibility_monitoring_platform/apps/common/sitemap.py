@@ -786,6 +786,13 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="audits:edit-statement-pages",
                 complete_flag_name="audit_statement_pages_complete_date",
                 case_details_template_name="simplified/details/details_statement_links.html",
+                next_page_url_name="audits:initial-statement-backup",
+            ),
+            AuditPlatformPage(
+                name="Upload statement",
+                url_name="audits:initial-statement-backup",
+                complete_flag_name="audit_initial_statement_backup_complete_date",
+                case_details_template_name="simplified/details/details_statement_backups.html",
                 next_page_url_name="audits:edit-statement-overview",
             ),
             AuditPlatformPage(

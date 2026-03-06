@@ -452,8 +452,12 @@ class BaseCase(VersionModel):
             return self.mobilecase
 
     @property
-    def documents(self) -> QuerySet["DocumentUpload"]:
+    def document_uploads(self) -> QuerySet["DocumentUpload"]:
         return self.documentupload_set.filter(is_deleted=False)
+
+    @property
+    def statement_backups(self) -> QuerySet["DocumentUpload"]:
+        return self.document_uploads.filter(type=DocumentUpload.Type.STATEMENT)
 
 
 class CaseHistory(models.Model):
@@ -497,7 +501,7 @@ class DocumentUpload(models.Model):
     def save(self, *args, **kwargs) -> None:
         if not self.id:
             self.id_within_case_within_type = (
-                self.base_case.documents.filter(type=self.type).count() + 1
+                self.base_case.document_uploads.filter(type=self.type).count() + 1
             )
         super().save(*args, **kwargs)
 

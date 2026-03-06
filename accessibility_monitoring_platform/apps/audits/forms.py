@@ -1236,6 +1236,36 @@ class AuditStatementPagesUpdateForm(VersionForm):
         ]
 
 
+class StatementBackupUpdateForm(forms.Form):
+    """Form for statement backup"""
+
+    statement_url = AMPURLField(label="Link to statement")
+    file_to_upload = forms.FileField(
+        label="File upload",
+        widget=forms.FileInput(attrs={"class": "govuk-file-upload"}),
+        required=False,
+    )
+
+    class Meta:
+        fields: list[str] = [
+            "statement_url",
+            "file_to_upload",
+        ]
+
+
+class AuditInitialStatementBackupUpdateForm(VersionForm):
+    """Form for initial statement backup"""
+
+    audit_initial_statement_backup_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: list[str] = [
+            "version",
+            "audit_initial_statement_backup_complete_date",
+        ]
+
+
 class TwelveWeekStatementPagesUpdateForm(VersionForm):
     """
     Form for statement pages update at 12-week retest
