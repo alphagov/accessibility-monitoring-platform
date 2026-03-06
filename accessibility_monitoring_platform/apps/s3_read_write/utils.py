@@ -5,46 +5,17 @@ S3 readwrite utilities
 import re
 import uuid
 
-import boto3
 from django.contrib.auth.models import User
 
-from ...settings.base import DATABASES, DEBUG, S3_MOCK_ENDPOINT, UNDER_TEST
 from ..cases.models import BaseCase
+from ..common.s3_utils import S3Wrapper
 from .models import S3Report
 
 NO_REPORT_HTML: str = "<p>Does not exist</p>"
 
 
-class S3ReadWriteReport:
-    """S3 readwrite utilities"""
-
-    def __init__(self) -> None:
-        self.s3_resource = boto3.resource(
-            service_name="s3",
-            region_name=DATABASES["aws-s3-bucket"]["aws_region"],
-            aws_access_key_id=DATABASES["aws-s3-bucket"]["aws_access_key_id"],
-            aws_secret_access_key=DATABASES["aws-s3-bucket"]["aws_secret_access_key"],
-            endpoint_url=S3_MOCK_ENDPOINT,
-        )
-
-        self.s3_client = boto3.client(
-            "s3",
-            region_name=DATABASES["aws-s3-bucket"]["aws_region"],
-            aws_access_key_id=DATABASES["aws-s3-bucket"]["aws_access_key_id"],
-            aws_secret_access_key=DATABASES["aws-s3-bucket"]["aws_secret_access_key"],
-            endpoint_url=S3_MOCK_ENDPOINT,
-        )
-
-        # Creates bucket for unit testing, integration testing, and local development
-        if DEBUG or UNDER_TEST:
-            response = self.s3_client.list_buckets()
-            bucket_names = [bucket["Name"] for bucket in response["Buckets"]]
-            if DATABASES["aws-s3-bucket"]["bucket_name"] not in bucket_names:
-                self.s3_client.create_bucket(
-                    Bucket=DATABASES["aws-s3-bucket"]["bucket_name"],
-                )
-
-        self.bucket: str = DATABASES["aws-s3-bucket"]["bucket_name"]
+class S3ReadWriteReport(S3Wrapper):
+    """S3 report readwrite utilities"""
 
     def upload_string_to_s3_as_html(
         self,

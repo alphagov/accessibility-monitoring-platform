@@ -4,13 +4,17 @@ Views for audits app (called tests by users)
 
 from typing import Any
 
+from django.contrib.auth.models import User
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.forms.models import ModelForm
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
+from ...cases.models import DocumentUpload
+from ...cases.utils import S3ReadWriteDocument
 from ...common.forms import AMPChoiceCheckboxWidget
 from ...common.mark_deleted_util import mark_object_as_deleted
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
@@ -24,6 +28,7 @@ from ..forms import (
     AuditExtraPageFormsetOneExtra,
     AuditExtraPageFormsetTwoExtra,
     AuditInitialDisproportionateBurdenUpdateForm,
+    AuditInitialStatementBackupUpdateForm,
     AuditMetadataUpdateForm,
     AuditPageChecksForm,
     AuditPagesUpdateForm,
@@ -46,6 +51,7 @@ from ..forms import (
     CheckResultFilterForm,
     CheckResultFormset,
     InitialCustomIssueCreateUpdateForm,
+    StatementBackupUpdateForm,
 )
 from ..models import (
     Audit,
@@ -385,6 +391,67 @@ class InitialStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
             current_url: str = reverse("audits:edit-statement-pages", kwargs=audit_pk)
             return f"{current_url}?add_extra=true#statement-page-None"
         return super().get_success_url()
+
+
+class InitialStatementBackupUpdateView(AuditUpdateView):
+    """
+    View to backup statement pages in initial test
+    """
+
+    form_class: type[AuditInitialStatementBackupUpdateForm] = (
+        AuditInitialStatementBackupUpdateForm
+    )
+    template_name: str = "audits/forms/initial_statement_backup.html"
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Get context data for template rendering"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        audit: Audit = self.object
+        if self.request.POST:
+            statement_backup_form: StatementBackupUpdateForm = (
+                StatementBackupUpdateForm(self.request.POST)
+            )
+        else:
+            statement_backup_form: StatementBackupUpdateForm = (
+                StatementBackupUpdateForm(
+                    {"statement_url": audit.latest_statement_link}
+                )
+            )
+        context["statement_backup_form"] = statement_backup_form
+        return context
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add update event"""
+        statement_backup_form: StatementBackupUpdateForm = StatementBackupUpdateForm(
+            self.request.POST, self.request.FILES
+        )
+        if statement_backup_form.is_valid():
+            audit: Audit = self.object
+            statement_url: str = statement_backup_form.cleaned_data["statement_url"]
+            if statement_url != audit.latest_statement_link:
+                StatementPage.objects.create(audit=audit, url=statement_url)
+            file_to_upload: InMemoryUploadedFile | None = (
+                statement_backup_form.cleaned_data.get("file_to_upload")
+            )
+            if file_to_upload is not None:
+                document_upload: DocumentUpload = DocumentUpload.objects.create(
+                    name=file_to_upload.name,
+                    type=DocumentUpload.Type.STATEMENT,
+                    uploaded_by=self.request.user,
+                    base_case=audit.simplified_case,
+                )
+                s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
+                s3_read_write.put_document_to_s3(
+                    document_upload=document_upload,
+                    file_content=file_to_upload,
+                )
+                user: User = self.request.user
+                record_simplified_model_create_event(
+                    user=user,
+                    model_object=document_upload,
+                    simplified_case=audit.simplified_case,
+                )
+        return super().form_valid(form)
 
 
 class AuditStatementOverviewFormView(AuditStatementCheckingView):

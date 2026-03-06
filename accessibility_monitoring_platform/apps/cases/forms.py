@@ -4,6 +4,7 @@ import requests
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import models
 from django.db.models import QuerySet
 
@@ -12,6 +13,7 @@ from ..cases.models import (
     CASE_STATUS_UNKNOWN,
     BaseCase,
     Complaint,
+    DocumentUpload,
     Sort,
     extract_id_from_case_url,
 )
@@ -25,6 +27,7 @@ from ..common.forms import (
     AMPURLField,
 )
 from ..common.models import Sector, SubCategory
+from ..common.utils import validate_file_size
 
 TEST_TYPE_CHOICES: list[tuple[str, str]] = [("", "All")] + BaseCase.TestType.choices
 ENFORCEMENT_BODY_FILTER_CHOICES = [("", "All")] + BaseCase.EnforcementBody.choices
@@ -36,6 +39,7 @@ STATUS_CHOICES: list[tuple[str, str]] = [("", "All")] + [
 RECOMMENDATION_CHOICES: list[tuple[str, str]] = [
     ("", "All")
 ] + BaseCase.RecommendationForEnforcement.choices
+MAX_UPLOAD_FILE_SIZE_MB: int = 100
 
 
 class DateType(models.TextChoices):
@@ -134,3 +138,25 @@ class PreviousCaseURLForm(forms.ModelForm):
             return previous_case_url
         else:
             raise ValidationError("Previous case not found in platform")
+
+
+class DocumentUploadForm(forms.Form):
+    """Form for uploading a document"""
+
+    file_to_upload = forms.FileField(
+        label="Upload a file",
+        widget=forms.FileInput(attrs={"class": "govuk-file-upload"}),
+    )
+    type = AMPChoiceField(label="Document type", choices=DocumentUpload.Type.choices)
+
+    class Meta:
+        fields = ["file_to_upload", "type"]
+
+    def clean_file_to_upload(self):
+        """Check document is not too big"""
+        file_to_upload: InMemoryUploadedFile | None = self.cleaned_data.get(
+            "file_to_upload"
+        )
+        if file_to_upload is not None:
+            validate_file_size(file_to_upload, max_size_mb=MAX_UPLOAD_FILE_SIZE_MB)
+        return file_to_upload

@@ -1,0 +1,30 @@
+{% extends 'cases/details/details.html' %}
+
+{% block table %}
+    {% for document_upload in case.statement_backups %}
+        <p class="govuk-body-m"><b>Statement #{{ document_upload.id_within_case_within_type }}</b></p>
+        <table class="govuk-table" data-search-target-page-name="{{ case_detail_page.page.platform_page_group.name }}" data-search-target-label="{{ case_detail_page.page.get_name }}" data-search-target-url="{{ case_detail_page.page.url }}">
+            <tbody class="govuk-table__body">
+                <tr class="govuk-table__row ">
+                    <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">Uploaded file</th>
+                    <td class="govuk-table__cell amp-width-one-half amp-notes">
+                        <a href="{% url 'cases:document-upload-download' document_upload.id %}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+                            {{ document_upload.name }}</a>
+                    </td>
+                </tr>
+                <tr class="govuk-table__row ">
+                    <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">Uploaded time</th>
+                    <td class="govuk-table__cell amp-width-one-half amp-notes">
+                            {{ document_upload.uploaded_time|amp_datetime_short_month }}
+                    </td>
+                </tr>
+                <tr class="govuk-table__row ">
+                    <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">Uploaded by</th>
+                    <td class="govuk-table__cell amp-width-one-half amp-notes">
+                            {{ document_upload.uploaded_by.get_full_name }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    {% endfor %}
+{% endblock %}

@@ -6,10 +6,10 @@ from datetime import datetime
 
 import boto3
 import pytest
+from django.conf import settings
 from django.contrib.auth.models import User
 from moto import mock_aws
 
-from ...settings.base import DATABASES, S3_MOCK_ENDPOINT
 from ..simplified.models import SimplifiedCase
 from .models import S3Report
 from .utils import NO_REPORT_HTML, S3ReadWriteReport
@@ -44,10 +44,12 @@ def test_upload_string_to_s3():
 
     s3_resource = boto3.resource(
         service_name="s3",
-        region_name=DATABASES["aws-s3-bucket"]["aws_region"],
-        aws_access_key_id=DATABASES["aws-s3-bucket"]["aws_access_key_id"],
-        aws_secret_access_key=DATABASES["aws-s3-bucket"]["aws_secret_access_key"],
-        endpoint_url=S3_MOCK_ENDPOINT,
+        region_name=settings.DATABASES["aws-s3-bucket"]["aws_region"],
+        aws_access_key_id=settings.DATABASES["aws-s3-bucket"]["aws_access_key_id"],
+        aws_secret_access_key=settings.DATABASES["aws-s3-bucket"][
+            "aws_secret_access_key"
+        ],
+        endpoint_url=settings.S3_MOCK_ENDPOINT,
     )
     obj = s3_resource.Object("bucketname", s3report.s3_directory)
     assert obj.get()["Body"].read().decode("utf-8") == raw_html

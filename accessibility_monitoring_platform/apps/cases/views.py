@@ -4,7 +4,16 @@ Views for cases app
 
 from typing import Any
 
+from django import forms
+from django.contrib.auth.models import User
+from django.core.files.base import ContentFile
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models.query import QuerySet
+from django.http import FileResponse, HttpRequest, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 
 from ..common.utils import (
@@ -13,9 +22,14 @@ from ..common.utils import (
     get_url_parameters_for_pagination,
     replace_search_key_with_case_search,
 )
-from .forms import CaseSearchForm
-from .models import BaseCase
-from .utils import filter_cases
+from ..common.views import HideCaseNavigationMixin
+from .forms import CaseSearchForm, DocumentUploadForm
+from .models import BaseCase, DocumentUpload
+from .record_event import record_create_event
+from .utils import (
+    filter_cases,
+    S3ReadWriteDocument,
+)
 
 AUDITOR_SEARCH_FIELDS: list[str] = [
     "auditor",
@@ -105,3 +119,61 @@ class CaseListView(ListView):
             request=self.request
         )
         return context
+
+
+class DocumentUploadListView(HideCaseNavigationMixin, DetailView):
+    """
+    View of Documents for a case
+    """
+
+    model: type[BaseCase] = BaseCase
+    context_object_name: str = "case"
+    template_name: str = "cases/document_upload_list.html"
+
+
+class DocumentUploadView(HideCaseNavigationMixin, FormView):
+    """View to upload a Document upload"""
+
+    form_class: type[DocumentUploadForm] = DocumentUploadForm
+    template_name: str = "cases/forms/document_upload_create.html"
+
+    def form_valid(self, form: forms.ModelForm) -> HttpResponseRedirect:
+        """Process contents of file upload"""
+        base_case: BaseCase = get_object_or_404(BaseCase, id=self.kwargs.get("pk"))
+        uploaded_file: InMemoryUploadedFile = form.cleaned_data["file_to_upload"]
+        document_upload: DocumentUpload = DocumentUpload.objects.create(
+            name=uploaded_file.name,
+            type=form.cleaned_data["type"],
+            uploaded_by=self.request.user,
+            base_case=base_case,
+        )
+        s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
+        s3_read_write.put_document_to_s3(
+            document_upload=document_upload,
+            file_content=uploaded_file,
+        )
+        user: User = self.request.user
+        record_create_event(
+            user=user,
+            model_object=document_upload,
+            base_case=document_upload.base_case,
+        )
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self) -> str:
+        """Return to document list page on exit"""
+        base_case: BaseCase = get_object_or_404(BaseCase, id=self.kwargs.get("pk"))
+        case_pk: dict[str, int] = {"pk": base_case.id}
+        return reverse("cases:document-upload-list", kwargs=case_pk)
+
+
+def document_download(request: HttpRequest, pk: int) -> FileResponse | HttpResponse:
+    """Download document upload from S3"""
+    document_upload: DocumentUpload = get_object_or_404(DocumentUpload, id=pk)
+    s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
+    file_to_download: bytes | str = s3_read_write.get_document_from_s3(
+        document_upload=document_upload
+    )
+    if isinstance(file_to_download, str):
+        return HttpResponse(file_to_download)
+    return FileResponse(ContentFile(file_to_download, document_upload.name))

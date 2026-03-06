@@ -20,7 +20,7 @@ from ..audits.forms import (
     AuditTwelveWeekDisproportionateBurdenUpdateForm,
 )
 from ..audits.models import Audit, Page, Retest, RetestPage, StatementCheckResult
-from ..cases.models import BaseCase
+from ..cases.models import BaseCase, DocumentUpload
 from ..comments.models import Comment
 from ..detailed.forms import (
     DetailedCaseCloseUpdateForm,
@@ -542,11 +542,12 @@ class RetestOverviewPlatformPage(SimplifiedCasePlatformPage):
         self.set_instance(instance=case)
         if self.subpages is not None:
             bound_subpages: list[PlatformPage] = []
-            for retest in case.retests:
-                if retest.id_within_case > 0:
-                    bound_subpages += populate_subpages_with_instance(
-                        platform_page=self, instance=retest
-                    )
+            if hasattr(case, "retests"):
+                for retest in case.retests:
+                    if retest.id_within_case > 0:
+                        bound_subpages += populate_subpages_with_instance(
+                            platform_page=self, instance=retest
+                        )
             self.subpages = bound_subpages
 
 
@@ -559,6 +560,26 @@ class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestPlatformPage):
                     platform_page=self, instance=retest_page
                 )
             self.subpages = bound_subpages
+
+
+class DocumentPlatformPage(PlatformPage):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.instance_class: type[models.Model] = DocumentUpload
+        if self.url_kwarg_key is None:
+            self.url_kwarg_key: str = "pk"
+
+    @property
+    def show(self):
+        return False
+
+    def set_instance(self, instance: models.Model | None):
+        if isinstance(instance, DocumentUpload):
+            self.instance = instance
+
+    def get_case(self) -> BaseCase | None:
+        if self.instance is not None:
+            return self.instance.base_case
 
 
 @dataclass
@@ -765,6 +786,13 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="audits:edit-statement-pages",
                 complete_flag_name="audit_statement_pages_complete_date",
                 case_details_template_name="simplified/details/details_statement_links.html",
+                next_page_url_name="audits:initial-statement-backup",
+            ),
+            AuditPlatformPage(
+                name="Upload statement",
+                url_name="audits:initial-statement-backup",
+                complete_flag_name="audit_initial_statement_backup_complete_date",
+                case_details_template_name="simplified/details/details_statement_backups.html",
                 next_page_url_name="audits:edit-statement-overview",
             ),
             AuditPlatformPage(
@@ -1433,6 +1461,15 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 name="View and search all case data",
                 url_name="simplified:case-view-and-search",
             ),
+            BaseCasePlatformPage(
+                name="Case files manager",
+                url_name="cases:document-upload-list",
+                subpages=[
+                    BaseCasePlatformPage(
+                        name="Upload file", url_name="cases:document-upload-create"
+                    ),
+                ],
+            ),
             SimplifiedCasePlatformPage(
                 name="Outstanding issues",
                 show_flag_name="not_archived",
@@ -1746,6 +1783,15 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             DetailedCasePlatformPage(
                 name="View and search all case data",
                 url_name="detailed:case-view-and-search",
+            ),
+            BaseCasePlatformPage(
+                name="Case files manager",
+                url_name="cases:document-upload-list",
+                subpages=[
+                    BaseCasePlatformPage(
+                        name="Upload file", url_name="cases:document-upload-create"
+                    ),
+                ],
             ),
             DetailedCasePlatformPage(
                 name="Email templates",
@@ -2092,6 +2138,15 @@ MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             MobileCasePlatformPage(
                 name="View and search all case data",
                 url_name="mobile:case-view-and-search",
+            ),
+            BaseCasePlatformPage(
+                name="Case files manager",
+                url_name="cases:document-upload-list",
+                subpages=[
+                    BaseCasePlatformPage(
+                        name="Upload file", url_name="cases:document-upload-create"
+                    ),
+                ],
             ),
             MobileCasePlatformPage(
                 name="Email templates",
