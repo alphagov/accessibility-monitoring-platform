@@ -428,7 +428,7 @@ class InitialStatementBackupUpdateView(AuditUpdateView):
         if statement_backup_form.is_valid():
             audit: Audit = self.object
             statement_url: str = statement_backup_form.cleaned_data["statement_url"]
-            if statement_url != audit.latest_statement_link:
+            if statement_url and statement_url != audit.latest_statement_link:
                 StatementPage.objects.create(audit=audit, url=statement_url)
             file_to_upload: InMemoryUploadedFile | None = (
                 statement_backup_form.cleaned_data.get("file_to_upload")
