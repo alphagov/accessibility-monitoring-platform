@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.urls.resolvers import URLPattern
 
+from ..cases.views import DocumentUploadListView
 from .views import (
     CaseCloseUpdateView,
     CaseEmailTemplateListView,
@@ -84,6 +85,11 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/case-view-and-search/",
         login_required(CaseSearchView.as_view()),
         name="case-view-and-search",
+    ),
+    path(
+        "<int:pk>/document-upload-list/",
+        login_required(DocumentUploadListView.as_view()),
+        name="document-upload-list",
     ),
     path(
         "<int:pk>/case-metadata/",

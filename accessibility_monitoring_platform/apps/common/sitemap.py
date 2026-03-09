@@ -1463,12 +1463,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             ),
             BaseCasePlatformPage(
                 name="Case files manager",
-                url_name="cases:document-upload-list",
-                subpages=[
-                    BaseCasePlatformPage(
-                        name="Upload file", url_name="cases:document-upload-create"
-                    ),
-                ],
+                url_name="simplified:document-upload-list",
             ),
             SimplifiedCasePlatformPage(
                 name="Outstanding issues",
@@ -1786,12 +1781,7 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             ),
             BaseCasePlatformPage(
                 name="Case files manager",
-                url_name="cases:document-upload-list",
-                subpages=[
-                    BaseCasePlatformPage(
-                        name="Upload file", url_name="cases:document-upload-create"
-                    ),
-                ],
+                url_name="detailed:document-upload-list",
             ),
             DetailedCasePlatformPage(
                 name="Email templates",
@@ -2141,12 +2131,7 @@ MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             ),
             BaseCasePlatformPage(
                 name="Case files manager",
-                url_name="cases:document-upload-list",
-                subpages=[
-                    BaseCasePlatformPage(
-                        name="Upload file", url_name="cases:document-upload-create"
-                    ),
-                ],
+                url_name="mobile:document-upload-list",
             ),
             MobileCasePlatformPage(
                 name="Email templates",
@@ -2389,6 +2374,21 @@ SITE_MAP: list[PlatformPageGroup] = (
                     instance_class=Task,
                 ),
                 PlatformPage(name="Privacy notice", url_name="common:privacy-notice"),
+            ],
+        ),
+        # Miscellaneous
+        PlatformPageGroup(
+            name="Case tools",
+            pages=[
+                BaseCasePlatformPage(
+                    name="Case files manager",
+                    url_name="cases:document-upload-list",
+                    subpages=[
+                        BaseCasePlatformPage(
+                            name="Upload file", url_name="cases:document-upload-create"
+                        ),
+                    ],
+                ),
             ],
         ),
     ]
