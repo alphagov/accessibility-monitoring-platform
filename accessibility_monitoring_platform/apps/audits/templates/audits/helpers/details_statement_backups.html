@@ -1,0 +1,30 @@
+<details class="govuk-details" data-module="govuk-details">
+    <summary class="govuk-details__summary">
+        <span class="govuk-details__summary-text">
+            Statement links
+        </span>
+    </summary>
+    <div class="govuk-details__text">
+        {% if audit.statement_pages %}
+            {% if audit.latest_statement_link %}
+                <p class="govuk-body-m">
+                    <a href="{{ audit.latest_statement_link }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                        {{ audit.latest_statement_link }}</a>
+                </p>
+            {% endif %}
+            {% include "audits/helpers/statement_backups.html" %}
+            <p class="govuk-body-m">
+                <a href="{% url 'cases:document-upload-list' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                    View case files manager</a>
+            </p>
+        {% else %}
+            <p class="govuk-body">
+                No statement added. Add a statement in
+                <a href="{% url 'audits:edit-statement-pages' audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    statement links</a>.
+            </p>
+        {% endif %}
+    </div>
+</details>
