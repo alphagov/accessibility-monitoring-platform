@@ -4,7 +4,7 @@ Test utility functions of cases app
 
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
-from io import BytesIO
+import io
 from typing import Any
 from unittest.mock import Mock, patch
 
@@ -640,7 +640,7 @@ def test_writing_to_s3():
 
     s3_read_write.put_document_to_s3(
         document_upload=document_upload,
-        file_content=BytesIO(DOCUMENT_CONTENT.encode()),
+        file_content=io.BytesIO(DOCUMENT_CONTENT.encode()),
     )
 
     s3_object: Any = s3_read_write.s3_resource.Object(
@@ -663,7 +663,7 @@ def test_reading_from_s3():
 
     s3_read_write.put_document_to_s3(
         document_upload=document_upload,
-        file_content=BytesIO(DOCUMENT_CONTENT.encode()),
+        file_content=io.BytesIO(DOCUMENT_CONTENT.encode()),
     )
 
     file_from_s3: bytes = s3_read_write.get_document_from_s3(
