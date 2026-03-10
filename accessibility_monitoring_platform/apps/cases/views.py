@@ -141,10 +141,11 @@ class DocumentUploadView(HideCaseNavigationMixin, FormView):
         """Process contents of file upload"""
         base_case: BaseCase = get_object_or_404(BaseCase, id=self.kwargs.get("pk"))
         uploaded_file: InMemoryUploadedFile = form.cleaned_data["file_to_upload"]
+        user: User = self.request.user
         document_upload: DocumentUpload = DocumentUpload.objects.create(
             name=uploaded_file.name,
             type=form.cleaned_data["type"],
-            uploaded_by=self.request.user,
+            uploaded_by=user,
             base_case=base_case,
         )
         s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
@@ -152,7 +153,6 @@ class DocumentUploadView(HideCaseNavigationMixin, FormView):
             document_upload=document_upload,
             file_content=uploaded_file,
         )
-        user: User = self.request.user
         record_create_event(
             user=user,
             model_object=document_upload,

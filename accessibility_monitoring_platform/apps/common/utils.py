@@ -12,6 +12,7 @@ from zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import models
 from django.db.models import QuerySet
 from django.http import HttpRequest
@@ -349,7 +350,7 @@ def record_common_model_create_event(
     )
 
 
-def validate_file_size(file, max_size_mb=100):
+def validate_file_size(file: InMemoryUploadedFile, max_size_mb: int = 100):
     """Custom validator for file size"""
     max_size = max_size_mb * 1024 * 1024  # Convert MB to bytes
     if file.size > max_size:

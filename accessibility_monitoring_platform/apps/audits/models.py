@@ -109,7 +109,7 @@ class Audit(VersionModel):
     # Statement pages
     audit_statement_pages_complete_date = models.DateField(null=True, blank=True)
 
-    # Statement pages
+    # Statement backups
     audit_initial_statement_backup_complete_date = models.DateField(
         null=True, blank=True
     )

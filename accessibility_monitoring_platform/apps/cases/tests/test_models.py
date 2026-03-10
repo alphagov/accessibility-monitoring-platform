@@ -19,6 +19,7 @@ from ..models import (
     CaseStatusChoice,
     CaseStatusChoices,
     DetailedCaseStatus,
+    DocumentUpload,
     MobileCaseStatus,
     SimplifiedCaseStatus,
     TestType,
@@ -31,6 +32,7 @@ ORGANISATION_NAME: str = "Organisation Name"
 HOME_PAGE_URL: str = "https://example.com"
 WEBSITE_NAME: str = "Website"
 APP_NAME: str = "App name"
+DOCUMENT_NAME: str = "document.txt"
 
 
 def test_case_status_choice_all_choices_label():
@@ -459,3 +461,104 @@ def test_tag_name_suffix(case_model, archive, expected_result):
         case.save()
 
     assert case.tag_name_suffix == expected_result
+
+
+@pytest.mark.django_db
+def test_base_case_document_uploads():
+    """Test case document_uploads return undeleted document uploads"""
+    user: User = User.objects.create()
+    base_case: BaseCase = BaseCase.objects.create()
+    document_upload_1: DocumentUpload = DocumentUpload.objects.create(
+        base_case=base_case, uploaded_by=user
+    )
+    document_upload_2: DocumentUpload = DocumentUpload.objects.create(
+        base_case=base_case, uploaded_by=user
+    )
+    DocumentUpload.objects.create(
+        base_case=base_case, uploaded_by=user, is_deleted=True
+    )
+
+    assert base_case.document_uploads.count() == 2
+    assert base_case.document_uploads[0].id == document_upload_1.id
+    assert base_case.document_uploads[1].id == document_upload_2.id
+
+
+@pytest.mark.django_db
+def test_base_case_statement_backups():
+    """
+    Test case statement_backups returns undeleted document uploads of type statement
+    """
+    user: User = User.objects.create()
+    base_case: BaseCase = BaseCase.objects.create()
+    document_upload_1: DocumentUpload = DocumentUpload.objects.create(
+        base_case=base_case, uploaded_by=user
+    )
+    document_upload_2: DocumentUpload = DocumentUpload.objects.create(
+        base_case=base_case, uploaded_by=user
+    )
+    DocumentUpload.objects.create(
+        base_case=base_case, uploaded_by=user, is_deleted=True
+    )
+    DocumentUpload.objects.create(
+        base_case=base_case, uploaded_by=user, type=DocumentUpload.Type.REPORT
+    )
+
+    assert base_case.statement_backups.count() == 2
+    assert base_case.statement_backups[0].id == document_upload_1.id
+    assert base_case.statement_backups[1].id == document_upload_2.id
+
+
+@pytest.mark.django_db
+def test_document_upload_str():
+    """Test __str__ of document upload"""
+    user: User = User.objects.create()
+    base_case: BaseCase = BaseCase.objects.create()
+
+    document_upload: DocumentUpload = DocumentUpload.objects.create(
+        name=DOCUMENT_NAME, base_case=base_case, uploaded_by=user
+    )
+
+    assert str(document_upload) == f"Statement #1: {DOCUMENT_NAME}"
+
+
+@pytest.mark.django_db
+def test_document_id_within_case_within_type():
+    """Test document id within case within type"""
+    user: User = User.objects.create()
+    base_case_1: BaseCase = BaseCase.objects.create()
+    base_case_2: BaseCase = BaseCase.objects.create()
+
+    document_upload_statement_1: DocumentUpload = DocumentUpload.objects.create(
+        base_case=base_case_1, uploaded_by=user
+    )
+
+    assert document_upload_statement_1.id_within_case_within_type == 1
+
+    document_upload_base_case_2: DocumentUpload = DocumentUpload.objects.create(
+        base_case=base_case_2, uploaded_by=user
+    )
+
+    assert document_upload_base_case_2.id_within_case_within_type == 1
+
+    document_upload_statement_2: DocumentUpload = DocumentUpload.objects.create(
+        base_case=base_case_1, uploaded_by=user
+    )
+
+    assert document_upload_statement_2.id_within_case_within_type == 2
+
+    document_upload_report_1: DocumentUpload = DocumentUpload.objects.create(
+        base_case=base_case_1, type=DocumentUpload.Type.REPORT, uploaded_by=user
+    )
+
+    assert document_upload_report_1.id_within_case_within_type == 1
+
+
+@pytest.mark.django_db
+def test_document_s3_key():
+    """Test document s3 key"""
+    base_case: BaseCase = BaseCase.objects.create()
+    document_upload: DocumentUpload = DocumentUpload(base_case=base_case)
+    assert (
+        document_upload.s3_key
+        == f"base_cases/{document_upload.base_case.id}/{document_upload.type}s/ {document_upload.uuid}"
+    )

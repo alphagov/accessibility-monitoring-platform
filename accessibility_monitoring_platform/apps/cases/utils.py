@@ -148,8 +148,10 @@ class S3ReadWriteDocument(S3Wrapper):
 
     def get_document_from_s3(self, document_upload: DocumentUpload) -> bytes | str:
         try:
-            obj = self.s3_resource.Object(self.bucket, document_upload.s3_key)
-            return obj.get()["Body"].read()
+            s3_object: Any = self.s3_resource.Object(
+                self.bucket, document_upload.s3_key
+            )
+            return s3_object.get()["Body"].read()
         except self.s3_client.exceptions.NoSuchKey:
             logger.error("Key not found on S3: %s", document_upload.s3_key)
             return f"File not found: {document_upload.name}"
