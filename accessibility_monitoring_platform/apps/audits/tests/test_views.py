@@ -4,8 +4,8 @@ Tests for audits views
 
 from datetime import date, timedelta
 import io
-from unittest.mock import MagicMock, patch
 
+from moto import mock_aws
 import pytest
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -18,6 +18,7 @@ from pytest_django.asserts import assertContains, assertNotContains
 from accessibility_monitoring_platform.apps.common.models import Boolean
 
 from ...cases.models import DocumentUpload
+from ...cases.utils import S3ReadWriteDocument
 from ...reports.models import Report
 from ...simplified.models import (
     CaseCompliance,
@@ -708,19 +709,11 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
     assert response.url == expected_path
 
 
-@patch(
-    "accessibility_monitoring_platform.apps.audits.views.initial.S3ReadWriteDocument"
-)
-def test_statement_backup(mock_s3_read_write, admin_client):
+@mock_aws
+def test_statement_backup(admin_client):
     """Test that audit statement backup saves to s3"""
-    mock_put_document_to_s3: MagicMock = MagicMock()
-    mock_s3_read_write_instance: MagicMock = MagicMock()
-    mock_s3_read_write_instance.put_document_to_s3 = mock_put_document_to_s3
-    mock_s3_read_write.return_value = mock_s3_read_write_instance
-
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    path_kwargs: dict[str, int] = {"pk": audit.simplified_case.id}
 
     in_memory_file: InMemoryUploadedFile = InMemoryUploadedFile(
         io.BytesIO(UPLOAD_FILE_CONTENT.encode()),
@@ -732,7 +725,9 @@ def test_statement_backup(mock_s3_read_write, admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:initial-statement-backup", kwargs=path_kwargs),
+        reverse(
+            "audits:initial-statement-backup", kwargs={"pk": audit.simplified_case.id}
+        ),
         {
             "version": audit.version,
             "file_to_upload": in_memory_file,
@@ -749,22 +744,13 @@ def test_statement_backup(mock_s3_read_write, admin_client):
 
     assert document_upload.name == UPLOAD_FILE_NAME
 
-    assert mock_put_document_to_s3.called is True
-
-    assert isinstance(
-        mock_put_document_to_s3.call_args[1]["document_upload"], DocumentUpload
-    )
-    assert (
-        mock_put_document_to_s3.call_args[1]["document_upload"].name == UPLOAD_FILE_NAME
+    s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
+    data_s3: bytes | str = s3_read_write.get_document_from_s3(
+        document_upload=document_upload
     )
 
-    assert isinstance(
-        mock_put_document_to_s3.call_args[1]["file_content"], InMemoryUploadedFile
-    )
-    assert mock_put_document_to_s3.call_args[1]["file_content"].name == UPLOAD_FILE_NAME
-    assert mock_put_document_to_s3.call_args[1]["file_content"].size == len(
-        UPLOAD_FILE_CONTENT
-    )
+    assert isinstance(data_s3, bytes)
+    assert data_s3.decode() == UPLOAD_FILE_CONTENT
 
 
 @pytest.mark.parametrize(
