@@ -559,7 +559,18 @@ class Audit(VersionModel):
 
     @property
     def statement_pages(self):
-        return self.statementpage_set.filter(is_deleted=False)
+        return self.statementpage_set.filter(is_deleted=False).order_by("id")
+
+    @property
+    def unique_statement_page_urls(self) -> list[StatementPage]:
+        """Return the first statement page for each URL"""
+        statement_urls: list[str] = []
+        unique_url_statement_pages: list[StatementPage] = []
+        for statement_page in self.statement_pages.exclude(url=""):
+            if statement_page.url not in statement_urls:
+                statement_urls.append(statement_page.url)
+                unique_url_statement_pages.append(statement_page)
+        return unique_url_statement_pages
 
     @property
     def latest_statement_link(self) -> str | None:
@@ -1386,6 +1397,7 @@ class StatementPage(models.Model):
     """
 
     class AddedStage(models.TextChoices):
+        ANY = "any", "Any"
         INITIAL = "initial", "Initial"
         TWELVE_WEEK = "12-week-retest", "12-week retest"
         RETEST = "retest", "Equality body retest"
@@ -1396,12 +1408,9 @@ class StatementPage(models.Model):
     url = models.TextField(default="", blank=True)
     backup_url = models.TextField(default="", blank=True)
     added_stage = models.CharField(
-        max_length=20, choices=AddedStage.choices, default=AddedStage.INITIAL
+        max_length=20, choices=AddedStage.choices, default=AddedStage.ANY
     )
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
-    class Meta:
-        ordering = ["-id"]
-
-    def __str__(self) -> str:  # pylint: disable=invalid-str-returned
+    def __str__(self) -> str:
         return self.url or self.backup_url

@@ -782,7 +782,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
         show_flag_name="not_archived_has_audit",
         pages=[
             AuditPlatformPage(
-                name="Statement links",
+                name="Statement links manager",
                 url_name="audits:edit-statement-pages",
                 complete_flag_name="audit_statement_pages_complete_date",
                 case_details_template_name="simplified/details/details_statement_links.html",

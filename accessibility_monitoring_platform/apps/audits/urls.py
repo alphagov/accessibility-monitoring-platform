@@ -57,7 +57,7 @@ from .views.initial import (
     InitialCustomIssueUpdateView,
     InitialDisproportionateBurdenUpdateView,
     InitialStatementBackupUpdateView,
-    InitialStatementPageFormsetUpdateView,
+    InitialStatementLinkUpdateView,
     clear_published_report_data_updated_time,
     delete_custom_issue,
 )
@@ -121,7 +121,7 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-statement-pages/",
-        login_required(InitialStatementPageFormsetUpdateView.as_view()),
+        login_required(InitialStatementLinkUpdateView.as_view()),
         name="edit-statement-pages",
     ),
     path(

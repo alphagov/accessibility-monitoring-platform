@@ -1221,6 +1221,17 @@ StatementPageFormsetOneExtra: forms.formsets.BaseFormSet = forms.modelformset_fa
 )
 
 
+class StatementLinkForm(forms.Form):
+    """Form to add new statement link"""
+
+    statement_url = AMPURLField(label="Add new link to statement")
+
+    class Meta:
+        fields: list[str] = [
+            "statement_url",
+        ]
+
+
 class AuditStatementPagesUpdateForm(VersionForm):
     """
     Form for statement pages update at initial test
@@ -1236,10 +1247,9 @@ class AuditStatementPagesUpdateForm(VersionForm):
         ]
 
 
-class StatementBackupUpdateForm(forms.Form):
-    """Form for statement backup"""
+class StatementBackupForm(forms.Form):
+    """Form for backing up a statement (saving file to to S3)"""
 
-    statement_url = AMPURLField(label="Link to statement")
     file_to_upload = forms.FileField(
         label="File upload",
         widget=forms.FileInput(attrs={"class": "govuk-file-upload"}),
@@ -1248,7 +1258,6 @@ class StatementBackupUpdateForm(forms.Form):
 
     class Meta:
         fields: list[str] = [
-            "statement_url",
             "file_to_upload",
         ]
 

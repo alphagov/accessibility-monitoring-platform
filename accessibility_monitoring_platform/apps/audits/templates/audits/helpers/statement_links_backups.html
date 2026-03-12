@@ -1,0 +1,26 @@
+{% for statement_page in audit.unique_statement_page_urls %}
+    <p class="govuk-body-m amp-margin-bottom-0">
+        <b>Statement link #{{ forloop.counter }}</b>
+    </p>
+    <ul class="govuk-list govuk-list--bullet amp-margin-bottom-20">
+        <li>
+            <a href="{{ statement_page.url }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+                {{ statement_page.url }}</a>
+        </li>
+        {% if statement_page.created %}
+            <li>Added {{ statement_page.created|amp_datetime }}</li>
+        {% endif %}
+    </ul>
+{% endfor %}
+{% for document_upload in case.statement_backups %}
+    <p class="govuk-body-m amp-margin-bottom-0">
+        <b>Statement backup #{{ document_upload.id_within_case_within_type }}</b>
+    </p>
+    <ul class="govuk-list govuk-list--bullet amp-margin-bottom-20">
+        <li>
+            <a href="{% url 'cases:document-upload-download' document_upload.id %}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+                {{ document_upload.name }}</a>
+        </li>
+        <li>Uploaded {{ document_upload.uploaded_time|amp_datetime }}</li>
+    </ul>
+{% endfor %}
