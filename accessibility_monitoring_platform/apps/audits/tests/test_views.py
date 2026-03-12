@@ -526,102 +526,6 @@ def test_audit_statement_summary_page_redirect_when_report_exists(admin_client):
     assert response.url == expected_path
 
 
-@pytest.mark.parametrize(
-    "path_name",
-    [
-        "edit-statement-pages",
-        "edit-audit-retest-statement-pages",
-    ],
-)
-def test_add_statement_page(path_name, admin_client):
-    """
-    Test pressing add statement page button redirects to page with add_extra parameter
-    """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    url: str = reverse(f"audits:{path_name}", kwargs={"pk": audit.id})
-
-    response: HttpResponse = admin_client.post(
-        url,
-        {
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "version": audit.version,
-            "add_statement_page": "Save and add link to statement",
-        },
-    )
-
-    assert response.status_code == 302
-
-    expected_path: str = f"{url}?add_extra=true#statement-page-None"
-    assert response.url == expected_path
-
-
-def test_audit_statement_pages_default_added_stage(
-    admin_client,
-):
-    """
-    Test that added stage for new entries defaults to initial
-    for initial and 12-week for 12-week retest pages.
-    """
-    audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.get(
-        f'{reverse("audits:edit-statement-pages", kwargs=audit_pk)}?add_extra=true#statement-page-None'
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, STATEMENT_PAGE_INITIAL_CHECKED, html=True)
-    assertNotContains(response, STATEMENT_PAGE_TWELVE_WEEK_CHECKED, html=True)
-    response: HttpResponse = admin_client.get(
-        f'{reverse("audits:edit-audit-retest-statement-pages", kwargs=audit_pk)}?add_extra=true#statement-page-None'
-    )
-
-    assert response.status_code == 200
-
-    assertNotContains(response, STATEMENT_PAGE_INITIAL_CHECKED, html=True)
-    assertContains(response, STATEMENT_PAGE_TWELVE_WEEK_CHECKED, html=True)
-
-
-@pytest.mark.parametrize(
-    "path_name",
-    [
-        "edit-statement-pages",
-        "edit-audit-retest-statement-pages",
-    ],
-)
-def test_delete_statement_page(path_name, admin_client):
-    """Test deleting a statement page"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
-
-    response: HttpResponse = admin_client.post(
-        reverse(f"audits:{path_name}", kwargs={"pk": audit.id}),
-        {
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "version": audit.version,
-            f"remove_statement_page_{statement_page.id}": "Remove statement link",
-        },
-        follow=True,
-    )
-
-    assert response.status_code == 200
-
-    updated_statement_page: StatementPage = StatementPage.objects.get(
-        id=statement_page.id
-    )
-
-    assert updated_statement_page.is_deleted is True
-
-
 def test_delete_statement_page_on_retest(admin_client):
     """Test deleting a statement page"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
@@ -2535,7 +2439,9 @@ def test_retest_statement_decision_hides_initial_decision(admin_client):
     """
     audit: Audit = create_audit_and_wcag()
     audit_pk: dict[str, int] = {"pk": audit.id}
-    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+    statement_page: StatementPage = StatementPage.objects.create(
+        audit=audit, added_stage=StatementPage.AddedStage.INITIAL
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("audits:edit-audit-retest-statement-decision", kwargs=audit_pk)
@@ -3532,25 +3438,6 @@ def test_equality_body_page_checks_save_continue(
 
     expected_path: str = reverse("audits:retest-comparison-update", kwargs=retest_pk)
     assert response.url == expected_path
-
-
-def test_equality_body_retest_statement_pages_default_added_stage(
-    admin_client,
-):
-    """
-    Test that added stage for new entries defaults to retest
-    for equality body-requested retests.
-    """
-    retest: Retest = create_equality_body_retest()
-    retest_pk: dict[str, int] = {"pk": retest.id}
-
-    response: HttpResponse = admin_client.get(
-        f'{reverse("audits:edit-equality-body-statement-pages", kwargs=retest_pk)}?add_extra=true#statement-page-None'
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, STATEMENT_PAGE_EWUALITY_BODY_RETEST_CHECKED, html=True)
 
 
 def test_equality_body_retest_statement_compliance_update_redirects_to_retest_overview_based_on_button_pressed(

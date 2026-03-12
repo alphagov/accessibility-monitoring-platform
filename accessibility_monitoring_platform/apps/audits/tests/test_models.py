@@ -605,7 +605,9 @@ def test_accessibility_statement_initially_found():
     # No page
     assert audit.accessibility_statement_initially_found is False
 
-    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+    statement_page: StatementPage = StatementPage.objects.create(
+        audit=audit, added_stage=StatementPage.AddedStage.INITIAL
+    )
 
     # Not found flag not set
     assert audit.accessibility_statement_initially_found is True
@@ -1506,7 +1508,9 @@ def test_audit_accessibility_statement_initially_found():
 
     assert audit.accessibility_statement_initially_found is False
 
-    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+    statement_page: StatementPage = StatementPage.objects.create(
+        audit=audit, added_stage=StatementPage.AddedStage.INITIAL
+    )
 
     assert audit.accessibility_statement_initially_found is True
 

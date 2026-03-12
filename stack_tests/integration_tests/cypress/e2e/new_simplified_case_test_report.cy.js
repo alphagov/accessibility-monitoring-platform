@@ -58,7 +58,7 @@ describe('Create simplified case, tests and report', () => {
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | WCAG summary`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement links`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement links manager`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement backups`)
