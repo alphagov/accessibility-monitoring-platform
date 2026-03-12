@@ -4,18 +4,13 @@ Views for audits app (called tests by users)
 
 from typing import Any
 
-from django.contrib.auth.models import User
-from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.forms import Form
 from django.forms.models import ModelForm
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
-from ...cases.models import DocumentUpload
-from ...cases.utils import S3ReadWriteDocument
 from ...common.forms import AMPChoiceCheckboxWidget
 from ...common.mark_deleted_util import mark_object_as_deleted
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
@@ -52,8 +47,6 @@ from ..forms import (
     CheckResultFilterForm,
     CheckResultFormset,
     InitialCustomIssueCreateUpdateForm,
-    StatementBackupForm,
-    StatementLinkForm,
 )
 from ..models import (
     Audit,
@@ -76,7 +69,8 @@ from .base import (
     AuditPageChecksBaseFormView,
     AuditStatementCheckingView,
     AuditUpdateView,
-    StatementPageFormsetUpdateView,
+    StatementBackupUpdateView,
+    StatementLinkUpdateView,
 )
 
 
@@ -369,33 +363,7 @@ class AuditWcagSummaryUpdateView(AuditSummaryUpdateView):
     template_name: str = "audits/forms/test_summary_wcag.html"
 
 
-class InitialStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
-    """
-    View to update statement pages in initial test
-    """
-
-    form_class: type[AuditStatementPagesUpdateForm] = AuditStatementPagesUpdateForm
-    template_name: str = "audits/forms/statement_pages_formset.html"
-
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Get context data for template rendering"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        for form in context["statement_pages_formset"]:
-            if form.instance.id is None:
-                form.fields["added_stage"].initial = StatementPage.AddedStage.INITIAL
-        return context
-
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "add_statement_page" in self.request.POST:
-            audit: Audit = self.object
-            audit_pk: dict[str, int] = {"pk": audit.id}
-            current_url: str = reverse("audits:edit-statement-pages", kwargs=audit_pk)
-            return f"{current_url}?add_extra=true#statement-page-None"
-        return super().get_success_url()
-
-
-class InitialStatementLinkUpdateView(AuditUpdateView):
+class InitialStatementLinkUpdateView(StatementLinkUpdateView):
     """
     View to backup statement pages in initial test
     """
@@ -403,52 +371,8 @@ class InitialStatementLinkUpdateView(AuditUpdateView):
     form_class: type[AuditStatementPagesUpdateForm] = AuditStatementPagesUpdateForm
     template_name: str = "audits/forms/initial_statement_link.html"
 
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Add second form to context"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        if self.request.POST:
-            statement_link_form: StatementLinkForm = StatementLinkForm(
-                self.request.POST
-            )
-        else:
-            statement_link_form: StatementLinkForm = StatementLinkForm()
-        context["statement_link_form"] = statement_link_form
-        return context
 
-    def post(
-        self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
-    ) -> HttpResponseRedirect | HttpResponse:
-        """Populate two forms from post request"""
-        self.object: Audit = self.get_object()
-        form: Form = self.form_class(request.POST, instance=self.object)  # type: ignore
-        statement_link_form: StatementLinkForm = StatementLinkForm(
-            self.request.POST, self.request.FILES
-        )
-        if form.is_valid() and statement_link_form.is_valid():
-            form.save()
-            audit: Audit = self.object
-            statement_url: str = statement_link_form.cleaned_data["statement_url"]
-            if statement_url and statement_url != audit.latest_statement_link:
-                statement_page: StatementPage = StatementPage.objects.create(
-                    audit=audit, url=statement_url
-                )
-                user: User = self.request.user
-                record_simplified_model_create_event(
-                    user=user,
-                    model_object=statement_page,
-                    simplified_case=audit.simplified_case,
-                )
-            return HttpResponseRedirect(self.get_success_url())
-        else:
-            return self.render_to_response(
-                self.get_context_data(
-                    form=form,
-                    statement_link_form=statement_link_form,
-                )
-            )
-
-
-class InitialStatementBackupUpdateView(AuditUpdateView):
+class InitialStatementBackupUpdateView(StatementBackupUpdateView):
     """
     View to backup statement pages in initial test
     """
@@ -457,48 +381,6 @@ class InitialStatementBackupUpdateView(AuditUpdateView):
         AuditInitialStatementBackupUpdateForm
     )
     template_name: str = "audits/forms/initial_statement_backup.html"
-
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Get context data for template rendering"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        if self.request.POST:
-            statement_backup_form: StatementBackupForm = StatementBackupForm(
-                self.request.POST
-            )
-        else:
-            statement_backup_form: StatementBackupForm = StatementBackupForm()
-        context["statement_backup_form"] = statement_backup_form
-        return context
-
-    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
-        """Add update event"""
-        statement_backup_form: StatementBackupForm = StatementBackupForm(
-            self.request.POST, self.request.FILES
-        )
-        if statement_backup_form.is_valid():
-            audit: Audit = self.object
-            file_to_upload: InMemoryUploadedFile | None = (
-                statement_backup_form.cleaned_data.get("file_to_upload")
-            )
-            if file_to_upload is not None:
-                document_upload: DocumentUpload = DocumentUpload.objects.create(
-                    name=file_to_upload.name,
-                    type=DocumentUpload.Type.STATEMENT,
-                    uploaded_by=self.request.user,
-                    base_case=audit.simplified_case,
-                )
-                s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
-                s3_read_write.put_document_to_s3(
-                    document_upload=document_upload,
-                    file_content=file_to_upload,
-                )
-                user: User = self.request.user
-                record_simplified_model_create_event(
-                    user=user,
-                    model_object=document_upload,
-                    simplified_case=audit.simplified_case,
-                )
-        return super().form_valid(form)
 
 
 class AuditStatementOverviewFormView(AuditStatementCheckingView):

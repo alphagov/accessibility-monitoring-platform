@@ -578,6 +578,16 @@ def test_delete_statement_page_on_retest(admin_client):
         (
             "audits:edit-audit-retest-statement-pages",
             "save_continue",
+            "audits:edit-audit-retest-statement-backup",
+        ),
+        (
+            "audits:edit-audit-retest-statement-backup",
+            "save",
+            "audits:edit-audit-retest-statement-backup",
+        ),
+        (
+            "audits:edit-audit-retest-statement-backup",
+            "save_continue",
             "audits:edit-retest-statement-overview",
         ),
     ],
@@ -762,6 +772,16 @@ def test_statement_backup(admin_client):
         ),
         (
             "audits:edit-audit-retest-statement-pages",
+            "save_continue",
+            "audits:edit-audit-retest-statement-backup",
+        ),
+        (
+            "audits:edit-audit-retest-statement-backup",
+            "save",
+            "audits:edit-audit-retest-statement-backup",
+        ),
+        (
+            "audits:edit-audit-retest-statement-backup",
             "save_continue",
             "audits:edit-retest-statement-overview",
         ),

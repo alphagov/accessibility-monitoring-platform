@@ -45,6 +45,7 @@ from ..forms import (
     CaseComplianceWebsite12WeekUpdateForm,
     New12WeekCustomStatementCheckResultUpdateForm,
     TwelveWeekStatementPagesUpdateForm,
+    TwelveWeekStatementBackupUpdateForm,
 )
 from ..models import (
     Audit,
@@ -52,7 +53,6 @@ from ..models import (
     Page,
     StatementCheck,
     StatementCheckResult,
-    StatementPage,
 )
 from ..utils import (
     add_to_check_result_restest_notes_history,
@@ -64,7 +64,8 @@ from .base import (
     AuditCaseComplianceUpdateView,
     AuditPageChecksBaseFormView,
     AuditUpdateView,
-    StatementPageFormsetUpdateView,
+    StatementBackupUpdateView,
+    StatementLinkUpdateView,
 )
 
 
@@ -276,36 +277,22 @@ class AuditRetestWcagSummaryUpdateView(AuditRetestSummaryUpdateView):
     template_name: str = "audits/forms/test_summary_wcag.html"
 
 
-class TwelveWeekStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
-    """
-    View to update statement pages in 12-week retest
-    """
+class TwelveWeekStatementPageFormsetUpdateView(StatementLinkUpdateView):
+    """View to add statement page in 12-week retest"""
 
     form_class: type[TwelveWeekStatementPagesUpdateForm] = (
         TwelveWeekStatementPagesUpdateForm
     )
-    template_name: str = "audits/forms/twelve_week_statement_pages_formset.html"
+    template_name: str = "audits/forms/twelve_week_statement_link.html"
 
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Get context data for template rendering"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        for form in context["statement_pages_formset"]:
-            if form.instance.id is None:
-                form.fields["added_stage"].initial = (
-                    StatementPage.AddedStage.TWELVE_WEEK
-                )
-        return context
 
-    def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "add_statement_page" in self.request.POST:
-            audit: Audit = self.object
-            audit_pk: dict[str, int] = {"pk": audit.id}
-            current_url: str = reverse(
-                "audits:edit-audit-retest-statement-pages", kwargs=audit_pk
-            )
-            return f"{current_url}?add_extra=true#statement-page-None"
-        return super().get_success_url()
+class TwelveWeekStatementBackupUpdateView(StatementBackupUpdateView):
+    """View to backup statement in 12-week retest"""
+
+    form_class: type[TwelveWeekStatementBackupUpdateForm] = (
+        TwelveWeekStatementBackupUpdateForm
+    )
+    template_name: str = "audits/forms/twelve_week_statement_backup.html"
 
 
 class AuditRetestStatementCheckingView(AuditUpdateView):

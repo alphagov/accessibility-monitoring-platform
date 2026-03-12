@@ -789,7 +789,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 next_page_url_name="audits:initial-statement-backup",
             ),
             AuditPlatformPage(
-                name="Statement backups",
+                name="Statement backups manager",
                 url_name="audits:initial-statement-backup",
                 complete_flag_name="audit_initial_statement_backup_complete_date",
                 case_details_template_name="simplified/details/details_statement_backups.html",
@@ -1151,9 +1151,16 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
         show_flag_name="show_12_week_retest",
         pages=[
             AuditPlatformPage(
-                name="Statement links",
+                name="Statement links manager",
                 url_name="audits:edit-audit-retest-statement-pages",
                 complete_flag_name="audit_retest_statement_pages_complete_date",
+                next_page_url_name="audits:edit-audit-retest-statement-backup",
+            ),
+            AuditPlatformPage(
+                name="Statement backups manager",
+                url_name="audits:edit-audit-retest-statement-backup",
+                complete_flag_name="audit_retest_statement_backup_complete_date",
+                case_details_template_name="simplified/details/details_statement_backups.html",
                 next_page_url_name="audits:edit-retest-statement-overview",
             ),
             AuditPlatformPage(

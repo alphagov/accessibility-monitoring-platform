@@ -507,7 +507,7 @@ def test_start_12_week_retest_page_hidden(admin_client):
     )
     assertContains(
         response,
-        OTHER_PAGE_GROUP.format(name="12-week statement (0/6)"),
+        OTHER_PAGE_GROUP.format(name="12-week statement (0/7)"),
         html=True,
     )
 

@@ -1290,6 +1290,19 @@ class TwelveWeekStatementPagesUpdateForm(VersionForm):
         ]
 
 
+class TwelveWeekStatementBackupUpdateForm(VersionForm):
+    """Form for 12-week retest statement backup"""
+
+    audit_retest_statement_backup_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: list[str] = [
+            "version",
+            "audit_retest_statement_backup_complete_date",
+        ]
+
+
 class RetestStatementPagesUpdateForm(VersionForm):
     """
     Form for statement pages update at equality body-requested retest

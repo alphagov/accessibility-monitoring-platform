@@ -4,6 +4,8 @@ Views for audits app (called tests by users)
 
 from typing import Any
 
+from django.contrib.auth.models import User
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models.query import Q, QuerySet
 from django.forms import Form
 from django.forms.models import ModelForm
@@ -13,6 +15,8 @@ from django.urls import reverse
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 
+from ...cases.models import DocumentUpload
+from ...cases.utils import S3ReadWriteDocument
 from ...common.mark_deleted_util import mark_object_as_deleted
 from ...common.utils import (
     amp_format_date,
@@ -27,9 +31,11 @@ from ...simplified.utils import (
     record_simplified_model_update_event,
 )
 from ..forms import (
+    StatementBackupForm,
     StatementCheckCreateUpdateForm,
     StatementCheckResultFormset,
     StatementCheckSearchForm,
+    StatementLinkForm,
     StatementPageFormset,
     StatementPageFormsetOneExtra,
     WcagDefinitionCreateUpdateForm,
@@ -481,4 +487,98 @@ class StatementPageFormsetUpdateView(AuditUpdateView):
             delete_button_prefix="remove_statement_page_",
             object_to_delete_model=StatementPage,
         )
+        return super().form_valid(form)
+
+
+class StatementLinkUpdateView(AuditUpdateView):
+    """View to add statement page"""
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Add second form to context"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        if self.request.POST:
+            statement_link_form: StatementLinkForm = StatementLinkForm(
+                self.request.POST
+            )
+        else:
+            statement_link_form: StatementLinkForm = StatementLinkForm()
+        context["statement_link_form"] = statement_link_form
+        return context
+
+    def post(
+        self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
+    ) -> HttpResponseRedirect | HttpResponse:
+        """Populate two forms from post request"""
+        self.object: Audit = self.get_object()
+        form: Form = self.form_class(request.POST, instance=self.object)  # type: ignore
+        statement_link_form: StatementLinkForm = StatementLinkForm(
+            self.request.POST, self.request.FILES
+        )
+        if form.is_valid() and statement_link_form.is_valid():
+            form.save()
+            audit: Audit = self.object
+            statement_url: str = statement_link_form.cleaned_data["statement_url"]
+            if statement_url and statement_url != audit.latest_statement_link:
+                statement_page: StatementPage = StatementPage.objects.create(
+                    audit=audit, url=statement_url
+                )
+                user: User = self.request.user
+                record_simplified_model_create_event(
+                    user=user,
+                    model_object=statement_page,
+                    simplified_case=audit.simplified_case,
+                )
+            return HttpResponseRedirect(self.get_success_url())
+        else:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    statement_link_form=statement_link_form,
+                )
+            )
+
+
+class StatementBackupUpdateView(AuditUpdateView):
+    """View to backup statements"""
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Get context data for template rendering"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        if self.request.POST:
+            statement_backup_form: StatementBackupForm = StatementBackupForm(
+                self.request.POST
+            )
+        else:
+            statement_backup_form: StatementBackupForm = StatementBackupForm()
+        context["statement_backup_form"] = statement_backup_form
+        return context
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Save statement backup and add create event"""
+        statement_backup_form: StatementBackupForm = StatementBackupForm(
+            self.request.POST, self.request.FILES
+        )
+        if statement_backup_form.is_valid():
+            audit: Audit = self.object
+            file_to_upload: InMemoryUploadedFile | None = (
+                statement_backup_form.cleaned_data.get("file_to_upload")
+            )
+            if file_to_upload is not None:
+                document_upload: DocumentUpload = DocumentUpload.objects.create(
+                    name=file_to_upload.name,
+                    type=DocumentUpload.Type.STATEMENT,
+                    uploaded_by=self.request.user,
+                    base_case=audit.simplified_case,
+                )
+                s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
+                s3_read_write.put_document_to_s3(
+                    document_upload=document_upload,
+                    file_content=file_to_upload,
+                )
+                user: User = self.request.user
+                record_simplified_model_create_event(
+                    user=user,
+                    model_object=document_upload,
+                    simplified_case=audit.simplified_case,
+                )
         return super().form_valid(form)

@@ -9,6 +9,8 @@
         </li>
         {% if statement_page.created %}
             <li>Added {{ statement_page.created|amp_datetime }}</li>
+        {% else %}
+            <li>Added 1 January 1970</li>
         {% endif %}
     </ul>
 {% endfor %}

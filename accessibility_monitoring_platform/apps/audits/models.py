@@ -106,7 +106,7 @@ class Audit(VersionModel):
     # Statement Summary
     audit_statement_summary_complete_date = models.DateField(null=True, blank=True)
 
-    # Statement pages
+    # Statement links
     audit_statement_pages_complete_date = models.DateField(null=True, blank=True)
 
     # Statement backups
@@ -183,6 +183,11 @@ class Audit(VersionModel):
 
     # Statement pages
     audit_retest_statement_pages_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement backups
+    audit_retest_statement_backup_complete_date = models.DateField(
+        null=True, blank=True
+    )
 
     # Retest statement checking overview
     audit_retest_statement_overview_complete_date = models.DateField(
