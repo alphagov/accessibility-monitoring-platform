@@ -5,12 +5,16 @@ Test forms of cases app
 from unittest.mock import MagicMock, patch
 
 import pytest
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 
 from ...detailed.models import DetailedCase
 from ...simplified.models import SimplifiedCase
-from ..forms import CaseSearchForm, PreviousCaseURLForm
+from ..forms import CaseSearchForm, DocumentUploadForm, PreviousCaseURLForm
 from ..models import ALL_CASE_STATUS_SEARCH_CHOICES, CASE_STATUS_UNKNOWN
+
+DOCUMENT_NAME: str = "document.txt"
+DOCUMENT_CONTENT: str = "Document content"
 
 
 @pytest.mark.django_db
@@ -84,3 +88,19 @@ def test_clean_previous_case_url_simplified_valid(mock_requests):
     )
 
     assert form.is_valid() is True
+
+
+def test_clean_document_upload_form_file_to_upload():
+    """Tests file upload size validation"""
+    form: DocumentUploadForm = DocumentUploadForm(
+        {
+            "type": "statement",
+        },
+        {
+            "file_to_upload": SimpleUploadedFile(
+                DOCUMENT_NAME, DOCUMENT_CONTENT.encode()
+            ),
+        },
+    )
+
+    assert form.is_valid()

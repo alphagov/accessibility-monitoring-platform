@@ -1,0 +1,41 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+    <div class="govuk-button-group">
+        <a href="{% url 'cases:document-upload-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
+            + Upload file</a>
+    </div>
+    {% if case.document_uploads %}
+        <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">Type</th>
+                    <th scope="col" class="govuk-table__header">#</th>
+                    <th scope="col" class="govuk-table__header">File</th>
+                    <th scope="col" class="govuk-table__header">Uploaded</th>
+                </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+                {% for document in case.document_uploads %}
+                    <tr class="govuk-table__row ">
+                        <td scope="row" class="govuk-table__cell">
+                            {{ document.get_type_display }}
+                        </td>
+                        <td scope="row" class="govuk-table__cell">
+                            #{{ document.id_within_case_within_type }}
+                        </td>
+                        <td scope="row" class="govuk-table__cell">
+                            <a href="{% url 'cases:document-upload-download' document.id %}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+                                {{ document.name }}</a>
+                        </td>
+                        <td scope="row" class="govuk-table__cell">
+                            {{ document.uploaded_time|amp_datetime_short_month }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}
+
+{% block form %}{% endblock %}

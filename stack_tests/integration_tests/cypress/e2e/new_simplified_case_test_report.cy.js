@@ -61,6 +61,9 @@ describe('Create simplified case, tests and report', () => {
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement links`)
     cy.contains('Save and continue').click()
 
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement backups`)
+    cy.contains('Save and continue').click()
+
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement overview`)
     cy.get('[name="form-0-check_result_state"]').check('yes')
     cy.get('[name="form-1-check_result_state"]').check('yes')
@@ -177,6 +180,9 @@ describe('Create simplified case, tests and report', () => {
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement links`)
     cy.contains('Save and continue').click()
 
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement backups`)
+    cy.contains('Save and continue').click()
+
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement overview`)
     cy.contains('Save and continue').click()
 
@@ -238,6 +244,9 @@ describe('Create simplified case, tests and report', () => {
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement links`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement backups`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement overview`)

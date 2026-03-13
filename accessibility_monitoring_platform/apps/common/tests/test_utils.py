@@ -15,6 +15,7 @@ import pytest
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models import QuerySet
 from django.http import HttpRequest, StreamingHttpResponse
 from django.http.request import QueryDict
@@ -55,6 +56,7 @@ from ..utils import (
     replace_whole_words,
     sanitise_domain,
     undo_double_escapes,
+    validate_file_size,
     validate_url,
 )
 
@@ -72,6 +74,8 @@ ADD_FIELD_DIFF: dict[str, str] = {"field2": "-> value2"}
 REMOVE_FIELD_OLD_FIELDS: dict[str, str] = {"field1": "value1", "field2": "value2"}
 REMOVE_FIELD_NEW_FIELDS: dict[str, str] = {"field1": "value1"}
 REMOVE_FIELD_DIFF: dict[str, str] = {"field2": "value2 ->"}
+
+FILE_CONTENT: str = "File content"
 
 
 class MockModel:
@@ -715,3 +719,21 @@ def test_record_model_update_event():
 
     assert event.event_type == EventHistory.Type.UPDATE
     assert event.difference == '{"first_name": " -> Changed"}'
+
+
+def test_validate_file_size():
+    in_memory_file: InMemoryUploadedFile = InMemoryUploadedFile(
+        io.BytesIO(FILE_CONTENT.encode()),
+        field_name="name",
+        name="file.txt",
+        content_type="text",
+        size=len(FILE_CONTENT),
+        charset=None,
+    )
+
+    validate_file_size(file=in_memory_file)
+
+    with pytest.raises(ValidationError) as exception_info:
+        validate_file_size(file=in_memory_file, max_size_mb=0)
+
+    assert "File size cannot exceed 0MB" in str(exception_info.value)

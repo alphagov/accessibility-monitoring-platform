@@ -605,7 +605,9 @@ def test_accessibility_statement_initially_found():
     # No page
     assert audit.accessibility_statement_initially_found is False
 
-    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+    statement_page: StatementPage = StatementPage.objects.create(
+        audit=audit, added_stage=StatementPage.AddedStage.INITIAL
+    )
 
     # Not found flag not set
     assert audit.accessibility_statement_initially_found is True
@@ -1506,7 +1508,9 @@ def test_audit_accessibility_statement_initially_found():
 
     assert audit.accessibility_statement_initially_found is False
 
-    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+    statement_page: StatementPage = StatementPage.objects.create(
+        audit=audit, added_stage=StatementPage.AddedStage.INITIAL
+    )
 
     assert audit.accessibility_statement_initially_found is True
 
@@ -2251,3 +2255,21 @@ def test_audit_new_12_week_custom_statement_check_results():
         audit.new_12_week_custom_statement_check_results.first()
         == new_12_week_custom_check_result
     )
+
+
+@pytest.mark.django_db
+def test_audit_unique_statement_page_urls():
+    """Test unique statement page urls returns only first with matching URL"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    first_new_statement_page: StatementPage = StatementPage.objects.create(
+        audit=audit,
+        url=STATEMENT_LINK,
+    )
+    StatementPage.objects.create(
+        audit=audit,
+        url=STATEMENT_LINK,
+    )
+
+    assert len(audit.unique_statement_page_urls) == 1
+    assert audit.unique_statement_page_urls[0] == first_new_statement_page

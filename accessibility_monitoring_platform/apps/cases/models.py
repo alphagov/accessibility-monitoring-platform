@@ -3,11 +3,13 @@ Models - cases
 """
 
 import re
+import uuid
 from dataclasses import dataclass
 from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -449,6 +451,14 @@ class BaseCase(VersionModel):
         if self.test_type == TestType.MOBILE:
             return self.mobilecase
 
+    @property
+    def document_uploads(self) -> QuerySet["DocumentUpload"]:
+        return self.documentupload_set.filter(is_deleted=False)
+
+    @property
+    def statement_backups(self) -> QuerySet["DocumentUpload"]:
+        return self.document_uploads.filter(type=DocumentUpload.Type.STATEMENT)
+
 
 class CaseHistory(models.Model):
     """Model to record history of changes to a case"""
@@ -470,3 +480,36 @@ class CaseHistory(models.Model):
 
     class Meta:
         abstract = True
+
+
+class DocumentUpload(models.Model):
+    """Metadata for case-related document uploaded to S3"""
+
+    class Type(models.TextChoices):
+        STATEMENT = "statement", "Statement"
+        REPORT = "report", "Report"
+
+    name = models.CharField(max_length=400, default="", blank=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+    type = models.CharField(max_length=20, choices=Type.choices, default=Type.STATEMENT)
+    base_case = models.ForeignKey(BaseCase, on_delete=models.PROTECT)
+    id_within_case_within_type = models.IntegerField(default=1)
+    uploaded_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    uploaded_time = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs) -> None:
+        if not self.id:
+            self.id_within_case_within_type = (
+                self.base_case.document_uploads.filter(type=self.type).count() + 1
+            )
+        super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return (
+            f"{self.get_type_display()} #{self.id_within_case_within_type}: {self.name}"
+        )
+
+    @property
+    def s3_key(self) -> str:
+        return f"base_cases/{self.base_case.id}/{self.type}s/{self.name} {self.uuid}"

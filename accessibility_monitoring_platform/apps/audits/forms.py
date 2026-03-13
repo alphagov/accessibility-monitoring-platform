@@ -3,6 +3,7 @@ Forms - checks (called tests by users)
 """
 
 from django import forms
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from ..common.forms import (
     AMPCharFieldWide,
@@ -19,6 +20,7 @@ from ..common.forms import (
     VersionForm,
 )
 from ..common.models import Boolean
+from ..common.utils import validate_file_size
 from ..simplified.models import CaseCompliance
 from .models import (
     Audit,
@@ -30,7 +32,6 @@ from .models import (
     RetestStatementCheckResult,
     StatementCheck,
     StatementCheckResult,
-    StatementPage,
     WcagDefinition,
 )
 
@@ -49,6 +50,8 @@ RETEST_CHECK_RESULT_STATE_FILTER_CHOICES: list[tuple[str, str]] = (
 COPY_TICK_HELP_TEXT: str = """
 <span class="amp-control amp-copy-text-to-clipboard" data-text-to-copy="✓" tabindex="0">Copy</span>
     the ✓ and paste next to the fixes the organisation has made"""
+
+MAX_UPLOAD_FILE_SIZE_MB: int = 100
 
 
 class AuditMetadataUpdateForm(VersionForm):
@@ -1197,28 +1200,15 @@ class RetestComplianceUpdateForm(forms.ModelForm):
         ]
 
 
-class StatementPageUpdateForm(forms.ModelForm):
-    """
-    Form for updating a statement page
-    """
+class StatementLinkForm(forms.Form):
+    """Form to add new statement link"""
 
-    url = AMPURLField(label="Link to statement")
-    backup_url = AMPURLField(label="Statement backup")
-    added_stage = AMPChoiceRadioField(
-        label="Statement added", choices=StatementPage.AddedStage.choices
-    )
+    statement_url = AMPURLField(label="Add new link to statement")
 
     class Meta:
-        model = StatementPage
-        fields = ["url", "backup_url", "added_stage"]
-
-
-StatementPageFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
-    StatementPage, StatementPageUpdateForm, extra=0
-)
-StatementPageFormsetOneExtra: forms.formsets.BaseFormSet = forms.modelformset_factory(
-    StatementPage, StatementPageUpdateForm, extra=1
-)
+        fields: list[str] = [
+            "statement_url",
+        ]
 
 
 class AuditStatementPagesUpdateForm(VersionForm):
@@ -1233,6 +1223,43 @@ class AuditStatementPagesUpdateForm(VersionForm):
         fields: list[str] = [
             "version",
             "audit_statement_pages_complete_date",
+        ]
+
+
+class StatementBackupForm(forms.Form):
+    """Form for backing up a statement (saving file to to S3)"""
+
+    file_to_upload = forms.FileField(
+        label="File upload",
+        widget=forms.FileInput(attrs={"class": "govuk-file-upload"}),
+        required=False,
+    )
+
+    class Meta:
+        fields: list[str] = [
+            "file_to_upload",
+        ]
+
+    def clean_file_to_upload(self):
+        """Check statement file is not too big"""
+        file_to_upload: InMemoryUploadedFile | None = self.cleaned_data.get(
+            "file_to_upload"
+        )
+        if file_to_upload is not None:
+            validate_file_size(file_to_upload, max_size_mb=MAX_UPLOAD_FILE_SIZE_MB)
+        return file_to_upload
+
+
+class AuditInitialStatementBackupUpdateForm(VersionForm):
+    """Form for initial statement backup"""
+
+    audit_initial_statement_backup_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: list[str] = [
+            "version",
+            "audit_initial_statement_backup_complete_date",
         ]
 
 
@@ -1251,7 +1278,20 @@ class TwelveWeekStatementPagesUpdateForm(VersionForm):
         ]
 
 
-class RetestStatementPagesUpdateForm(VersionForm):
+class TwelveWeekStatementBackupUpdateForm(VersionForm):
+    """Form for 12-week retest statement backup"""
+
+    audit_retest_statement_backup_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Audit
+        fields: list[str] = [
+            "version",
+            "audit_retest_statement_backup_complete_date",
+        ]
+
+
+class RetestAddStatementLinkUpdateForm(VersionForm):
     """
     Form for statement pages update at equality body-requested retest
     """
@@ -1263,6 +1303,19 @@ class RetestStatementPagesUpdateForm(VersionForm):
         fields: list[str] = [
             "version",
             "statement_pages_complete_date",
+        ]
+
+
+class RetestStatementBackupUpdateForm(VersionForm):
+    """Form for statement backup at equality body-requested retest"""
+
+    statement_backup_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = Retest
+        fields: list[str] = [
+            "version",
+            "statement_backup_complete_date",
         ]
 
 
