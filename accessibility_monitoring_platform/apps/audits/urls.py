@@ -17,6 +17,7 @@ from .views.base import (
     restore_page,
 )
 from .views.equality_body import (
+    RetestAddStatementLinkUpdateView,
     RetestComparisonUpdateView,
     RetestComplianceUpdateView,
     RetestDisproportionateBurdenUpdateView,
@@ -30,7 +31,6 @@ from .views.equality_body import (
     RetestStatementFeedbackFormView,
     RetestStatementNonAccessibleFormView,
     RetestStatementOverviewFormView,
-    RetestAddStatementLinkUpdateView,
     RetestStatementPreparationFormView,
     RetestStatementResultsUpdateView,
     RetestStatementWebsiteFormView,
@@ -54,11 +54,11 @@ from .views.initial import (
     AuditStatementWebsiteFormView,
     AuditWcagSummaryUpdateView,
     CustomIssueCreateView,
+    InitialAddStatementLinkUpdateView,
     InitialCustomIssueDeleteTemplateView,
     InitialCustomIssueUpdateView,
     InitialDisproportionateBurdenUpdateView,
     InitialStatementBackupUpdateView,
-    InitialAddStatementLinkUpdateView,
     clear_published_report_data_updated_time,
     delete_custom_issue,
 )
@@ -82,9 +82,9 @@ from .views.twelve_week import (
     AuditRetestStatementWebsiteFormView,
     AuditRetestWcagSummaryUpdateView,
     New12WeekCustomIssueDeleteTemplateView,
+    TwelveWeekAddStatementLinkUpdateView,
     TwelveWeekDisproportionateBurdenUpdateView,
     TwelveWeekStatementBackupUpdateView,
-    TwelveWeekAddStatementLinkUpdateView,
     delete_new_12_week_custom_issue,
     start_retest,
 )

@@ -11,9 +11,9 @@ from django.db.models import Case as DjangoCase
 from django.db.models import Q, QuerySet, When
 
 from ..common.form_extract_utils import FieldLabelAndValue
+from ..common.s3_utils import S3Wrapper
 from ..common.sitemap import PlatformPage
 from ..common.utils import build_filters, extract_domain_from_url
-from ..common.s3_utils import S3Wrapper
 from ..simplified.models import SimplifiedCase
 from .forms import CaseSearchForm
 from .models import CASE_STATUS_UNASSIGNED, BaseCase, DocumentUpload, Sort

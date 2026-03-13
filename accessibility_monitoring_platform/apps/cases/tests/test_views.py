@@ -4,12 +4,11 @@ Tests for cases views
 
 import io
 
-from moto import mock_aws
-
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.http import HttpResponse
 from django.urls import reverse
+from moto import mock_aws
 
 from ...simplified.models import SimplifiedCase
 from ..models import DocumentUpload

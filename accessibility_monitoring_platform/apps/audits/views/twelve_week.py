@@ -44,16 +44,10 @@ from ..forms import (
     CaseComplianceStatement12WeekUpdateForm,
     CaseComplianceWebsite12WeekUpdateForm,
     New12WeekCustomStatementCheckResultUpdateForm,
-    TwelveWeekStatementPagesUpdateForm,
     TwelveWeekStatementBackupUpdateForm,
+    TwelveWeekStatementPagesUpdateForm,
 )
-from ..models import (
-    Audit,
-    CheckResult,
-    Page,
-    StatementCheck,
-    StatementCheckResult,
-)
+from ..models import Audit, CheckResult, Page, StatementCheck, StatementCheckResult
 from ..utils import (
     add_to_check_result_restest_notes_history,
     get_audit_summary_context,
@@ -61,11 +55,11 @@ from ..utils import (
     get_other_pages_with_retest_notes,
 )
 from .base import (
+    AddStatementLinkUpdateView,
     AuditCaseComplianceUpdateView,
     AuditPageChecksBaseFormView,
     AuditUpdateView,
     StatementBackupUpdateView,
-    AddStatementLinkUpdateView,
 )
 
 

@@ -65,12 +65,12 @@ from ..utils import (
     other_page_failed_check_results,
 )
 from .base import (
+    AddStatementLinkUpdateView,
     AuditCaseComplianceUpdateView,
     AuditPageChecksBaseFormView,
     AuditStatementCheckingView,
     AuditUpdateView,
     StatementBackupUpdateView,
-    AddStatementLinkUpdateView,
 )
 
 

@@ -2,15 +2,15 @@
 Test utility functions of cases app
 """
 
+import io
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
-import io
 from typing import Any
 from unittest.mock import Mock, patch
 
-from moto import mock_aws
 import pytest
 from django.contrib.auth.models import User
+from moto import mock_aws
 
 from ...audits.models import Audit
 from ...common.models import Boolean, Sector, SubCategory
@@ -18,7 +18,7 @@ from ...mobile.models import MobileCase
 from ...simplified.models import CaseStatus, SimplifiedCase
 from ..forms import DateType
 from ..models import BaseCase, DocumentUpload, Sort
-from ..utils import filter_cases, find_duplicate_cases, S3ReadWriteDocument
+from ..utils import S3ReadWriteDocument, filter_cases, find_duplicate_cases
 
 ORGANISATION_NAME: str = "Organisation name one"
 ORGANISATION_NAME_COMPLAINT: str = "Organisation name two"

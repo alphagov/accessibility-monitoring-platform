@@ -8,8 +8,8 @@ from django.urls.resolvers import URLPattern
 
 from .views import (
     CaseListView,
-    DocumentUploadView,
     DocumentUploadListView,
+    DocumentUploadView,
     document_download,
 )
 

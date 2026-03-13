@@ -2,10 +2,9 @@
 Tests for audits views
 """
 
-from datetime import date, timedelta
 import io
+from datetime import date, timedelta
 
-from moto import mock_aws
 import pytest
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -13,6 +12,7 @@ from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
+from moto import mock_aws
 from pytest_django.asserts import assertContains, assertNotContains
 
 from accessibility_monitoring_platform.apps.common.models import Boolean

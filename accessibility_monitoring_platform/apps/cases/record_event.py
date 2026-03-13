@@ -3,15 +3,9 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-from ..detailed.utils import (
-    record_detailed_model_create_event,
-)
-from ..mobile.utils import (
-    record_mobile_model_create_event,
-)
-from ..simplified.utils import (
-    record_simplified_model_create_event,
-)
+from ..detailed.utils import record_detailed_model_create_event
+from ..mobile.utils import record_mobile_model_create_event
+from ..simplified.utils import record_simplified_model_create_event
 from .models import BaseCase
 
 

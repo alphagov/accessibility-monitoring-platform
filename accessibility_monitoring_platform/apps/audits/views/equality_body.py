@@ -28,6 +28,7 @@ from ...simplified.utils import (
     record_simplified_model_update_event,
 )
 from ..forms import (
+    RetestAddStatementLinkUpdateForm,
     RetestCheckResultFormset,
     RetestComparisonUpdateForm,
     RetestComplianceUpdateForm,
@@ -44,13 +45,12 @@ from ..forms import (
     RetestStatementFeedbackUpdateForm,
     RetestStatementNonAccessibleUpdateForm,
     RetestStatementOverviewUpdateForm,
-    RetestAddStatementLinkUpdateForm,
     RetestStatementPreparationUpdateForm,
     RetestStatementResultsUpdateForm,
     RetestStatementWebsiteUpdateForm,
     RetestUpdateForm,
-    StatementLinkForm,
     StatementBackupForm,
+    StatementLinkForm,
 )
 from ..models import (
     Retest,

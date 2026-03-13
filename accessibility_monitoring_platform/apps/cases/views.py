@@ -26,10 +26,7 @@ from ..common.views import HideCaseNavigationMixin
 from .forms import CaseSearchForm, DocumentUploadForm
 from .models import BaseCase, DocumentUpload
 from .record_event import record_create_event
-from .utils import (
-    filter_cases,
-    S3ReadWriteDocument,
-)
+from .utils import S3ReadWriteDocument, filter_cases
 
 AUDITOR_SEARCH_FIELDS: list[str] = [
     "auditor",

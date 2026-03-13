@@ -3,9 +3,9 @@ Models - cases
 """
 
 import re
+import uuid
 from dataclasses import dataclass
 from datetime import datetime
-import uuid
 
 from django.contrib.auth.models import User
 from django.db import models
