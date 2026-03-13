@@ -1037,6 +1037,7 @@ class Retest(VersionModel):
     comparison_complete_date = models.DateField(null=True, blank=True)
     compliance_complete_date = models.DateField(null=True, blank=True)
     statement_pages_complete_date = models.DateField(null=True, blank=True)
+    statement_backup_complete_date = models.DateField(null=True, blank=True)
 
     statement_overview_complete_date = models.DateField(null=True, blank=True)
     statement_website_complete_date = models.DateField(null=True, blank=True)

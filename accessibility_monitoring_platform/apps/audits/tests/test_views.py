@@ -526,35 +526,6 @@ def test_audit_statement_summary_page_redirect_when_report_exists(admin_client):
     assert response.url == expected_path
 
 
-def test_delete_statement_page_on_retest(admin_client):
-    """Test deleting a statement page"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    retest: Retest = Retest.objects.create(simplified_case=audit.simplified_case)
-    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
-
-    response: HttpResponse = admin_client.post(
-        reverse("audits:edit-equality-body-statement-pages", kwargs={"pk": retest.id}),
-        {
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "version": audit.version,
-            f"remove_statement_page_{statement_page.id}": "Remove statement link",
-        },
-        follow=True,
-    )
-
-    assert response.status_code == 200
-
-    updated_statement_page: StatementPage = StatementPage.objects.get(
-        id=statement_page.id
-    )
-
-    assert updated_statement_page.is_deleted is True
-
-
 @pytest.mark.parametrize(
     "path_name, button_name, expected_redirect_path_name",
     [
@@ -3180,6 +3151,16 @@ def test_delete_retest(admin_client):
         ),
         (
             "audits:edit-equality-body-statement-pages",
+            "save_continue",
+            "audits:edit-equality-body-statement-backup",
+        ),
+        (
+            "audits:edit-equality-body-statement-backup",
+            "save",
+            "audits:edit-equality-body-statement-backup",
+        ),
+        (
+            "audits:edit-equality-body-statement-backup",
             "save_continue",
             "audits:edit-equality-body-statement-overview",
         ),

@@ -1381,9 +1381,15 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                                 next_page_url_name="audits:edit-equality-body-statement-pages",
                             ),
                             EqualityBodyRetestPlatformPage(
-                                name="Statement links",
+                                name="Statement links manager",
                                 url_name="audits:edit-equality-body-statement-pages",
                                 complete_flag_name="statement_pages_complete_date",
+                                next_page_url_name="audits:edit-equality-body-statement-backup",
+                            ),
+                            EqualityBodyRetestPlatformPage(
+                                name="Statement backups manager",
+                                url_name="audits:edit-equality-body-statement-backup",
+                                complete_flag_name="statement_backup_complete_date",
                                 next_page_url_name="audits:edit-equality-body-statement-overview",
                             ),
                             EqualityBodyRetestPlatformPage(

@@ -22,6 +22,7 @@ from .views.equality_body import (
     RetestDisproportionateBurdenUpdateView,
     RetestMetadataUpdateView,
     RetestPageChecksFormView,
+    RetestStatementBackupUpdateView,
     RetestStatementComplianceFormView,
     RetestStatementCustomFormView,
     RetestStatementDecisionUpdateView,
@@ -399,6 +400,11 @@ urlpatterns: list[URLPattern] = [
         "retests/<int:pk>/edit-equality-body-statement-pages/",
         login_required(RetestStatementPageFormsetUpdateView.as_view()),
         name="edit-equality-body-statement-pages",
+    ),
+    path(
+        "retests/<int:pk>/edit-equality-body-statement-backup/",
+        login_required(RetestStatementBackupUpdateView.as_view()),
+        name="edit-equality-body-statement-backup",
     ),
     path(
         "retests/<int:pk>/edit-equality-body-statement-overview/",
