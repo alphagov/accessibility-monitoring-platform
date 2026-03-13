@@ -3,6 +3,7 @@ Forms - checks (called tests by users)
 """
 
 from django import forms
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from ..common.forms import (
     AMPCharFieldWide,
@@ -19,6 +20,7 @@ from ..common.forms import (
     VersionForm,
 )
 from ..common.models import Boolean
+from ..common.utils import validate_file_size
 from ..simplified.models import CaseCompliance
 from .models import (
     Audit,
@@ -30,7 +32,6 @@ from .models import (
     RetestStatementCheckResult,
     StatementCheck,
     StatementCheckResult,
-    StatementPage,
     WcagDefinition,
 )
 
@@ -49,6 +50,8 @@ RETEST_CHECK_RESULT_STATE_FILTER_CHOICES: list[tuple[str, str]] = (
 COPY_TICK_HELP_TEXT: str = """
 <span class="amp-control amp-copy-text-to-clipboard" data-text-to-copy="✓" tabindex="0">Copy</span>
     the ✓ and paste next to the fixes the organisation has made"""
+
+MAX_UPLOAD_FILE_SIZE_MB: int = 100
 
 
 class AuditMetadataUpdateForm(VersionForm):
@@ -1197,30 +1200,6 @@ class RetestComplianceUpdateForm(forms.ModelForm):
         ]
 
 
-class StatementPageUpdateForm(forms.ModelForm):
-    """
-    Form for updating a statement page
-    """
-
-    url = AMPURLField(label="Link to statement")
-    backup_url = AMPURLField(label="Statement backup")
-    added_stage = AMPChoiceRadioField(
-        label="Statement added", choices=StatementPage.AddedStage.choices
-    )
-
-    class Meta:
-        model = StatementPage
-        fields = ["url", "backup_url", "added_stage"]
-
-
-StatementPageFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
-    StatementPage, StatementPageUpdateForm, extra=0
-)
-StatementPageFormsetOneExtra: forms.formsets.BaseFormSet = forms.modelformset_factory(
-    StatementPage, StatementPageUpdateForm, extra=1
-)
-
-
 class StatementLinkForm(forms.Form):
     """Form to add new statement link"""
 
@@ -1260,6 +1239,15 @@ class StatementBackupForm(forms.Form):
         fields: list[str] = [
             "file_to_upload",
         ]
+
+    def clean_file_to_upload(self):
+        """Check statement file is not too big"""
+        file_to_upload: InMemoryUploadedFile | None = self.cleaned_data.get(
+            "file_to_upload"
+        )
+        if file_to_upload is not None:
+            validate_file_size(file_to_upload, max_size_mb=MAX_UPLOAD_FILE_SIZE_MB)
+        return file_to_upload
 
 
 class AuditInitialStatementBackupUpdateForm(VersionForm):
@@ -1303,7 +1291,7 @@ class TwelveWeekStatementBackupUpdateForm(VersionForm):
         ]
 
 
-class RetestStatementPagesUpdateForm(VersionForm):
+class RetestAddStatementLinkUpdateForm(VersionForm):
     """
     Form for statement pages update at equality body-requested retest
     """

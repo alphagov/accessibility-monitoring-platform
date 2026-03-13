@@ -44,7 +44,7 @@ from ..forms import (
     RetestStatementFeedbackUpdateForm,
     RetestStatementNonAccessibleUpdateForm,
     RetestStatementOverviewUpdateForm,
-    RetestStatementPagesUpdateForm,
+    RetestAddStatementLinkUpdateForm,
     RetestStatementPreparationUpdateForm,
     RetestStatementResultsUpdateForm,
     RetestStatementWebsiteUpdateForm,
@@ -256,15 +256,17 @@ class RetestComplianceUpdateView(NextPlatformPageMixin, UpdateView):
         return super().form_valid(form)
 
 
-class RetestStatementPageFormsetUpdateView(NextPlatformPageMixin, UpdateView):
+class RetestAddStatementLinkUpdateView(NextPlatformPageMixin, UpdateView):
     """
     View to add statement link in equality body-requested retest
     """
 
     model: type[Retest] = Retest
     context_object_name: str = "retest"
-    form_class: type[RetestStatementPagesUpdateForm] = RetestStatementPagesUpdateForm
-    template_name: str = "audits/forms/equality_body_retest_statement_link.html"
+    form_class: type[RetestAddStatementLinkUpdateForm] = (
+        RetestAddStatementLinkUpdateForm
+    )
+    template_name: str = "audits/forms/equality_body_retest_add_statement_link.html"
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Add second form to context"""
@@ -276,9 +278,6 @@ class RetestStatementPageFormsetUpdateView(NextPlatformPageMixin, UpdateView):
         else:
             statement_link_form: StatementLinkForm = StatementLinkForm()
         context["statement_link_form"] = statement_link_form
-        retest: Retest = self.object
-        audit: Audit = retest.simplified_case.audit
-        context["audit"] = audit
         return context
 
     def post(
@@ -333,9 +332,6 @@ class RetestStatementBackupUpdateView(NextPlatformPageMixin, UpdateView):
         else:
             statement_backup_form: StatementBackupForm = StatementBackupForm()
         context["statement_backup_form"] = statement_backup_form
-        retest: Retest = self.object
-        audit: Audit = retest.simplified_case.audit
-        context["audit"] = audit
         return context
 
     def post(

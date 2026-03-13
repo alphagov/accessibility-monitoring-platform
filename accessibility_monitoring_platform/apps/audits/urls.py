@@ -30,7 +30,7 @@ from .views.equality_body import (
     RetestStatementFeedbackFormView,
     RetestStatementNonAccessibleFormView,
     RetestStatementOverviewFormView,
-    RetestStatementPageFormsetUpdateView,
+    RetestAddStatementLinkUpdateView,
     RetestStatementPreparationFormView,
     RetestStatementResultsUpdateView,
     RetestStatementWebsiteFormView,
@@ -58,7 +58,7 @@ from .views.initial import (
     InitialCustomIssueUpdateView,
     InitialDisproportionateBurdenUpdateView,
     InitialStatementBackupUpdateView,
-    InitialStatementLinkUpdateView,
+    InitialAddStatementLinkUpdateView,
     clear_published_report_data_updated_time,
     delete_custom_issue,
 )
@@ -84,7 +84,7 @@ from .views.twelve_week import (
     New12WeekCustomIssueDeleteTemplateView,
     TwelveWeekDisproportionateBurdenUpdateView,
     TwelveWeekStatementBackupUpdateView,
-    TwelveWeekStatementPageFormsetUpdateView,
+    TwelveWeekAddStatementLinkUpdateView,
     delete_new_12_week_custom_issue,
     start_retest,
 )
@@ -123,7 +123,7 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-statement-pages/",
-        login_required(InitialStatementLinkUpdateView.as_view()),
+        login_required(InitialAddStatementLinkUpdateView.as_view()),
         name="edit-statement-pages",
     ),
     path(
@@ -248,7 +248,7 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-audit-retest-statement-pages/",
-        login_required(TwelveWeekStatementPageFormsetUpdateView.as_view()),
+        login_required(TwelveWeekAddStatementLinkUpdateView.as_view()),
         name="edit-audit-retest-statement-pages",
     ),
     path(
@@ -398,7 +398,7 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "retests/<int:pk>/edit-equality-body-statement-pages/",
-        login_required(RetestStatementPageFormsetUpdateView.as_view()),
+        login_required(RetestAddStatementLinkUpdateView.as_view()),
         name="edit-equality-body-statement-pages",
     ),
     path(

@@ -70,7 +70,7 @@ from .base import (
     AuditStatementCheckingView,
     AuditUpdateView,
     StatementBackupUpdateView,
-    StatementLinkUpdateView,
+    AddStatementLinkUpdateView,
 )
 
 
@@ -363,13 +363,11 @@ class AuditWcagSummaryUpdateView(AuditSummaryUpdateView):
     template_name: str = "audits/forms/test_summary_wcag.html"
 
 
-class InitialStatementLinkUpdateView(StatementLinkUpdateView):
-    """
-    View to backup statement pages in initial test
-    """
+class InitialAddStatementLinkUpdateView(AddStatementLinkUpdateView):
+    """View to add statement link in initial test"""
 
     form_class: type[AuditStatementPagesUpdateForm] = AuditStatementPagesUpdateForm
-    template_name: str = "audits/forms/initial_statement_link.html"
+    template_name: str = "audits/forms/initial_add_statement_link.html"
 
 
 class InitialStatementBackupUpdateView(StatementBackupUpdateView):

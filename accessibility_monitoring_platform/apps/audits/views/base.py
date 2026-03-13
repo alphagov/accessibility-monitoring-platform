@@ -17,7 +17,6 @@ from django.views.generic.list import ListView
 
 from ...cases.models import DocumentUpload
 from ...cases.utils import S3ReadWriteDocument
-from ...common.mark_deleted_util import mark_object_as_deleted
 from ...common.utils import (
     amp_format_date,
     get_url_parameters_for_pagination,
@@ -36,8 +35,6 @@ from ..forms import (
     StatementCheckResultFormset,
     StatementCheckSearchForm,
     StatementLinkForm,
-    StatementPageFormset,
-    StatementPageFormsetOneExtra,
     WcagDefinitionCreateUpdateForm,
     WcagDefinitionSearchForm,
 )
@@ -434,63 +431,7 @@ class StatementCheckUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class StatementPageFormsetUpdateView(AuditUpdateView):
-    """
-    View to update statement pages
-    """
-
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Get context data for template rendering"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        if self.request.POST:
-            statement_pages_formset = StatementPageFormset(self.request.POST)
-        else:
-            statement_pages: QuerySet[StatementPage] = self.object.statement_pages
-            if "add_extra" in self.request.GET:
-                statement_pages_formset = StatementPageFormsetOneExtra(
-                    queryset=statement_pages
-                )
-            else:
-                statement_pages_formset = StatementPageFormset(queryset=statement_pages)
-        context["statement_pages_formset"] = statement_pages_formset
-        return context
-
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        context: dict[str, Any] = self.get_context_data()
-        statement_pages_formset = context["statement_pages_formset"]
-        audit: Audit = form.save(commit=False)
-        if statement_pages_formset.is_valid():
-            statement_pages: list[StatementPage] = statement_pages_formset.save(
-                commit=False
-            )
-            for statement_page in statement_pages:
-                if not statement_page.audit_id:
-                    statement_page.audit = audit
-                    statement_page.save()
-                    record_simplified_model_create_event(
-                        user=self.request.user,
-                        model_object=statement_page,
-                        simplified_case=statement_page.audit.simplified_case,
-                    )
-                else:
-                    record_simplified_model_update_event(
-                        user=self.request.user,
-                        model_object=statement_page,
-                        simplified_case=statement_page.audit.simplified_case,
-                    )
-                    statement_page.save()
-        else:
-            return super().form_invalid(form)
-        mark_object_as_deleted(
-            request=self.request,
-            delete_button_prefix="remove_statement_page_",
-            object_to_delete_model=StatementPage,
-        )
-        return super().form_valid(form)
-
-
-class StatementLinkUpdateView(AuditUpdateView):
+class AddStatementLinkUpdateView(AuditUpdateView):
     """View to add statement page"""
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:

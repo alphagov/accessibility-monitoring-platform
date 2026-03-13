@@ -594,8 +594,43 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
     assert response.url == expected_path
 
 
+@pytest.mark.parametrize(
+    "url_name",
+    [
+        "audits:edit-statement-pages",
+        "audits:edit-audit-retest-statement-pages",
+    ],
+)
+def test_add_statement_link(url_name, admin_client):
+    """Test that add statement link views saves URL"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+
+    response: HttpResponse = admin_client.post(
+        reverse(url_name, kwargs={"pk": simplified_case.id}),
+        {
+            "version": audit.version,
+            "statement_url": STATEMENT_PAGE_URL,
+            "save": "Save",
+        },
+    )
+
+    assert response.status_code == 302
+
+    statement_page: StatementPage = StatementPage.objects.get(audit=audit)
+
+    assert statement_page.url == STATEMENT_PAGE_URL
+
+
+@pytest.mark.parametrize(
+    "url_name",
+    [
+        "audits:initial-statement-backup",
+        "audits:edit-audit-retest-statement-backup",
+    ],
+)
 @mock_aws
-def test_statement_backup(admin_client):
+def test_add_statement_backup(url_name, admin_client):
     """Test that audit statement backup saves to s3"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(simplified_case=simplified_case)
@@ -610,13 +645,10 @@ def test_statement_backup(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse(
-            "audits:initial-statement-backup", kwargs={"pk": audit.simplified_case.id}
-        ),
+        reverse(url_name, kwargs={"pk": simplified_case.id}),
         {
             "version": audit.version,
             "file_to_upload": in_memory_file,
-            "type": DocumentUpload.Type.STATEMENT,
             "save": "Save",
         },
     )
@@ -3304,6 +3336,71 @@ def test_equality_body_retest_edit_redirects_based_on_button_pressed(
 
     expected_path: str = reverse(expected_redirect_path_name, kwargs=retest_pk)
     assert response.url == expected_path
+
+
+def test_equality_body_retest_add_statement_link(admin_client):
+    """Test that add statement link views saves URL"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-equality-body-statement-pages", kwargs={"pk": retest.id}),
+        {
+            "version": audit.version,
+            "statement_url": STATEMENT_PAGE_URL,
+            "save": "Save",
+        },
+    )
+
+    assert response.status_code == 302
+
+    statement_page: StatementPage = StatementPage.objects.get(audit=audit)
+
+    assert statement_page.url == STATEMENT_PAGE_URL
+
+
+@mock_aws
+def test_equality_body_retest_statement_backup(admin_client):
+    """Test that equality body retest statement backup saves to s3"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Audit.objects.create(simplified_case=simplified_case)
+    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
+
+    in_memory_file: InMemoryUploadedFile = InMemoryUploadedFile(
+        io.BytesIO(UPLOAD_FILE_CONTENT.encode()),
+        field_name="name",
+        name=UPLOAD_FILE_NAME,
+        content_type="text",
+        size=len(UPLOAD_FILE_CONTENT),
+        charset=None,
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-equality-body-statement-backup", kwargs={"pk": retest.id}),
+        {
+            "version": retest.version,
+            "file_to_upload": in_memory_file,
+            "type": DocumentUpload.Type.STATEMENT,
+            "save": "Save",
+        },
+    )
+
+    assert response.status_code == 302
+
+    document_upload: DocumentUpload = DocumentUpload.objects.get(
+        base_case=simplified_case
+    )
+
+    assert document_upload.name == UPLOAD_FILE_NAME
+
+    s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
+    data_s3: bytes | str = s3_read_write.get_document_from_s3(
+        document_upload=document_upload
+    )
+
+    assert isinstance(data_s3, bytes)
+    assert data_s3.decode() == UPLOAD_FILE_CONTENT
 
 
 def test_equality_body_retest_statement_overview_redirects_when_no(admin_client):

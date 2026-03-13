@@ -782,14 +782,14 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
         show_flag_name="not_archived_has_audit",
         pages=[
             AuditPlatformPage(
-                name="Statement links manager",
+                name="Statement links",
                 url_name="audits:edit-statement-pages",
                 complete_flag_name="audit_statement_pages_complete_date",
                 case_details_template_name="simplified/details/details_statement_links.html",
                 next_page_url_name="audits:initial-statement-backup",
             ),
             AuditPlatformPage(
-                name="Statement backups manager",
+                name="Statement backups",
                 url_name="audits:initial-statement-backup",
                 complete_flag_name="audit_initial_statement_backup_complete_date",
                 case_details_template_name="simplified/details/details_statement_backups.html",
@@ -1151,13 +1151,13 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
         show_flag_name="show_12_week_retest",
         pages=[
             AuditPlatformPage(
-                name="Statement links manager",
+                name="Statement links",
                 url_name="audits:edit-audit-retest-statement-pages",
                 complete_flag_name="audit_retest_statement_pages_complete_date",
                 next_page_url_name="audits:edit-audit-retest-statement-backup",
             ),
             AuditPlatformPage(
-                name="Statement backups manager",
+                name="Statement backups",
                 url_name="audits:edit-audit-retest-statement-backup",
                 complete_flag_name="audit_retest_statement_backup_complete_date",
                 case_details_template_name="simplified/details/details_statement_backups.html",
@@ -1381,13 +1381,13 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                                 next_page_url_name="audits:edit-equality-body-statement-pages",
                             ),
                             EqualityBodyRetestPlatformPage(
-                                name="Statement links manager",
+                                name="Statement links",
                                 url_name="audits:edit-equality-body-statement-pages",
                                 complete_flag_name="statement_pages_complete_date",
                                 next_page_url_name="audits:edit-equality-body-statement-backup",
                             ),
                             EqualityBodyRetestPlatformPage(
-                                name="Statement backups manager",
+                                name="Statement backups",
                                 url_name="audits:edit-equality-body-statement-backup",
                                 complete_flag_name="statement_backup_complete_date",
                                 next_page_url_name="audits:edit-equality-body-statement-overview",

@@ -12,8 +12,8 @@
         </li>
         {% include 'audits/helpers/nav_step.html' with edit_name='audits:retest-comparison-update' name='Comparison' complete=retest.comparison_complete_date %}
         {% include 'audits/helpers/nav_step.html' with edit_name='audits:retest-compliance-update' name='Compliance decision' complete=retest.compliance_complete_date %}
-        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-pages' name='Statement links manager' complete=retest.statement_pages_complete_date %}
-        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-backup' name='Statement backups manager' complete=retest.statement_backup_complete_date %}
+        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-pages' name='Statement links' complete=retest.statement_pages_complete_date %}
+        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-backup' name='Statement backups' complete=retest.statement_backup_complete_date %}
         {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-overview' name='Statement overview' complete=retest.statement_overview_complete_date %}
         {% if retest.all_overview_statement_checks_have_passed %}
             <li>

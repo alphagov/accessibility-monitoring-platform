@@ -65,7 +65,7 @@ from .base import (
     AuditPageChecksBaseFormView,
     AuditUpdateView,
     StatementBackupUpdateView,
-    StatementLinkUpdateView,
+    AddStatementLinkUpdateView,
 )
 
 
@@ -277,7 +277,7 @@ class AuditRetestWcagSummaryUpdateView(AuditRetestSummaryUpdateView):
     template_name: str = "audits/forms/test_summary_wcag.html"
 
 
-class TwelveWeekStatementPageFormsetUpdateView(StatementLinkUpdateView):
+class TwelveWeekAddStatementLinkUpdateView(AddStatementLinkUpdateView):
     """View to add statement page in 12-week retest"""
 
     form_class: type[TwelveWeekStatementPagesUpdateForm] = (

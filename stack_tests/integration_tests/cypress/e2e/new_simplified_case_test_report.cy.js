@@ -58,10 +58,10 @@ describe('Create simplified case, tests and report', () => {
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | WCAG summary`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement links manager`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement links`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement backups manager`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement backups`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement overview`)
@@ -177,10 +177,10 @@ describe('Create simplified case, tests and report', () => {
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | WCAG summary`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement links manager`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement links`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement backups manager`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement backups`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement overview`)
@@ -243,10 +243,10 @@ describe('Create simplified case, tests and report', () => {
     cy.title().should('eq', 'Retest #1 | Compliance decision')
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement links manager`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement links`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement backups manager`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement backups`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement overview`)
