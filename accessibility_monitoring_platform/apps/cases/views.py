@@ -60,6 +60,33 @@ TRUTHY_SEARCH_FIELDS: list[str] = (
 )
 
 
+class DocumentUploadMixin:
+    def document_upload(
+        self,
+        uploaded_file: InMemoryUploadedFile,
+        user: User,
+        base_case: BaseCase,
+        document_type: DocumentUpload.Type = DocumentUpload.Type.STATEMENT,
+    ) -> None:
+        """Save uploaded file to S3"""
+        document_upload: DocumentUpload = DocumentUpload.objects.create(
+            name=uploaded_file.name,
+            type=document_type,
+            uploaded_by=user,
+            base_case=base_case,
+        )
+        s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
+        s3_read_write.put_document_to_s3(
+            document_upload=document_upload,
+            file_content=uploaded_file,
+        )
+        record_create_event(
+            user=user,
+            model_object=document_upload,
+            base_case=document_upload.base_case,
+        )
+
+
 class CaseListView(ListView):
     """
     View of list of cases
@@ -128,7 +155,7 @@ class DocumentUploadListView(HideCaseNavigationMixin, DetailView):
     template_name: str = "cases/document_upload_list.html"
 
 
-class DocumentUploadView(HideCaseNavigationMixin, FormView):
+class DocumentUploadView(HideCaseNavigationMixin, DocumentUploadMixin, FormView):
     """View to upload a Document upload"""
 
     form_class: type[DocumentUploadForm] = DocumentUploadForm
@@ -137,24 +164,14 @@ class DocumentUploadView(HideCaseNavigationMixin, FormView):
     def form_valid(self, form: forms.ModelForm) -> HttpResponseRedirect:
         """Process contents of file upload"""
         base_case: BaseCase = get_object_or_404(BaseCase, id=self.kwargs.get("pk"))
-        uploaded_file: InMemoryUploadedFile = form.cleaned_data["file_to_upload"]
-        user: User = self.request.user
-        document_upload: DocumentUpload = DocumentUpload.objects.create(
-            name=uploaded_file.name,
-            type=form.cleaned_data["type"],
-            uploaded_by=user,
-            base_case=base_case,
-        )
-        s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
-        s3_read_write.put_document_to_s3(
-            document_upload=document_upload,
-            file_content=uploaded_file,
-        )
-        record_create_event(
-            user=user,
-            model_object=document_upload,
-            base_case=document_upload.base_case,
-        )
+        uploaded_file: InMemoryUploadedFile | None = form.cleaned_data["file_to_upload"]
+        if uploaded_file is not None:
+            self.document_upload(
+                uploaded_file=uploaded_file,
+                user=self.request.user,
+                base_case=base_case,
+                document_type=form.cleaned_data["type"],
+            )
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self) -> str:

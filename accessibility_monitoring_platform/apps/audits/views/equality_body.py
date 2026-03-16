@@ -4,7 +4,6 @@ Views for audits app (called tests by users)
 
 from typing import Any
 
-from django.contrib.auth.models import User
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models.query import QuerySet
 from django.forms import Form
@@ -14,9 +13,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.edit import UpdateView
 
-from ...audits.models import Audit
 from ...cases.models import DocumentUpload
-from ...cases.utils import S3ReadWriteDocument
 from ...common.mark_deleted_util import mark_object_as_deleted
 from ...common.models import Boolean
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
@@ -50,7 +47,6 @@ from ..forms import (
     RetestStatementWebsiteUpdateForm,
     RetestUpdateForm,
     StatementBackupForm,
-    StatementLinkForm,
 )
 from ..models import (
     Retest,
@@ -58,9 +54,9 @@ from ..models import (
     RetestPage,
     RetestStatementCheckResult,
     StatementCheck,
-    StatementPage,
 )
 from ..utils import create_checkresults_for_retest, get_next_platform_page_equality_body
+from .base import AddStatementLinkUpdateView, StatementBackupMixin
 
 
 def create_equality_body_retest(request: HttpRequest, case_id: int) -> HttpResponse:
@@ -256,7 +252,7 @@ class RetestComplianceUpdateView(NextPlatformPageMixin, UpdateView):
         return super().form_valid(form)
 
 
-class RetestAddStatementLinkUpdateView(NextPlatformPageMixin, UpdateView):
+class RetestAddStatementLinkUpdateView(AddStatementLinkUpdateView):
     """
     View to add statement link in equality body-requested retest
     """
@@ -268,71 +264,16 @@ class RetestAddStatementLinkUpdateView(NextPlatformPageMixin, UpdateView):
     )
     template_name: str = "audits/forms/equality_body_retest_add_statement_link.html"
 
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Add second form to context"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        if self.request.POST:
-            statement_link_form: StatementLinkForm = StatementLinkForm(
-                self.request.POST
-            )
-        else:
-            statement_link_form: StatementLinkForm = StatementLinkForm()
-        context["statement_link_form"] = statement_link_form
-        return context
 
-    def post(
-        self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
-    ) -> HttpResponseRedirect | HttpResponse:
-        """Populate two forms from post request"""
-        self.object: Retest = self.get_object()
-        form: Form = self.form_class(request.POST, instance=self.object)
-        statement_link_form: StatementLinkForm = StatementLinkForm(
-            self.request.POST, self.request.FILES
-        )
-        if form.is_valid() and statement_link_form.is_valid():
-            form.save()
-            retest: Retest = self.object
-            audit: Audit = retest.simplified_case.audit
-            statement_url: str = statement_link_form.cleaned_data["statement_url"]
-            if statement_url and statement_url != audit.latest_statement_link:
-                statement_page: StatementPage = StatementPage.objects.create(
-                    audit=audit, url=statement_url
-                )
-                user: User = self.request.user
-                record_simplified_model_create_event(
-                    user=user,
-                    model_object=statement_page,
-                    simplified_case=retest.simplified_case,
-                )
-            return HttpResponseRedirect(self.get_success_url())
-        else:
-            return self.render_to_response(
-                self.get_context_data(
-                    form=form,
-                    statement_link_form=statement_link_form,
-                )
-            )
-
-
-class RetestStatementBackupUpdateView(NextPlatformPageMixin, UpdateView):
+class RetestStatementBackupUpdateView(
+    NextPlatformPageMixin, StatementBackupMixin, UpdateView
+):
     """View to add statement backup in equality body-requested retest"""
 
     model: type[Retest] = Retest
     context_object_name: str = "retest"
     form_class: type[RetestStatementBackupUpdateForm] = RetestStatementBackupUpdateForm
     template_name: str = "audits/forms/equality_body_retest_statement_backup.html"
-
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Add second form to context"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        if self.request.POST:
-            statement_backup_form: StatementBackupForm = StatementBackupForm(
-                self.request.POST
-            )
-        else:
-            statement_backup_form: StatementBackupForm = StatementBackupForm()
-        context["statement_backup_form"] = statement_backup_form
-        return context
 
     def post(
         self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
@@ -346,27 +287,15 @@ class RetestStatementBackupUpdateView(NextPlatformPageMixin, UpdateView):
         if form.is_valid() and statement_backup_form.is_valid():
             form.save()
             retest: Retest = self.object
-            audit: Audit = retest.simplified_case.audit
-            file_to_upload: InMemoryUploadedFile | None = (
+            uploaded_file: InMemoryUploadedFile | None = (
                 statement_backup_form.cleaned_data.get("file_to_upload")
             )
-            if file_to_upload is not None:
-                document_upload: DocumentUpload = DocumentUpload.objects.create(
-                    name=file_to_upload.name,
-                    type=DocumentUpload.Type.STATEMENT,
-                    uploaded_by=self.request.user,
-                    base_case=audit.simplified_case,
-                )
-                s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
-                s3_read_write.put_document_to_s3(
-                    document_upload=document_upload,
-                    file_content=file_to_upload,
-                )
-                user: User = self.request.user
-                record_simplified_model_create_event(
-                    user=user,
-                    model_object=document_upload,
-                    simplified_case=audit.simplified_case,
+            if uploaded_file is not None:
+                self.document_upload(
+                    uploaded_file=uploaded_file,
+                    user=self.request.user,
+                    base_case=retest.simplified_case,
+                    document_type=DocumentUpload.Type.STATEMENT,
                 )
             return HttpResponseRedirect(self.get_success_url())
         else:

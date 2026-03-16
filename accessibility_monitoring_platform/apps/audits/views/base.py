@@ -16,7 +16,7 @@ from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 
 from ...cases.models import DocumentUpload
-from ...cases.utils import S3ReadWriteDocument
+from ...cases.views import DocumentUploadMixin
 from ...common.utils import (
     amp_format_date,
     get_url_parameters_for_pagination,
@@ -41,6 +41,7 @@ from ..forms import (
 from ..models import (
     Audit,
     Page,
+    Retest,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
@@ -51,6 +52,20 @@ from ..utils import (
     create_statement_checks_for_new_audit,
     report_data_updated,
 )
+
+
+class StatementBackupMixin(DocumentUploadMixin):
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Get context data for template rendering"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        if self.request.POST:
+            statement_backup_form: StatementBackupForm = StatementBackupForm(
+                self.request.POST
+            )
+        else:
+            statement_backup_form: StatementBackupForm = StatementBackupForm()
+        context["statement_backup_form"] = statement_backup_form
+        return context
 
 
 def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
@@ -450,14 +465,17 @@ class AddStatementLinkUpdateView(AuditUpdateView):
         self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
     ) -> HttpResponseRedirect | HttpResponse:
         """Populate two forms from post request"""
-        self.object: Audit = self.get_object()
+        self.object: Audit | Retest = self.get_object()
         form: Form = self.form_class(request.POST, instance=self.object)  # type: ignore
         statement_link_form: StatementLinkForm = StatementLinkForm(
             self.request.POST, self.request.FILES
         )
         if form.is_valid() and statement_link_form.is_valid():
             form.save()
-            audit: Audit = self.object
+            if isinstance(self.object, Retest):
+                audit: Audit = self.object.simplified_case.audit
+            else:
+                audit: Audit = self.object
             statement_url: str = statement_link_form.cleaned_data["statement_url"]
             if statement_url and statement_url != audit.latest_statement_link:
                 statement_page: StatementPage = StatementPage.objects.create(
@@ -479,20 +497,8 @@ class AddStatementLinkUpdateView(AuditUpdateView):
             )
 
 
-class StatementBackupUpdateView(AuditUpdateView):
+class StatementBackupUpdateView(StatementBackupMixin, AuditUpdateView):
     """View to backup statements"""
-
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Get context data for template rendering"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        if self.request.POST:
-            statement_backup_form: StatementBackupForm = StatementBackupForm(
-                self.request.POST
-            )
-        else:
-            statement_backup_form: StatementBackupForm = StatementBackupForm()
-        context["statement_backup_form"] = statement_backup_form
-        return context
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Save statement backup and add create event"""
@@ -501,25 +507,14 @@ class StatementBackupUpdateView(AuditUpdateView):
         )
         if statement_backup_form.is_valid():
             audit: Audit = self.object
-            file_to_upload: InMemoryUploadedFile | None = (
+            uploaded_file: InMemoryUploadedFile | None = (
                 statement_backup_form.cleaned_data.get("file_to_upload")
             )
-            if file_to_upload is not None:
-                document_upload: DocumentUpload = DocumentUpload.objects.create(
-                    name=file_to_upload.name,
-                    type=DocumentUpload.Type.STATEMENT,
-                    uploaded_by=self.request.user,
+            if uploaded_file is not None:
+                self.document_upload(
+                    uploaded_file=uploaded_file,
+                    user=self.request.user,
                     base_case=audit.simplified_case,
-                )
-                s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
-                s3_read_write.put_document_to_s3(
-                    document_upload=document_upload,
-                    file_content=file_to_upload,
-                )
-                user: User = self.request.user
-                record_simplified_model_create_event(
-                    user=user,
-                    model_object=document_upload,
-                    simplified_case=audit.simplified_case,
+                    document_type=DocumentUpload.Type.STATEMENT,
                 )
         return super().form_valid(form)
