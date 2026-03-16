@@ -81,6 +81,7 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[BaseCase]:
                 | Q(website_name__icontains=search)
                 | Q(subcategory__name__icontains=search)
                 | Q(case_identifier__endswith=search.upper())
+                | Q(case_identifier__endswith=f"{search}A".upper())
                 | Q(mobilecase__app_name__icontains=search)
                 | Q(mobilecase__android_app_url__icontains=search)
                 | Q(mobilecase__ios_app_url__icontains=search)

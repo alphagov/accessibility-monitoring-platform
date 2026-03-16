@@ -6,7 +6,8 @@
     </summary>
     <div class="govuk-details__text">
         {% if audit.statement_pages %}
-            {% include "audits/helpers/statement_links_backups.html" %}
+            {% include "audits/helpers/statement_links.html" %}
+            {% include "audits/helpers/statement_backups.html" %}
             <p class="govuk-body-m">
                 <a href="{% url 'cases:document-upload-list' case.id %}" class="govuk-link govuk-link--no-visited-state">
                     View case files manager</a>

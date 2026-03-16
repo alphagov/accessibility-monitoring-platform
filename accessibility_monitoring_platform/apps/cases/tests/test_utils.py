@@ -277,6 +277,22 @@ def test_case_filtered_by_case_number_search_string():
     assert filtered_cases[0].case_number == CASE_NUMBER
 
 
+@pytest.mark.django_db
+def test_archived_case_filtered_by_case_number_search_string():
+    """Test that searching for case by number is reflected in the queryset"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_number=CASE_NUMBER
+    )
+    simplified_case.case_identifier += "A"
+    simplified_case.save()
+    form: MockForm = MockForm(cleaned_data={"case_search": str(CASE_NUMBER)})
+
+    filtered_cases: list[SimplifiedCase] = list(filter_cases(form))
+
+    assert len(filtered_cases) == 1
+    assert filtered_cases[0].case_number == CASE_NUMBER
+
+
 @pytest.mark.parametrize(
     "search_string",
     [
