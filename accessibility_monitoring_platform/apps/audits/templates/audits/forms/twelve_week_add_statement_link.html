@@ -41,6 +41,16 @@
         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
         {% include 'common/form_hidden_fields.html' with hidden_fields=statement_link_form.hidden_fields %}
         {% include 'common/amp_field.html' with field=statement_link_form.statement_url %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <input
+                    type="submit"
+                    value="Save and add another link"
+                    name="save"
+                    class="govuk-button govuk-button--secondary"
+                    data-module="govuk-button" />
+            </div>
+        </div>
         {% include 'common/amp_field.html' with field=form.audit_retest_statement_pages_complete_date %}
         {% include 'simplified/helpers/save_continue_cancel.html' %}
     </form>
