@@ -578,6 +578,11 @@ class Audit(VersionModel):
         return unique_url_statement_pages
 
     @property
+    def archived_google_drive_links(self) -> QuerySet[StatementPage]:
+        """Return statement pages with google drive backup urls"""
+        return self.statement_pages.filter(backup_url__contains="drive.google.com")
+
+    @property
     def latest_statement_link(self) -> str | None:
         for statement_page in self.statement_pages:
             if statement_page.url:

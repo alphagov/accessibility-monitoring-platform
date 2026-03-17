@@ -25,7 +25,7 @@ from ...simplified.utils import (
     record_simplified_model_update_event,
 )
 from ..forms import (
-    RetestAddStatementLinkUpdateForm,
+    RetestAddStatementPageUpdateForm,
     RetestCheckResultFormset,
     RetestComparisonUpdateForm,
     RetestComplianceUpdateForm,
@@ -54,9 +54,14 @@ from ..models import (
     RetestPage,
     RetestStatementCheckResult,
     StatementCheck,
+    StatementPage,
 )
 from ..utils import create_checkresults_for_retest, get_next_platform_page_equality_body
-from .base import AddStatementLinkUpdateView, StatementBackupMixin
+from .base import (
+    AddStatementLinkUpdateView,
+    DeleteStatementPageUpdateView,
+    StatementBackupMixin,
+)
 
 
 def create_equality_body_retest(request: HttpRequest, case_id: int) -> HttpResponse:
@@ -252,17 +257,38 @@ class RetestComplianceUpdateView(NextPlatformPageMixin, UpdateView):
         return super().form_valid(form)
 
 
-class RetestAddStatementLinkUpdateView(AddStatementLinkUpdateView):
+class RetestAddStatementPageUpdateView(AddStatementLinkUpdateView):
     """
     View to add statement link in equality body-requested retest
     """
 
     model: type[Retest] = Retest
     context_object_name: str = "retest"
-    form_class: type[RetestAddStatementLinkUpdateForm] = (
-        RetestAddStatementLinkUpdateForm
+    form_class: type[RetestAddStatementPageUpdateForm] = (
+        RetestAddStatementPageUpdateForm
     )
     template_name: str = "audits/forms/equality_body_retest_add_statement_link.html"
+
+
+class RetestDeleteStatementPageUpdateView(DeleteStatementPageUpdateView):
+    """View to delete statement link in equality body-requested retest"""
+
+    template_name: str = "audits/forms/equality_body_retest_statement_page_delete.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add retest to context"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        retest: Retest = get_object_or_404(Retest, id=self.kwargs.get("retest_id"))
+        context["retest"] = retest
+        return context
+
+    def get_success_url(self) -> str:
+        """Return to the list of statement links"""
+        retest: Retest = get_object_or_404(Retest, id=self.kwargs.get("retest_id"))
+        return reverse(
+            "audits:edit-equality-body-statement-pages",
+            kwargs={"pk": retest.id},
+        )
 
 
 class RetestStatementBackupUpdateView(

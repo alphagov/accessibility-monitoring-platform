@@ -30,6 +30,7 @@ from ...simplified.utils import (
     record_simplified_model_update_event,
 )
 from ..forms import (
+    DeleteStatementPageUpdateForm,
     StatementBackupForm,
     StatementCheckCreateUpdateForm,
     StatementCheckResultFormset,
@@ -495,6 +496,25 @@ class AddStatementLinkUpdateView(AuditUpdateView):
                     statement_link_form=statement_link_form,
                 )
             )
+
+
+class DeleteStatementPageUpdateView(UpdateView):
+    """Mark statement link as deleted"""
+
+    model: type[StatementPage] = StatementPage
+    form_class: type[DeleteStatementPageUpdateForm] = DeleteStatementPageUpdateForm
+    context_object_name: str = "statement_page"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add record event on change of statement check"""
+        self.object: StatementPage = form.save(commit=False)
+        self.object.is_deleted = True
+        record_simplified_model_update_event(
+            user=self.request.user,
+            model_object=self.object,
+            simplified_case=self.object.audit.simplified_case,
+        )
+        return super().form_valid(form)
 
 
 class StatementBackupUpdateView(StatementBackupMixin, AuditUpdateView):

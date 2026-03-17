@@ -21,7 +21,30 @@
             <div class="govuk-grid-column-two-thirds">
             <div class="govuk-grid-row amp-margin-bottom-30">
                 <div class="govuk-grid-column-full">
-                    {% include "audits/helpers/statement_links.html" with audit=retest.simplified_case.audit %}
+                    {% if retest.simplified_case.audit.unique_statement_page_urls %}
+                        {% for statement_page in retest.simplified_case.audit.unique_statement_page_urls %}
+                            <p class="govuk-body-m amp-margin-bottom-0">
+                                <b>Statement link #{{ forloop.counter }}</b>
+                            </p>
+                            <ul class="govuk-list govuk-list--bullet amp-margin-bottom-20">
+                                <li>
+                                    <a href="{{ statement_page.url }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+                                        {{ statement_page.url }}</a>
+                                </li>
+                                {% if statement_page.created %}
+                                    <li>Added {{ statement_page.created|amp_datetime }}</li>
+                                {% else %}
+                                    <li>Added 1 January 1970</li>
+                                {% endif %}
+                                <li>
+                                    <a href="{% url 'audits:edit-equality-body-remove-statement-page' retest.id statement_page.id %}" class="govuk-link govuk-link--no-visited-state">
+                                        Remove</a>
+                                </li>
+                            </ul>
+                        {% endfor %}
+                    {% else %}
+                        <p class="govuk-body-m amp-margin-bottom-20">No statement links added</p>
+                    {% endif %}
                 </div>
             </div>
             {% include "common/messages.html" %}
