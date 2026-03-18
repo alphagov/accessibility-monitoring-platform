@@ -1,0 +1,9 @@
+<li>
+    <a href="{{ statement_page.url }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+        {{ statement_page.url }}</a>
+</li>
+{% if statement_page.created %}
+    <li>Added {{ statement_page.created|amp_datetime }}</li>
+{% else %}
+    <li>Added 1 January 1970</li>
+{% endif %}
