@@ -488,6 +488,7 @@ class DocumentUpload(models.Model):
     class Type(models.TextChoices):
         STATEMENT = "statement", "Statement"
         REPORT = "report", "Report"
+        UNKNOWN = "unknown", "Unknown"
 
     name = models.CharField(max_length=400, default="", blank=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
