@@ -6,7 +6,7 @@ import boto3
 from django.core.management.base import BaseCommand
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
-from ....cases.models import BaseCase, DocumentUpload, DocumentUpload
+from ....cases.models import BaseCase, DocumentUpload
 from ....cases.views import DocumentUploadMixin
 from ....cases.models import User
 
