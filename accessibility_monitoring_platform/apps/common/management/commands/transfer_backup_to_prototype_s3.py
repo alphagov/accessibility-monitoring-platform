@@ -24,7 +24,7 @@ class Command(BaseCommand):
         filtered_buckets = [bucket['Name'] for bucket in buckets if app_name in bucket['Name'] and env_name in bucket['Name']]
         if filtered_buckets == []:
             raise Exception("No buckets matching the current branch and prototype")
-        
+
         prototype_bucket_name = filtered_buckets[0]
 
         result = subprocess.run(
