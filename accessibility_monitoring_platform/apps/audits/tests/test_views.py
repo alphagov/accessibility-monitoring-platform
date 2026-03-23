@@ -3829,6 +3829,68 @@ def test_retest_next_page_name(path_name, expected_next_page, admin_client):
     assertContains(response, f"<b>{expected_next_page}</b>", html=True)
 
 
+@pytest.mark.parametrize(
+    "path_name, redirect_path_name",
+    [
+        ("initial-remove-statement-page", "edit-statement-pages"),
+        (
+            "edit-audit-retest-remove-statement-page",
+            "edit-audit-retest-statement-pages",
+        ),
+    ],
+)
+def test_statement_page_removal(path_name, redirect_path_name, admin_client):
+    """Test statement page removal and redirect"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+
+    response: HttpResponse = admin_client.post(
+        reverse(f"audits:{path_name}", kwargs={"pk": statement_page.id}),
+        {},
+    )
+
+    assert response.status_code == 302
+
+    assert response.url == reverse(
+        f"audits:{redirect_path_name}", kwargs={"pk": audit.id}
+    )
+
+    events: QuerySet[SimplifiedEventHistory] = SimplifiedEventHistory.objects.all()
+
+    assert events.count() == 1
+    assert events[0].parent == statement_page
+    assert events[0].event_type == SimplifiedEventHistory.Type.UPDATE
+
+
+def test_equality_body_retest_statement_page_removal(admin_client):
+    """Test equality body retest statement page removal and redirect"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "audits:edit-equality-body-remove-statement-page",
+            kwargs={"retest_id": retest.id, "pk": statement_page.id},
+        ),
+        {},
+    )
+
+    assert response.status_code == 302
+
+    assert response.url == reverse(
+        "audits:edit-equality-body-statement-pages", kwargs={"pk": retest.id}
+    )
+
+    events: QuerySet[SimplifiedEventHistory] = SimplifiedEventHistory.objects.all()
+
+    assert events.count() == 1
+    assert events[0].parent == statement_page
+    assert events[0].event_type == SimplifiedEventHistory.Type.UPDATE
+
+
 def test_create_initial_custom_issue_redirects(admin_client):
     """
     Test that statement initial custom issue create redirects to initial statement

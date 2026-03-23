@@ -557,8 +557,10 @@ def test_document_id_within_case_within_type():
 def test_document_s3_key():
     """Test document s3 key"""
     base_case: BaseCase = BaseCase.objects.create()
-    document_upload: DocumentUpload = DocumentUpload(base_case=base_case)
+    document_upload: DocumentUpload = DocumentUpload(
+        base_case=base_case, name=DOCUMENT_NAME
+    )
     assert (
         document_upload.s3_key
-        == f"base_cases/{document_upload.base_case.id}/{document_upload.type}s/ {document_upload.uuid}"
+        == f"base_cases/{document_upload.base_case.id}/{document_upload.name} {document_upload.uuid}"
     )

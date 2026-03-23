@@ -47,7 +47,14 @@ from ..forms import (
     TwelveWeekStatementBackupUpdateForm,
     TwelveWeekStatementPagesUpdateForm,
 )
-from ..models import Audit, CheckResult, Page, StatementCheck, StatementCheckResult
+from ..models import (
+    Audit,
+    CheckResult,
+    Page,
+    StatementCheck,
+    StatementCheckResult,
+    StatementPage,
+)
 from ..utils import (
     add_to_check_result_restest_notes_history,
     get_audit_summary_context,
@@ -59,6 +66,7 @@ from .base import (
     AuditCaseComplianceUpdateView,
     AuditPageChecksBaseFormView,
     AuditUpdateView,
+    DeleteStatementPageUpdateView,
     StatementBackupUpdateView,
 )
 
@@ -271,13 +279,27 @@ class AuditRetestWcagSummaryUpdateView(AuditRetestSummaryUpdateView):
     template_name: str = "audits/forms/test_summary_wcag.html"
 
 
-class TwelveWeekAddStatementLinkUpdateView(AddStatementLinkUpdateView):
+class TwelveWeekAddStatementPageUpdateView(AddStatementLinkUpdateView):
     """View to add statement page in 12-week retest"""
 
     form_class: type[TwelveWeekStatementPagesUpdateForm] = (
         TwelveWeekStatementPagesUpdateForm
     )
-    template_name: str = "audits/forms/twelve_week_statement_link.html"
+    template_name: str = "audits/forms/twelve_week_add_statement_link.html"
+
+
+class TwelveWeekDeleteStatementPageUpdateView(DeleteStatementPageUpdateView):
+    """View to delete statement link in 12-week retest"""
+
+    template_name: str = "audits/forms/twelve_week_statement_page_delete.html"
+
+    def get_success_url(self) -> str:
+        """Return to the list of statement links"""
+        statement_page: StatementPage = self.object
+        return reverse(
+            "audits:edit-audit-retest-statement-pages",
+            kwargs={"pk": statement_page.audit.id},
+        )
 
 
 class TwelveWeekStatementBackupUpdateView(StatementBackupUpdateView):

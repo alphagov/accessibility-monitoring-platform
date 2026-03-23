@@ -6,6 +6,7 @@ from django import forms
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from ..common.forms import (
+    AMPBooleanCheckboxWidget,
     AMPCharFieldWide,
     AMPChoiceCheckboxField,
     AMPChoiceCheckboxWidget,
@@ -32,6 +33,7 @@ from .models import (
     RetestStatementCheckResult,
     StatementCheck,
     StatementCheckResult,
+    StatementPage,
     WcagDefinition,
 )
 
@@ -1203,7 +1205,7 @@ class RetestComplianceUpdateForm(forms.ModelForm):
 class StatementLinkForm(forms.Form):
     """Form to add new statement link"""
 
-    statement_url = AMPURLField(label="Add new link to statement")
+    statement_url = AMPURLField(label="Add link to statement page")
 
     class Meta:
         fields: list[str] = [
@@ -1211,7 +1213,7 @@ class StatementLinkForm(forms.Form):
         ]
 
 
-class AuditStatementPagesUpdateForm(VersionForm):
+class InitialAuditStatementPagesUpdateForm(VersionForm):
     """
     Form for statement pages update at initial test
     """
@@ -1224,6 +1226,20 @@ class AuditStatementPagesUpdateForm(VersionForm):
             "version",
             "audit_statement_pages_complete_date",
         ]
+
+
+class DeleteStatementPageUpdateForm(forms.ModelForm):
+    """Form to delete statement page"""
+
+    is_deleted = forms.BooleanField(
+        label="Confirm you want to remove statement link",
+        required=False,
+        widget=forms.HiddenInput(),
+    )
+
+    class Meta:
+        model = StatementPage
+        fields = ["is_deleted"]
 
 
 class StatementBackupForm(forms.Form):
@@ -1291,7 +1307,7 @@ class TwelveWeekStatementBackupUpdateForm(VersionForm):
         ]
 
 
-class RetestAddStatementLinkUpdateForm(VersionForm):
+class RetestAddStatementPageUpdateForm(VersionForm):
     """
     Form for statement pages update at equality body-requested retest
     """

@@ -1,7 +1,7 @@
 {% extends 'common/case_form.html' %}
 
 {% block preform %}
-{% include 'audits/helpers/details_statement_backups.html' with audit=custom_issue.audit %}
+{% include 'audits/helpers/details_statement_links_and_backups.html' with audit=custom_issue.audit %}
 {% include 'audits/statement_checks/custom_issue_detail.html' %}
 {% endblock %}
 

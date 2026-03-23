@@ -1,7 +1,7 @@
 {% extends 'common/case_form.html' %}
 
 {% block preform %}
-    {% include 'audits/helpers/details_statement_backups.html' with small_margin_bottom=True %}
+    {% include 'audits/helpers/details_statement_links_and_backups.html' with small_margin_bottom=True %}
     {% include 'common/error_summary.html' with form=case_compliance_form %}
     {% if audit.accessibility_statement_initially_found %}
         {% include 'simplified/helpers/view_initial_decision.html' with case=audit.simplified_case %}

@@ -513,4 +513,4 @@ class DocumentUpload(models.Model):
 
     @property
     def s3_key(self) -> str:
-        return f"base_cases/{self.base_case.id}/{self.type}s/{self.name} {self.uuid}"
+        return f"base_cases/{self.base_case.id}/{self.name} {self.uuid}"

@@ -1,0 +1,58 @@
+{% extends 'cases/base.html' %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'cases/helpers/case_banner.html' %}
+        </div>
+    </div>
+    {% include 'audits/helpers/retest_breadcrumbs.html' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% include "common/helpers/edit_header.html" with retest_header=True %}
+            </div>
+        </div>
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:edit-equality-body-retest-remove-statement-page' %}
+            </div>
+            <div class="govuk-grid-column-two-thirds">
+                <div class="govuk-grid-row amp-margin-bottom-30">
+                    <div class="govuk-grid-column-full">
+                        <p class="govuk-body amp-margin-bottom-5"><b>Statement link</b></p>
+                        <p class="govuk-body">
+                            <a href="{{ statement_page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                {{ statement_page.url }}</a>
+                        </p>
+                        <p class="govuk-body amp-margin-bottom-5"><b>Added</b></p>
+                        <p class="govuk-body">{{ statement_page.created|amp_date_trunc }}</p>
+                    </div>
+                </div>
+                {% include "common/messages.html" %}
+                <form method="post" action="{% url sitemap.current_platform_page.url_name retest.id statement_page.id %}">
+                    {% csrf_token %}
+                    {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-full govuk-button-group">
+                            <input
+                                type="submit"
+                                value="Remove and return"
+                                name="delete"
+                                class="govuk-button govuk-button--warning"
+                                data-module="govuk-button"
+                            />
+                            <a
+                                href="{% url 'audits:edit-equality-body-statement-pages' statement_page.audit.id %}"
+                                class="govuk-link govuk-link--no-visited-state"
+                            >
+                                Cancel and return
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+    </main>
+</div>
+{% endblock %}

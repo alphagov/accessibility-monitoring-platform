@@ -19,7 +19,14 @@ from ..audits.forms import (
     AuditRetestMetadataUpdateForm,
     AuditTwelveWeekDisproportionateBurdenUpdateForm,
 )
-from ..audits.models import Audit, Page, Retest, RetestPage, StatementCheckResult
+from ..audits.models import (
+    Audit,
+    Page,
+    Retest,
+    RetestPage,
+    StatementCheckResult,
+    StatementPage,
+)
 from ..cases.models import BaseCase, DocumentUpload
 from ..comments.models import Comment
 from ..detailed.forms import (
@@ -467,6 +474,21 @@ class AuditCustomIssuesPlatformPage(AuditPlatformPage):
                 self.subpages = bound_subpages
 
 
+class AuditStatementLinksPlatformPage(AuditPlatformPage):
+    def populate_from_case(self, case: AnyCaseType):
+        if hasattr(case, "audit") and isinstance(case.audit, Audit):
+            self.set_instance(instance=case.audit)
+            if self.subpages is not None:
+                bound_subpages: list[PlatformPage] = populate_subpages_with_instance(
+                    platform_page=self, instance=case.audit
+                )
+                for statement_page in case.audit.unique_statement_page_urls:
+                    bound_subpages += populate_subpages_with_instance(
+                        platform_page=self, instance=statement_page
+                    )
+                self.subpages = bound_subpages
+
+
 class ReportPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -559,6 +581,20 @@ class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestPlatformPage):
                 bound_subpages += populate_subpages_with_instance(
                     platform_page=self, instance=retest_page
                 )
+            self.subpages = bound_subpages
+
+
+class EqualityBodyRetestStatementLinksPlatformPage(EqualityBodyRetestPlatformPage):
+    def populate_subpage_instances(self):
+        if self.subpages is not None and self.instance is not None:
+            bound_subpages: list[PlatformPage] = []
+            if self.instance.simplified_case.audit is not None:
+                for (
+                    statement_page
+                ) in self.instance.simplified_case.audit.unique_statement_page_urls:
+                    bound_subpages += populate_subpages_with_instance(
+                        platform_page=self, instance=statement_page
+                    )
             self.subpages = bound_subpages
 
 
@@ -781,12 +817,21 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
         name="Initial statement",
         show_flag_name="not_archived_has_audit",
         pages=[
-            AuditPlatformPage(
+            AuditStatementLinksPlatformPage(
                 name="Statement links",
                 url_name="audits:edit-statement-pages",
                 complete_flag_name="audit_statement_pages_complete_date",
                 case_details_template_name="simplified/details/details_statement_links.html",
                 next_page_url_name="audits:initial-statement-backup",
+                subpages=[
+                    PlatformPage(
+                        name="Remove statement link",
+                        url_name="audits:initial-remove-statement-page",
+                        url_kwarg_key="pk",
+                        visible_only_when_current=True,
+                        instance_class=StatementPage,
+                    )
+                ],
             ),
             AuditPlatformPage(
                 name="Statement backups",
@@ -1150,11 +1195,20 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
         name="12-week statement",
         show_flag_name="show_12_week_retest",
         pages=[
-            AuditPlatformPage(
+            AuditStatementLinksPlatformPage(
                 name="Statement links",
                 url_name="audits:edit-audit-retest-statement-pages",
                 complete_flag_name="audit_retest_statement_pages_complete_date",
                 next_page_url_name="audits:edit-audit-retest-statement-backup",
+                subpages=[
+                    PlatformPage(
+                        name="Remove statement link",
+                        url_name="audits:edit-audit-retest-remove-statement-page",
+                        url_kwarg_key="pk",
+                        visible_only_when_current=True,
+                        instance_class=StatementPage,
+                    )
+                ],
             ),
             AuditPlatformPage(
                 name="Statement backups",
@@ -1380,11 +1434,20 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                                 complete_flag_name="compliance_complete_date",
                                 next_page_url_name="audits:edit-equality-body-statement-pages",
                             ),
-                            EqualityBodyRetestPlatformPage(
+                            EqualityBodyRetestStatementLinksPlatformPage(
                                 name="Statement links",
                                 url_name="audits:edit-equality-body-statement-pages",
                                 complete_flag_name="statement_pages_complete_date",
                                 next_page_url_name="audits:edit-equality-body-statement-backup",
+                                subpages=[
+                                    PlatformPage(
+                                        name="Remove statement link",
+                                        url_name="audits:edit-equality-body-remove-statement-page",
+                                        url_kwarg_key="pk",
+                                        visible_only_when_current=True,
+                                        instance_class=StatementPage,
+                                    )
+                                ],
                             ),
                             EqualityBodyRetestPlatformPage(
                                 name="Statement backups",

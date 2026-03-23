@@ -36,7 +36,6 @@ from ..forms import (
     AuditStatementFeedbackUpdateForm,
     AuditStatementNonAccessibleUpdateForm,
     AuditStatementOverviewUpdateForm,
-    AuditStatementPagesUpdateForm,
     AuditStatementPreparationUpdateForm,
     AuditStatementSummaryUpdateForm,
     AuditStatementWebsiteUpdateForm,
@@ -46,6 +45,7 @@ from ..forms import (
     CaseComplianceWebsiteInitialUpdateForm,
     CheckResultFilterForm,
     CheckResultFormset,
+    InitialAuditStatementPagesUpdateForm,
     InitialCustomIssueCreateUpdateForm,
 )
 from ..models import (
@@ -70,6 +70,7 @@ from .base import (
     AuditPageChecksBaseFormView,
     AuditStatementCheckingView,
     AuditUpdateView,
+    DeleteStatementPageUpdateView,
     StatementBackupUpdateView,
 )
 
@@ -363,11 +364,26 @@ class AuditWcagSummaryUpdateView(AuditSummaryUpdateView):
     template_name: str = "audits/forms/test_summary_wcag.html"
 
 
-class InitialAddStatementLinkUpdateView(AddStatementLinkUpdateView):
+class InitialAddStatementPageUpdateView(AddStatementLinkUpdateView):
     """View to add statement link in initial test"""
 
-    form_class: type[AuditStatementPagesUpdateForm] = AuditStatementPagesUpdateForm
+    form_class: type[InitialAuditStatementPagesUpdateForm] = (
+        InitialAuditStatementPagesUpdateForm
+    )
     template_name: str = "audits/forms/initial_add_statement_link.html"
+
+
+class InitialDeleteStatementPageUpdateView(DeleteStatementPageUpdateView):
+    """View to delete statement link in initial test"""
+
+    template_name: str = "audits/forms/initial_statement_page_delete.html"
+
+    def get_success_url(self) -> str:
+        """Return to the list of statement links"""
+        statement_page: StatementPage = self.object
+        return reverse(
+            "audits:edit-statement-pages", kwargs={"pk": statement_page.audit.id}
+        )
 
 
 class InitialStatementBackupUpdateView(StatementBackupUpdateView):

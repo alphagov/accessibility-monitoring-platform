@@ -17,9 +17,10 @@ from .views.base import (
     restore_page,
 )
 from .views.equality_body import (
-    RetestAddStatementLinkUpdateView,
+    RetestAddStatementPageUpdateView,
     RetestComparisonUpdateView,
     RetestComplianceUpdateView,
+    RetestDeleteStatementPageUpdateView,
     RetestDisproportionateBurdenUpdateView,
     RetestMetadataUpdateView,
     RetestPageChecksFormView,
@@ -54,9 +55,10 @@ from .views.initial import (
     AuditStatementWebsiteFormView,
     AuditWcagSummaryUpdateView,
     CustomIssueCreateView,
-    InitialAddStatementLinkUpdateView,
+    InitialAddStatementPageUpdateView,
     InitialCustomIssueDeleteTemplateView,
     InitialCustomIssueUpdateView,
+    InitialDeleteStatementPageUpdateView,
     InitialDisproportionateBurdenUpdateView,
     InitialStatementBackupUpdateView,
     clear_published_report_data_updated_time,
@@ -82,7 +84,8 @@ from .views.twelve_week import (
     AuditRetestStatementWebsiteFormView,
     AuditRetestWcagSummaryUpdateView,
     New12WeekCustomIssueDeleteTemplateView,
-    TwelveWeekAddStatementLinkUpdateView,
+    TwelveWeekAddStatementPageUpdateView,
+    TwelveWeekDeleteStatementPageUpdateView,
     TwelveWeekDisproportionateBurdenUpdateView,
     TwelveWeekStatementBackupUpdateView,
     delete_new_12_week_custom_issue,
@@ -123,8 +126,13 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-statement-pages/",
-        login_required(InitialAddStatementLinkUpdateView.as_view()),
+        login_required(InitialAddStatementPageUpdateView.as_view()),
         name="edit-statement-pages",
+    ),
+    path(
+        "links/<int:pk>/initial-remove-statement-page/",
+        login_required(InitialDeleteStatementPageUpdateView.as_view()),
+        name="initial-remove-statement-page",
     ),
     path(
         "<int:pk>/initial-statement-backup/",
@@ -248,8 +256,13 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-audit-retest-statement-pages/",
-        login_required(TwelveWeekAddStatementLinkUpdateView.as_view()),
+        login_required(TwelveWeekAddStatementPageUpdateView.as_view()),
         name="edit-audit-retest-statement-pages",
+    ),
+    path(
+        "<int:pk>/edit-audit-retest-remove-statement-page/",
+        login_required(TwelveWeekDeleteStatementPageUpdateView.as_view()),
+        name="edit-audit-retest-remove-statement-page",
     ),
     path(
         "<int:pk>/edit-audit-retest-statement-backup/",
@@ -398,8 +411,13 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "retests/<int:pk>/edit-equality-body-statement-pages/",
-        login_required(RetestAddStatementLinkUpdateView.as_view()),
+        login_required(RetestAddStatementPageUpdateView.as_view()),
         name="edit-equality-body-statement-pages",
+    ),
+    path(
+        "retests/<int:retest_id>/links/<int:pk>/edit-equality-body-retest-remove-statement-page/",
+        login_required(RetestDeleteStatementPageUpdateView.as_view()),
+        name="edit-equality-body-remove-statement-page",
     ),
     path(
         "retests/<int:pk>/edit-equality-body-statement-backup/",
