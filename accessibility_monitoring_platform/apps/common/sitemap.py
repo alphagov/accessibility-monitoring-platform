@@ -2385,11 +2385,15 @@ SITE_MAP: list[PlatformPageGroup] = (
                     url_name="tech:reference-implementation",
                 ),
                 PlatformPage(
+                    name="Email templates",
+                    url_name="tech:email-templates",
+                ),
+                PlatformPage(
                     name="Equality body CSV metadata",
                     url_name="tech:equality-body-csv-metadata",
                 ),
                 PlatformPage(
-                    name="Check logging and exceptions",
+                    name="Logging and exceptions",
                     url_name="tech:platform-checking",
                 ),
                 PlatformPage(name="Sitemap", url_name="tech:sitemap"),
