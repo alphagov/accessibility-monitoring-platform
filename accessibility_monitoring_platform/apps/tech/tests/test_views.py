@@ -87,8 +87,9 @@ def test_tech_page_staff_access(url_name, page_name, client):
     "url_name",
     [
         "tech:reference-implementation",
-        "tech:platform-checking",
+        "tech:email-templates",
         "tech:equality-body-csv-metadata",
+        "tech:platform-checking",
         "tech:sitemap",
     ],
 )
