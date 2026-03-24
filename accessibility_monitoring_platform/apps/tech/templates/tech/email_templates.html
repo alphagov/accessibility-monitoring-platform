@@ -1,0 +1,49 @@
+{% extends 'tech/base.html' %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'tech/breadcrumbs.html' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ sitemap.current_platform_page.get_name }}</h1>
+            </div>
+        </div>
+        <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Email (template)</th>
+                    <th class="govuk-table__header">Previews</th>
+                <tr>
+            </thead>
+            <tbody class="govuk-table__body">
+                {% for email_template in email_templates %}
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">
+                            {{ email_template.name }}<br>
+                            (<code>{{ email_template.template_name }}</code>)
+                        </td>
+                        <td class="govuk-table__cell">
+                            {% if email_template.is_simplified %}
+                                <a href="{% url simplified_case.email_template_preview_url_name simplified_case.id email_template.id %}" rel="noreferrer noopener" target="_blank" class="govuk-link govuk-link--no-visited-state">
+                                    Simplifed</a>
+                                <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span><br>
+                            {% endif %}
+                            {% if email_template.is_detailed %}
+                                <a href="{% url detailed_case.email_template_preview_url_name detailed_case.id email_template.id %}" rel="noreferrer noopener" target="_blank" class="govuk-link govuk-link--no-visited-state">
+                                    Detailed</a>
+                                <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span><br>
+                            {% endif %}
+                            {% if email_template.is_mobile %}
+                                <a href="{% url mobile_case.email_template_preview_url_name mobile_case.id email_template.id %}" rel="noreferrer noopener" target="_blank" class="govuk-link govuk-link--no-visited-state">
+                                    Mobile</a>
+                                <span class="amp-new-window">&nbsp;&nbsp;&nbsp;</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+</div>
+{% endblock %}
