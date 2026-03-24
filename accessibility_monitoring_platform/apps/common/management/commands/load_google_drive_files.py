@@ -1,8 +1,9 @@
-from datetime import datetime, timedelta, date
+from datetime import datetime, date
 import io
 import mimetypes
 import os
 import re
+from unittest.mock import Mock, patch
 
 
 import boto3
@@ -66,21 +67,11 @@ def s3_to_inmemory_uploaded_file(s3, bucket: str, key: str) -> InMemoryUploadedF
 class Command(BaseCommand):
     help = "Command for loading Google Drive platform files to the platform"
 
-    def add_arguments(self, parser):
-        parser.add_argument(
-            "file_limit",
-            nargs="?",
-            type=int,
-            help="Limit number of files to load for testing purposes"
-        )
-
     def handle(self, *args, **options):  # pylint: disable=unused-argument
-        file_limit = options["file_limit"]
         s3_prod = boto3.client("s3")
 
         response = s3_prod.list_objects_v2(
-            Bucket=os.getenv("DB_NAME"),
-            Prefix="google-drive-case-files/"
+            Bucket=os.getenv("DB_NAME"), Prefix="google-drive-case-files/"
         )
 
         s3_objects = []
@@ -92,7 +83,7 @@ class Command(BaseCommand):
                 response = s3_prod.list_objects_v2(
                     Bucket=os.getenv("DB_NAME"),
                     Prefix="google-drive-case-files/",
-                    ContinuationToken=response["NextContinuationToken"]
+                    ContinuationToken=response["NextContinuationToken"],
                 )
             else:
                 break
@@ -123,31 +114,36 @@ class Command(BaseCommand):
                         key=s3_path,
                     )
                     user = case.auditor if case.auditor else User.objects.get(pk=13)
-                    document_type = DocumentUpload.Type.UNKNOWN 
+                    document_type = DocumentUpload.Type.UNKNOWN
                     if "statement" in filename.lower():
                         document_type = DocumentUpload.Type.STATEMENT
                     elif "report" in filename.lower():
                         document_type = DocumentUpload.Type.REPORT
 
                     creation_date = None
+                    dt = datetime.now()
                     if ".pdf" in filename:
-                        creation_date = extract_creation_date_only(in_mem_file_upload.file)
+                        creation_date = extract_creation_date_only(
+                            in_mem_file_upload.file
+                        )
+                        if creation_date:
+                            dt = datetime.combine(creation_date, datetime.min.time())
+                    dt = timezone.make_aware(dt)
 
-                    DocumentUploadMixin.document_upload(
-                        self=None,
-                        uploaded_file=in_mem_file_upload,
-                        user=user,
-                        base_case=case,
-                        document_type=document_type
-                    )
-                    if creation_date:
-                        dt = datetime.combine(creation_date, datetime.min.time())
-                        dt = timezone.make_aware(dt)
-                        DocumentUpload.objects.filter(
+                    with patch(
+                        "django.utils.timezone.now",
+                        Mock(return_value=dt),
+                    ):
+                        DocumentUploadMixin.document_upload(
+                            self=None,
+                            uploaded_file=in_mem_file_upload,
+                            user=user,
                             base_case=case,
-                            name=filename
-                        ).update(uploaded_time=dt)
+                            document_type=document_type,
+                        )
 
                 num_of_s3_objects_completed += 1
                 if num_of_s3_objects_completed % 100 == 0:
-                    print(f">>> {num_of_s3_objects_completed} of {num_of_s3_objects} completed")
+                    print(
+                        f">>> {num_of_s3_objects_completed} of {num_of_s3_objects} completed"
+                    )
