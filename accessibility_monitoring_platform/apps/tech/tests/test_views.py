@@ -20,8 +20,9 @@ LOG_MESSAGE: str = "Hello"
     "url_name, page_name",
     [
         ("tech:reference-implementation", ">Reference implementation</h1>"),
-        ("tech:platform-checking", ">Check logging and exceptions</h1>"),
+        ("tech:email-templates", ">Email templates</h1>"),
         ("tech:equality-body-csv-metadata", ">Equality body CSV metadata</h1>"),
+        ("tech:platform-checking", ">Logging and exceptions</h1>"),
         ("tech:sitemap", ">Sitemap</h1>"),
     ],
 )
@@ -58,8 +59,9 @@ def test_platform_checking_writes_log(admin_client, caplog):
     "url_name, page_name",
     [
         ("tech:reference-implementation", "Reference implementation"),
-        ("tech:platform-checking", "Check logging and exceptions"),
+        ("tech:email-templates", ">Email templates</h1>"),
         ("tech:equality-body-csv-metadata", "Equality body CSV metadata"),
+        ("tech:platform-checking", "Logging and exceptions"),
         ("tech:sitemap", "Sitemap"),
     ],
 )
