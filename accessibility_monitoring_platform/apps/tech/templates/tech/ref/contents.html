@@ -86,35 +86,41 @@
             </li>
         </ul>
         <h2 class="govuk-heading-m">Recent cases</h2>
-        <ul class="govuk-list">
+        <table>
             {% if simplified_case %}
-                <li>
-                    {{ case.case_identifier }}
-                    <a href="{% url 'simplified:case-history' simplified_case.id %}" class="govuk-link govuk-link--no-visited-state">
-                        {{ case.full_name }}</a>
-                    (<a href="{% url 'admin:simplified_simplifiedeventhistory_changelist' %}?q={{ simplified_case.case_number }}" class="govuk-link govuk-link--no-visited-state"
+                <tr>
+                    <td class="amp-width-20-percent"><span class="amp-case-tag amp-case-test-type-simplified">{{ case.case_identifier }}</span></td>
+                    <td>
+                        <a href="{% url 'simplified:case-history' simplified_case.id %}" class="govuk-link govuk-link--no-visited-state">
+                            {{ case.full_name }}</a>
+                        (<a href="{% url 'admin:simplified_simplifiedeventhistory_changelist' %}?q={{ simplified_case.case_number }}" class="govuk-link govuk-link--no-visited-state"
                         >admin</a>)
-                </li>
+                    </td>
+                </tr>
             {% endif %}
             {% if detailed_case %}
-                <li>
-                    {{ detailed_case.case_identifier }}
-                    <a href="{% url 'detailed:case-history' detailed_case.id %}" class="govuk-link govuk-link--no-visited-state">
-                        {{ detailed_case.full_name }}</a>
-                    (<a href="{% url 'admin:detailed_detailedeventhistory_changelist' %}?q={{ detailed_case.case_number }}" class="govuk-link govuk-link--no-visited-state"
+                <tr>
+                    <td><span class="amp-case-tag amp-case-test-type-detailed">{{ detailed_case.case_identifier }}</span></td>
+                    <td>
+                        <a href="{% url 'detailed:case-history' detailed_case.id %}" class="govuk-link govuk-link--no-visited-state">
+                            {{ detailed_case.full_name }}</a>
+                        (<a href="{% url 'admin:detailed_detailedeventhistory_changelist' %}?q={{ detailed_case.case_number }}" class="govuk-link govuk-link--no-visited-state"
                         >admin</a>)
-                </li>
+                    </td>
+                </tr>
             {% endif %}
             {% if mobile_case %}
-                <li>
-                    {{ mobile_case.case_identifier }}
-                    <a href="{% url 'mobile:case-history' mobile_case.id %}" class="govuk-link govuk-link--no-visited-state">
-                        {{ mobile_case.full_name }}</a>
-                    (<a href="{% url 'admin:mobile_eventhistory_changelist' %}?q={{ mobile_case.case_number }}" class="govuk-link govuk-link--no-visited-state"
+                <tr>
+                    <td><span class="amp-case-tag amp-case-test-type-mobile">{{ mobile_case.case_identifier }}</span></td>
+                    <td>
+                        <a href="{% url 'mobile:case-history' mobile_case.id %}" class="govuk-link govuk-link--no-visited-state">
+                            {{ mobile_case.full_name }}</a>
+                        (<a href="{% url 'admin:mobile_eventhistory_changelist' %}?q={{ mobile_case.case_number }}" class="govuk-link govuk-link--no-visited-state"
                         >admin</a>)
-                </li>
+                    </td>
+                </tr>
             {% endif %}
-        </ul>
+        </table>
     </div>
 </div>
 <div class="govuk-grid-row">
