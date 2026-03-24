@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path
 
 from .views import (
+    EmailTemplatesView,
     EqualityBodyCsvMetadataView,
     PlatformCheckingView,
     ReferenceImplementaionView,
@@ -16,6 +17,11 @@ urlpatterns = [
         "",
         login_required(ReferenceImplementaionView.as_view()),
         name="reference-implementation",
+    ),
+    path(
+        "email-templates/",
+        login_required(EmailTemplatesView.as_view()),
+        name="email-templates",
     ),
     path(
         "equality-body-csv-metadata/",

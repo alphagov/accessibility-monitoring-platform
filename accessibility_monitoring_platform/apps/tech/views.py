@@ -10,6 +10,7 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
 from ..cases.models import CASE_STATUSES
+from ..common.models import EmailTemplate
 from ..detailed.csv_export import (
     DETAILED_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
     DETAILED_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
@@ -37,18 +38,12 @@ from .forms import PlatformCheckingForm
 logger = logging.getLogger(__name__)
 
 
-class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    def test_func(self):
-        return self.request.user.is_staff
-
-
-class ReferenceImplementaionView(StaffRequiredMixin, TemplateView):
-    """Reference implementation of reusable components"""
+class CaseContextMixin:
+    """Put examples of cases in context"""
 
     template_name: str = "tech/reference_implementation.html"
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
         report: Report | None = Report.objects.all().first()
         if report is None or not hasattr(
@@ -60,14 +55,43 @@ class ReferenceImplementaionView(StaffRequiredMixin, TemplateView):
         else:
             simplified_case: SimplifiedCase = report.base_case.simplifiedcase
         context["case"] = simplified_case
+        context["simplified_case"] = simplified_case
         context["detailed_case"] = DetailedCase.objects.first()
         context["mobile_case"] = MobileCase.objects.first()
+        return context
+
+
+class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_staff
+
+
+class ReferenceImplementaionView(CaseContextMixin, StaffRequiredMixin, TemplateView):
+    """Reference implementation of reusable components"""
+
+    template_name: str = "tech/reference_implementation.html"
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Get context data for template rendering"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         context["banner_case_detailed"] = context["detailed_case"]
         context["banner_case_mobile"] = MobileCase.objects.last()
         context["banner_case_archived"] = SimplifiedCase.objects.exclude(
             archive=""
         ).first()
         context["case_statuses"] = CASE_STATUSES
+        return context
+
+
+class EmailTemplatesView(CaseContextMixin, StaffRequiredMixin, TemplateView):
+    """View showing email templates and which types of case use them."""
+
+    template_name: str = "tech/email_templates.html"
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Get context data for template rendering"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        context["email_templates"] = EmailTemplate.objects.filter(is_deleted=False)
         return context
 
 
