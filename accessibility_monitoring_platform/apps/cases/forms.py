@@ -18,8 +18,10 @@ from ..cases.models import (
     extract_id_from_case_url,
 )
 from ..common.forms import (
+    AMPBooleanCheckboxWidget,
     AMPCharFieldWide,
     AMPChoiceField,
+    AMPChoiceRadioField,
     AMPDateField,
     AMPDateRangeForm,
     AMPIntegerField,
@@ -160,3 +162,33 @@ class DocumentUploadForm(forms.Form):
         if file_to_upload is not None:
             validate_file_size(file_to_upload, max_size_mb=MAX_UPLOAD_FILE_SIZE_MB)
         return file_to_upload
+
+
+class DocumentUploadUpdateForm(forms.ModelForm):
+    """Form for updating a document upload"""
+
+    type = AMPChoiceRadioField(
+        label="Document type", choices=DocumentUpload.Type.choices
+    )
+
+    class Meta:
+        model = DocumentUpload
+        fields = [
+            "type",
+        ]
+
+
+class DocumentUploadDeleteForm(forms.ModelForm):
+    """Form for deleting a document upload"""
+
+    is_deleted = forms.BooleanField(
+        label="Confirm you want to remove this file?",
+        required=False,
+        widget=AMPBooleanCheckboxWidget(attrs={"label": "Remove file"}),
+    )
+
+    class Meta:
+        model = DocumentUpload
+        fields = [
+            "is_deleted",
+        ]

@@ -2467,6 +2467,12 @@ SITE_MAP: list[PlatformPageGroup] = (
                         BaseCasePlatformPage(
                             name="Upload file", url_name="cases:document-upload-create"
                         ),
+                        DocumentPlatformPage(
+                            name="Edit file", url_name="cases:document-upload-update"
+                        ),
+                        DocumentPlatformPage(
+                            name="Remove file", url_name="cases:document-upload-delete"
+                        ),
                     ],
                 ),
             ],

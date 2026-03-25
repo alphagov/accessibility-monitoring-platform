@@ -13,7 +13,7 @@ from django.http import FileResponse, HttpRequest, HttpResponse, HttpResponseRed
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
 from ..common.utils import (
@@ -23,7 +23,12 @@ from ..common.utils import (
     replace_search_key_with_case_search,
 )
 from ..common.views import HideCaseNavigationMixin
-from .forms import CaseSearchForm, DocumentUploadForm
+from .forms import (
+    CaseSearchForm,
+    DocumentUploadDeleteForm,
+    DocumentUploadForm,
+    DocumentUploadUpdateForm,
+)
 from .models import BaseCase, DocumentUpload
 from .record_event import record_create_event
 from .utils import S3ReadWriteDocument, filter_cases
@@ -179,6 +184,28 @@ class DocumentUploadView(HideCaseNavigationMixin, DocumentUploadMixin, FormView)
         base_case: BaseCase = get_object_or_404(BaseCase, id=self.kwargs.get("pk"))
         case_pk: dict[str, int] = {"pk": base_case.id}
         return reverse("cases:document-upload-list", kwargs=case_pk)
+
+
+class DocumentUploadUpdateView(HideCaseNavigationMixin, UpdateView):
+    """View to update a Document upload"""
+
+    model: type[DocumentUpload] = DocumentUpload
+    context_object_name: str = "document_upload"
+    template_name: str = "cases/forms/document_upload_update.html"
+    form_class: type[DocumentUploadUpdateForm] = DocumentUploadUpdateForm
+
+    def get_success_url(self) -> str:
+        """Return to document list page on exit"""
+        document_upload: DocumentUpload = self.object
+        case_pk: dict[str, int] = {"pk": document_upload.base_case.id}
+        return reverse("cases:document-upload-list", kwargs=case_pk)
+
+
+class DocumentUploadDeleteView(DocumentUploadUpdateView):
+    """View to delete a Document upload"""
+
+    template_name: str = "cases/forms/document_upload_delete.html"
+    form_class: type[DocumentUploadDeleteForm] = DocumentUploadDeleteForm
 
 
 def document_download(request: HttpRequest, pk: int) -> FileResponse | HttpResponse:

@@ -6,12 +6,13 @@
             + Upload file</a>
     </div>
     {% if case.document_uploads %}
-        <table class="govuk-table amp-file-management-table">
+        <table class="govuk-table amp-file-management-table govuk-!-font-size-16">
             <thead class="govuk-table__head">
                 <tr class="govuk-table__row">
-                    <th scope="col" class="govuk-table__header">File</th>
-                    <th scope="col" class="govuk-table__header amp-case-date">Uploaded</th>
-                    <th scope="col" class="govuk-table__header amp-file-type">Type</th>
+                    <th scope="col" class="govuk-table__header">Filename</th>
+                    <th scope="col" class="govuk-table__header">Uploaded</th>
+                    <th scope="col" class="govuk-table__header">Type</th>
+                    <th scope="col" class="govuk-table__header">Options</th>
                 </tr>
             </thead>
             <tbody class="govuk-table__body">
@@ -27,6 +28,13 @@
                         </td>
                         <td scope="row" class="govuk-table__cell amp-file-type">
                             {{ document.get_type_display }}
+                        </td>
+                        <td scope="row" class="govuk-table__cell">
+                            <a href="{% url 'cases:document-upload-update' document.id %}" class="govuk-link govuk-link--no-visited-state">
+                                Edit</a>
+                            &middot;
+                            <a href="{% url 'cases:document-upload-delete' document.id %}" class="govuk-link govuk-link--no-visited-state">
+                                Remove</a>
                         </td>
                     </tr>
                 {% endfor %}
