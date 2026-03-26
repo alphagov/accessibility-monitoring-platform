@@ -142,7 +142,7 @@ class PreviousCaseURLForm(forms.ModelForm):
             raise ValidationError("Previous case not found in platform")
 
 
-class FileUploadForm(forms.Form):
+class CaseFileUploadForm(forms.Form):
     """Form for uploading a file"""
 
     file_to_upload = forms.FileField(

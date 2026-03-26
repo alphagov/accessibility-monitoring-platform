@@ -14,8 +14,8 @@ from ...simplified.models import SimplifiedCase
 from ..models import CaseFile
 from ..utils import S3ReadWriteFile
 
-UPLOAD_FILE_NAME: str = "upload_file.txt"
-UPLOAD_FILE_CONTENT: str = "Upload file content"
+CASE_FILE_NAME: str = "case_file.txt"
+CASE_FILE_CONTENT: str = "Case file content"
 
 
 @mock_aws
@@ -24,11 +24,11 @@ def test_case_file_create(admin_client):
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     in_memory_file: InMemoryUploadedFile = InMemoryUploadedFile(
-        io.BytesIO(UPLOAD_FILE_CONTENT.encode()),
+        io.BytesIO(CASE_FILE_CONTENT.encode()),
         field_name="name",
-        name=UPLOAD_FILE_NAME,
+        name=CASE_FILE_NAME,
         content_type="text",
-        size=len(UPLOAD_FILE_CONTENT),
+        size=len(CASE_FILE_CONTENT),
         charset=None,
     )
 
@@ -49,7 +49,7 @@ def test_case_file_create(admin_client):
     data_s3: bytes | str = s3_read_write.read_case_file_from_s3(case_file=case_file)
 
     assert isinstance(data_s3, bytes)
-    assert data_s3.decode() == UPLOAD_FILE_CONTENT
+    assert data_s3.decode() == CASE_FILE_CONTENT
 
 
 @mock_aws
@@ -60,13 +60,13 @@ def test_document_download(admin_client):
     case_file: CaseFile = CaseFile.objects.create(
         base_case=simplified_case,
         uploaded_by=user,
-        name=UPLOAD_FILE_NAME,
+        name=CASE_FILE_NAME,
     )
 
     s3_read_write: S3ReadWriteFile = S3ReadWriteFile()
     s3_read_write.write_case_file_to_s3(
         case_file=case_file,
-        file_content=io.BytesIO(UPLOAD_FILE_CONTENT.encode()),
+        file_content=io.BytesIO(CASE_FILE_CONTENT.encode()),
     )
 
     response: HttpResponse = admin_client.get(
@@ -75,4 +75,4 @@ def test_document_download(admin_client):
 
     assert response.status_code == 200
 
-    assert response.getvalue().decode() == UPLOAD_FILE_CONTENT
+    assert response.getvalue().decode() == CASE_FILE_CONTENT

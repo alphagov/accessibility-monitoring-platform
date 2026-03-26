@@ -26,8 +26,8 @@ from ..common.views import HideCaseNavigationMixin
 from .forms import (
     CaseFileDeleteForm,
     CaseFileUpdateForm,
+    CaseFileUploadForm,
     CaseSearchForm,
-    FileUploadForm,
 )
 from .models import BaseCase, CaseFile
 from .record_event import record_create_event
@@ -163,7 +163,7 @@ class CaseFileListView(HideCaseNavigationMixin, DetailView):
 class CaseFileUploadView(HideCaseNavigationMixin, CaseFileUploadMixin, FormView):
     """View to upload a case file"""
 
-    form_class: type[FileUploadForm] = FileUploadForm
+    form_class: type[CaseFileUploadForm] = CaseFileUploadForm
     template_name: str = "cases/forms/case_file_create.html"
 
     def form_valid(self, form: forms.ModelForm) -> HttpResponseRedirect:

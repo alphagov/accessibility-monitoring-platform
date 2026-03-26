@@ -102,8 +102,8 @@ NEW_12_WEEK_CUSTOM_RETEST_COMMENT: str = "New 12-week custom retest comment"
 NEW_12_WEEK_CUSTOM_AUDITOR_NOTES: str = "New 12-week custom auditor notes"
 HISTORIC_RETEST_NOTES: str = "Historic retest notes"
 HISTORIC_CHECK_RESULT_NOTES: str = "Historic check result notes"
-UPLOAD_FILE_NAME: str = "upload_file.txt"
-UPLOAD_FILE_CONTENT: str = "Upload file content"
+CASE_FILE_NAME: str = "case_file.txt"
+CASE_FILE_CONTENT: str = "Case file content"
 
 
 def create_audit() -> Audit:
@@ -636,11 +636,11 @@ def test_add_statement_backup(url_name, admin_client):
     audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
     in_memory_file: InMemoryUploadedFile = InMemoryUploadedFile(
-        io.BytesIO(UPLOAD_FILE_CONTENT.encode()),
+        io.BytesIO(CASE_FILE_CONTENT.encode()),
         field_name="name",
-        name=UPLOAD_FILE_NAME,
+        name=CASE_FILE_NAME,
         content_type="text",
-        size=len(UPLOAD_FILE_CONTENT),
+        size=len(CASE_FILE_CONTENT),
         charset=None,
     )
 
@@ -657,13 +657,13 @@ def test_add_statement_backup(url_name, admin_client):
 
     case_file: CaseFile = CaseFile.objects.get(base_case=simplified_case)
 
-    assert case_file.name == UPLOAD_FILE_NAME
+    assert case_file.name == CASE_FILE_NAME
 
     s3_read_write: S3ReadWriteFile = S3ReadWriteFile()
     data_s3: bytes | str = s3_read_write.read_case_file_from_s3(case_file=case_file)
 
     assert isinstance(data_s3, bytes)
-    assert data_s3.decode() == UPLOAD_FILE_CONTENT
+    assert data_s3.decode() == CASE_FILE_CONTENT
 
 
 @pytest.mark.parametrize(
@@ -3364,11 +3364,11 @@ def test_equality_body_retest_statement_backup(admin_client):
     retest: Retest = Retest.objects.create(simplified_case=simplified_case)
 
     in_memory_file: InMemoryUploadedFile = InMemoryUploadedFile(
-        io.BytesIO(UPLOAD_FILE_CONTENT.encode()),
+        io.BytesIO(CASE_FILE_CONTENT.encode()),
         field_name="name",
-        name=UPLOAD_FILE_NAME,
+        name=CASE_FILE_NAME,
         content_type="text",
-        size=len(UPLOAD_FILE_CONTENT),
+        size=len(CASE_FILE_CONTENT),
         charset=None,
     )
 
@@ -3386,13 +3386,13 @@ def test_equality_body_retest_statement_backup(admin_client):
 
     case_file: CaseFile = CaseFile.objects.get(base_case=simplified_case)
 
-    assert case_file.name == UPLOAD_FILE_NAME
+    assert case_file.name == CASE_FILE_NAME
 
     s3_read_write: S3ReadWriteFile = S3ReadWriteFile()
     data_s3: bytes | str = s3_read_write.read_case_file_from_s3(case_file=case_file)
 
     assert isinstance(data_s3, bytes)
-    assert data_s3.decode() == UPLOAD_FILE_CONTENT
+    assert data_s3.decode() == CASE_FILE_CONTENT
 
 
 def test_equality_body_retest_statement_overview_redirects_when_no(admin_client):
