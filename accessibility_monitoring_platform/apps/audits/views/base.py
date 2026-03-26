@@ -15,8 +15,8 @@ from django.urls import reverse
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.views.generic.list import ListView
 
-from ...cases.models import DocumentUpload
-from ...cases.views import DocumentUploadMixin
+from ...cases.models import CaseFile
+from ...cases.views import CaseFileUploadMixin
 from ...common.utils import (
     amp_format_date,
     get_url_parameters_for_pagination,
@@ -55,7 +55,7 @@ from ..utils import (
 )
 
 
-class StatementBackupMixin(DocumentUploadMixin):
+class StatementBackupMixin(CaseFileUploadMixin):
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
@@ -531,10 +531,10 @@ class StatementBackupUpdateView(StatementBackupMixin, AuditUpdateView):
                 statement_backup_form.cleaned_data.get("file_to_upload")
             )
             if uploaded_file is not None:
-                self.document_upload(
+                self.case_file_upload(
                     uploaded_file=uploaded_file,
                     user=self.request.user,
                     base_case=audit.simplified_case,
-                    document_type=DocumentUpload.Type.STATEMENT,
+                    file_type=CaseFile.Type.STATEMENT,
                 )
         return super().form_valid(form)

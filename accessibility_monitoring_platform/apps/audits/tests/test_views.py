@@ -17,8 +17,8 @@ from pytest_django.asserts import assertContains, assertNotContains
 
 from accessibility_monitoring_platform.apps.common.models import Boolean
 
-from ...cases.models import DocumentUpload
-from ...cases.utils import S3ReadWriteDocument
+from ...cases.models import CaseFile
+from ...cases.utils import S3ReadWriteFile
 from ...reports.models import Report
 from ...simplified.models import (
     CaseCompliance,
@@ -655,16 +655,12 @@ def test_add_statement_backup(url_name, admin_client):
 
     assert response.status_code == 302
 
-    document_upload: DocumentUpload = DocumentUpload.objects.get(
-        base_case=simplified_case
-    )
+    case_file: CaseFile = CaseFile.objects.get(base_case=simplified_case)
 
-    assert document_upload.name == UPLOAD_FILE_NAME
+    assert case_file.name == UPLOAD_FILE_NAME
 
-    s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
-    data_s3: bytes | str = s3_read_write.get_document_from_s3(
-        document_upload=document_upload
-    )
+    s3_read_write: S3ReadWriteFile = S3ReadWriteFile()
+    data_s3: bytes | str = s3_read_write.read_case_file_from_s3(case_file=case_file)
 
     assert isinstance(data_s3, bytes)
     assert data_s3.decode() == UPLOAD_FILE_CONTENT
@@ -3381,23 +3377,19 @@ def test_equality_body_retest_statement_backup(admin_client):
         {
             "version": retest.version,
             "file_to_upload": in_memory_file,
-            "type": DocumentUpload.Type.STATEMENT,
+            "type": CaseFile.Type.STATEMENT,
             "save": "Save",
         },
     )
 
     assert response.status_code == 302
 
-    document_upload: DocumentUpload = DocumentUpload.objects.get(
-        base_case=simplified_case
-    )
+    case_file: CaseFile = CaseFile.objects.get(base_case=simplified_case)
 
-    assert document_upload.name == UPLOAD_FILE_NAME
+    assert case_file.name == UPLOAD_FILE_NAME
 
-    s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
-    data_s3: bytes | str = s3_read_write.get_document_from_s3(
-        document_upload=document_upload
-    )
+    s3_read_write: S3ReadWriteFile = S3ReadWriteFile()
+    data_s3: bytes | str = s3_read_write.read_case_file_from_s3(case_file=case_file)
 
     assert isinstance(data_s3, bytes)
     assert data_s3.decode() == UPLOAD_FILE_CONTENT

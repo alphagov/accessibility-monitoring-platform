@@ -452,12 +452,12 @@ class BaseCase(VersionModel):
             return self.mobilecase
 
     @property
-    def document_uploads(self) -> QuerySet["DocumentUpload"]:
-        return self.documentupload_set.filter(is_deleted=False)
+    def case_files(self) -> QuerySet["CaseFile"]:
+        return self.casefile_set.filter(is_deleted=False)
 
     @property
-    def statement_backups(self) -> QuerySet["DocumentUpload"]:
-        return self.document_uploads.filter(type=DocumentUpload.Type.STATEMENT)
+    def statement_backups(self) -> QuerySet["CaseFile"]:
+        return self.case_files.filter(type=CaseFile.Type.STATEMENT)
 
 
 class CaseHistory(models.Model):
@@ -482,8 +482,8 @@ class CaseHistory(models.Model):
         abstract = True
 
 
-class DocumentUpload(models.Model):
-    """Metadata for case-related document uploaded to S3"""
+class CaseFile(models.Model):
+    """Metadata for case-related file uploaded to S3"""
 
     class Type(models.TextChoices):
         STATEMENT = "statement", "Statement"
@@ -494,22 +494,12 @@ class DocumentUpload(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     type = models.CharField(max_length=20, choices=Type.choices, default=Type.STATEMENT)
     base_case = models.ForeignKey(BaseCase, on_delete=models.PROTECT)
-    id_within_case_within_type = models.IntegerField(default=1)
     uploaded_by = models.ForeignKey(User, on_delete=models.PROTECT)
     uploaded_time = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False)
 
-    def save(self, *args, **kwargs) -> None:
-        if not self.id:
-            self.id_within_case_within_type = (
-                self.base_case.document_uploads.filter(type=self.type).count() + 1
-            )
-        super().save(*args, **kwargs)
-
     def __str__(self) -> str:
-        return (
-            f"{self.get_type_display()} #{self.id_within_case_within_type}: {self.name}"
-        )
+        return f"{self.get_type_display()}: {self.name}"
 
     @property
     def s3_key(self) -> str:

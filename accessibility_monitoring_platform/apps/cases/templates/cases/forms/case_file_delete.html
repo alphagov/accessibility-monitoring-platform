@@ -1,12 +1,12 @@
-{% extends 'cases/forms/document_upload_update.html' %}
+{% extends 'cases/forms/case_file_update.html' %}
 
 {% block preform %}
 <p class="govuk-body amp-margin-bottom-5"><b>Filename</b></p>
-<p class="govuk-body">{{ document_upload.name }}</p>
+<p class="govuk-body">{{ case_file.name }}</p>
 <p class="govuk-body amp-margin-bottom-5"><b>Uploaded</b></p>
-<p class="govuk-body">{{ document_upload.uploaded_time|amp_datetime }}</p>
+<p class="govuk-body">{{ case_file.uploaded_time|amp_datetime }}</p>
 <p class="govuk-body amp-margin-bottom-5"><b>Type</b></p>
-<p class="govuk-body">{{ document_upload.get_type_display }}</p>
+<p class="govuk-body">{{ case_file.get_type_display }}</p>
 {% endblock %}
 
 {% block formbuttons %}
@@ -20,7 +20,7 @@
                 data-module="govuk-button"
             />
             <a
-                href="{% url 'cases:document-upload-list' document_upload.base_case.id %}"
+                href="{% url 'cases:case-file-list' case_file.base_case.id %}"
                 class="govuk-link govuk-link--no-visited-state"
             >
                 Return to files manager

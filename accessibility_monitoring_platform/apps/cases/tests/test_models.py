@@ -16,10 +16,10 @@ from ...simplified.models import SimplifiedCase
 from ..models import (
     ALL_CASE_STATUS_CHOICES,
     BaseCase,
+    CaseFile,
     CaseStatusChoice,
     CaseStatusChoices,
     DetailedCaseStatus,
-    DocumentUpload,
     MobileCaseStatus,
     SimplifiedCaseStatus,
     TestType,
@@ -464,103 +464,65 @@ def test_tag_name_suffix(case_model, archive, expected_result):
 
 
 @pytest.mark.django_db
-def test_base_case_document_uploads():
-    """Test case document_uploads return undeleted document uploads"""
+def test_base_case_case_files():
+    """Test case case_files return undeleted case files"""
     user: User = User.objects.create()
     base_case: BaseCase = BaseCase.objects.create()
-    document_upload_1: DocumentUpload = DocumentUpload.objects.create(
+    case_file_1: CaseFile = CaseFile.objects.create(
         base_case=base_case, uploaded_by=user
     )
-    document_upload_2: DocumentUpload = DocumentUpload.objects.create(
+    case_file_2: CaseFile = CaseFile.objects.create(
         base_case=base_case, uploaded_by=user
     )
-    DocumentUpload.objects.create(
-        base_case=base_case, uploaded_by=user, is_deleted=True
-    )
+    CaseFile.objects.create(base_case=base_case, uploaded_by=user, is_deleted=True)
 
-    assert base_case.document_uploads.count() == 2
-    assert base_case.document_uploads[0].id == document_upload_1.id
-    assert base_case.document_uploads[1].id == document_upload_2.id
+    assert base_case.case_files.count() == 2
+    assert base_case.case_files[0].id == case_file_1.id
+    assert base_case.case_files[1].id == case_file_2.id
 
 
 @pytest.mark.django_db
 def test_base_case_statement_backups():
     """
-    Test case statement_backups returns undeleted document uploads of type statement
+    Test case statement_backups returns undeleted case files of type statement
     """
     user: User = User.objects.create()
     base_case: BaseCase = BaseCase.objects.create()
-    document_upload_1: DocumentUpload = DocumentUpload.objects.create(
+    case_file_1: CaseFile = CaseFile.objects.create(
         base_case=base_case, uploaded_by=user
     )
-    document_upload_2: DocumentUpload = DocumentUpload.objects.create(
+    case_file_2: CaseFile = CaseFile.objects.create(
         base_case=base_case, uploaded_by=user
     )
-    DocumentUpload.objects.create(
-        base_case=base_case, uploaded_by=user, is_deleted=True
-    )
-    DocumentUpload.objects.create(
-        base_case=base_case, uploaded_by=user, type=DocumentUpload.Type.REPORT
+    CaseFile.objects.create(base_case=base_case, uploaded_by=user, is_deleted=True)
+    CaseFile.objects.create(
+        base_case=base_case, uploaded_by=user, type=CaseFile.Type.REPORT
     )
 
     assert base_case.statement_backups.count() == 2
-    assert base_case.statement_backups[0].id == document_upload_1.id
-    assert base_case.statement_backups[1].id == document_upload_2.id
+    assert base_case.statement_backups[0].id == case_file_1.id
+    assert base_case.statement_backups[1].id == case_file_2.id
 
 
 @pytest.mark.django_db
-def test_document_upload_str():
-    """Test __str__ of document upload"""
+def test_case_file_str():
+    """Test __str__ of case file"""
     user: User = User.objects.create()
     base_case: BaseCase = BaseCase.objects.create()
 
-    document_upload: DocumentUpload = DocumentUpload.objects.create(
+    case_file: CaseFile = CaseFile.objects.create(
         name=DOCUMENT_NAME, base_case=base_case, uploaded_by=user
     )
 
-    assert str(document_upload) == f"Statement #1: {DOCUMENT_NAME}"
-
-
-@pytest.mark.django_db
-def test_document_id_within_case_within_type():
-    """Test document id within case within type"""
-    user: User = User.objects.create()
-    base_case_1: BaseCase = BaseCase.objects.create()
-    base_case_2: BaseCase = BaseCase.objects.create()
-
-    document_upload_statement_1: DocumentUpload = DocumentUpload.objects.create(
-        base_case=base_case_1, uploaded_by=user
-    )
-
-    assert document_upload_statement_1.id_within_case_within_type == 1
-
-    document_upload_base_case_2: DocumentUpload = DocumentUpload.objects.create(
-        base_case=base_case_2, uploaded_by=user
-    )
-
-    assert document_upload_base_case_2.id_within_case_within_type == 1
-
-    document_upload_statement_2: DocumentUpload = DocumentUpload.objects.create(
-        base_case=base_case_1, uploaded_by=user
-    )
-
-    assert document_upload_statement_2.id_within_case_within_type == 2
-
-    document_upload_report_1: DocumentUpload = DocumentUpload.objects.create(
-        base_case=base_case_1, type=DocumentUpload.Type.REPORT, uploaded_by=user
-    )
-
-    assert document_upload_report_1.id_within_case_within_type == 1
+    assert str(case_file) == f"Statement: {DOCUMENT_NAME}"
 
 
 @pytest.mark.django_db
 def test_document_s3_key():
     """Test document s3 key"""
     base_case: BaseCase = BaseCase.objects.create()
-    document_upload: DocumentUpload = DocumentUpload(
-        base_case=base_case, name=DOCUMENT_NAME
-    )
+    case_file: CaseFile = CaseFile(base_case=base_case, name=DOCUMENT_NAME)
     assert (
-        document_upload.s3_key
-        == f"base_cases/{document_upload.base_case.id}/{document_upload.name} {document_upload.uuid}"
+        case_file.s3_key
+        == f"base_cases/{case_file.base_case.id}/{case_file.name} {case_file.uuid}"
     )

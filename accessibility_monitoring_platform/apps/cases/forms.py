@@ -12,8 +12,8 @@ from ..cases.models import (
     ALL_CASE_STATUS_SEARCH_CHOICES,
     CASE_STATUS_UNKNOWN,
     BaseCase,
+    CaseFile,
     Complaint,
-    DocumentUpload,
     Sort,
     extract_id_from_case_url,
 )
@@ -142,20 +142,24 @@ class PreviousCaseURLForm(forms.ModelForm):
             raise ValidationError("Previous case not found in platform")
 
 
-class DocumentUploadForm(forms.Form):
-    """Form for uploading a document"""
+class FileUploadForm(forms.Form):
+    """Form for uploading a file"""
 
     file_to_upload = forms.FileField(
         label="Upload a file",
         widget=forms.FileInput(attrs={"class": "govuk-file-upload"}),
     )
-    type = AMPChoiceField(label="Document type", choices=DocumentUpload.Type.choices)
+    type = AMPChoiceRadioField(
+        label="Document type",
+        choices=CaseFile.Type.choices,
+        initial=CaseFile.Type.UNKNOWN,
+    )
 
     class Meta:
         fields = ["file_to_upload", "type"]
 
     def clean_file_to_upload(self):
-        """Check document is not too big"""
+        """Check file is not too big"""
         file_to_upload: InMemoryUploadedFile | None = self.cleaned_data.get(
             "file_to_upload"
         )
@@ -164,22 +168,20 @@ class DocumentUploadForm(forms.Form):
         return file_to_upload
 
 
-class DocumentUploadUpdateForm(forms.ModelForm):
-    """Form for updating a document upload"""
+class CaseFileUpdateForm(forms.ModelForm):
+    """Form for updating a case file"""
 
-    type = AMPChoiceRadioField(
-        label="Document type", choices=DocumentUpload.Type.choices
-    )
+    type = AMPChoiceRadioField(label="Document type", choices=CaseFile.Type.choices)
 
     class Meta:
-        model = DocumentUpload
+        model = CaseFile
         fields = [
             "type",
         ]
 
 
-class DocumentUploadDeleteForm(forms.ModelForm):
-    """Form for deleting a document upload"""
+class CaseFileDeleteForm(forms.ModelForm):
+    """Form for deleting a case file"""
 
     is_deleted = forms.BooleanField(
         label="Confirm you want to remove this file?",
@@ -188,7 +190,7 @@ class DocumentUploadDeleteForm(forms.ModelForm):
     )
 
     class Meta:
-        model = DocumentUpload
+        model = CaseFile
         fields = [
             "is_deleted",
         ]

@@ -10,7 +10,7 @@ from django.urls import reverse
 
 from ...detailed.models import DetailedCase
 from ...simplified.models import SimplifiedCase
-from ..forms import CaseSearchForm, DocumentUploadForm, PreviousCaseURLForm
+from ..forms import CaseSearchForm, FileUploadForm, PreviousCaseURLForm
 from ..models import ALL_CASE_STATUS_SEARCH_CHOICES, CASE_STATUS_UNKNOWN
 
 DOCUMENT_NAME: str = "document.txt"
@@ -90,9 +90,9 @@ def test_clean_previous_case_url_simplified_valid(mock_requests):
     assert form.is_valid() is True
 
 
-def test_clean_document_upload_form_file_to_upload():
+def test_clean_file_upload_form_file_to_upload():
     """Tests file upload size validation"""
-    form: DocumentUploadForm = DocumentUploadForm(
+    form: FileUploadForm = FileUploadForm(
         {
             "type": "statement",
         },

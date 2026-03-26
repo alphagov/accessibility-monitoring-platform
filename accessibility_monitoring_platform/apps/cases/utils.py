@@ -16,7 +16,7 @@ from ..common.sitemap import PlatformPage
 from ..common.utils import build_filters, extract_domain_from_url
 from ..simplified.models import SimplifiedCase
 from .forms import CaseSearchForm
-from .models import CASE_STATUS_UNASSIGNED, BaseCase, DocumentUpload, Sort
+from .models import CASE_STATUS_UNASSIGNED, BaseCase, CaseFile, Sort
 
 CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
     ("auditor", "auditor_id"),
@@ -127,32 +127,30 @@ def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Base
     return BaseCase.objects.filter(domain=domain)
 
 
-class S3ReadWriteDocument(S3Wrapper):
-    def put_document_to_s3(
+class S3ReadWriteFile(S3Wrapper):
+    def write_case_file_to_s3(
         self,
-        document_upload: DocumentUpload,
+        case_file: CaseFile,
         file_content,
     ) -> None:
 
         self.s3_client.put_object(
             Body=file_content,
             Bucket=self.bucket,
-            Key=document_upload.s3_key,
+            Key=case_file.s3_key,
         )
 
-    def check_document_on_s3(self, document_upload: DocumentUpload) -> bool:
+    def check_case_file_on_s3(self, case_file: CaseFile) -> bool:
         try:
-            self.s3_client.head_object(Bucket=self.bucket, Key=document_upload.s3_key)
+            self.s3_client.head_object(Bucket=self.bucket, Key=case_file.s3_key)
             return True
         except self.s3_client.exceptions.ClientError:
             return False
 
-    def get_document_from_s3(self, document_upload: DocumentUpload) -> bytes | str:
+    def read_case_file_from_s3(self, case_file: CaseFile) -> bytes | str:
         try:
-            s3_object: Any = self.s3_resource.Object(
-                self.bucket, document_upload.s3_key
-            )
+            s3_object: Any = self.s3_resource.Object(self.bucket, case_file.s3_key)
             return s3_object.get()["Body"].read()
         except self.s3_client.exceptions.NoSuchKey:
-            logger.error("Key not found on S3: %s", document_upload.s3_key)
-            return f"File not found: {document_upload.name}"
+            logger.error("Key not found on S3: %s", case_file.s3_key)
+            return f"File not found: {case_file.name}"

@@ -27,7 +27,7 @@ from ..audits.models import (
     StatementCheckResult,
     StatementPage,
 )
-from ..cases.models import BaseCase, DocumentUpload
+from ..cases.models import BaseCase, CaseFile
 from ..comments.models import Comment
 from ..detailed.forms import (
     DetailedCaseCloseUpdateForm,
@@ -601,7 +601,7 @@ class EqualityBodyRetestStatementLinksPlatformPage(EqualityBodyRetestPlatformPag
 class DocumentPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.instance_class: type[models.Model] = DocumentUpload
+        self.instance_class: type[models.Model] = CaseFile
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
@@ -610,7 +610,7 @@ class DocumentPlatformPage(PlatformPage):
         return False
 
     def set_instance(self, instance: models.Model | None):
-        if isinstance(instance, DocumentUpload):
+        if isinstance(instance, CaseFile):
             self.instance = instance
 
     def get_case(self) -> BaseCase | None:
@@ -1539,7 +1539,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             ),
             BaseCasePlatformPage(
                 name="Case files manager",
-                url_name="simplified:document-upload-list",
+                url_name="simplified:case-file-list",
             ),
             SimplifiedCasePlatformPage(
                 name="Outstanding issues",
@@ -1857,7 +1857,7 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             ),
             BaseCasePlatformPage(
                 name="Case files manager",
-                url_name="detailed:document-upload-list",
+                url_name="detailed:case-file-list",
             ),
             DetailedCasePlatformPage(
                 name="Email templates",
@@ -2207,7 +2207,7 @@ MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             ),
             BaseCasePlatformPage(
                 name="Case files manager",
-                url_name="mobile:document-upload-list",
+                url_name="mobile:case-file-list",
             ),
             MobileCasePlatformPage(
                 name="Email templates",
@@ -2462,16 +2462,16 @@ SITE_MAP: list[PlatformPageGroup] = (
             pages=[
                 BaseCasePlatformPage(
                     name="Case files manager",
-                    url_name="cases:document-upload-list",
+                    url_name="cases:case-file-list",
                     subpages=[
                         BaseCasePlatformPage(
-                            name="Upload file", url_name="cases:document-upload-create"
+                            name="Upload file", url_name="cases:case-file-create"
                         ),
                         DocumentPlatformPage(
-                            name="Edit file", url_name="cases:document-upload-update"
+                            name="Edit file", url_name="cases:case-file-update"
                         ),
                         DocumentPlatformPage(
-                            name="Remove file", url_name="cases:document-upload-delete"
+                            name="Remove file", url_name="cases:case-file-delete"
                         ),
                     ],
                 ),

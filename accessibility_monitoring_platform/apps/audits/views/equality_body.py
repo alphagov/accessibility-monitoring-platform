@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.edit import UpdateView
 
-from ...cases.models import DocumentUpload
+from ...cases.models import CaseFile
 from ...common.mark_deleted_util import mark_object_as_deleted
 from ...common.models import Boolean
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
@@ -317,11 +317,11 @@ class RetestStatementBackupUpdateView(
                 statement_backup_form.cleaned_data.get("file_to_upload")
             )
             if uploaded_file is not None:
-                self.document_upload(
+                self.case_file_upload(
                     uploaded_file=uploaded_file,
                     user=self.request.user,
                     base_case=retest.simplified_case,
-                    document_type=DocumentUpload.Type.STATEMENT,
+                    file_type=CaseFile.Type.STATEMENT,
                 )
             return HttpResponseRedirect(self.get_success_url())
         else:

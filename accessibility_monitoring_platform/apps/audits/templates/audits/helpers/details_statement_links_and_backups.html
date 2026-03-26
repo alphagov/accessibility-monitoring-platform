@@ -9,7 +9,7 @@
             {% include "audits/helpers/statement_links.html" %}
             {% include "audits/helpers/statement_backups.html" %}
             <p class="govuk-body-m">
-                <a href="{% url 'cases:document-upload-list' case.id %}" class="govuk-link govuk-link--no-visited-state">
+                <a href="{% url 'cases:case-file-list' case.id %}" class="govuk-link govuk-link--no-visited-state">
                     View case files manager</a>
             </p>
         {% else %}

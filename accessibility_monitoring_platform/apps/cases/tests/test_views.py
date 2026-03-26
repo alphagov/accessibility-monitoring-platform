@@ -11,16 +11,16 @@ from django.urls import reverse
 from moto import mock_aws
 
 from ...simplified.models import SimplifiedCase
-from ..models import DocumentUpload
-from ..utils import S3ReadWriteDocument
+from ..models import CaseFile
+from ..utils import S3ReadWriteFile
 
 UPLOAD_FILE_NAME: str = "upload_file.txt"
 UPLOAD_FILE_CONTENT: str = "Upload file content"
 
 
 @mock_aws
-def test_document_upload(admin_client):
-    """Test that cases document upload saves to S3"""
+def test_case_file_create(admin_client):
+    """Test that case file create uploads to S3"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     in_memory_file: InMemoryUploadedFile = InMemoryUploadedFile(
@@ -33,24 +33,20 @@ def test_document_upload(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("cases:document-upload-create", kwargs={"pk": simplified_case.id}),
+        reverse("cases:case-file-create", kwargs={"pk": simplified_case.id}),
         {
             "file_to_upload": in_memory_file,
-            "type": DocumentUpload.Type.STATEMENT,
+            "type": CaseFile.Type.STATEMENT,
             "save": "Save",
         },
     )
 
     assert response.status_code == 302
 
-    document_upload: DocumentUpload = DocumentUpload.objects.get(
-        base_case=simplified_case
-    )
+    case_file: CaseFile = CaseFile.objects.get(base_case=simplified_case)
 
-    s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
-    data_s3: bytes | str = s3_read_write.get_document_from_s3(
-        document_upload=document_upload
-    )
+    s3_read_write: S3ReadWriteFile = S3ReadWriteFile()
+    data_s3: bytes | str = s3_read_write.read_case_file_from_s3(case_file=case_file)
 
     assert isinstance(data_s3, bytes)
     assert data_s3.decode() == UPLOAD_FILE_CONTENT
@@ -61,20 +57,20 @@ def test_document_download(admin_client):
     """Test that cases document download gets data from S3"""
     user: User = User.objects.create()
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    document_upload: DocumentUpload = DocumentUpload.objects.create(
+    case_file: CaseFile = CaseFile.objects.create(
         base_case=simplified_case,
         uploaded_by=user,
         name=UPLOAD_FILE_NAME,
     )
 
-    s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
-    s3_read_write.put_document_to_s3(
-        document_upload=document_upload,
+    s3_read_write: S3ReadWriteFile = S3ReadWriteFile()
+    s3_read_write.write_case_file_to_s3(
+        case_file=case_file,
         file_content=io.BytesIO(UPLOAD_FILE_CONTENT.encode()),
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("cases:document-upload-download", kwargs={"pk": document_upload.id}),
+        reverse("cases:case-file-download", kwargs={"pk": case_file.id}),
     )
 
     assert response.status_code == 200

@@ -1,19 +1,17 @@
-from datetime import datetime, date
 import io
 import mimetypes
 import os
 import re
+from datetime import date, datetime
 from unittest.mock import Mock, patch
 
-
 import boto3
-from django.core.management.base import BaseCommand
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from ....cases.models import BaseCase, DocumentUpload
-from ....cases.views import DocumentUploadMixin
-from ....cases.models import User
+from ....cases.models import BaseCase, CaseFile, User
+from ....cases.views import CaseFileUploadMixin
 
 CREATION_DATE_RE = re.compile(rb"/CreationDate\s*\(D:([^\)]*)\)")
 
@@ -107,18 +105,18 @@ class Command(BaseCommand):
 
             for s3_path in s3_objects_hash[str(case.pk)]:
                 filename = s3_path.split("/")[-1]
-                if case.documentupload_set.filter(name=filename).exists() is False:
+                if case.casefile_set.filter(name=filename).exists() is False:
                     in_mem_file_upload = s3_to_inmemory_uploaded_file(
                         s3_prod,
                         bucket=os.getenv("DB_NAME"),
                         key=s3_path,
                     )
                     user = case.auditor if case.auditor else User.objects.get(pk=13)
-                    document_type = DocumentUpload.Type.UNKNOWN
+                    file_type = CaseFile.Type.UNKNOWN
                     if "statement" in filename.lower():
-                        document_type = DocumentUpload.Type.STATEMENT
+                        file_type = CaseFile.Type.STATEMENT
                     elif "report" in filename.lower():
-                        document_type = DocumentUpload.Type.REPORT
+                        file_type = CaseFile.Type.REPORT
 
                     creation_date = None
                     dt = datetime.now()
@@ -134,12 +132,12 @@ class Command(BaseCommand):
                         "django.utils.timezone.now",
                         Mock(return_value=dt),
                     ):
-                        DocumentUploadMixin.document_upload(
+                        CaseFileUploadMixin.case_file_upload(
                             self=None,
                             uploaded_file=in_mem_file_upload,
                             user=user,
                             base_case=case,
-                            document_type=document_type,
+                            file_type=file_type,
                         )
 
                 num_of_s3_objects_completed += 1

@@ -17,8 +17,8 @@ from ...common.models import Boolean, Sector, SubCategory
 from ...mobile.models import MobileCase
 from ...simplified.models import CaseStatus, SimplifiedCase
 from ..forms import DateType
-from ..models import BaseCase, DocumentUpload, Sort
-from ..utils import S3ReadWriteDocument, filter_cases, find_duplicate_cases
+from ..models import BaseCase, CaseFile, Sort
+from ..utils import S3ReadWriteFile, filter_cases, find_duplicate_cases
 
 ORGANISATION_NAME: str = "Organisation name one"
 ORGANISATION_NAME_COMPLAINT: str = "Organisation name two"
@@ -649,18 +649,18 @@ def test_writing_to_s3():
     """Test writing a file to S3"""
     base_case: BaseCase = BaseCase.objects.create()
     user: User = User.objects.create()
-    document_upload: DocumentUpload = DocumentUpload.objects.create(
+    case_file: CaseFile = CaseFile.objects.create(
         name=DOCUMENT_CONTENT, base_case=base_case, uploaded_by=user
     )
-    s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
+    s3_read_write: S3ReadWriteFile = S3ReadWriteFile()
 
-    s3_read_write.put_document_to_s3(
-        document_upload=document_upload,
+    s3_read_write.write_case_file_to_s3(
+        case_file=case_file,
         file_content=io.BytesIO(DOCUMENT_CONTENT.encode()),
     )
 
     s3_object: Any = s3_read_write.s3_resource.Object(
-        s3_read_write.bucket, document_upload.s3_key
+        s3_read_write.bucket, case_file.s3_key
     )
 
     assert s3_object.get()["Body"].read().decode() == DOCUMENT_CONTENT
@@ -672,19 +672,17 @@ def test_reading_from_s3():
     """Test getting document from S3"""
     base_case: BaseCase = BaseCase.objects.create()
     user: User = User.objects.create()
-    document_upload: DocumentUpload = DocumentUpload.objects.create(
+    case_file: CaseFile = CaseFile.objects.create(
         name=DOCUMENT_CONTENT, base_case=base_case, uploaded_by=user
     )
-    s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
+    s3_read_write: S3ReadWriteFile = S3ReadWriteFile()
 
-    s3_read_write.put_document_to_s3(
-        document_upload=document_upload,
+    s3_read_write.write_case_file_to_s3(
+        case_file=case_file,
         file_content=io.BytesIO(DOCUMENT_CONTENT.encode()),
     )
 
-    file_from_s3: bytes = s3_read_write.get_document_from_s3(
-        document_upload=document_upload
-    )
+    file_from_s3: bytes = s3_read_write.read_case_file_from_s3(case_file=case_file)
 
     assert file_from_s3.decode() == DOCUMENT_CONTENT
 
@@ -695,13 +693,11 @@ def test_document_not_on_s3():
     """Test document not on S3"""
     base_case: BaseCase = BaseCase.objects.create()
     user: User = User.objects.create()
-    document_upload: DocumentUpload = DocumentUpload.objects.create(
+    case_file: CaseFile = CaseFile.objects.create(
         name=DOCUMENT_NAME, base_case=base_case, uploaded_by=user
     )
-    s3_read_write: S3ReadWriteDocument = S3ReadWriteDocument()
+    s3_read_write: S3ReadWriteFile = S3ReadWriteFile()
 
-    file_from_s3: str = s3_read_write.get_document_from_s3(
-        document_upload=document_upload
-    )
+    file_from_s3: str = s3_read_write.read_case_file_from_s3(case_file=case_file)
 
     assert file_from_s3 == f"File not found: {DOCUMENT_NAME}"
