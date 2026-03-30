@@ -4,7 +4,7 @@ Models - cases
 
 import re
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -366,6 +366,7 @@ class BaseCase(VersionModel):
         choices=RecommendationForEnforcement.choices,
         default=RecommendationForEnforcement.UNKNOWN,
     )
+    due_date = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["-id"]
@@ -387,6 +388,11 @@ class BaseCase(VersionModel):
             self.case_identifier = f"#{self.test_type[0].upper()}-{self.case_number}"
         self.updated = now
         self.updated_date = now.date()
+        if self.status == SimplifiedCaseStatus.UNASSIGNED and self.due_date is None:
+            self.due_date = now.date() + timedelta(days=180)
+        elif self.status in BaseCase.CLOSED_CASE_STATUSES and self.due_date is not None:
+            self.due_date = None
+
         super().save(*args, **kwargs)
 
     def get_absolute_url(self) -> str:

@@ -44,9 +44,9 @@ class SimplifiedCaseAdmin(admin.ModelAdmin):
     """Django admin configuration for SimplifiedCase model"""
 
     readonly_fields = ["created"]
-    search_fields = ["case_number", "organisation_name", "domain"]
+    search_fields = ["organisation_name", "domain", "case_identifier"]
     list_display = [
-        "case_number",
+        "case_identifier",
         "organisation_name",
         "domain",
         "auditor",
