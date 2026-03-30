@@ -652,20 +652,6 @@ def test_format_ios_and_android_str(ios: str, android: str, expected_result: str
 
 
 @pytest.mark.django_db
-def test_mobile_case_name_prefix():
-    """Test case name_prefix for mobile case"""
-    mobile_case: MobileCase = MobileCase.objects.create(
-        organisation_name=ORGANISATION_NAME
-    )
-
-    assert mobile_case.name_prefix == "None"
-
-    mobile_case.app_name = APP_NAME
-
-    assert mobile_case.name_prefix == APP_NAME
-
-
-@pytest.mark.django_db
 def test_contact_exists():
     """Test MobileCase.contact_exists is working"""
     mobile_case: MobileCase = MobileCase.objects.create()

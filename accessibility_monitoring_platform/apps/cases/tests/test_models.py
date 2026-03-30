@@ -357,6 +357,23 @@ def test_base_case_name_prefix(website_name, domain, expected_result):
 
 
 @pytest.mark.django_db
+def test_mobile_case_name_prefix():
+    """Test case name_prefix for mobile case"""
+    mobile_case: MobileCase = MobileCase.objects.create(
+        organisation_name=ORGANISATION_NAME
+    )
+
+    assert mobile_case.name_prefix == "None"
+
+    mobile_case: MobileCase = MobileCase.objects.create(
+        organisation_name=ORGANISATION_NAME,
+        app_name=APP_NAME,
+    )
+
+    assert mobile_case.name_prefix == APP_NAME
+
+
+@pytest.mark.django_db
 def test_base_case_name_suffix():
     """Test case name_suffix for base case"""
     base_case: BaseCase = BaseCase.objects.create(organisation_name=ORGANISATION_NAME)
@@ -401,7 +418,11 @@ def test_mobile_case_name():
 
     assert mobile_case.full_name == "None &middot; Organisation Name"
 
-    mobile_case.app_name = APP_NAME
+    mobile_case: MobileCase = MobileCase.objects.create(
+        organisation_name=ORGANISATION_NAME,
+        home_page_url=HOME_PAGE_URL,
+        app_name=APP_NAME,
+    )
 
     assert mobile_case.full_name == "App name &middot; Organisation Name"
 
