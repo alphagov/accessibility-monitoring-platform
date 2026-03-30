@@ -4,6 +4,7 @@
 
 {% block preform %}
 <div class="amp-margin-bottom-60">
+    {% include 'cases/helpers/complaint_warning.html' %}
     {% include 'simplified/helpers/zendesk_tickets.html' %}
 
     {% if case.audit %}
