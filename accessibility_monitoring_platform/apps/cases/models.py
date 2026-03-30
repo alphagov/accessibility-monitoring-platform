@@ -393,7 +393,12 @@ class BaseCase(VersionModel):
         return reverse(f"{self.test_type}:case-detail", kwargs={"pk": self.pk})
 
     @property
-    def name_prefix(self):
+    def name_prefix(self) -> str:
+        if self.test_type == TestType.MOBILE:
+            name_prefix: str = (
+                self.mobilecase.app_name if self.mobilecase.app_name else "None"
+            )
+            return name_prefix
         if self.website_name:
             return self.website_name
         if self.domain.startswith("www."):
