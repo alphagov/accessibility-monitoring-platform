@@ -106,8 +106,13 @@ class Audit(VersionModel):
     # Statement Summary
     audit_statement_summary_complete_date = models.DateField(null=True, blank=True)
 
-    # Statement pages
+    # Statement links
     audit_statement_pages_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement backups
+    audit_initial_statement_backup_complete_date = models.DateField(
+        null=True, blank=True
+    )
 
     # Statement checking overview
     statement_extra_report_text = models.TextField(default="", blank=True)
@@ -178,6 +183,11 @@ class Audit(VersionModel):
 
     # Statement pages
     audit_retest_statement_pages_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement backups
+    audit_retest_statement_backup_complete_date = models.DateField(
+        null=True, blank=True
+    )
 
     # Retest statement checking overview
     audit_retest_statement_overview_complete_date = models.DateField(
@@ -554,7 +564,23 @@ class Audit(VersionModel):
 
     @property
     def statement_pages(self):
-        return self.statementpage_set.filter(is_deleted=False)
+        return self.statementpage_set.filter(is_deleted=False).order_by("id")
+
+    @property
+    def unique_statement_page_urls(self) -> list[StatementPage]:
+        """Return the first statement page for each URL"""
+        statement_urls: list[str] = []
+        unique_url_statement_pages: list[StatementPage] = []
+        for statement_page in self.statement_pages.exclude(url=""):
+            if statement_page.url not in statement_urls:
+                statement_urls.append(statement_page.url)
+                unique_url_statement_pages.append(statement_page)
+        return unique_url_statement_pages
+
+    @property
+    def archived_google_drive_links(self) -> QuerySet[StatementPage]:
+        """Return statement pages with google drive backup urls"""
+        return self.statement_pages.filter(backup_url__contains="drive.google.com")
 
     @property
     def latest_statement_link(self) -> str | None:
@@ -1016,6 +1042,7 @@ class Retest(VersionModel):
     comparison_complete_date = models.DateField(null=True, blank=True)
     compliance_complete_date = models.DateField(null=True, blank=True)
     statement_pages_complete_date = models.DateField(null=True, blank=True)
+    statement_backup_complete_date = models.DateField(null=True, blank=True)
 
     statement_overview_complete_date = models.DateField(null=True, blank=True)
     statement_website_complete_date = models.DateField(null=True, blank=True)
@@ -1381,6 +1408,7 @@ class StatementPage(models.Model):
     """
 
     class AddedStage(models.TextChoices):
+        ANY = "any", "Any"
         INITIAL = "initial", "Initial"
         TWELVE_WEEK = "12-week-retest", "12-week retest"
         RETEST = "retest", "Equality body retest"
@@ -1391,12 +1419,9 @@ class StatementPage(models.Model):
     url = models.TextField(default="", blank=True)
     backup_url = models.TextField(default="", blank=True)
     added_stage = models.CharField(
-        max_length=20, choices=AddedStage.choices, default=AddedStage.INITIAL
+        max_length=20, choices=AddedStage.choices, default=AddedStage.ANY
     )
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
-    class Meta:
-        ordering = ["-id"]
-
-    def __str__(self) -> str:  # pylint: disable=invalid-str-returned
+    def __str__(self) -> str:
         return self.url or self.backup_url

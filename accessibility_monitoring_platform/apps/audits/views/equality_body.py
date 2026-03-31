@@ -4,13 +4,16 @@ Views for audits app (called tests by users)
 
 from typing import Any
 
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models.query import QuerySet
+from django.forms import Form
 from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.edit import UpdateView
 
+from ...cases.models import CaseFile
 from ...common.mark_deleted_util import mark_object_as_deleted
 from ...common.models import Boolean
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
@@ -22,11 +25,13 @@ from ...simplified.utils import (
     record_simplified_model_update_event,
 )
 from ..forms import (
+    RetestAddStatementPageUpdateForm,
     RetestCheckResultFormset,
     RetestComparisonUpdateForm,
     RetestComplianceUpdateForm,
     RetestDisproportionateBurdenUpdateForm,
     RetestPageChecksForm,
+    RetestStatementBackupUpdateForm,
     RetestStatementCheckResultFormset,
     RetestStatementComplianceUpdateForm,
     RetestStatementCustomCheckResultFormset,
@@ -37,13 +42,11 @@ from ..forms import (
     RetestStatementFeedbackUpdateForm,
     RetestStatementNonAccessibleUpdateForm,
     RetestStatementOverviewUpdateForm,
-    RetestStatementPagesUpdateForm,
     RetestStatementPreparationUpdateForm,
     RetestStatementResultsUpdateForm,
     RetestStatementWebsiteUpdateForm,
     RetestUpdateForm,
-    StatementPageFormset,
-    StatementPageFormsetOneExtra,
+    StatementBackupForm,
 )
 from ..models import (
     Retest,
@@ -54,6 +57,11 @@ from ..models import (
     StatementPage,
 )
 from ..utils import create_checkresults_for_retest, get_next_platform_page_equality_body
+from .base import (
+    AddStatementLinkUpdateView,
+    DeleteStatementPageUpdateView,
+    StatementBackupMixin,
+)
 
 
 def create_equality_body_retest(request: HttpRequest, case_id: int) -> HttpResponse:
@@ -249,82 +257,80 @@ class RetestComplianceUpdateView(NextPlatformPageMixin, UpdateView):
         return super().form_valid(form)
 
 
-class RetestStatementPageFormsetUpdateView(NextPlatformPageMixin, UpdateView):
+class RetestAddStatementPageUpdateView(AddStatementLinkUpdateView):
     """
-    View to update statement pages in equality body-requested retest
+    View to add statement link in equality body-requested retest
     """
 
     model: type[Retest] = Retest
-    form_class: type[RetestStatementPagesUpdateForm] = RetestStatementPagesUpdateForm
-    template_name: str = (
-        "audits/forms/equality_body_retest_statement_pages_formset.html"
+    context_object_name: str = "retest"
+    form_class: type[RetestAddStatementPageUpdateForm] = (
+        RetestAddStatementPageUpdateForm
     )
+    template_name: str = "audits/forms/equality_body_retest_add_statement_link.html"
 
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Get context data for template rendering"""
+
+class RetestDeleteStatementPageUpdateView(DeleteStatementPageUpdateView):
+    """View to delete statement link in equality body-requested retest"""
+
+    template_name: str = "audits/forms/equality_body_retest_statement_page_delete.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        """Add retest to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        if self.request.POST:
-            statement_pages_formset = StatementPageFormset(self.request.POST)
-        else:
-            statement_pages: QuerySet[StatementPage] = (
-                self.object.simplified_case.audit.statement_pages
-            )
-            if "add_extra" in self.request.GET:
-                statement_pages_formset = StatementPageFormsetOneExtra(
-                    queryset=statement_pages
-                )
-            else:
-                statement_pages_formset = StatementPageFormset(queryset=statement_pages)
-        for form in statement_pages_formset:
-            if form.instance.id is None:
-                form.fields["added_stage"].initial = StatementPage.AddedStage.RETEST
-        context["statement_pages_formset"] = statement_pages_formset
+        retest: Retest = get_object_or_404(Retest, id=self.kwargs.get("retest_id"))
+        context["retest"] = retest
         return context
 
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        context: dict[str, Any] = self.get_context_data()
-        statement_pages_formset = context["statement_pages_formset"]
-        retest: Retest = form.save(commit=False)
-        if statement_pages_formset.is_valid():
-            statement_pages: list[StatementPage] = statement_pages_formset.save(
-                commit=False
-            )
-            for statement_page in statement_pages:
-                if not statement_page.audit_id:
-                    statement_page.audit = retest.simplified_case.audit
-                    statement_page.save()
-                    record_simplified_model_create_event(
-                        user=self.request.user,
-                        model_object=statement_page,
-                        simplified_case=retest.simplified_case,
-                    )
-                else:
-                    record_simplified_model_update_event(
-                        user=self.request.user,
-                        model_object=statement_page,
-                        simplified_case=retest.simplified_case,
-                    )
-                    statement_page.save()
-        else:
-            return super().form_invalid(form)
-        mark_object_as_deleted(
-            request=self.request,
-            delete_button_prefix="remove_statement_page_",
-            object_to_delete_model=StatementPage,
-        )
-        return super().form_valid(form)
-
     def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "add_statement_page" in self.request.POST:
+        """Return to the list of statement links"""
+        retest: Retest = get_object_or_404(Retest, id=self.kwargs.get("retest_id"))
+        return reverse(
+            "audits:edit-equality-body-statement-pages",
+            kwargs={"pk": retest.id},
+        )
+
+
+class RetestStatementBackupUpdateView(
+    NextPlatformPageMixin, StatementBackupMixin, UpdateView
+):
+    """View to add statement backup in equality body-requested retest"""
+
+    model: type[Retest] = Retest
+    context_object_name: str = "retest"
+    form_class: type[RetestStatementBackupUpdateForm] = RetestStatementBackupUpdateForm
+    template_name: str = "audits/forms/equality_body_retest_statement_backup.html"
+
+    def post(
+        self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
+    ) -> HttpResponseRedirect | HttpResponse:
+        """Populate two forms from post request"""
+        self.object: Retest = self.get_object()
+        form: Form = self.form_class(request.POST, instance=self.object)
+        statement_backup_form: StatementBackupForm = StatementBackupForm(
+            self.request.POST, self.request.FILES
+        )
+        if form.is_valid() and statement_backup_form.is_valid():
+            form.save()
             retest: Retest = self.object
-            retest_pk: dict[str, int] = {"pk": retest.id}
-            current_url: str = reverse(
-                "audits:edit-equality-body-statement-pages", kwargs=retest_pk
+            uploaded_file: InMemoryUploadedFile | None = (
+                statement_backup_form.cleaned_data.get("file_to_upload")
             )
-            return f"{current_url}?add_extra=true#statement-page-None"
-        return super().get_success_url()
+            if uploaded_file is not None:
+                self.case_file_upload(
+                    uploaded_file=uploaded_file,
+                    user=self.request.user,
+                    base_case=retest.simplified_case,
+                    file_type=CaseFile.Type.STATEMENT,
+                )
+            return HttpResponseRedirect(self.get_success_url())
+        else:
+            return self.render_to_response(
+                self.get_context_data(
+                    form=form,
+                    statement_backup_form=statement_backup_form,
+                )
+            )
 
 
 class RetestUpdateView(NextPlatformPageMixin, UpdateView):

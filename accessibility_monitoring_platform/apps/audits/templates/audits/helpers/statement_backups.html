@@ -1,0 +1,16 @@
+{% if case.statement_backups %}
+    {% for case_file in case.statement_backups %}
+        <p class="govuk-body-m amp-margin-bottom-0">
+            <b>Statement backup #{{ forloop.counter }}</b>
+        </p>
+        <ul class="govuk-list govuk-list--bullet amp-margin-bottom-20">
+            <li>
+                <a href="{% url 'cases:case-file-download' case_file.id %}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+                    {{ case_file.name }}</a>
+            </li>
+            <li>Uploaded {{ case_file.uploaded_time|amp_datetime }}</li>
+        </ul>
+    {% endfor %}
+{% else %}
+    <p class="govuk-body-m amp-margin-bottom-20">No statement backups uploaded</p>
+{% endif %}

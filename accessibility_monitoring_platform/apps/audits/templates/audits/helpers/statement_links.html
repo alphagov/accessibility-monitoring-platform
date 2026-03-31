@@ -1,0 +1,12 @@
+{% if audit.unique_statement_page_urls %}
+    {% for statement_page in audit.unique_statement_page_urls %}
+        <p class="govuk-body-m amp-margin-bottom-0">
+            <b>Statement link #{{ forloop.counter }}</b>
+        </p>
+        <ul class="govuk-list govuk-list--bullet amp-margin-bottom-20">
+            {% include 'audits/helpers/statement_page_url_and_added.html' %}
+        </ul>
+    {% endfor %}
+{% else %}
+    <p class="govuk-body-m amp-margin-bottom-20">No statement links added</p>
+{% endif %}

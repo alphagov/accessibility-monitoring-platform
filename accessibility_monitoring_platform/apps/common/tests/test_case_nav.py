@@ -132,7 +132,7 @@ def test_start_initial_test_page_shown(admin_client):
     )
     assertNotContains(
         response,
-        OTHER_PAGE_GROUP.format(name="Initial statement (0/6)"),
+        OTHER_PAGE_GROUP.format(name="Initial statement (0/7)"),
         html=True,
     )
 
@@ -160,7 +160,7 @@ def test_start_initial_test_page_hidden(admin_client):
     )
     assertContains(
         response,
-        OTHER_PAGE_GROUP.format(name="Initial statement (0/6)"),
+        OTHER_PAGE_GROUP.format(name="Initial statement (0/7)"),
         html=True,
     )
 
@@ -231,7 +231,7 @@ def test_dynamic_statement_pages_hidden(admin_client):
 
     assertContains(
         response,
-        CURRENT_PAGE_GROUP.format(name="Initial statement (0/6)"),
+        CURRENT_PAGE_GROUP.format(name="Initial statement (0/7)"),
         html=True,
     )
     assertContains(
@@ -263,7 +263,7 @@ def test_dynamic_statement_pages_shown(admin_client):
 
     assertContains(
         response,
-        CURRENT_PAGE_GROUP.format(name="Initial statement (0/12)"),
+        CURRENT_PAGE_GROUP.format(name="Initial statement (0/13)"),
         html=True,
     )
     assertContains(response, "<b>Statement overview</b>", html=True)
@@ -507,7 +507,7 @@ def test_start_12_week_retest_page_hidden(admin_client):
     )
     assertContains(
         response,
-        OTHER_PAGE_GROUP.format(name="12-week statement (0/6)"),
+        OTHER_PAGE_GROUP.format(name="12-week statement (0/7)"),
         html=True,
     )
 

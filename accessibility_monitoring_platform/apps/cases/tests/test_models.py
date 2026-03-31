@@ -16,6 +16,7 @@ from ...simplified.models import SimplifiedCase
 from ..models import (
     ALL_CASE_STATUS_CHOICES,
     BaseCase,
+    CaseFile,
     CaseStatusChoice,
     CaseStatusChoices,
     DetailedCaseStatus,
@@ -31,6 +32,7 @@ ORGANISATION_NAME: str = "Organisation Name"
 HOME_PAGE_URL: str = "https://example.com"
 WEBSITE_NAME: str = "Website"
 APP_NAME: str = "App name"
+DOCUMENT_NAME: str = "document.txt"
 
 
 def test_case_status_choice_all_choices_label():
@@ -480,3 +482,68 @@ def test_tag_name_suffix(case_model, archive, expected_result):
         case.save()
 
     assert case.tag_name_suffix == expected_result
+
+
+@pytest.mark.django_db
+def test_base_case_case_files():
+    """Test case case_files return undeleted case files"""
+    user: User = User.objects.create()
+    base_case: BaseCase = BaseCase.objects.create()
+    case_file_1: CaseFile = CaseFile.objects.create(
+        base_case=base_case, uploaded_by=user
+    )
+    case_file_2: CaseFile = CaseFile.objects.create(
+        base_case=base_case, uploaded_by=user
+    )
+    CaseFile.objects.create(base_case=base_case, uploaded_by=user, is_deleted=True)
+
+    assert base_case.case_files.count() == 2
+    assert base_case.case_files[0].id == case_file_1.id
+    assert base_case.case_files[1].id == case_file_2.id
+
+
+@pytest.mark.django_db
+def test_base_case_statement_backups():
+    """
+    Test case statement_backups returns undeleted case files of type statement
+    """
+    user: User = User.objects.create()
+    base_case: BaseCase = BaseCase.objects.create()
+    case_file_1: CaseFile = CaseFile.objects.create(
+        base_case=base_case, uploaded_by=user
+    )
+    case_file_2: CaseFile = CaseFile.objects.create(
+        base_case=base_case, uploaded_by=user
+    )
+    CaseFile.objects.create(base_case=base_case, uploaded_by=user, is_deleted=True)
+    CaseFile.objects.create(
+        base_case=base_case, uploaded_by=user, type=CaseFile.Type.REPORT
+    )
+
+    assert base_case.statement_backups.count() == 2
+    assert base_case.statement_backups[0].id == case_file_1.id
+    assert base_case.statement_backups[1].id == case_file_2.id
+
+
+@pytest.mark.django_db
+def test_case_file_str():
+    """Test __str__ of case file"""
+    user: User = User.objects.create()
+    base_case: BaseCase = BaseCase.objects.create()
+
+    case_file: CaseFile = CaseFile.objects.create(
+        name=DOCUMENT_NAME, base_case=base_case, uploaded_by=user
+    )
+
+    assert str(case_file) == f"Statement: {DOCUMENT_NAME}"
+
+
+@pytest.mark.django_db
+def test_document_s3_key():
+    """Test document s3 key"""
+    base_case: BaseCase = BaseCase.objects.create()
+    case_file: CaseFile = CaseFile(base_case=base_case, name=DOCUMENT_NAME)
+    assert (
+        case_file.s3_key
+        == f"base_cases/{case_file.base_case.id}/{case_file.name} {case_file.uuid}"
+    )
