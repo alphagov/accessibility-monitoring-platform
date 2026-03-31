@@ -9,15 +9,15 @@ asgiref==3.11.1
     #   django
     #   django-axes
     #   django-browser-reload
-attrs==25.4.0
+attrs==26.1.0
     # via
     #   outcome
     #   trio
-boto3==1.42.59
+boto3==1.42.79
     # via
     #   -r requirements.in
     #   moto
-botocore==1.42.59
+botocore==1.42.79
     # via
     #   boto3
     #   moto
@@ -28,9 +28,9 @@ certifi==2026.2.25
     #   selenium
 cffi==2.0.0
     # via cryptography
-charset-normalizer==3.4.4
+charset-normalizer==3.4.6
     # via requests
-cryptography==46.0.5
+cryptography==46.0.6
     # via moto
 django==6.0.3
     # via
@@ -75,7 +75,7 @@ markupsafe==3.0.3
     # via
     #   jinja2
     #   werkzeug
-moto==5.1.21
+moto==5.1.22
     # via -r requirements.in
 notifications-python-client==10.0.1
     # via -r requirements.in
@@ -87,7 +87,7 @@ packaging==26.0
     # via
     #   pytest
     #   webdriver-manager
-phonenumbers==9.0.25
+phonenumbers==9.0.26
     # via -r requirements.in
 pluggy==1.6.0
     # via pytest
@@ -95,9 +95,9 @@ psycopg2==2.9.11
     # via -r requirements.in
 pycparser==3.0
     # via cffi
-pygments==2.19.2
+pygments==2.20.0
     # via pytest
-pyjwt==2.11.0
+pyjwt==2.12.1
     # via notifications-python-client
 pysocks==1.7.1
     # via urllib3
@@ -117,7 +117,7 @@ pyyaml==6.0.3
     # via responses
 qrcode==8.2
     # via django-two-factor-auth
-requests==2.32.5
+requests==2.33.1
     # via
     #   moto
     #   notifications-python-client
@@ -157,7 +157,7 @@ webdriver-manager==4.0.2
     # via -r requirements.in
 websocket-client==1.9.0
     # via selenium
-werkzeug==3.1.6
+werkzeug==3.1.7
     # via moto
 whitenoise==6.12.0
     # via -r requirements.in
