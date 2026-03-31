@@ -2,4 +2,4 @@
 cd /cypress
 npm install
 cd /
-cypress run
+NO_COLOR=1 cypress run

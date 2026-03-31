@@ -44,6 +44,8 @@ ERROR_NOTES: str = "Error notes"
 STATEMENT_LINK: str = "https://example.com/accessibility-statement"
 ACCESSIBILITY_PAGE_STATEMENT_CHECK_ID: int = 1
 REPORT_COMMENT: str = "Report comment"
+GOOGLE_DRIVE_LINK: str = "https://drive.google.com/link1"
+NON_GOOGLE_DRIVE_LINK: str = "https://example.com/link2"
 
 
 def create_retest_and_retest_check_results(
@@ -605,7 +607,9 @@ def test_accessibility_statement_initially_found():
     # No page
     assert audit.accessibility_statement_initially_found is False
 
-    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+    statement_page: StatementPage = StatementPage.objects.create(
+        audit=audit, added_stage=StatementPage.AddedStage.INITIAL
+    )
 
     # Not found flag not set
     assert audit.accessibility_statement_initially_found is True
@@ -1506,7 +1510,9 @@ def test_audit_accessibility_statement_initially_found():
 
     assert audit.accessibility_statement_initially_found is False
 
-    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+    statement_page: StatementPage = StatementPage.objects.create(
+        audit=audit, added_stage=StatementPage.AddedStage.INITIAL
+    )
 
     assert audit.accessibility_statement_initially_found is True
 
@@ -2251,3 +2257,39 @@ def test_audit_new_12_week_custom_statement_check_results():
         audit.new_12_week_custom_statement_check_results.first()
         == new_12_week_custom_check_result
     )
+
+
+@pytest.mark.django_db
+def test_audit_unique_statement_page_urls():
+    """Test unique statement page urls returns only first with matching URL"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    first_new_statement_page: StatementPage = StatementPage.objects.create(
+        audit=audit,
+        url=STATEMENT_LINK,
+    )
+    StatementPage.objects.create(
+        audit=audit,
+        url=STATEMENT_LINK,
+    )
+
+    assert len(audit.unique_statement_page_urls) == 1
+    assert audit.unique_statement_page_urls[0] == first_new_statement_page
+
+
+@pytest.mark.django_db
+def test_audit_archived_google_drive_links():
+    """Test archived google drive lines returned"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    StatementPage.objects.create(
+        audit=audit,
+        backup_url=GOOGLE_DRIVE_LINK,
+    )
+    StatementPage.objects.create(
+        audit=audit,
+        backup_url=NON_GOOGLE_DRIVE_LINK,
+    )
+
+    assert audit.archived_google_drive_links.count() == 1
+    assert audit.archived_google_drive_links.first().backup_url == GOOGLE_DRIVE_LINK

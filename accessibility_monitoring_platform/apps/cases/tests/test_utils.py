@@ -2,20 +2,23 @@
 Test utility functions of cases app
 """
 
+import io
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
+from typing import Any
 from unittest.mock import Mock, patch
 
 import pytest
 from django.contrib.auth.models import User
+from moto import mock_aws
 
 from ...audits.models import Audit
 from ...common.models import Boolean, Sector, SubCategory
 from ...mobile.models import MobileCase
 from ...simplified.models import CaseStatus, SimplifiedCase
 from ..forms import DateType
-from ..models import BaseCase, Sort
-from ..utils import filter_cases, find_duplicate_cases
+from ..models import BaseCase, CaseFile, Sort
+from ..utils import S3ReadWriteFile, filter_cases, find_duplicate_cases
 
 ORGANISATION_NAME: str = "Organisation name one"
 ORGANISATION_NAME_COMPLAINT: str = "Organisation name two"
@@ -42,6 +45,9 @@ TODAYS_DATE: date = date.today()
 DOMAIN: str = "domain.com"
 HOME_PAGE_URL: str = f"https://{DOMAIN}"
 ORGANISATION_NAME: str = "Organisation name"
+
+DOCUMENT_NAME: str = "document.txt"
+DOCUMENT_CONTENT: str = "Document content"
 
 
 @dataclass
@@ -635,3 +641,63 @@ def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
         assert (
             duplicate_cases[1].case_identifier == organisation_name_case.case_identifier
         )
+
+
+@pytest.mark.django_db
+@mock_aws
+def test_writing_to_s3():
+    """Test writing a file to S3"""
+    base_case: BaseCase = BaseCase.objects.create()
+    user: User = User.objects.create()
+    case_file: CaseFile = CaseFile.objects.create(
+        name=DOCUMENT_CONTENT, base_case=base_case, uploaded_by=user
+    )
+    s3_read_write: S3ReadWriteFile = S3ReadWriteFile()
+
+    s3_read_write.write_case_file_to_s3(
+        case_file=case_file,
+        file_content=io.BytesIO(DOCUMENT_CONTENT.encode()),
+    )
+
+    s3_object: Any = s3_read_write.s3_resource.Object(
+        s3_read_write.bucket, case_file.s3_key
+    )
+
+    assert s3_object.get()["Body"].read().decode() == DOCUMENT_CONTENT
+
+
+@pytest.mark.django_db
+@mock_aws
+def test_reading_from_s3():
+    """Test getting document from S3"""
+    base_case: BaseCase = BaseCase.objects.create()
+    user: User = User.objects.create()
+    case_file: CaseFile = CaseFile.objects.create(
+        name=DOCUMENT_CONTENT, base_case=base_case, uploaded_by=user
+    )
+    s3_read_write: S3ReadWriteFile = S3ReadWriteFile()
+
+    s3_read_write.write_case_file_to_s3(
+        case_file=case_file,
+        file_content=io.BytesIO(DOCUMENT_CONTENT.encode()),
+    )
+
+    file_from_s3: bytes = s3_read_write.read_case_file_from_s3(case_file=case_file)
+
+    assert file_from_s3.decode() == DOCUMENT_CONTENT
+
+
+@pytest.mark.django_db
+@mock_aws
+def test_document_not_on_s3():
+    """Test document not on S3"""
+    base_case: BaseCase = BaseCase.objects.create()
+    user: User = User.objects.create()
+    case_file: CaseFile = CaseFile.objects.create(
+        name=DOCUMENT_NAME, base_case=base_case, uploaded_by=user
+    )
+    s3_read_write: S3ReadWriteFile = S3ReadWriteFile()
+
+    file_from_s3: str = s3_read_write.read_case_file_from_s3(case_file=case_file)
+
+    assert file_from_s3 == f"File not found: {DOCUMENT_NAME}"

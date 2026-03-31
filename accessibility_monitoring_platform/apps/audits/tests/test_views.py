@@ -2,18 +2,23 @@
 Tests for audits views
 """
 
+import io
 from datetime import date, timedelta
 
 import pytest
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models.query import QuerySet
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
+from moto import mock_aws
 from pytest_django.asserts import assertContains, assertNotContains
 
 from accessibility_monitoring_platform.apps.common.models import Boolean
 
+from ...cases.models import CaseFile
+from ...cases.utils import S3ReadWriteFile
 from ...reports.models import Report
 from ...simplified.models import (
     CaseCompliance,
@@ -97,6 +102,8 @@ NEW_12_WEEK_CUSTOM_RETEST_COMMENT: str = "New 12-week custom retest comment"
 NEW_12_WEEK_CUSTOM_AUDITOR_NOTES: str = "New 12-week custom auditor notes"
 HISTORIC_RETEST_NOTES: str = "Historic retest notes"
 HISTORIC_CHECK_RESULT_NOTES: str = "Historic check result notes"
+CASE_FILE_NAME: str = "case_file.txt"
+CASE_FILE_CONTENT: str = "Case file content"
 
 
 def create_audit() -> Audit:
@@ -520,136 +527,17 @@ def test_audit_statement_summary_page_redirect_when_report_exists(admin_client):
 
 
 @pytest.mark.parametrize(
-    "path_name",
-    [
-        "edit-statement-pages",
-        "edit-audit-retest-statement-pages",
-    ],
-)
-def test_add_statement_page(path_name, admin_client):
-    """
-    Test pressing add statement page button redirects to page with add_extra parameter
-    """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    url: str = reverse(f"audits:{path_name}", kwargs={"pk": audit.id})
-
-    response: HttpResponse = admin_client.post(
-        url,
-        {
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "version": audit.version,
-            "add_statement_page": "Save and add link to statement",
-        },
-    )
-
-    assert response.status_code == 302
-
-    expected_path: str = f"{url}?add_extra=true#statement-page-None"
-    assert response.url == expected_path
-
-
-def test_audit_statement_pages_default_added_stage(
-    admin_client,
-):
-    """
-    Test that added stage for new entries defaults to initial
-    for initial and 12-week for 12-week retest pages.
-    """
-    audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.get(
-        f'{reverse("audits:edit-statement-pages", kwargs=audit_pk)}?add_extra=true#statement-page-None'
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, STATEMENT_PAGE_INITIAL_CHECKED, html=True)
-    assertNotContains(response, STATEMENT_PAGE_TWELVE_WEEK_CHECKED, html=True)
-    response: HttpResponse = admin_client.get(
-        f'{reverse("audits:edit-audit-retest-statement-pages", kwargs=audit_pk)}?add_extra=true#statement-page-None'
-    )
-
-    assert response.status_code == 200
-
-    assertNotContains(response, STATEMENT_PAGE_INITIAL_CHECKED, html=True)
-    assertContains(response, STATEMENT_PAGE_TWELVE_WEEK_CHECKED, html=True)
-
-
-@pytest.mark.parametrize(
-    "path_name",
-    [
-        "edit-statement-pages",
-        "edit-audit-retest-statement-pages",
-    ],
-)
-def test_delete_statement_page(path_name, admin_client):
-    """Test deleting a statement page"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
-
-    response: HttpResponse = admin_client.post(
-        reverse(f"audits:{path_name}", kwargs={"pk": audit.id}),
-        {
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "version": audit.version,
-            f"remove_statement_page_{statement_page.id}": "Remove statement link",
-        },
-        follow=True,
-    )
-
-    assert response.status_code == 200
-
-    updated_statement_page: StatementPage = StatementPage.objects.get(
-        id=statement_page.id
-    )
-
-    assert updated_statement_page.is_deleted is True
-
-
-def test_delete_statement_page_on_retest(admin_client):
-    """Test deleting a statement page"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    retest: Retest = Retest.objects.create(simplified_case=audit.simplified_case)
-    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
-
-    response: HttpResponse = admin_client.post(
-        reverse("audits:edit-equality-body-statement-pages", kwargs={"pk": retest.id}),
-        {
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "version": audit.version,
-            f"remove_statement_page_{statement_page.id}": "Remove statement link",
-        },
-        follow=True,
-    )
-
-    assert response.status_code == 200
-
-    updated_statement_page: StatementPage = StatementPage.objects.get(
-        id=statement_page.id
-    )
-
-    assert updated_statement_page.is_deleted is True
-
-
-@pytest.mark.parametrize(
     "path_name, button_name, expected_redirect_path_name",
     [
         ("audits:edit-statement-pages", "save", "audits:edit-statement-pages"),
         (
             "audits:edit-statement-pages",
+            "save_continue",
+            "audits:initial-statement-backup",
+        ),
+        ("audits:initial-statement-backup", "save", "audits:initial-statement-backup"),
+        (
+            "audits:initial-statement-backup",
             "save_continue",
             "audits:edit-statement-overview",
         ),
@@ -660,6 +548,16 @@ def test_delete_statement_page_on_retest(admin_client):
         ),
         (
             "audits:edit-audit-retest-statement-pages",
+            "save_continue",
+            "audits:edit-audit-retest-statement-backup",
+        ),
+        (
+            "audits:edit-audit-retest-statement-backup",
+            "save",
+            "audits:edit-audit-retest-statement-backup",
+        ),
+        (
+            "audits:edit-audit-retest-statement-backup",
             "save_continue",
             "audits:edit-retest-statement-overview",
         ),
@@ -694,6 +592,78 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
 
     expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
     assert response.url == expected_path
+
+
+@pytest.mark.parametrize(
+    "url_name",
+    [
+        "audits:edit-statement-pages",
+        "audits:edit-audit-retest-statement-pages",
+    ],
+)
+def test_add_statement_link(url_name, admin_client):
+    """Test that add statement link views saves URL"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+
+    response: HttpResponse = admin_client.post(
+        reverse(url_name, kwargs={"pk": simplified_case.id}),
+        {
+            "version": audit.version,
+            "statement_url": STATEMENT_PAGE_URL,
+            "save": "Save",
+        },
+    )
+
+    assert response.status_code == 302
+
+    statement_page: StatementPage = StatementPage.objects.get(audit=audit)
+
+    assert statement_page.url == STATEMENT_PAGE_URL
+
+
+@pytest.mark.parametrize(
+    "url_name",
+    [
+        "audits:initial-statement-backup",
+        "audits:edit-audit-retest-statement-backup",
+    ],
+)
+@mock_aws
+def test_add_statement_backup(url_name, admin_client):
+    """Test that audit statement backup saves to s3"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+
+    in_memory_file: InMemoryUploadedFile = InMemoryUploadedFile(
+        io.BytesIO(CASE_FILE_CONTENT.encode()),
+        field_name="name",
+        name=CASE_FILE_NAME,
+        content_type="text",
+        size=len(CASE_FILE_CONTENT),
+        charset=None,
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse(url_name, kwargs={"pk": simplified_case.id}),
+        {
+            "version": audit.version,
+            "file_to_upload": in_memory_file,
+            "save": "Save",
+        },
+    )
+
+    assert response.status_code == 302
+
+    case_file: CaseFile = CaseFile.objects.get(base_case=simplified_case)
+
+    assert case_file.name == CASE_FILE_NAME
+
+    s3_read_write: S3ReadWriteFile = S3ReadWriteFile()
+    data_s3: bytes | str = s3_read_write.read_case_file_from_s3(case_file=case_file)
+
+    assert isinstance(data_s3, bytes)
+    assert data_s3.decode() == CASE_FILE_CONTENT
 
 
 @pytest.mark.parametrize(
@@ -801,6 +771,16 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
         ),
         (
             "audits:edit-audit-retest-statement-pages",
+            "save_continue",
+            "audits:edit-audit-retest-statement-backup",
+        ),
+        (
+            "audits:edit-audit-retest-statement-backup",
+            "save",
+            "audits:edit-audit-retest-statement-backup",
+        ),
+        (
+            "audits:edit-audit-retest-statement-backup",
             "save_continue",
             "audits:edit-retest-statement-overview",
         ),
@@ -2478,7 +2458,9 @@ def test_retest_statement_decision_hides_initial_decision(admin_client):
     """
     audit: Audit = create_audit_and_wcag()
     audit_pk: dict[str, int] = {"pk": audit.id}
-    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+    statement_page: StatementPage = StatementPage.objects.create(
+        audit=audit, added_stage=StatementPage.AddedStage.INITIAL
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("audits:edit-audit-retest-statement-decision", kwargs=audit_pk)
@@ -3198,6 +3180,16 @@ def test_delete_retest(admin_client):
         (
             "audits:edit-equality-body-statement-pages",
             "save_continue",
+            "audits:edit-equality-body-statement-backup",
+        ),
+        (
+            "audits:edit-equality-body-statement-backup",
+            "save",
+            "audits:edit-equality-body-statement-backup",
+        ),
+        (
+            "audits:edit-equality-body-statement-backup",
+            "save_continue",
             "audits:edit-equality-body-statement-overview",
         ),
         (
@@ -3342,6 +3334,67 @@ def test_equality_body_retest_edit_redirects_based_on_button_pressed(
     assert response.url == expected_path
 
 
+def test_equality_body_retest_add_statement_link(admin_client):
+    """Test that add statement link views saves URL"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-equality-body-statement-pages", kwargs={"pk": retest.id}),
+        {
+            "version": audit.version,
+            "statement_url": STATEMENT_PAGE_URL,
+            "save": "Save",
+        },
+    )
+
+    assert response.status_code == 302
+
+    statement_page: StatementPage = StatementPage.objects.get(audit=audit)
+
+    assert statement_page.url == STATEMENT_PAGE_URL
+
+
+@mock_aws
+def test_equality_body_retest_statement_backup(admin_client):
+    """Test that equality body retest statement backup saves to s3"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    Audit.objects.create(simplified_case=simplified_case)
+    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
+
+    in_memory_file: InMemoryUploadedFile = InMemoryUploadedFile(
+        io.BytesIO(CASE_FILE_CONTENT.encode()),
+        field_name="name",
+        name=CASE_FILE_NAME,
+        content_type="text",
+        size=len(CASE_FILE_CONTENT),
+        charset=None,
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-equality-body-statement-backup", kwargs={"pk": retest.id}),
+        {
+            "version": retest.version,
+            "file_to_upload": in_memory_file,
+            "type": CaseFile.Type.STATEMENT,
+            "save": "Save",
+        },
+    )
+
+    assert response.status_code == 302
+
+    case_file: CaseFile = CaseFile.objects.get(base_case=simplified_case)
+
+    assert case_file.name == CASE_FILE_NAME
+
+    s3_read_write: S3ReadWriteFile = S3ReadWriteFile()
+    data_s3: bytes | str = s3_read_write.read_case_file_from_s3(case_file=case_file)
+
+    assert isinstance(data_s3, bytes)
+    assert data_s3.decode() == CASE_FILE_CONTENT
+
+
 def test_equality_body_retest_statement_overview_redirects_when_no(admin_client):
     """
     Test that an equality body retest statement overview redirects to statement
@@ -3475,25 +3528,6 @@ def test_equality_body_page_checks_save_continue(
 
     expected_path: str = reverse("audits:retest-comparison-update", kwargs=retest_pk)
     assert response.url == expected_path
-
-
-def test_equality_body_retest_statement_pages_default_added_stage(
-    admin_client,
-):
-    """
-    Test that added stage for new entries defaults to retest
-    for equality body-requested retests.
-    """
-    retest: Retest = create_equality_body_retest()
-    retest_pk: dict[str, int] = {"pk": retest.id}
-
-    response: HttpResponse = admin_client.get(
-        f'{reverse("audits:edit-equality-body-statement-pages", kwargs=retest_pk)}?add_extra=true#statement-page-None'
-    )
-
-    assert response.status_code == 200
-
-    assertContains(response, STATEMENT_PAGE_EWUALITY_BODY_RETEST_CHECKED, html=True)
 
 
 def test_equality_body_retest_statement_compliance_update_redirects_to_retest_overview_based_on_button_pressed(
@@ -3785,6 +3819,68 @@ def test_retest_next_page_name(path_name, expected_next_page, admin_client):
     assert response.status_code == 200
 
     assertContains(response, f"<b>{expected_next_page}</b>", html=True)
+
+
+@pytest.mark.parametrize(
+    "path_name, redirect_path_name",
+    [
+        ("initial-remove-statement-page", "edit-statement-pages"),
+        (
+            "edit-audit-retest-remove-statement-page",
+            "edit-audit-retest-statement-pages",
+        ),
+    ],
+)
+def test_statement_page_removal(path_name, redirect_path_name, admin_client):
+    """Test statement page removal and redirect"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+
+    response: HttpResponse = admin_client.post(
+        reverse(f"audits:{path_name}", kwargs={"pk": statement_page.id}),
+        {},
+    )
+
+    assert response.status_code == 302
+
+    assert response.url == reverse(
+        f"audits:{redirect_path_name}", kwargs={"pk": audit.id}
+    )
+
+    events: QuerySet[SimplifiedEventHistory] = SimplifiedEventHistory.objects.all()
+
+    assert events.count() == 1
+    assert events[0].parent == statement_page
+    assert events[0].event_type == SimplifiedEventHistory.Type.UPDATE
+
+
+def test_equality_body_retest_statement_page_removal(admin_client):
+    """Test equality body retest statement page removal and redirect"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "audits:edit-equality-body-remove-statement-page",
+            kwargs={"retest_id": retest.id, "pk": statement_page.id},
+        ),
+        {},
+    )
+
+    assert response.status_code == 302
+
+    assert response.url == reverse(
+        "audits:edit-equality-body-statement-pages", kwargs={"pk": retest.id}
+    )
+
+    events: QuerySet[SimplifiedEventHistory] = SimplifiedEventHistory.objects.all()
+
+    assert events.count() == 1
+    assert events[0].parent == statement_page
+    assert events[0].event_type == SimplifiedEventHistory.Type.UPDATE
 
 
 def test_create_initial_custom_issue_redirects(admin_client):

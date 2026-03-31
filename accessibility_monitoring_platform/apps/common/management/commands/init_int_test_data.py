@@ -28,7 +28,7 @@ from ....audits.models import (
     StatementPage,
     WcagDefinition,
 )
-from ....cases.models import BaseCase
+from ....cases.models import BaseCase, CaseFile
 from ....comments.models import Comment
 from ....common.models import EmailTemplate
 from ....detailed.models import Contact as DetailedContact
@@ -117,6 +117,7 @@ class Command(BaseCommand):
                 CaseCompliance,
                 CaseStatus,
                 SimplifiedCaseHistory,
+                CaseFile,
             ]
         )
         delete_from_tables(

@@ -21,7 +21,7 @@
                 {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:edit-equality-body-statement-non-accessible' %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                {% include 'audits/helpers/statement_pages_eb_retest.html' with audit=retest.simplified_case.audit  %}
+                {% include 'audits/helpers/details_statement_links_and_backups.html' with audit=retest.simplified_case.audit  %}
                 {% include 'common/formset_error_summary.html' with formset=retest_statement_check_results_formset %}
                 <form method="post" action="{% url 'audits:edit-equality-body-statement-non-accessible' retest.id %}">
                     {% csrf_token %}

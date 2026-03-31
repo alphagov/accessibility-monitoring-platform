@@ -1,0 +1,49 @@
+{% extends 'common/case_form.html' %}
+
+{% block preform %}
+    <div class="govuk-button-group">
+        <a href="{% url 'cases:case-file-create' case.id %}" class="govuk-link govuk-link--no-visited-state">
+            + Upload file</a>
+    </div>
+    {% if case.case_files %}
+        <table class="govuk-table amp-file-management-table govuk-!-font-size-16">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">Filename</th>
+                    <th scope="col" class="govuk-table__header">Uploaded</th>
+                    <th scope="col" class="govuk-table__header">Type</th>
+                    <th scope="col" class="govuk-table__header">Options</th>
+                </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+                {% for case_file in case.case_files %}
+                    <tr class="govuk-table__row">
+                        <td scope="row" class="govuk-table__cell apply_ellipsis">
+                            <a href="{% url 'cases:case-file-download' case_file.id %}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+                                {{ case_file.name }}
+                            </a>
+                        </td>
+                        <td scope="row" class="govuk-table__cell amp-case-date">
+                            {{ case_file.uploaded_time|amp_date_trunc }}
+                        </td>
+                        <td scope="row" class="govuk-table__cell amp-file-type">
+                            {{ case_file.get_type_display }}
+                        </td>
+                        <td scope="row" class="govuk-table__cell">
+                            <a href="{% url 'cases:case-file-update' case_file.id %}" class="govuk-link govuk-link--no-visited-state">
+                                Edit</a>
+                            &middot;
+                            <a href="{% url 'cases:case-file-delete' case_file.id %}" class="govuk-link govuk-link--no-visited-state">
+                                Remove</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="govuk-body-m">No files uploaded</p>
+    {% endif %}
+    <script src="/static/js/middle_ellipsis.js"></script>
+{% endblock %}
+
+{% block form %}{% endblock %}

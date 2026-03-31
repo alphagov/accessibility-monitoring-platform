@@ -1,0 +1,27 @@
+{% if audit.archived_google_drive_links %}
+    <details class="govuk-details" data-module="govuk-details">
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">
+                Archived Google Drive links
+            </span>
+        </summary>
+        <div class="govuk-details__text">
+            {% for statement_page in audit.archived_google_drive_links %}
+                <p class="govuk-body-m amp-margin-bottom-0">
+                    <b>Google Drive link #{{ forloop.counter }}</b>
+                </p>
+                <ul class="govuk-list govuk-list--bullet amp-margin-bottom-20">
+                    <li>
+                        <a href="{{ statement_page.backup_url }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+                            {{ statement_page.backup_url }}</a>
+                    </li>
+                    {% if statement_page.created %}
+                        <li>Added {{ statement_page.created|amp_datetime }}</li>
+                    {% else %}
+                        <li>Added 1 January 1970</li>
+                    {% endif %}
+                </ul>
+            {% endfor %}
+        </div>
+    </details>
+{% endif %}

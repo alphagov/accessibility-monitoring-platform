@@ -24,6 +24,7 @@ from ..forms import (
     AuditExtraPageFormsetOneExtra,
     AuditExtraPageFormsetTwoExtra,
     AuditInitialDisproportionateBurdenUpdateForm,
+    AuditInitialStatementBackupUpdateForm,
     AuditMetadataUpdateForm,
     AuditPageChecksForm,
     AuditPagesUpdateForm,
@@ -35,7 +36,6 @@ from ..forms import (
     AuditStatementFeedbackUpdateForm,
     AuditStatementNonAccessibleUpdateForm,
     AuditStatementOverviewUpdateForm,
-    AuditStatementPagesUpdateForm,
     AuditStatementPreparationUpdateForm,
     AuditStatementSummaryUpdateForm,
     AuditStatementWebsiteUpdateForm,
@@ -45,6 +45,7 @@ from ..forms import (
     CaseComplianceWebsiteInitialUpdateForm,
     CheckResultFilterForm,
     CheckResultFormset,
+    InitialAuditStatementPagesUpdateForm,
     InitialCustomIssueCreateUpdateForm,
 )
 from ..models import (
@@ -64,11 +65,13 @@ from ..utils import (
     other_page_failed_check_results,
 )
 from .base import (
+    AddStatementLinkUpdateView,
     AuditCaseComplianceUpdateView,
     AuditPageChecksBaseFormView,
     AuditStatementCheckingView,
     AuditUpdateView,
-    StatementPageFormsetUpdateView,
+    DeleteStatementPageUpdateView,
+    StatementBackupUpdateView,
 )
 
 
@@ -361,30 +364,37 @@ class AuditWcagSummaryUpdateView(AuditSummaryUpdateView):
     template_name: str = "audits/forms/test_summary_wcag.html"
 
 
-class InitialStatementPageFormsetUpdateView(StatementPageFormsetUpdateView):
-    """
-    View to update statement pages in initial test
-    """
+class InitialAddStatementPageUpdateView(AddStatementLinkUpdateView):
+    """View to add statement link in initial test"""
 
-    form_class: type[AuditStatementPagesUpdateForm] = AuditStatementPagesUpdateForm
-    template_name: str = "audits/forms/statement_pages_formset.html"
+    form_class: type[InitialAuditStatementPagesUpdateForm] = (
+        InitialAuditStatementPagesUpdateForm
+    )
+    template_name: str = "audits/forms/initial_add_statement_link.html"
 
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Get context data for template rendering"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        for form in context["statement_pages_formset"]:
-            if form.instance.id is None:
-                form.fields["added_stage"].initial = StatementPage.AddedStage.INITIAL
-        return context
+
+class InitialDeleteStatementPageUpdateView(DeleteStatementPageUpdateView):
+    """View to delete statement link in initial test"""
+
+    template_name: str = "audits/forms/initial_statement_page_delete.html"
 
     def get_success_url(self) -> str:
-        """Detect the submit button used and act accordingly"""
-        if "add_statement_page" in self.request.POST:
-            audit: Audit = self.object
-            audit_pk: dict[str, int] = {"pk": audit.id}
-            current_url: str = reverse("audits:edit-statement-pages", kwargs=audit_pk)
-            return f"{current_url}?add_extra=true#statement-page-None"
-        return super().get_success_url()
+        """Return to the list of statement links"""
+        statement_page: StatementPage = self.object
+        return reverse(
+            "audits:edit-statement-pages", kwargs={"pk": statement_page.audit.id}
+        )
+
+
+class InitialStatementBackupUpdateView(StatementBackupUpdateView):
+    """
+    View to backup statement pages in initial test
+    """
+
+    form_class: type[AuditInitialStatementBackupUpdateForm] = (
+        AuditInitialStatementBackupUpdateForm
+    )
+    template_name: str = "audits/forms/initial_statement_backup.html"
 
 
 class AuditStatementOverviewFormView(AuditStatementCheckingView):
