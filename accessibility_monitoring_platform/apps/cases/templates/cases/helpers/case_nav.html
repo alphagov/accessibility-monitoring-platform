@@ -4,7 +4,7 @@
             <p class="govuk-body-s amp-margin-bottom-5">
                 {{ platform_page_group.name }}
                 {% if platform_page_group.number_pages_and_subpages > 0 %}
-                    ({{ platform_page_group.number_complete }}/{{ platform_page_group.number_pages_and_subpages }})
+                    {{ platform_page_group.number_complete }}/{{ platform_page_group.number_pages_and_subpages }}
                 {% endif %}
             </p>
             {% include 'cases/helpers/case_nav_group_pages.html' with section_selected=True %}
@@ -13,7 +13,7 @@
                 <summary class="amp-nav-details__summary">
                     {{ platform_page_group.name }}
                     {% if platform_page_group.number_pages_and_subpages > 0 %}
-                        ({{ platform_page_group.number_complete }}/{{ platform_page_group.number_pages_and_subpages }})
+                        {{ platform_page_group.number_complete }}/{{ platform_page_group.number_pages_and_subpages }}
                     {% endif %}
                 </summary>
                 {% include 'cases/helpers/case_nav_group_pages.html' %}
