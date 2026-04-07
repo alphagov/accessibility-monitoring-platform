@@ -3653,7 +3653,7 @@ def test_nav_details_page_renders(admin_client):
         response,
         """<details class="amp-nav-details">
             <summary class="amp-nav-details__summary">
-                Case details (0/1)
+                Case details 0/1
             </summary>
             <div class="amp-nav-details__text">
                 <ul class="govuk-list amp-margin-bottom-5">
@@ -3669,7 +3669,7 @@ def test_nav_details_page_renders(admin_client):
     assertContains(
         response,
         """<p class="govuk-body-s amp-margin-bottom-5">
-            Initial WCAG test (0/5)
+            Initial WCAG test 0/5
         </p>""",
         html=True,
     )
@@ -3708,7 +3708,7 @@ def test_nav_details_subpage_renders(admin_client):
         response,
         """<details class="amp-nav-details">
             <summary class="amp-nav-details__summary">
-                Case details (0/1)
+                Case details 0/1
             </summary>
             <div class="amp-nav-details__text">
                 <ul class="govuk-list amp-margin-bottom-5">
@@ -3724,7 +3724,7 @@ def test_nav_details_subpage_renders(admin_client):
     assertContains(
         response,
         """<p class="govuk-body-s amp-margin-bottom-5">
-            Initial WCAG test (0/5)
+            Initial WCAG test 0/5
         </p>""",
         html=True,
     )

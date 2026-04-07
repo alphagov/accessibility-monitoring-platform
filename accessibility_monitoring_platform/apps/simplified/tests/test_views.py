@@ -546,7 +546,7 @@ def test_case_page_with_case_nav_and_form_without_go_back(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Case details (0/1)", html=True)
+    assertContains(response, "Case details 0/1", html=True)
     assertContains(
         response,
         f"""<form method="post" action="{url}">""",
@@ -569,7 +569,7 @@ def test_case_page_with_form_and_go_back_without_case_nav(admin_client):
 
     assert response.status_code == 200
 
-    assertNotContains(response, "Case details (0/1)", html=True)
+    assertNotContains(response, "Case details 0/1", html=True)
     assertContains(
         response,
         f"""<form method="post" action="{url}">""",
@@ -591,7 +591,7 @@ def test_case_page_with_go_back_without_form_or_case_nav(admin_client):
 
     assert response.status_code == 200
 
-    assertNotContains(response, "Case details (0/1)", html=True)
+    assertNotContains(response, "Case details 0/1", html=True)
     assertNotContains(
         response,
         f"""<form method="post" action="{url}">""",
@@ -613,7 +613,7 @@ def test_case_page_with_case_nav_no_form_and_no_go_back(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Case details (0/1)", html=True)
+    assertContains(response, "Case details 0/1", html=True)
     assertNotContains(
         response,
         f"""<form method="post" action="{url}">""",
@@ -2020,11 +2020,11 @@ def test_case_navigation_shown_on_case_pages(case_page_url, admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Case details (0/1)", html=True)
-    assertContains(response, "Contact details (0/4)", html=True)
-    assertContains(response, "Report correspondence (0/4)", html=True)
-    assertContains(response, "12-week correspondence (0/3)", html=True)
-    assertContains(response, "Closing the case (0/3)", html=True)
+    assertContains(response, "Case details 0/1", html=True)
+    assertContains(response, "Contact details 0/4", html=True)
+    assertContains(response, "Report correspondence 0/4", html=True)
+    assertContains(response, "12-week correspondence 0/3", html=True)
+    assertContains(response, "Closing the case 0/3", html=True)
 
 
 def test_case_navigation_shown_on_edit_equality_body_cores_page(admin_client):
@@ -2048,11 +2048,11 @@ def test_case_navigation_shown_on_edit_equality_body_cores_page(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Case details (0/1)", html=True)
-    assertContains(response, "Contact details (0/4)", html=True)
-    assertContains(response, "Report correspondence (0/4)", html=True)
-    assertContains(response, "12-week correspondence (0/3)", html=True)
-    assertContains(response, "Closing the case (0/3)", html=True)
+    assertContains(response, "Case details 0/1", html=True)
+    assertContains(response, "Contact details 0/4", html=True)
+    assertContains(response, "Report correspondence 0/4", html=True)
+    assertContains(response, "12-week correspondence 0/3", html=True)
+    assertContains(response, "Closing the case 0/3", html=True)
 
 
 def test_case_navigation_shown_on_edit_contact_page(admin_client):
@@ -2073,11 +2073,11 @@ def test_case_navigation_shown_on_edit_contact_page(admin_client):
 
     assert response.status_code == 200
 
-    assertContains(response, "Case details (0/1)", html=True)
-    assertContains(response, "Contact details (0/4)", html=True)
-    assertContains(response, "Report correspondence (0/4)", html=True)
-    assertContains(response, "12-week correspondence (0/3)", html=True)
-    assertContains(response, "Closing the case (0/3)", html=True)
+    assertContains(response, "Case details 0/1", html=True)
+    assertContains(response, "Contact details 0/4", html=True)
+    assertContains(response, "Report correspondence 0/4", html=True)
+    assertContains(response, "12-week correspondence 0/3", html=True)
+    assertContains(response, "Closing the case 0/3", html=True)
 
 
 @pytest.mark.parametrize(
