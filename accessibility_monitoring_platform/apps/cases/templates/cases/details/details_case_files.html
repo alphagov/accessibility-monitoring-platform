@@ -1,0 +1,36 @@
+<h3 class="govuk-heading-s">
+    {% if case_detail_page.page.platform_page_group.name %}
+        {{ case_detail_page.page.platform_page_group.name }} |
+    {% endif %}
+    <a href="{{ case_detail_page.page.url }}" class="govuk-link govuk-link--no-visited-state">{{ case_detail_page.page.get_name }}</a>
+</h3>
+{% if case.case_files %}
+    <table class="govuk-table amp-file-management-table govuk-!-font-size-16" data-search-target-page-name="{{ case_detail_page.page.platform_page_group.name }}" data-search-target-label="{{ case_detail_page.page.get_name }}" data-search-target-url="{{ case_detail_page.page.url }}">
+        <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+                <th scope="col" class="govuk-table__header">Filename</th>
+                <th scope="col" class="govuk-table__header">Uploaded</th>
+                <th scope="col" class="govuk-table__header">Type</th>
+            </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+            {% for case_file in case.case_files %}
+                <tr class="govuk-table__row">
+                    <td scope="row" class="govuk-table__cell">
+                        <a href="{% url 'cases:case-file-download' case_file.id %}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+                            {{ case_file.name }}
+                        </a>
+                    </td>
+                    <td scope="row" class="govuk-table__cell amp-case-date">
+                        {{ case_file.uploaded_time|amp_date_trunc }}
+                    </td>
+                    <td scope="row" class="govuk-table__cell amp-file-type">
+                        {{ case_file.get_type_display }}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p class="govuk-body-m">No files uploaded</p>
+{% endif %}
