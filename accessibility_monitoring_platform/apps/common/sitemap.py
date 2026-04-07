@@ -1540,6 +1540,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             BaseCasePlatformPage(
                 name="Case files manager",
                 url_name="simplified:case-file-list",
+                case_details_template_name="cases/details/details_case_files.html",
             ),
             SimplifiedCasePlatformPage(
                 name="Outstanding issues",
@@ -1858,6 +1859,7 @@ DETAILED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             BaseCasePlatformPage(
                 name="Case files manager",
                 url_name="detailed:case-file-list",
+                case_details_template_name="cases/details/details_case_files.html",
             ),
             DetailedCasePlatformPage(
                 name="Email templates",
@@ -2208,6 +2210,7 @@ MOBILE_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             BaseCasePlatformPage(
                 name="Case files manager",
                 url_name="mobile:case-file-list",
+                case_details_template_name="cases/details/details_case_files.html",
             ),
             MobileCasePlatformPage(
                 name="Email templates",

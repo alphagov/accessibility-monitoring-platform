@@ -2,7 +2,7 @@
     {% if case_detail_page.page.platform_page_group.name %}
         {{ case_detail_page.page.platform_page_group.name }} |
     {% endif %}
-    <a href="{% url 'simplified:zendesk-tickets' case.id %}" class="govuk-link govuk-link--no-visited-state">PSB Zendesk tickets</a>
+    <a href="{{ case_detail_page.page.url }}" class="govuk-link govuk-link--no-visited-state">{{ case_detail_page.page.get_name }}</a>
 </h3>
 {% if case.zendesk_tickets %}
     {% for zendesk_ticket in case.zendesk_tickets %}
