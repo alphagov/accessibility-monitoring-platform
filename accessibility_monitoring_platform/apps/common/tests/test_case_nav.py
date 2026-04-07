@@ -78,7 +78,7 @@ def test_current_page_in_case_nav(url_app, case_model, admin_client):
 
     assertContains(
         response,
-        CURRENT_PAGE_GROUP.format(name="Case details (0/1)"),
+        CURRENT_PAGE_GROUP.format(name="Case details 0/1"),
         html=True,
     )
     assertContains(
@@ -127,12 +127,12 @@ def test_start_initial_test_page_shown(admin_client):
     )
     assertNotContains(
         response,
-        OTHER_PAGE_GROUP.format(name="Initial WCAG test (0/4)"),
+        OTHER_PAGE_GROUP.format(name="Initial WCAG test 0/4"),
         html=True,
     )
     assertNotContains(
         response,
-        OTHER_PAGE_GROUP.format(name="Initial statement (0/7)"),
+        OTHER_PAGE_GROUP.format(name="Initial statement 0/7"),
         html=True,
     )
 
@@ -155,12 +155,12 @@ def test_start_initial_test_page_hidden(admin_client):
     )
     assertContains(
         response,
-        OTHER_PAGE_GROUP.format(name="Initial WCAG test (0/4)"),
+        OTHER_PAGE_GROUP.format(name="Initial WCAG test 0/4"),
         html=True,
     )
     assertContains(
         response,
-        OTHER_PAGE_GROUP.format(name="Initial statement (0/7)"),
+        OTHER_PAGE_GROUP.format(name="Initial statement 0/7"),
         html=True,
     )
 
@@ -178,7 +178,7 @@ def test_dynamic_wcag_pages_hidden(admin_client):
 
     assertContains(
         response,
-        CURRENT_PAGE_GROUP.format(name="Initial WCAG test (0/4)"),
+        CURRENT_PAGE_GROUP.format(name="Initial WCAG test 0/4"),
         html=True,
     )
     assertContains(
@@ -204,7 +204,7 @@ def test_dynamic_wcag_pages_shown(admin_client):
 
     assertContains(
         response,
-        CURRENT_PAGE_GROUP.format(name="Initial WCAG test (0/5)"),
+        CURRENT_PAGE_GROUP.format(name="Initial WCAG test 0/5"),
         html=True,
     )
     assertContains(
@@ -231,7 +231,7 @@ def test_dynamic_statement_pages_hidden(admin_client):
 
     assertContains(
         response,
-        CURRENT_PAGE_GROUP.format(name="Initial statement (0/7)"),
+        CURRENT_PAGE_GROUP.format(name="Initial statement 0/7"),
         html=True,
     )
     assertContains(
@@ -263,7 +263,7 @@ def test_dynamic_statement_pages_shown(admin_client):
 
     assertContains(
         response,
-        CURRENT_PAGE_GROUP.format(name="Initial statement (0/13)"),
+        CURRENT_PAGE_GROUP.format(name="Initial statement 0/13"),
         html=True,
     )
     assertContains(response, "<b>Statement overview</b>", html=True)
@@ -293,7 +293,7 @@ def test_start_report_test_page_shown(admin_client):
     )
     assertNotContains(
         response,
-        OTHER_PAGE_GROUP.format(name="Report QA (0/4)"),
+        OTHER_PAGE_GROUP.format(name="Report QA 0/4"),
         html=True,
     )
 
@@ -316,7 +316,7 @@ def test_start_report_test_page_hidden(admin_client):
     )
     assertContains(
         response,
-        OTHER_PAGE_GROUP.format(name="Report QA (0/4)"),
+        OTHER_PAGE_GROUP.format(name="Report QA 0/4"),
         html=True,
     )
 
@@ -333,7 +333,7 @@ def test_dynamic_contact_pages_hidden(admin_client):
 
     assertContains(
         response,
-        CURRENT_PAGE_GROUP.format(name="Contact details (0/1)"),
+        CURRENT_PAGE_GROUP.format(name="Contact details 0/1"),
         html=True,
     )
     assertContains(
@@ -358,7 +358,7 @@ def test_dynamic_contact_pages_shown(admin_client):
 
     assertContains(
         response,
-        CURRENT_PAGE_GROUP.format(name="Contact details (0/1)"),
+        CURRENT_PAGE_GROUP.format(name="Contact details 0/1"),
         html=True,
     )
     assertContains(
@@ -384,7 +384,7 @@ def test_dynamic_contact_correspondence_pages_hidden(admin_client):
 
     assertContains(
         response,
-        CURRENT_PAGE_GROUP.format(name="Contact details (0/1)"),
+        CURRENT_PAGE_GROUP.format(name="Contact details 0/1"),
         html=True,
     )
     assertNotContains(
@@ -427,7 +427,7 @@ def test_dynamic_contact_correspondence_pages_shown(admin_client):
 
     assertContains(
         response,
-        CURRENT_PAGE_GROUP.format(name="Contact details (0/4)"),
+        CURRENT_PAGE_GROUP.format(name="Contact details 0/4"),
         html=True,
     )
     assertContains(
@@ -474,12 +474,12 @@ def test_start_12_week_retest_page_shown(admin_client):
     )
     assertNotContains(
         response,
-        OTHER_PAGE_GROUP.format(name="12-week WCAG test (0/4)"),
+        OTHER_PAGE_GROUP.format(name="12-week WCAG test 0/4"),
         html=True,
     )
     assertNotContains(
         response,
-        OTHER_PAGE_GROUP.format(name="12-week statement (0/6)"),
+        OTHER_PAGE_GROUP.format(name="12-week statement 0/6"),
         html=True,
     )
 
@@ -502,12 +502,12 @@ def test_start_12_week_retest_page_hidden(admin_client):
     )
     assertContains(
         response,
-        OTHER_PAGE_GROUP.format(name="12-week WCAG test (0/4)"),
+        OTHER_PAGE_GROUP.format(name="12-week WCAG test 0/4"),
         html=True,
     )
     assertContains(
         response,
-        OTHER_PAGE_GROUP.format(name="12-week statement (0/7)"),
+        OTHER_PAGE_GROUP.format(name="12-week statement 0/7"),
         html=True,
     )
 
