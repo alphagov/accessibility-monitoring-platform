@@ -7,7 +7,7 @@
 {% if case.zendesk_tickets %}
     {% for zendesk_ticket in case.zendesk_tickets %}
         <p class="govuk-body-m"><b>PSB Zendesk ticket #{{ zendesk_ticket.id_within_case }}</b></p>
-        <table class="govuk-table" data-search-target-page-name="" data-search-target-label="PSB Zendesk tickets" data-search-target-url="{% url 'simplified:zendesk-tickets' case.id %}">
+        <table class="govuk-table" data-search-target-page-name="{{ case_detail_page.page.platform_page_group.name }}" data-search-target-label="{{ case_detail_page.page.get_name }}" data-search-target-url="{{ case_detail_page.page.url }}">
             <tbody class="govuk-table__body">
                 <tr class="govuk-table__row">
                     <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">Summary</th>
