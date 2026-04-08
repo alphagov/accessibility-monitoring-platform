@@ -2,9 +2,11 @@
 
 from django.db import migrations
 
-INITIAL_ROUND: str = "initial"
-TWELVE_WEEK_ROUND = "12-week"
-EQUALITY_BODY_ROUND = "equality-body"
+INITIAL_ROUND_TYPE: str = "initial"
+TWELVE_WEEK_ROUND_TYPE = "12-week"
+EQUALITY_BODY_ROUND_TYPE = "equality-body"
+INITIAL_ROUND: int = 0
+TWELVE_WEEK_ROUND: int = 1
 
 
 def populate_audit_rounds(apps, schema_editor):
@@ -14,7 +16,8 @@ def populate_audit_rounds(apps, schema_editor):
     for audit in Audit.objects.all().order_by("id"):
         WCAGAudit.objects.create(
             simplified_case=audit.simplified_case,
-            audit_round_type=INITIAL_ROUND,
+            audit_round_type=INITIAL_ROUND_TYPE,
+            round=INITIAL_ROUND,
             updated=audit.updated,
             date_of_test=audit.date_of_test,
             metadata_complete_date=audit.audit_metadata_complete_date,
@@ -24,7 +27,8 @@ def populate_audit_rounds(apps, schema_editor):
         )
         StatementAudit.objects.create(
             simplified_case=audit.simplified_case,
-            audit_round_type=INITIAL_ROUND,
+            audit_round_type=INITIAL_ROUND_TYPE,
+            round=INITIAL_ROUND,
             updated=audit.updated,
             date_of_test=audit.date_of_test,
             pages_complete_date=audit.audit_statement_pages_complete_date,
@@ -46,7 +50,8 @@ def populate_audit_rounds(apps, schema_editor):
         if audit.retest_date:
             WCAGAudit.objects.create(
                 simplified_case=audit.simplified_case,
-                audit_round_type=TWELVE_WEEK_ROUND,
+                audit_round_type=TWELVE_WEEK_ROUND_TYPE,
+                round=TWELVE_WEEK_ROUND,
                 updated=audit.updated,
                 date_of_test=audit.retest_date,
                 notes=audit.audit_retest_metadata_notes,
@@ -57,7 +62,8 @@ def populate_audit_rounds(apps, schema_editor):
             )
             StatementAudit.objects.create(
                 simplified_case=audit.simplified_case,
-                audit_round_type=TWELVE_WEEK_ROUND,
+                audit_round_type=TWELVE_WEEK_ROUND_TYPE,
+                round=TWELVE_WEEK_ROUND,
                 updated=audit.updated,
                 date_of_test=audit.retest_date,
                 pages_complete_date=audit.audit_retest_statement_pages_complete_date,

@@ -628,6 +628,7 @@ class AuditRound(VersionModel):
         choices=AuditRoundType.choices,
         default=AuditRoundType.INITIAL,
     )
+    round = models.IntegerField(default=0, blank=True)
     updated = models.DateTimeField(null=True, blank=True)
     date_of_test = models.DateField(default=date.today)
     notes = models.TextField(default="", blank=True)
@@ -641,7 +642,7 @@ class AuditRound(VersionModel):
         super().save(*args, **kwargs)
 
 
-class WCAGAudit(AuditRound):
+class WcagAudit(AuditRound):
     """Model for testing WCAG"""
 
     class ScreenSize(models.TextChoices):
@@ -672,6 +673,11 @@ class WCAGAudit(AuditRound):
 
     class Meta:
         ordering = ["-id"]
+
+    def save(self, *args, **kwargs) -> None:
+        if self.id is None:
+            self.round = self.simplified_case.wcagaudit_set.all().count()
+        super().save(*args, **kwargs)
 
     def __str__(self) -> str:
         return (
@@ -739,6 +745,11 @@ class StatementAudit(AuditRound):
 
     class Meta:
         ordering = ["-id"]
+
+    def save(self, *args, **kwargs) -> None:
+        if self.id is None:
+            self.round = self.simplified_case.statementaudit_set.all().count()
+        super().save(*args, **kwargs)
 
     def __str__(self) -> str:
         return f"{self.simplified_case} (Statement test {amp_format_date(self.date_of_test)})"

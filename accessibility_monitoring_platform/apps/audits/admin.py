@@ -19,7 +19,7 @@ from .models import (
     StatementCheck,
     StatementCheckResult,
     StatementPage,
-    WCAGAudit,
+    WcagAudit,
     WcagDefinition,
 )
 
@@ -36,28 +36,15 @@ class AuditAdmin(admin.ModelAdmin):
     show_facets = admin.ShowFacets.ALWAYS
 
 
-class WCAGAuditAdmin(admin.ModelAdmin):
-    """Django admin configuration for WCAGAudit model"""
+class AuditRoundAdmin(admin.ModelAdmin):
+    """Django admin configuration for WCAGAudit and StatementAudit models"""
 
     search_fields = [
         "simplified_case__organisation_name",
         "simplified_case__case_number",
     ]
-    list_display = ["date_of_test", "audit_round_type", "simplified_case"]
-    list_filter = ["audit_round_type", "is_deleted"]
-    readonly_fields = ["simplified_case"]
-    show_facets = admin.ShowFacets.ALWAYS
-
-
-class StatementAuditAdmin(admin.ModelAdmin):
-    """Django admin configuration for StatementAudit model"""
-
-    search_fields = [
-        "simplified_case__organisation_name",
-        "simplified_case__case_number",
-    ]
-    list_display = ["date_of_test", "audit_round_type", "simplified_case"]
-    list_filter = ["audit_round_type", "is_deleted"]
+    list_display = ["date_of_test", "audit_round_type", "round", "simplified_case"]
+    list_filter = ["audit_round_type", "round", "is_deleted"]
     readonly_fields = ["simplified_case"]
     show_facets = admin.ShowFacets.ALWAYS
 
@@ -294,8 +281,8 @@ class RetestStatementCheckResultAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Audit, AuditAdmin)
-admin.site.register(WCAGAudit, WCAGAuditAdmin)
-admin.site.register(StatementAudit, StatementAuditAdmin)
+admin.site.register(WcagAudit, AuditRoundAdmin)
+admin.site.register(StatementAudit, AuditRoundAdmin)
 admin.site.register(Page, PageAdmin)
 admin.site.register(CheckResult, CheckResultAdmin)
 admin.site.register(CheckResultNotesHistory, CheckResultNotesHistoryAdmin)
