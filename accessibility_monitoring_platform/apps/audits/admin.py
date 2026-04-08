@@ -15,9 +15,11 @@ from .models import (
     RetestCheckResult,
     RetestPage,
     RetestStatementCheckResult,
+    StatementAudit,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
+    WCAGAudit,
     WcagDefinition,
 )
 
@@ -31,6 +33,33 @@ class AuditAdmin(admin.ModelAdmin):
     ]
     list_display = ["date_of_test", "simplified_case"]
     readonly_fields = ["simplified_case"]
+    show_facets = admin.ShowFacets.ALWAYS
+
+
+class WCAGAuditAdmin(admin.ModelAdmin):
+    """Django admin configuration for WCAGAudit model"""
+
+    search_fields = [
+        "simplified_case__organisation_name",
+        "simplified_case__case_number",
+    ]
+    list_display = ["date_of_test", "audit_round_type", "simplified_case"]
+    list_filter = ["audit_round_type", "is_deleted"]
+    readonly_fields = ["simplified_case"]
+    show_facets = admin.ShowFacets.ALWAYS
+
+
+class StatementAuditAdmin(admin.ModelAdmin):
+    """Django admin configuration for StatementAudit model"""
+
+    search_fields = [
+        "simplified_case__organisation_name",
+        "simplified_case__case_number",
+    ]
+    list_display = ["date_of_test", "audit_round_type", "simplified_case"]
+    list_filter = ["audit_round_type", "is_deleted"]
+    readonly_fields = ["simplified_case"]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class PageAdmin(admin.ModelAdmin):
@@ -44,6 +73,7 @@ class PageAdmin(admin.ModelAdmin):
     ]
     list_display = ["page_type", "audit", "name", "url"]
     list_filter = ["page_type"]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class CheckResultAdmin(admin.ModelAdmin):
@@ -60,6 +90,7 @@ class CheckResultAdmin(admin.ModelAdmin):
     list_display = ["issue_identifier", "__str__", "audit", "page"]
     list_filter = ["check_result_state"]
     readonly_fields = ["audit"]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class CheckResultNotesHistoryAdmin(admin.ModelAdmin):
@@ -74,6 +105,7 @@ class CheckResultNotesHistoryAdmin(admin.ModelAdmin):
     list_display = ["check_result", "created_by", "created"]
     list_filter = ["created_by"]
     readonly_fields = ["check_result", "created"]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class CheckResultRetestNotesHistoryAdmin(admin.ModelAdmin):
@@ -88,6 +120,7 @@ class CheckResultRetestNotesHistoryAdmin(admin.ModelAdmin):
     list_display = ["check_result", "created_by", "retest_state", "created"]
     list_filter = ["created_by", "retest_state"]
     readonly_fields = ["check_result", "created"]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class WcagDefinitionAdmin(admin.ModelAdmin, ExportCsvMixin):
@@ -104,6 +137,7 @@ class WcagDefinitionAdmin(admin.ModelAdmin, ExportCsvMixin):
     ]
     list_filter = ["type"]
     actions = ["export_as_csv"]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class StatementCheckAdmin(admin.ModelAdmin, ExportCsvMixin):
@@ -134,6 +168,7 @@ class StatementCheckAdmin(admin.ModelAdmin, ExportCsvMixin):
         ),
     )
     actions = ["export_as_csv"]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class StatementCheckResultAdmin(admin.ModelAdmin):
@@ -166,6 +201,7 @@ class StatementCheckResultAdmin(admin.ModelAdmin):
         ),
     )
     readonly_fields = ["audit"]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class RetestAdmin(admin.ModelAdmin):
@@ -186,6 +222,7 @@ class RetestAdmin(admin.ModelAdmin):
     ]
     ordering = ["-id"]
     list_filter = ["retest_compliance_state", "is_deleted"]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class RetestPageAdmin(admin.ModelAdmin):
@@ -198,6 +235,7 @@ class RetestPageAdmin(admin.ModelAdmin):
     ]
     list_display = ["page", "retest", "missing_date"]
     list_filter = ["page__page_type"]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class RetestCheckResultAdmin(admin.ModelAdmin):
@@ -219,6 +257,7 @@ class RetestCheckResultAdmin(admin.ModelAdmin):
     ]
     list_filter = ["retest_state"]
     readonly_fields = ["check_result", "retest_page", "retest"]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class StatementPageAdmin(admin.ModelAdmin):
@@ -228,6 +267,7 @@ class StatementPageAdmin(admin.ModelAdmin):
     list_display = ["id", "url", "backup_url", "added_stage", "is_deleted", "created"]
     list_filter = ["added_stage", "is_deleted"]
     readonly_fields = ["audit"]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 class RetestStatementCheckResultAdmin(admin.ModelAdmin):
@@ -250,9 +290,12 @@ class RetestStatementCheckResultAdmin(admin.ModelAdmin):
     ]
     list_filter = ["check_result_state", "is_deleted"]
     readonly_fields = ["retest", "statement_check"]
+    show_facets = admin.ShowFacets.ALWAYS
 
 
 admin.site.register(Audit, AuditAdmin)
+admin.site.register(WCAGAudit, WCAGAuditAdmin)
+admin.site.register(StatementAudit, StatementAuditAdmin)
 admin.site.register(Page, PageAdmin)
 admin.site.register(CheckResult, CheckResultAdmin)
 admin.site.register(CheckResultNotesHistory, CheckResultNotesHistoryAdmin)

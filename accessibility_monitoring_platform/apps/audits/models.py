@@ -45,9 +45,7 @@ def build_issue_identifier(
 
 
 class Audit(VersionModel):
-    """
-    Model for test
-    """
+    """Model for test"""
 
     class ScreenSize(models.TextChoices):
         SIZE_13 = "13in", "13 inch"
@@ -78,17 +76,17 @@ class Audit(VersionModel):
 
     # metadata page
     date_of_test = models.DateField(default=date.today)
-    screen_size = models.CharField(
+    screen_size = models.CharField(  # KEEP
         max_length=20,
         choices=ScreenSize.choices,
         default=ScreenSize.SIZE_13,
     )
-    exemptions_state = models.CharField(
+    exemptions_state = models.CharField(  # KEEP
         max_length=20,
         choices=Exemptions.choices,
         default=Exemptions.UNKNOWN,
     )
-    exemptions_notes = models.TextField(default="", blank=True)
+    exemptions_notes = models.TextField(default="", blank=True)  # KEEP
     audit_metadata_complete_date = models.DateField(null=True, blank=True)
 
     # Pages page
@@ -115,7 +113,7 @@ class Audit(VersionModel):
     )
 
     # Statement checking overview
-    statement_extra_report_text = models.TextField(default="", blank=True)
+    statement_extra_report_text = models.TextField(default="", blank=True)  # KEEP
     audit_statement_overview_complete_date = models.DateField(null=True, blank=True)
 
     # Statement checking website
@@ -609,6 +607,141 @@ class Audit(VersionModel):
     @property
     def accessibility_statement_found(self) -> bool:
         return self.statement_pages.count() > 0 and self.latest_statement_link != ""
+
+
+class AuditRound(VersionModel):
+    """Model for round of testing"""
+
+    class AuditRoundType(models.TextChoices):
+        INITIAL = "initial", "Initial test"
+        TWELVE_WEEK = "12-week", "12-week retest"
+        EQUALITY_BODY = "equality-body", "Equality body retest"
+
+    simplified_case = models.ForeignKey(
+        SimplifiedCase,
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+    )
+    audit_round_type = models.CharField(
+        max_length=20,
+        choices=AuditRoundType.choices,
+        default=AuditRoundType.INITIAL,
+    )
+    updated = models.DateTimeField(null=True, blank=True)
+    date_of_test = models.DateField(default=date.today)
+    notes = models.TextField(default="", blank=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs) -> None:
+        self.updated = timezone.now()
+        super().save(*args, **kwargs)
+
+
+class WCAGAudit(AuditRound):
+    """Model for testing WCAG"""
+
+    class ScreenSize(models.TextChoices):
+        SIZE_13 = "13in", "13 inch"
+        SIZE_14 = "14in", "14 inch"
+        SIZE_15 = "15in", "15 inch"
+
+    class Exemptions(models.TextChoices):
+        YES = "yes", "Yes"
+        NO = "no", "No"
+        UNKNOWN = "unknown", "Unknown"
+
+    # metadata page
+    # date_of_test
+    metadata_complete_date = models.DateField(null=True, blank=True)
+
+    # Pages page
+    pages_complete_date = models.DateField(null=True, blank=True)
+
+    # Retest comparison page
+    comparison_complete_date = models.DateField(null=True, blank=True)
+
+    # Website decision
+    compliance_decision_complete_date = models.DateField(null=True, blank=True)
+
+    # WCAG Summary
+    summary_complete_date = models.DateField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-id"]
+
+    def __str__(self) -> str:
+        return (
+            f"{self.simplified_case} (WCAG test {amp_format_date(self.date_of_test)})"
+        )
+
+    def get_absolute_url(self) -> str:
+        return reverse("audits:edit-audit-metadata", kwargs={"pk": self.pk})
+
+
+class StatementAudit(AuditRound):
+    """Model for testing accessibility statement content"""
+
+    class DisproportionateBurden(models.TextChoices):
+        NO_ASSESSMENT = "no-assessment", "Claim with no assessment"
+        ASSESSMENT = "assessment", "Claim with assessment"
+        NO_CLAIM = "no-claim", "No claim"
+        NO_STATEMENT = "no-statement", "No statement"
+        NOT_CHECKED = "not-checked", "Not checked"
+
+    # Statement links
+    pages_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement backups
+    backup_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement checking overview
+    statement_overview_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement checking website
+    statement_website_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement checking compliance
+    statement_compliance_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement checking non-accessible content
+    statement_non_accessible_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement checking preparation
+    statement_preparation_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement checking feedback
+    statement_feedback_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement checking disporportionate burden
+    statement_disproportionate_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement checking other
+    statement_custom_complete_date = models.DateField(null=True, blank=True)
+
+    # Initial disproportionate burden claim
+    disproportionate_burden_claim = models.CharField(
+        max_length=20,
+        choices=DisproportionateBurden.choices,
+        default=DisproportionateBurden.NOT_CHECKED,
+    )
+    disproportionate_burden_notes = models.TextField(default="", blank=True)
+    disproportionate_burden_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement decision
+    compliance_complete_date = models.DateField(null=True, blank=True)
+
+    # Statement Summary
+    summary_complete_date = models.DateField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-id"]
+
+    def __str__(self) -> str:
+        return f"{self.simplified_case} (Statement test {amp_format_date(self.date_of_test)})"
 
 
 class Page(models.Model):
