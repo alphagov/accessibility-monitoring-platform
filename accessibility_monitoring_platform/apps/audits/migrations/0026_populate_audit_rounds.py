@@ -15,9 +15,9 @@ def populate_audit_rounds(apps, schema_editor):
     WcagAudit = apps.get_model("audits", "WCAGAudit")
     StatementAudit = apps.get_model("audits", "StatementAudit")
     Page = apps.get_model("audits", "Page")
-    WcagPage = apps.get_model("audits", "WcagPage")
+    WcagPageInitial = apps.get_model("audits", "WcagPageInitial")
     CheckResult = apps.get_model("audits", "CheckResult")
-    WcagCheckResult = apps.get_model("audits", "WcagCheckResult")
+    WcagCheckResultInitial = apps.get_model("audits", "WcagCheckResultInitial")
     for audit in Audit.objects.filter(id__gte=FIRST_AUDIT_OF_2026_ID).order_by("id"):
         wcag_audit_initial = WcagAudit.objects.create(
             simplified_case=audit.simplified_case,
@@ -90,7 +90,7 @@ def populate_audit_rounds(apps, schema_editor):
             )
 
         for page in Page.objects.filter(audit=audit):
-            wcag_page_initial = WcagPage.objects.create(
+            wcag_page_initial = WcagPageInitial.objects.create(
                 wcag_audit=wcag_audit_initial,
                 is_deleted=page.is_deleted,
                 page_type=page.page_type,
@@ -102,30 +102,16 @@ def populate_audit_rounds(apps, schema_editor):
                 not_found=page.not_found,
                 is_contact_page=page.is_contact_page,
             )
-            wcag_page_12_week = None
             if wcag_audit_12_week is not None:
-                url = page.updated_url if page.updated_url else page.url
-                location = (
-                    page.updated_location if page.updated_location else page.location
+                wcag_page_initial.first_retest_url = page.updated_url
+                wcag_page_initial.first_retest_location = page.updated_location
+                wcag_page_initial.first_retest_notes = page.retest_notes
+                wcag_page_initial.first_retest_page_missing_date = (
+                    page.retest_page_missing_date
                 )
-                not_found: str = page.not_found
-                if page.retest_page_missing_date:
-                    not_found = "yes"
-                wcag_page_12_week = WcagPage.objects.create(
-                    wcag_audit=wcag_audit_12_week,
-                    is_deleted=page.is_deleted,
-                    page_type=page.page_type,
-                    name=page.name,
-                    url=url,
-                    location=location,
-                    complete_date=page.retest_complete_date,
-                    no_errors_date=page.no_errors_date,
-                    not_found=not_found,
-                    is_contact_page=page.is_contact_page,
-                    notes=page.retest_notes,
-                )
+                wcag_page_initial.save()
             for check_result in CheckResult.objects.filter(page=page):
-                WcagCheckResult.objects.create(
+                WcagCheckResultInitial.objects.create(
                     wcag_page=wcag_page_initial,
                     id_within_case=check_result.id_within_case,
                     issue_identifier=check_result.issue_identifier,
@@ -133,28 +119,18 @@ def populate_audit_rounds(apps, schema_editor):
                     type=check_result.type,
                     wcag_definition=check_result.wcag_definition,
                     check_result_state=check_result.check_result_state,
+                    first_retest_state=check_result.retest_state,
+                    first_retest_notes=check_result.retest_notes,
                 )
-                if wcag_audit_12_week is not None:
-                    WcagCheckResult.objects.create(
-                        wcag_page=wcag_page_12_week,
-                        id_within_case=check_result.id_within_case,
-                        issue_identifier=check_result.issue_identifier,
-                        is_deleted=check_result.is_deleted,
-                        type=check_result.type,
-                        wcag_definition=check_result.wcag_definition,
-                        check_result_state=check_result.check_result_state,
-                        retest_state=check_result.retest_state,
-                        notes=check_result.retest_notes,
-                    )
 
 
 def reverse_code(apps, schema_editor):
     WcagAudit = apps.get_model("audits", "WCAGAudit")
     StatementAudit = apps.get_model("audits", "StatementAudit")
-    WcagPage = apps.get_model("audits", "WcagPage")
-    WcagCheckResult = apps.get_model("audits", "WcagCheckResult")
-    WcagCheckResult.objects.all().delete()
-    WcagPage.objects.all().delete()
+    WcagPageInitial = apps.get_model("audits", "WcagPageInitial")
+    WcagCheckResultInitial = apps.get_model("audits", "WcagCheckResultInitial")
+    WcagCheckResultInitial.objects.all().delete()
+    WcagPageInitial.objects.all().delete()
     WcagAudit.objects.all().delete()
     StatementAudit.objects.all().delete()
 
@@ -162,7 +138,7 @@ def reverse_code(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("audits", "0025_statementaudit_wcagaudit_wcagpage_wcagcheckresult"),
+        ("audits", "0025_statementaudit_wcagaudit_wcagpageinitial_and_more"),
     ]
 
     operations = [

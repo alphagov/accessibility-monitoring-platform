@@ -901,8 +901,23 @@ class WcagPage(models.Model):
     )
     notes = models.TextField(default="", blank=True)
 
+    class Meta:
+        abstract = True
+
     def __str__(self) -> str:  # pylint: disable=invalid-str-returned
         return self.name if self.name else self.get_page_type_display()
+
+
+class WcagPageInitial(WcagPage):
+    first_retest_url = models.TextField(default="", blank=True)
+
+    first_retest_location = models.TextField(default="", blank=True)
+    first_retest_page_missing_date = models.DateField(null=True, blank=True)
+    first_retest_notes = models.TextField(default="", blank=True)
+
+
+class WcagPageRetest(WcagPage):
+    page_missing_date = models.DateField(null=True, blank=True)
 
 
 class WcagDefinition(models.Model):
@@ -1029,24 +1044,13 @@ class CheckResult(models.Model):
 
 
 class WcagCheckResult(models.Model):
-    """
-    Model for test result
-    """
-
-    class Result(models.TextChoices):
-        ERROR = "error", "Error found"
-        NO_ERROR = "no-error", "No issue"
-        NOT_TESTED = "not-tested", "Not tested"
 
     class RetestResult(models.TextChoices):
         FIXED = "fixed", "Fixed"
         NOT_FIXED = "not-fixed", "Not fixed"
         NOT_RETESTED = "not-retested", "Not retested"
 
-    wcag_page = models.ForeignKey(
-        WcagPage, on_delete=models.PROTECT, related_name="checkresult_page"
-    )
-    id_within_case = models.IntegerField(default=0, blank=True)
+    wcag_page = models.ForeignKey(WcagPageInitial, on_delete=models.PROTECT)
     issue_identifier = models.CharField(max_length=20, default="")
     is_deleted = models.BooleanField(default=False)
     type = models.CharField(
@@ -1058,20 +1062,51 @@ class WcagCheckResult(models.Model):
         WcagDefinition,
         on_delete=models.PROTECT,
     )
+
+    class Meta:
+        abstract = True
+
+    def __str__(self) -> str:
+        return self.issue_identifier
+
+
+class WcagCheckResultInitial(WcagCheckResult):
+
+    class Result(models.TextChoices):
+        ERROR = "error", "Error found"
+        NO_ERROR = "no-error", "No issue"
+        NOT_TESTED = "not-tested", "Not tested"
+
+    id_within_case = models.IntegerField(default=0, blank=True)
     check_result_state = models.CharField(
         max_length=20,
         choices=Result.choices,
         default=Result.NOT_TESTED,
     )
+    notes = models.TextField(default="", blank=True)
+    first_retest_state = models.CharField(
+        max_length=20,
+        choices=WcagCheckResult.RetestResult.choices,
+        default=WcagCheckResult.RetestResult.NOT_RETESTED,
+    )
+    first_retest_notes = models.TextField(default="", blank=True)
+
+
+class WcagCheckResultRetest(WcagCheckResult):
+
+    wcag_page = models.ForeignKey(WcagPageRetest, on_delete=models.PROTECT)
+    previous_retest_state = models.CharField(
+        max_length=20,
+        choices=WcagCheckResult.RetestResult.choices,
+        default=WcagCheckResult.RetestResult.NOT_RETESTED,
+    )
+    previous_notes = models.TextField(default="", blank=True)
     retest_state = models.CharField(
         max_length=20,
-        choices=RetestResult.choices,
-        default=RetestResult.NOT_RETESTED,
+        choices=WcagCheckResult.RetestResult.choices,
+        default=WcagCheckResult.RetestResult.NOT_RETESTED,
     )
-    notes = models.TextField(default="", blank=True)
-
-    def __str__(self) -> str:
-        return self.issue_identifier
+    retest_notes = models.TextField(default="", blank=True)
 
 
 class CheckResultNotesHistory(models.Model):

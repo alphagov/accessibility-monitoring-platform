@@ -20,9 +20,11 @@ from .models import (
     StatementCheckResult,
     StatementPage,
     WcagAudit,
-    WcagCheckResult,
+    WcagCheckResultInitial,
+    WcagCheckResultRetest,
     WcagDefinition,
-    WcagPage,
+    WcagPageInitial,
+    WcagPageRetest,
 )
 
 
@@ -66,8 +68,24 @@ class PageAdmin(admin.ModelAdmin):
     show_facets = admin.ShowFacets.ALWAYS
 
 
-class WcagPageAdmin(admin.ModelAdmin):
-    """Django admin configuration for WcagPage model"""
+class WcagPageInitialAdmin(admin.ModelAdmin):
+    """Django admin configuration for WcagPageInitial model"""
+
+    search_fields = [
+        "name",
+        "url",
+        "first_retest_url",
+        "wcag_audit__simplified_case__organisation_name",
+        "wcag_audit__simplified_case__case_number",
+    ]
+    list_display = ["page_type", "wcag_audit", "name", "url"]
+    list_filter = ["page_type"]
+    readonly_fields = ["wcag_audit"]
+    show_facets = admin.ShowFacets.ALWAYS
+
+
+class WcagPageRetestAdmin(admin.ModelAdmin):
+    """Django admin configuration for WcagPageInitial model"""
 
     search_fields = [
         "name",
@@ -98,8 +116,8 @@ class CheckResultAdmin(admin.ModelAdmin):
     show_facets = admin.ShowFacets.ALWAYS
 
 
-class WcagCheckResultAdmin(admin.ModelAdmin):
-    """Django admin configuration for WcagCheckResult model"""
+class WcagCheckResultInitialAdmin(admin.ModelAdmin):
+    """Django admin configuration for WcagCheckResultInitial model"""
 
     search_fields = [
         "issue_identifier",
@@ -114,9 +132,32 @@ class WcagCheckResultAdmin(admin.ModelAdmin):
         "wcag_page__wcag_audit",
         "wcag_page",
         "check_result_state",
+        "first_retest_state",
+    ]
+    list_filter = ["check_result_state", "first_retest_state"]
+    readonly_fields = ["wcag_page"]
+    show_facets = admin.ShowFacets.ALWAYS
+
+
+class WcagCheckResultRetestAdmin(admin.ModelAdmin):
+    """Django admin configuration for WcagCheckResultRetest model"""
+
+    search_fields = [
+        "issue_identifier",
+        "wcag_page__wcag_audit__simplified_case__organisation_name",
+        "wcag_page__wcag_audit__simplified_case__case_number",
+        "wcag_definition__name",
+        "wcag_page__name",
+        "wcag_page__page_type",
+    ]
+    list_display = [
+        "issue_identifier",
+        "wcag_page__wcag_audit",
+        "wcag_page",
+        "previous_retest_state",
         "retest_state",
     ]
-    list_filter = ["check_result_state"]
+    list_filter = ["previous_retest_state", "retest_state"]
     readonly_fields = ["wcag_page"]
     show_facets = admin.ShowFacets.ALWAYS
 
@@ -325,9 +366,11 @@ admin.site.register(Audit, AuditAdmin)
 admin.site.register(WcagAudit, AuditRoundAdmin)
 admin.site.register(StatementAudit, AuditRoundAdmin)
 admin.site.register(Page, PageAdmin)
-admin.site.register(WcagPage, WcagPageAdmin)
+admin.site.register(WcagPageInitial, WcagPageInitialAdmin)
+admin.site.register(WcagPageRetest, WcagPageRetestAdmin)
 admin.site.register(CheckResult, CheckResultAdmin)
-admin.site.register(WcagCheckResult, WcagCheckResultAdmin)
+admin.site.register(WcagCheckResultInitial, WcagCheckResultInitialAdmin)
+admin.site.register(WcagCheckResultRetest, WcagCheckResultRetestAdmin)
 admin.site.register(CheckResultNotesHistory, CheckResultNotesHistoryAdmin)
 admin.site.register(CheckResultRetestNotesHistory, CheckResultRetestNotesHistoryAdmin)
 admin.site.register(WcagDefinition, WcagDefinitionAdmin)
