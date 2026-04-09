@@ -779,6 +779,7 @@ class Page(models.Model):
     audit = models.ForeignKey(
         Audit, on_delete=models.PROTECT, related_name="page_audit"
     )
+    wcag_audit = models.ForeignKey(WcagAudit, on_delete=models.PROTECT, null=True)
     is_deleted = models.BooleanField(default=False)
 
     page_type = models.CharField(

@@ -58,8 +58,9 @@ class PageAdmin(admin.ModelAdmin):
         "audit__simplified_case__organisation_name",
         "audit__simplified_case__case_number",
     ]
-    list_display = ["page_type", "audit", "name", "url"]
+    list_display = ["page_type", "wcag_audit", "name", "url"]
     list_filter = ["page_type"]
+    readonly_fields = ["audit", "wcag_audit"]
     show_facets = admin.ShowFacets.ALWAYS
 
 
