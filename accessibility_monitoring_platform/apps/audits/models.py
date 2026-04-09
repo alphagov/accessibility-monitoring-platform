@@ -641,6 +641,13 @@ class AuditRound(VersionModel):
         self.updated = timezone.now()
         super().save(*args, **kwargs)
 
+    def __str__(self) -> str:
+        if self.audit_round_type == WcagAudit.AuditRoundType.INITIAL:
+            round = ""
+        else:
+            round = f" #{self.round}"
+        return f"{self.simplified_case} {self.get_audit_round_type_display()}{round} ({amp_format_date(self.date_of_test)})"
+
 
 class WcagAudit(AuditRound):
     """Model for testing WCAG"""
@@ -678,11 +685,6 @@ class WcagAudit(AuditRound):
         if self.id is None:
             self.round = self.simplified_case.wcagaudit_set.all().count()
         super().save(*args, **kwargs)
-
-    def __str__(self) -> str:
-        return (
-            f"{self.simplified_case} (WCAG test {amp_format_date(self.date_of_test)})"
-        )
 
     def get_absolute_url(self) -> str:
         return reverse("audits:edit-audit-metadata", kwargs={"pk": self.pk})
@@ -779,7 +781,6 @@ class Page(models.Model):
     audit = models.ForeignKey(
         Audit, on_delete=models.PROTECT, related_name="page_audit"
     )
-    wcag_audit = models.ForeignKey(WcagAudit, on_delete=models.PROTECT, null=True)
     is_deleted = models.BooleanField(default=False)
 
     page_type = models.CharField(
@@ -858,6 +859,50 @@ class Page(models.Model):
     @property
     def anchor(self):
         return f"test-page-{self.id}"
+
+
+class WcagPage(models.Model):
+    """
+    Model for test/audit page
+    """
+
+    class Type(models.TextChoices):
+        EXTRA = "extra", "Additional"
+        HOME = "home", "Home"
+        CONTACT = "contact", "Contact"
+        STATEMENT = "statement", "Accessibility statement"
+        CORONAVIRUS = "coronavirus", "Coronavirus"
+        PDF = "pdf", "PDF"
+        FORM = "form", "Form"
+
+    MANDATORY_PAGE_TYPES: list[str] = [
+        Type.HOME,
+        Type.CONTACT,
+        Type.STATEMENT,
+        Type.PDF,
+        Type.FORM,
+    ]
+
+    wcag_audit = models.ForeignKey(WcagAudit, on_delete=models.PROTECT, null=True)
+    is_deleted = models.BooleanField(default=False)
+    page_type = models.CharField(
+        max_length=20, choices=Type.choices, default=Type.EXTRA
+    )
+    name = models.TextField(default="", blank=True)
+    url = models.TextField(default="", blank=True)
+    location = models.TextField(default="", blank=True)
+    complete_date = models.DateField(null=True, blank=True)
+    no_errors_date = models.DateField(null=True, blank=True)
+    not_found = models.CharField(
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
+    )
+    is_contact_page = models.CharField(
+        max_length=20, choices=Boolean.choices, default=Boolean.NO
+    )
+    notes = models.TextField(default="", blank=True)
+
+    def __str__(self) -> str:  # pylint: disable=invalid-str-returned
+        return self.name if self.name else self.get_page_type_display()
 
 
 class WcagDefinition(models.Model):
@@ -981,6 +1026,52 @@ class CheckResult(models.Model):
             .exclude(page=self.page)
             .exclude(retest_notes="")
         )
+
+
+class WcagCheckResult(models.Model):
+    """
+    Model for test result
+    """
+
+    class Result(models.TextChoices):
+        ERROR = "error", "Error found"
+        NO_ERROR = "no-error", "No issue"
+        NOT_TESTED = "not-tested", "Not tested"
+
+    class RetestResult(models.TextChoices):
+        FIXED = "fixed", "Fixed"
+        NOT_FIXED = "not-fixed", "Not fixed"
+        NOT_RETESTED = "not-retested", "Not retested"
+
+    wcag_page = models.ForeignKey(
+        WcagPage, on_delete=models.PROTECT, related_name="checkresult_page"
+    )
+    id_within_case = models.IntegerField(default=0, blank=True)
+    issue_identifier = models.CharField(max_length=20, default="")
+    is_deleted = models.BooleanField(default=False)
+    type = models.CharField(
+        max_length=20,
+        choices=WcagDefinition.Type.choices,
+        default=WcagDefinition.Type.PDF,
+    )
+    wcag_definition = models.ForeignKey(
+        WcagDefinition,
+        on_delete=models.PROTECT,
+    )
+    check_result_state = models.CharField(
+        max_length=20,
+        choices=Result.choices,
+        default=Result.NOT_TESTED,
+    )
+    retest_state = models.CharField(
+        max_length=20,
+        choices=RetestResult.choices,
+        default=RetestResult.NOT_RETESTED,
+    )
+    notes = models.TextField(default="", blank=True)
+
+    def __str__(self) -> str:
+        return self.issue_identifier
 
 
 class CheckResultNotesHistory(models.Model):

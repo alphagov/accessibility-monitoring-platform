@@ -2,7 +2,7 @@
 
 from django.db import migrations
 
-FIRST_AUDIT_OF_2026_ID: int = 8816
+FIRST_AUDIT_OF_2026_ID: int = 8816  # Limit migration while developing
 INITIAL_ROUND_TYPE: str = "initial"
 TWELVE_WEEK_ROUND_TYPE = "12-week"
 EQUALITY_BODY_ROUND_TYPE = "equality-body"
@@ -15,7 +15,9 @@ def populate_audit_rounds(apps, schema_editor):
     WcagAudit = apps.get_model("audits", "WCAGAudit")
     StatementAudit = apps.get_model("audits", "StatementAudit")
     Page = apps.get_model("audits", "Page")
+    WcagPage = apps.get_model("audits", "WcagPage")
     CheckResult = apps.get_model("audits", "CheckResult")
+    WcagCheckResult = apps.get_model("audits", "WcagCheckResult")
     for audit in Audit.objects.filter(id__gte=FIRST_AUDIT_OF_2026_ID).order_by("id"):
         wcag_audit_initial = WcagAudit.objects.create(
             simplified_case=audit.simplified_case,
@@ -50,9 +52,9 @@ def populate_audit_rounds(apps, schema_editor):
             compliance_complete_date=audit.audit_statement_decision_complete_date,
             summary_complete_date=audit.audit_statement_summary_complete_date,
         )
-        wcag_audit_1 = None
+        wcag_audit_12_week = None
         if audit.retest_date:
-            wcag_audit_1 = WcagAudit.objects.create(
+            wcag_audit_12_week = WcagAudit.objects.create(
                 simplified_case=audit.simplified_case,
                 audit_round_type=TWELVE_WEEK_ROUND_TYPE,
                 round=TWELVE_WEEK_ROUND,
@@ -88,63 +90,79 @@ def populate_audit_rounds(apps, schema_editor):
             )
 
         for page in Page.objects.filter(audit=audit):
-            page.wcag_audit = wcag_audit_initial
-            page.save()
-            if wcag_audit_1 is not None:
+            wcag_page_initial = WcagPage.objects.create(
+                wcag_audit=wcag_audit_initial,
+                is_deleted=page.is_deleted,
+                page_type=page.page_type,
+                name=page.name,
+                url=page.url,
+                location=page.location,
+                complete_date=page.complete_date,
+                no_errors_date=page.no_errors_date,
+                not_found=page.not_found,
+                is_contact_page=page.is_contact_page,
+            )
+            wcag_page_12_week = None
+            if wcag_audit_12_week is not None:
                 url = page.updated_url if page.updated_url else page.url
                 location = (
                     page.updated_location if page.updated_location else page.location
                 )
-                page_retest = Page.objects.create(
-                    audit=audit,
-                    wcag_audit=wcag_audit_1,
+                not_found: str = page.not_found
+                if page.retest_page_missing_date:
+                    not_found = "yes"
+                wcag_page_12_week = WcagPage.objects.create(
+                    wcag_audit=wcag_audit_12_week,
+                    is_deleted=page.is_deleted,
                     page_type=page.page_type,
                     name=page.name,
                     url=url,
                     location=location,
                     complete_date=page.retest_complete_date,
                     no_errors_date=page.no_errors_date,
-                    not_found=page.not_found,
+                    not_found=not_found,
                     is_contact_page=page.is_contact_page,
-                    retest_page_missing_date=page.retest_page_missing_date,
-                    retest_notes=page.retest_notes,
-                    updated=page.updated,
+                    notes=page.retest_notes,
                 )
-                for check_result in CheckResult.objects.filter(page=page):
-                    CheckResult.objects.create(
-                        audit=check_result.audit,
-                        page=page_retest,
+            for check_result in CheckResult.objects.filter(page=page):
+                WcagCheckResult.objects.create(
+                    wcag_page=wcag_page_initial,
+                    id_within_case=check_result.id_within_case,
+                    issue_identifier=check_result.issue_identifier,
+                    is_deleted=check_result.is_deleted,
+                    type=check_result.type,
+                    wcag_definition=check_result.wcag_definition,
+                    check_result_state=check_result.check_result_state,
+                )
+                if wcag_audit_12_week is not None:
+                    WcagCheckResult.objects.create(
+                        wcag_page=wcag_page_12_week,
                         id_within_case=check_result.id_within_case,
                         issue_identifier=check_result.issue_identifier,
                         is_deleted=check_result.is_deleted,
                         type=check_result.type,
                         wcag_definition=check_result.wcag_definition,
-                        check_result_state=check_result.retest_state,
+                        check_result_state=check_result.check_result_state,
+                        retest_state=check_result.retest_state,
                         notes=check_result.retest_notes,
-                        updated=check_result.updated,
                     )
 
 
 def reverse_code(apps, schema_editor):
     WcagAudit = apps.get_model("audits", "WCAGAudit")
     StatementAudit = apps.get_model("audits", "StatementAudit")
-    Page = apps.get_model("audits", "Page")
-    CheckResult = apps.get_model("audits", "CheckResult")
-    for wcag_audit in WcagAudit.objects.filter(audit_round_type=TWELVE_WEEK_ROUND_TYPE):
-        twelve_week_pages = Page.objects.filter(wcag_audit=wcag_audit)
-        for page in twelve_week_pages:
-            CheckResult.objects.filter(page=page).delete()
-        twelve_week_pages.delete()
-    Page.objects.all().update(wcag_audit=None)
-    wcag_audits = WcagAudit.objects.all()
-    wcag_audits._raw_delete(wcag_audits.db)
+    WcagPage = apps.get_model("audits", "WcagPage")
+    WcagCheckResult = apps.get_model("audits", "WcagCheckResult")
+    WcagCheckResult.objects.all().delete()
+    WcagPage.objects.all().delete()
+    WcagAudit.objects.all().delete()
     StatementAudit.objects.all().delete()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("audits", "0025_statementaudit_wcagaudit_page_wcag_audit"),
+        ("audits", "0025_statementaudit_wcagaudit_wcagpage_wcagcheckresult"),
     ]
 
     operations = [
