@@ -678,9 +678,6 @@ class WcagAudit(AuditRound):
     # WCAG Summary
     summary_complete_date = models.DateField(null=True, blank=True)
 
-    class Meta:
-        ordering = ["-id"]
-
     def save(self, *args, **kwargs) -> None:
         if self.id is None:
             self.round = self.simplified_case.wcagaudit_set.all().count()
@@ -745,16 +742,10 @@ class StatementAudit(AuditRound):
     # Statement Summary
     summary_complete_date = models.DateField(null=True, blank=True)
 
-    class Meta:
-        ordering = ["-id"]
-
     def save(self, *args, **kwargs) -> None:
         if self.id is None:
             self.round = self.simplified_case.statementaudit_set.all().count()
         super().save(*args, **kwargs)
-
-    def __str__(self) -> str:
-        return f"{self.simplified_case} (Statement test {amp_format_date(self.date_of_test)})"
 
 
 class Page(models.Model):
@@ -1685,6 +1676,9 @@ class StatementPage(models.Model):
         RETEST = "retest", "Equality body retest"
 
     audit = models.ForeignKey(Audit, on_delete=models.PROTECT)
+    statement_audit = models.ForeignKey(
+        StatementAudit, on_delete=models.PROTECT, null=True
+    )
     is_deleted = models.BooleanField(default=False)
 
     url = models.TextField(default="", blank=True)

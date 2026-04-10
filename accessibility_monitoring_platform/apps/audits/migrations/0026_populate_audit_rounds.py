@@ -18,7 +18,9 @@ def populate_audit_rounds(apps, schema_editor):
     WcagPageInitial = apps.get_model("audits", "WcagPageInitial")
     CheckResult = apps.get_model("audits", "CheckResult")
     WcagCheckResultInitial = apps.get_model("audits", "WcagCheckResultInitial")
+    StatementPage = apps.get_model("audits", "StatementPage")
     for audit in Audit.objects.filter(id__gte=FIRST_AUDIT_OF_2026_ID).order_by("id"):
+        # for audit in Audit.objects.all().order_by("id"):
         wcag_audit_initial = WcagAudit.objects.create(
             simplified_case=audit.simplified_case,
             audit_round_type=INITIAL_ROUND_TYPE,
@@ -30,7 +32,7 @@ def populate_audit_rounds(apps, schema_editor):
             compliance_decision_complete_date=audit.audit_website_decision_complete_date,
             summary_complete_date=audit.audit_wcag_summary_complete_date,
         )
-        StatementAudit.objects.create(
+        statement_audit_initial = StatementAudit.objects.create(
             simplified_case=audit.simplified_case,
             audit_round_type=INITIAL_ROUND_TYPE,
             round=INITIAL_ROUND,
@@ -66,7 +68,7 @@ def populate_audit_rounds(apps, schema_editor):
                 compliance_decision_complete_date=audit.audit_retest_website_decision_complete_date,
                 summary_complete_date=audit.audit_retest_wcag_summary_complete_date,
             )
-            StatementAudit.objects.create(
+            statement_audit_12_week = StatementAudit.objects.create(
                 simplified_case=audit.simplified_case,
                 audit_round_type=TWELVE_WEEK_ROUND_TYPE,
                 round=TWELVE_WEEK_ROUND,
@@ -123,22 +125,31 @@ def populate_audit_rounds(apps, schema_editor):
                     first_retest_notes=check_result.retest_notes,
                 )
 
+        for statement_page in StatementPage.objects.filter(audit=audit):
+            if statement_page.added_stage == "12-week-retest":
+                statement_page.statement_audit = statement_audit_12_week
+            else:
+                statement_page.statement_audit = statement_audit_initial
+            statement_page.save()
+
 
 def reverse_code(apps, schema_editor):
     WcagAudit = apps.get_model("audits", "WCAGAudit")
     StatementAudit = apps.get_model("audits", "StatementAudit")
+    StatementPage = apps.get_model("audits", "StatementPage")
     WcagPageInitial = apps.get_model("audits", "WcagPageInitial")
     WcagCheckResultInitial = apps.get_model("audits", "WcagCheckResultInitial")
     WcagCheckResultInitial.objects.all().delete()
     WcagPageInitial.objects.all().delete()
     WcagAudit.objects.all().delete()
+    StatementPage.objects.all().update(statement_audit=None)
     StatementAudit.objects.all().delete()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("audits", "0025_statementaudit_wcagaudit_wcagpageinitial_and_more"),
+        ("audits", "0025_statementaudit_statementpage_statement_audit_and_more"),
     ]
 
     operations = [

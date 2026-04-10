@@ -45,7 +45,7 @@ class AuditRoundAdmin(admin.ModelAdmin):
 
     search_fields = [
         "simplified_case__organisation_name",
-        "simplified_case__case_number",
+        "simplified_case__case_identifier",
     ]
     list_display = ["date_of_test", "audit_round_type", "round", "simplified_case"]
     list_filter = ["audit_round_type", "round", "is_deleted"]
@@ -335,7 +335,7 @@ class StatementPageAdmin(admin.ModelAdmin):
     search_fields = ["audit__simplified_case__case_number", "url", "backup_url"]
     list_display = ["id", "url", "backup_url", "added_stage", "is_deleted", "created"]
     list_filter = ["added_stage", "is_deleted"]
-    readonly_fields = ["audit"]
+    readonly_fields = ["audit", "statement_audit"]
     show_facets = admin.ShowFacets.ALWAYS
 
 
