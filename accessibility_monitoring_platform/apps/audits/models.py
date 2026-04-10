@@ -636,6 +636,7 @@ class AuditRound(VersionModel):
 
     class Meta:
         abstract = True
+        ordering = ["id"]
 
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()

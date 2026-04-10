@@ -33,7 +33,7 @@ class AuditAdmin(admin.ModelAdmin):
 
     search_fields = [
         "simplified_case__organisation_name",
-        "simplified_case__case_number",
+        "simplified_case__case_identifier",
     ]
     list_display = ["date_of_test", "simplified_case"]
     readonly_fields = ["simplified_case"]
@@ -60,7 +60,7 @@ class PageAdmin(admin.ModelAdmin):
         "name",
         "url",
         "audit__simplified_case__organisation_name",
-        "audit__simplified_case__case_number",
+        "audit__simplified_case__case_identifier",
     ]
     list_display = ["page_type", "audit", "name", "url"]
     list_filter = ["page_type"]
@@ -76,7 +76,7 @@ class WcagPageInitialAdmin(admin.ModelAdmin):
         "url",
         "first_retest_url",
         "wcag_audit__simplified_case__organisation_name",
-        "wcag_audit__simplified_case__case_number",
+        "wcag_audit__simplified_case__case_identifier",
     ]
     list_display = ["page_type", "wcag_audit", "name", "url"]
     list_filter = ["page_type"]
@@ -91,7 +91,7 @@ class WcagPageRetestAdmin(admin.ModelAdmin):
         "name",
         "url",
         "wcag_audit__simplified_case__organisation_name",
-        "wcag_audit__simplified_case__case_number",
+        "wcag_audit__simplified_case__case_identifier",
     ]
     list_display = ["page_type", "wcag_audit", "name", "url"]
     list_filter = ["page_type"]
@@ -105,7 +105,7 @@ class CheckResultAdmin(admin.ModelAdmin):
     search_fields = [
         "issue_identifier",
         "audit__simplified_case__organisation_name",
-        "audit__simplified_case__case_number",
+        "audit__simplified_case__case_identifier",
         "wcag_definition__name",
         "page__name",
         "page__page_type",
@@ -122,7 +122,7 @@ class WcagCheckResultInitialAdmin(admin.ModelAdmin):
     search_fields = [
         "issue_identifier",
         "wcag_page__wcag_audit__simplified_case__organisation_name",
-        "wcag_page__wcag_audit__simplified_case__case_number",
+        "wcag_page__wcag_audit__simplified_case__case_identifier",
         "wcag_definition__name",
         "wcag_page__name",
         "wcag_page__page_type",
@@ -145,7 +145,7 @@ class WcagCheckResultRetestAdmin(admin.ModelAdmin):
     search_fields = [
         "issue_identifier",
         "wcag_page__wcag_audit__simplified_case__organisation_name",
-        "wcag_page__wcag_audit__simplified_case__case_number",
+        "wcag_page__wcag_audit__simplified_case__case_identifier",
         "wcag_definition__name",
         "wcag_page__name",
         "wcag_page__page_type",
@@ -166,7 +166,7 @@ class CheckResultNotesHistoryAdmin(admin.ModelAdmin):
     search_fields = [
         "check_result__issue_identifier",
         "check_result__audit__simplified_case__organisation_name",
-        "check_result__audit__simplified_case__case_number",
+        "check_result__audit__simplified_case__case_identifier",
         "check_result__wcag_definition__name",
         "check_result__page__name",
         "check_result__page__page_type",
@@ -181,7 +181,7 @@ class CheckResultRetestNotesHistoryAdmin(admin.ModelAdmin):
     search_fields = [
         "check_result__issue_identifier",
         "check_result__audit__simplified_case__organisation_name",
-        "check_result__audit__simplified_case__case_number",
+        "check_result__audit__simplified_case__case_identifier",
         "check_result__wcag_definition__name",
         "check_result__page__name",
         "check_result__page__page_type",
@@ -278,7 +278,7 @@ class RetestAdmin(admin.ModelAdmin):
 
     search_fields = [
         "simplified_case__organisation_name",
-        "simplified_case__case_number",
+        "simplified_case__case_identifier",
         "retest_notes",
         "compliance_notes",
     ]
@@ -332,7 +332,7 @@ class RetestCheckResultAdmin(admin.ModelAdmin):
 class StatementPageAdmin(admin.ModelAdmin):
     """Django admin configuration for StatementPage model"""
 
-    search_fields = ["audit__simplified_case__case_number", "url", "backup_url"]
+    search_fields = ["audit__simplified_case__case_identifier", "url", "backup_url"]
     list_display = ["id", "url", "backup_url", "added_stage", "is_deleted", "created"]
     list_filter = ["added_stage", "is_deleted"]
     readonly_fields = ["audit", "statement_audit"]
@@ -344,7 +344,7 @@ class RetestStatementCheckResultAdmin(admin.ModelAdmin):
 
     search_fields = [
         "issue_identifier",
-        "retest__simplified_case__case_number",
+        "retest__simplified_case__case_identifier",
         "retest__simplified_case__organisation_name",
         "statement_check__label",
         "comment",
