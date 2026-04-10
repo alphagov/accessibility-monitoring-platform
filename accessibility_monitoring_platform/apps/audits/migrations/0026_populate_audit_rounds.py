@@ -159,8 +159,8 @@ def populate_audit_rounds(apps, schema_editor):
                 date_of_test=retest.date_of_retest,
                 notes=retest.retest_notes,
                 metadata_complete_date=retest.complete_date,
-                # =retest.retest_compliance_state,
-                # =retest.compliance_notes,
+                compliance_state=retest.retest_compliance_state,
+                compliance_notes=retest.compliance_notes,
                 compliance_decision_complete_date=retest.compliance_complete_date,
                 summary_complete_date=retest.comparison_complete_date,
             )
@@ -187,8 +187,8 @@ def populate_audit_rounds(apps, schema_editor):
                 disproportionate_burden_claim=retest.disproportionate_burden_claim,
                 disproportionate_burden_notes=retest.disproportionate_burden_notes,
                 disproportionate_burden_complete_date=retest.disproportionate_burden_complete_date,
-                # =retest.statement_compliance_state,
-                # =retest.statement_compliance_notes,
+                compliance_state=retest.statement_compliance_state,
+                compliance_notes=retest.statement_compliance_notes,
                 compliance_complete_date=retest.statement_decision_complete_date,
                 summary_complete_date=retest.statement_results_complete_date,
             )

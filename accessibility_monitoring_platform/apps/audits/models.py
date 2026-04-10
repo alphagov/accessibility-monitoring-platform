@@ -1109,12 +1109,6 @@ class WcagCheckResultInitial(WcagCheckResult):
 class WcagCheckResultRetest(WcagCheckResult):
 
     wcag_page = models.ForeignKey(WcagPageRetest, on_delete=models.PROTECT)
-    previous_retest_state = models.CharField(
-        max_length=20,
-        choices=WcagCheckResult.RetestResult.choices,
-        default=WcagCheckResult.RetestResult.NOT_RETESTED,
-    )
-    previous_notes = models.TextField(default="", blank=True)
     retest_state = models.CharField(
         max_length=20,
         choices=WcagCheckResult.RetestResult.choices,

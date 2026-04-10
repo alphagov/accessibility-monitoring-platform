@@ -160,10 +160,9 @@ class WcagCheckResultRetestAdmin(admin.ModelAdmin):
         "issue_identifier",
         "wcag_page__wcag_audit",
         "wcag_page",
-        "previous_retest_state",
         "retest_state",
     ]
-    list_filter = ["previous_retest_state", "retest_state"]
+    list_filter = ["retest_state"]
     readonly_fields = ["wcag_page"]
     show_facets = admin.ShowFacets.ALWAYS
 
