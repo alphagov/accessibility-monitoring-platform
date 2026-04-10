@@ -19,6 +19,7 @@ from ..models import (
     RetestCheckResult,
     RetestPage,
     RetestStatementCheckResult,
+    StatementAudit,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
@@ -1805,13 +1806,18 @@ def test_retest_statement_check_results_str():
     """Test RetestStatementCheckResult.__str__()"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     retest: Retest = Retest.objects.create(simplified_case=simplified_case)
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
     retest_statement_check_result: RetestStatementCheckResult = (
-        RetestStatementCheckResult.objects.create(retest=retest)
+        RetestStatementCheckResult.objects.create(
+            retest=retest, statement_audit=statement_audit
+        )
     )
 
     assert (
         retest_statement_check_result.__str__()
-        == f"{retest} | Custom [{retest_statement_check_result.issue_identifier}]"
+        == f"{statement_audit} | Custom [{retest_statement_check_result.issue_identifier}]"
     )
 
     statement_check: StatementCheck = StatementCheck.objects.get(
@@ -1822,7 +1828,7 @@ def test_retest_statement_check_results_str():
 
     assert (
         retest_statement_check_result.__str__()
-        == f"{retest} | {statement_check} [{retest_statement_check_result.issue_identifier}]"
+        == f"{statement_audit} | {statement_check} [{retest_statement_check_result.issue_identifier}]"
     )
 
 
