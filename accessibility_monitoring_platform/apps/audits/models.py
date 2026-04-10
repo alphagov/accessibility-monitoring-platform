@@ -663,6 +663,11 @@ class WcagAudit(AuditRound):
         NO = "no", "No"
         UNKNOWN = "unknown", "Unknown"
 
+    class WebsiteCompliance(models.TextChoices):
+        COMPLIANT = "compliant", "Fully compliant"
+        PARTIALLY = "partially-compliant", "Partially compliant"
+        UNKNOWN = "not-known", "Not known"
+
     # metadata page
     # date_of_test
     metadata_complete_date = models.DateField(null=True, blank=True)
@@ -674,6 +679,12 @@ class WcagAudit(AuditRound):
     comparison_complete_date = models.DateField(null=True, blank=True)
 
     # Website decision
+    compliance_state = models.CharField(
+        max_length=20,
+        choices=WebsiteCompliance.choices,
+        default=WebsiteCompliance.UNKNOWN,
+    )
+    compliance_notes = models.TextField(default="", blank=True)
     compliance_decision_complete_date = models.DateField(null=True, blank=True)
 
     # WCAG Summary
@@ -697,6 +708,11 @@ class StatementAudit(AuditRound):
         NO_CLAIM = "no-claim", "No claim"
         NO_STATEMENT = "no-statement", "No statement"
         NOT_CHECKED = "not-checked", "Not checked"
+
+    class StatementCompliance(models.TextChoices):
+        COMPLIANT = "compliant", "Compliant"
+        NOT_COMPLIANT = "not-compliant", "Not compliant or no statement"
+        UNKNOWN = "unknown", "Not assessed"
 
     # Statement links
     pages_complete_date = models.DateField(null=True, blank=True)
@@ -738,6 +754,12 @@ class StatementAudit(AuditRound):
     disproportionate_burden_complete_date = models.DateField(null=True, blank=True)
 
     # Statement decision
+    compliance_state = models.CharField(
+        max_length=200,
+        choices=StatementCompliance.choices,
+        default=StatementCompliance.UNKNOWN,
+    )
+    compliance_notes = models.TextField(default="", blank=True)
     compliance_complete_date = models.DateField(null=True, blank=True)
 
     # Statement Summary
@@ -1610,6 +1632,9 @@ class RetestStatementCheckResult(models.Model):
         NOT_TESTED = "not-tested", "Not tested"
 
     retest = models.ForeignKey(Retest, on_delete=models.PROTECT)
+    statement_audit = models.ForeignKey(
+        StatementAudit, on_delete=models.PROTECT, null=True
+    )
     id_within_case = models.IntegerField(default=0, blank=True)
     issue_identifier = models.CharField(max_length=20, default="")
     statement_check = models.ForeignKey(
@@ -1656,8 +1681,10 @@ class RetestStatementCheckResult(models.Model):
 
     def __str__(self) -> str:
         if self.statement_check is None:
-            return f"{self.retest} | Custom [{self.issue_identifier}]"
-        return f"{self.retest} | {self.statement_check} [{self.issue_identifier}]"
+            return f"{self.statement_audit} | Custom [{self.issue_identifier}]"
+        return (
+            f"{self.statement_audit} | {self.statement_check} [{self.issue_identifier}]"
+        )
 
     @property
     def label(self):

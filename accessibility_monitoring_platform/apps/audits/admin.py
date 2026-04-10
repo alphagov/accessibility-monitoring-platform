@@ -47,8 +47,14 @@ class AuditRoundAdmin(admin.ModelAdmin):
         "simplified_case__organisation_name",
         "simplified_case__case_identifier",
     ]
-    list_display = ["date_of_test", "audit_round_type", "round", "simplified_case"]
-    list_filter = ["audit_round_type", "round", "is_deleted"]
+    list_display = [
+        "date_of_test",
+        "audit_round_type",
+        "compliance_state",
+        "round",
+        "simplified_case",
+    ]
+    list_filter = ["audit_round_type", "compliance_state", "round", "is_deleted"]
     readonly_fields = ["simplified_case"]
     show_facets = admin.ShowFacets.ALWAYS
 
@@ -344,21 +350,21 @@ class RetestStatementCheckResultAdmin(admin.ModelAdmin):
 
     search_fields = [
         "issue_identifier",
-        "retest__simplified_case__case_identifier",
-        "retest__simplified_case__organisation_name",
+        "statement_audit__simplified_case__case_identifier",
+        "statement_audit__simplified_case__organisation_name",
         "statement_check__label",
         "comment",
     ]
     list_display = [
         "issue_identifier",
-        "retest",
+        "statement_audit",
         "type",
         "check_result_state",
         "is_deleted",
         "statement_check",
     ]
     list_filter = ["check_result_state", "is_deleted"]
-    readonly_fields = ["retest", "statement_check"]
+    readonly_fields = ["retest", "statement_audit", "statement_check"]
     show_facets = admin.ShowFacets.ALWAYS
 
 

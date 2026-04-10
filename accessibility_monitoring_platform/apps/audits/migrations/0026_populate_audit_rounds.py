@@ -25,6 +25,7 @@ def populate_audit_rounds(apps, schema_editor):
     WcagPageRetest = apps.get_model("audits", "WcagPageRetest")
     RetestCheckResult = apps.get_model("audits", "RetestCheckResult")
     WcagCheckResultRetest = apps.get_model("audits", "WcagCheckResultRetest")
+    RetestStatementCheckResult = apps.get_model("audits", "RetestStatementCheckResult")
     for audit in Audit.objects.all().order_by("id"):
         wcag_audit_initial = WcagAudit.objects.create(
             simplified_case=audit.simplified_case,
@@ -34,6 +35,8 @@ def populate_audit_rounds(apps, schema_editor):
             date_of_test=audit.date_of_test,
             metadata_complete_date=audit.audit_metadata_complete_date,
             pages_complete_date=audit.audit_pages_complete_date,
+            compliance_state=audit.simplified_case.compliance.website_compliance_state_initial,
+            compliance_notes=audit.simplified_case.compliance.website_compliance_notes_initial,
             compliance_decision_complete_date=audit.audit_website_decision_complete_date,
             summary_complete_date=audit.audit_wcag_summary_complete_date,
         )
@@ -56,6 +59,8 @@ def populate_audit_rounds(apps, schema_editor):
             disproportionate_burden_claim=audit.initial_disproportionate_burden_claim,
             disproportionate_burden_notes=audit.initial_disproportionate_burden_notes,
             disproportionate_burden_complete_date=audit.initial_disproportionate_burden_complete_date,
+            compliance_state=audit.simplified_case.compliance.statement_compliance_state_initial,
+            compliance_notes=audit.simplified_case.compliance.statement_compliance_notes_initial,
             compliance_complete_date=audit.audit_statement_decision_complete_date,
             summary_complete_date=audit.audit_statement_summary_complete_date,
         )
@@ -70,6 +75,8 @@ def populate_audit_rounds(apps, schema_editor):
                 notes=audit.audit_retest_metadata_notes,
                 metadata_complete_date=audit.audit_retest_metadata_complete_date,
                 pages_complete_date=audit.audit_retest_pages_complete_date,
+                compliance_state=audit.simplified_case.compliance.website_compliance_state_12_week,
+                compliance_notes=audit.simplified_case.compliance.website_compliance_notes_12_week,
                 compliance_decision_complete_date=audit.audit_retest_website_decision_complete_date,
                 summary_complete_date=audit.audit_retest_wcag_summary_complete_date,
             )
@@ -92,6 +99,8 @@ def populate_audit_rounds(apps, schema_editor):
                 disproportionate_burden_claim=audit.twelve_week_disproportionate_burden_claim,
                 disproportionate_burden_notes=audit.twelve_week_disproportionate_burden_notes,
                 disproportionate_burden_complete_date=audit.twelve_week_disproportionate_burden_complete_date,
+                compliance_state=audit.simplified_case.compliance.statement_compliance_state_12_week,
+                compliance_notes=audit.simplified_case.compliance.statement_compliance_notes_12_week,
                 compliance_complete_date=audit.audit_retest_statement_decision_complete_date,
                 summary_complete_date=audit.audit_retest_statement_summary_complete_date,
             )
@@ -130,99 +139,111 @@ def populate_audit_rounds(apps, schema_editor):
                     first_retest_notes=check_result.retest_notes,
                 )
 
+        for retest in Retest.objects.filter(
+            simplified_case=audit.simplified_case
+        ).order_by("id"):
+            round: int = WcagAudit.objects.filter(
+                simplified_case=retest.simplified_case
+            ).count()
+            updated: datetime = datetime(
+                retest.date_of_retest.year,
+                retest.date_of_retest.month,
+                retest.date_of_retest.day,
+                tzinfo=timezone.utc,
+            )
+            wcag_audit_retest = WcagAudit.objects.create(
+                simplified_case=retest.simplified_case,
+                audit_round_type=EQUALITY_BODY_ROUND_TYPE,
+                round=round,
+                updated=updated,
+                date_of_test=retest.date_of_retest,
+                notes=retest.retest_notes,
+                metadata_complete_date=retest.complete_date,
+                # =retest.retest_compliance_state,
+                # =retest.compliance_notes,
+                compliance_decision_complete_date=retest.compliance_complete_date,
+                summary_complete_date=retest.comparison_complete_date,
+            )
+            round: int = StatementAudit.objects.filter(
+                simplified_case=retest.simplified_case
+            ).count()
+            statement_audit_retest = StatementAudit.objects.create(
+                simplified_case=retest.simplified_case,
+                audit_round_type=EQUALITY_BODY_ROUND_TYPE,
+                round=round,
+                updated=updated,
+                date_of_test=retest.date_of_retest,
+                notes=retest.retest_notes,
+                pages_complete_date=retest.statement_pages_complete_date,
+                backup_complete_date=retest.statement_backup_complete_date,
+                statement_overview_complete_date=retest.statement_overview_complete_date,
+                statement_website_complete_date=retest.statement_website_complete_date,
+                statement_compliance_complete_date=retest.statement_compliance_complete_date,
+                statement_non_accessible_complete_date=retest.statement_non_accessible_complete_date,
+                statement_preparation_complete_date=retest.statement_preparation_complete_date,
+                statement_feedback_complete_date=retest.statement_feedback_complete_date,
+                statement_disproportionate_complete_date=retest.statement_disproportionate_complete_date,
+                statement_custom_complete_date=retest.statement_custom_complete_date,
+                disproportionate_burden_claim=retest.disproportionate_burden_claim,
+                disproportionate_burden_notes=retest.disproportionate_burden_notes,
+                disproportionate_burden_complete_date=retest.disproportionate_burden_complete_date,
+                # =retest.statement_compliance_state,
+                # =retest.statement_compliance_notes,
+                compliance_complete_date=retest.statement_decision_complete_date,
+                summary_complete_date=retest.statement_results_complete_date,
+            )
+
+            for retest_page in RetestPage.objects.filter(retest=retest).order_by("id"):
+                url: str = (
+                    retest_page.page.updated_url
+                    if retest_page.page.updated_url
+                    else retest_page.page.url
+                )
+                location: str = (
+                    retest_page.page.updated_location
+                    if retest_page.page.updated_location
+                    else retest_page.page.location
+                )
+                wcag_page_retest = WcagPageRetest.objects.create(
+                    wcag_audit=wcag_audit_retest,
+                    page_type=retest_page.page.page_type,
+                    name=retest_page.page.name,
+                    url=url,
+                    location=location,
+                    complete_date=retest_page.complete_date,
+                    notes=retest_page.additional_issues_notes,
+                    page_missing_date=retest_page.missing_date,
+                )
+
+                for retest_check_result in RetestCheckResult.objects.filter(
+                    retest_page=retest_page
+                ).order_by("id"):
+                    WcagCheckResultRetest.objects.create(
+                        wcag_page=wcag_page_retest,
+                        issue_identifier=retest_check_result.issue_identifier,
+                        is_deleted=retest_check_result.is_deleted,
+                        type=retest_check_result.check_result.type,
+                        wcag_definition=retest_check_result.check_result.wcag_definition,
+                        retest_state=retest_check_result.retest_state,
+                        retest_notes=retest_check_result.retest_notes,
+                    )
+
+            for (
+                retest_statement_check_result
+            ) in RetestStatementCheckResult.objects.filter(retest=retest).order_by(
+                "id"
+            ):
+                retest_statement_check_result.statement_audit = statement_audit_retest
+                retest_statement_check_result.save()
+
         for statement_page in StatementPage.objects.filter(audit=audit):
             if statement_page.added_stage == "12-week-retest":
                 statement_page.statement_audit = statement_audit_12_week
+            elif statement_page.added_stage == "retest":
+                statement_page.statement_audit = statement_audit_retest
             else:
                 statement_page.statement_audit = statement_audit_initial
             statement_page.save()
-
-    for retest in Retest.objects.all().order_by("id"):
-        round: int = WcagAudit.objects.filter(
-            simplified_case=retest.simplified_case
-        ).count()
-        updated: datetime = datetime(
-            retest.date_of_retest.year,
-            retest.date_of_retest.month,
-            retest.date_of_retest.day,
-            tzinfo=timezone.utc,
-        )
-        wcag_audit_retest = WcagAudit.objects.create(
-            simplified_case=retest.simplified_case,
-            audit_round_type=EQUALITY_BODY_ROUND_TYPE,
-            round=round,
-            updated=updated,
-            date_of_test=retest.date_of_retest,
-            notes=retest.retest_notes,
-            metadata_complete_date=retest.complete_date,
-            # =retest.retest_compliance_state,
-            # =retest.compliance_notes,
-            compliance_decision_complete_date=retest.compliance_complete_date,
-            summary_complete_date=retest.comparison_complete_date,
-        )
-        round: int = StatementAudit.objects.filter(
-            simplified_case=retest.simplified_case
-        ).count()
-        statement_audit_retest = StatementAudit.objects.create(
-            simplified_case=retest.simplified_case,
-            audit_round_type=EQUALITY_BODY_ROUND_TYPE,
-            round=round,
-            updated=updated,
-            date_of_test=retest.date_of_retest,
-            notes=retest.retest_notes,
-            pages_complete_date=retest.statement_pages_complete_date,
-            backup_complete_date=retest.statement_backup_complete_date,
-            statement_overview_complete_date=retest.statement_overview_complete_date,
-            statement_website_complete_date=retest.statement_website_complete_date,
-            statement_compliance_complete_date=retest.statement_compliance_complete_date,
-            statement_non_accessible_complete_date=retest.statement_non_accessible_complete_date,
-            statement_preparation_complete_date=retest.statement_preparation_complete_date,
-            statement_feedback_complete_date=retest.statement_feedback_complete_date,
-            statement_disproportionate_complete_date=retest.statement_disproportionate_complete_date,
-            statement_custom_complete_date=retest.statement_custom_complete_date,
-            disproportionate_burden_claim=retest.disproportionate_burden_claim,
-            disproportionate_burden_notes=retest.disproportionate_burden_notes,
-            disproportionate_burden_complete_date=retest.disproportionate_burden_complete_date,
-            # =retest.statement_compliance_state,
-            # =retest.statement_compliance_notes,
-            compliance_complete_date=retest.statement_decision_complete_date,
-            summary_complete_date=retest.statement_results_complete_date,
-        )
-
-        for retest_page in RetestPage.objects.filter(retest=retest).order_by("id"):
-            url: str = (
-                retest_page.page.updated_url
-                if retest_page.page.updated_url
-                else retest_page.page.url
-            )
-            location: str = (
-                retest_page.page.updated_location
-                if retest_page.page.updated_location
-                else retest_page.page.location
-            )
-            wcag_page_retest = WcagPageRetest.objects.create(
-                wcag_audit=wcag_audit_retest,
-                page_type=retest_page.page.page_type,
-                name=retest_page.page.name,
-                url=url,
-                location=location,
-                complete_date=retest_page.complete_date,
-                notes=retest_page.additional_issues_notes,
-                page_missing_date=retest_page.missing_date,
-            )
-
-            for retest_check_result in RetestCheckResult.objects.filter(
-                retest_page=retest_page
-            ).order_by("id"):
-                WcagCheckResultRetest.objects.create(
-                    wcag_page=wcag_page_retest,
-                    issue_identifier=retest_check_result.issue_identifier,
-                    is_deleted=retest_check_result.is_deleted,
-                    type=retest_check_result.check_result.type,
-                    wcag_definition=retest_check_result.check_result.wcag_definition,
-                    retest_state=retest_check_result.retest_state,
-                    retest_notes=retest_check_result.retest_notes,
-                )
 
 
 def reverse_code(apps, schema_editor):
@@ -232,10 +253,14 @@ def reverse_code(apps, schema_editor):
     WcagPageInitial = apps.get_model("audits", "WcagPageInitial")
     WcagPageRetest = apps.get_model("audits", "WcagPageRetest")
     WcagCheckResultInitial = apps.get_model("audits", "WcagCheckResultInitial")
+    WcagCheckResultRetest = apps.get_model("audits", "WcagCheckResultRetest")
+    RetestStatementCheckResult = apps.get_model("audits", "RetestStatementCheckResult")
     WcagCheckResultInitial.objects.all().delete()
+    WcagCheckResultRetest.objects.all().delete()
     WcagPageInitial.objects.all().delete()
     WcagPageRetest.objects.all().delete()
     WcagAudit.objects.all().delete()
+    RetestStatementCheckResult.objects.all().update(statement_audit=None)
     StatementPage.objects.all().update(statement_audit=None)
     StatementAudit.objects.all().delete()
 
@@ -243,7 +268,7 @@ def reverse_code(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("audits", "0025_statementaudit_statementpage_statement_audit_and_more"),
+        ("audits", "0025_statementaudit_and_more"),
     ]
 
     operations = [
