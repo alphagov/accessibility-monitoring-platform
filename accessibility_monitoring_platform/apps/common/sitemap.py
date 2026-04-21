@@ -15,9 +15,9 @@ from django.urls import URLResolver, resolve, reverse
 
 from ..audits.forms import (
     AuditInitialDisproportionateBurdenUpdateForm,
-    AuditMetadataUpdateForm,
     AuditRetestMetadataUpdateForm,
     AuditTwelveWeekDisproportionateBurdenUpdateForm,
+    WcagAuditMetadataUpdateForm,
 )
 from ..audits.models import (
     Audit,
@@ -26,6 +26,7 @@ from ..audits.models import (
     RetestPage,
     StatementCheckResult,
     StatementPage,
+    WcagAudit,
 )
 from ..cases.models import BaseCase, CaseFile
 from ..comments.models import Comment
@@ -440,6 +441,31 @@ class AuditPlatformPage(PlatformPage):
         super().populate_from_case(case=case)
 
 
+class WcagAuditPlatformPage(PlatformPage):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.instance_class: type[WcagAudit] = WcagAudit
+        if self.url_kwarg_key is None:
+            self.url_kwarg_key: str = "pk"
+
+    def get_case(self) -> SimplifiedCase | None:
+        if self.instance is not None:
+            return self.instance.simplified_case
+
+    def set_instance(self, instance: models.Model | None):
+        if isinstance(instance, SimplifiedCase):
+            self.instance = instance.wcagaudit_set.first()
+        else:
+            super().set_instance(instance=instance)
+
+    def populate_from_case(self, case: AnyCaseType):
+        if hasattr(case, "wcagaudit_set"):
+            wcag_audit: WcagAudit | None = case.wcagaudit_set.first()
+            if wcag_audit is not None:
+                self.set_instance(instance=wcag_audit)
+        super().populate_from_case(case=case)
+
+
 class AuditPagesPlatformPage(AuditPlatformPage):
     def populate_from_case(self, case: AnyCaseType):
         if hasattr(case, "audit") and isinstance(case.audit, Audit):
@@ -774,11 +800,11 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
         name="Initial WCAG test",
         show_flag_name="not_archived_has_audit",
         pages=[
-            AuditPlatformPage(
+            WcagAuditPlatformPage(
                 name="Initial test metadata",
                 url_name="audits:edit-audit-metadata",
-                complete_flag_name="audit_metadata_complete_date",
-                case_details_form_class=AuditMetadataUpdateForm,
+                complete_flag_name="metadata_complete_date",
+                case_details_form_class=WcagAuditMetadataUpdateForm,
                 case_details_template_name="cases/details/details.html",
                 next_page_url_name="audits:edit-audit-pages",
             ),

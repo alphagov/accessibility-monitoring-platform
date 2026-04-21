@@ -43,9 +43,11 @@ from ..models import (
     Audit,
     Page,
     Retest,
+    StatementAudit,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
+    WcagAudit,
     WcagDefinition,
 )
 from ..utils import (
@@ -91,8 +93,18 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
     record_simplified_model_create_event(
         user=request.user, model_object=audit, simplified_case=simplified_case
     )
-    create_mandatory_pages_for_new_audit(audit=audit)
-    create_statement_checks_for_new_audit(audit=audit)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    record_simplified_model_create_event(
+        user=request.user, model_object=wcag_audit, simplified_case=simplified_case
+    )
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+    record_simplified_model_create_event(
+        user=request.user, model_object=statement_audit, simplified_case=simplified_case
+    )
+    create_mandatory_pages_for_new_audit(wcag_audit=wcag_audit)
+    create_statement_checks_for_new_audit(audit=audit, statement_audit=statement_audit)
     CaseEvent.objects.create(
         simplified_case=simplified_case,
         done_by=request.user,
@@ -147,6 +159,24 @@ class AuditUpdateView(NextPlatformPageMixin, UpdateView):
                     event_type=CaseEvent.EventType.START_RETEST,
                     message=f"Started retest (date set to {amp_format_date(self.object.retest_date)})",
                 )
+            self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class WcagAuditUpdateView(AuditUpdateView):
+
+    model: type[WcagAudit] = WcagAudit
+    context_object_name: str = "wcag_audit"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add event on change of audit"""
+        if form.changed_data:
+            self.object: WcagAudit = form.save(commit=False)
+            record_simplified_model_update_event(
+                user=self.request.user,
+                model_object=self.object,
+                simplified_case=self.object.simplified_case,
+            )
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 

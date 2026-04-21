@@ -670,6 +670,16 @@ class WcagAudit(AuditRound):
 
     # metadata page
     # date_of_test
+    screen_size = models.CharField(  # KEEP
+        max_length=20,
+        choices=ScreenSize.choices,
+        default=ScreenSize.SIZE_13,
+    )
+    exemptions_state = models.CharField(  # KEEP
+        max_length=20,
+        choices=Exemptions.choices,
+        default=Exemptions.UNKNOWN,
+    )
     metadata_complete_date = models.DateField(null=True, blank=True)
 
     # Pages page
@@ -1213,6 +1223,9 @@ class StatementCheckResult(models.Model):
         NOT_TESTED = "not-tested", "Not tested"
 
     audit = models.ForeignKey(Audit, on_delete=models.PROTECT)
+    statement_audit = models.ForeignKey(
+        StatementAudit, on_delete=models.PROTECT, null=True
+    )
     id_within_case = models.IntegerField(default=0, blank=True)
     issue_identifier = models.CharField(max_length=20, default="")
     statement_check = models.ForeignKey(

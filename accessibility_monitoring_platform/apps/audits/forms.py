@@ -34,6 +34,7 @@ from .models import (
     StatementCheck,
     StatementCheckResult,
     StatementPage,
+    WcagAudit,
     WcagDefinition,
 )
 
@@ -56,28 +57,30 @@ COPY_TICK_HELP_TEXT: str = """
 MAX_UPLOAD_FILE_SIZE_MB: int = 100
 
 
-class AuditMetadataUpdateForm(VersionForm):
+class WcagAuditMetadataUpdateForm(VersionForm):
     """
     Form for editing check metadata
     """
 
     date_of_test = AMPDateField(label="Date of test")
-    screen_size = AMPChoiceField(label="Screen size", choices=Audit.ScreenSize.choices)
+    screen_size = AMPChoiceField(
+        label="Screen size", choices=WcagAudit.ScreenSize.choices
+    )
     exemptions_state = AMPChoiceRadioField(
         label="Exemptions?",
-        choices=Audit.Exemptions.choices,
+        choices=WcagAudit.Exemptions.choices,
         help_text="Accessibility regulations do not apply to this website",
     )
-    audit_metadata_complete_date = AMPDatePageCompleteField()
+    metadata_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = WcagAudit
         fields: list[str] = [
             "version",
             "date_of_test",
             "screen_size",
             "exemptions_state",
-            "audit_metadata_complete_date",
+            "metadata_complete_date",
         ]
 
 

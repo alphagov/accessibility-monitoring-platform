@@ -20,6 +20,7 @@ def populate_audit_rounds(apps, schema_editor):
     CheckResult = apps.get_model("audits", "CheckResult")
     WcagCheckResultInitial = apps.get_model("audits", "WcagCheckResultInitial")
     StatementPage = apps.get_model("audits", "StatementPage")
+    StatementCheckResult = apps.get_model("audits", "StatementCheckResult")
     Retest = apps.get_model("audits", "Retest")
     RetestPage = apps.get_model("audits", "RetestPage")
     WcagPageRetest = apps.get_model("audits", "WcagPageRetest")
@@ -33,6 +34,8 @@ def populate_audit_rounds(apps, schema_editor):
             round=INITIAL_ROUND,
             updated=audit.updated,
             date_of_test=audit.date_of_test,
+            screen_size=audit.screen_size,
+            exemptions_state=audit.exemptions_state,
             metadata_complete_date=audit.audit_metadata_complete_date,
             pages_complete_date=audit.audit_pages_complete_date,
             compliance_state=audit.simplified_case.compliance.website_compliance_state_initial,
@@ -245,11 +248,16 @@ def populate_audit_rounds(apps, schema_editor):
                 statement_page.statement_audit = statement_audit_initial
             statement_page.save()
 
+        for statement_check_result in StatementCheckResult.objects.filter(audit=audit):
+            statement_check_result.statement_audit = statement_audit_initial
+            statement_check_result.save()
+
 
 def reverse_code(apps, schema_editor):
     WcagAudit = apps.get_model("audits", "WCAGAudit")
     StatementAudit = apps.get_model("audits", "StatementAudit")
     StatementPage = apps.get_model("audits", "StatementPage")
+    StatementCheckResult = apps.get_model("audits", "StatementCheckResult")
     WcagPageInitial = apps.get_model("audits", "WcagPageInitial")
     WcagPageRetest = apps.get_model("audits", "WcagPageRetest")
     WcagCheckResultInitial = apps.get_model("audits", "WcagCheckResultInitial")
@@ -262,6 +270,7 @@ def reverse_code(apps, schema_editor):
     WcagAudit.objects.all().delete()
     RetestStatementCheckResult.objects.all().update(statement_audit=None)
     StatementPage.objects.all().update(statement_audit=None)
+    StatementCheckResult.objects.all().update(statement_audit=None)
     StatementAudit.objects.all().delete()
 
 

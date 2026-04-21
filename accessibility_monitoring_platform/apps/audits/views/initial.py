@@ -25,7 +25,6 @@ from ..forms import (
     AuditExtraPageFormsetTwoExtra,
     AuditInitialDisproportionateBurdenUpdateForm,
     AuditInitialStatementBackupUpdateForm,
-    AuditMetadataUpdateForm,
     AuditPageChecksForm,
     AuditPagesUpdateForm,
     AuditStandardPageFormset,
@@ -47,6 +46,7 @@ from ..forms import (
     CheckResultFormset,
     InitialAuditStatementPagesUpdateForm,
     InitialCustomIssueCreateUpdateForm,
+    WcagAuditMetadataUpdateForm,
 )
 from ..models import (
     Audit,
@@ -72,6 +72,7 @@ from .base import (
     AuditUpdateView,
     DeleteStatementPageUpdateView,
     StatementBackupUpdateView,
+    WcagAuditUpdateView,
 )
 
 
@@ -101,12 +102,9 @@ def clear_published_report_data_updated_time(
     return redirect(redirect_destination)
 
 
-class AuditMetadataUpdateView(AuditUpdateView):
-    """
-    View to update audit metadata
-    """
+class WcagAuditMetadataUpdateView(WcagAuditUpdateView):
 
-    form_class: type[AuditMetadataUpdateForm] = AuditMetadataUpdateForm
+    form_class: type[WcagAuditMetadataUpdateForm] = WcagAuditMetadataUpdateForm
     template_name: str = "common/case_form.html"
 
 

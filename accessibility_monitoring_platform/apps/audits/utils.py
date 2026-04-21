@@ -28,9 +28,12 @@ from .models import (
     RetestCheckResult,
     RetestPage,
     RetestStatementCheckResult,
+    StatementAudit,
     StatementCheck,
     StatementCheckResult,
+    WcagAudit,
     WcagDefinition,
+    WcagPageInitial,
 )
 
 MANUAL_CHECK_SUB_TYPE_LABELS: dict[str, str] = {
@@ -167,23 +170,25 @@ def get_page_check_results_formset_initial(
     return check_results_formset_initial
 
 
-def create_mandatory_pages_for_new_audit(audit: Audit) -> None:
+def create_mandatory_pages_for_new_audit(wcag_audit: WcagAudit) -> None:
     """
     Create mandatory pages for new audit.
     """
 
-    for page_type in Page.MANDATORY_PAGE_TYPES:
-        if page_type == Page.Type.HOME:
-            Page.objects.create(
-                audit=audit,
+    for page_type in WcagPageInitial.MANDATORY_PAGE_TYPES:
+        if page_type == WcagPageInitial.Type.HOME:
+            WcagPageInitial.objects.create(
+                wcag_audit=wcag_audit,
                 page_type=page_type,
-                url=audit.simplified_case.home_page_url,
+                url=wcag_audit.simplified_case.home_page_url,
             )
         else:
-            Page.objects.create(audit=audit, page_type=page_type)
+            WcagPageInitial.objects.create(wcag_audit=wcag_audit, page_type=page_type)
 
 
-def create_statement_checks_for_new_audit(audit: Audit) -> None:
+def create_statement_checks_for_new_audit(
+    audit: Audit, statement_audit: StatementAudit
+) -> None:
     """
     Create statement check results for new audit.
     """
@@ -191,6 +196,7 @@ def create_statement_checks_for_new_audit(audit: Audit) -> None:
     for statement_check in StatementCheck.objects.on_date(today):
         StatementCheckResult.objects.create(
             audit=audit,
+            statement_audit=statement_audit,
             type=statement_check.type,
             statement_check=statement_check,
         )
