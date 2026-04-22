@@ -22,6 +22,7 @@ from ...audits.models import (
     StatementCheck,
     StatementCheckResult,
     StatementPage,
+    WcagAudit,
     WcagDefinition,
 )
 from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_results
@@ -351,6 +352,7 @@ def test_view_case_includes_tests(admin_client):
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     Audit.objects.create(simplified_case=simplified_case, retest_date=TODAY)
+    WcagAudit.objects.create(simplified_case=simplified_case, date_of_test=TODAY)
 
     response: HttpResponse = admin_client.get(
         reverse("simplified:case-detail", kwargs={"pk": simplified_case.id}),
