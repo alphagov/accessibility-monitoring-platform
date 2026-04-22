@@ -131,7 +131,7 @@ def create_or_update_check_results_for_page(
 
 
 def get_page_check_results_formset_initial(
-    page: Page, wcag_definitions: list[WcagDefinition]
+    wcag_page_initial: WcagPageInitial, wcag_definitions: list[WcagDefinition]
 ) -> list[dict[str, str | WcagDefinition | CheckResult]]:
     """
     Combine existing check result with all the WCAG definitions
@@ -139,7 +139,7 @@ def get_page_check_results_formset_initial(
     CheckResultFormset with all possible results.
     """
     check_results_by_wcag_definition: dict[WcagDefinition, CheckResult] = (
-        page.check_results_by_wcag_definition
+        wcag_page_initial.check_results_by_wcag_definition
     )
     check_results_formset_initial: list[
         dict[str, str | WcagDefinition | CheckResult]
@@ -202,32 +202,34 @@ def create_statement_checks_for_new_audit(
         )
 
 
-def get_next_platform_page_initial(
-    audit: Audit, current_page: Page | None = None
+def get_next_platform_page_wcag_page_initial(
+    wcag_audit: WcagAudit, current_wcag_page_initial: WcagPageInitial | None = None
 ) -> PlatformPage:
     """
     Return the platform page to go to when a save and continue button is
     pressed on the page where pages or page check results are entered.
     """
-    if not audit.testable_pages:
+    if not wcag_audit.testable_pages:
         return get_platform_page_by_url_name(
-            url_name="audits:edit-website-decision", instance=audit
+            url_name="audits:edit-website-decision", instance=wcag_audit
         )
 
-    if current_page is None:
+    if current_wcag_page_initial is None:
         return get_platform_page_by_url_name(
             url_name="audits:edit-audit-page-checks",
-            instance=audit.testable_pages.first(),
+            instance=wcag_audit.testable_pages.first(),
         )
 
-    testable_pages: list[Page] = list(audit.testable_pages)
-    if testable_pages[-1] == current_page:
+    testable_pages: list[WcagPageInitial] = list(wcag_audit.testable_pages)
+    if testable_pages[-1] == current_wcag_page_initial:
         return get_platform_page_by_url_name(
-            url_name="audits:edit-website-decision", instance=audit
+            url_name="audits:edit-website-decision", instance=wcag_audit
         )
 
-    current_page_position: int = index_or_404(items=testable_pages, item=current_page)
-    next_page: Page = testable_pages[current_page_position + 1]
+    current_page_position: int = index_or_404(
+        items=testable_pages, item=current_wcag_page_initial
+    )
+    next_page: WcagPageInitial = testable_pages[current_page_position + 1]
     return get_platform_page_by_url_name(
         url_name="audits:edit-audit-page-checks", instance=next_page
     )
@@ -269,22 +271,18 @@ def get_next_platform_page_twelve_week(
 
 
 def other_page_failed_check_results(
-    page: Page,
+    wcag_page_initial: WcagPageInitial,
 ) -> dict[WcagDefinition, list[CheckResult]]:
     """
     Find all failed check results for other pages.
     Return them in a dictionary keyed by their WcagDefinitions.
-
-    Args:
-        page (Page): Page object
-
-    Returns:
-        dict[WcagDefinition, list[CheckResult]]: Dictionary of failed check results
     """
     failed_check_results_by_wcag_definition: dict[WcagDefinition, list[CheckResult]] = (
         {}
     )
-    for check_result in page.audit.failed_check_results.exclude(page=page):
+    for check_result in wcag_page_initial.wcag_audit.failed_check_results.exclude(
+        wcag_page=wcag_page_initial
+    ):
         if check_result.wcag_definition in failed_check_results_by_wcag_definition:
             failed_check_results_by_wcag_definition[
                 check_result.wcag_definition

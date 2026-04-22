@@ -131,6 +131,7 @@ def populate_audit_rounds(apps, schema_editor):
                 wcag_page_initial.save()
             for check_result in CheckResult.objects.filter(page=page):
                 WcagCheckResultInitial.objects.create(
+                    wcag_audit=wcag_audit_initial,
                     wcag_page=wcag_page_initial,
                     id_within_case=check_result.id_within_case,
                     issue_identifier=check_result.issue_identifier,

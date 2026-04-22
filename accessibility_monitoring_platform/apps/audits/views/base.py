@@ -49,6 +49,7 @@ from ..models import (
     StatementPage,
     WcagAudit,
     WcagDefinition,
+    WcagPageInitial,
 )
 from ..utils import (
     create_mandatory_pages_for_new_audit,
@@ -181,17 +182,17 @@ class WcagAuditUpdateView(AuditUpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class AuditPageChecksBaseFormView(NextPlatformPageMixin, FormView):
+class WcagPageChecksBaseFormView(NextPlatformPageMixin, FormView):
     """
     View to update check results for a page
     """
 
-    page: Page
+    wcag_page_initial: WcagPageInitial
 
     def setup(self, request, *args, **kwargs):
         """Add audit and page objects to view"""
         super().setup(request, *args, **kwargs)
-        self.page = Page.objects.get(pk=kwargs["pk"])
+        self.wcag_page_initial = WcagPageInitial.objects.get(pk=kwargs["pk"])
 
 
 class AuditCaseComplianceUpdateView(AuditUpdateView):

@@ -41,8 +41,8 @@ from ..utils import (
     create_statement_checks_for_new_audit,
     get_audit_summary_context,
     get_next_platform_page_equality_body,
-    get_next_platform_page_initial,
     get_next_platform_page_twelve_week,
+    get_next_platform_page_wcag_page_initial,
     get_other_pages_with_retest_notes,
     get_page_check_results_formset_initial,
     index_or_404,
@@ -472,7 +472,7 @@ def test_get_next_platform_page_audit_with_no_pages():
     """
     audit: Audit = create_audit_and_wcag()
 
-    platform_page: PlatformPage = get_next_platform_page_initial(audit=audit)
+    platform_page: PlatformPage = get_next_platform_page_wcag_page_initial(audit=audit)
 
     assert platform_page.url_name == "audits:edit-website-decision"
 
@@ -491,7 +491,7 @@ def test_get_next_platform_page_audit_with_pages():
 
     next_page: Page = wcag_audit.testable_pages[0]
     next_page_pk: dict[str, int] = {"pk": next_page.id}
-    platform_page: PlatformPage = get_next_platform_page_initial(audit=audit)
+    platform_page: PlatformPage = get_next_platform_page_wcag_page_initial(audit=audit)
 
     assert platform_page.url == reverse(
         "audits:edit-audit-page-checks", kwargs=next_page_pk
@@ -500,7 +500,7 @@ def test_get_next_platform_page_audit_with_pages():
     current_page: Page = audit.testable_pages[0]
     next_page: Page = audit.testable_pages[1]
     next_page_pk: dict[str, int] = {"pk": next_page.id}
-    platform_page: PlatformPage = get_next_platform_page_initial(
+    platform_page: PlatformPage = get_next_platform_page_wcag_page_initial(
         audit=audit, current_page=current_page
     )
 
@@ -509,7 +509,7 @@ def test_get_next_platform_page_audit_with_pages():
     )
 
     current_page: Page = audit.testable_pages[1]
-    platform_page: PlatformPage = get_next_platform_page_initial(
+    platform_page: PlatformPage = get_next_platform_page_wcag_page_initial(
         audit=audit, current_page=current_page
     )
 

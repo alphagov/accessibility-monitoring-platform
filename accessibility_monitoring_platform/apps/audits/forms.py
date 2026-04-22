@@ -36,6 +36,7 @@ from .models import (
     StatementPage,
     WcagAudit,
     WcagDefinition,
+    WcagPageInitial,
 )
 
 CHECK_RESULT_TYPE_FILTER_CHOICES: list[tuple[str, str]] = (
@@ -160,7 +161,7 @@ class WcagAuditPagesUpdateForm(VersionForm):
         ]
 
 
-class AuditPageChecksForm(forms.Form):
+class WcagPageChecksForm(forms.Form):
     """
     Form for editing checks for a page
     """
@@ -175,7 +176,7 @@ class AuditPageChecksForm(forms.Form):
     )
 
     class Meta:
-        model = Audit
+        model = WcagPageInitial
         fields: list[str] = [
             "complete_date",
             "no_errors_date",

@@ -739,6 +739,32 @@ class WcagAudit(AuditRound):
     def extra_pages(self):
         return self.html_pages.filter(page_type=WcagPage.Type.EXTRA)
 
+    @property
+    def failed_check_results(self):
+        return (
+            self.wcagcheckresultinitial_set.filter(
+                is_deleted=False,
+                check_result_state=WcagCheckResultInitial.Result.ERROR,
+                wcag_page__is_deleted=False,
+                wcag_page__not_found=Boolean.NO,
+                wcag_page__is_contact_page=Boolean.NO,
+            )
+            .annotate(
+                position_pdf_and_statement_page_last=DjangoCase(
+                    When(wcag_page__page_type=WcagPage.Type.PDF, then=1),
+                    When(wcag_page__page_type=WcagPage.Type.STATEMENT, then=2),
+                    default=0,
+                )
+            )
+            .order_by(
+                "position_pdf_and_statement_page_last",
+                "wcag_page__id",
+                "wcag_definition__id",
+            )
+            .select_related("wcag_page", "wcag_definition")
+            .all()
+        )
+
 
 class StatementAudit(AuditRound):
     """Model for testing accessibility statement content"""
@@ -959,7 +985,7 @@ class WcagPage(models.Model):
     class Meta:
         abstract = True
 
-    def __str__(self) -> str:  # pylint: disable=invalid-str-returned
+    def __str__(self) -> str:
         return self.name if self.name else self.get_page_type_display()
 
     @property
@@ -976,6 +1002,22 @@ class WcagPageInitial(WcagPage):
     first_retest_location = models.TextField(default="", blank=True)
     first_retest_page_missing_date = models.DateField(null=True, blank=True)
     first_retest_notes = models.TextField(default="", blank=True)
+
+    @property
+    def all_check_results(self):
+        return (
+            self.wcagcheckresultinitial_set.filter(is_deleted=False)
+            .order_by("wcag_definition__id")
+            .select_related("wcag_definition")
+            .all()
+        )
+
+    @property
+    def check_results_by_wcag_definition(self):
+        check_results: QuerySet[CheckResult] = self.all_check_results
+        return {
+            check_result.wcag_definition: check_result for check_result in check_results
+        }
 
 
 class WcagPageRetest(WcagPage):
@@ -1112,6 +1154,7 @@ class WcagCheckResult(models.Model):
         NOT_FIXED = "not-fixed", "Not fixed"
         NOT_RETESTED = "not-retested", "Not retested"
 
+    wcag_audit = models.ForeignKey(WcagAudit, on_delete=models.PROTECT, null=True)
     wcag_page = models.ForeignKey(WcagPageInitial, on_delete=models.PROTECT)
     issue_identifier = models.CharField(max_length=20, default="")
     is_deleted = models.BooleanField(default=False)
