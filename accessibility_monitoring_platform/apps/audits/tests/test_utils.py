@@ -25,9 +25,12 @@ from ..models import (
     RetestCheckResult,
     RetestPage,
     RetestStatementCheckResult,
+    StatementAudit,
     StatementCheck,
     StatementCheckResult,
+    WcagAudit,
     WcagDefinition,
+    WcagPageInitial,
 )
 from ..utils import (
     add_to_check_result_notes_history,
@@ -298,12 +301,16 @@ def test_create_mandatory_pages_for_new_audit():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         home_page_url=HOME_PAGE_URL
     )
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    create_mandatory_pages_for_new_audit(audit=audit)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    create_mandatory_pages_for_new_audit(wcag_audit=wcag_audit)
 
-    assert audit.page_audit.count() == len(Page.MANDATORY_PAGE_TYPES)
+    assert wcag_audit.wcagpageinitial_set.all().count() == len(
+        WcagPageInitial.MANDATORY_PAGE_TYPES
+    )
 
-    home_page: Page = audit.page_audit.filter(page_type=Page.Type.HOME).first()
+    home_page: WcagPageInitial = wcag_audit.wcagpageinitial_set.filter(
+        page_type=WcagPageInitial.Type.HOME
+    ).first()
 
     assert home_page.url == HOME_PAGE_URL
 
@@ -475,10 +482,14 @@ def test_get_next_platform_page_audit_with_pages():
     """
     Test get_next_platform_page returns each testable page in audit in in turn.
     """
-    audit: Audit = create_audit_and_check_results()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        home_page_url=HOME_PAGE_URL
+    )
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    create_mandatory_pages_for_new_audit(wcag_audit=wcag_audit)
     audit_pk: dict[str, int] = {"pk": audit.id}
 
-    next_page: Page = audit.testable_pages[0]
+    next_page: Page = wcag_audit.testable_pages[0]
     next_page_pk: dict[str, int] = {"pk": next_page.id}
     platform_page: PlatformPage = get_next_platform_page_initial(audit=audit)
 
@@ -623,10 +634,13 @@ def test_create_statement_checks_for_new_audit():
     """Test creation of statement check results for audit"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
 
     assert StatementCheckResult.objects.filter(audit=audit).count() == 0
 
-    create_statement_checks_for_new_audit(audit=audit)
+    create_statement_checks_for_new_audit(audit=audit, statement_audit=statement_audit)
 
     number_of_statement_checks: int = StatementCheck.objects.on_date(TODAY).count()
 
@@ -644,11 +658,14 @@ def test_create_skips_future_statement_checks():
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
     future_statement_check: StatementCheck = StatementCheck.objects.all().first()
     future_statement_check.date_start = date.today() + timedelta(days=10)
     future_statement_check.save()
 
-    create_statement_checks_for_new_audit(audit=audit)
+    create_statement_checks_for_new_audit(audit=audit, statement_audit=statement_audit)
 
     number_of_statement_checks: int = StatementCheck.objects.on_date(TODAY).count()
 
@@ -666,11 +683,14 @@ def test_create_skips_past_statement_checks():
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
     past_statement_check: StatementCheck = StatementCheck.objects.all().first()
     past_statement_check.date_end = date.today() - timedelta(days=10)
     past_statement_check.save()
 
-    create_statement_checks_for_new_audit(audit=audit)
+    create_statement_checks_for_new_audit(audit=audit, statement_audit=statement_audit)
 
     number_of_statement_checks: int = StatementCheck.objects.on_date(TODAY).count()
 
@@ -1082,6 +1102,9 @@ def test_get_audit_summary_issue_counts(rf):
     request.GET = {"show-all": "true"}
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
     page: Page = Page.objects.create(
         audit=audit, page_type=Page.Type.HOME, url="https://example.com"
     )
@@ -1096,7 +1119,7 @@ def test_get_audit_summary_issue_counts(rf):
         type=wcag_definition.type,
         wcag_definition=wcag_definition,
     )
-    create_statement_checks_for_new_audit(audit=audit)
+    create_statement_checks_for_new_audit(audit=audit, statement_audit=statement_audit)
 
     context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
 
@@ -1124,7 +1147,10 @@ def test_get_audit_summary_statement_check_results_by_type(rf):
     request.GET = {"show-all": "true"}
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    create_statement_checks_for_new_audit(audit=audit)
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+    create_statement_checks_for_new_audit(audit=audit, statement_audit=statement_audit)
 
     context: dict[str, Any] = get_audit_summary_context(request=request, audit=audit)
 

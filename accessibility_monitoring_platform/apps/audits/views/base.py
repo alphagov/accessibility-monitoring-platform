@@ -111,7 +111,7 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
         event_type=CaseEvent.EventType.CREATE_AUDIT,
         message="Started test",
     )
-    return redirect(reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}))
+    return redirect(reverse("audits:edit-audit-metadata", kwargs={"pk": wcag_audit.id}))
 
 
 def restore_page(request: HttpRequest, pk: int) -> HttpResponse:

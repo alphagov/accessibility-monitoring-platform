@@ -838,12 +838,20 @@ class SimplifiedCase(BaseCase):
         )
 
     @property
-    def statement_checks_still_initial(self):
+    def statement_checks_still_initial(self) -> bool:
         if self.audit:
             return not self.audit.overview_statement_checks_complete
+
+        from ..audits.models import StatementAudit
+
+        initial_statement_audit: StatementAudit | None = (
+            self.statementaudit_set.all().first()
+        )
+        if initial_statement_audit is None:
+            return True
         return (
-            self.compliance.statement_compliance_state_initial
-            == CaseCompliance.StatementCompliance.UNKNOWN
+            initial_statement_audit.compliance_state
+            == StatementAudit.StatementCompliance.UNKNOWN
         )
 
     @property
@@ -1188,10 +1196,14 @@ class CaseStatus(models.Model):
         return self.status
 
     def calculate_status(self) -> str:  # noqa: C901
-        try:
-            compliance: CaseCompliance | None = self.simplified_case.compliance
-        except CaseCompliance.DoesNotExist:
-            compliance = None
+        from ..audits.models import StatementAudit, WcagAudit
+
+        initial_wcag_audit: WcagAudit | None = (
+            self.simplified_case.wcagaudit_set.all().first()
+        )
+        initial_statement_audit: StatementAudit | None = (
+            self.simplified_case.statementaudit_set.all().first()
+        )
 
         if self.simplified_case.is_deactivated:
             return CaseStatus.Status.DEACTIVATED
@@ -1223,22 +1235,23 @@ class CaseStatus(models.Model):
         elif self.simplified_case.auditor is None:
             return CaseStatus.Status.UNASSIGNED
         elif (
-            compliance is None
-            or compliance.website_compliance_state_initial
-            == CaseCompliance.WebsiteCompliance.UNKNOWN
+            initial_wcag_audit is None
+            or initial_wcag_audit.compliance_state
+            == WcagAudit.WebsiteCompliance.UNKNOWN
+            or initial_statement_audit is None
             or bool(
                 self.simplified_case.statement_checks_still_initial
-                and self.simplified_case.compliance.statement_compliance_state_initial
-                == CaseCompliance.StatementCompliance.UNKNOWN
+                and initial_statement_audit.compliance_state
+                == StatementAudit.StatementCompliance.UNKNOWN
             )
         ):
             return CaseStatus.Status.TEST_IN_PROGRESS
         elif (
-            self.simplified_case.compliance.website_compliance_state_initial
+            initial_wcag_audit.compliance_state
             != CaseCompliance.WebsiteCompliance.UNKNOWN
             and (
                 not self.simplified_case.statement_checks_still_initial
-                or self.simplified_case.compliance.statement_compliance_state_initial
+                or initial_statement_audit.compliance_state
                 != CaseCompliance.StatementCompliance.UNKNOWN
             )
             and self.simplified_case.report_review_status != Boolean.YES

@@ -277,7 +277,10 @@ def reverse_code(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("audits", "0025_statementaudit_and_more"),
+        (
+            "audits",
+            "0025_rename_retest_comment_statementcheckresult_first_retest_comment_and_more",
+        ),
     ]
 
     operations = [

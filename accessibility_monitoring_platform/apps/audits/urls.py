@@ -42,7 +42,6 @@ from .views.initial import (
     AuditCaseComplianceStatementInitialUpdateView,
     AuditCaseComplianceWebsiteInitialUpdateView,
     AuditPageChecksFormView,
-    AuditPagesUpdateView,
     AuditStatementComplianceFormView,
     AuditStatementCustomFormView,
     AuditStatementDisproportionateFormView,
@@ -61,6 +60,7 @@ from .views.initial import (
     InitialDisproportionateBurdenUpdateView,
     InitialStatementBackupUpdateView,
     WcagAuditMetadataUpdateView,
+    WcagAuditPagesUpdateView,
     clear_published_report_data_updated_time,
     delete_custom_issue,
 )
@@ -106,7 +106,7 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-audit-pages/",
-        login_required(AuditPagesUpdateView.as_view()),
+        login_required(WcagAuditPagesUpdateView.as_view()),
         name="edit-audit-pages",
     ),
     path(

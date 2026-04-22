@@ -36,9 +36,11 @@ from ..models import (
     RetestCheckResult,
     RetestPage,
     RetestStatementCheckResult,
+    StatementAudit,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
+    WcagAudit,
     WcagDefinition,
 )
 from ..utils import create_checkresults_for_retest, create_mandatory_pages_for_new_audit
@@ -116,9 +118,22 @@ def create_audit() -> Audit:
     return audit
 
 
+def create_wcag_audit() -> Audit:
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        organisation_name=ORGANISATION_NAME
+    )
+    CaseCompliance.objects.create(simplified_case=simplified_case)
+    simplified_case.update_case_status()
+    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    return audit
+
+
 def create_audit_and_pages() -> Audit:
     audit: Audit = create_audit()
-    create_mandatory_pages_for_new_audit(audit=audit)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=audit.simplified_case
+    )
+    create_mandatory_pages_for_new_audit(wcag_audit=wcag_audit)
     return audit
 
 
@@ -979,6 +994,12 @@ def test_audit_edit_statement_overview_updates_case_status(
     status and check results
     """
     audit: Audit = create_audit_and_statement_check_results()
+    StatementAudit.objects.create(simplified_case=audit.simplified_case)
+    wcag_audit: WcagAudit | None = WcagAudit.objects.filter(
+        simplified_case=audit.simplified_case
+    ).first()
+    wcag_audit.compliance_state = WcagAudit.WebsiteCompliance.COMPLIANT
+    wcag_audit.save()
     audit_pk: dict[str, int] = {"pk": audit.id}
 
     simplified_case: SimplifiedCase = audit.simplified_case
@@ -1118,11 +1139,11 @@ def test_audit_retest_statement_overview_updates_statement_checkresult(
             "form-MIN_NUM_FORMS": "0",
             "form-MAX_NUM_FORMS": "1000",
             "form-0-id": "1",
-            "form-0-retest_state": "yes",
-            "form-0-report_comment": "",
+            "form-0-first_retest_state": "yes",
+            "form-0-first_retest_comment": "",
             "form-1-id": "2",
-            "form-1-retest_state": "no",
-            "form-1-report_comment": "",
+            "form-1-first_retest_state": "no",
+            "form-1-first_retest_comment": "",
         },
     )
 
@@ -1132,13 +1153,13 @@ def test_audit_retest_statement_overview_updates_statement_checkresult(
         id=1
     )
 
-    assert statement_checkresult_1.retest_state == "yes"
+    assert statement_checkresult_1.first_retest_state == "yes"
 
     statement_checkresult_2: StatementCheckResult = StatementCheckResult.objects.get(
         id=2
     )
 
-    assert statement_checkresult_2.retest_state == "no"
+    assert statement_checkresult_2.first_retest_state == "no"
 
 
 def test_audit_retest_statement_overview_updates_statement_checkresult_no_initial_statement(
@@ -1174,11 +1195,11 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
             "form-MIN_NUM_FORMS": "0",
             "form-MAX_NUM_FORMS": "1000",
             "form-0-id": "1",
-            "form-0-retest_state": "yes",
-            "form-0-report_comment": "",
+            "form-0-first_retest_state": "yes",
+            "form-0-first_retest_comment": "",
             "form-1-id": "2",
-            "form-1-retest_state": "no",
-            "form-1-report_comment": "",
+            "form-1-first_retest_state": "no",
+            "form-1-first_retest_comment": "",
         },
     )
 
@@ -1188,13 +1209,13 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
         id=1
     )
 
-    assert statement_checkresult_1.retest_state == "yes"
+    assert statement_checkresult_1.first_retest_state == "yes"
 
     statement_checkresult_2: StatementCheckResult = StatementCheckResult.objects.get(
         id=2
     )
 
-    assert statement_checkresult_2.retest_state == "no"
+    assert statement_checkresult_2.first_retest_state == "no"
 
 
 def test_retest_date_change_creates_case_event(admin_client):

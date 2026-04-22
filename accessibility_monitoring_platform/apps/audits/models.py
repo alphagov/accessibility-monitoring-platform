@@ -454,9 +454,9 @@ class Audit(VersionModel):
     def outstanding_statement_check_results(self):
         return self.statement_check_results.filter(
             Q(check_result_state=StatementCheckResult.Result.NO)
-            | Q(retest_state=StatementCheckResult.Result.NO)
+            | Q(first_retest_state=StatementCheckResult.Result.NO)
             | Q(statement_check=None)
-        ).exclude(retest_state=StatementCheckResult.Result.YES)
+        ).exclude(first_retest_state=StatementCheckResult.Result.YES)
 
     @property
     def overview_outstanding_statement_check_results(self):
@@ -517,7 +517,7 @@ class Audit(VersionModel):
             ).count()
             == 0
             or self.overview_statement_check_results.exclude(
-                retest_state=StatementCheckResult.Result.YES
+                first_retest_state=StatementCheckResult.Result.YES
             ).count()
             == 0
         )
@@ -537,7 +537,7 @@ class Audit(VersionModel):
         """Check an accessibility statement was found at 12-week retest"""
         return (
             self.overview_statement_check_results.exclude(
-                retest_state=StatementCheckResult.Result.YES
+                first_retest_state=StatementCheckResult.Result.YES
             ).count()
             == 0
         )
@@ -545,19 +545,19 @@ class Audit(VersionModel):
     @property
     def failed_retest_statement_check_results(self):
         return self.statement_check_results.filter(
-            retest_state=StatementCheckResult.Result.NO
+            first_retest_state=StatementCheckResult.Result.NO
         )
 
     @property
     def passed_retest_statement_check_results(self):
         return self.statement_check_results.filter(
-            retest_state=StatementCheckResult.Result.YES
+            first_retest_state=StatementCheckResult.Result.YES
         )
 
     @property
     def fixed_statement_check_results(self):
         return self.failed_statement_check_results.filter(
-            retest_state=StatementCheckResult.Result.YES
+            first_retest_state=StatementCheckResult.Result.YES
         )
 
     @property
@@ -707,6 +707,37 @@ class WcagAudit(AuditRound):
 
     def get_absolute_url(self) -> str:
         return reverse("audits:edit-audit-metadata", kwargs={"pk": self.pk})
+
+    @property
+    def every_page(self):
+        """Sort page of type PDF to be last apart from the accessibility statement"""
+        return (
+            self.wcagpageinitial_set.filter(is_deleted=False)
+            .annotate(
+                position_pdfs_statements_last=DjangoCase(
+                    When(page_type=WcagPage.Type.PDF, then=1),
+                    When(page_type=WcagPage.Type.STATEMENT, then=2),
+                    default=0,
+                )
+            )
+            .order_by("position_pdfs_statements_last", "id")
+        )
+
+    @property
+    def testable_pages(self):
+        return self.every_page.exclude(not_found=Boolean.YES).exclude(url="")
+
+    @property
+    def standard_pages(self):
+        return self.every_page.exclude(page_type=WcagPage.Type.EXTRA)
+
+    @property
+    def html_pages(self):
+        return self.every_page.exclude(page_type=WcagPage.Type.PDF)
+
+    @property
+    def extra_pages(self):
+        return self.html_pages.filter(page_type=WcagPage.Type.EXTRA)
 
 
 class StatementAudit(AuditRound):
@@ -930,6 +961,13 @@ class WcagPage(models.Model):
 
     def __str__(self) -> str:  # pylint: disable=invalid-str-returned
         return self.name if self.name else self.get_page_type_display()
+
+    @property
+    def page_title(self) -> str:
+        title: str = str(self)
+        if self.page_type != WcagPage.Type.PDF:
+            title += " page"
+        return title
 
 
 class WcagPageInitial(WcagPage):
@@ -1243,12 +1281,12 @@ class StatementCheckResult(models.Model):
     )
     report_comment = models.TextField(default="", blank=True)
     auditor_notes = models.TextField(default="", blank=True)
-    retest_state = models.CharField(
+    first_retest_state = models.CharField(
         max_length=10,
         choices=Result.choices,
         default=Result.NOT_TESTED,
     )
-    retest_comment = models.TextField(default="", blank=True)
+    first_retest_comment = models.TextField(default="", blank=True)
     is_deleted = models.BooleanField(default=False)
 
     class Meta:

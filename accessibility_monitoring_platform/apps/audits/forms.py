@@ -145,18 +145,18 @@ AuditStandardPageFormset: forms.formsets.BaseFormSet = forms.modelformset_factor
 )
 
 
-class AuditPagesUpdateForm(VersionForm):
+class WcagAuditPagesUpdateForm(VersionForm):
     """
     Form for editing pages check page
     """
 
-    audit_pages_complete_date = AMPDatePageCompleteField()
+    pages_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = WcagAudit
         fields: list[str] = [
             "version",
-            "audit_pages_complete_date",
+            "pages_complete_date",
         ]
 
 
@@ -483,7 +483,7 @@ class New12WeekCustomStatementCheckResultUpdateForm(forms.ModelForm):
 
     retest_comment = AMPTextField(label="Issue description for organisation")
     auditor_notes = AMPTextField(label="12-week retest information")
-    retest_state = AMPChoiceRadioField(
+    first_retest_state = AMPChoiceRadioField(
         label="Mark this statement as resolved",
         choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
@@ -491,7 +491,7 @@ class New12WeekCustomStatementCheckResultUpdateForm(forms.ModelForm):
 
     class Meta:
         model = StatementCheckResult
-        fields = ["retest_comment", "auditor_notes", "retest_state"]
+        fields = ["retest_comment", "auditor_notes", "first_retest_state"]
 
 
 class AuditInitialDisproportionateBurdenUpdateForm(VersionForm):
@@ -782,18 +782,18 @@ class AuditRetestStatementCheckResultForm(forms.ModelForm):
     Form for updating a single statement check retest
     """
 
-    retest_state = AMPChoiceRadioField(
+    first_retest_state = AMPChoiceRadioField(
         label="",
         choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
-    retest_comment = AMPTextField(label="12-week retest information")
+    first_retest_comment = AMPTextField(label="12-week retest information")
 
     class Meta:
         model = StatementCheckResult
         fields = [
-            "retest_state",
-            "retest_comment",
+            "first_retest_state",
+            "first_retest_comment",
         ]
 
 

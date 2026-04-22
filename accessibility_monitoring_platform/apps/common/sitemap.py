@@ -27,6 +27,7 @@ from ..audits.models import (
     StatementCheckResult,
     StatementPage,
     WcagAudit,
+    WcagPageInitial,
 )
 from ..cases.models import BaseCase, CaseFile
 from ..comments.models import Comment
@@ -479,6 +480,21 @@ class AuditPagesPlatformPage(AuditPlatformPage):
                 self.subpages = bound_subpages
 
 
+class WcagAuditPagesPlatformPage(WcagAuditPlatformPage):
+    def populate_from_case(self, case: AnyCaseType):
+        if hasattr(case, "wcagaudit_set"):
+            wcag_audit: WcagAudit | None = case.wcagaudit_set.first()
+            if wcag_audit is not None:
+                self.set_instance(instance=wcag_audit)
+                if self.subpages is not None:
+                    bound_subpages: list[PlatformPage] = []
+                    for wcag_page in wcag_audit.testable_pages:
+                        bound_subpages += populate_subpages_with_instance(
+                            platform_page=self, instance=wcag_page
+                        )
+                    self.subpages = bound_subpages
+
+
 class AuditCustomIssuesPlatformPage(AuditPlatformPage):
     def populate_from_case(self, case: AnyCaseType):
         if hasattr(case, "audit") and isinstance(case.audit, Audit):
@@ -808,16 +824,16 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 case_details_template_name="cases/details/details.html",
                 next_page_url_name="audits:edit-audit-pages",
             ),
-            AuditPagesPlatformPage(
+            WcagAuditPagesPlatformPage(
                 name="Add or remove pages",
                 url_name="audits:edit-audit-pages",
-                complete_flag_name="audit_pages_complete_date",
+                complete_flag_name="pages_complete_date",
                 subpages=[
                     PlatformPage(
                         name="{instance.page_title} test",
                         url_name="audits:edit-audit-page-checks",
                         url_kwarg_key="pk",
-                        instance_class=Page,
+                        instance_class=WcagPageInitial,
                         complete_flag_name="complete_date",
                         case_details_template_name="simplified/details/details_initial_page_wcag_results.html",
                     )

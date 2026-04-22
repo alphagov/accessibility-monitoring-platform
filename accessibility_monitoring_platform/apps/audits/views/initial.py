@@ -26,7 +26,6 @@ from ..forms import (
     AuditInitialDisproportionateBurdenUpdateForm,
     AuditInitialStatementBackupUpdateForm,
     AuditPageChecksForm,
-    AuditPagesUpdateForm,
     AuditStandardPageFormset,
     AuditStatementComplianceUpdateForm,
     AuditStatementCustomUpdateForm,
@@ -47,6 +46,7 @@ from ..forms import (
     InitialAuditStatementPagesUpdateForm,
     InitialCustomIssueCreateUpdateForm,
     WcagAuditMetadataUpdateForm,
+    WcagAuditPagesUpdateForm,
 )
 from ..models import (
     Audit,
@@ -55,6 +55,7 @@ from ..models import (
     StatementCheck,
     StatementCheckResult,
     StatementPage,
+    WcagAudit,
     WcagDefinition,
 )
 from ..utils import (
@@ -108,12 +109,9 @@ class WcagAuditMetadataUpdateView(WcagAuditUpdateView):
     template_name: str = "common/case_form.html"
 
 
-class AuditPagesUpdateView(AuditUpdateView):
-    """
-    View to update audit pages page
-    """
+class WcagAuditPagesUpdateView(WcagAuditUpdateView):
 
-    form_class: type[AuditPagesUpdateForm] = AuditPagesUpdateForm
+    form_class: type[WcagAuditPagesUpdateForm] = WcagAuditPagesUpdateForm
     template_name: str = "audits/forms/pages.html"
 
     def get_next_platform_page(self):
@@ -123,7 +121,7 @@ class AuditPagesUpdateView(AuditUpdateView):
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        audit: Audit = self.object
+        wcag_audit: WcagAudit = self.object
         if self.request.POST:
             standard_pages_formset: AuditStandardPageFormset = AuditStandardPageFormset(
                 self.request.POST, prefix="standard"
@@ -133,23 +131,23 @@ class AuditPagesUpdateView(AuditUpdateView):
             )
         else:
             standard_pages_formset: AuditStandardPageFormset = AuditStandardPageFormset(
-                queryset=audit.standard_pages, prefix="standard"
+                queryset=wcag_audit.standard_pages, prefix="standard"
             )
             if "add_extra" in self.request.GET:
                 extra_pages_formset: AuditExtraPageFormsetOneExtra = (
                     AuditExtraPageFormsetOneExtra(
-                        queryset=audit.extra_pages, prefix="extra"
+                        queryset=wcag_audit.extra_pages, prefix="extra"
                     )
                 )
             else:
-                if audit.extra_pages:
+                if wcag_audit.extra_pages:
                     extra_pages_formset: AuditExtraPageFormset = AuditExtraPageFormset(
-                        queryset=audit.extra_pages, prefix="extra"
+                        queryset=wcag_audit.extra_pages, prefix="extra"
                     )
                 else:
                     extra_pages_formset: AuditExtraPageFormset = (
                         AuditExtraPageFormsetTwoExtra(
-                            queryset=audit.extra_pages, prefix="extra"
+                            queryset=wcag_audit.extra_pages, prefix="extra"
                         )
                     )
         for form in standard_pages_formset:
