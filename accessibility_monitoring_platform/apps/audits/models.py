@@ -837,6 +837,10 @@ class StatementAudit(AuditRound):
             self.round = self.simplified_case.statementaudit_set.all().count()
         super().save(*args, **kwargs)
 
+    @property
+    def statement_pages(self):
+        return self.statementpage_set.filter(is_deleted=False).order_by("id")
+
 
 class Page(models.Model):
     """

@@ -85,7 +85,7 @@ class WcagAuditMetadataUpdateForm(VersionForm):
         ]
 
 
-class AuditExtraPageUpdateForm(forms.ModelForm):
+class WcagPageInitialExtraUpdateForm(forms.ModelForm):
     """
     Form for adding and updating an extra page
     """
@@ -95,7 +95,7 @@ class AuditExtraPageUpdateForm(forms.ModelForm):
     location = AMPCharFieldWide(label="Page location description if single page app")
 
     class Meta:
-        model = Page
+        model = WcagPageInitial
         fields = [
             "name",
             "url",
@@ -103,18 +103,18 @@ class AuditExtraPageUpdateForm(forms.ModelForm):
         ]
 
 
-AuditExtraPageFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
-    Page, AuditExtraPageUpdateForm, extra=0
+WcagPageInitialFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
+    Page, WcagPageInitialExtraUpdateForm, extra=0
 )
-AuditExtraPageFormsetOneExtra: forms.formsets.BaseFormSet = forms.modelformset_factory(
-    Page, AuditExtraPageUpdateForm, extra=1
+WcagPageInitialFormsetOneExtra: forms.formsets.BaseFormSet = forms.modelformset_factory(
+    Page, WcagPageInitialExtraUpdateForm, extra=1
 )
-AuditExtraPageFormsetTwoExtra: forms.formsets.BaseFormSet = forms.modelformset_factory(
-    Page, AuditExtraPageUpdateForm, extra=2
+WcagPageInitialFormsetTwoExtra: forms.formsets.BaseFormSet = forms.modelformset_factory(
+    Page, WcagPageInitialExtraUpdateForm, extra=2
 )
 
 
-class AuditStandardPageUpdateForm(AuditExtraPageUpdateForm):
+class WcagPageInitialStandardUpdateForm(WcagPageInitialExtraUpdateForm):
     """
     Form for updating a standard page (one of the 5 types of page in every audit)
     """
@@ -131,7 +131,7 @@ class AuditStandardPageUpdateForm(AuditExtraPageUpdateForm):
     )
 
     class Meta:
-        model = Page
+        model = WcagPageInitial
         fields = [
             "name",
             "url",
@@ -141,8 +141,8 @@ class AuditStandardPageUpdateForm(AuditExtraPageUpdateForm):
         ]
 
 
-AuditStandardPageFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
-    Page, AuditStandardPageUpdateForm, extra=0
+WcagPageInitialStandardFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
+    WcagPageInitial, WcagPageInitialStandardUpdateForm, extra=0
 )
 
 
