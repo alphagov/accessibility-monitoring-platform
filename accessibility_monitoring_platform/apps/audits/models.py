@@ -1017,6 +1017,12 @@ class WcagPageInitial(WcagPage):
         )
 
     @property
+    def failed_check_results(self):
+        return self.all_check_results.filter(
+            check_result_state=CheckResult.Result.ERROR
+        )
+
+    @property
     def check_results_by_wcag_definition(self):
         check_results: QuerySet[CheckResult] = self.all_check_results
         return {
@@ -1200,6 +1206,16 @@ class WcagCheckResultInitial(WcagCheckResult):
     )
     first_retest_notes = models.TextField(default="", blank=True)
 
+    def save(self, *args, **kwargs) -> None:
+        if not self.id:
+            self.id_within_case = (
+                self.wcag_audit.wcagcheckresultinitial_set.all().count() + 1
+            )
+            self.issue_identifier = build_issue_identifier(
+                simplified_case=self.wcag_audit.simplified_case, issue=self
+            )
+        super().save(*args, **kwargs)
+
 
 class WcagCheckResultRetest(WcagCheckResult):
 
@@ -1222,6 +1238,24 @@ class CheckResultNotesHistory(models.Model):
 
     def __str__(self):
         return f"#{self.check_result} {self.created} {self.created_by}"
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name_plural = "Check result notes histories"
+
+
+class WcagCheckResultInitialNotesHistory(models.Model):
+    """Model to record history of changes to WcagCheckResultInitial notes"""
+
+    wcag_check_result_initial = models.ForeignKey(
+        WcagCheckResultInitial, on_delete=models.PROTECT
+    )
+    notes = models.TextField(default="", blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"#{self.wcag_check_result_initial} {self.created} {self.created_by}"
 
     class Meta:
         ordering = ["-created"]

@@ -236,17 +236,20 @@ def create_case_and_compliance(**kwargs) -> SimplifiedCase:
     WcagAudit.objects.create(
         simplified_case=simplified_case, compliance_state=wcag_compliance_state_initial
     )
-    WcagAudit.objects.create(
-        simplified_case=simplified_case, compliance_state=wcag_compliance_state_12_week
-    )
+    if wcag_compliance_state_12_week != WcagAudit.WebsiteCompliance.UNKNOWN:
+        WcagAudit.objects.create(
+            simplified_case=simplified_case,
+            compliance_state=wcag_compliance_state_12_week,
+        )
     StatementAudit.objects.create(
         simplified_case=simplified_case,
         compliance_state=statement_compliance_state_initial,
     )
-    StatementAudit.objects.create(
-        simplified_case=simplified_case,
-        compliance_state=statement_compliance_state_12_week,
-    )
+    if statement_compliance_state_12_week != StatementAudit.StatementCompliance.UNKNOWN:
+        StatementAudit.objects.create(
+            simplified_case=simplified_case,
+            compliance_state=statement_compliance_state_12_week,
+        )
     return simplified_case
 
 

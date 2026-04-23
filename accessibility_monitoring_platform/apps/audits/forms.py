@@ -6,7 +6,6 @@ from django import forms
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from ..common.forms import (
-    AMPBooleanCheckboxWidget,
     AMPCharFieldWide,
     AMPChoiceCheckboxField,
     AMPChoiceCheckboxWidget,
@@ -255,37 +254,24 @@ CheckResultFormset: forms.formsets.BaseFormSet = forms.formset_factory(
 )
 
 
-class AuditWebsiteDecisionUpdateForm(VersionForm):
+class WcagAuditComplianceUpdateForm(VersionForm):
     """
     Form for editing website compliance decision completion
     """
 
-    audit_website_decision_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: list[str] = [
-            "version",
-            "audit_website_decision_complete_date",
-        ]
-
-
-class CaseComplianceWebsiteInitialUpdateForm(VersionForm):
-    """
-    Form for editing website compliance decision
-    """
-
-    website_compliance_state_initial = AMPChoiceRadioField(
+    compliance_state = AMPChoiceRadioField(
         label="Initial website compliance decision",
         help_text="This field effects the case status",
         choices=CaseCompliance.WebsiteCompliance.choices,
     )
+    compliance_decision_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = CaseCompliance
+        model = WcagAudit
         fields: list[str] = [
             "version",
-            "website_compliance_state_initial",
+            "compliance_state",
+            "compliance_decision_complete_date",
         ]
 
 

@@ -40,7 +40,6 @@ from .views.equality_body import (
 )
 from .views.initial import (
     AuditCaseComplianceStatementInitialUpdateView,
-    AuditCaseComplianceWebsiteInitialUpdateView,
     AuditStatementComplianceFormView,
     AuditStatementCustomFormView,
     AuditStatementDisproportionateFormView,
@@ -58,6 +57,7 @@ from .views.initial import (
     InitialDeleteStatementPageUpdateView,
     InitialDisproportionateBurdenUpdateView,
     InitialStatementBackupUpdateView,
+    WcagAuditComplianceInitialUpdateView,
     WcagAuditMetadataUpdateView,
     WcagAuditPagesUpdateView,
     WcagPageChecksFormView,
@@ -121,7 +121,7 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-website-decision/",
-        login_required(AuditCaseComplianceWebsiteInitialUpdateView.as_view()),
+        login_required(WcagAuditComplianceInitialUpdateView.as_view()),
         name="edit-website-decision",
     ),
     path(

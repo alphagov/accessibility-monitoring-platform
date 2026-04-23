@@ -33,13 +33,12 @@ from ..forms import (
     AuditStatementSummaryUpdateForm,
     AuditStatementWebsiteUpdateForm,
     AuditWcagSummaryUpdateForm,
-    AuditWebsiteDecisionUpdateForm,
     CaseComplianceStatementInitialUpdateForm,
-    CaseComplianceWebsiteInitialUpdateForm,
     CheckResultFilterForm,
     CheckResultFormset,
     InitialAuditStatementPagesUpdateForm,
     InitialCustomIssueCreateUpdateForm,
+    WcagAuditComplianceUpdateForm,
     WcagAuditMetadataUpdateForm,
     WcagAuditPagesUpdateForm,
     WcagPageChecksForm,
@@ -339,7 +338,7 @@ class WcagPageChecksFormView(WcagPageChecksBaseFormView):
         if check_results_formset.is_valid():
             create_or_update_check_results_for_page(
                 user=self.request.user,
-                page=wcag_page_initial,
+                wcag_page_initial=wcag_page_initial,
                 check_result_forms=check_results_formset.forms,
             )
         else:
@@ -348,16 +347,13 @@ class WcagPageChecksFormView(WcagPageChecksBaseFormView):
         return super().form_valid(form)
 
 
-class AuditCaseComplianceWebsiteInitialUpdateView(AuditCaseComplianceUpdateView):
+class WcagAuditComplianceInitialUpdateView(WcagAuditUpdateView):
     """
     View to update website compliance fields
     """
 
-    form_class: type[AuditWebsiteDecisionUpdateForm] = AuditWebsiteDecisionUpdateForm
-    case_compliance_form_class: type[CaseComplianceWebsiteInitialUpdateForm] = (
-        CaseComplianceWebsiteInitialUpdateForm
-    )
-    template_name: str = "audits/forms/website_decision.html"
+    form_class: type[WcagAuditComplianceUpdateForm] = WcagAuditComplianceUpdateForm
+    template_name: str = "common/case_form.html"
 
 
 class AuditSummaryUpdateView(AuditUpdateView):

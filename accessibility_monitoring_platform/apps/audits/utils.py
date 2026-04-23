@@ -21,8 +21,6 @@ from .forms import CheckResultForm
 from .models import (
     Audit,
     CheckResult,
-    CheckResultNotesHistory,
-    CheckResultRetestNotesHistory,
     Page,
     Retest,
     RetestCheckResult,
@@ -32,6 +30,8 @@ from .models import (
     StatementCheck,
     StatementCheckResult,
     WcagAudit,
+    WcagCheckResultInitial,
+    WcagCheckResultInitialNotesHistory,
     WcagDefinition,
     WcagPageInitial,
 )
@@ -74,7 +74,9 @@ def index_or_404(items: list[P], item: P) -> int:
 
 
 def create_or_update_check_results_for_page(
-    user: User, page: Page, check_result_forms: list[CheckResultForm]
+    user: User,
+    wcag_page_initial: WcagPageInitial,
+    check_result_forms: list[CheckResultForm],
 ) -> None:
     """
     Create or update check results based on form data:
@@ -92,42 +94,51 @@ def create_or_update_check_results_for_page(
         ]
         check_result_state: str = check_result_form.cleaned_data["check_result_state"]
         notes: str = check_result_form.cleaned_data["notes"]
-        if wcag_definition in page.check_results_by_wcag_definition:
-            check_result: CheckResult = page.check_results_by_wcag_definition[
-                wcag_definition
-            ]
+        if wcag_definition in wcag_page_initial.check_results_by_wcag_definition:
+            wcag_check_result_initial: WcagCheckResultInitial = (
+                wcag_page_initial.check_results_by_wcag_definition[wcag_definition]
+            )
             if (
-                check_result.check_result_state != check_result_state
-                or check_result.notes != notes
+                wcag_check_result_initial.check_result_state != check_result_state
+                or wcag_check_result_initial.notes != notes
             ):
-                check_result.check_result_state = check_result_state
-                check_result.notes = notes
+                wcag_check_result_initial.check_result_state = check_result_state
+                wcag_check_result_initial.notes = notes
                 record_simplified_model_update_event(
                     user=user,
-                    model_object=check_result,
-                    simplified_case=check_result.audit.simplified_case,
+                    model_object=wcag_check_result_initial,
+                    simplified_case=wcag_check_result_initial.wcag_audit.simplified_case,
                 )
-                add_to_check_result_notes_history(check_result=check_result, user=user)
-                report_data_updated(audit=check_result.audit)
-                check_result.save()
-        elif notes != "" or check_result_state != CheckResult.Result.NOT_TESTED:
-            check_result: CheckResult = CheckResult.objects.create(
-                audit=page.audit,
-                page=page,
-                wcag_definition=wcag_definition,
-                type=wcag_definition.type,
-                check_result_state=check_result_state,
-                notes=notes,
+                add_to_check_result_notes_history(
+                    wcag_check_result_initial=wcag_check_result_initial, user=user
+                )
+                report_data_updated(audit=wcag_check_result_initial.audit)
+                wcag_check_result_initial.save()
+        elif (
+            notes != ""
+            or check_result_state != WcagCheckResultInitial.Result.NOT_TESTED
+        ):
+            wcag_check_result_initial: WcagCheckResultInitial = (
+                WcagCheckResultInitial.objects.create(
+                    wcag_audit=wcag_page_initial.wcag_audit,
+                    wcag_page=wcag_page_initial,
+                    wcag_definition=wcag_definition,
+                    type=wcag_definition.type,
+                    check_result_state=check_result_state,
+                    notes=notes,
+                )
             )
             record_simplified_model_create_event(
                 user=user,
-                model_object=check_result,
-                simplified_case=check_result.audit.simplified_case,
+                model_object=wcag_check_result_initial,
+                simplified_case=wcag_check_result_initial.wcag_audit.simplified_case,
             )
             add_to_check_result_notes_history(
-                check_result=check_result, user=user, new_check_result=True
+                wcag_check_result_initial=wcag_check_result_initial,
+                user=user,
+                new_check_result=True,
             )
-            report_data_updated(audit=page.audit)
+            report_data_updated(wcag_audit=wcag_page_initial.wcag_audit)
 
 
 def get_page_check_results_formset_initial(
@@ -294,9 +305,10 @@ def other_page_failed_check_results(
     return failed_check_results_by_wcag_definition
 
 
-def report_data_updated(audit: Audit) -> None:
+def report_data_updated(wcag_audit: WcagAudit) -> None:
     """Record when an update changing report content as occurred."""
     now: datetime = timezone.now()
+    audit: Audit = wcag_audit.simplified_case.audit
     audit.published_report_data_updated_time = now
     audit.save()
 
@@ -445,37 +457,46 @@ def get_audit_summary_context(request: HttpRequest, audit: Audit) -> dict[str, A
 
 
 def add_to_check_result_notes_history(
-    check_result: CheckResult, user: User, new_check_result: bool = False
+    wcag_check_result_initial: WcagCheckResultInitial,
+    user: User,
+    new_check_result: bool = False,
 ) -> None:
     """Add latest change to CheckResult.notes history"""
     if new_check_result is True:
-        previous_check_result: None = None
+        previous_wcag_check_result_initial: None = None
     else:
-        previous_check_result: CheckResult | None = (
-            CheckResult.objects.filter(id=check_result.id).first()
-            if check_result.id is not None
+        previous_wcag_check_result_initial: WcagCheckResultInitial | None = (
+            WcagCheckResultInitial.objects.filter(
+                id=wcag_check_result_initial.id
+            ).first()
+            if wcag_check_result_initial.id is not None
             else None
         )
     if (
-        previous_check_result is None
-        or check_result.notes != previous_check_result.notes
+        previous_wcag_check_result_initial is None
+        or wcag_check_result_initial.notes != previous_wcag_check_result_initial.notes
     ):
-        CheckResultNotesHistory.objects.create(
-            check_result=check_result,
+        WcagCheckResultInitialNotesHistory.objects.create(
+            wcag_check_result_initial=wcag_check_result_initial,
             created_by=user,
-            notes=check_result.notes,
+            notes=wcag_check_result_initial.notes,
         )
 
 
 def add_to_check_result_restest_notes_history(
-    check_result: CheckResult, user: User
+    wcag_check_result_initial: WcagCheckResultInitial, user: User
 ) -> None:
     """Add latest change to CheckResult.retest_notes history"""
-    previous_check_result: CheckResult = CheckResult.objects.get(id=check_result.id)
-    if check_result.retest_notes != previous_check_result.retest_notes:
-        CheckResultRetestNotesHistory.objects.create(
-            check_result=check_result,
+    previous_wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.get(id=wcag_check_result_initial.id)
+    )
+    if (
+        wcag_check_result_initial.retest_notes
+        != previous_wcag_check_result_initial.retest_notes
+    ):
+        WcagCheckResultInitialNotesHistory.objects.create(
+            wcag_check_result_initial=wcag_check_result_initial,
             created_by=user,
-            retest_notes=check_result.retest_notes,
-            retest_state=check_result.retest_state,
+            retest_notes=wcag_check_result_initial.retest_notes,
+            retest_state=wcag_check_result_initial.retest_state,
         )

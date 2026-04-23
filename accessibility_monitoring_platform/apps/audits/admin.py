@@ -141,7 +141,7 @@ class WcagCheckResultInitialAdmin(admin.ModelAdmin):
         "first_retest_state",
     ]
     list_filter = ["check_result_state", "first_retest_state"]
-    readonly_fields = ["wcag_page"]
+    readonly_fields = ["wcag_audit", "wcag_page"]
     show_facets = admin.ShowFacets.ALWAYS
 
 
@@ -163,7 +163,7 @@ class WcagCheckResultRetestAdmin(admin.ModelAdmin):
         "retest_state",
     ]
     list_filter = ["retest_state"]
-    readonly_fields = ["wcag_page"]
+    readonly_fields = ["wcag_audit", "wcag_page"]
     show_facets = admin.ShowFacets.ALWAYS
 
 

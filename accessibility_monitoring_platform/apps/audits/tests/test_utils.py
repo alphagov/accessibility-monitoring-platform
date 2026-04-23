@@ -29,6 +29,7 @@ from ..models import (
     StatementCheck,
     StatementCheckResult,
     WcagAudit,
+    WcagCheckResultInitial,
     WcagDefinition,
     WcagPageInitial,
 )
@@ -237,10 +238,10 @@ EXPECTED_AUDIT_REPORT_OPTIONS_ROWS: list[FieldLabelAndValue] = [
 ]
 
 
-def create_audit_and_wcag() -> Audit:
-    """Create an audit and WcagDefinitions"""
+def create_wcag_audit_and_wcag() -> WcagAudit:
+    """Create a WcagAudit and WcagDefinitions"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
     WcagDefinition.objects.all().delete()
     WcagDefinition.objects.create(
         id=1, type=WcagDefinition.Type.PDF, name=WCAG_TYPE_PDF_NAME
@@ -248,51 +249,51 @@ def create_audit_and_wcag() -> Audit:
     WcagDefinition.objects.create(
         id=2, type=WcagDefinition.Type.MANUAL, name=WCAG_TYPE_MANUAL_NAME
     )
-    return audit
+    return wcag_audit
 
 
-def create_audit_and_user() -> tuple[Audit, User]:
+def create_wcag_audit_and_user() -> tuple[WcagAudit, User]:
     """Create an audit and pages"""
-    audit: Audit = create_audit_and_wcag()
+    wcag_audit: WcagAudit = create_wcag_audit_and_wcag()
     user: User = User.objects.create(
         first_name=USER_FIRST_NAME, last_name=USER_LAST_NAME
     )
-    audit.simplified_case.auditor = user
-    audit.simplified_case.save()
-    return audit, user
+    wcag_audit.simplified_case.auditor = user
+    wcag_audit.simplified_case.save()
+    return wcag_audit, user
 
 
-def create_audit_and_check_results() -> Audit:
+def create_wcag_audit_and_check_results() -> WcagAudit:
     """Create an audit and check results"""
-    audit, _ = create_audit_and_user()
+    wcag_audit, _ = create_wcag_audit_and_user()
 
-    page_home: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    wcag_page_initial_home: WcagPageInitial = WcagPageInitial.objects.create(
+        wvag_audit=wcag_audit, page_type=Page.Type.HOME, url="https://example.com"
     )
     wcag_definition_manual: WcagDefinition = WcagDefinition.objects.get(
         type=WcagDefinition.Type.MANUAL
     )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page_home,
+    WcagCheckResultInitial.objects.create(
+        wcag_audit=wcag_audit,
+        wcag_page=wcag_page_initial_home,
         wcag_definition=wcag_definition_manual,
         type=wcag_definition_manual.type,
     )
 
     page_pdf: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.PDF, url="https://example.com/pdf"
+        audit=wcag_audit, page_type=Page.Type.PDF, url="https://example.com/pdf"
     )
     wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(
         type=WcagDefinition.Type.PDF
     )
-    CheckResult.objects.create(
-        audit=audit,
+    WcagCheckResultInitial.objects.create(
+        wcag_audit=wcag_audit,
         page=page_pdf,
-        wcag_definition=wcag_definition_pdf,
+        wcag_wcag_definition=wcag_definition_pdf,
         type=wcag_definition_pdf.type,
     )
 
-    return audit
+    return wcag_audit
 
 
 @pytest.mark.django_db
@@ -318,7 +319,7 @@ def test_create_mandatory_pages_for_new_audit():
 @pytest.mark.django_db
 def test_update_check_results_for_page():
     """Test update of check results for a page"""
-    audit: Audit = create_audit_and_check_results()
+    audit: Audit = create_wcag_audit_and_check_results()
     page_home: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
 
     check_results: QuerySet[CheckResult] = CheckResult.objects.filter(page=page_home)
@@ -350,7 +351,7 @@ def test_update_check_results_for_page():
 
     create_or_update_check_results_for_page(
         user=audit.simplified_case.auditor,
-        page=page_home,
+        wcag_page_initial=page_home,
         check_result_forms=check_results_formset.forms,
     )
 
@@ -369,8 +370,10 @@ def test_update_check_results_for_page():
 @pytest.mark.django_db
 def test_create_check_results_for_page():
     """Test create of check results for a page"""
-    audit: Audit = create_audit_and_check_results()
-    page_home: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
+    wcag_audit: Audit = create_wcag_audit_and_check_results()
+    page_home: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
 
     check_results: QuerySet[CheckResult] = CheckResult.objects.filter(page=page_home)
 
@@ -399,11 +402,11 @@ def test_create_check_results_for_page():
     check_results_formset: CheckResultFormset = CheckResultFormset(formset_data)
     check_results_formset.is_valid()
 
-    assert audit.published_report_data_updated_time is None
+    assert wcag_audit.published_report_data_updated_time is None
 
     create_or_update_check_results_for_page(
-        user=audit.simplified_case.auditor,
-        page=page_home,
+        user=wcag_audit.simplified_case.auditor,
+        wcag_page_initial=page_home,
         check_result_forms=check_results_formset.forms,
     )
 
@@ -414,7 +417,7 @@ def test_create_check_results_for_page():
     assert new_check_result.check_result_state == CheckResult.Result.ERROR
     assert new_check_result.notes == NEW_CHECK_NOTE
 
-    updated_audit: Audit = Audit.objects.get(id=audit.id)
+    updated_audit: Audit = Audit.objects.get(id=wcag_audit.id)
 
     assert updated_audit.published_report_data_updated_time is not None
 
@@ -422,7 +425,7 @@ def test_create_check_results_for_page():
 @pytest.mark.django_db
 def test_get_all_possible_check_results_for_page():
     """Test building list of all possible test results"""
-    audit: Audit = create_audit_and_check_results()
+    audit: Audit = create_wcag_audit_and_check_results()
     page_home: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     WcagDefinition.objects.create(type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME)
     wcag_definitions: list[WcagDefinition] = list(WcagDefinition.objects.all())
@@ -470,7 +473,7 @@ def test_get_next_platform_page_audit_with_no_pages():
     Test get_next_platform_page returns website decision page
     when audit has no testable pages.
     """
-    audit: Audit = create_audit_and_wcag()
+    audit: Audit = create_wcag_audit_and_wcag()
 
     platform_page: PlatformPage = get_next_platform_page_wcag_page_initial(audit=audit)
 
@@ -487,30 +490,32 @@ def test_get_next_platform_page_audit_with_pages():
     )
     wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
     create_mandatory_pages_for_new_audit(wcag_audit=wcag_audit)
-    audit_pk: dict[str, int] = {"pk": audit.id}
+    audit_pk: dict[str, int] = {"pk": wcag_audit.id}
 
     next_page: Page = wcag_audit.testable_pages[0]
     next_page_pk: dict[str, int] = {"pk": next_page.id}
-    platform_page: PlatformPage = get_next_platform_page_wcag_page_initial(audit=audit)
+    platform_page: PlatformPage = get_next_platform_page_wcag_page_initial(
+        audit=wcag_audit
+    )
 
     assert platform_page.url == reverse(
         "audits:edit-audit-page-checks", kwargs=next_page_pk
     )
 
-    current_page: Page = audit.testable_pages[0]
-    next_page: Page = audit.testable_pages[1]
+    current_page: Page = wcag_audit.testable_pages[0]
+    next_page: Page = wcag_audit.testable_pages[1]
     next_page_pk: dict[str, int] = {"pk": next_page.id}
     platform_page: PlatformPage = get_next_platform_page_wcag_page_initial(
-        audit=audit, current_page=current_page
+        audit=wcag_audit, current_page=current_page
     )
 
     assert platform_page.url == reverse(
         "audits:edit-audit-page-checks", kwargs=next_page_pk
     )
 
-    current_page: Page = audit.testable_pages[1]
+    current_page: Page = wcag_audit.testable_pages[1]
     platform_page: PlatformPage = get_next_platform_page_wcag_page_initial(
-        audit=audit, current_page=current_page
+        audit=wcag_audit, current_page=current_page
     )
 
     assert platform_page.url == reverse("audits:edit-website-decision", kwargs=audit_pk)
@@ -522,7 +527,7 @@ def test_get_next_platform_page_twelve_week_audit_with_pages():
     Test get_next_platform_page_twelve_week returns platform page
     for each testable page (with errors) in audit in in turn.
     """
-    audit: Audit = create_audit_and_check_results()
+    audit: Audit = create_wcag_audit_and_check_results()
     audit_pk: dict[str, int] = {"pk": audit.id}
     for page in audit.testable_pages:
         for check_result in page.all_check_results:
@@ -564,7 +569,7 @@ def test_get_next_platform_page_twelve_week_audit_with_no_errors():
     Test get_next_platform_page_twelve_week returns expected platform page
     for website compliance decision when audit has no pages with errors.
     """
-    audit: Audit = create_audit_and_check_results()
+    audit: Audit = create_wcag_audit_and_check_results()
     audit_pk: dict[str, int] = {"pk": audit.id}
     assert get_next_platform_page_twelve_week(audit=audit).url == reverse(
         "audits:edit-audit-retest-website-decision", kwargs=audit_pk
@@ -577,7 +582,7 @@ def test_other_page_failed_check_results():
     Test other_page_failed_check_results returns a dictionary of all the failed
     check results entered for other pages
     """
-    audit: Audit = create_audit_and_check_results()
+    audit: Audit = create_wcag_audit_and_check_results()
     home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     extra_page: Page = Page.objects.create(
         audit=audit, page_type=Page.Type.EXTRA, url="https://example.com/extra"
@@ -1206,28 +1211,34 @@ def test_add_check_result_notes_history():
         username="johnsmith", first_name="John", last_name="Smith"
     )
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
     WcagDefinition.objects.all().delete()
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.MANUAL, name=WCAG_TYPE_MANUAL_NAME
     )
-    page: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        audit=wcag_audit, page_type=Page.Type.HOME, url="https://example.com"
     )
-    check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        type=wcag_definition.type,
-        notes=OLD_CHECK_RESULT_NOTES,
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit,
+            wcag_page_initial=wcag_page_initial,
+            wcag_definition=wcag_definition,
+            type=wcag_definition.type,
+            notes=OLD_CHECK_RESULT_NOTES,
+        )
     )
 
-    check_result.notes = NEW_CHECK_RESULT_NOTES
+    wcag_check_result_initial.notes = NEW_CHECK_RESULT_NOTES
 
-    add_to_check_result_notes_history(check_result=check_result, user=user)
+    add_to_check_result_notes_history(
+        wcag_check_result_initial=wcag_check_result_initial, user=user
+    )
 
     check_result_notes_history: CheckResultNotesHistory = (
-        CheckResultNotesHistory.objects.get(check_result=check_result)
+        CheckResultNotesHistory.objects.get(
+            wcag_check_result_initial=wcag_check_result_initial
+        )
     )
 
     assert check_result_notes_history.notes == NEW_CHECK_RESULT_NOTES
@@ -1244,29 +1255,35 @@ def test_check_result_notes_history_changed():
         username="johnsmith", first_name="John", last_name="Smith"
     )
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
     WcagDefinition.objects.all().delete()
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.MANUAL, name=WCAG_TYPE_MANUAL_NAME
     )
-    page: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit,
+        page_type=WcagPageInitial.Type.HOME,
+        url="https://example.com",
     )
-    check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
+    wcag_check_result_initial: CheckResult = CheckResult.objects.create(
+        wcag_audit=wcag_audit,
+        wcag_page_initial=wcag_page_initial,
         wcag_definition=wcag_definition,
         type=wcag_definition.type,
         notes=OLD_CHECK_RESULT_NOTES,
     )
 
-    add_to_check_result_notes_history(check_result=check_result, user=user)
+    add_to_check_result_notes_history(
+        wcag_check_result_initial=wcag_check_result_initial, user=user
+    )
 
     assert CheckResultNotesHistory.objects.all().count() == 0
 
-    check_result.notes = NEW_CHECK_RESULT_NOTES
+    wcag_check_result_initial.notes = NEW_CHECK_RESULT_NOTES
 
-    add_to_check_result_notes_history(check_result=check_result, user=user)
+    add_to_check_result_notes_history(
+        wcag_check_result_initial=wcag_check_result_initial, user=user
+    )
 
     assert CheckResultNotesHistory.objects.all().count() == 1
 
@@ -1281,29 +1298,35 @@ def test_add_check_result_restest_notes_history():
         username="johnsmith", first_name="John", last_name="Smith"
     )
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
     WcagDefinition.objects.all().delete()
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.MANUAL, name=WCAG_TYPE_MANUAL_NAME
     )
-    page: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit, page_type=Page.Type.HOME, url="https://example.com"
     )
-    check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        type=wcag_definition.type,
-        retest_notes=OLD_RETEST_NOTES,
-        retest_state=CheckResult.RetestResult.FIXED,
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit,
+            wcag_page_initial=wcag_page_initial,
+            wcag_definition=wcag_definition,
+            type=wcag_definition.type,
+            retest_notes=OLD_RETEST_NOTES,
+            retest_state=CheckResult.RetestResult.FIXED,
+        )
     )
 
-    check_result.retest_notes = NEW_RETEST_NOTES
+    wcag_check_result_initial.retest_notes = NEW_RETEST_NOTES
 
-    add_to_check_result_restest_notes_history(check_result=check_result, user=user)
+    add_to_check_result_restest_notes_history(
+        wcag_check_result_initial=wcag_check_result_initial, user=user
+    )
 
     check_result_retest_notes_history: CheckResultRetestNotesHistory = (
-        CheckResultRetestNotesHistory.objects.get(check_result=check_result)
+        CheckResultRetestNotesHistory.objects.get(
+            wcag_check_result_initial=wcag_check_result_initial
+        )
     )
 
     assert check_result_retest_notes_history.retest_notes == NEW_RETEST_NOTES
@@ -1323,28 +1346,32 @@ def test_check_result_restest_notes_history_changed():
         username="johnsmith", first_name="John", last_name="Smith"
     )
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
     WcagDefinition.objects.all().delete()
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.MANUAL, name=WCAG_TYPE_MANUAL_NAME
     )
-    page: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit, page_type=Page.Type.HOME, url="https://example.com"
     )
-    check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
+    wcag_check_result_initial: CheckResult = CheckResult.objects.create(
+        wcag_audit=wcag_audit,
+        wcag_page_initial=wcag_page_initial,
         wcag_definition=wcag_definition,
         type=wcag_definition.type,
         retest_notes=OLD_RETEST_NOTES,
     )
 
-    add_to_check_result_restest_notes_history(check_result=check_result, user=user)
+    add_to_check_result_restest_notes_history(
+        wcag_check_result_initial=wcag_check_result_initial, user=user
+    )
 
     assert CheckResultRetestNotesHistory.objects.all().count() == 0
 
-    check_result.retest_notes = NEW_RETEST_NOTES
+    wcag_check_result_initial.retest_notes = NEW_RETEST_NOTES
 
-    add_to_check_result_restest_notes_history(check_result=check_result, user=user)
+    add_to_check_result_restest_notes_history(
+        wcag_check_result_initial=wcag_check_result_initial, user=user
+    )
 
     assert CheckResultRetestNotesHistory.objects.all().count() == 1
