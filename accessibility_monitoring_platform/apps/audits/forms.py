@@ -6,7 +6,6 @@ from django import forms
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from ..common.forms import (
-    AMPBooleanCheckboxWidget,
     AMPCharFieldWide,
     AMPChoiceCheckboxField,
     AMPChoiceCheckboxWidget,
