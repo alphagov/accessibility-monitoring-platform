@@ -49,8 +49,8 @@ from .views.initial import (
     AuditStatementPreparationFormView,
     AuditStatementSummaryUpdateView,
     AuditStatementWebsiteFormView,
-    AuditWcagSummaryUpdateView,
     CustomIssueCreateView,
+    FirstWcagAuditSummaryUpdateView,
     InitialAddStatementPageUpdateView,
     InitialCustomIssueDeleteTemplateView,
     InitialCustomIssueUpdateView,
@@ -211,7 +211,7 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-audit-wcag-summary/",
-        login_required(AuditWcagSummaryUpdateView.as_view()),
+        login_required(FirstWcagAuditSummaryUpdateView.as_view()),
         name="edit-audit-wcag-summary",
     ),
     path(

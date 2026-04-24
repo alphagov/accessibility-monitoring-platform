@@ -524,18 +524,18 @@ class CaseComplianceStatementInitialUpdateForm(VersionForm):
         ]
 
 
-class AuditWcagSummaryUpdateForm(VersionForm):
+class WcagAuditWcagSummaryUpdateForm(VersionForm):
     """
     Form for editing WCAG audit summary
     """
 
-    audit_wcag_summary_complete_date = AMPDatePageCompleteField()
+    summary_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = WcagAudit
         fields: list[str] = [
             "version",
-            "audit_wcag_summary_complete_date",
+            "summary_complete_date",
         ]
 
 

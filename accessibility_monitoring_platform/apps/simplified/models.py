@@ -648,6 +648,30 @@ class SimplifiedCase(BaseCase):
             return None
 
     @property
+    def wcag_audits(self):
+        return self.wcagaudit_set.filter(is_deleted=False)
+
+    @property
+    def first_wcag_audit(self):
+        return self.wcag_audits.first()
+
+    @property
+    def last_wcag_audit(self):
+        return self.wcag_audits.last()
+
+    @property
+    def statement_audits(self):
+        return self.statementaudit_set.filter(is_deleted=False)
+
+    @property
+    def first_statement_audit(self):
+        return self.statement_audits.first()
+
+    @property
+    def last_statement_audit(self):
+        return self.statement_audits.last()
+
+    @property
     def wcag_audit(self):
         return self.wcagaudit_set.first()
 

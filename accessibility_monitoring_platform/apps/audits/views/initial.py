@@ -32,7 +32,6 @@ from ..forms import (
     AuditStatementPreparationUpdateForm,
     AuditStatementSummaryUpdateForm,
     AuditStatementWebsiteUpdateForm,
-    AuditWcagSummaryUpdateForm,
     CaseComplianceStatementInitialUpdateForm,
     CheckResultFilterForm,
     CheckResultFormset,
@@ -41,6 +40,7 @@ from ..forms import (
     WcagAuditComplianceUpdateForm,
     WcagAuditMetadataUpdateForm,
     WcagAuditPagesUpdateForm,
+    WcagAuditWcagSummaryUpdateForm,
     WcagPageChecksForm,
     WcagPageInitialFormset,
     WcagPageInitialFormsetOneExtra,
@@ -356,26 +356,22 @@ class WcagAuditComplianceInitialUpdateView(WcagAuditUpdateView):
     template_name: str = "common/case_form.html"
 
 
-class AuditSummaryUpdateView(AuditUpdateView):
-    """
-    View to update audit summary
-    """
+class AuditSummaryUpdateView(WcagAuditUpdateView):
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
         return {
             **context,
-            **get_audit_summary_context(request=self.request, audit=self.object),
+            **get_audit_summary_context(
+                request=self.request, audit=self.object.simplified_case.audit
+            ),
         }
 
 
-class AuditWcagSummaryUpdateView(AuditSummaryUpdateView):
-    """
-    View to update audit summary
-    """
+class FirstWcagAuditSummaryUpdateView(AuditSummaryUpdateView):
 
-    form_class: type[AuditWcagSummaryUpdateForm] = AuditWcagSummaryUpdateForm
+    form_class: type[WcagAuditWcagSummaryUpdateForm] = WcagAuditWcagSummaryUpdateForm
     template_name: str = "audits/forms/test_summary_wcag.html"
 
 

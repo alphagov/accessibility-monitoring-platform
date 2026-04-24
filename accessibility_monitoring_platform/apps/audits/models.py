@@ -609,6 +609,19 @@ class Audit(VersionModel):
         return self.statement_pages.count() > 0 and self.latest_statement_link != ""
 
 
+class AuditMetadata(models.Model):
+
+    simplified_case = models.OneToOneField(
+        SimplifiedCase,
+        on_delete=models.PROTECT,
+        related_name="auditmetadata_simplifiedcase",
+        blank=True,
+        null=True,
+    )
+    published_report_data_updated_time = models.DateTimeField(null=True, blank=True)
+    updated = models.DateTimeField(null=True, blank=True)
+
+
 class AuditRound(VersionModel):
     """Model for round of testing"""
 
@@ -763,6 +776,37 @@ class WcagAudit(AuditRound):
             )
             .select_related("wcag_page", "wcag_definition")
             .all()
+        )
+
+    @property
+    def fixed_check_results(self):
+        return self.failed_check_results.filter(
+            first_retest_state=CheckResult.RetestResult.FIXED
+        )
+
+    @property
+    def unfixed_check_results(self):
+        return self.failed_check_results.exclude(
+            first_retest_state=CheckResult.RetestResult.FIXED
+        )
+
+    @property
+    def percentage_wcag_issues_fixed(self) -> int:
+        return calculate_percentage(
+            total=self.failed_check_results.count(),
+            partial=self.fixed_check_results.count(),
+        )
+
+    @property
+    def missing_at_retest_pages(self):
+        return self.testable_pages.exclude(first_retest_page_missing_date=None)
+
+    @property
+    def missing_at_retest_check_results(self):
+        return self.wcagcheckresultinitial_set.filter(
+            is_deleted=False,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+            wcag_page__in=self.missing_at_retest_pages,
         )
 
 
