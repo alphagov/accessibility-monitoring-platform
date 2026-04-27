@@ -57,7 +57,7 @@ from ..models import (
     StatementPage,
     WcagAudit,
     WcagDefinition,
-    WcagPageInitial,
+    WcagPageRetest,
 )
 from ..utils import (
     create_or_update_check_results_for_page,
@@ -178,20 +178,21 @@ class WcagAuditPagesUpdateView(WcagAuditUpdateView):
             statement_audit: StatementAudit = StatementAudit.objects.filter(
                 simplified_case=wcag_audit.simplified_case
             ).first()
-            wcag_page_initials: list[WcagPageInitial] = standard_pages_formset.save(
-                commit=False
+            wcag_page_wcag_audit_initials: list[WcagPageRetest] = (
+                standard_pages_formset.save(commit=False)
             )
-            for wcag_page_initial in wcag_page_initials:
+            for wcag_page_wcag_audit_initial in wcag_page_wcag_audit_initials:
                 if (
-                    wcag_page_initial.page_type == WcagPageInitial.Type.STATEMENT
-                    and wcag_page_initial.url
+                    wcag_page_wcag_audit_initial.page_type
+                    == WcagPageRetest.Type.STATEMENT
+                    and wcag_page_wcag_audit_initial.url
                 ):
                     if statement_audit.statement_pages.count() == 0:
                         # Create first statement link
                         statement_page: StatementPage = StatementPage.objects.create(
                             audit=wcag_audit.simplified_case.audit,
                             statement_audit=statement_audit,
-                            url=wcag_page_initial.url,
+                            url=wcag_page_wcag_audit_initial.url,
                         )
                         record_simplified_model_create_event(
                             user=self.request.user,
@@ -200,31 +201,33 @@ class WcagAuditPagesUpdateView(WcagAuditUpdateView):
                         )
                 record_simplified_model_update_event(
                     user=self.request.user,
-                    model_object=wcag_page_initial,
+                    model_object=wcag_page_wcag_audit_initial,
                     simplified_case=wcag_audit.simplified_case,
                 )
-                wcag_page_initial.save()
+                wcag_page_wcag_audit_initial.save()
         else:
             return super().form_invalid(form)
 
         if extra_pages_formset.is_valid():
-            wcag_page_initials: list[Page] = extra_pages_formset.save(commit=False)
-            for wcag_page_initial in wcag_page_initials:
-                if not wcag_page_initial.audit_id:
-                    wcag_page_initial.audit = wcag_audit
-                    wcag_page_initial.save()
+            wcag_page_wcag_audit_initials: list[Page] = extra_pages_formset.save(
+                commit=False
+            )
+            for wcag_page_wcag_audit_initial in wcag_page_wcag_audit_initials:
+                if not wcag_page_wcag_audit_initial.audit_id:
+                    wcag_page_wcag_audit_initial.audit = wcag_audit
+                    wcag_page_wcag_audit_initial.save()
                     record_simplified_model_create_event(
                         user=self.request.user,
-                        model_object=wcag_page_initial,
+                        model_object=wcag_page_wcag_audit_initial,
                         simplified_case=wcag_audit.simplified_case,
                     )
                 else:
                     record_simplified_model_update_event(
                         user=self.request.user,
-                        model_object=wcag_page_initial,
+                        model_object=wcag_page_wcag_audit_initial,
                         simplified_case=wcag_audit.simplified_case,
                     )
-                    wcag_page_initial.save()
+                    wcag_page_wcag_audit_initial.save()
         else:
             return super().form_invalid(form)
 
@@ -252,10 +255,10 @@ class WcagPageChecksFormView(WcagPageChecksBaseFormView):
     template_name: str = "audits/forms/page_checks.html"
 
     def get_next_platform_page(self):
-        wcag_page_initial: WcagPageInitial = self.wcag_page_initial
+        wcag_page_wcag_audit_initial: WcagPageRetest = self.wcag_page_initial
         return get_next_platform_page_wcag_page_initial(
-            wcag_audit=wcag_page_initial.wcag_audit,
-            current_wcag_page_initial=wcag_page_initial,
+            wcag_audit=wcag_page_wcag_audit_initial.wcag_audit,
+            current_wcag_page_initial=wcag_page_wcag_audit_initial,
         )
 
     def get_form(self, form_class=None):
@@ -321,7 +324,7 @@ class WcagPageChecksFormView(WcagPageChecksBaseFormView):
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        wcag_page_initial: WcagPageInitial = self.wcag_page_initial
+        wcag_page_initial: WcagPageRetest = self.wcag_page_initial
         if form.changed_data:
             wcag_page_initial.complete_date = form.cleaned_data["complete_date"]
             wcag_page_initial.no_errors_date = form.cleaned_data["no_errors_date"]

@@ -32,6 +32,7 @@ def build_issue_identifier(
         | RetestStatementCheckResult
     ),
     custom_issue: bool = False,
+    id_within_case: int = 1,
 ) -> str:
     """Format and return issue identifier"""
     issue_type: str = (
@@ -41,7 +42,7 @@ def build_issue_identifier(
     )
     if custom_issue:
         issue_type += "C"
-    return f"{simplified_case.case_number}-{issue_type}-{issue.id_within_case}"
+    return f"{simplified_case.case_number}-{issue_type}-{id_within_case}"
 
 
 class Audit(VersionModel):
@@ -728,8 +729,8 @@ class WcagAudit(AuditRound):
             self.wcagpageinitial_set.filter(is_deleted=False)
             .annotate(
                 position_pdfs_statements_last=DjangoCase(
-                    When(page_type=WcagPage.Type.PDF, then=1),
-                    When(page_type=WcagPage.Type.STATEMENT, then=2),
+                    When(page_type=WcagPageInitial.Type.PDF, then=1),
+                    When(page_type=WcagPageInitial.Type.STATEMENT, then=2),
                     default=0,
                 )
             )
@@ -742,15 +743,15 @@ class WcagAudit(AuditRound):
 
     @property
     def standard_pages(self):
-        return self.every_page.exclude(page_type=WcagPage.Type.EXTRA)
+        return self.every_page.exclude(page_type=WcagPageInitial.Type.EXTRA)
 
     @property
     def html_pages(self):
-        return self.every_page.exclude(page_type=WcagPage.Type.PDF)
+        return self.every_page.exclude(page_type=WcagPageInitial.Type.PDF)
 
     @property
     def extra_pages(self):
-        return self.html_pages.filter(page_type=WcagPage.Type.EXTRA)
+        return self.html_pages.filter(page_type=WcagPageInitial.Type.EXTRA)
 
     @property
     def failed_check_results(self):
@@ -764,8 +765,8 @@ class WcagAudit(AuditRound):
             )
             .annotate(
                 position_pdf_and_statement_page_last=DjangoCase(
-                    When(wcag_page__page_type=WcagPage.Type.PDF, then=1),
-                    When(wcag_page__page_type=WcagPage.Type.STATEMENT, then=2),
+                    When(wcag_page__page_type=WcagPageInitial.Type.PDF, then=1),
+                    When(wcag_page__page_type=WcagPageInitial.Type.STATEMENT, then=2),
                     default=0,
                 )
             )
@@ -990,10 +991,7 @@ class Page(models.Model):
         return f"test-page-{self.id}"
 
 
-class WcagPage(models.Model):
-    """
-    Model for test/audit page
-    """
+class WcagPageInitial(models.Model):
 
     class Type(models.TextChoices):
         EXTRA = "extra", "Additional"
@@ -1013,15 +1011,12 @@ class WcagPage(models.Model):
     ]
 
     wcag_audit = models.ForeignKey(WcagAudit, on_delete=models.PROTECT, null=True)
-    is_deleted = models.BooleanField(default=False)
     page_type = models.CharField(
         max_length=20, choices=Type.choices, default=Type.EXTRA
     )
     name = models.TextField(default="", blank=True)
     url = models.TextField(default="", blank=True)
     location = models.TextField(default="", blank=True)
-    complete_date = models.DateField(null=True, blank=True)
-    no_errors_date = models.DateField(null=True, blank=True)
     not_found = models.CharField(
         max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
@@ -1029,9 +1024,8 @@ class WcagPage(models.Model):
         max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     notes = models.TextField(default="", blank=True)
-
-    class Meta:
-        abstract = True
+    complete_date = models.DateField(null=True, blank=True)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return self.name if self.name else self.get_page_type_display()
@@ -1039,22 +1033,31 @@ class WcagPage(models.Model):
     @property
     def page_title(self) -> str:
         title: str = str(self)
-        if self.page_type != WcagPage.Type.PDF:
+        if self.page_type != WcagPageInitial.Type.PDF:
             title += " page"
         return title
 
 
-class WcagPageInitial(WcagPage):
-    first_retest_url = models.TextField(default="", blank=True)
+class WcagPageRetest(models.Model):
+    wcag_audit = models.ForeignKey(WcagAudit, on_delete=models.PROTECT, null=True)
+    wcag_page_initial = models.ForeignKey(WcagPageInitial, on_delete=models.PROTECT)
+    complete_date = models.DateField(null=True, blank=True)
+    url = models.TextField(default="", blank=True)
+    location = models.TextField(default="", blank=True)
+    no_errors_date = models.DateField(null=True, blank=True)
+    page_missing_date = models.DateField(null=True, blank=True)
+    notes = models.TextField(default="", blank=True)
+    is_deleted = models.BooleanField(default=False)
 
-    first_retest_location = models.TextField(default="", blank=True)
-    first_retest_page_missing_date = models.DateField(null=True, blank=True)
-    first_retest_notes = models.TextField(default="", blank=True)
+    class Meta:
+        ordering = ["id"]
 
     @property
     def all_check_results(self):
         return (
-            self.wcagcheckresultinitial_set.filter(is_deleted=False)
+            self.wcagcheckresultinitial_set.filter(
+                is_deleted=False, wcag_audit=self.wcag_audit
+            )
             .order_by("wcag_definition__id")
             .select_related("wcag_definition")
             .all()
@@ -1072,10 +1075,6 @@ class WcagPageInitial(WcagPage):
         return {
             check_result.wcag_definition: check_result for check_result in check_results
         }
-
-
-class WcagPageRetest(WcagPage):
-    page_missing_date = models.DateField(null=True, blank=True)
 
 
 class WcagDefinition(models.Model):
@@ -1132,7 +1131,6 @@ class CheckResult(models.Model):
     page = models.ForeignKey(
         Page, on_delete=models.PROTECT, related_name="checkresult_page"
     )
-    id_within_case = models.IntegerField(default=0, blank=True)
     issue_identifier = models.CharField(max_length=20, default="")
     is_deleted = models.BooleanField(default=False)
     type = models.CharField(
@@ -1185,9 +1183,10 @@ class CheckResult(models.Model):
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
         if not self.id:
-            self.id_within_case = self.audit.checkresult_audit.all().count() + 1
             self.issue_identifier = build_issue_identifier(
-                simplified_case=self.audit.simplified_case, issue=self
+                simplified_case=self.audit.simplified_case,
+                issue=self,
+                id_within_case=self.audit.checkresult_audit.all().count() + 1,
             )
         super().save(*args, **kwargs)
 
@@ -1203,13 +1202,7 @@ class CheckResult(models.Model):
 
 class WcagCheckResult(models.Model):
 
-    class RetestResult(models.TextChoices):
-        FIXED = "fixed", "Fixed"
-        NOT_FIXED = "not-fixed", "Not fixed"
-        NOT_RETESTED = "not-retested", "Not retested"
-
     wcag_audit = models.ForeignKey(WcagAudit, on_delete=models.PROTECT, null=True)
-    wcag_page = models.ForeignKey(WcagPageInitial, on_delete=models.PROTECT)
     issue_identifier = models.CharField(max_length=20, default="")
     is_deleted = models.BooleanField(default=False)
     type = models.CharField(
@@ -1236,38 +1229,37 @@ class WcagCheckResultInitial(WcagCheckResult):
         NO_ERROR = "no-error", "No issue"
         NOT_TESTED = "not-tested", "Not tested"
 
-    id_within_case = models.IntegerField(default=0, blank=True)
+    wcag_page_initial = models.ForeignKey(WcagPageInitial, on_delete=models.PROTECT)
     check_result_state = models.CharField(
         max_length=20,
         choices=Result.choices,
         default=Result.NOT_TESTED,
     )
     notes = models.TextField(default="", blank=True)
-    first_retest_state = models.CharField(
-        max_length=20,
-        choices=WcagCheckResult.RetestResult.choices,
-        default=WcagCheckResult.RetestResult.NOT_RETESTED,
-    )
-    first_retest_notes = models.TextField(default="", blank=True)
 
     def save(self, *args, **kwargs) -> None:
         if not self.id:
-            self.id_within_case = (
-                self.wcag_audit.wcagcheckresultinitial_set.all().count() + 1
-            )
             self.issue_identifier = build_issue_identifier(
-                simplified_case=self.wcag_audit.simplified_case, issue=self
+                simplified_case=self.wcag_audit.simplified_case,
+                issue=self,
+                id_within_case=self.wcag_audit.wcagcheckresultinitial_set.all().count()
+                + 1,
             )
         super().save(*args, **kwargs)
 
 
 class WcagCheckResultRetest(WcagCheckResult):
 
-    wcag_page = models.ForeignKey(WcagPageRetest, on_delete=models.PROTECT)
+    class RetestResult(models.TextChoices):
+        FIXED = "fixed", "Fixed"
+        NOT_FIXED = "not-fixed", "Not fixed"
+        NOT_RETESTED = "not-retested", "Not retested"
+
+    wcag_page_retest = models.ForeignKey(WcagPageRetest, on_delete=models.PROTECT)
     retest_state = models.CharField(
         max_length=20,
-        choices=WcagCheckResult.RetestResult.choices,
-        default=WcagCheckResult.RetestResult.NOT_RETESTED,
+        choices=RetestResult.choices,
+        default=RetestResult.NOT_RETESTED,
     )
     retest_notes = models.TextField(default="", blank=True)
 
@@ -1389,7 +1381,6 @@ class StatementCheckResult(models.Model):
     statement_audit = models.ForeignKey(
         StatementAudit, on_delete=models.PROTECT, null=True
     )
-    id_within_case = models.IntegerField(default=0, blank=True)
     issue_identifier = models.CharField(max_length=20, default="")
     statement_check = models.ForeignKey(
         StatementCheck, on_delete=models.PROTECT, null=True, blank=True
@@ -1432,13 +1423,14 @@ class StatementCheckResult(models.Model):
     def save(self, *args, **kwargs) -> None:
         if not self.id:
             if self.statement_check:
-                self.id_within_case = self.statement_check.issue_number
+                id_within_case = self.statement_check.issue_number
             else:
-                self.id_within_case = self.audit.statement_check_results.count() + 1
+                id_within_case = self.audit.statement_check_results.count() + 1
             self.issue_identifier = build_issue_identifier(
                 simplified_case=self.audit.simplified_case,
                 issue=self,
                 custom_issue=self.statement_check is None,
+                id_within_case=id_within_case,
             )
         super().save(*args, **kwargs)
 
@@ -1713,7 +1705,6 @@ class RetestCheckResult(models.Model):
     """
 
     retest = models.ForeignKey(Retest, on_delete=models.PROTECT)
-    id_within_case = models.IntegerField(default=0, blank=True)
     issue_identifier = models.CharField(max_length=20, default="")
     retest_page = models.ForeignKey(RetestPage, on_delete=models.PROTECT)
     check_result = models.ForeignKey(CheckResult, on_delete=models.PROTECT)
@@ -1753,10 +1744,10 @@ class RetestCheckResult(models.Model):
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
         if not self.id:
-            if self.id_within_case == 0:
-                self.id_within_case = self.check_result.id_within_case
             self.issue_identifier = build_issue_identifier(
-                simplified_case=self.retest.simplified_case, issue=self
+                simplified_case=self.retest.simplified_case,
+                issue=self,
+                id_within_case=self.check_result.id_within_case,
             )
         super().save(*args, **kwargs)
 
@@ -1835,17 +1826,14 @@ class RetestStatementCheckResult(models.Model):
 
     def save(self, *args, **kwargs) -> None:
         if not self.id:
-            if self.id_within_case == 0:
-                self.id_within_case = (
-                    RetestStatementCheckResult.objects.filter(
-                        retest__simplified_case=self.retest.simplified_case
-                    ).aggregate(Max("id_within_case", default=0))["id_within_case__max"]
-                    + 1
-                )
             self.issue_identifier = build_issue_identifier(
                 simplified_case=self.retest.simplified_case,
                 issue=self,
                 custom_issue=self.statement_check is None,
+                id_within_case=RetestStatementCheckResult.objects.filter(
+                    retest__simplified_case=self.retest.simplified_case
+                ).aggregate(Max("id_within_case", default=0))["id_within_case__max"]
+                + 1,
             )
         super().save(*args, **kwargs)
 

@@ -18,6 +18,7 @@ def populate_audit_rounds(apps, schema_editor):
     StatementAudit = apps.get_model("audits", "StatementAudit")
     Page = apps.get_model("audits", "Page")
     WcagPageInitial = apps.get_model("audits", "WcagPageInitial")
+    WcagPageRetest = apps.get_model("audits", "WcagPageRetest")
     CheckResult = apps.get_model("audits", "CheckResult")
     CheckResultNotesHistory = apps.get_model("audits", "CheckResultNotesHistory")
     WcagCheckResultInitial = apps.get_model("audits", "WcagCheckResultInitial")
@@ -113,40 +114,60 @@ def populate_audit_rounds(apps, schema_editor):
                 summary_complete_date=audit.audit_retest_statement_summary_complete_date,
             )
 
+        wcag_page_initials_by_page = {}
         for page in Page.objects.filter(audit=audit):
             wcag_page_initial = WcagPageInitial.objects.create(
-                wcag_audit=wcag_audit_initial,
                 is_deleted=page.is_deleted,
                 page_type=page.page_type,
                 name=page.name,
                 url=page.url,
                 location=page.location,
-                complete_date=page.complete_date,
-                no_errors_date=page.no_errors_date,
                 not_found=page.not_found,
                 is_contact_page=page.is_contact_page,
+                complete_date=page.complete_date,
             )
+            wcag_page_initials_by_page[page.id] = wcag_page_initial
+            wcag_page_retest = None
             if wcag_audit_12_week is not None:
-                wcag_page_initial.first_retest_url = page.updated_url
-                wcag_page_initial.first_retest_location = page.updated_location
-                wcag_page_initial.first_retest_notes = page.retest_notes
-                wcag_page_initial.first_retest_page_missing_date = (
-                    page.retest_page_missing_date
+                url = page.updated_url if page.updated_url else page.url
+                location = (
+                    page.updated_location if page.updated_location else page.location
                 )
-                wcag_page_initial.save()
+                notes = page.retest_notes if page.retest_notes else ""
+                if url or location or notes:
+                    wcag_page_retest = WcagPageRetest.objects.create(
+                        wcag_audit=wcag_audit_12_week,
+                        wcag_page_initial=wcag_page_initial,
+                        is_deleted=page.is_deleted,
+                        url=url,
+                        location=location,
+                        notes=notes,
+                        complete_date=page.complete_date,
+                        no_errors_date=page.no_errors_date,
+                        page_missing_date=page.retest_page_missing_date,
+                    )
             for check_result in CheckResult.objects.filter(page=page):
                 wcag_check_results_initial = WcagCheckResultInitial.objects.create(
                     wcag_audit=wcag_audit_initial,
-                    wcag_page=wcag_page_initial,
-                    id_within_case=check_result.id_within_case,
+                    wcag_page_initial=wcag_page_initial,
                     issue_identifier=check_result.issue_identifier,
                     is_deleted=check_result.is_deleted,
                     type=check_result.type,
                     wcag_definition=check_result.wcag_definition,
                     check_result_state=check_result.check_result_state,
-                    first_retest_state=check_result.retest_state,
-                    first_retest_notes=check_result.retest_notes,
                 )
+                if wcag_audit_12_week is not None and wcag_page_retest is not None:
+                    # if check_result.retest_state != "not-retested" or check_result.retest_notes != "":
+                    WcagCheckResultRetest.objects.create(
+                        wcag_audit=wcag_audit_12_week,
+                        wcag_page_retest=wcag_page_retest,
+                        issue_identifier=check_result.issue_identifier,
+                        is_deleted=check_result.is_deleted,
+                        type=check_result.type,
+                        wcag_definition=check_result.wcag_definition,
+                        retest_state=check_result.retest_state,
+                        retest_notes=check_result.retest_notes,
+                    )
                 for (
                     check_result_notes_history
                 ) in CheckResultNotesHistory.objects.filter(check_result=check_result):
@@ -225,10 +246,10 @@ def populate_audit_rounds(apps, schema_editor):
                     if retest_page.page.updated_location
                     else retest_page.page.location
                 )
+                wcag_page_initial = wcag_page_initials_by_page[retest_page.page_id]
                 wcag_page_retest = WcagPageRetest.objects.create(
                     wcag_audit=wcag_audit_retest,
-                    page_type=retest_page.page.page_type,
-                    name=retest_page.page.name,
+                    wcag_page_initial=wcag_page_initial,
                     url=url,
                     location=location,
                     complete_date=retest_page.complete_date,
@@ -240,7 +261,7 @@ def populate_audit_rounds(apps, schema_editor):
                     retest_page=retest_page
                 ).order_by("id"):
                     WcagCheckResultRetest.objects.create(
-                        wcag_page=wcag_page_retest,
+                        wcag_page_retest=wcag_page_retest,
                         issue_identifier=retest_check_result.issue_identifier,
                         is_deleted=retest_check_result.is_deleted,
                         type=retest_check_result.check_result.type,
@@ -287,8 +308,8 @@ def reverse_code(apps, schema_editor):
     WcagCheckResultInitialNotesHistory.objects.all().delete()
     WcagCheckResultInitial.objects.all().delete()
     WcagCheckResultRetest.objects.all().delete()
-    WcagPageInitial.objects.all().delete()
     WcagPageRetest.objects.all().delete()
+    WcagPageInitial.objects.all().delete()
     WcagAudit.objects.all().delete()
     RetestStatementCheckResult.objects.all().update(statement_audit=None)
     StatementPage.objects.all().update(statement_audit=None)

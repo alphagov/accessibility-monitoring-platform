@@ -29,7 +29,6 @@ from .models import (
 
 
 class AuditAdmin(admin.ModelAdmin):
-    """Django admin configuration for Audit model"""
 
     search_fields = [
         "simplified_case__organisation_name",
@@ -41,7 +40,6 @@ class AuditAdmin(admin.ModelAdmin):
 
 
 class AuditRoundAdmin(admin.ModelAdmin):
-    """Django admin configuration for WCAGAudit and StatementAudit models"""
 
     search_fields = [
         "simplified_case__organisation_name",
@@ -60,7 +58,6 @@ class AuditRoundAdmin(admin.ModelAdmin):
 
 
 class PageAdmin(admin.ModelAdmin):
-    """Django admin configuration for Page model"""
 
     search_fields = [
         "name",
@@ -75,12 +72,10 @@ class PageAdmin(admin.ModelAdmin):
 
 
 class WcagPageInitialAdmin(admin.ModelAdmin):
-    """Django admin configuration for WcagPageInitial model"""
 
     search_fields = [
         "name",
         "url",
-        "first_retest_url",
         "wcag_audit__simplified_case__organisation_name",
         "wcag_audit__simplified_case__case_identifier",
     ]
@@ -91,22 +86,19 @@ class WcagPageInitialAdmin(admin.ModelAdmin):
 
 
 class WcagPageRetestAdmin(admin.ModelAdmin):
-    """Django admin configuration for WcagPageInitial model"""
 
     search_fields = [
-        "name",
         "url",
         "wcag_audit__simplified_case__organisation_name",
         "wcag_audit__simplified_case__case_identifier",
     ]
-    list_display = ["page_type", "wcag_audit", "name", "url"]
-    list_filter = ["page_type"]
-    readonly_fields = ["wcag_audit"]
+    list_display = ["url", "wcag_audit", "wcag_page_initial"]
+    readonly_fields = ["wcag_audit", "wcag_page_initial"]
+    list_filter = ["is_deleted"]
     show_facets = admin.ShowFacets.ALWAYS
 
 
 class CheckResultAdmin(admin.ModelAdmin):
-    """Django admin configuration for CheckResult model"""
 
     search_fields = [
         "issue_identifier",
@@ -123,47 +115,44 @@ class CheckResultAdmin(admin.ModelAdmin):
 
 
 class WcagCheckResultInitialAdmin(admin.ModelAdmin):
-    """Django admin configuration for WcagCheckResultInitial model"""
 
     search_fields = [
         "issue_identifier",
-        "wcag_page__wcag_audit__simplified_case__organisation_name",
-        "wcag_page__wcag_audit__simplified_case__case_identifier",
+        "wcag_audit__simplified_case__organisation_name",
+        "wcag_audit__simplified_case__case_identifier",
         "wcag_definition__name",
-        "wcag_page__name",
-        "wcag_page__page_type",
+        "wcag_page_initial__name",
+        "wcag_page_initial__page_type",
     ]
     list_display = [
         "issue_identifier",
-        "wcag_page__wcag_audit",
-        "wcag_page",
+        "wcag_audit",
+        "wcag_page_initial",
         "check_result_state",
-        "first_retest_state",
     ]
-    list_filter = ["check_result_state", "first_retest_state"]
-    readonly_fields = ["wcag_audit", "wcag_page"]
+    list_filter = ["check_result_state"]
+    readonly_fields = ["wcag_audit", "wcag_page_initial"]
     show_facets = admin.ShowFacets.ALWAYS
 
 
 class WcagCheckResultRetestAdmin(admin.ModelAdmin):
-    """Django admin configuration for WcagCheckResultRetest model"""
 
     search_fields = [
         "issue_identifier",
-        "wcag_page__wcag_audit__simplified_case__organisation_name",
-        "wcag_page__wcag_audit__simplified_case__case_identifier",
+        "wcag_audit__simplified_case__organisation_name",
+        "wcag_audit__simplified_case__case_identifier",
         "wcag_definition__name",
-        "wcag_page__name",
-        "wcag_page__page_type",
+        "wcag_page_retest__name",
+        "wcag_page_retest__page_type",
     ]
     list_display = [
         "issue_identifier",
-        "wcag_page__wcag_audit",
-        "wcag_page",
+        "wcag_audit",
+        "wcag_page_retest",
         "retest_state",
     ]
     list_filter = ["retest_state"]
-    readonly_fields = ["wcag_audit", "wcag_page"]
+    readonly_fields = ["wcag_audit", "wcag_page_retest"]
     show_facets = admin.ShowFacets.ALWAYS
 
 
@@ -198,7 +187,6 @@ class CheckResultRetestNotesHistoryAdmin(admin.ModelAdmin):
 
 
 class WcagDefinitionAdmin(admin.ModelAdmin, ExportCsvMixin):
-    """Django admin configuration for WcagDefinition model"""
 
     search_fields = ["name", "description"]
     list_display = [
@@ -215,7 +203,6 @@ class WcagDefinitionAdmin(admin.ModelAdmin, ExportCsvMixin):
 
 
 class StatementCheckAdmin(admin.ModelAdmin, ExportCsvMixin):
-    """Django admin configuration for StatementCheck model"""
 
     search_fields = ["label", "success_criteria", "report_text"]
     list_display = [
@@ -246,7 +233,6 @@ class StatementCheckAdmin(admin.ModelAdmin, ExportCsvMixin):
 
 
 class StatementCheckResultAdmin(admin.ModelAdmin):
-    """Django admin configuration for StatementCheck model"""
 
     search_fields = [
         "issue_identifier",
@@ -286,7 +272,6 @@ class StatementCheckResultAdmin(admin.ModelAdmin):
 
 
 class RetestAdmin(admin.ModelAdmin):
-    """Django admin configuration for Retest model"""
 
     search_fields = [
         "simplified_case__organisation_name",
@@ -307,7 +292,6 @@ class RetestAdmin(admin.ModelAdmin):
 
 
 class RetestPageAdmin(admin.ModelAdmin):
-    """Django admin configuration for RetestPage model"""
 
     search_fields = [
         "page__name",
@@ -320,7 +304,6 @@ class RetestPageAdmin(admin.ModelAdmin):
 
 
 class RetestCheckResultAdmin(admin.ModelAdmin):
-    """Django admin configuration for RetestCheckResult model"""
 
     search_fields = [
         "issue_identifier",
@@ -342,7 +325,6 @@ class RetestCheckResultAdmin(admin.ModelAdmin):
 
 
 class StatementPageAdmin(admin.ModelAdmin):
-    """Django admin configuration for StatementPage model"""
 
     search_fields = ["audit__simplified_case__case_identifier", "url", "backup_url"]
     list_display = ["id", "url", "backup_url", "added_stage", "is_deleted", "created"]
@@ -352,7 +334,6 @@ class StatementPageAdmin(admin.ModelAdmin):
 
 
 class RetestStatementCheckResultAdmin(admin.ModelAdmin):
-    """Django admin configuration for RetestStatementCheckResult model"""
 
     search_fields = [
         "issue_identifier",

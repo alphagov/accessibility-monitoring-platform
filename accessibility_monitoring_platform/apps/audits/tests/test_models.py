@@ -2175,7 +2175,9 @@ def test_build_issue_identifier():
     )
 
     assert (
-        build_issue_identifier(simplified_case=simplified_case, issue=check_result)
+        build_issue_identifier(
+            simplified_case=simplified_case, issue=check_result, id_within_case=1
+        )
         == "1-A-1"
     )
 
@@ -2188,7 +2190,9 @@ def test_build_issue_identifier():
 
     assert (
         build_issue_identifier(
-            simplified_case=simplified_case, issue=statement_check_result
+            simplified_case=simplified_case,
+            issue=statement_check_result,
+            id_within_case=1,
         )
         == "1-S-1"
     )
@@ -2203,6 +2207,7 @@ def test_build_issue_identifier():
             simplified_case=simplified_case,
             issue=custom_statement_check_result,
             custom_issue=True,
+            id_within_case=2,
         )
         == "1-SC-2"
     )
@@ -2221,7 +2226,7 @@ def test_build_issue_identifier():
 
     assert (
         build_issue_identifier(
-            simplified_case=simplified_case, issue=retest_check_result
+            simplified_case=simplified_case, issue=retest_check_result, id_within_case=1
         )
         == "1-A-1"
     )
@@ -2236,7 +2241,9 @@ def test_build_issue_identifier():
 
     assert (
         build_issue_identifier(
-            simplified_case=simplified_case, issue=retest_statement_check_result
+            simplified_case=simplified_case,
+            issue=retest_statement_check_result,
+            id_within_case=1,
         )
         == "1-S-1"
     )
@@ -2253,6 +2260,7 @@ def test_build_issue_identifier():
             simplified_case=simplified_case,
             issue=custom_retest_statement_check_result,
             custom_issue=True,
+            id_within_case=2,
         )
         == "1-SC-2"
     )

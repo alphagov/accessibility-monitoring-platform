@@ -36,6 +36,7 @@ from .models import (
     WcagAudit,
     WcagDefinition,
     WcagPageInitial,
+    WcagPageRetest,
 )
 
 CHECK_RESULT_TYPE_FILTER_CHOICES: list[tuple[str, str]] = (
@@ -103,13 +104,13 @@ class WcagPageInitialExtraUpdateForm(forms.ModelForm):
 
 
 WcagPageInitialFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
-    Page, WcagPageInitialExtraUpdateForm, extra=0
+    WcagPageInitial, WcagPageInitialExtraUpdateForm, extra=0
 )
 WcagPageInitialFormsetOneExtra: forms.formsets.BaseFormSet = forms.modelformset_factory(
-    Page, WcagPageInitialExtraUpdateForm, extra=1
+    WcagPageInitial, WcagPageInitialExtraUpdateForm, extra=1
 )
 WcagPageInitialFormsetTwoExtra: forms.formsets.BaseFormSet = forms.modelformset_factory(
-    Page, WcagPageInitialExtraUpdateForm, extra=2
+    WcagPageInitial, WcagPageInitialExtraUpdateForm, extra=2
 )
 
 
@@ -175,7 +176,7 @@ class WcagPageChecksForm(forms.Form):
     )
 
     class Meta:
-        model = WcagPageInitial
+        model = WcagPageRetest
         fields: list[str] = [
             "complete_date",
             "no_errors_date",
