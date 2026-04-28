@@ -57,6 +57,7 @@ from ..models import (
     StatementPage,
     WcagAudit,
     WcagDefinition,
+    WcagPageInitial,
     WcagPageRetest,
 )
 from ..utils import (
@@ -139,20 +140,20 @@ class WcagAuditPagesUpdateView(WcagAuditUpdateView):
             if "add_extra" in self.request.GET:
                 extra_pages_formset: WcagPageInitialFormsetOneExtra = (
                     WcagPageInitialFormsetOneExtra(
-                        queryset=wcag_audit.extra_pages, prefix="extra"
+                        queryset=wcag_audit.extra_wcag_page_initials, prefix="extra"
                     )
                 )
             else:
-                if wcag_audit.extra_pages:
+                if wcag_audit.extra_wcag_page_initials:
                     extra_pages_formset: WcagPageInitialFormset = (
                         WcagPageInitialFormset(
-                            queryset=wcag_audit.extra_pages, prefix="extra"
+                            queryset=wcag_audit.extra_wcag_page_initials, prefix="extra"
                         )
                     )
                 else:
                     extra_pages_formset: WcagPageInitialFormset = (
                         WcagPageInitialFormsetTwoExtra(
-                            queryset=wcag_audit.extra_pages, prefix="extra"
+                            queryset=wcag_audit.extra_wcag_page_initials, prefix="extra"
                         )
                     )
         for form in standard_pages_formset:
@@ -184,7 +185,7 @@ class WcagAuditPagesUpdateView(WcagAuditUpdateView):
             for wcag_page_wcag_audit_initial in wcag_page_wcag_audit_initials:
                 if (
                     wcag_page_wcag_audit_initial.page_type
-                    == WcagPageRetest.Type.STATEMENT
+                    == WcagPageInitial.Type.STATEMENT
                     and wcag_page_wcag_audit_initial.url
                 ):
                     if statement_audit.statement_pages.count() == 0:

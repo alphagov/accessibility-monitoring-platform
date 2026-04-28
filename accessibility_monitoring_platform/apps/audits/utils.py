@@ -94,9 +94,14 @@ def create_or_update_check_results_for_page(
         ]
         check_result_state: str = check_result_form.cleaned_data["check_result_state"]
         notes: str = check_result_form.cleaned_data["notes"]
-        if wcag_definition in wcag_page_initial.check_results_by_wcag_definition:
+        if (
+            wcag_definition
+            in wcag_page_initial.wcag_check_result_initials_by_wcag_definition
+        ):
             wcag_check_result_initial: WcagCheckResultInitial = (
-                wcag_page_initial.check_results_by_wcag_definition[wcag_definition]
+                wcag_page_initial.wcag_check_result_initials_by_wcag_definition[
+                    wcag_definition
+                ]
             )
             if (
                 wcag_check_result_initial.check_result_state != check_result_state
@@ -121,7 +126,7 @@ def create_or_update_check_results_for_page(
             wcag_check_result_initial: WcagCheckResultInitial = (
                 WcagCheckResultInitial.objects.create(
                     wcag_audit=wcag_page_initial.wcag_audit,
-                    wcag_page=wcag_page_initial,
+                    wcag_page_initial=wcag_page_initial,
                     wcag_definition=wcag_definition,
                     type=wcag_definition.type,
                     check_result_state=check_result_state,
@@ -149,8 +154,8 @@ def get_page_check_results_formset_initial(
     to create a list of dictionaries for use in populating the
     CheckResultFormset with all possible results.
     """
-    check_results_by_wcag_definition: dict[WcagDefinition, CheckResult] = (
-        wcag_page_initial.check_results_by_wcag_definition
+    check_results_by_wcag_definition: dict[WcagDefinition, WcagCheckResultInitial] = (
+        wcag_page_initial.wcag_check_result_initials_by_wcag_definition
     )
     check_results_formset_initial: list[
         dict[str, str | WcagDefinition | CheckResult]
@@ -220,7 +225,7 @@ def get_next_platform_page_wcag_page_initial(
     Return the platform page to go to when a save and continue button is
     pressed on the page where pages or page check results are entered.
     """
-    if not wcag_audit.testable_pages:
+    if not wcag_audit.testable_wcag_page_initials:
         return get_platform_page_by_url_name(
             url_name="audits:edit-website-decision", instance=wcag_audit
         )
@@ -228,10 +233,10 @@ def get_next_platform_page_wcag_page_initial(
     if current_wcag_page_initial is None:
         return get_platform_page_by_url_name(
             url_name="audits:edit-audit-page-checks",
-            instance=wcag_audit.testable_pages.first(),
+            instance=wcag_audit.testable_wcag_page_initials.first(),
         )
 
-    testable_pages: list[WcagPageInitial] = list(wcag_audit.testable_pages)
+    testable_pages: list[WcagPageInitial] = list(wcag_audit.testable_wcag_page_initials)
     if testable_pages[-1] == current_wcag_page_initial:
         return get_platform_page_by_url_name(
             url_name="audits:edit-website-decision", instance=wcag_audit
@@ -291,8 +296,10 @@ def other_page_failed_check_results(
     failed_check_results_by_wcag_definition: dict[WcagDefinition, list[CheckResult]] = (
         {}
     )
-    for check_result in wcag_page_initial.wcag_audit.failed_check_results.exclude(
-        wcag_page=wcag_page_initial
+    for (
+        check_result
+    ) in wcag_page_initial.wcag_audit.wcag_failed_check_result_initials.exclude(
+        wcag_page_initial=wcag_page_initial
     ):
         if check_result.wcag_definition in failed_check_results_by_wcag_definition:
             failed_check_results_by_wcag_definition[

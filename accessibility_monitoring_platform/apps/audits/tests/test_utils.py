@@ -31,6 +31,7 @@ from ..models import (
     WcagAudit,
     WcagCheckResultInitial,
     WcagDefinition,
+    WcagPageInitial,
     WcagPageRetest,
 )
 from ..utils import (
@@ -43,12 +44,12 @@ from ..utils import (
     get_audit_summary_context,
     get_next_platform_page_equality_body,
     get_next_platform_page_twelve_week,
+    get_next_platform_page_wcag_page_initial,
     get_other_pages_with_retest_notes,
     get_page_check_results_formset_initial,
     index_or_404,
     other_page_failed_check_results,
     report_data_updated,
-    wcag_page_wcag_audit,
 )
 
 TODAY: date = date.today()
@@ -475,7 +476,7 @@ def test_get_next_platform_page_audit_with_no_pages():
     """
     audit: Audit = create_wcag_audit_and_wcag()
 
-    platform_page: PlatformPage = wcag_page_wcag_audit(audit=audit)
+    platform_page: PlatformPage = get_next_platform_page_wcag_page_initial(audit=audit)
 
     assert platform_page.url_name == "audits:edit-website-decision"
 
@@ -492,28 +493,32 @@ def test_get_next_platform_page_audit_with_pages():
     create_mandatory_pages_for_new_audit(wcag_audit=wcag_audit)
     audit_pk: dict[str, int] = {"pk": wcag_audit.id}
 
-    next_page: Page = wcag_audit.testable_pages[0]
+    next_page: WcagPageInitial = wcag_audit.testable_wcag_page_initials[0]
     next_page_pk: dict[str, int] = {"pk": next_page.id}
-    platform_page: PlatformPage = wcag_page_wcag_audit(audit=wcag_audit)
-
-    assert platform_page.url == reverse(
-        "audits:edit-audit-page-checks", kwargs=next_page_pk
-    )
-
-    current_page: Page = wcag_audit.testable_pages[0]
-    next_page: Page = wcag_audit.testable_pages[1]
-    next_page_pk: dict[str, int] = {"pk": next_page.id}
-    platform_page: PlatformPage = wcag_page_wcag_audit(
-        audit=wcag_audit, current_page=current_page
+    platform_page: PlatformPage = get_next_platform_page_wcag_page_initial(
+        audit=wcag_audit
     )
 
     assert platform_page.url == reverse(
         "audits:edit-audit-page-checks", kwargs=next_page_pk
     )
 
-    current_page: Page = wcag_audit.testable_pages[1]
-    platform_page: PlatformPage = wcag_page_wcag_audit(
-        audit=wcag_audit, current_page=current_page
+    current_wcag_page_initial: WcagPageInitial = wcag_audit.testable_wcag_page_initials[
+        0
+    ]
+    next_page: Page = wcag_audit.testable_wcag_page_initials[1]
+    next_page_pk: dict[str, int] = {"pk": next_page.id}
+    platform_page: PlatformPage = get_next_platform_page_wcag_page_initial(
+        audit=wcag_audit, current_wcag_page_initial=current_wcag_page_initial
+    )
+
+    assert platform_page.url == reverse(
+        "audits:edit-audit-page-checks", kwargs=next_page_pk
+    )
+
+    current_wcag_page_initial: Page = wcag_audit.testable_wcag_page_initials[1]
+    platform_page: PlatformPage = get_next_platform_page_wcag_page_initial(
+        audit=wcag_audit, current_wcag_page_initial=current_wcag_page_initial
     )
 
     assert platform_page.url == reverse("audits:edit-website-decision", kwargs=audit_pk)

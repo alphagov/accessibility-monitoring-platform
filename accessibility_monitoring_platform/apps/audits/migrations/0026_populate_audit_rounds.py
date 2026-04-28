@@ -124,6 +124,7 @@ def populate_audit_rounds(apps, schema_editor):
                 location=page.location,
                 not_found=page.not_found,
                 is_contact_page=page.is_contact_page,
+                no_errors_date=page.no_errors_date,
                 complete_date=page.complete_date,
             )
             wcag_page_initials_by_page[page.id] = wcag_page_initial

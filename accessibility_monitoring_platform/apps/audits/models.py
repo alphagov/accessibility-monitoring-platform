@@ -723,7 +723,7 @@ class WcagAudit(AuditRound):
         return reverse("audits:edit-audit-metadata", kwargs={"pk": self.pk})
 
     @property
-    def every_page(self):
+    def every_wcag_page_initials(self) -> QuerySet[WcagPageInitial]:
         """Sort page of type PDF to be last apart from the accessibility statement"""
         return (
             self.wcagpageinitial_set.filter(is_deleted=False)
@@ -738,76 +738,90 @@ class WcagAudit(AuditRound):
         )
 
     @property
-    def testable_pages(self):
-        return self.every_page.exclude(not_found=Boolean.YES).exclude(url="")
+    def testable_wcag_page_initials(self) -> QuerySet[WcagPageInitial]:
+        return self.every_wcag_page_initials.exclude(not_found=Boolean.YES).exclude(
+            url=""
+        )
 
     @property
-    def standard_pages(self):
-        return self.every_page.exclude(page_type=WcagPageInitial.Type.EXTRA)
+    def standard_wcag_page_initials(self) -> QuerySet[WcagPageInitial]:
+        return self.every_wcag_page_initials.exclude(
+            page_type=WcagPageInitial.Type.EXTRA
+        )
 
     @property
-    def html_pages(self):
-        return self.every_page.exclude(page_type=WcagPageInitial.Type.PDF)
+    def html_wcag_page_initials(self) -> QuerySet[WcagPageInitial]:
+        return self.every_wcag_page_initials.exclude(page_type=WcagPageInitial.Type.PDF)
 
     @property
-    def extra_pages(self):
-        return self.html_pages.filter(page_type=WcagPageInitial.Type.EXTRA)
+    def extra_wcag_page_initials(self) -> QuerySet[WcagPageInitial]:
+        return self.html_wcag_page_initials.filter(page_type=WcagPageInitial.Type.EXTRA)
 
     @property
-    def failed_check_results(self):
+    def wcag_failed_check_result_initials(self) -> QuerySet[WcagCheckResultInitial]:
         return (
             self.wcagcheckresultinitial_set.filter(
                 is_deleted=False,
                 check_result_state=WcagCheckResultInitial.Result.ERROR,
-                wcag_page__is_deleted=False,
-                wcag_page__not_found=Boolean.NO,
-                wcag_page__is_contact_page=Boolean.NO,
+                wcag_page_initial__is_deleted=False,
+                wcag_page_initial__not_found=Boolean.NO,
+                wcag_page_initial__is_contact_page=Boolean.NO,
             )
             .annotate(
                 position_pdf_and_statement_page_last=DjangoCase(
-                    When(wcag_page__page_type=WcagPageInitial.Type.PDF, then=1),
-                    When(wcag_page__page_type=WcagPageInitial.Type.STATEMENT, then=2),
+                    When(wcag_page_initial__page_type=WcagPageInitial.Type.PDF, then=1),
+                    When(
+                        wcag_page_initial__page_type=WcagPageInitial.Type.STATEMENT,
+                        then=2,
+                    ),
                     default=0,
                 )
             )
             .order_by(
                 "position_pdf_and_statement_page_last",
-                "wcag_page__id",
+                "wcag_page_initial__id",
                 "wcag_definition__id",
             )
-            .select_related("wcag_page", "wcag_definition")
+            .select_related("wcag_page_initial", "wcag_definition")
             .all()
         )
 
     @property
-    def fixed_check_results(self):
-        return self.failed_check_results.filter(
-            first_retest_state=CheckResult.RetestResult.FIXED
+    def wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
+        return self.wcagcheckresultretest_set.filter(
+            is_deleted=False,
         )
 
     @property
-    def unfixed_check_results(self):
-        return self.failed_check_results.exclude(
-            first_retest_state=CheckResult.RetestResult.FIXED
+    def wcag_fixed_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
+        return self.wcag_check_result_retests.filter(
+            retest_state=WcagCheckResultRetest.RetestResult.FIXED,
+        )
+
+    @property
+    def wcag_unfixed_check_result_retests(self):
+        return self.wcag_check_result_retests.exclude(
+            retest_state=WcagCheckResultRetest.RetestResult.FIXED,
         )
 
     @property
     def percentage_wcag_issues_fixed(self) -> int:
         return calculate_percentage(
-            total=self.failed_check_results.count(),
-            partial=self.fixed_check_results.count(),
+            total=self.wcag_failed_check_result_initials.count(),
+            partial=self.wcag_fixed_check_result_retests.count(),
         )
 
     @property
-    def missing_at_retest_pages(self):
-        return self.testable_pages.exclude(first_retest_page_missing_date=None)
+    def missing_wcag_page_retests(self):
+        return self.wcagpageretest_set.filter(is_deleted=False).exclude(
+            page_missing_date=None
+        )
 
     @property
     def missing_at_retest_check_results(self):
-        return self.wcagcheckresultinitial_set.filter(
+        return self.wcagcheckresultretest_set.filter(
             is_deleted=False,
-            check_result_state=WcagCheckResultInitial.Result.ERROR,
-            wcag_page__in=self.missing_at_retest_pages,
+            wcag_page_retest__in=self.missing_wcag_page_retests,
         )
 
 
@@ -1024,6 +1038,7 @@ class WcagPageInitial(models.Model):
         max_length=20, choices=Boolean.choices, default=Boolean.NO
     )
     notes = models.TextField(default="", blank=True)
+    no_errors_date = models.DateField(null=True, blank=True)
     complete_date = models.DateField(null=True, blank=True)
     is_deleted = models.BooleanField(default=False)
 
@@ -1036,6 +1051,41 @@ class WcagPageInitial(models.Model):
         if self.page_type != WcagPageInitial.Type.PDF:
             title += " page"
         return title
+
+    @property
+    def all_wcag_check_result_initials(self) -> QuerySet[WcagCheckResultInitial]:
+        return (
+            self.wcagcheckresultinitial_set.filter(is_deleted=False)
+            .order_by("wcag_definition__id")
+            .select_related("wcag_definition")
+            .all()
+        )
+
+    @property
+    def failed_wcag_check_result_initials(self):
+        return self.all_wcag_check_result_initials.filter(
+            check_result_state=WcagCheckResultInitial.Result.ERROR
+        )
+
+    @property
+    def count_failed_wcag_check_result_initials(self):
+        return self.failed_wcag_check_result_initials.count()
+
+    @property
+    def unfixed_wcag_check_result_initials(self):
+        return self.failed_wcag_check_result_initials.exclude(
+            retest_state=WcagCheckResultInitial.RetestResult.FIXED
+        )
+
+    @property
+    def wcag_check_result_initials_by_wcag_definition(self):
+        wcag_check_result_initials: QuerySet[WcagCheckResultInitial] = (
+            self.all_wcag_check_result_initials
+        )
+        return {
+            wcag_check_result_initial.wcag_definition: wcag_check_result_initial
+            for wcag_check_result_initial in wcag_check_result_initials
+        }
 
 
 class WcagPageRetest(models.Model):

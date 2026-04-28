@@ -49,6 +49,7 @@ from ..models import (
     StatementPage,
     WcagAudit,
     WcagDefinition,
+    WcagPageInitial,
     WcagPageRetest,
 )
 from ..utils import (
@@ -192,7 +193,7 @@ class WcagPageChecksBaseFormView(NextPlatformPageMixin, FormView):
     def setup(self, request, *args, **kwargs):
         """Add audit and page objects to view"""
         super().setup(request, *args, **kwargs)
-        self.wcag_page_initial = WcagPageRetest.objects.get(pk=kwargs["pk"])
+        self.wcag_page_initial = WcagPageInitial.objects.get(pk=kwargs["pk"])
 
 
 class AuditCaseComplianceUpdateView(AuditUpdateView):

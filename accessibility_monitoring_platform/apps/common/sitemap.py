@@ -490,7 +490,7 @@ class WcagAuditPagesPlatformPage(WcagAuditPlatformPage):
                 self.set_instance(instance=wcag_audit)
                 if self.subpages is not None:
                     bound_subpages: list[PlatformPage] = []
-                    for wcag_page in wcag_audit.testable_pages:
+                    for wcag_page in wcag_audit.testable_wcag_page_initials:
                         bound_subpages += populate_subpages_with_instance(
                             platform_page=self, instance=wcag_page
                         )
