@@ -134,7 +134,7 @@ class WcagAuditPagesUpdateView(WcagAuditUpdateView):
         else:
             standard_pages_formset: WcagPageInitialStandardFormset = (
                 WcagPageInitialStandardFormset(
-                    queryset=wcag_audit.standard_pages, prefix="standard"
+                    queryset=wcag_audit.standard_wcag_page_initials, prefix="standard"
                 )
             )
             if "add_extra" in self.request.GET:
@@ -368,7 +368,15 @@ class AuditSummaryUpdateView(WcagAuditUpdateView):
         return {
             **context,
             **get_audit_summary_context(
-                request=self.request, audit=self.object.simplified_case.audit
+                request=self.request,
+                wcag_audit_initial=WcagAudit.objects.filter(
+                    simplified_case=self.object.simplified_case,
+                    audit_round_type=WcagAudit.AuditRoundType.INITIAL,
+                ).first(),
+                wcag_audit_12_week=WcagAudit.objects.filter(
+                    simplified_case=self.object.simplified_case,
+                    audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+                ).first(),
             ),
         }
 

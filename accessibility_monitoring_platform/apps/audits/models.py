@@ -799,7 +799,7 @@ class WcagAudit(AuditRound):
         )
 
     @property
-    def wcag_unfixed_check_result_retests(self):
+    def wcag_unfixed_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
         return self.wcag_check_result_retests.exclude(
             retest_state=WcagCheckResultRetest.RetestResult.FIXED,
         )
@@ -1296,6 +1296,15 @@ class WcagCheckResultInitial(WcagCheckResult):
                 + 1,
             )
         super().save(*args, **kwargs)
+
+    @property
+    def last_12_week_retest(self) -> WcagCheckResultRetest | None:
+        return WcagCheckResultRetest.objects.filter(
+            is_deleted=False,
+            wcag_audit__simplified_case=self.wcag_audit.simplified_case,
+            wcag_audit__audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+            wcag_definition=self.wcag_definition,
+        ).last()
 
 
 class WcagCheckResultRetest(WcagCheckResult):

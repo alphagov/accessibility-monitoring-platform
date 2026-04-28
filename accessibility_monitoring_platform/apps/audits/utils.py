@@ -3,6 +3,7 @@ Utilities for audits app
 """
 
 from collections import namedtuple
+from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any, TypeVar
 
@@ -32,8 +33,10 @@ from .models import (
     WcagAudit,
     WcagCheckResultInitial,
     WcagCheckResultInitialNotesHistory,
+    WcagCheckResultRetest,
     WcagDefinition,
     WcagPageInitial,
+    WcagPageRetest,
 )
 
 MANUAL_CHECK_SUB_TYPE_LABELS: dict[str, str] = {
@@ -71,6 +74,15 @@ def index_or_404(items: list[P], item: P) -> int:
     except ValueError:
         raise Http404
     return position
+
+
+@dataclass
+class SummaryWcagCheckResult:
+    wcag_definition: WcagDefinition
+    wcag_page_initial: WcagPageInitial
+    issue_identifier: str
+    initial_result: WcagCheckResultInitial
+    retest_result: WcagCheckResultRetest | None = None
 
 
 def create_or_update_check_results_for_page(
@@ -416,49 +428,75 @@ def get_other_pages_with_retest_notes(page: Page) -> list[Page]:
     ]
 
 
-def get_audit_summary_context(request: HttpRequest, audit: Audit) -> dict[str, Any]:
+def get_audit_summary_context(
+    request: HttpRequest,
+    wcag_audit_initial: WcagAudit | None,
+    wcag_audit_12_week: WcagAudit | None,
+) -> dict[str, Any]:
     """Return the context for test summary pages"""
     context: dict[str, Any] = {}
     show_failures_by_page: bool = "page-view" in request.GET
     show_all: bool = "show-all" in request.GET
     context["show_failures_by_page"] = show_failures_by_page
     context["show_all"] = show_all
-    context["enable_12_week_ui"] = audit.retest_date is not None
+    context["enable_12_week_ui"] = wcag_audit_12_week is not None
 
-    check_results: QuerySet[CheckResult] = (
-        audit.failed_check_results if show_all else audit.unfixed_check_results
-    )
+    check_results: list[SummaryWcagCheckResult] = []
 
-    context["audit_failures_by_page"] = list_to_dictionary_of_lists(
-        items=check_results, group_by_attr="page"
-    )
-    context["pages_with_retest_notes"] = audit.testable_pages.exclude(retest_notes="")
-    audit_failures_by_wcag: dict[WcagDefinition, list[CheckResult]] = (
-        list_to_dictionary_of_lists(
-            items=check_results, group_by_attr="wcag_definition"
+    if wcag_audit_initial is not None:
+        for (
+            wcag_failed_check_result_initial
+        ) in wcag_audit_initial.wcag_failed_check_result_initials:
+            summary_wcag_check_result: SummaryWcagCheckResult = SummaryWcagCheckResult(
+                wcag_definition=wcag_failed_check_result_initial.wcag_definition,
+                wcag_page_initial=wcag_failed_check_result_initial.wcag_page_initial,
+                issue_identifier=wcag_failed_check_result_initial.issue_identifier,
+                initial_result=wcag_failed_check_result_initial,
+                retest_result=wcag_failed_check_result_initial.last_12_week_retest,
+            )
+            if (
+                show_all
+                or summary_wcag_check_result.retest_result is None
+                or summary_wcag_check_result.retest_result.retest_state
+                != WcagCheckResultRetest.RetestResult.FIXED
+            ):
+                check_results.append(summary_wcag_check_result)
+
+        context["audit_failures_by_page"] = list_to_dictionary_of_lists(
+            items=check_results, group_by_attr="wcag_page_initial"
         )
-    )
-    for wcag_definition, failures in audit_failures_by_wcag.items():
-        wcag_definition.issue_identifiers = " ".join(
-            [failure.issue_identifier for failure in failures]
-        )
-    context["audit_failures_by_wcag"] = audit_failures_by_wcag
 
-    statement_check_results: QuerySet[StatementCheckResult] = (
-        audit.statement_check_results
-        if show_all
-        else audit.outstanding_statement_check_results
-    )
-    if not audit.all_overview_statement_checks_have_passed:
-        statement_check_results = statement_check_results.filter(
-            type=StatementCheck.Type.OVERVIEW
-        )
-    context["statement_check_results_by_type"] = list_to_dictionary_of_lists(
-        items=statement_check_results, group_by_attr="type"
-    )
+        if wcag_audit_12_week is not None:
+            context["pages_with_retest_notes"] = WcagPageRetest.objects.filter(
+                wcag_audit=wcag_audit_12_week
+            ).exclude(notes="")
 
-    context["number_of_wcag_issues"] = check_results.count()
-    context["number_of_statement_issues"] = statement_check_results.count()
+        audit_failures_by_wcag: dict[WcagDefinition, list[CheckResult]] = (
+            list_to_dictionary_of_lists(
+                items=check_results, group_by_attr="wcag_definition"
+            )
+        )
+        for wcag_definition, failures in audit_failures_by_wcag.items():
+            wcag_definition.issue_identifiers = " ".join(
+                [failure.issue_identifier for failure in failures]
+            )
+        context["audit_failures_by_wcag"] = audit_failures_by_wcag
+
+    # statement_check_results: QuerySet[StatementCheckResult] = (
+    #     audit.statement_check_results
+    #     if show_all
+    #     else audit.outstanding_statement_check_results
+    # )
+    # if not audit.all_overview_statement_checks_have_passed:
+    #     statement_check_results = statement_check_results.filter(
+    #         type=StatementCheck.Type.OVERVIEW
+    #     )
+    # context["statement_check_results_by_type"] = list_to_dictionary_of_lists(
+    #     items=statement_check_results, group_by_attr="type"
+    # )
+
+    context["number_of_wcag_issues"] = len(check_results)
+    # context["number_of_statement_issues"] = statement_check_results.count()
 
     return context
 

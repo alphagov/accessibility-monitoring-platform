@@ -117,6 +117,7 @@ def populate_audit_rounds(apps, schema_editor):
         wcag_page_initials_by_page = {}
         for page in Page.objects.filter(audit=audit):
             wcag_page_initial = WcagPageInitial.objects.create(
+                wcag_audit=wcag_audit_initial,
                 is_deleted=page.is_deleted,
                 page_type=page.page_type,
                 name=page.name,
@@ -156,6 +157,7 @@ def populate_audit_rounds(apps, schema_editor):
                     type=check_result.type,
                     wcag_definition=check_result.wcag_definition,
                     check_result_state=check_result.check_result_state,
+                    notes=check_result.notes,
                 )
                 if wcag_audit_12_week is not None and wcag_page_retest is not None:
                     # if check_result.retest_state != "not-retested" or check_result.retest_notes != "":

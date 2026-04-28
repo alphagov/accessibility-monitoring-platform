@@ -142,8 +142,8 @@ class WcagCheckResultRetestAdmin(admin.ModelAdmin):
         "wcag_audit__simplified_case__organisation_name",
         "wcag_audit__simplified_case__case_identifier",
         "wcag_definition__name",
-        "wcag_page_retest__name",
-        "wcag_page_retest__page_type",
+        "wcag_page_retest__wcag_page_initial__name",
+        "wcag_page_retest__wcag_page_initial__page_type",
     ]
     list_display = [
         "issue_identifier",
