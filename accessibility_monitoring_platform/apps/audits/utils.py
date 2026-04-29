@@ -85,6 +85,14 @@ class SummaryWcagCheckResult:
     retest_result: WcagCheckResultRetest | None = None
 
 
+@dataclass
+class SummaryStatementCheckResult:
+    type: StatementCheck.Type
+    issue_identifier: str
+    initial_result: StatementCheckResult
+    retest_result: StatementCheckResult | None = None
+
+
 def create_or_update_check_results_for_page(
     user: User,
     wcag_page_initial: WcagPageInitial,
@@ -432,6 +440,8 @@ def get_audit_summary_context(
     request: HttpRequest,
     wcag_audit_initial: WcagAudit | None,
     wcag_audit_12_week: WcagAudit | None,
+    statement_audit_initial: StatementAudit | None,
+    statement_audit_12_week: StatementAudit | None,
 ) -> dict[str, Any]:
     """Return the context for test summary pages"""
     context: dict[str, Any] = {}
@@ -441,7 +451,7 @@ def get_audit_summary_context(
     context["show_all"] = show_all
     context["enable_12_week_ui"] = wcag_audit_12_week is not None
 
-    check_results: list[SummaryWcagCheckResult] = []
+    wcag_check_results: list[SummaryWcagCheckResult] = []
 
     if wcag_audit_initial is not None:
         for (
@@ -460,10 +470,10 @@ def get_audit_summary_context(
                 or summary_wcag_check_result.retest_result.retest_state
                 != WcagCheckResultRetest.RetestResult.FIXED
             ):
-                check_results.append(summary_wcag_check_result)
+                wcag_check_results.append(summary_wcag_check_result)
 
         context["audit_failures_by_page"] = list_to_dictionary_of_lists(
-            items=check_results, group_by_attr="wcag_page_initial"
+            items=wcag_check_results, group_by_attr="wcag_page_initial"
         )
 
         if wcag_audit_12_week is not None:
@@ -473,7 +483,7 @@ def get_audit_summary_context(
 
         audit_failures_by_wcag: dict[WcagDefinition, list[CheckResult]] = (
             list_to_dictionary_of_lists(
-                items=check_results, group_by_attr="wcag_definition"
+                items=wcag_check_results, group_by_attr="wcag_definition"
             )
         )
         for wcag_definition, failures in audit_failures_by_wcag.items():
@@ -482,21 +492,46 @@ def get_audit_summary_context(
             )
         context["audit_failures_by_wcag"] = audit_failures_by_wcag
 
-    # statement_check_results: QuerySet[StatementCheckResult] = (
-    #     audit.statement_check_results
-    #     if show_all
-    #     else audit.outstanding_statement_check_results
-    # )
-    # if not audit.all_overview_statement_checks_have_passed:
-    #     statement_check_results = statement_check_results.filter(
-    #         type=StatementCheck.Type.OVERVIEW
-    #     )
-    # context["statement_check_results_by_type"] = list_to_dictionary_of_lists(
-    #     items=statement_check_results, group_by_attr="type"
-    # )
+    statement_check_results: list[SummaryStatementCheckResult] = []
 
-    context["number_of_wcag_issues"] = len(check_results)
-    # context["number_of_statement_issues"] = statement_check_results.count()
+    if statement_audit_initial is not None:
+        for (
+            statement_check_result
+        ) in statement_audit_initial.statementcheckresult_set.all():
+            summary_statement_check_result: SummaryStatementCheckResult = (
+                SummaryStatementCheckResult(
+                    type=statement_check_result.statement_check.type,
+                    issue_identifier=statement_check_result.issue_identifier,
+                    initial_result=statement_check_result,
+                    retest_result=statement_check_result.twelve_week_retest,
+                )
+            )
+            if (
+                show_all
+                or summary_statement_check_result.retest_result is None
+                or summary_statement_check_result.retest_result.check_result_state
+                != StatementCheckResult.Result.YES
+            ):
+                statement_check_results.append(summary_statement_check_result)
+
+    if (
+        statement_audit_initial.all_overview_statement_checks_have_passed
+        or statement_audit_12_week.all_overview_statement_checks_have_passed
+    ):
+        pass
+    else:
+        statement_check_results = [
+            statement_check_result
+            for statement_check_result in statement_check_results
+            if statement_check_result.type == StatementCheck.Type.OVERVIEW
+        ]
+
+    context["statement_check_results_by_type"] = list_to_dictionary_of_lists(
+        items=statement_check_results, group_by_attr="type"
+    )
+
+    context["number_of_wcag_issues"] = len(wcag_check_results)
+    context["number_of_statement_issues"] = len(statement_check_results)
 
     return context
 

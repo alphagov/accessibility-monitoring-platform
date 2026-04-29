@@ -242,10 +242,15 @@ class StatementCheckResultAdmin(admin.ModelAdmin):
         "statement_check__success_criteria",
         "statement_check__report_text",
     ]
-    list_display = ["issue_identifier", "statement_check", "audit", "is_deleted"]
+    list_display = [
+        "issue_identifier",
+        "statement_audit",
+        "is_deleted",
+        "statement_check",
+    ]
     list_filter = [
         "check_result_state",
-        "first_retest_state",
+        "retest_state",
         "type",
         "is_deleted",
     ]
@@ -260,8 +265,8 @@ class StatementCheckResultAdmin(admin.ModelAdmin):
                     ("statement_check",),
                     ("check_result_state",),
                     ("report_comment",),
-                    ("first_retest_state",),
-                    ("first_retest_comment",),
+                    ("retest_state",),
+                    ("retest_comment",),
                     ("auditor_notes",),
                 )
             },

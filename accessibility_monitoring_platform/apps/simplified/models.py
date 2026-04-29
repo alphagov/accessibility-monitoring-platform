@@ -1185,6 +1185,26 @@ class SimplifiedCase(BaseCase):
             event_type=SimplifiedCaseHistory.EventType.NOTE
         )
 
+    @property
+    def statement_pages(self):
+        return self.statementpage_set.filter(is_deleted=False).order_by("id")
+
+    @property
+    def unique_statement_page_urls(self):
+        """Return the first statement page for each URL"""
+        statement_urls: list[str] = []
+        unique_url_statement_pages = []
+        for statement_page in self.statement_pages.exclude(url=""):
+            if statement_page.url not in statement_urls:
+                statement_urls.append(statement_page.url)
+                unique_url_statement_pages.append(statement_page)
+        return unique_url_statement_pages
+
+    @property
+    def archived_google_drive_links(self):
+        """Return statement pages with google drive backup urls"""
+        return self.statement_pages.filter(backup_url__contains="drive.google.com")
+
 
 class CaseStatus(models.Model):
     """

@@ -30,6 +30,7 @@ from .models import (
     RetestCheckResult,
     RetestPage,
     RetestStatementCheckResult,
+    StatementAudit,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
@@ -471,7 +472,7 @@ class New12WeekCustomStatementCheckResultUpdateForm(forms.ModelForm):
 
     retest_comment = AMPTextField(label="Issue description for organisation")
     auditor_notes = AMPTextField(label="12-week retest information")
-    first_retest_state = AMPChoiceRadioField(
+    retest_state = AMPChoiceRadioField(
         label="Mark this statement as resolved",
         choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
@@ -479,7 +480,7 @@ class New12WeekCustomStatementCheckResultUpdateForm(forms.ModelForm):
 
     class Meta:
         model = StatementCheckResult
-        fields = ["retest_comment", "auditor_notes", "first_retest_state"]
+        fields = ["retest_comment", "auditor_notes", "retest_state"]
 
 
 class AuditInitialDisproportionateBurdenUpdateForm(VersionForm):
@@ -770,18 +771,18 @@ class AuditRetestStatementCheckResultForm(forms.ModelForm):
     Form for updating a single statement check retest
     """
 
-    first_retest_state = AMPChoiceRadioField(
+    retest_state = AMPChoiceRadioField(
         label="",
         choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
-    first_retest_comment = AMPTextField(label="12-week retest information")
+    retest_comment = AMPTextField(label="12-week retest information")
 
     class Meta:
         model = StatementCheckResult
         fields = [
-            "first_retest_state",
-            "first_retest_comment",
+            "retest_state",
+            "retest_comment",
         ]
 
 
@@ -1209,13 +1210,13 @@ class InitialAuditStatementPagesUpdateForm(VersionForm):
     Form for statement pages update at initial test
     """
 
-    audit_statement_pages_complete_date = AMPDatePageCompleteField()
+    pages_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_statement_pages_complete_date",
+            "pages_complete_date",
         ]
 
 

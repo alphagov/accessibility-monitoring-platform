@@ -282,6 +282,7 @@ def populate_audit_rounds(apps, schema_editor):
                 retest_statement_check_result.save()
 
         for statement_page in StatementPage.objects.filter(audit=audit):
+            statement_page.simplified_case = statement_audit_initial.simplified_case
             if statement_page.added_stage == "12-week-retest":
                 statement_page.statement_audit = statement_audit_12_week
             elif statement_page.added_stage == "retest":
@@ -293,6 +294,18 @@ def populate_audit_rounds(apps, schema_editor):
         for statement_check_result in StatementCheckResult.objects.filter(audit=audit):
             statement_check_result.statement_audit = statement_audit_initial
             statement_check_result.save()
+            if statement_audit_12_week is not None:
+                StatementCheckResult.objects.create(
+                    audit=statement_check_result.audit,
+                    statement_audit=statement_audit_12_week,
+                    issue_identifier=statement_check_result.issue_identifier,
+                    statement_check=statement_check_result.statement_check,
+                    type=statement_check_result.type,
+                    check_result_state=statement_check_result.retest_state,
+                    report_comment=statement_check_result.retest_comment,
+                    auditor_notes=statement_check_result.auditor_notes,
+                    is_deleted=statement_check_result.is_deleted,
+                )
 
 
 def reverse_code(apps, schema_editor):
@@ -325,7 +338,7 @@ class Migration(migrations.Migration):
     dependencies = [
         (
             "audits",
-            "0025_rename_retest_comment_statementcheckresult_first_retest_comment_and_more",
+            "0025_remove_checkresult_id_within_case_and_more",
         ),
     ]
 

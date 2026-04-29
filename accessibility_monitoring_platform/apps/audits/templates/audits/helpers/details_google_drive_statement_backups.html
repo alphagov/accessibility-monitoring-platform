@@ -1,4 +1,4 @@
-{% if audit.archived_google_drive_links %}
+{% if case.archived_google_drive_links %}
     <details class="govuk-details" data-module="govuk-details">
         <summary class="govuk-details__summary">
             <span class="govuk-details__summary-text">
@@ -6,7 +6,7 @@
             </span>
         </summary>
         <div class="govuk-details__text">
-            {% for statement_page in audit.archived_google_drive_links %}
+            {% for statement_page in case.archived_google_drive_links %}
                 <p class="govuk-body-m amp-margin-bottom-0">
                     <b>Google Drive link #{{ forloop.counter }}</b>
                 </p>

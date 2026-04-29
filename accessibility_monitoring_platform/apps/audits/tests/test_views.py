@@ -1139,11 +1139,11 @@ def test_audit_retest_statement_overview_updates_statement_checkresult(
             "form-MIN_NUM_FORMS": "0",
             "form-MAX_NUM_FORMS": "1000",
             "form-0-id": "1",
-            "form-0-first_retest_state": "yes",
-            "form-0-first_retest_comment": "",
+            "form-0-retest_state": "yes",
+            "form-0-retest_comment": "",
             "form-1-id": "2",
-            "form-1-first_retest_state": "no",
-            "form-1-first_retest_comment": "",
+            "form-1-retest_state": "no",
+            "form-1-retest_comment": "",
         },
     )
 
@@ -1153,13 +1153,13 @@ def test_audit_retest_statement_overview_updates_statement_checkresult(
         id=1
     )
 
-    assert statement_checkresult_1.first_retest_state == "yes"
+    assert statement_checkresult_1.retest_state == "yes"
 
     statement_checkresult_2: StatementCheckResult = StatementCheckResult.objects.get(
         id=2
     )
 
-    assert statement_checkresult_2.first_retest_state == "no"
+    assert statement_checkresult_2.retest_state == "no"
 
 
 def test_audit_retest_statement_overview_updates_statement_checkresult_no_initial_statement(
@@ -1195,11 +1195,11 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
             "form-MIN_NUM_FORMS": "0",
             "form-MAX_NUM_FORMS": "1000",
             "form-0-id": "1",
-            "form-0-first_retest_state": "yes",
-            "form-0-first_retest_comment": "",
+            "form-0-retest_state": "yes",
+            "form-0-retest_comment": "",
             "form-1-id": "2",
-            "form-1-first_retest_state": "no",
-            "form-1-first_retest_comment": "",
+            "form-1-retest_state": "no",
+            "form-1-retest_comment": "",
         },
     )
 
@@ -1209,13 +1209,13 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
         id=1
     )
 
-    assert statement_checkresult_1.first_retest_state == "yes"
+    assert statement_checkresult_1.retest_state == "yes"
 
     statement_checkresult_2: StatementCheckResult = StatementCheckResult.objects.get(
         id=2
     )
 
-    assert statement_checkresult_2.first_retest_state == "no"
+    assert statement_checkresult_2.retest_state == "no"
 
 
 def test_retest_date_change_creates_case_event(admin_client):

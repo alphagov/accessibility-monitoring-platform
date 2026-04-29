@@ -11,7 +11,7 @@
 
 {% block form %}
     {% include "common/messages.html" %}
-    <form method="post" action="{% url sitemap.current_platform_page.url_name audit.id %}" enctype="multipart/form-data">
+    <form method="post" action="{% url sitemap.current_platform_page.url_name statement_audit.id %}" enctype="multipart/form-data">
         {% csrf_token %}
         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
         {% include 'common/form_hidden_fields.html' with hidden_fields=statement_backup_form.hidden_fields %}

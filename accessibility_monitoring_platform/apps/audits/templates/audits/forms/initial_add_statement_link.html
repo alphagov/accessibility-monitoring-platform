@@ -3,8 +3,8 @@
 {% block preform %}
 <div class="govuk-grid-row amp-margin-bottom-30">
     <div class="govuk-grid-column-full">
-        {% if audit.unique_statement_page_urls %}
-            {% for statement_page in audit.unique_statement_page_urls %}
+        {% if case.unique_statement_page_urls %}
+            {% for statement_page in case.unique_statement_page_urls %}
                 <p class="govuk-body-m amp-margin-bottom-0">
                     <b>Statement link #{{ forloop.counter }}</b>
                 </p>
@@ -25,13 +25,13 @@
 
 {% block form %}
     {% include "common/messages.html" %}
-    <form method="post" action="{% url sitemap.current_platform_page.url_name audit.id %}">
+    <form method="post" action="{% url sitemap.current_platform_page.url_name statement_audit.id %}">
         {% csrf_token %}
         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
         {% include 'common/form_hidden_fields.html' with hidden_fields=statement_link_form.hidden_fields %}
         {% include 'common/amp_field.html' with field=statement_link_form.statement_url %}
         {% include 'audits/helpers/save_and_add_another_button.html' %}
-        {% include 'common/amp_field.html' with field=form.audit_statement_pages_complete_date %}
+        {% include 'common/amp_field.html' with field=form.pages_complete_date %}
         {% include 'simplified/helpers/save_continue_cancel.html' %}
     </form>
 {% endblock %}

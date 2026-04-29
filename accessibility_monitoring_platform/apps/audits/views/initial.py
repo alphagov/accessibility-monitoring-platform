@@ -73,6 +73,7 @@ from .base import (
     AuditStatementCheckingView,
     AuditUpdateView,
     DeleteStatementPageUpdateView,
+    StatementAuditUpdateView,
     StatementBackupUpdateView,
     WcagAuditUpdateView,
     WcagPageChecksBaseFormView,
@@ -377,6 +378,14 @@ class AuditSummaryUpdateView(WcagAuditUpdateView):
                     simplified_case=self.object.simplified_case,
                     audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
                 ).first(),
+                statement_audit_initial=StatementAudit.objects.filter(
+                    simplified_case=self.object.simplified_case,
+                    audit_round_type=StatementAudit.AuditRoundType.INITIAL,
+                ).first(),
+                statement_audit_12_week=StatementAudit.objects.filter(
+                    simplified_case=self.object.simplified_case,
+                    audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+                ).first(),
             ),
         }
 
@@ -405,7 +414,8 @@ class InitialDeleteStatementPageUpdateView(DeleteStatementPageUpdateView):
         """Return to the list of statement links"""
         statement_page: StatementPage = self.object
         return reverse(
-            "audits:edit-statement-pages", kwargs={"pk": statement_page.audit.id}
+            "audits:edit-statement-pages",
+            kwargs={"pk": statement_page.statement_audit.id},
         )
 
 
