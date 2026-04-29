@@ -14,9 +14,9 @@ from django.http import HttpRequest
 from django.urls import URLResolver, resolve, reverse
 
 from ..audits.forms import (
-    AuditInitialDisproportionateBurdenUpdateForm,
     AuditRetestMetadataUpdateForm,
     AuditTwelveWeekDisproportionateBurdenUpdateForm,
+    StatementAuditInitialDisproportionateBurdenUpdateForm,
     WcagAuditMetadataUpdateForm,
 )
 from ..audits.models import (
@@ -1009,25 +1009,25 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 case_details_template_name="simplified/details/details_initial_statement_checks_custom.html",
                 next_page_url_name="audits:edit-initial-disproportionate-burden",
             ),
-            AuditPlatformPage(
+            StatementAuditPlatformPage(
                 name="Disproportionate burden",
                 url_name="audits:edit-initial-disproportionate-burden",
-                complete_flag_name="initial_disproportionate_burden_complete_date",
-                case_details_form_class=AuditInitialDisproportionateBurdenUpdateForm,
+                complete_flag_name="disproportionate_burden_complete_date",
+                case_details_form_class=StatementAuditInitialDisproportionateBurdenUpdateForm,
                 case_details_template_name="cases/details/details.html",
                 next_page_url_name="audits:edit-statement-decision",
             ),
-            AuditPlatformPage(
+            StatementAuditPlatformPage(
                 name="Statement compliance",
                 url_name="audits:edit-statement-decision",
-                complete_flag_name="audit_statement_decision_complete_date",
+                complete_flag_name="compliance_complete_date",
                 case_details_template_name="simplified/details/details_initial_statement_compliance.html",
                 next_page_url_name="audits:edit-audit-statement-summary",
             ),
-            AuditPlatformPage(
+            StatementAuditPlatformPage(
                 name="Statement summary",
                 url_name="audits:edit-audit-statement-summary",
-                complete_flag_name="audit_statement_summary_complete_date",
+                complete_flag_name="summary_complete_date",
             ),
         ],
     ),

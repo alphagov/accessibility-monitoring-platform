@@ -1506,8 +1506,10 @@ class StatementCheckResult(models.Model):
 
     def __str__(self) -> str:
         if self.statement_check is None:
-            return f"{self.simplified_audit} | Custom [{self.issue_identifier}]"
-        return f"{self.simplified_audit} | {self.statement_check} [{self.issue_identifier}]"
+            return f"{self.statement_audit} | Custom [{self.issue_identifier}]"
+        return (
+            f"{self.statement_audit} | {self.statement_check} [{self.issue_identifier}]"
+        )
 
     def save(self, *args, **kwargs) -> None:
         if not self.id:

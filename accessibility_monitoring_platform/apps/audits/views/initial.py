@@ -20,14 +20,13 @@ from ...simplified.utils import (
     record_simplified_model_update_event,
 )
 from ..forms import (
-    AuditInitialDisproportionateBurdenUpdateForm,
-    AuditStatementDecisionUpdateForm,
     AuditStatementSummaryUpdateForm,
-    CaseComplianceStatementInitialUpdateForm,
     CheckResultFilterForm,
     CheckResultFormset,
     InitialAuditStatementPagesUpdateForm,
     InitialCustomIssueCreateUpdateForm,
+    StatementAuditComplianceUpdateForm,
+    StatementAuditInitialDisproportionateBurdenUpdateForm,
     StatementAuditInitialStatementBackupUpdateForm,
     StatementAuditStatementComplianceUpdateForm,
     StatementAuditStatementCustomUpdateForm,
@@ -69,9 +68,7 @@ from ..utils import (
 )
 from .base import (
     AddStatementLinkUpdateView,
-    AuditCaseComplianceUpdateView,
     AuditStatementCheckingView,
-    AuditUpdateView,
     DeleteStatementPageUpdateView,
     StatementAuditUpdateView,
     StatementBackupUpdateView,
@@ -361,7 +358,7 @@ class WcagAuditComplianceInitialUpdateView(WcagAuditUpdateView):
     template_name: str = "common/case_form.html"
 
 
-class AuditSummaryUpdateView(WcagAuditUpdateView):
+class AuditSummaryMixin:
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
@@ -390,7 +387,7 @@ class AuditSummaryUpdateView(WcagAuditUpdateView):
         }
 
 
-class FirstWcagAuditSummaryUpdateView(AuditSummaryUpdateView):
+class FirstWcagAuditSummaryUpdateView(AuditSummaryMixin, WcagAuditUpdateView):
 
     form_class: type[WcagAuditWcagSummaryUpdateForm] = WcagAuditWcagSummaryUpdateForm
     template_name: str = "audits/forms/test_summary_wcag.html"
@@ -663,32 +660,29 @@ def delete_custom_issue(request: HttpRequest, pk: int) -> HttpResponse:
     )
 
 
-class InitialDisproportionateBurdenUpdateView(AuditUpdateView):
+class InitialDisproportionateBurdenUpdateView(StatementAuditUpdateView):
     """
     View to update initial disproportionate burden fields
     """
 
-    form_class: type[AuditInitialDisproportionateBurdenUpdateForm] = (
-        AuditInitialDisproportionateBurdenUpdateForm
+    form_class: type[StatementAuditInitialDisproportionateBurdenUpdateForm] = (
+        StatementAuditInitialDisproportionateBurdenUpdateForm
     )
     template_name: str = "audits/forms/statement_form.html"
 
 
-class AuditCaseComplianceStatementInitialUpdateView(AuditCaseComplianceUpdateView):
+class AuditCaseComplianceStatementInitialUpdateView(StatementAuditUpdateView):
     """
     View to update statement decision fields
     """
 
-    form_class: type[AuditStatementDecisionUpdateForm] = (
-        AuditStatementDecisionUpdateForm
-    )
-    case_compliance_form_class: type[CaseComplianceStatementInitialUpdateForm] = (
-        CaseComplianceStatementInitialUpdateForm
+    form_class: type[StatementAuditComplianceUpdateForm] = (
+        StatementAuditComplianceUpdateForm
     )
     template_name: str = "audits/forms/statement_decision.html"
 
 
-class AuditStatementSummaryUpdateView(AuditSummaryUpdateView):
+class AuditStatementSummaryUpdateView(AuditSummaryMixin, StatementAuditUpdateView):
     """
     View to update audit summary
     """

@@ -1,19 +1,19 @@
-<h2 id="statement-{{ statement_check_results.0.type }}" class="govuk-heading-m govuk-body govuk-!-font-size-19 govuk-!-font-weight-bold">{{ statement_check_results.0.get_type_display }}</h2>
+<h2 id="statement-{{ statement_check_results.0.initial_result.type }}" class="govuk-heading-m govuk-body govuk-!-font-size-19 govuk-!-font-weight-bold">{{ statement_check_results.0.initial_result.get_type_display }}</h2>
 <p class="govuk-body govuk-button-group amp-margin-bottom-0">
     <a href="{{ case.audit.latest_statement_link }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
         Open statement page in new tab</a>
-    {% if statement_check_results.0.edit_initial_url_name %}
-        <a href="{% url statement_check_results.0.edit_initial_url_name case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+    {% if statement_check_results.0.initial_result.edit_initial_url_name %}
+        <a href="{% url statement_check_results.0.initial_result.edit_initial_url_name statement_audit.id %}" class="govuk-link govuk-link--no-visited-state">
     {% else %}
-        <a href="{% url 'audits:edit-statement-custom' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+        <a href="{% url 'audits:edit-statement-custom' statement_audit.id %}" class="govuk-link govuk-link--no-visited-state">
     {% endif %}
         Edit initial test
     </a>
     {% if enable_12_week_ui %}
-        {% if statement_check_results.0.edit_12_week_url_name %}
-            <a href="{% url statement_check_results.0.edit_12_week_url_name case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+        {% if statement_check_results.0.retest_result.edit_12_week_url_name %}
+            <a href="{% url statement_check_results.0.retest_result.edit_12_week_url_name statement_audit.id %}" class="govuk-link govuk-link--no-visited-state">
         {% else %}
-            <a href="{% url 'audits:edit-retest-statement-custom' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+            <a href="{% url 'audits:edit-retest-statement-custom' statement_audit.id %}" class="govuk-link govuk-link--no-visited-state">
         {% endif %}
             Edit 12-week test
         </a>
@@ -32,16 +32,16 @@
             {% for statement_check_result in statement_check_results %}
                 <tr class="govuk-table__row ">
                     <td class="govuk-table__cell amp-notes">
-                        {{ statement_check_result.statement_check.report_text|markdown_to_html }}
-                        {% if statement_check_result.report_comment %}
-                            {{ statement_check_result.report_comment|markdown_to_html }}
+                        {{ statement_check_result.initial_result.statement_check.report_text|markdown_to_html }}
+                        {% if statement_check_result.initial_result.report_comment %}
+                            {{ statement_check_result.initial_result.report_comment|markdown_to_html }}
                         {% endif %}
                         [{{ statement_check_result.issue_identifier }}]
                         <a class="govuk-link govuk-link--no-visited-state"
-                        {% if enable_12_week_ui %}
-                            href="{% url statement_check_result.edit_12_week_url_name case.audit.id %}#issue-{{ statement_check_result.issue_identifier }}"
+                        {% if enable_12_week_ui and statement_check_result.retest_result %}
+                            href="{% url statement_check_result.retest_result.edit_12_week_url_name statement_audit.id %}#issue-{{ statement_check_result.issue_identifier }}"
                         {% else %}
-                            href="{% url statement_check_result.edit_initial_url_name case.audit.id %}#issue-{{ statement_check_result.issue_identifier }}"
+                            href="{% url statement_check_result.initial_result.edit_initial_url_name statement_audit.id %}#issue-{{ statement_check_result.issue_identifier }}"
                         {% endif %}
                         >Edit</a>
                     </td>

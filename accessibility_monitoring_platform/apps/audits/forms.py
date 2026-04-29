@@ -277,18 +277,24 @@ class WcagAuditComplianceUpdateForm(VersionForm):
         ]
 
 
-class AuditStatementDecisionUpdateForm(VersionForm):
+class StatementAuditComplianceUpdateForm(VersionForm):
     """
     Form for editing statement compliance decision completion
     """
 
-    audit_statement_decision_complete_date = AMPDatePageCompleteField()
+    compliance_state = AMPChoiceRadioField(
+        label="Initial statement compliance decision",
+        help_text="This field effects the case status",
+        choices=StatementAudit.StatementCompliance.choices,
+    )
+    compliance_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_statement_decision_complete_date",
+            "compliance_state",
+            "compliance_complete_date",
         ]
 
 
@@ -483,46 +489,27 @@ class New12WeekCustomStatementCheckResultUpdateForm(forms.ModelForm):
         fields = ["retest_comment", "auditor_notes", "retest_state"]
 
 
-class AuditInitialDisproportionateBurdenUpdateForm(VersionForm):
+class StatementAuditInitialDisproportionateBurdenUpdateForm(VersionForm):
     """
     Form for editing initial disproportional burden claim
     """
 
-    initial_disproportionate_burden_claim = AMPChoiceRadioField(
+    disproportionate_burden_claim = AMPChoiceRadioField(
         label="Initial disproportionate burden claim",
         choices=Audit.DisproportionateBurden.choices,
     )
-    initial_disproportionate_burden_notes = AMPTextField(
+    disproportionate_burden_notes = AMPTextField(
         label="Initial disproportionate burden claim details"
     )
-    initial_disproportionate_burden_complete_date = AMPDatePageCompleteField()
+    disproportionate_burden_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "initial_disproportionate_burden_claim",
-            "initial_disproportionate_burden_notes",
-            "initial_disproportionate_burden_complete_date",
-        ]
-
-
-class CaseComplianceStatementInitialUpdateForm(VersionForm):
-    """
-    Form for editing statement compliance decision
-    """
-
-    statement_compliance_state_initial = AMPChoiceRadioField(
-        label="Initial statement compliance decision",
-        help_text="This field effects the case status",
-        choices=CaseCompliance.StatementCompliance.choices,
-    )
-
-    class Meta:
-        model = CaseCompliance
-        fields: list[str] = [
-            "version",
-            "statement_compliance_state_initial",
+            "disproportionate_burden_claim",
+            "disproportionate_burden_notes",
+            "disproportionate_burden_complete_date",
         ]
 
 

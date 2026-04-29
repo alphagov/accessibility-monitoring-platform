@@ -87,7 +87,7 @@ class SummaryWcagCheckResult:
 
 @dataclass
 class SummaryStatementCheckResult:
-    type: StatementCheck.Type
+    type: StatementCheck.Type | None
     issue_identifier: str
     initial_result: StatementCheckResult
     retest_result: StatementCheckResult | None = None
@@ -498,9 +498,14 @@ def get_audit_summary_context(
         for (
             statement_check_result
         ) in statement_audit_initial.statementcheckresult_set.all():
+            type: StatementCheck.Type | None = (
+                statement_check_result.statement_check.type
+                if statement_check_result.statement_check is not None
+                else None
+            )
             summary_statement_check_result: SummaryStatementCheckResult = (
                 SummaryStatementCheckResult(
-                    type=statement_check_result.statement_check.type,
+                    type=type,
                     issue_identifier=statement_check_result.issue_identifier,
                     initial_result=statement_check_result,
                     retest_result=statement_check_result.twelve_week_retest,
@@ -510,7 +515,7 @@ def get_audit_summary_context(
                 show_all
                 or summary_statement_check_result.retest_result is None
                 or summary_statement_check_result.retest_result.check_result_state
-                != StatementCheckResult.Result.YES
+                == StatementCheckResult.Result.NO
             ):
                 statement_check_results.append(summary_statement_check_result)
 
@@ -526,6 +531,7 @@ def get_audit_summary_context(
             if statement_check_result.type == StatementCheck.Type.OVERVIEW
         ]
 
+    context["statement_check_results"] = statement_check_results
     context["statement_check_results_by_type"] = list_to_dictionary_of_lists(
         items=statement_check_results, group_by_attr="type"
     )
