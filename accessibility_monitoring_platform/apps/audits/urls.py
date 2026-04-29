@@ -180,7 +180,7 @@ urlpatterns: list[URLPattern] = [
         name="edit-statement-custom",
     ),
     path(
-        "<int:audit_id>/edit-custom-issue-create/",
+        "<int:statement_audit_id>/edit-custom-issue-create/",
         login_required(CustomIssueCreateView.as_view()),
         name="edit-custom-issue-create",
     ),

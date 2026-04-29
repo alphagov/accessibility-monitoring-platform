@@ -317,125 +317,125 @@ StatementCheckResultFormset: forms.formsets.BaseFormSet = forms.modelformset_fac
 )
 
 
-class AuditStatementOverviewUpdateForm(VersionForm):
+class StatementAuditStatementOverviewUpdateForm(VersionForm):
     """
     Form for editing statement overview
     """
 
     statement_extra_report_text = AMPTextField(label="Extra report text")
-    audit_statement_overview_complete_date = AMPDatePageCompleteField()
+    statement_overview_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
             "statement_extra_report_text",
-            "audit_statement_overview_complete_date",
+            "statement_overview_complete_date",
         ]
 
 
-class AuditStatementWebsiteUpdateForm(VersionForm):
+class StatementAuditStatementWebsiteUpdateForm(VersionForm):
     """
     Form for editing statement information
     """
 
-    audit_statement_website_complete_date = AMPDatePageCompleteField()
+    statement_website_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_statement_website_complete_date",
+            "statement_website_complete_date",
         ]
 
 
-class AuditStatementComplianceUpdateForm(VersionForm):
+class StatementAuditStatementComplianceUpdateForm(VersionForm):
     """
     Form for editing statement compliance
     """
 
-    audit_statement_compliance_complete_date = AMPDatePageCompleteField()
+    statement_compliance_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_statement_compliance_complete_date",
+            "statement_compliance_complete_date",
         ]
 
 
-class AuditStatementNonAccessibleUpdateForm(VersionForm):
+class StatementAuditStatementNonAccessibleUpdateForm(VersionForm):
     """
     Form for editing statement non-accessible
     """
 
-    audit_statement_non_accessible_complete_date = AMPDatePageCompleteField()
+    statement_non_accessible_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_statement_non_accessible_complete_date",
+            "statement_non_accessible_complete_date",
         ]
 
 
-class AuditStatementPreparationUpdateForm(VersionForm):
+class StatementAuditStatementPreparationUpdateForm(VersionForm):
     """
     Form for editing statement preparation
     """
 
-    audit_statement_preparation_complete_date = AMPDatePageCompleteField()
+    statement_preparation_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_statement_preparation_complete_date",
+            "statement_preparation_complete_date",
         ]
 
 
-class AuditStatementFeedbackUpdateForm(VersionForm):
+class StatementAuditStatementFeedbackUpdateForm(VersionForm):
     """
     Form for editing statement feedback
     """
 
-    audit_statement_feedback_complete_date = AMPDatePageCompleteField()
+    statement_feedback_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_statement_feedback_complete_date",
+            "statement_feedback_complete_date",
         ]
 
 
-class AuditStatementDisproportionateUpdateForm(VersionForm):
+class StatementAuditStatementDisproportionateUpdateForm(VersionForm):
     """
     Form for editing statement feedback
     """
 
-    audit_statement_disproportionate_complete_date = AMPDatePageCompleteField()
+    statement_disproportionate_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_statement_disproportionate_complete_date",
+            "statement_disproportionate_complete_date",
         ]
 
 
-class AuditStatementCustomUpdateForm(VersionForm):
+class StatementAuditStatementCustomUpdateForm(VersionForm):
     """
     Form for editing custom statement issues
     """
 
-    audit_statement_custom_complete_date = AMPDatePageCompleteField()
+    statement_custom_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_statement_custom_complete_date",
+            "statement_custom_complete_date",
         ]
 
 
@@ -1258,16 +1258,16 @@ class StatementBackupForm(forms.Form):
         return file_to_upload
 
 
-class AuditInitialStatementBackupUpdateForm(VersionForm):
+class StatementAuditInitialStatementBackupUpdateForm(VersionForm):
     """Form for initial statement backup"""
 
-    audit_initial_statement_backup_complete_date = AMPDatePageCompleteField()
+    backup_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_initial_statement_backup_complete_date",
+            "backup_complete_date",
         ]
 
 

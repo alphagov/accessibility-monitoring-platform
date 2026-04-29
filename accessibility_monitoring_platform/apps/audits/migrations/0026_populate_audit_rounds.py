@@ -57,6 +57,7 @@ def populate_audit_rounds(apps, schema_editor):
             date_of_test=audit.date_of_test,
             pages_complete_date=audit.audit_statement_pages_complete_date,
             backup_complete_date=audit.audit_initial_statement_backup_complete_date,
+            statement_extra_report_text=audit.statement_extra_report_text,
             statement_overview_complete_date=audit.audit_statement_overview_complete_date,
             statement_website_complete_date=audit.audit_statement_website_complete_date,
             statement_compliance_complete_date=audit.audit_statement_compliance_complete_date,

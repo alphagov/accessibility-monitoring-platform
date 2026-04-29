@@ -21,22 +21,22 @@ from ...simplified.utils import (
 )
 from ..forms import (
     AuditInitialDisproportionateBurdenUpdateForm,
-    AuditInitialStatementBackupUpdateForm,
-    AuditStatementComplianceUpdateForm,
-    AuditStatementCustomUpdateForm,
     AuditStatementDecisionUpdateForm,
-    AuditStatementDisproportionateUpdateForm,
-    AuditStatementFeedbackUpdateForm,
-    AuditStatementNonAccessibleUpdateForm,
-    AuditStatementOverviewUpdateForm,
-    AuditStatementPreparationUpdateForm,
     AuditStatementSummaryUpdateForm,
-    AuditStatementWebsiteUpdateForm,
     CaseComplianceStatementInitialUpdateForm,
     CheckResultFilterForm,
     CheckResultFormset,
     InitialAuditStatementPagesUpdateForm,
     InitialCustomIssueCreateUpdateForm,
+    StatementAuditInitialStatementBackupUpdateForm,
+    StatementAuditStatementComplianceUpdateForm,
+    StatementAuditStatementCustomUpdateForm,
+    StatementAuditStatementDisproportionateUpdateForm,
+    StatementAuditStatementFeedbackUpdateForm,
+    StatementAuditStatementNonAccessibleUpdateForm,
+    StatementAuditStatementOverviewUpdateForm,
+    StatementAuditStatementPreparationUpdateForm,
+    StatementAuditStatementWebsiteUpdateForm,
     WcagAuditComplianceUpdateForm,
     WcagAuditMetadataUpdateForm,
     WcagAuditPagesUpdateForm,
@@ -424,8 +424,8 @@ class InitialStatementBackupUpdateView(StatementBackupUpdateView):
     View to backup statement pages in initial test
     """
 
-    form_class: type[AuditInitialStatementBackupUpdateForm] = (
-        AuditInitialStatementBackupUpdateForm
+    form_class: type[StatementAuditInitialStatementBackupUpdateForm] = (
+        StatementAuditInitialStatementBackupUpdateForm
     )
     template_name: str = "audits/forms/initial_statement_backup.html"
 
@@ -435,8 +435,8 @@ class AuditStatementOverviewFormView(AuditStatementCheckingView):
     View to update statement overview check results
     """
 
-    form_class: type[AuditStatementOverviewUpdateForm] = (
-        AuditStatementOverviewUpdateForm
+    form_class: type[StatementAuditStatementOverviewUpdateForm] = (
+        StatementAuditStatementOverviewUpdateForm
     )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.OVERVIEW
@@ -477,7 +477,9 @@ class AuditStatementWebsiteFormView(AuditStatementCheckingView):
     View to update statement information check results
     """
 
-    form_class: type[AuditStatementWebsiteUpdateForm] = AuditStatementWebsiteUpdateForm
+    form_class: type[StatementAuditStatementWebsiteUpdateForm] = (
+        StatementAuditStatementWebsiteUpdateForm
+    )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.WEBSITE
 
@@ -487,8 +489,8 @@ class AuditStatementComplianceFormView(AuditStatementCheckingView):
     View to update statement compliance check results
     """
 
-    form_class: type[AuditStatementComplianceUpdateForm] = (
-        AuditStatementComplianceUpdateForm
+    form_class: type[StatementAuditStatementComplianceUpdateForm] = (
+        StatementAuditStatementComplianceUpdateForm
     )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.COMPLIANCE
@@ -499,8 +501,8 @@ class AuditStatementNonAccessibleFormView(AuditStatementCheckingView):
     View to update statement non-accessible check results
     """
 
-    form_class: type[AuditStatementNonAccessibleUpdateForm] = (
-        AuditStatementNonAccessibleUpdateForm
+    form_class: type[StatementAuditStatementNonAccessibleUpdateForm] = (
+        StatementAuditStatementNonAccessibleUpdateForm
     )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.NON_ACCESSIBLE
@@ -511,8 +513,8 @@ class AuditStatementPreparationFormView(AuditStatementCheckingView):
     View to update statement preparation check results
     """
 
-    form_class: type[AuditStatementPreparationUpdateForm] = (
-        AuditStatementPreparationUpdateForm
+    form_class: type[StatementAuditStatementPreparationUpdateForm] = (
+        StatementAuditStatementPreparationUpdateForm
     )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.PREPARATION
@@ -523,8 +525,8 @@ class AuditStatementFeedbackFormView(AuditStatementCheckingView):
     View to update statement feedback check results
     """
 
-    form_class: type[AuditStatementFeedbackUpdateForm] = (
-        AuditStatementFeedbackUpdateForm
+    form_class: type[StatementAuditStatementFeedbackUpdateForm] = (
+        StatementAuditStatementFeedbackUpdateForm
     )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.FEEDBACK
@@ -535,19 +537,21 @@ class AuditStatementDisproportionateFormView(AuditStatementCheckingView):
     View to update statement disproportionate burden check results
     """
 
-    form_class: type[AuditStatementDisproportionateUpdateForm] = (
-        AuditStatementDisproportionateUpdateForm
+    form_class: type[StatementAuditStatementDisproportionateUpdateForm] = (
+        StatementAuditStatementDisproportionateUpdateForm
     )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.DISPROPORTIONATE
 
 
-class AuditStatementCustomFormView(AuditUpdateView):
+class AuditStatementCustomFormView(StatementAuditUpdateView):
     """
     View to add/update custom statement issues check results
     """
 
-    form_class: type[AuditStatementCustomUpdateForm] = AuditStatementCustomUpdateForm
+    form_class: type[StatementAuditStatementCustomUpdateForm] = (
+        StatementAuditStatementCustomUpdateForm
+    )
     template_name: str = "audits/statement_checks/statement_custom.html"
 
 
@@ -565,14 +569,19 @@ class CustomIssueCreateView(CreateView):
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        context["audit"] = get_object_or_404(Audit, id=self.kwargs.get("audit_id"))
+        context["statement_audit"] = get_object_or_404(
+            StatementAudit, id=self.kwargs.get("statement_audit_id")
+        )
         return context
 
     def form_valid(self, form: InitialCustomIssueCreateUpdateForm):
         """Populate custom issue"""
-        audit: Audit = get_object_or_404(Audit, id=self.kwargs.get("audit_id"))
+        statement_audit: StatementAudit = get_object_or_404(
+            StatementAudit, id=self.kwargs.get("statement_audit_id")
+        )
         statement_check_result: StatementCheckResult = form.save(commit=False)
-        statement_check_result.audit = audit
+        statement_check_result.statement_audit = statement_audit
+        statement_check_result.audit = statement_audit.simplified_case.audit
         if statement_check_result.type == StatementCheck.Type.CUSTOM:
             statement_check_result.check_result_state = StatementCheckResult.Result.NO
         return super().form_valid(form)
@@ -583,10 +592,11 @@ class CustomIssueCreateView(CreateView):
         record_simplified_model_create_event(
             user=self.request.user,
             model_object=custom_issue,
-            simplified_case=custom_issue.audit.simplified_case,
+            simplified_case=custom_issue.statement_audit.simplified_case,
         )
         url: str = reverse(
-            "audits:edit-statement-custom", kwargs={"pk": custom_issue.audit.id}
+            "audits:edit-statement-custom",
+            kwargs={"pk": custom_issue.statement_audit.id},
         )
         return f"{url}#{custom_issue.issue_identifier}"
 

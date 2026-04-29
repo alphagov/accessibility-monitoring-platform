@@ -266,7 +266,7 @@ class AuditCaseComplianceUpdateView(AuditUpdateView):
             )
 
 
-class AuditStatementCheckingView(AuditUpdateView):
+class AuditStatementCheckingView(StatementAuditUpdateView):
     """
     View to do statement checks as part of an audit
     """
@@ -274,6 +274,7 @@ class AuditStatementCheckingView(AuditUpdateView):
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Populate context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
+        statement_audit: StatementAudit = self.object
 
         if self.request.POST:
             statement_check_results_formset: StatementCheckResultFormset = (
@@ -283,7 +284,7 @@ class AuditStatementCheckingView(AuditUpdateView):
             statement_check_results_formset: StatementCheckResultFormset = (
                 StatementCheckResultFormset(
                     queryset=StatementCheckResult.objects.filter(
-                        audit=self.object, type=self.statement_check_type
+                        statement_audit=statement_audit, type=self.statement_check_type
                     )
                 )
             )

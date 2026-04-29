@@ -847,6 +847,7 @@ class StatementAudit(AuditRound):
     backup_complete_date = models.DateField(null=True, blank=True)
 
     # Statement checking overview
+    statement_extra_report_text = models.TextField(default="", blank=True)  # KEEP
     statement_overview_complete_date = models.DateField(null=True, blank=True)
 
     # Statement checking website
@@ -924,6 +925,10 @@ class StatementAudit(AuditRound):
             ).count()
             == 0
         )
+
+    @property
+    def custom_statement_check_results(self):
+        return self.check_results.filter(type=StatementCheck.Type.CUSTOM)
 
 
 class Page(models.Model):
@@ -1501,15 +1506,17 @@ class StatementCheckResult(models.Model):
 
     def __str__(self) -> str:
         if self.statement_check is None:
-            return f"{self.audit} | Custom [{self.issue_identifier}]"
-        return f"{self.audit} | {self.statement_check} [{self.issue_identifier}]"
+            return f"{self.simplified_audit} | Custom [{self.issue_identifier}]"
+        return f"{self.simplified_audit} | {self.statement_check} [{self.issue_identifier}]"
 
     def save(self, *args, **kwargs) -> None:
         if not self.id:
             if self.statement_check:
                 id_within_case = self.statement_check.issue_number
             else:
-                id_within_case = self.audit.statement_check_results.count() + 1
+                id_within_case = (
+                    self.statement_audit.statement_check_results.count() + 1
+                )
             self.issue_identifier = build_issue_identifier(
                 simplified_case=self.audit.simplified_case,
                 issue=self,
