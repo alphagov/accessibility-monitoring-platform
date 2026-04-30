@@ -648,16 +648,23 @@ class SimplifiedCase(BaseCase):
             return None
 
     @property
+    def audit_overview(self):
+        try:
+            return self.auditoverview_simplifiedcase
+        except ObjectDoesNotExist:
+            return None
+
+    @property
     def not_archived(self) -> bool:
         return self.archive == ""
 
     @property
     def show_start_test(self) -> bool:
-        return self.not_archived and self.first_wcag_audit is None
+        return self.not_archived and self.audit_overview is None
 
     @property
     def not_archived_has_audit(self) -> bool:
-        return self.not_archived and self.audit is not None
+        return self.not_archived and self.audit_overview is not None
 
     @property
     def report_acknowledged_yes_no(self) -> str:
@@ -667,16 +674,16 @@ class SimplifiedCase(BaseCase):
     def show_start_12_week_retest(self) -> bool:
         return (
             self.not_archived
-            and self.audit is not None
-            and self.audit.retest_date is None
+            and self.audit_overview is not None
+            and self.audit_overview.first_wcag_audit_12_week_retest is None
         )
 
     @property
     def show_12_week_retest(self) -> bool:
         return (
             self.not_archived
-            and self.audit is not None
-            and self.audit.retest_date is not None
+            and self.audit_overview is not None
+            and self.audit_overview.first_wcag_audit_12_week_retest is not None
         )
 
     @property

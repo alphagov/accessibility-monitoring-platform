@@ -68,7 +68,6 @@ from .views.twelve_week import (
     AuditRetestCaseComplianceStatement12WeekUpdateView,
     AuditRetestCaseComplianceWebsite12WeekUpdateView,
     AuditRetestInitialCustomIssueUpdateView,
-    AuditRetestMetadataUpdateView,
     AuditRetestNew12WeekCustomIssueCreateView,
     AuditRetestNew12WeekCustomIssueUpdateView,
     AuditRetestPageChecksFormView,
@@ -88,6 +87,7 @@ from .views.twelve_week import (
     TwelveWeekDeleteStatementPageUpdateView,
     TwelveWeekDisproportionateBurdenUpdateView,
     TwelveWeekStatementBackupUpdateView,
+    WcagAuditRetestMetadataUpdateView,
     delete_new_12_week_custom_issue,
     start_retest,
 )
@@ -231,7 +231,7 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-audit-retest-metadata/",
-        login_required(AuditRetestMetadataUpdateView.as_view()),
+        login_required(WcagAuditRetestMetadataUpdateView.as_view()),
         name="edit-audit-retest-metadata",
     ),
     path(

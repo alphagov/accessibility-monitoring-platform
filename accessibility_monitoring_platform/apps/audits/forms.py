@@ -543,20 +543,20 @@ class AuditStatementSummaryUpdateForm(VersionForm):
         ]
 
 
-class AuditRetestMetadataUpdateForm(VersionForm):
+class WcagAuditRetestMetadataUpdateForm(VersionForm):
     """
     Form for editing audit retest metadata
     """
 
-    retest_date = AMPDateField(label="Date of retest")
-    audit_retest_metadata_complete_date = AMPDatePageCompleteField()
+    date_of_test = AMPDateField(label="Date of retest")
+    metadata_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = WcagAudit
         fields: list[str] = [
             "version",
-            "retest_date",
-            "audit_retest_metadata_complete_date",
+            "date_of_test",
+            "metadata_complete_date",
         ]
 
 

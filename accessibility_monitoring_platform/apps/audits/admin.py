@@ -7,6 +7,7 @@ from django.contrib import admin
 from ..common.admin import ExportCsvMixin
 from .models import (
     Audit,
+    AuditOverview,
     CheckResult,
     CheckResultNotesHistory,
     CheckResultRetestNotesHistory,
@@ -35,6 +36,17 @@ class AuditAdmin(admin.ModelAdmin):
         "simplified_case__case_identifier",
     ]
     list_display = ["date_of_test", "simplified_case"]
+    readonly_fields = ["simplified_case"]
+    show_facets = admin.ShowFacets.ALWAYS
+
+
+class AuditOverviewAdmin(admin.ModelAdmin):
+
+    search_fields = [
+        "simplified_case__organisation_name",
+        "simplified_case__case_identifier",
+    ]
+    list_display = ["updated", "published_report_data_updated_time", "simplified_case"]
     readonly_fields = ["simplified_case"]
     show_facets = admin.ShowFacets.ALWAYS
 
@@ -362,6 +374,7 @@ class RetestStatementCheckResultAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Audit, AuditAdmin)
+admin.site.register(AuditOverview, AuditOverviewAdmin)
 admin.site.register(WcagAudit, AuditRoundAdmin)
 admin.site.register(StatementAudit, AuditRoundAdmin)
 admin.site.register(Page, PageAdmin)

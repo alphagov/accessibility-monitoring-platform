@@ -21,7 +21,6 @@ from ...simplified.utils import (
 from ..forms import (
     AuditRetestCheckResultFilterForm,
     AuditRetestCheckResultFormset,
-    AuditRetestMetadataUpdateForm,
     AuditRetestNew12WeekCustomIssueCreateForm,
     AuditRetestPageChecksForm,
     AuditRetestPageFormset,
@@ -46,6 +45,7 @@ from ..forms import (
     New12WeekCustomStatementCheckResultUpdateForm,
     TwelveWeekStatementBackupUpdateForm,
     TwelveWeekStatementPagesUpdateForm,
+    WcagAuditRetestMetadataUpdateForm,
 )
 from ..models import (
     Audit,
@@ -67,16 +67,19 @@ from .base import (
     AuditUpdateView,
     DeleteStatementPageUpdateView,
     StatementBackupUpdateView,
+    WcagAuditUpdateView,
     WcagPageChecksBaseFormView,
 )
 
 
-class AuditRetestMetadataUpdateView(AuditUpdateView):
+class WcagAuditRetestMetadataUpdateView(WcagAuditUpdateView):
     """
     View to update audit retest metadata
     """
 
-    form_class: type[AuditRetestMetadataUpdateForm] = AuditRetestMetadataUpdateForm
+    form_class: type[WcagAuditRetestMetadataUpdateForm] = (
+        WcagAuditRetestMetadataUpdateForm
+    )
     template_name: str = "audits/forms/twelve_week_retest_metadata.html"
 
     def get_next_platform_page(self):

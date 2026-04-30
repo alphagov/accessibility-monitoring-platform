@@ -14,6 +14,7 @@ TWELVE_WEEK_ROUND: int = 1
 
 def populate_audit_rounds(apps, schema_editor):
     Audit = apps.get_model("audits", "Audit")
+    AuditOverview = apps.get_model("audits", "AuditOverview")
     WcagAudit = apps.get_model("audits", "WCAGAudit")
     StatementAudit = apps.get_model("audits", "StatementAudit")
     Page = apps.get_model("audits", "Page")
@@ -34,6 +35,11 @@ def populate_audit_rounds(apps, schema_editor):
     WcagCheckResultRetest = apps.get_model("audits", "WcagCheckResultRetest")
     RetestStatementCheckResult = apps.get_model("audits", "RetestStatementCheckResult")
     for audit in Audit.objects.all().order_by("id"):
+        AuditOverview.objects.create(
+            simplified_case=audit.simplified_case,
+            published_report_data_updated_time=audit.published_report_data_updated_time,
+            updated=audit.updated,
+        )
         wcag_audit_initial = WcagAudit.objects.create(
             simplified_case=audit.simplified_case,
             audit_round_type=INITIAL_ROUND_TYPE,
@@ -310,6 +316,7 @@ def populate_audit_rounds(apps, schema_editor):
 
 
 def reverse_code(apps, schema_editor):
+    AuditOverview = apps.get_model("audits", "AuditOverview")
     WcagAudit = apps.get_model("audits", "WCAGAudit")
     StatementAudit = apps.get_model("audits", "StatementAudit")
     StatementPage = apps.get_model("audits", "StatementPage")
@@ -322,6 +329,7 @@ def reverse_code(apps, schema_editor):
     )
     WcagCheckResultRetest = apps.get_model("audits", "WcagCheckResultRetest")
     RetestStatementCheckResult = apps.get_model("audits", "RetestStatementCheckResult")
+    AuditOverview.objects.all().delete()
     WcagCheckResultInitialNotesHistory.objects.all().delete()
     WcagCheckResultInitial.objects.all().delete()
     WcagCheckResultRetest.objects.all().delete()

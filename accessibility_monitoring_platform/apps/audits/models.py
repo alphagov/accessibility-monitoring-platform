@@ -610,17 +610,27 @@ class Audit(VersionModel):
         return self.statement_pages.count() > 0 and self.latest_statement_link != ""
 
 
-class AuditMetadata(models.Model):
+class AuditOverview(models.Model):
 
     simplified_case = models.OneToOneField(
         SimplifiedCase,
         on_delete=models.PROTECT,
-        related_name="auditmetadata_simplifiedcase",
+        related_name="auditoverview_simplifiedcase",
         blank=True,
         null=True,
     )
     published_report_data_updated_time = models.DateTimeField(null=True, blank=True)
     updated = models.DateTimeField(null=True, blank=True)
+
+    @property
+    def wcag_audits(self):
+        return self.simplified_case.wcagaudit_set.filter(is_deleted=False)
+
+    @property
+    def first_wcag_audit_12_week_retest(self):
+        return self.wcag_audits.filter(
+            audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK
+        ).first()
 
 
 class AuditRound(VersionModel):

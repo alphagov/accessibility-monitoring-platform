@@ -14,10 +14,10 @@ from django.http import HttpRequest
 from django.urls import URLResolver, resolve, reverse
 
 from ..audits.forms import (
-    AuditRetestMetadataUpdateForm,
     AuditTwelveWeekDisproportionateBurdenUpdateForm,
     StatementAuditInitialDisproportionateBurdenUpdateForm,
     WcagAuditMetadataUpdateForm,
+    WcagAuditRetestMetadataUpdateForm,
 )
 from ..audits.models import (
     Audit,
@@ -458,15 +458,40 @@ class WcagAuditPlatformPage(PlatformPage):
         if self.instance is not None:
             return self.instance.simplified_case
 
+
+class WcagAuditInitialPlatformPage(WcagAuditPlatformPage):
     def set_instance(self, instance: models.Model | None):
         if isinstance(instance, SimplifiedCase):
-            self.instance = instance.wcagaudit_set.first()
+            self.instance = instance.wcagaudit_set.filter(
+                audit_round_type=WcagAudit.AuditRoundType.INITIAL
+            ).first()
         else:
             super().set_instance(instance=instance)
 
     def populate_from_case(self, case: AnyCaseType):
         if hasattr(case, "wcagaudit_set"):
-            wcag_audit: WcagAudit | None = case.wcagaudit_set.first()
+            wcag_audit: WcagAudit | None = case.wcagaudit_set.filter(
+                audit_round_type=WcagAudit.AuditRoundType.INITIAL
+            ).first()
+            if wcag_audit is not None:
+                self.set_instance(instance=wcag_audit)
+        super().populate_from_case(case=case)
+
+
+class WcagAuditTwelveWeekPlatformPage(WcagAuditPlatformPage):
+    def set_instance(self, instance: models.Model | None):
+        if isinstance(instance, SimplifiedCase):
+            self.instance = instance.wcagaudit_set.filter(
+                audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK
+            ).first()
+        else:
+            super().set_instance(instance=instance)
+
+    def populate_from_case(self, case: AnyCaseType):
+        if hasattr(case, "wcagaudit_set"):
+            wcag_audit: WcagAudit | None = case.wcagaudit_set.filter(
+                audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK
+            ).first()
             if wcag_audit is not None:
                 self.set_instance(instance=wcag_audit)
         super().populate_from_case(case=case)
@@ -510,7 +535,7 @@ class AuditPagesPlatformPage(AuditPlatformPage):
                 self.subpages = bound_subpages
 
 
-class WcagAuditPagesPlatformPage(WcagAuditPlatformPage):
+class WcagAuditInitialPagesPlatformPage(WcagAuditInitialPlatformPage):
     def populate_from_case(self, case: AnyCaseType):
         if hasattr(case, "wcagaudit_set"):
             wcag_audit: WcagAudit | None = case.wcagaudit_set.first()
@@ -858,7 +883,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
         name="Initial WCAG test",
         show_flag_name="not_archived_has_audit",
         pages=[
-            WcagAuditPlatformPage(
+            WcagAuditInitialPlatformPage(
                 name="Initial test metadata",
                 url_name="audits:edit-audit-metadata",
                 complete_flag_name="metadata_complete_date",
@@ -866,7 +891,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 case_details_template_name="cases/details/details.html",
                 next_page_url_name="audits:edit-audit-pages",
             ),
-            WcagAuditPagesPlatformPage(
+            WcagAuditInitialPagesPlatformPage(
                 name="Add or remove pages",
                 url_name="audits:edit-audit-pages",
                 complete_flag_name="pages_complete_date",
@@ -882,14 +907,14 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 ],
                 case_details_template_name="simplified/details/details_initial_pages.html",
             ),
-            WcagAuditPlatformPage(
+            WcagAuditInitialPlatformPage(
                 name="Compliance decision",
                 url_name="audits:edit-website-decision",
                 complete_flag_name="compliance_decision_complete_date",
                 case_details_template_name="cases/details/details.html",
                 next_page_url_name="audits:edit-audit-wcag-summary",
             ),
-            WcagAuditPlatformPage(
+            WcagAuditInitialPlatformPage(
                 name="WCAG summary",
                 url_name="audits:edit-audit-wcag-summary",
                 complete_flag_name="summary_complete_date",
@@ -1237,11 +1262,11 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
         name="12-week WCAG test",
         show_flag_name="show_12_week_retest",
         pages=[
-            AuditPlatformPage(
+            WcagAuditTwelveWeekPlatformPage(
                 name="12-week retest metadata",
                 url_name="audits:edit-audit-retest-metadata",
-                complete_flag_name="audit_retest_metadata_complete_date",
-                case_details_form_class=AuditRetestMetadataUpdateForm,
+                complete_flag_name="metadata_complete_date",
+                case_details_form_class=WcagAuditRetestMetadataUpdateForm,
                 case_details_template_name="cases/details/details.html",
             ),
             AuditRetestPagesPlatformPage(

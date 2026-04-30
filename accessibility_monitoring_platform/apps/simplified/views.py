@@ -17,6 +17,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
+from ..audits.models import WcagAudit
 from ..audits.utils import get_audit_summary_context, report_data_updated
 from ..cases.csv_export import populate_equality_body_columns
 from ..cases.forms import CaseSearchForm
@@ -734,7 +735,10 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
 
     def get_next_platform_page(self) -> PlatformPage:
         simplified_case: SimplifiedCase = self.object
-        if simplified_case.audit:
+        wcag_audit_12_week: WcagAudit = WcagAudit.objects.filter(
+            audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK
+        ).first()
+        if wcag_audit_12_week:
             if simplified_case.show_start_12_week_retest:
                 return get_platform_page_by_url_name(
                     url_name="simplified:edit-twelve-week-retest",
