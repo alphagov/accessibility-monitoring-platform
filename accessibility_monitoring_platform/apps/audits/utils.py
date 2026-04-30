@@ -3,11 +3,11 @@ Utilities for audits app
 """
 
 from collections import namedtuple
+from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any, TypeVar
 
 from django.contrib.auth.models import User
-from django.db.models.query import QuerySet
 from django.http import Http404, HttpRequest
 from django.utils import timezone
 
@@ -21,16 +21,21 @@ from .forms import CheckResultForm
 from .models import (
     Audit,
     CheckResult,
-    CheckResultNotesHistory,
-    CheckResultRetestNotesHistory,
     Page,
     Retest,
     RetestCheckResult,
     RetestPage,
     RetestStatementCheckResult,
+    StatementAudit,
     StatementCheck,
     StatementCheckResult,
+    WcagAudit,
+    WcagCheckResultInitial,
+    WcagCheckResultInitialNotesHistory,
+    WcagCheckResultRetest,
     WcagDefinition,
+    WcagPageInitial,
+    WcagPageRetest,
 )
 
 MANUAL_CHECK_SUB_TYPE_LABELS: dict[str, str] = {
@@ -70,8 +75,27 @@ def index_or_404(items: list[P], item: P) -> int:
     return position
 
 
+@dataclass
+class SummaryWcagCheckResult:
+    wcag_definition: WcagDefinition
+    wcag_page_initial: WcagPageInitial
+    issue_identifier: str
+    initial_result: WcagCheckResultInitial
+    retest_result: WcagCheckResultRetest | None = None
+
+
+@dataclass
+class SummaryStatementCheckResult:
+    type: StatementCheck.Type | None
+    issue_identifier: str
+    initial_result: StatementCheckResult
+    retest_result: StatementCheckResult | None = None
+
+
 def create_or_update_check_results_for_page(
-    user: User, page: Page, check_result_forms: list[CheckResultForm]
+    user: User,
+    wcag_page_initial: WcagPageInitial,
+    check_result_forms: list[CheckResultForm],
 ) -> None:
     """
     Create or update check results based on form data:
@@ -89,54 +113,68 @@ def create_or_update_check_results_for_page(
         ]
         check_result_state: str = check_result_form.cleaned_data["check_result_state"]
         notes: str = check_result_form.cleaned_data["notes"]
-        if wcag_definition in page.check_results_by_wcag_definition:
-            check_result: CheckResult = page.check_results_by_wcag_definition[
-                wcag_definition
-            ]
+        if (
+            wcag_definition
+            in wcag_page_initial.wcag_check_result_initials_by_wcag_definition
+        ):
+            wcag_check_result_initial: WcagCheckResultInitial = (
+                wcag_page_initial.wcag_check_result_initials_by_wcag_definition[
+                    wcag_definition
+                ]
+            )
             if (
-                check_result.check_result_state != check_result_state
-                or check_result.notes != notes
+                wcag_check_result_initial.check_result_state != check_result_state
+                or wcag_check_result_initial.notes != notes
             ):
-                check_result.check_result_state = check_result_state
-                check_result.notes = notes
+                wcag_check_result_initial.check_result_state = check_result_state
+                wcag_check_result_initial.notes = notes
                 record_simplified_model_update_event(
                     user=user,
-                    model_object=check_result,
-                    simplified_case=check_result.audit.simplified_case,
+                    model_object=wcag_check_result_initial,
+                    simplified_case=wcag_check_result_initial.wcag_audit.simplified_case,
                 )
-                add_to_check_result_notes_history(check_result=check_result, user=user)
-                report_data_updated(audit=check_result.audit)
-                check_result.save()
-        elif notes != "" or check_result_state != CheckResult.Result.NOT_TESTED:
-            check_result: CheckResult = CheckResult.objects.create(
-                audit=page.audit,
-                page=page,
-                wcag_definition=wcag_definition,
-                type=wcag_definition.type,
-                check_result_state=check_result_state,
-                notes=notes,
+                add_to_check_result_notes_history(
+                    wcag_check_result_initial=wcag_check_result_initial, user=user
+                )
+                report_data_updated(audit=wcag_check_result_initial.audit)
+                wcag_check_result_initial.save()
+        elif (
+            notes != ""
+            or check_result_state != WcagCheckResultInitial.Result.NOT_TESTED
+        ):
+            wcag_check_result_initial: WcagCheckResultInitial = (
+                WcagCheckResultInitial.objects.create(
+                    wcag_audit=wcag_page_initial.wcag_audit,
+                    wcag_page_initial=wcag_page_initial,
+                    wcag_definition=wcag_definition,
+                    type=wcag_definition.type,
+                    check_result_state=check_result_state,
+                    notes=notes,
+                )
             )
             record_simplified_model_create_event(
                 user=user,
-                model_object=check_result,
-                simplified_case=check_result.audit.simplified_case,
+                model_object=wcag_check_result_initial,
+                simplified_case=wcag_check_result_initial.wcag_audit.simplified_case,
             )
             add_to_check_result_notes_history(
-                check_result=check_result, user=user, new_check_result=True
+                wcag_check_result_initial=wcag_check_result_initial,
+                user=user,
+                new_check_result=True,
             )
-            report_data_updated(audit=page.audit)
+            report_data_updated(wcag_audit=wcag_page_initial.wcag_audit)
 
 
 def get_page_check_results_formset_initial(
-    page: Page, wcag_definitions: list[WcagDefinition]
+    wcag_page_initial: WcagPageInitial, wcag_definitions: list[WcagDefinition]
 ) -> list[dict[str, str | WcagDefinition | CheckResult]]:
     """
     Combine existing check result with all the WCAG definitions
     to create a list of dictionaries for use in populating the
     CheckResultFormset with all possible results.
     """
-    check_results_by_wcag_definition: dict[WcagDefinition, CheckResult] = (
-        page.check_results_by_wcag_definition
+    check_results_by_wcag_definition: dict[WcagDefinition, WcagCheckResultInitial] = (
+        wcag_page_initial.wcag_check_result_initials_by_wcag_definition
     )
     check_results_formset_initial: list[
         dict[str, str | WcagDefinition | CheckResult]
@@ -167,23 +205,25 @@ def get_page_check_results_formset_initial(
     return check_results_formset_initial
 
 
-def create_mandatory_pages_for_new_audit(audit: Audit) -> None:
+def create_mandatory_pages_for_new_audit(wcag_audit: WcagAudit) -> None:
     """
     Create mandatory pages for new audit.
     """
 
-    for page_type in Page.MANDATORY_PAGE_TYPES:
-        if page_type == Page.Type.HOME:
-            Page.objects.create(
-                audit=audit,
+    for page_type in WcagPageInitial.MANDATORY_PAGE_TYPES:
+        if page_type == WcagPageInitial.Type.HOME:
+            WcagPageInitial.objects.create(
+                wcag_audit=wcag_audit,
                 page_type=page_type,
-                url=audit.simplified_case.home_page_url,
+                url=wcag_audit.simplified_case.home_page_url,
             )
         else:
-            Page.objects.create(audit=audit, page_type=page_type)
+            WcagPageInitial.objects.create(wcag_audit=wcag_audit, page_type=page_type)
 
 
-def create_statement_checks_for_new_audit(audit: Audit) -> None:
+def create_statement_checks_for_new_audit(
+    audit: Audit, statement_audit: StatementAudit
+) -> None:
     """
     Create statement check results for new audit.
     """
@@ -191,37 +231,40 @@ def create_statement_checks_for_new_audit(audit: Audit) -> None:
     for statement_check in StatementCheck.objects.on_date(today):
         StatementCheckResult.objects.create(
             audit=audit,
+            statement_audit=statement_audit,
             type=statement_check.type,
             statement_check=statement_check,
         )
 
 
-def get_next_platform_page_initial(
-    audit: Audit, current_page: Page | None = None
+def get_next_platform_page_wcag_page_initial(
+    wcag_audit: WcagAudit, current_wcag_page_initial: WcagPageInitial | None = None
 ) -> PlatformPage:
     """
     Return the platform page to go to when a save and continue button is
     pressed on the page where pages or page check results are entered.
     """
-    if not audit.testable_pages:
+    if not wcag_audit.testable_wcag_page_initials:
         return get_platform_page_by_url_name(
-            url_name="audits:edit-website-decision", instance=audit
+            url_name="audits:edit-website-decision", instance=wcag_audit
         )
 
-    if current_page is None:
+    if current_wcag_page_initial is None:
         return get_platform_page_by_url_name(
             url_name="audits:edit-audit-page-checks",
-            instance=audit.testable_pages.first(),
+            instance=wcag_audit.testable_wcag_page_initials.first(),
         )
 
-    testable_pages: list[Page] = list(audit.testable_pages)
-    if testable_pages[-1] == current_page:
+    testable_pages: list[WcagPageInitial] = list(wcag_audit.testable_wcag_page_initials)
+    if testable_pages[-1] == current_wcag_page_initial:
         return get_platform_page_by_url_name(
-            url_name="audits:edit-website-decision", instance=audit
+            url_name="audits:edit-website-decision", instance=wcag_audit
         )
 
-    current_page_position: int = index_or_404(items=testable_pages, item=current_page)
-    next_page: Page = testable_pages[current_page_position + 1]
+    current_page_position: int = index_or_404(
+        items=testable_pages, item=current_wcag_page_initial
+    )
+    next_page: WcagPageInitial = testable_pages[current_page_position + 1]
     return get_platform_page_by_url_name(
         url_name="audits:edit-audit-page-checks", instance=next_page
     )
@@ -263,22 +306,20 @@ def get_next_platform_page_twelve_week(
 
 
 def other_page_failed_check_results(
-    page: Page,
+    wcag_page_initial: WcagPageInitial,
 ) -> dict[WcagDefinition, list[CheckResult]]:
     """
     Find all failed check results for other pages.
     Return them in a dictionary keyed by their WcagDefinitions.
-
-    Args:
-        page (Page): Page object
-
-    Returns:
-        dict[WcagDefinition, list[CheckResult]]: Dictionary of failed check results
     """
     failed_check_results_by_wcag_definition: dict[WcagDefinition, list[CheckResult]] = (
         {}
     )
-    for check_result in page.audit.failed_check_results.exclude(page=page):
+    for (
+        check_result
+    ) in wcag_page_initial.wcag_audit.wcag_failed_check_result_initials.exclude(
+        wcag_page_initial=wcag_page_initial
+    ):
         if check_result.wcag_definition in failed_check_results_by_wcag_definition:
             failed_check_results_by_wcag_definition[
                 check_result.wcag_definition
@@ -290,9 +331,10 @@ def other_page_failed_check_results(
     return failed_check_results_by_wcag_definition
 
 
-def report_data_updated(audit: Audit) -> None:
+def report_data_updated(wcag_audit: WcagAudit) -> None:
     """Record when an update changing report content as occurred."""
     now: datetime = timezone.now()
+    audit: Audit = wcag_audit.simplified_case.audit
     audit.published_report_data_updated_time = now
     audit.save()
 
@@ -393,85 +435,159 @@ def get_other_pages_with_retest_notes(page: Page) -> list[Page]:
     ]
 
 
-def get_audit_summary_context(request: HttpRequest, audit: Audit) -> dict[str, Any]:
+def get_audit_summary_context(
+    request: HttpRequest,
+    wcag_audit_initial: WcagAudit | None,
+    wcag_audit_12_week: WcagAudit | None,
+    statement_audit_initial: StatementAudit | None,
+    statement_audit_12_week: StatementAudit | None,
+) -> dict[str, Any]:
     """Return the context for test summary pages"""
     context: dict[str, Any] = {}
     show_failures_by_page: bool = "page-view" in request.GET
     show_all: bool = "show-all" in request.GET
     context["show_failures_by_page"] = show_failures_by_page
     context["show_all"] = show_all
-    context["enable_12_week_ui"] = audit.retest_date is not None
+    context["enable_12_week_ui"] = wcag_audit_12_week is not None
+    context["wcag_audit_initial"] = wcag_audit_initial
+    context["wcag_audit_12_week"] = wcag_audit_12_week
+    context["statement_audit_initial"] = statement_audit_initial
+    context["statement_audit_12_week"] = statement_audit_12_week
 
-    check_results: QuerySet[CheckResult] = (
-        audit.failed_check_results if show_all else audit.unfixed_check_results
-    )
+    summary_wcag_check_results: list[SummaryWcagCheckResult] = []
 
-    context["audit_failures_by_page"] = list_to_dictionary_of_lists(
-        items=check_results, group_by_attr="page"
-    )
-    context["pages_with_retest_notes"] = audit.testable_pages.exclude(retest_notes="")
-    audit_failures_by_wcag: dict[WcagDefinition, list[CheckResult]] = (
-        list_to_dictionary_of_lists(
-            items=check_results, group_by_attr="wcag_definition"
+    if wcag_audit_initial is not None:
+        for (
+            wcag_failed_check_result_initial
+        ) in wcag_audit_initial.wcag_failed_check_result_initials:
+            summary_wcag_check_result: SummaryWcagCheckResult = SummaryWcagCheckResult(
+                wcag_definition=wcag_failed_check_result_initial.wcag_definition,
+                wcag_page_initial=wcag_failed_check_result_initial.wcag_page_initial,
+                issue_identifier=wcag_failed_check_result_initial.issue_identifier,
+                initial_result=wcag_failed_check_result_initial,
+                retest_result=wcag_failed_check_result_initial.last_12_week_retest,
+            )
+            if (
+                show_all
+                or summary_wcag_check_result.retest_result is None
+                or summary_wcag_check_result.retest_result.retest_state
+                != WcagCheckResultRetest.RetestResult.FIXED
+            ):
+                summary_wcag_check_results.append(summary_wcag_check_result)
+
+        context["summary_wcag_check_results_by_page"] = list_to_dictionary_of_lists(
+            items=summary_wcag_check_results, group_by_attr="wcag_page_initial"
         )
-    )
-    for wcag_definition, failures in audit_failures_by_wcag.items():
-        wcag_definition.issue_identifiers = " ".join(
-            [failure.issue_identifier for failure in failures]
-        )
-    context["audit_failures_by_wcag"] = audit_failures_by_wcag
 
-    statement_check_results: QuerySet[StatementCheckResult] = (
-        audit.statement_check_results
-        if show_all
-        else audit.outstanding_statement_check_results
-    )
-    if not audit.all_overview_statement_checks_have_passed:
-        statement_check_results = statement_check_results.filter(
-            type=StatementCheck.Type.OVERVIEW
+        if wcag_audit_12_week is not None:
+            context["pages_with_retest_notes"] = WcagPageRetest.objects.filter(
+                wcag_audit=wcag_audit_12_week
+            ).exclude(notes="")
+
+        summary_wcag_check_results_by_wcag: dict[WcagDefinition, list[CheckResult]] = (
+            list_to_dictionary_of_lists(
+                items=summary_wcag_check_results, group_by_attr="wcag_definition"
+            )
         )
-    context["statement_check_results_by_type"] = list_to_dictionary_of_lists(
-        items=statement_check_results, group_by_attr="type"
+        for wcag_definition, failures in summary_wcag_check_results_by_wcag.items():
+            wcag_definition.issue_identifiers = " ".join(
+                [failure.issue_identifier for failure in failures]
+            )
+        context["summary_wcag_check_results_by_wcag"] = (
+            summary_wcag_check_results_by_wcag
+        )
+
+    summary_statement_check_results: list[SummaryStatementCheckResult] = []
+
+    if statement_audit_initial is not None:
+        for (
+            statement_check_result
+        ) in statement_audit_initial.statementcheckresult_set.all():
+            type: StatementCheck.Type | None = (
+                statement_check_result.statement_check.type
+                if statement_check_result.statement_check is not None
+                else None
+            )
+            summary_statement_check_result: SummaryStatementCheckResult = (
+                SummaryStatementCheckResult(
+                    type=type,
+                    issue_identifier=statement_check_result.issue_identifier,
+                    initial_result=statement_check_result,
+                    retest_result=statement_check_result.twelve_week_retest,
+                )
+            )
+            if (
+                show_all
+                or summary_statement_check_result.retest_result is None
+                or summary_statement_check_result.retest_result.check_result_state
+                == StatementCheckResult.Result.NO
+            ):
+                summary_statement_check_results.append(summary_statement_check_result)
+
+    if statement_audit_initial.all_overview_statement_checks_have_passed or (
+        statement_audit_12_week is not None
+        and statement_audit_12_week.all_overview_statement_checks_have_passed
+    ):
+        pass
+    else:
+        summary_statement_check_results = [
+            statement_check_result
+            for statement_check_result in summary_statement_check_results
+            if statement_check_result.type == StatementCheck.Type.OVERVIEW
+        ]
+
+    context["summary_statement_check_results"] = summary_statement_check_results
+    context["summary_statement_check_results_by_type"] = list_to_dictionary_of_lists(
+        items=summary_statement_check_results, group_by_attr="type"
     )
 
-    context["number_of_wcag_issues"] = check_results.count()
-    context["number_of_statement_issues"] = statement_check_results.count()
+    context["number_of_wcag_issues"] = len(summary_wcag_check_results)
+    context["number_of_statement_issues"] = len(summary_statement_check_results)
 
     return context
 
 
 def add_to_check_result_notes_history(
-    check_result: CheckResult, user: User, new_check_result: bool = False
+    wcag_check_result_initial: WcagCheckResultInitial,
+    user: User,
+    new_check_result: bool = False,
 ) -> None:
     """Add latest change to CheckResult.notes history"""
     if new_check_result is True:
-        previous_check_result: None = None
+        previous_wcag_check_result_initial: None = None
     else:
-        previous_check_result: CheckResult | None = (
-            CheckResult.objects.filter(id=check_result.id).first()
-            if check_result.id is not None
+        previous_wcag_check_result_initial: WcagCheckResultInitial | None = (
+            WcagCheckResultInitial.objects.filter(
+                id=wcag_check_result_initial.id
+            ).first()
+            if wcag_check_result_initial.id is not None
             else None
         )
     if (
-        previous_check_result is None
-        or check_result.notes != previous_check_result.notes
+        previous_wcag_check_result_initial is None
+        or wcag_check_result_initial.notes != previous_wcag_check_result_initial.notes
     ):
-        CheckResultNotesHistory.objects.create(
-            check_result=check_result,
+        WcagCheckResultInitialNotesHistory.objects.create(
+            wcag_check_result_initial=wcag_check_result_initial,
             created_by=user,
-            notes=check_result.notes,
+            notes=wcag_check_result_initial.notes,
         )
 
 
 def add_to_check_result_restest_notes_history(
-    check_result: CheckResult, user: User
+    wcag_check_result_initial: WcagCheckResultInitial, user: User
 ) -> None:
     """Add latest change to CheckResult.retest_notes history"""
-    previous_check_result: CheckResult = CheckResult.objects.get(id=check_result.id)
-    if check_result.retest_notes != previous_check_result.retest_notes:
-        CheckResultRetestNotesHistory.objects.create(
-            check_result=check_result,
+    previous_wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.get(id=wcag_check_result_initial.id)
+    )
+    if (
+        wcag_check_result_initial.retest_notes
+        != previous_wcag_check_result_initial.retest_notes
+    ):
+        WcagCheckResultInitialNotesHistory.objects.create(
+            wcag_check_result_initial=wcag_check_result_initial,
             created_by=user,
-            retest_notes=check_result.retest_notes,
-            retest_state=check_result.retest_state,
+            retest_notes=wcag_check_result_initial.retest_notes,
+            retest_state=wcag_check_result_initial.retest_state,
         )

@@ -40,10 +40,6 @@ from .views.equality_body import (
 )
 from .views.initial import (
     AuditCaseComplianceStatementInitialUpdateView,
-    AuditCaseComplianceWebsiteInitialUpdateView,
-    AuditMetadataUpdateView,
-    AuditPageChecksFormView,
-    AuditPagesUpdateView,
     AuditStatementComplianceFormView,
     AuditStatementCustomFormView,
     AuditStatementDisproportionateFormView,
@@ -53,14 +49,18 @@ from .views.initial import (
     AuditStatementPreparationFormView,
     AuditStatementSummaryUpdateView,
     AuditStatementWebsiteFormView,
-    AuditWcagSummaryUpdateView,
     CustomIssueCreateView,
+    FirstWcagAuditSummaryUpdateView,
     InitialAddStatementPageUpdateView,
     InitialCustomIssueDeleteTemplateView,
     InitialCustomIssueUpdateView,
     InitialDeleteStatementPageUpdateView,
     InitialDisproportionateBurdenUpdateView,
     InitialStatementBackupUpdateView,
+    WcagAuditComplianceInitialUpdateView,
+    WcagAuditMetadataUpdateView,
+    WcagAuditPagesUpdateView,
+    WcagPageChecksFormView,
     clear_published_report_data_updated_time,
     delete_custom_issue,
 )
@@ -101,12 +101,12 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-audit-metadata/",
-        login_required(AuditMetadataUpdateView.as_view()),
+        login_required(WcagAuditMetadataUpdateView.as_view()),
         name="edit-audit-metadata",
     ),
     path(
         "<int:pk>/edit-audit-pages/",
-        login_required(AuditPagesUpdateView.as_view()),
+        login_required(WcagAuditPagesUpdateView.as_view()),
         name="edit-audit-pages",
     ),
     path(
@@ -116,12 +116,12 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "pages/<int:pk>/edit-audit-page-checks/",
-        login_required(AuditPageChecksFormView.as_view()),
+        login_required(WcagPageChecksFormView.as_view()),
         name="edit-audit-page-checks",
     ),
     path(
         "<int:pk>/edit-website-decision/",
-        login_required(AuditCaseComplianceWebsiteInitialUpdateView.as_view()),
+        login_required(WcagAuditComplianceInitialUpdateView.as_view()),
         name="edit-website-decision",
     ),
     path(
@@ -180,7 +180,7 @@ urlpatterns: list[URLPattern] = [
         name="edit-statement-custom",
     ),
     path(
-        "<int:audit_id>/edit-custom-issue-create/",
+        "<int:statement_audit_id>/edit-custom-issue-create/",
         login_required(CustomIssueCreateView.as_view()),
         name="edit-custom-issue-create",
     ),
@@ -211,7 +211,7 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-audit-wcag-summary/",
-        login_required(AuditWcagSummaryUpdateView.as_view()),
+        login_required(FirstWcagAuditSummaryUpdateView.as_view()),
         name="edit-audit-wcag-summary",
     ),
     path(

@@ -20,58 +20,60 @@ from ...simplified.utils import (
     record_simplified_model_update_event,
 )
 from ..forms import (
-    AuditExtraPageFormset,
-    AuditExtraPageFormsetOneExtra,
-    AuditExtraPageFormsetTwoExtra,
-    AuditInitialDisproportionateBurdenUpdateForm,
-    AuditInitialStatementBackupUpdateForm,
-    AuditMetadataUpdateForm,
-    AuditPageChecksForm,
-    AuditPagesUpdateForm,
-    AuditStandardPageFormset,
-    AuditStatementComplianceUpdateForm,
-    AuditStatementCustomUpdateForm,
-    AuditStatementDecisionUpdateForm,
-    AuditStatementDisproportionateUpdateForm,
-    AuditStatementFeedbackUpdateForm,
-    AuditStatementNonAccessibleUpdateForm,
-    AuditStatementOverviewUpdateForm,
-    AuditStatementPreparationUpdateForm,
     AuditStatementSummaryUpdateForm,
-    AuditStatementWebsiteUpdateForm,
-    AuditWcagSummaryUpdateForm,
-    AuditWebsiteDecisionUpdateForm,
-    CaseComplianceStatementInitialUpdateForm,
-    CaseComplianceWebsiteInitialUpdateForm,
     CheckResultFilterForm,
     CheckResultFormset,
     InitialAuditStatementPagesUpdateForm,
     InitialCustomIssueCreateUpdateForm,
+    StatementAuditComplianceUpdateForm,
+    StatementAuditInitialDisproportionateBurdenUpdateForm,
+    StatementAuditInitialStatementBackupUpdateForm,
+    StatementAuditStatementComplianceUpdateForm,
+    StatementAuditStatementCustomUpdateForm,
+    StatementAuditStatementDisproportionateUpdateForm,
+    StatementAuditStatementFeedbackUpdateForm,
+    StatementAuditStatementNonAccessibleUpdateForm,
+    StatementAuditStatementOverviewUpdateForm,
+    StatementAuditStatementPreparationUpdateForm,
+    StatementAuditStatementWebsiteUpdateForm,
+    WcagAuditComplianceUpdateForm,
+    WcagAuditMetadataUpdateForm,
+    WcagAuditPagesUpdateForm,
+    WcagAuditWcagSummaryUpdateForm,
+    WcagPageChecksForm,
+    WcagPageInitialFormset,
+    WcagPageInitialFormsetOneExtra,
+    WcagPageInitialFormsetTwoExtra,
+    WcagPageInitialStandardFormset,
 )
 from ..models import (
     Audit,
     CheckResult,
     Page,
+    StatementAudit,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
+    WcagAudit,
     WcagDefinition,
+    WcagPageInitial,
+    WcagPageRetest,
 )
 from ..utils import (
     create_or_update_check_results_for_page,
     get_audit_summary_context,
-    get_next_platform_page_initial,
+    get_next_platform_page_wcag_page_initial,
     get_page_check_results_formset_initial,
     other_page_failed_check_results,
 )
 from .base import (
     AddStatementLinkUpdateView,
-    AuditCaseComplianceUpdateView,
-    AuditPageChecksBaseFormView,
     AuditStatementCheckingView,
-    AuditUpdateView,
     DeleteStatementPageUpdateView,
+    StatementAuditUpdateView,
     StatementBackupUpdateView,
+    WcagAuditUpdateView,
+    WcagPageChecksBaseFormView,
 )
 
 
@@ -101,57 +103,55 @@ def clear_published_report_data_updated_time(
     return redirect(redirect_destination)
 
 
-class AuditMetadataUpdateView(AuditUpdateView):
-    """
-    View to update audit metadata
-    """
+class WcagAuditMetadataUpdateView(WcagAuditUpdateView):
 
-    form_class: type[AuditMetadataUpdateForm] = AuditMetadataUpdateForm
+    form_class: type[WcagAuditMetadataUpdateForm] = WcagAuditMetadataUpdateForm
     template_name: str = "common/case_form.html"
 
 
-class AuditPagesUpdateView(AuditUpdateView):
-    """
-    View to update audit pages page
-    """
+class WcagAuditPagesUpdateView(WcagAuditUpdateView):
 
-    form_class: type[AuditPagesUpdateForm] = AuditPagesUpdateForm
+    form_class: type[WcagAuditPagesUpdateForm] = WcagAuditPagesUpdateForm
     template_name: str = "audits/forms/pages.html"
 
     def get_next_platform_page(self):
-        audit: Audit = self.object
-        return get_next_platform_page_initial(audit=audit)
+        wcag_audit: WcagAudit = self.object
+        return get_next_platform_page_wcag_page_initial(wcag_audit=wcag_audit)
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        audit: Audit = self.object
+        wcag_audit: WcagAudit = self.object
         if self.request.POST:
-            standard_pages_formset: AuditStandardPageFormset = AuditStandardPageFormset(
-                self.request.POST, prefix="standard"
+            standard_pages_formset: WcagPageInitialStandardFormset = (
+                WcagPageInitialStandardFormset(self.request.POST, prefix="standard")
             )
-            extra_pages_formset: AuditExtraPageFormset = AuditExtraPageFormset(
+            extra_pages_formset: WcagPageInitialFormset = WcagPageInitialFormset(
                 self.request.POST, prefix="extra"
             )
         else:
-            standard_pages_formset: AuditStandardPageFormset = AuditStandardPageFormset(
-                queryset=audit.standard_pages, prefix="standard"
+            standard_pages_formset: WcagPageInitialStandardFormset = (
+                WcagPageInitialStandardFormset(
+                    queryset=wcag_audit.standard_wcag_page_initials, prefix="standard"
+                )
             )
             if "add_extra" in self.request.GET:
-                extra_pages_formset: AuditExtraPageFormsetOneExtra = (
-                    AuditExtraPageFormsetOneExtra(
-                        queryset=audit.extra_pages, prefix="extra"
+                extra_pages_formset: WcagPageInitialFormsetOneExtra = (
+                    WcagPageInitialFormsetOneExtra(
+                        queryset=wcag_audit.extra_wcag_page_initials, prefix="extra"
                     )
                 )
             else:
-                if audit.extra_pages:
-                    extra_pages_formset: AuditExtraPageFormset = AuditExtraPageFormset(
-                        queryset=audit.extra_pages, prefix="extra"
+                if wcag_audit.extra_wcag_page_initials:
+                    extra_pages_formset: WcagPageInitialFormset = (
+                        WcagPageInitialFormset(
+                            queryset=wcag_audit.extra_wcag_page_initials, prefix="extra"
+                        )
                     )
                 else:
-                    extra_pages_formset: AuditExtraPageFormset = (
-                        AuditExtraPageFormsetTwoExtra(
-                            queryset=audit.extra_pages, prefix="extra"
+                    extra_pages_formset: WcagPageInitialFormset = (
+                        WcagPageInitialFormsetTwoExtra(
+                            queryset=wcag_audit.extra_wcag_page_initials, prefix="extra"
                         )
                     )
         for form in standard_pages_formset:
@@ -167,54 +167,66 @@ class AuditPagesUpdateView(AuditUpdateView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: dict[str, Any] = self.get_context_data()
-        standard_pages_formset: AuditStandardPageFormset = context[
+        standard_pages_formset: WcagPageInitialStandardFormset = context[
             "standard_pages_formset"
         ]
-        extra_pages_formset: AuditExtraPageFormset = context["extra_pages_formset"]
-        audit: Audit = form.save(commit=False)
+        extra_pages_formset: WcagPageInitialFormset = context["extra_pages_formset"]
+        wcag_audit: WcagAudit = form.save(commit=False)
 
         if standard_pages_formset.is_valid():
-            pages: list[Page] = standard_pages_formset.save(commit=False)
-            for page in pages:
-                if page.page_type == Page.Type.STATEMENT and page.url:
-                    if audit.statement_pages.count() == 0:
+            statement_audit: StatementAudit = StatementAudit.objects.filter(
+                simplified_case=wcag_audit.simplified_case
+            ).first()
+            wcag_page_wcag_audit_initials: list[WcagPageRetest] = (
+                standard_pages_formset.save(commit=False)
+            )
+            for wcag_page_wcag_audit_initial in wcag_page_wcag_audit_initials:
+                if (
+                    wcag_page_wcag_audit_initial.page_type
+                    == WcagPageInitial.Type.STATEMENT
+                    and wcag_page_wcag_audit_initial.url
+                ):
+                    if statement_audit.statement_pages.count() == 0:
                         # Create first statement link
                         statement_page: StatementPage = StatementPage.objects.create(
-                            audit=audit,
-                            url=page.url,
+                            audit=wcag_audit.simplified_case.audit,
+                            statement_audit=statement_audit,
+                            url=wcag_page_wcag_audit_initial.url,
                         )
                         record_simplified_model_create_event(
                             user=self.request.user,
                             model_object=statement_page,
-                            simplified_case=audit.simplified_case,
+                            simplified_case=wcag_audit.simplified_case,
                         )
                 record_simplified_model_update_event(
                     user=self.request.user,
-                    model_object=page,
-                    simplified_case=audit.simplified_case,
+                    model_object=wcag_page_wcag_audit_initial,
+                    simplified_case=wcag_audit.simplified_case,
                 )
-                page.save()
+                wcag_page_wcag_audit_initial.save()
         else:
             return super().form_invalid(form)
 
         if extra_pages_formset.is_valid():
-            pages: list[Page] = extra_pages_formset.save(commit=False)
-            for page in pages:
-                if not page.audit_id:
-                    page.audit = audit
-                    page.save()
+            wcag_page_wcag_audit_initials: list[Page] = extra_pages_formset.save(
+                commit=False
+            )
+            for wcag_page_wcag_audit_initial in wcag_page_wcag_audit_initials:
+                if not wcag_page_wcag_audit_initial.audit_id:
+                    wcag_page_wcag_audit_initial.audit = wcag_audit
+                    wcag_page_wcag_audit_initial.save()
                     record_simplified_model_create_event(
                         user=self.request.user,
-                        model_object=page,
-                        simplified_case=audit.simplified_case,
+                        model_object=wcag_page_wcag_audit_initial,
+                        simplified_case=wcag_audit.simplified_case,
                     )
                 else:
                     record_simplified_model_update_event(
                         user=self.request.user,
-                        model_object=page,
-                        simplified_case=audit.simplified_case,
+                        model_object=wcag_page_wcag_audit_initial,
+                        simplified_case=wcag_audit.simplified_case,
                     )
-                    page.save()
+                    wcag_page_wcag_audit_initial.save()
         else:
             return super().form_invalid(form)
 
@@ -229,30 +241,34 @@ class AuditPagesUpdateView(AuditUpdateView):
     def get_success_url(self) -> str:
         """Detect the submit button used and act accordingly"""
         if "add_extra" in self.request.POST:
-            audit: Audit = self.object
-            audit_pk: dict[str, int] = {"pk": audit.id}
-            url: str = reverse("audits:edit-audit-pages", kwargs=audit_pk)
+            wcag_audit: WcagAudit = self.object
+            url: str = reverse("audits:edit-audit-pages", kwargs={"pk": wcag_audit.id})
             return f"{url}?add_extra=true#extra-page-1"
         return super().get_success_url()
 
 
-class AuditPageChecksFormView(AuditPageChecksBaseFormView):
+class WcagPageChecksFormView(WcagPageChecksBaseFormView):
     """View to update check results for a page"""
 
-    form_class: type[AuditPageChecksForm] = AuditPageChecksForm
+    form_class: type[WcagPageChecksForm] = WcagPageChecksForm
     template_name: str = "audits/forms/page_checks.html"
 
     def get_next_platform_page(self):
-        page: Page = self.page
-        return get_next_platform_page_initial(audit=page.audit, current_page=page)
+        wcag_page_wcag_audit_initial: WcagPageRetest = self.wcag_page_initial
+        return get_next_platform_page_wcag_page_initial(
+            wcag_audit=wcag_page_wcag_audit_initial.wcag_audit,
+            current_wcag_page_initial=wcag_page_wcag_audit_initial,
+        )
 
     def get_form(self, form_class=None):
         """Populate page form"""
         form = super().get_form()
         if "complete_date" in form.fields:
-            form.fields["complete_date"].initial = self.page.complete_date
+            form.fields["complete_date"].initial = self.wcag_page_initial.complete_date
         if "no_errors_date" in form.fields:
-            form.fields["no_errors_date"].initial = self.page.no_errors_date
+            form.fields["no_errors_date"].initial = (
+                self.wcag_page_initial.no_errors_date
+            )
         return form
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
@@ -261,28 +277,32 @@ class AuditPageChecksFormView(AuditPageChecksBaseFormView):
         have marching CheckResults
         """
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        context["page"] = self.page
+        context["wcag_page_initial"] = self.wcag_page_initial
         context["filter_form"] = CheckResultFilterForm(
             initial={"manual": False, "axe": False, "pdf": False, "not_tested": False}
         )
         other_pages_failed_check_results: dict[WcagDefinition, list[CheckResult]] = (
-            other_page_failed_check_results(page=self.page)
+            other_page_failed_check_results(wcag_page_initial=self.wcag_page_initial)
         )
         wcag_definitions: list[WcagDefinition] = list(
-            WcagDefinition.objects.on_date(self.page.audit.date_of_test)
+            WcagDefinition.objects.on_date(
+                self.wcag_page_initial.wcag_audit.date_of_test
+            )
         )
 
         if self.request.POST:
             check_results_formset: CheckResultFormset = CheckResultFormset(
                 self.request.POST,
                 initial=get_page_check_results_formset_initial(
-                    page=self.page, wcag_definitions=wcag_definitions
+                    wcag_page_initial=self.wcag_page_initial,
+                    wcag_definitions=wcag_definitions,
                 ),
             )
         else:
             check_results_formset: CheckResultFormset = CheckResultFormset(
                 initial=get_page_check_results_formset_initial(
-                    page=self.page, wcag_definitions=wcag_definitions
+                    wcag_page_initial=self.wcag_page_initial,
+                    wcag_definitions=wcag_definitions,
                 )
             )
 
@@ -303,16 +323,16 @@ class AuditPageChecksFormView(AuditPageChecksBaseFormView):
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        page: Page = self.page
+        wcag_page_initial: WcagPageRetest = self.wcag_page_initial
         if form.changed_data:
-            page.complete_date = form.cleaned_data["complete_date"]
-            page.no_errors_date = form.cleaned_data["no_errors_date"]
+            wcag_page_initial.complete_date = form.cleaned_data["complete_date"]
+            wcag_page_initial.no_errors_date = form.cleaned_data["no_errors_date"]
             record_simplified_model_update_event(
                 user=self.request.user,
-                model_object=page,
-                simplified_case=page.audit.simplified_case,
+                model_object=wcag_page_initial,
+                simplified_case=wcag_page_initial.wcag_audit.simplified_case,
             )
-            page.save()
+            wcag_page_initial.save()
 
         check_results_formset: CheckResultFormset = CheckResultFormset(
             self.request.POST
@@ -320,7 +340,7 @@ class AuditPageChecksFormView(AuditPageChecksBaseFormView):
         if check_results_formset.is_valid():
             create_or_update_check_results_for_page(
                 user=self.request.user,
-                page=page,
+                wcag_page_initial=wcag_page_initial,
                 check_result_forms=check_results_formset.forms,
             )
         else:
@@ -329,38 +349,47 @@ class AuditPageChecksFormView(AuditPageChecksBaseFormView):
         return super().form_valid(form)
 
 
-class AuditCaseComplianceWebsiteInitialUpdateView(AuditCaseComplianceUpdateView):
+class WcagAuditComplianceInitialUpdateView(WcagAuditUpdateView):
     """
     View to update website compliance fields
     """
 
-    form_class: type[AuditWebsiteDecisionUpdateForm] = AuditWebsiteDecisionUpdateForm
-    case_compliance_form_class: type[CaseComplianceWebsiteInitialUpdateForm] = (
-        CaseComplianceWebsiteInitialUpdateForm
-    )
-    template_name: str = "audits/forms/website_decision.html"
+    form_class: type[WcagAuditComplianceUpdateForm] = WcagAuditComplianceUpdateForm
+    template_name: str = "common/case_form.html"
 
 
-class AuditSummaryUpdateView(AuditUpdateView):
-    """
-    View to update audit summary
-    """
+class AuditSummaryMixin:
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
         return {
             **context,
-            **get_audit_summary_context(request=self.request, audit=self.object),
+            **get_audit_summary_context(
+                request=self.request,
+                wcag_audit_initial=WcagAudit.objects.filter(
+                    simplified_case=self.object.simplified_case,
+                    audit_round_type=WcagAudit.AuditRoundType.INITIAL,
+                ).first(),
+                wcag_audit_12_week=WcagAudit.objects.filter(
+                    simplified_case=self.object.simplified_case,
+                    audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+                ).first(),
+                statement_audit_initial=StatementAudit.objects.filter(
+                    simplified_case=self.object.simplified_case,
+                    audit_round_type=StatementAudit.AuditRoundType.INITIAL,
+                ).first(),
+                statement_audit_12_week=StatementAudit.objects.filter(
+                    simplified_case=self.object.simplified_case,
+                    audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+                ).first(),
+            ),
         }
 
 
-class AuditWcagSummaryUpdateView(AuditSummaryUpdateView):
-    """
-    View to update audit summary
-    """
+class FirstWcagAuditSummaryUpdateView(AuditSummaryMixin, WcagAuditUpdateView):
 
-    form_class: type[AuditWcagSummaryUpdateForm] = AuditWcagSummaryUpdateForm
+    form_class: type[WcagAuditWcagSummaryUpdateForm] = WcagAuditWcagSummaryUpdateForm
     template_name: str = "audits/forms/test_summary_wcag.html"
 
 
@@ -382,7 +411,8 @@ class InitialDeleteStatementPageUpdateView(DeleteStatementPageUpdateView):
         """Return to the list of statement links"""
         statement_page: StatementPage = self.object
         return reverse(
-            "audits:edit-statement-pages", kwargs={"pk": statement_page.audit.id}
+            "audits:edit-statement-pages",
+            kwargs={"pk": statement_page.statement_audit.id},
         )
 
 
@@ -391,8 +421,8 @@ class InitialStatementBackupUpdateView(StatementBackupUpdateView):
     View to backup statement pages in initial test
     """
 
-    form_class: type[AuditInitialStatementBackupUpdateForm] = (
-        AuditInitialStatementBackupUpdateForm
+    form_class: type[StatementAuditInitialStatementBackupUpdateForm] = (
+        StatementAuditInitialStatementBackupUpdateForm
     )
     template_name: str = "audits/forms/initial_statement_backup.html"
 
@@ -402,8 +432,8 @@ class AuditStatementOverviewFormView(AuditStatementCheckingView):
     View to update statement overview check results
     """
 
-    form_class: type[AuditStatementOverviewUpdateForm] = (
-        AuditStatementOverviewUpdateForm
+    form_class: type[StatementAuditStatementOverviewUpdateForm] = (
+        StatementAuditStatementOverviewUpdateForm
     )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.OVERVIEW
@@ -444,7 +474,9 @@ class AuditStatementWebsiteFormView(AuditStatementCheckingView):
     View to update statement information check results
     """
 
-    form_class: type[AuditStatementWebsiteUpdateForm] = AuditStatementWebsiteUpdateForm
+    form_class: type[StatementAuditStatementWebsiteUpdateForm] = (
+        StatementAuditStatementWebsiteUpdateForm
+    )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.WEBSITE
 
@@ -454,8 +486,8 @@ class AuditStatementComplianceFormView(AuditStatementCheckingView):
     View to update statement compliance check results
     """
 
-    form_class: type[AuditStatementComplianceUpdateForm] = (
-        AuditStatementComplianceUpdateForm
+    form_class: type[StatementAuditStatementComplianceUpdateForm] = (
+        StatementAuditStatementComplianceUpdateForm
     )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.COMPLIANCE
@@ -466,8 +498,8 @@ class AuditStatementNonAccessibleFormView(AuditStatementCheckingView):
     View to update statement non-accessible check results
     """
 
-    form_class: type[AuditStatementNonAccessibleUpdateForm] = (
-        AuditStatementNonAccessibleUpdateForm
+    form_class: type[StatementAuditStatementNonAccessibleUpdateForm] = (
+        StatementAuditStatementNonAccessibleUpdateForm
     )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.NON_ACCESSIBLE
@@ -478,8 +510,8 @@ class AuditStatementPreparationFormView(AuditStatementCheckingView):
     View to update statement preparation check results
     """
 
-    form_class: type[AuditStatementPreparationUpdateForm] = (
-        AuditStatementPreparationUpdateForm
+    form_class: type[StatementAuditStatementPreparationUpdateForm] = (
+        StatementAuditStatementPreparationUpdateForm
     )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.PREPARATION
@@ -490,8 +522,8 @@ class AuditStatementFeedbackFormView(AuditStatementCheckingView):
     View to update statement feedback check results
     """
 
-    form_class: type[AuditStatementFeedbackUpdateForm] = (
-        AuditStatementFeedbackUpdateForm
+    form_class: type[StatementAuditStatementFeedbackUpdateForm] = (
+        StatementAuditStatementFeedbackUpdateForm
     )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.FEEDBACK
@@ -502,19 +534,21 @@ class AuditStatementDisproportionateFormView(AuditStatementCheckingView):
     View to update statement disproportionate burden check results
     """
 
-    form_class: type[AuditStatementDisproportionateUpdateForm] = (
-        AuditStatementDisproportionateUpdateForm
+    form_class: type[StatementAuditStatementDisproportionateUpdateForm] = (
+        StatementAuditStatementDisproportionateUpdateForm
     )
     template_name: str = "audits/statement_checks/statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.DISPROPORTIONATE
 
 
-class AuditStatementCustomFormView(AuditUpdateView):
+class AuditStatementCustomFormView(StatementAuditUpdateView):
     """
     View to add/update custom statement issues check results
     """
 
-    form_class: type[AuditStatementCustomUpdateForm] = AuditStatementCustomUpdateForm
+    form_class: type[StatementAuditStatementCustomUpdateForm] = (
+        StatementAuditStatementCustomUpdateForm
+    )
     template_name: str = "audits/statement_checks/statement_custom.html"
 
 
@@ -532,14 +566,19 @@ class CustomIssueCreateView(CreateView):
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        context["audit"] = get_object_or_404(Audit, id=self.kwargs.get("audit_id"))
+        context["statement_audit"] = get_object_or_404(
+            StatementAudit, id=self.kwargs.get("statement_audit_id")
+        )
         return context
 
     def form_valid(self, form: InitialCustomIssueCreateUpdateForm):
         """Populate custom issue"""
-        audit: Audit = get_object_or_404(Audit, id=self.kwargs.get("audit_id"))
+        statement_audit: StatementAudit = get_object_or_404(
+            StatementAudit, id=self.kwargs.get("statement_audit_id")
+        )
         statement_check_result: StatementCheckResult = form.save(commit=False)
-        statement_check_result.audit = audit
+        statement_check_result.statement_audit = statement_audit
+        statement_check_result.audit = statement_audit.simplified_case.audit
         if statement_check_result.type == StatementCheck.Type.CUSTOM:
             statement_check_result.check_result_state = StatementCheckResult.Result.NO
         return super().form_valid(form)
@@ -550,10 +589,11 @@ class CustomIssueCreateView(CreateView):
         record_simplified_model_create_event(
             user=self.request.user,
             model_object=custom_issue,
-            simplified_case=custom_issue.audit.simplified_case,
+            simplified_case=custom_issue.statement_audit.simplified_case,
         )
         url: str = reverse(
-            "audits:edit-statement-custom", kwargs={"pk": custom_issue.audit.id}
+            "audits:edit-statement-custom",
+            kwargs={"pk": custom_issue.statement_audit.id},
         )
         return f"{url}#{custom_issue.issue_identifier}"
 
@@ -620,32 +660,29 @@ def delete_custom_issue(request: HttpRequest, pk: int) -> HttpResponse:
     )
 
 
-class InitialDisproportionateBurdenUpdateView(AuditUpdateView):
+class InitialDisproportionateBurdenUpdateView(StatementAuditUpdateView):
     """
     View to update initial disproportionate burden fields
     """
 
-    form_class: type[AuditInitialDisproportionateBurdenUpdateForm] = (
-        AuditInitialDisproportionateBurdenUpdateForm
+    form_class: type[StatementAuditInitialDisproportionateBurdenUpdateForm] = (
+        StatementAuditInitialDisproportionateBurdenUpdateForm
     )
     template_name: str = "audits/forms/statement_form.html"
 
 
-class AuditCaseComplianceStatementInitialUpdateView(AuditCaseComplianceUpdateView):
+class AuditCaseComplianceStatementInitialUpdateView(StatementAuditUpdateView):
     """
     View to update statement decision fields
     """
 
-    form_class: type[AuditStatementDecisionUpdateForm] = (
-        AuditStatementDecisionUpdateForm
-    )
-    case_compliance_form_class: type[CaseComplianceStatementInitialUpdateForm] = (
-        CaseComplianceStatementInitialUpdateForm
+    form_class: type[StatementAuditComplianceUpdateForm] = (
+        StatementAuditComplianceUpdateForm
     )
     template_name: str = "audits/forms/statement_decision.html"
 
 
-class AuditStatementSummaryUpdateView(AuditSummaryUpdateView):
+class AuditStatementSummaryUpdateView(AuditSummaryMixin, StatementAuditUpdateView):
     """
     View to update audit summary
     """

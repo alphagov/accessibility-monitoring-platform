@@ -1,8 +1,8 @@
-<h2 id="statement-{{ statement_check_type }}" class="govuk-heading-s">{{ statement_check_results.0.get_type_display }}</h2>
+<h2 id="statement-{{ statement_check_type }}" class="govuk-heading-s">{{ summary_statement_check_results.0.get_type_display }}</h2>
 <p class="govuk-body govuk-button-group amp-margin-bottom-0">
-    <a href="{{ case.audit.latest_statement_link }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+    <a href="{{ statement_audit_12_week.latest_statement_link }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
         Open statement page in new tab</a>
-    <a href="{% url 'audits:edit-retest-statement-custom' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+    <a href="{% url 'audits:edit-retest-statement-custom' statement_audit_12_week.id %}" class="govuk-link govuk-link--no-visited-state">
         Edit 12-week test</a>
 </p>
 <table class="govuk-table">
@@ -13,15 +13,15 @@
         </tr>
     </thead>
     <tbody class="govuk-table__body">
-        {% for new_12_week_custom_issue in statement_check_results %}
+        {% for new_12_week_custom_issue in summary_statement_check_results %}
             <tr class="govuk-table__row">
                 <td class="govuk-table__cell amp-width-one-half amp-notes">
-                    {{ new_12_week_custom_issue.retest_comment|markdown_to_html }}
-                    {% include 'audits/helpers/issue_identifier.html' with issue=new_12_week_custom_issue %}
+                    {{ new_12_week_custom_issue.retest_result.retest_comment|markdown_to_html }}
+                    {% include 'audits/helpers/issue_identifier.html' with issue=new_12_week_custom_issue.retest_result %}
                 </td>
                 <td class="govuk-table__cell amp-width-one-half amp-notes">
-                    {{ new_12_week_custom_issue.get_retest_state_display }}<br>
-                    {{ new_12_week_custom_issue.auditor_notes|markdown_to_html }}
+                    {{ new_12_week_custom_issue.retest_result.get_retest_state_display }}<br>
+                    {{ new_12_week_custom_issue.retest_result.auditor_notes|markdown_to_html }}
                 </td>
             </tr>
         {% endfor %}

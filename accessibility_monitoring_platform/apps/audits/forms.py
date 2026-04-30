@@ -30,10 +30,14 @@ from .models import (
     RetestCheckResult,
     RetestPage,
     RetestStatementCheckResult,
+    StatementAudit,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
+    WcagAudit,
     WcagDefinition,
+    WcagPageInitial,
+    WcagPageRetest,
 )
 
 CHECK_RESULT_TYPE_FILTER_CHOICES: list[tuple[str, str]] = (
@@ -55,32 +59,34 @@ COPY_TICK_HELP_TEXT: str = """
 MAX_UPLOAD_FILE_SIZE_MB: int = 100
 
 
-class AuditMetadataUpdateForm(VersionForm):
+class WcagAuditMetadataUpdateForm(VersionForm):
     """
     Form for editing check metadata
     """
 
     date_of_test = AMPDateField(label="Date of test")
-    screen_size = AMPChoiceField(label="Screen size", choices=Audit.ScreenSize.choices)
+    screen_size = AMPChoiceField(
+        label="Screen size", choices=WcagAudit.ScreenSize.choices
+    )
     exemptions_state = AMPChoiceRadioField(
         label="Exemptions?",
-        choices=Audit.Exemptions.choices,
+        choices=WcagAudit.Exemptions.choices,
         help_text="Accessibility regulations do not apply to this website",
     )
-    audit_metadata_complete_date = AMPDatePageCompleteField()
+    metadata_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = WcagAudit
         fields: list[str] = [
             "version",
             "date_of_test",
             "screen_size",
             "exemptions_state",
-            "audit_metadata_complete_date",
+            "metadata_complete_date",
         ]
 
 
-class AuditExtraPageUpdateForm(forms.ModelForm):
+class WcagPageInitialExtraUpdateForm(forms.ModelForm):
     """
     Form for adding and updating an extra page
     """
@@ -90,7 +96,7 @@ class AuditExtraPageUpdateForm(forms.ModelForm):
     location = AMPCharFieldWide(label="Page location description if single page app")
 
     class Meta:
-        model = Page
+        model = WcagPageInitial
         fields = [
             "name",
             "url",
@@ -98,18 +104,18 @@ class AuditExtraPageUpdateForm(forms.ModelForm):
         ]
 
 
-AuditExtraPageFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
-    Page, AuditExtraPageUpdateForm, extra=0
+WcagPageInitialFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
+    WcagPageInitial, WcagPageInitialExtraUpdateForm, extra=0
 )
-AuditExtraPageFormsetOneExtra: forms.formsets.BaseFormSet = forms.modelformset_factory(
-    Page, AuditExtraPageUpdateForm, extra=1
+WcagPageInitialFormsetOneExtra: forms.formsets.BaseFormSet = forms.modelformset_factory(
+    WcagPageInitial, WcagPageInitialExtraUpdateForm, extra=1
 )
-AuditExtraPageFormsetTwoExtra: forms.formsets.BaseFormSet = forms.modelformset_factory(
-    Page, AuditExtraPageUpdateForm, extra=2
+WcagPageInitialFormsetTwoExtra: forms.formsets.BaseFormSet = forms.modelformset_factory(
+    WcagPageInitial, WcagPageInitialExtraUpdateForm, extra=2
 )
 
 
-class AuditStandardPageUpdateForm(AuditExtraPageUpdateForm):
+class WcagPageInitialStandardUpdateForm(WcagPageInitialExtraUpdateForm):
     """
     Form for updating a standard page (one of the 5 types of page in every audit)
     """
@@ -126,7 +132,7 @@ class AuditStandardPageUpdateForm(AuditExtraPageUpdateForm):
     )
 
     class Meta:
-        model = Page
+        model = WcagPageInitial
         fields = [
             "name",
             "url",
@@ -136,27 +142,27 @@ class AuditStandardPageUpdateForm(AuditExtraPageUpdateForm):
         ]
 
 
-AuditStandardPageFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
-    Page, AuditStandardPageUpdateForm, extra=0
+WcagPageInitialStandardFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
+    WcagPageInitial, WcagPageInitialStandardUpdateForm, extra=0
 )
 
 
-class AuditPagesUpdateForm(VersionForm):
+class WcagAuditPagesUpdateForm(VersionForm):
     """
     Form for editing pages check page
     """
 
-    audit_pages_complete_date = AMPDatePageCompleteField()
+    pages_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = WcagAudit
         fields: list[str] = [
             "version",
-            "audit_pages_complete_date",
+            "pages_complete_date",
         ]
 
 
-class AuditPageChecksForm(forms.Form):
+class WcagPageChecksForm(forms.Form):
     """
     Form for editing checks for a page
     """
@@ -171,7 +177,7 @@ class AuditPageChecksForm(forms.Form):
     )
 
     class Meta:
-        model = Audit
+        model = WcagPageRetest
         fields: list[str] = [
             "complete_date",
             "no_errors_date",
@@ -250,52 +256,45 @@ CheckResultFormset: forms.formsets.BaseFormSet = forms.formset_factory(
 )
 
 
-class AuditWebsiteDecisionUpdateForm(VersionForm):
+class WcagAuditComplianceUpdateForm(VersionForm):
     """
     Form for editing website compliance decision completion
     """
 
-    audit_website_decision_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: list[str] = [
-            "version",
-            "audit_website_decision_complete_date",
-        ]
-
-
-class CaseComplianceWebsiteInitialUpdateForm(VersionForm):
-    """
-    Form for editing website compliance decision
-    """
-
-    website_compliance_state_initial = AMPChoiceRadioField(
+    compliance_state = AMPChoiceRadioField(
         label="Initial website compliance decision",
         help_text="This field effects the case status",
         choices=CaseCompliance.WebsiteCompliance.choices,
     )
+    compliance_decision_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = CaseCompliance
+        model = WcagAudit
         fields: list[str] = [
             "version",
-            "website_compliance_state_initial",
+            "compliance_state",
+            "compliance_decision_complete_date",
         ]
 
 
-class AuditStatementDecisionUpdateForm(VersionForm):
+class StatementAuditComplianceUpdateForm(VersionForm):
     """
     Form for editing statement compliance decision completion
     """
 
-    audit_statement_decision_complete_date = AMPDatePageCompleteField()
+    compliance_state = AMPChoiceRadioField(
+        label="Initial statement compliance decision",
+        help_text="This field effects the case status",
+        choices=StatementAudit.StatementCompliance.choices,
+    )
+    compliance_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_statement_decision_complete_date",
+            "compliance_state",
+            "compliance_complete_date",
         ]
 
 
@@ -324,125 +323,125 @@ StatementCheckResultFormset: forms.formsets.BaseFormSet = forms.modelformset_fac
 )
 
 
-class AuditStatementOverviewUpdateForm(VersionForm):
+class StatementAuditStatementOverviewUpdateForm(VersionForm):
     """
     Form for editing statement overview
     """
 
     statement_extra_report_text = AMPTextField(label="Extra report text")
-    audit_statement_overview_complete_date = AMPDatePageCompleteField()
+    statement_overview_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
             "statement_extra_report_text",
-            "audit_statement_overview_complete_date",
+            "statement_overview_complete_date",
         ]
 
 
-class AuditStatementWebsiteUpdateForm(VersionForm):
+class StatementAuditStatementWebsiteUpdateForm(VersionForm):
     """
     Form for editing statement information
     """
 
-    audit_statement_website_complete_date = AMPDatePageCompleteField()
+    statement_website_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_statement_website_complete_date",
+            "statement_website_complete_date",
         ]
 
 
-class AuditStatementComplianceUpdateForm(VersionForm):
+class StatementAuditStatementComplianceUpdateForm(VersionForm):
     """
     Form for editing statement compliance
     """
 
-    audit_statement_compliance_complete_date = AMPDatePageCompleteField()
+    statement_compliance_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_statement_compliance_complete_date",
+            "statement_compliance_complete_date",
         ]
 
 
-class AuditStatementNonAccessibleUpdateForm(VersionForm):
+class StatementAuditStatementNonAccessibleUpdateForm(VersionForm):
     """
     Form for editing statement non-accessible
     """
 
-    audit_statement_non_accessible_complete_date = AMPDatePageCompleteField()
+    statement_non_accessible_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_statement_non_accessible_complete_date",
+            "statement_non_accessible_complete_date",
         ]
 
 
-class AuditStatementPreparationUpdateForm(VersionForm):
+class StatementAuditStatementPreparationUpdateForm(VersionForm):
     """
     Form for editing statement preparation
     """
 
-    audit_statement_preparation_complete_date = AMPDatePageCompleteField()
+    statement_preparation_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_statement_preparation_complete_date",
+            "statement_preparation_complete_date",
         ]
 
 
-class AuditStatementFeedbackUpdateForm(VersionForm):
+class StatementAuditStatementFeedbackUpdateForm(VersionForm):
     """
     Form for editing statement feedback
     """
 
-    audit_statement_feedback_complete_date = AMPDatePageCompleteField()
+    statement_feedback_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_statement_feedback_complete_date",
+            "statement_feedback_complete_date",
         ]
 
 
-class AuditStatementDisproportionateUpdateForm(VersionForm):
+class StatementAuditStatementDisproportionateUpdateForm(VersionForm):
     """
     Form for editing statement feedback
     """
 
-    audit_statement_disproportionate_complete_date = AMPDatePageCompleteField()
+    statement_disproportionate_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_statement_disproportionate_complete_date",
+            "statement_disproportionate_complete_date",
         ]
 
 
-class AuditStatementCustomUpdateForm(VersionForm):
+class StatementAuditStatementCustomUpdateForm(VersionForm):
     """
     Form for editing custom statement issues
     """
 
-    audit_statement_custom_complete_date = AMPDatePageCompleteField()
+    statement_custom_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_statement_custom_complete_date",
+            "statement_custom_complete_date",
         ]
 
 
@@ -490,61 +489,42 @@ class New12WeekCustomStatementCheckResultUpdateForm(forms.ModelForm):
         fields = ["retest_comment", "auditor_notes", "retest_state"]
 
 
-class AuditInitialDisproportionateBurdenUpdateForm(VersionForm):
+class StatementAuditInitialDisproportionateBurdenUpdateForm(VersionForm):
     """
     Form for editing initial disproportional burden claim
     """
 
-    initial_disproportionate_burden_claim = AMPChoiceRadioField(
+    disproportionate_burden_claim = AMPChoiceRadioField(
         label="Initial disproportionate burden claim",
         choices=Audit.DisproportionateBurden.choices,
     )
-    initial_disproportionate_burden_notes = AMPTextField(
+    disproportionate_burden_notes = AMPTextField(
         label="Initial disproportionate burden claim details"
     )
-    initial_disproportionate_burden_complete_date = AMPDatePageCompleteField()
+    disproportionate_burden_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "initial_disproportionate_burden_claim",
-            "initial_disproportionate_burden_notes",
-            "initial_disproportionate_burden_complete_date",
+            "disproportionate_burden_claim",
+            "disproportionate_burden_notes",
+            "disproportionate_burden_complete_date",
         ]
 
 
-class CaseComplianceStatementInitialUpdateForm(VersionForm):
-    """
-    Form for editing statement compliance decision
-    """
-
-    statement_compliance_state_initial = AMPChoiceRadioField(
-        label="Initial statement compliance decision",
-        help_text="This field effects the case status",
-        choices=CaseCompliance.StatementCompliance.choices,
-    )
-
-    class Meta:
-        model = CaseCompliance
-        fields: list[str] = [
-            "version",
-            "statement_compliance_state_initial",
-        ]
-
-
-class AuditWcagSummaryUpdateForm(VersionForm):
+class WcagAuditWcagSummaryUpdateForm(VersionForm):
     """
     Form for editing WCAG audit summary
     """
 
-    audit_wcag_summary_complete_date = AMPDatePageCompleteField()
+    summary_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = WcagAudit
         fields: list[str] = [
             "version",
-            "audit_wcag_summary_complete_date",
+            "summary_complete_date",
         ]
 
 
@@ -1217,13 +1197,13 @@ class InitialAuditStatementPagesUpdateForm(VersionForm):
     Form for statement pages update at initial test
     """
 
-    audit_statement_pages_complete_date = AMPDatePageCompleteField()
+    pages_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_statement_pages_complete_date",
+            "pages_complete_date",
         ]
 
 
@@ -1265,16 +1245,16 @@ class StatementBackupForm(forms.Form):
         return file_to_upload
 
 
-class AuditInitialStatementBackupUpdateForm(VersionForm):
+class StatementAuditInitialStatementBackupUpdateForm(VersionForm):
     """Form for initial statement backup"""
 
-    audit_initial_statement_backup_complete_date = AMPDatePageCompleteField()
+    backup_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_initial_statement_backup_complete_date",
+            "backup_complete_date",
         ]
 
 

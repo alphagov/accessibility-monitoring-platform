@@ -64,10 +64,10 @@ from ..utils import (
 from .base import (
     AddStatementLinkUpdateView,
     AuditCaseComplianceUpdateView,
-    AuditPageChecksBaseFormView,
     AuditUpdateView,
     DeleteStatementPageUpdateView,
     StatementBackupUpdateView,
+    WcagPageChecksBaseFormView,
 )
 
 
@@ -137,7 +137,7 @@ class AuditRetestPagesView(AuditUpdateView):
         return super().form_valid(form)
 
 
-class AuditRetestPageChecksFormView(AuditPageChecksBaseFormView):
+class AuditRetestPageChecksFormView(WcagPageChecksBaseFormView):
     """
     View to retest check results for a page
     """

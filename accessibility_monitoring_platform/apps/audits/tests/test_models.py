@@ -19,6 +19,7 @@ from ..models import (
     RetestCheckResult,
     RetestPage,
     RetestStatementCheckResult,
+    StatementAudit,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
@@ -142,6 +143,9 @@ def create_audit_and_statement_check_results() -> Audit:
     """Create an audit with all types of statement checks"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
     for count, statement_check in enumerate(StatementCheck.objects.all()):
         check_result_state: str = (
             StatementCheckResult.Result.NO
@@ -150,12 +154,14 @@ def create_audit_and_statement_check_results() -> Audit:
         )
         StatementCheckResult.objects.create(
             audit=audit,
+            statement_audit=statement_audit,
             type=statement_check.type,
             statement_check=statement_check,
             check_result_state=check_result_state,
         )
     StatementCheckResult.objects.create(
         audit=audit,
+        statement_audit=statement_audit,
         report_comment="Custom statement issue",
     )
     return audit
@@ -1090,9 +1096,13 @@ def test_audit_specific_outstanding_statement_check_results(type, attr):
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
     statement_check: StatementCheck = StatementCheck.objects.filter(type=type).first()
     statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
         audit=audit,
+        statement_audit=statement_audit,
         type=type,
         statement_check=statement_check,
     )
@@ -1123,12 +1133,16 @@ def test_audit_specific_outstanding_custom_statement_check_results():
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
 
     assert audit.custom_outstanding_statement_check_results.exists() is False
     assert audit.outstanding_statement_check_results.count() == 0
 
     statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
         audit=audit,
+        statement_audit=statement_audit,
         type=StatementCheck.Type.CUSTOM,
     )
 
@@ -1805,13 +1819,18 @@ def test_retest_statement_check_results_str():
     """Test RetestStatementCheckResult.__str__()"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     retest: Retest = Retest.objects.create(simplified_case=simplified_case)
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
     retest_statement_check_result: RetestStatementCheckResult = (
-        RetestStatementCheckResult.objects.create(retest=retest)
+        RetestStatementCheckResult.objects.create(
+            retest=retest, statement_audit=statement_audit
+        )
     )
 
     assert (
         retest_statement_check_result.__str__()
-        == f"{retest} | Custom [{retest_statement_check_result.issue_identifier}]"
+        == f"{statement_audit} | Custom [{retest_statement_check_result.issue_identifier}]"
     )
 
     statement_check: StatementCheck = StatementCheck.objects.get(
@@ -1822,7 +1841,7 @@ def test_retest_statement_check_results_str():
 
     assert (
         retest_statement_check_result.__str__()
-        == f"{retest} | {statement_check} [{retest_statement_check_result.issue_identifier}]"
+        == f"{statement_audit} | {statement_check} [{retest_statement_check_result.issue_identifier}]"
     )
 
 
@@ -2156,7 +2175,9 @@ def test_build_issue_identifier():
     )
 
     assert (
-        build_issue_identifier(simplified_case=simplified_case, issue=check_result)
+        build_issue_identifier(
+            simplified_case=simplified_case, issue=check_result, id_within_case=1
+        )
         == "1-A-1"
     )
 
@@ -2169,7 +2190,9 @@ def test_build_issue_identifier():
 
     assert (
         build_issue_identifier(
-            simplified_case=simplified_case, issue=statement_check_result
+            simplified_case=simplified_case,
+            issue=statement_check_result,
+            id_within_case=1,
         )
         == "1-S-1"
     )
@@ -2184,6 +2207,7 @@ def test_build_issue_identifier():
             simplified_case=simplified_case,
             issue=custom_statement_check_result,
             custom_issue=True,
+            id_within_case=2,
         )
         == "1-SC-2"
     )
@@ -2202,7 +2226,7 @@ def test_build_issue_identifier():
 
     assert (
         build_issue_identifier(
-            simplified_case=simplified_case, issue=retest_check_result
+            simplified_case=simplified_case, issue=retest_check_result, id_within_case=1
         )
         == "1-A-1"
     )
@@ -2217,7 +2241,9 @@ def test_build_issue_identifier():
 
     assert (
         build_issue_identifier(
-            simplified_case=simplified_case, issue=retest_statement_check_result
+            simplified_case=simplified_case,
+            issue=retest_statement_check_result,
+            id_within_case=1,
         )
         == "1-S-1"
     )
@@ -2234,6 +2260,7 @@ def test_build_issue_identifier():
             simplified_case=simplified_case,
             issue=custom_retest_statement_check_result,
             custom_issue=True,
+            id_within_case=2,
         )
         == "1-SC-2"
     )

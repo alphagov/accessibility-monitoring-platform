@@ -43,10 +43,14 @@ from ..models import (
     Audit,
     Page,
     Retest,
+    StatementAudit,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
+    WcagAudit,
     WcagDefinition,
+    WcagPageInitial,
+    WcagPageRetest,
 )
 from ..utils import (
     create_mandatory_pages_for_new_audit,
@@ -91,15 +95,25 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
     record_simplified_model_create_event(
         user=request.user, model_object=audit, simplified_case=simplified_case
     )
-    create_mandatory_pages_for_new_audit(audit=audit)
-    create_statement_checks_for_new_audit(audit=audit)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    record_simplified_model_create_event(
+        user=request.user, model_object=wcag_audit, simplified_case=simplified_case
+    )
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+    record_simplified_model_create_event(
+        user=request.user, model_object=statement_audit, simplified_case=simplified_case
+    )
+    create_mandatory_pages_for_new_audit(wcag_audit=wcag_audit)
+    create_statement_checks_for_new_audit(audit=audit, statement_audit=statement_audit)
     CaseEvent.objects.create(
         simplified_case=simplified_case,
         done_by=request.user,
         event_type=CaseEvent.EventType.CREATE_AUDIT,
         message="Started test",
     )
-    return redirect(reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}))
+    return redirect(reverse("audits:edit-audit-metadata", kwargs={"pk": wcag_audit.id}))
 
 
 def restore_page(request: HttpRequest, pk: int) -> HttpResponse:
@@ -151,17 +165,53 @@ class AuditUpdateView(NextPlatformPageMixin, UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class AuditPageChecksBaseFormView(NextPlatformPageMixin, FormView):
+class WcagAuditUpdateView(AuditUpdateView):
+
+    model: type[WcagAudit] = WcagAudit
+    context_object_name: str = "wcag_audit"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add event on change of audit"""
+        if form.changed_data:
+            self.object: WcagAudit = form.save(commit=False)
+            record_simplified_model_update_event(
+                user=self.request.user,
+                model_object=self.object,
+                simplified_case=self.object.simplified_case,
+            )
+            self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class StatementAuditUpdateView(AuditUpdateView):
+
+    model: type[StatementAudit] = StatementAudit
+    context_object_name: str = "statement_audit"
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add event on change of audit"""
+        if form.changed_data:
+            self.object: StatementAudit = form.save(commit=False)
+            record_simplified_model_update_event(
+                user=self.request.user,
+                model_object=self.object,
+                simplified_case=self.object.simplified_case,
+            )
+            self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class WcagPageChecksBaseFormView(NextPlatformPageMixin, FormView):
     """
     View to update check results for a page
     """
 
-    page: Page
+    wcag_page_wcag_audit: WcagPageRetest
 
     def setup(self, request, *args, **kwargs):
         """Add audit and page objects to view"""
         super().setup(request, *args, **kwargs)
-        self.page = Page.objects.get(pk=kwargs["pk"])
+        self.wcag_page_initial = WcagPageInitial.objects.get(pk=kwargs["pk"])
 
 
 class AuditCaseComplianceUpdateView(AuditUpdateView):
@@ -216,7 +266,7 @@ class AuditCaseComplianceUpdateView(AuditUpdateView):
             )
 
 
-class AuditStatementCheckingView(AuditUpdateView):
+class AuditStatementCheckingView(StatementAuditUpdateView):
     """
     View to do statement checks as part of an audit
     """
@@ -224,6 +274,7 @@ class AuditStatementCheckingView(AuditUpdateView):
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Populate context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
+        statement_audit: StatementAudit = self.object
 
         if self.request.POST:
             statement_check_results_formset: StatementCheckResultFormset = (
@@ -233,7 +284,7 @@ class AuditStatementCheckingView(AuditUpdateView):
             statement_check_results_formset: StatementCheckResultFormset = (
                 StatementCheckResultFormset(
                     queryset=StatementCheckResult.objects.filter(
-                        audit=self.object, type=self.statement_check_type
+                        statement_audit=statement_audit, type=self.statement_check_type
                     )
                 )
             )
@@ -447,7 +498,7 @@ class StatementCheckUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class AddStatementLinkUpdateView(AuditUpdateView):
+class AddStatementLinkUpdateView(StatementAuditUpdateView):
     """View to add statement page"""
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
@@ -474,19 +525,30 @@ class AddStatementLinkUpdateView(AuditUpdateView):
         if form.is_valid() and statement_link_form.is_valid():
             form.save()
             if isinstance(self.object, Retest):
-                audit: Audit = self.object.simplified_case.audit
+                statement_audit: StatementAudit = (
+                    self.object.simplified_case.first_statement_audit
+                )
             else:
-                audit: Audit = self.object
+                statement_audit: StatementAudit = self.object
             statement_url: str = statement_link_form.cleaned_data["statement_url"]
-            if statement_url and statement_url != audit.latest_statement_link:
+            if (
+                statement_url
+                and StatementPage.objects.filter(
+                    simplified_case=statement_audit.simplified_case, url=statement_url
+                ).first()
+                is None
+            ):
                 statement_page: StatementPage = StatementPage.objects.create(
-                    audit=audit, url=statement_url
+                    audit=statement_audit.simplified_case.audit,
+                    simplified_case=statement_audit.simplified_case,
+                    statement_audit=statement_audit,
+                    url=statement_url,
                 )
                 user: User = self.request.user
                 record_simplified_model_create_event(
                     user=user,
                     model_object=statement_page,
-                    simplified_case=audit.simplified_case,
+                    simplified_case=statement_audit.simplified_case,
                 )
             return HttpResponseRedirect(self.get_success_url())
         else:
@@ -517,7 +579,7 @@ class DeleteStatementPageUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class StatementBackupUpdateView(StatementBackupMixin, AuditUpdateView):
+class StatementBackupUpdateView(StatementBackupMixin, StatementAuditUpdateView):
     """View to backup statements"""
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:

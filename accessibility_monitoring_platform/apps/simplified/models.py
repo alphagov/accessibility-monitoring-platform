@@ -35,13 +35,6 @@ ONE_WEEK_IN_DAYS: int = 7
 MAX_LENGTH_OF_FORMATTED_URL: int = 25
 PSB_APPEAL_WINDOW_IN_DAYS: int = 28
 
-COMPLIANCE_FIELDS: list[str] = [
-    "website_compliance_state_initial",
-    "statement_compliance_state_initial",
-    "website_compliance_state_12_week",
-    "statement_compliance_state_12_week",
-]
-
 UPDATE_SEPARATOR: str = " -> "
 
 
@@ -660,7 +653,7 @@ class SimplifiedCase(BaseCase):
 
     @property
     def show_start_test(self) -> bool:
-        return self.not_archived and self.audit is None
+        return self.not_archived and self.first_wcag_audit is None
 
     @property
     def not_archived_has_audit(self) -> bool:
@@ -834,12 +827,20 @@ class SimplifiedCase(BaseCase):
         )
 
     @property
-    def statement_checks_still_initial(self):
+    def statement_checks_still_initial(self) -> bool:
         if self.audit:
             return not self.audit.overview_statement_checks_complete
+
+        from ..audits.models import StatementAudit
+
+        initial_statement_audit: StatementAudit | None = (
+            self.statementaudit_set.all().first()
+        )
+        if initial_statement_audit is None:
+            return True
         return (
-            self.compliance.statement_compliance_state_initial
-            == CaseCompliance.StatementCompliance.UNKNOWN
+            initial_statement_audit.compliance_state
+            == StatementAudit.StatementCompliance.UNKNOWN
         )
 
     @property
@@ -1156,6 +1157,50 @@ class SimplifiedCase(BaseCase):
             event_type=SimplifiedCaseHistory.EventType.NOTE
         )
 
+    @property
+    def wcag_audits(self):
+        return self.wcagaudit_set.filter(is_deleted=False)
+
+    @property
+    def first_wcag_audit(self):
+        return self.wcag_audits.first()
+
+    @property
+    def last_wcag_audit(self):
+        return self.wcag_audits.last()
+
+    @property
+    def statement_audits(self):
+        return self.statementaudit_set.filter(is_deleted=False)
+
+    @property
+    def first_statement_audit(self):
+        return self.statement_audits.first()
+
+    @property
+    def last_statement_audit(self):
+        return self.statement_audits.last()
+
+    @property
+    def statement_pages(self):
+        return self.statementpage_set.filter(is_deleted=False).order_by("id")
+
+    @property
+    def unique_statement_page_urls(self):
+        """Return the first statement page for each URL"""
+        statement_urls: list[str] = []
+        unique_url_statement_pages = []
+        for statement_page in self.statement_pages.exclude(url=""):
+            if statement_page.url not in statement_urls:
+                statement_urls.append(statement_page.url)
+                unique_url_statement_pages.append(statement_page)
+        return unique_url_statement_pages
+
+    @property
+    def archived_google_drive_links(self):
+        """Return statement pages with google drive backup urls"""
+        return self.statement_pages.filter(backup_url__contains="drive.google.com")
+
 
 class CaseStatus(models.Model):
     """
@@ -1184,10 +1229,14 @@ class CaseStatus(models.Model):
         return self.status
 
     def calculate_status(self) -> str:  # noqa: C901
-        try:
-            compliance: CaseCompliance | None = self.simplified_case.compliance
-        except CaseCompliance.DoesNotExist:
-            compliance = None
+        from ..audits.models import StatementAudit, WcagAudit
+
+        initial_wcag_audit: WcagAudit | None = (
+            self.simplified_case.wcagaudit_set.all().first()
+        )
+        initial_statement_audit: StatementAudit | None = (
+            self.simplified_case.statementaudit_set.all().first()
+        )
 
         if self.simplified_case.is_deactivated:
             return CaseStatus.Status.DEACTIVATED
@@ -1219,22 +1268,23 @@ class CaseStatus(models.Model):
         elif self.simplified_case.auditor is None:
             return CaseStatus.Status.UNASSIGNED
         elif (
-            compliance is None
-            or compliance.website_compliance_state_initial
-            == CaseCompliance.WebsiteCompliance.UNKNOWN
+            initial_wcag_audit is None
+            or initial_wcag_audit.compliance_state
+            == WcagAudit.WebsiteCompliance.UNKNOWN
+            or initial_statement_audit is None
             or bool(
                 self.simplified_case.statement_checks_still_initial
-                and self.simplified_case.compliance.statement_compliance_state_initial
-                == CaseCompliance.StatementCompliance.UNKNOWN
+                and initial_statement_audit.compliance_state
+                == StatementAudit.StatementCompliance.UNKNOWN
             )
         ):
             return CaseStatus.Status.TEST_IN_PROGRESS
         elif (
-            self.simplified_case.compliance.website_compliance_state_initial
+            initial_wcag_audit.compliance_state
             != CaseCompliance.WebsiteCompliance.UNKNOWN
             and (
                 not self.simplified_case.statement_checks_still_initial
-                or self.simplified_case.compliance.statement_compliance_state_initial
+                or initial_statement_audit.compliance_state
                 != CaseCompliance.StatementCompliance.UNKNOWN
             )
             and self.simplified_case.report_review_status != Boolean.YES

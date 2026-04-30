@@ -12,30 +12,32 @@
             <table class="govuk-body">
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Initial WCAG compliance decision</b></td>
-                    <td class="amp-padding-bottom-10">{{ case.compliance.get_website_compliance_state_initial_display }}</td>
+                    <td class="amp-padding-bottom-10">{{ wcag_audit_initial.get_compliance_state_display }}</td>
                 </tr>
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Initial issues</b></td>
-                    <td class="amp-padding-bottom-10">{{ case.audit.failed_check_results.count }}</td>
+                    <td class="amp-padding-bottom-10">{{ wcag_audit_initial.wcag_failed_check_result_initials.count }}</td>
                 </tr>
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>12-week WCAG compliance decision</b></td>
-                    <td class="amp-padding-bottom-10">{{ case.compliance.get_website_compliance_state_12_week_display }}</td>
+                    <td class="amp-padding-bottom-10">{{ wcag_audit_12_week.get_compliance_state_display }}</td>
                 </tr>
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Issues remaining at 12-weeks</b></td>
                     <td class="amp-padding-bottom-10">
-                        {{ case.audit.unfixed_check_results.count }} issues
-                        {% if case.audit %}
-                            ({{ case.audit.percentage_wcag_issues_fixed }}% fixed)
+                        {% if wcag_audit_12_week %}
+                            {{ wcag_audit_12_week.wcag_unfixed_check_result_retests.count }} issues
+                            ({{ wcag_audit_12_week.percentage_wcag_issues_fixed }}% fixed)
+                        {% else %}
+                            No 12-week test found
                         {% endif %}
                     </td>
                 </tr>
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Pages removed at 12-weeks</b></td>
                     <td class="amp-padding-bottom-10">
-                        {{ case.audit.missing_at_retest_pages.count }}
-                        ({{ case.audit.missing_at_retest_check_results.count }} issues)
+                        {{ wcag_audit_12_week.missing_wcag_page_retests.count }}
+                        ({{ wcag_audit_12_week.missing_at_retest_check_results.count }} issues)
                     </td>
                 </tr>
             </table>
@@ -46,20 +48,20 @@
         <div class="govuk-grid-column-full">
             <h2 id="wcag-toc" class="govuk-heading-s">WCAG test contents</h2>
             <div class="amp-border-left">
-                {% if audit_failures_by_page or audit_failures_by_wcag %}
+                {% if summary_wcag_check_results_by_page or summary_wcag_check_results_by_wcag %}
                     <ul class="govuk-list">
                         {% if show_failures_by_page %}
-                            {% for page, failures in audit_failures_by_page.items %}
+                            {% for page, summary_wcag_check_results in summary_wcag_check_results_by_page.items %}
                                 <li>
                                     <a href="#page-{{ page.id }}" class="govuk-link govuk-link--no-visited-state">
-                                        {{ page.page_title }} ({{ failures|length }})</a>
+                                        {{ page.page_title }} ({{ summary_wcag_check_results|length }})</a>
                                 </li>
                             {% endfor %}
                         {% else %}
-                            {% for wcag_definition, failures in audit_failures_by_wcag.items %}
+                            {% for wcag_definition, summary_wcag_check_results in summary_wcag_check_results_by_wcag.items %}
                                 <li>
                                     <a href="#wcag-{{ wcag_definition.id }}" class="govuk-link govuk-link--no-visited-state">
-                                        {{ wcag_definition.name }} ({{ failures|length }})</a>
+                                        {{ wcag_definition.name }} ({{ summary_wcag_check_results|length }})</a>
                                 </li>
                             {% endfor %}
                         {% endif %}
@@ -82,47 +84,49 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <table class="govuk-body">
-                {% if case.compliance.statement_compliance_state_12_week == 'unknown' %}
+                {% if statement_audit_12_week.compliance_state == 'unknown' %}
                     <tr>
                         <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Initial statement compliance</b></td>
-                        <td class="amp-padding-bottom-10">{{ case.compliance.get_statement_compliance_state_initial_display }}</td>
+                        <td class="amp-padding-bottom-10">{{ statement_audit_initial.get_compliance_state_display }}</td>
                     </tr>
                 {% endif %}
-                {% if case.audit.twelve_week_disproportionate_burden_claim == 'not-checked' %}
+                {% if statement_audit_12_week.disproportionate_burden_claim == 'not-checked' %}
                     <tr>
                         <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Initial disproportionate burden</b></td>
-                        <td class="amp-padding-bottom-10">{{ case.audit.get_initial_disproportionate_burden_claim_display }}</td>
+                        <td class="amp-padding-bottom-10">{{ statement_audit_initial.get_disproportionate_burden_claim_display }}</td>
                     </tr>
                 {% endif %}
-                {% if case.compliance.statement_compliance_state_12_week != 'unknown' %}
+                {% if statement_audit_12_week.compliance_state != 'unknown' %}
                     <tr>
                         <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>12-week statement compliance</b></td>
-                        <td class="amp-padding-bottom-10">{{ case.compliance.get_statement_compliance_state_12_week_display }}</td>
+                        <td class="amp-padding-bottom-10">{{ statement_audit_12_week.get_compliance_state_display }}</td>
                     </tr>
                 {% endif %}
-                {% if case.audit.twelve_week_disproportionate_burden_claim != 'not-checked' %}
+                {% if statement_audit_12_week.disproportionate_burden_claim != 'not-checked' %}
                     <tr>
                         <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>12-week disproportionate burden</b></td>
-                        <td class="amp-padding-bottom-10">{{ case.audit.get_twelve_week_disproportionate_burden_claim_display }}</td>
+                        <td class="amp-padding-bottom-10">{{ statement_audit_12_week.get_disproportionate_burden_claim_display }}</td>
                     </tr>
                 {% endif %}
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>12-week WCAG compliance decision</b></td>
-                    <td class="amp-padding-bottom-10">{{ case.compliance.get_website_compliance_state_12_week_display }}</td>
+                    <td class="amp-padding-bottom-10">{{ wcag_audit_12_week.get_compliance_state_display }}</td>
                 </tr>
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Issues remaining at 12-weeks</b></td>
                     <td class="amp-padding-bottom-10">
-                        {{ case.audit.unfixed_check_results.count }} issues
-                        {% if case.audit %}
-                            ({{ case.audit.percentage_wcag_issues_fixed }}% fixed)
+                        {% if wcag_audit_12_week %}
+                            {{ wcag_audit_12_week.wcag_unfixed_check_result_retests.count }} issues
+                            ({{ wcag_audit_12_week.percentage_wcag_issues_fixed }}% fixed)
+                        {% else %}
+                            No 12-week test found
                         {% endif %}
                     </td>
                 </tr>
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top">
-                        {% if case.audit.accessibility_statement_found %}
-                            <a href="{{ case.audit.latest_statement_link }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+                        {% if statement_audit_initial.latest_statement_link %}
+                            <a href="{{ statement_audit_initial.latest_statement_link }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
                                 Accessibility Statement</a>
                             added to case
                         {% else %}
@@ -134,10 +138,10 @@
             <br/>
             <h2 class="govuk-heading-s">Statement assessment contents</h2>
             <div class="amp-border-left">
-                {% if statement_check_results_by_type.items %}
+                {% if summary_statement_check_results_by_type.items %}
                     <ul class="govuk-list">
-                        {% for statement_check_type, statement_check_results in statement_check_results_by_type.items %}
-                            <li><a href="#statement-{{ statement_check_type }}" class="govuk-link govuk-link--no-visited-state">{{ statement_check_results.0.get_type_display }}</a></li>
+                        {% for statement_check_type, summary_statement_check_results in summary_statement_check_results_by_type.items %}
+                            <li><a href="#statement-{{ statement_check_type }}" class="govuk-link govuk-link--no-visited-state">{{ summary_statement_check_results.0.initial_result.get_type_display }}</a></li>
                         {% endfor %}
                     </ul>
                 {% else %}
@@ -191,11 +195,11 @@
 </div>
 {% if show_wcag_summary %}
     {% if show_failures_by_page %}
-        {% for page, failures in audit_failures_by_page.items %}
+        {% for page, summary_wcag_check_results in summary_wcag_check_results_by_page.items %}
             <br/>
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-full">
-                    <h2 id="page-{{ page.id }}" class="govuk-heading-m govuk-!-font-size-19 govuk-!-font-weight-bold">{{ page.page_title }} ({{ failures|length }})</h2>
+                    <h2 id="page-{{ page.id }}" class="govuk-heading-m govuk-!-font-size-19 govuk-!-font-weight-bold">{{ page.page_title }} ({{ summary_wcag_check_results|length }})</h2>
                     {% if page.location %}
                         <div class="govuk-grid-row">
                             <div class="govuk-grid-column-full">
@@ -231,24 +235,24 @@
                             </tr>
                         </thead>
                         <tbody class="govuk-table__body">
-                            {% for failure in failures %}
+                            {% for summary_wcag_check_result in summary_wcag_check_results %}
                                 <tr class="govuk-table__row ">
                                     <td scope="row" class="govuk-table__cell amp-width-one-third">
-                                        {{ failure.wcag_definition.name }}<br>
-                                        {% include 'audits/helpers/issue_identifier.html' with issue=failure %}
+                                        {{ summary_wcag_check_result.wcag_definition.name }}<br>
+                                        {% include 'audits/helpers/issue_identifier.html' with issue=summary_wcag_check_result.initial_result %}
                                     </td>
                                     <td class="govuk-table__cell amp-width-one-third amp-notes">
-                                        <p>{{ failure.get_check_result_state_display }}</p>
-                                        {{ failure.notes|markdown_to_html }}
+                                        <p>{{ summary_wcag_check_result.initial_result.get_check_result_state_display }}</p>
+                                        {{ summary_wcag_check_result.initial_result.notes|markdown_to_html }}
                                     </td>
                                     <td class="govuk-table__cell amp-width-one-third amp-notes{% if not enable_12_week_ui %} amp-disabled{% endif %}">
-                                        <p>{{ failure.get_retest_state_display }}</p>
-                                        {{ failure.retest_notes|markdown_to_html }}
+                                        <p>{{ summary_wcag_check_result.retest_result.get_retest_state_display }}</p>
+                                        {{ summary_wcag_check_result.retest_result.retest_notes|markdown_to_html }}
                                     </td>
                                 </tr>
                             {% endfor %}
                             <tr class="govuk-table__row ">
-                                <td scope="row" class="govuk-table__cell amp-width-one-third">Additonal issues found on page</td>
+                                <td scope="row" class="govuk-table__cell amp-width-one-third">Additional issues found on page</td>
                                 <td class="govuk-table__cell amp-width-one-third amp-notes"></td>
                                 <td class="govuk-table__cell amp-width-one-third amp-notes{% if not enable_12_week_ui %} amp-disabled{% endif %}">
                                     {{ page.retest_notes|markdown_to_html }}
@@ -261,15 +265,15 @@
             {% include 'common/top_and_bottom.html' %}
         {% endfor %}
     {% else %}
-        {% for wcag_definition, failures in audit_failures_by_wcag.items %}
+        {% for wcag_definition, summary_wcag_check_results in summary_wcag_check_results_by_wcag.items %}
             <br />
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-full">
-                    <h2 id="wcag-{{ wcag_definition.id }}" class="govuk-heading-m govuk-body govuk-!-font-size-19 govuk-!-font-weight-bold">{{ wcag_definition.name }} ({{ failures|length }})</h2>
+                    <h2 id="wcag-{{ wcag_definition.id }}" class="govuk-heading-m govuk-body govuk-!-font-size-19 govuk-!-font-weight-bold">{{ wcag_definition.name }} ({{ summary_wcag_check_results|length }})</h2>
                     {% if wcag_definition.description %}
                         <p class="govuk-body-m">{{ wcag_definition.description }}</p>
                     {% endif %}
-                    {% if failures|length > 1 %}
+                    {% if summary_wcag_check_results|length > 1 %}
                         <p class="govuk-body-m">
                             Issue identifiers:
                             [{{ wcag_definition.issue_identifiers }}]
@@ -285,28 +289,28 @@
                             </tr>
                         </thead>
                         <tbody class="govuk-table__body">
-                            {% for failure in failures %}
+                            {% for summary_wcag_check_result in summary_wcag_check_results %}
                                 <tr class="govuk-table__row ">
                                     <td class="govuk-table__cell amp-width-one-third">
-                                        <p>{{ failure.page }}</p>
+                                        <p>{{ summary_wcag_check_result.initial_result.wcag_page_initial }}</p>
                                         <ul class="govuk-list">
-                                            {% if failure.page.location %}
-                                                <li>{{ failure.page.location }}</li>
+                                            {% if summary_wcag_check_result.initial_result.wcag_page_initial.location %}
+                                                <li>{{ summary_wcag_check_result.initial_result.wcag_page_initial.location }}</li>
                                             {% endif %}
                                             <li>
-                                                <a href="{{ failure.page.url }}" class="govuk-link" target="_blank">
+                                                <a href="{{ summary_wcag_check_result.initial_result.wcag_page_initial.url }}" class="govuk-link" target="_blank">
                                                     Open page in new tab
                                                 </a>
                                             </li>
                                             <li>
-                                                <a href="{% url 'audits:edit-audit-page-checks' failure.page.id %}" class="govuk-link govuk-link--no-visited-state">
+                                                <a href="{% url 'audits:edit-audit-page-checks' summary_wcag_check_result.initial_result.wcag_page_initial.id %}" class="govuk-link govuk-link--no-visited-state">
                                                     Edit initial test
                                                 </a>
                                             </li>
                                             {% if enable_12_week_ui %}
-                                                {% if failure.page.failed_check_results %}
+                                                {% if summary_wcag_check_result.initial_result.wcag_page_initial.failed_check_results %}
                                                     <li>
-                                                        <a href="{% url 'audits:edit-audit-retest-page-checks' failure.page.id %}" class="govuk-link govuk-link--no-visited-state">
+                                                        <a href="{% url 'audits:edit-audit-retest-page-checks' summary_wcag_check_result.initial_result.wcag_page_initial.id %}" class="govuk-link govuk-link--no-visited-state">
                                                             Edit 12-week test
                                                         </a>
                                                     </li>
@@ -315,17 +319,17 @@
                                                 <li><span class="govuk-body amp-disabled">Edit 12-week test</span></li>
                                             {% endif %}
                                             <li>
-                                                {% include 'audits/helpers/issue_identifier.html' with issue=failure %}
+                                                {% include 'audits/helpers/issue_identifier.html' with issue=summary_wcag_check_result.initial_result %}
                                             </li>
                                         </ul>
                                     </td>
                                     <td class="govuk-table__cell amp-width-one-third amp-notes">
-                                        <p>{{ failure.get_check_result_state_display }}</p>
-                                        {{ failure.notes|markdown_to_html }}
+                                        <p>{{ summary_wcag_check_result.initial_result.get_check_result_state_display }}</p>
+                                        {{ summary_wcag_check_result.initial_result.notes|markdown_to_html }}
                                     </td>
                                     <td class="govuk-table__cell amp-width-one-third amp-notes{% if not enable_12_week_ui %} amp-disabled{% endif %}">
-                                        <p>{{ failure.get_retest_state_display }}</p>
-                                        {{ failure.retest_notes|markdown_to_html }}
+                                        <p>{{ summary_wcag_check_result.retest_result.get_retest_state_display }}</p>
+                                        {{ summary_wcag_check_result.retest_result.retest_notes|markdown_to_html }}
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -390,7 +394,7 @@
 {% endif %}
 
 {% if show_statement_summary %}
-    {% for statement_check_type, statement_check_results in statement_check_results_by_type.items %}
+    {% for statement_check_type, summary_statement_check_results in summary_statement_check_results_by_type.items %}
         {% if statement_check_type == '12-week' %}
             {% include 'audits/helpers/test_summary_new_12_week_statement_content.html' %}
         {% else %}
