@@ -563,7 +563,7 @@ class Audit(VersionModel):
 
     @property
     def statement_pages(self):
-        return self.statementpage_set.filter(is_deleted=False).order_by("id")
+        return self.statementpage_set.filter(is_deleted=False)
 
     @property
     def unique_statement_page_urls(self) -> list[StatementPage]:
@@ -583,7 +583,7 @@ class Audit(VersionModel):
 
     @property
     def latest_statement_link(self) -> str | None:
-        for statement_page in self.statement_pages:
+        for statement_page in self.statement_pages.order_by("-id"):
             if statement_page.url:
                 return statement_page.url
 
@@ -906,7 +906,7 @@ class StatementAudit(AuditRound):
 
     @property
     def statement_pages(self) -> QuerySet[StatementPage]:
-        return self.statementpage_set.filter(is_deleted=False).order_by("id")
+        return self.statementpage_set.filter(is_deleted=False)
 
     @property
     def check_results(self) -> QuerySet[StatementCheckResult]:
@@ -929,6 +929,12 @@ class StatementAudit(AuditRound):
     @property
     def custom_statement_check_results(self):
         return self.check_results.filter(type=StatementCheck.Type.CUSTOM)
+
+    @property
+    def latest_statement_link(self) -> str | None:
+        for statement_page in self.statement_pages.order_by("-id"):
+            if statement_page.url:
+                return statement_page.url
 
 
 class Page(models.Model):
@@ -1132,6 +1138,9 @@ class WcagPageRetest(models.Model):
     class Meta:
         ordering = ["id"]
 
+    def __str__(self) -> str:
+        return str(self.wcag_page_initial)
+
     @property
     def all_check_results(self):
         return (
@@ -1318,7 +1327,7 @@ class WcagCheckResultInitial(WcagCheckResult):
     notes = models.TextField(default="", blank=True)
 
     def save(self, *args, **kwargs) -> None:
-        if not self.id:
+        if not self.id and not self.issue_identifier:
             self.issue_identifier = build_issue_identifier(
                 simplified_case=self.wcag_audit.simplified_case,
                 issue=self,
@@ -1334,6 +1343,7 @@ class WcagCheckResultInitial(WcagCheckResult):
             wcag_audit__simplified_case=self.wcag_audit.simplified_case,
             wcag_audit__audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
             wcag_definition=self.wcag_definition,
+            wcag_page_retest__wcag_page_initial=self.wcag_page_initial,
         ).last()
 
 

@@ -330,6 +330,10 @@ def reverse_code(apps, schema_editor):
     WcagAudit.objects.all().delete()
     RetestStatementCheckResult.objects.all().update(statement_audit=None)
     StatementPage.objects.all().update(statement_audit=None)
+    for statement_audit in StatementAudit.objects.filter(
+        audit_round_type=TWELVE_WEEK_ROUND_TYPE
+    ):
+        StatementCheckResult.objects.filter(statement_audit=statement_audit).delete()
     StatementCheckResult.objects.all().update(statement_audit=None)
     StatementAudit.objects.all().delete()
 

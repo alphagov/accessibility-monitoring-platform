@@ -58,7 +58,7 @@ def get_simplified_case_detail_sections(
         extract_form_labels_and_values, instance=simplified_case.audit
     )
     get_wcag_audit_rows: Callable = partial(
-        extract_form_labels_and_values, instance=simplified_case.wcag_audit
+        extract_form_labels_and_values, instance=simplified_case.first_wcag_audit
     )
     view_sections: list[CaseDetailSection] = []
     for page_group in sitemap.platform_page_groups:

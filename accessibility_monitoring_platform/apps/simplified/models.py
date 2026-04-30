@@ -648,40 +648,12 @@ class SimplifiedCase(BaseCase):
             return None
 
     @property
-    def wcag_audits(self):
-        return self.wcagaudit_set.filter(is_deleted=False)
-
-    @property
-    def first_wcag_audit(self):
-        return self.wcag_audits.first()
-
-    @property
-    def last_wcag_audit(self):
-        return self.wcag_audits.last()
-
-    @property
-    def statement_audits(self):
-        return self.statementaudit_set.filter(is_deleted=False)
-
-    @property
-    def first_statement_audit(self):
-        return self.statement_audits.first()
-
-    @property
-    def last_statement_audit(self):
-        return self.statement_audits.last()
-
-    @property
-    def wcag_audit(self):
-        return self.wcagaudit_set.first()
-
-    @property
     def not_archived(self) -> bool:
         return self.archive == ""
 
     @property
     def show_start_test(self) -> bool:
-        return self.not_archived and self.wcag_audit is None
+        return self.not_archived and self.first_wcag_audit is None
 
     @property
     def not_archived_has_audit(self) -> bool:
@@ -1184,6 +1156,30 @@ class SimplifiedCase(BaseCase):
         return self.case_history().filter(
             event_type=SimplifiedCaseHistory.EventType.NOTE
         )
+
+    @property
+    def wcag_audits(self):
+        return self.wcagaudit_set.filter(is_deleted=False)
+
+    @property
+    def first_wcag_audit(self):
+        return self.wcag_audits.first()
+
+    @property
+    def last_wcag_audit(self):
+        return self.wcag_audits.last()
+
+    @property
+    def statement_audits(self):
+        return self.statementaudit_set.filter(is_deleted=False)
+
+    @property
+    def first_statement_audit(self):
+        return self.statement_audits.first()
+
+    @property
+    def last_statement_audit(self):
+        return self.statement_audits.last()
 
     @property
     def statement_pages(self):

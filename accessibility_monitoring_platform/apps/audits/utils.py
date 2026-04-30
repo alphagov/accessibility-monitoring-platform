@@ -8,7 +8,6 @@ from datetime import date, datetime
 from typing import Any, TypeVar
 
 from django.contrib.auth.models import User
-from django.db.models.query import QuerySet
 from django.http import Http404, HttpRequest
 from django.utils import timezone
 
@@ -450,8 +449,12 @@ def get_audit_summary_context(
     context["show_failures_by_page"] = show_failures_by_page
     context["show_all"] = show_all
     context["enable_12_week_ui"] = wcag_audit_12_week is not None
+    context["wcag_audit_initial"] = wcag_audit_initial
+    context["wcag_audit_12_week"] = wcag_audit_12_week
+    context["statement_audit_initial"] = statement_audit_initial
+    context["statement_audit_12_week"] = statement_audit_12_week
 
-    wcag_check_results: list[SummaryWcagCheckResult] = []
+    summary_wcag_check_results: list[SummaryWcagCheckResult] = []
 
     if wcag_audit_initial is not None:
         for (
@@ -470,10 +473,10 @@ def get_audit_summary_context(
                 or summary_wcag_check_result.retest_result.retest_state
                 != WcagCheckResultRetest.RetestResult.FIXED
             ):
-                wcag_check_results.append(summary_wcag_check_result)
+                summary_wcag_check_results.append(summary_wcag_check_result)
 
-        context["audit_failures_by_page"] = list_to_dictionary_of_lists(
-            items=wcag_check_results, group_by_attr="wcag_page_initial"
+        context["summary_wcag_check_results_by_page"] = list_to_dictionary_of_lists(
+            items=summary_wcag_check_results, group_by_attr="wcag_page_initial"
         )
 
         if wcag_audit_12_week is not None:
@@ -481,18 +484,20 @@ def get_audit_summary_context(
                 wcag_audit=wcag_audit_12_week
             ).exclude(notes="")
 
-        audit_failures_by_wcag: dict[WcagDefinition, list[CheckResult]] = (
+        summary_wcag_check_results_by_wcag: dict[WcagDefinition, list[CheckResult]] = (
             list_to_dictionary_of_lists(
-                items=wcag_check_results, group_by_attr="wcag_definition"
+                items=summary_wcag_check_results, group_by_attr="wcag_definition"
             )
         )
-        for wcag_definition, failures in audit_failures_by_wcag.items():
+        for wcag_definition, failures in summary_wcag_check_results_by_wcag.items():
             wcag_definition.issue_identifiers = " ".join(
                 [failure.issue_identifier for failure in failures]
             )
-        context["audit_failures_by_wcag"] = audit_failures_by_wcag
+        context["summary_wcag_check_results_by_wcag"] = (
+            summary_wcag_check_results_by_wcag
+        )
 
-    statement_check_results: list[SummaryStatementCheckResult] = []
+    summary_statement_check_results: list[SummaryStatementCheckResult] = []
 
     if statement_audit_initial is not None:
         for (
@@ -517,27 +522,27 @@ def get_audit_summary_context(
                 or summary_statement_check_result.retest_result.check_result_state
                 == StatementCheckResult.Result.NO
             ):
-                statement_check_results.append(summary_statement_check_result)
+                summary_statement_check_results.append(summary_statement_check_result)
 
-    if (
-        statement_audit_initial.all_overview_statement_checks_have_passed
-        or statement_audit_12_week.all_overview_statement_checks_have_passed
+    if statement_audit_initial.all_overview_statement_checks_have_passed or (
+        statement_audit_12_week is not None
+        and statement_audit_12_week.all_overview_statement_checks_have_passed
     ):
         pass
     else:
-        statement_check_results = [
+        summary_statement_check_results = [
             statement_check_result
-            for statement_check_result in statement_check_results
+            for statement_check_result in summary_statement_check_results
             if statement_check_result.type == StatementCheck.Type.OVERVIEW
         ]
 
-    context["statement_check_results"] = statement_check_results
-    context["statement_check_results_by_type"] = list_to_dictionary_of_lists(
-        items=statement_check_results, group_by_attr="type"
+    context["summary_statement_check_results"] = summary_statement_check_results
+    context["summary_statement_check_results_by_type"] = list_to_dictionary_of_lists(
+        items=summary_statement_check_results, group_by_attr="type"
     )
 
-    context["number_of_wcag_issues"] = len(wcag_check_results)
-    context["number_of_statement_issues"] = len(statement_check_results)
+    context["number_of_wcag_issues"] = len(summary_wcag_check_results)
+    context["number_of_statement_issues"] = len(summary_statement_check_results)
 
     return context
 

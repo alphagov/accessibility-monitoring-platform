@@ -149,6 +149,7 @@ class WcagCheckResultRetestAdmin(admin.ModelAdmin):
         "issue_identifier",
         "wcag_audit",
         "wcag_page_retest",
+        "wcag_definition",
         "retest_state",
     ]
     list_filter = ["retest_state"]
