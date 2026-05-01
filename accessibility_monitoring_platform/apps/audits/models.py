@@ -254,9 +254,6 @@ class Audit(VersionModel):
     def __str__(self) -> str:
         return f"{self.simplified_case} (Test {amp_format_date(self.date_of_test)})"
 
-    def get_absolute_url(self) -> str:
-        return reverse("audits:edit-audit-metadata", kwargs={"pk": self.pk})
-
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
         super().save(*args, **kwargs)
@@ -623,14 +620,57 @@ class AuditOverview(models.Model):
     updated = models.DateTimeField(null=True, blank=True)
 
     @property
-    def wcag_audits(self):
+    def wcag_audits(self) -> QuerySet[WcagAudit]:
         return self.simplified_case.wcagaudit_set.filter(is_deleted=False)
 
     @property
-    def first_wcag_audit_12_week_retest(self):
+    def first_wcag_audit_12_week_retest(self) -> WcagAudit | None:
         return self.wcag_audits.filter(
             audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK
         ).first()
+
+    @property
+    def statement_audits(self) -> QuerySet[StatementAudit]:
+        return self.simplified_case.statementaudit_set.filter(is_deleted=False)
+
+    @property
+    def statement_audit_initial(self) -> StatementAudit | None:
+        return self.statement_audits.filter(
+            audit_round_type=StatementAudit.AuditRoundType.INITIAL
+        ).first()
+
+    @property
+    def first_statement_audit_12_week_retest(self) -> StatementAudit | None:
+        return self.statement_audits.filter(
+            audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK
+        ).first()
+
+    @property
+    def all_overview_statement_checks_have_passed(self) -> bool:
+        """Check all overview statement checks have passed test or retest"""
+        if (
+            self.statement_audit_initial is None
+            or self.statement_audit_initial.overview_statement_check_results.count()
+            == 0
+        ):
+            return False
+        if self.first_statement_audit_12_week_retest is None:
+            return (
+                self.statement_audit_initial.overview_statement_check_results.exclude(
+                    check_result_state=StatementCheckResult.Result.YES
+                ).count()
+                == 0
+            )
+        return (
+            self.statement_audit_initial.overview_statement_check_results.exclude(
+                check_result_state=StatementCheckResult.Result.YES
+            ).count()
+            == 0
+            or self.first_statement_audit_12_week_retest.overview_statement_check_results.exclude(
+                retest_state=StatementCheckResult.Result.YES
+            ).count()
+            == 0
+        )
 
 
 class AuditRound(VersionModel):
@@ -919,26 +959,122 @@ class StatementAudit(AuditRound):
         return self.statementpage_set.filter(is_deleted=False)
 
     @property
-    def check_results(self) -> QuerySet[StatementCheckResult]:
+    def statement_check_results(self) -> QuerySet[StatementCheckResult]:
         return self.statementcheckresult_set.all()
 
     @property
     def overview_statement_check_results(self):
-        return self.check_results.filter(type=StatementCheck.Type.OVERVIEW)
+        return self.statement_check_results.filter(type=StatementCheck.Type.OVERVIEW)
 
     @property
-    def all_overview_statement_checks_have_passed(self) -> bool:
-        """Check all overview statement checks have passed"""
+    def website_statement_check_results(self):
+        return self.statement_check_results.filter(type=StatementCheck.Type.WEBSITE)
+
+    @property
+    def compliance_statement_check_results(self):
+        return self.statement_check_results.filter(type=StatementCheck.Type.COMPLIANCE)
+
+    @property
+    def non_accessible_statement_check_results(self):
+        return self.statement_check_results.filter(
+            type=StatementCheck.Type.NON_ACCESSIBLE
+        )
+
+    @property
+    def preparation_statement_check_results(self):
+        return self.statement_check_results.filter(type=StatementCheck.Type.PREPARATION)
+
+    @property
+    def feedback_statement_check_results(self):
+        return self.statement_check_results.filter(type=StatementCheck.Type.FEEDBACK)
+
+    @property
+    def custom_statement_check_results(self):
+        return self.statement_check_results.filter(type=StatementCheck.Type.CUSTOM)
+
+    @property
+    def failed_statement_check_results(self):
+        return self.statement_check_results.filter(
+            check_result_state=StatementCheckResult.Result.NO
+        )
+
+    @property
+    def outstanding_statement_check_results(self):
+        return self.statement_check_results.filter(
+            Q(check_result_state=StatementCheckResult.Result.NO)
+            | Q(retest_state=StatementCheckResult.Result.NO)
+            | Q(statement_check=None)
+        ).exclude(retest_state=StatementCheckResult.Result.YES)
+
+    @property
+    def overview_outstanding_statement_check_results(self):
+        return self.outstanding_statement_check_results.filter(
+            type=StatementCheck.Type.OVERVIEW
+        )
+
+    @property
+    def website_outstanding_statement_check_results(self):
+        return self.outstanding_statement_check_results.filter(
+            type=StatementCheck.Type.WEBSITE
+        )
+
+    @property
+    def compliance_outstanding_statement_check_results(self):
+        return self.outstanding_statement_check_results.filter(
+            type=StatementCheck.Type.COMPLIANCE
+        )
+
+    @property
+    def non_accessible_outstanding_statement_check_results(self):
+        return self.outstanding_statement_check_results.filter(
+            type=StatementCheck.Type.NON_ACCESSIBLE
+        )
+
+    @property
+    def preparation_outstanding_statement_check_results(self):
+        return self.outstanding_statement_check_results.filter(
+            type=StatementCheck.Type.PREPARATION
+        )
+
+    @property
+    def feedback_outstanding_statement_check_results(self):
+        return self.outstanding_statement_check_results.filter(
+            type=StatementCheck.Type.FEEDBACK
+        )
+
+    @property
+    def disproportionate_outstanding_statement_check_results(self):
+        return self.outstanding_statement_check_results.filter(
+            type=StatementCheck.Type.DISPROPORTIONATE
+        )
+
+    @property
+    def custom_outstanding_statement_check_results(self):
+        return self.outstanding_statement_check_results.filter(
+            type=StatementCheck.Type.CUSTOM
+        )
+
+    @property
+    def overview_statement_checks_complete(self) -> bool:
         return (
-            self.overview_statement_check_results.exclude(
-                check_result_state=StatementCheckResult.Result.YES
+            self.overview_statement_check_results.filter(
+                check_result_state=StatementCheckResult.Result.NOT_TESTED
             ).count()
             == 0
         )
 
     @property
-    def custom_statement_check_results(self):
-        return self.check_results.filter(type=StatementCheck.Type.CUSTOM)
+    def statement_check_result_statement_found(self) -> bool:
+        # TODO: Replace this with all_overview_statement_checks_have_passed above?
+        overview_statement_yes_count: CheckResult = (
+            self.overview_statement_check_results.filter(
+                check_result_state=StatementCheckResult.Result.YES
+            ).count()
+        )
+        return (
+            overview_statement_yes_count
+            == self.overview_statement_check_results.count()
+        )
 
     @property
     def latest_statement_link(self) -> str | None:
@@ -1090,6 +1226,9 @@ class WcagPageInitial(models.Model):
 
     def __str__(self) -> str:
         return self.name if self.name else self.get_page_type_display()
+
+    def get_absolute_url(self) -> str:
+        return reverse("audits:edit-audit-page-checks", kwargs={"pk": self.pk})
 
     @property
     def page_title(self) -> str:
@@ -1537,7 +1676,7 @@ class StatementCheckResult(models.Model):
                 id_within_case = self.statement_check.issue_number
             else:
                 id_within_case = (
-                    self.statement_audit.statement_check_results.count() + 1
+                    self.statement_audit.statementcheckresult_set.count() + 1
                 )
             self.issue_identifier = build_issue_identifier(
                 simplified_case=self.audit.simplified_case,
