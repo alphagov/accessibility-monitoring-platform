@@ -41,6 +41,7 @@ from ..forms import (
 )
 from ..models import (
     Audit,
+    AuditOverview,
     Page,
     Retest,
     StatementAudit,
@@ -92,8 +93,14 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
             )
         )
     audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
     record_simplified_model_create_event(
         user=request.user, model_object=audit, simplified_case=simplified_case
+    )
+    record_simplified_model_create_event(
+        user=request.user, model_object=audit_overview, simplified_case=simplified_case
     )
     wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
     record_simplified_model_create_event(

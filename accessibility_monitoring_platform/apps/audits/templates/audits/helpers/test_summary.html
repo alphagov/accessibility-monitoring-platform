@@ -20,7 +20,13 @@
                 </tr>
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>12-week WCAG compliance decision</b></td>
-                    <td class="amp-padding-bottom-10">{{ wcag_audit_12_week.get_compliance_state_display }}</td>
+                    <td class="amp-padding-bottom-10">
+                        {% if wcag_audit_12_week %}
+                            {{ wcag_audit_12_week.get_compliance_state_display }}
+                        {% else %}
+                            Not known
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Issues remaining at 12-weeks</b></td>
@@ -29,15 +35,19 @@
                             {{ wcag_audit_12_week.wcag_unfixed_check_result_retests.count }} issues
                             ({{ wcag_audit_12_week.percentage_wcag_issues_fixed }}% fixed)
                         {% else %}
-                            No 12-week test found
+                            0 issues (0% fixed)
                         {% endif %}
                     </td>
                 </tr>
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Pages removed at 12-weeks</b></td>
                     <td class="amp-padding-bottom-10">
-                        {{ wcag_audit_12_week.missing_wcag_page_retests.count }}
-                        ({{ wcag_audit_12_week.missing_at_retest_check_results.count }} issues)
+                        {% if wcag_audit_12_week %}
+                            {{ wcag_audit_12_week.missing_wcag_page_retests.count }}
+                            ({{ wcag_audit_12_week.missing_at_retest_check_results.count }} issues)
+                        {% else %}
+                            0 issues (0% fixed)
+                        {% endif %}
                     </td>
                 </tr>
             </table>
@@ -84,25 +94,25 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <table class="govuk-body">
-                {% if statement_audit_12_week.compliance_state == 'unknown' %}
+                {% if not statement_audit_12_week or statement_audit_12_week.compliance_state == 'unknown' %}
                     <tr>
                         <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Initial statement compliance</b></td>
                         <td class="amp-padding-bottom-10">{{ statement_audit_initial.get_compliance_state_display }}</td>
                     </tr>
                 {% endif %}
-                {% if statement_audit_12_week.disproportionate_burden_claim == 'not-checked' %}
+                {% if not statement_audit_12_week or statement_audit_12_week.disproportionate_burden_claim == 'not-checked' %}
                     <tr>
                         <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Initial disproportionate burden</b></td>
                         <td class="amp-padding-bottom-10">{{ statement_audit_initial.get_disproportionate_burden_claim_display }}</td>
                     </tr>
                 {% endif %}
-                {% if statement_audit_12_week.compliance_state != 'unknown' %}
+                {% if statement_audit_12_week and statement_audit_12_week.compliance_state != 'unknown' %}
                     <tr>
                         <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>12-week statement compliance</b></td>
                         <td class="amp-padding-bottom-10">{{ statement_audit_12_week.get_compliance_state_display }}</td>
                     </tr>
                 {% endif %}
-                {% if statement_audit_12_week.disproportionate_burden_claim != 'not-checked' %}
+                {% if statement_audit_12_week and statement_audit_12_week.disproportionate_burden_claim != 'not-checked' %}
                     <tr>
                         <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>12-week disproportionate burden</b></td>
                         <td class="amp-padding-bottom-10">{{ statement_audit_12_week.get_disproportionate_burden_claim_display }}</td>
@@ -110,7 +120,13 @@
                 {% endif %}
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>12-week WCAG compliance decision</b></td>
-                    <td class="amp-padding-bottom-10">{{ wcag_audit_12_week.get_compliance_state_display }}</td>
+                    <td class="amp-padding-bottom-10">
+                        {% if wcag_audit_12_week %}
+                            {{ wcag_audit_12_week.get_compliance_state_display }}
+                        {% else %}
+                            Not known
+                        {% endif %}
+                    </td>
                 </tr>
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Issues remaining at 12-weeks</b></td>
@@ -119,7 +135,7 @@
                             {{ wcag_audit_12_week.wcag_unfixed_check_result_retests.count }} issues
                             ({{ wcag_audit_12_week.percentage_wcag_issues_fixed }}% fixed)
                         {% else %}
-                            No 12-week test found
+                            0 issues (0% fixed)
                         {% endif %}
                     </td>
                 </tr>

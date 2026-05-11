@@ -189,6 +189,7 @@ class WcagAuditPagesUpdateView(WcagAuditUpdateView):
                     if statement_audit.statement_pages.count() == 0:
                         # Create first statement link
                         statement_page: StatementPage = StatementPage.objects.create(
+                            simplified_case=wcag_audit.simplified_case,
                             audit=wcag_audit.simplified_case.audit,
                             statement_audit=statement_audit,
                             url=wcag_page_wcag_audit_initial.url,

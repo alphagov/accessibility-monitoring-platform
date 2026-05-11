@@ -518,9 +518,13 @@ def get_audit_summary_context(
             )
             if (
                 show_all
-                or summary_statement_check_result.retest_result is None
-                or summary_statement_check_result.retest_result.check_result_state
+                or summary_statement_check_result.initial_result.check_result_state
                 == StatementCheckResult.Result.NO
+                or (
+                    summary_statement_check_result.retest_result is not None
+                    and summary_statement_check_result.retest_result.check_result_state
+                    == StatementCheckResult.Result.NO
+                )
             ):
                 summary_statement_check_results.append(summary_statement_check_result)
 

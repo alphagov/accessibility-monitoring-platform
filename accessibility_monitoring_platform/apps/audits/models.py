@@ -619,6 +619,11 @@ class AuditOverview(models.Model):
     published_report_data_updated_time = models.DateTimeField(null=True, blank=True)
     updated = models.DateTimeField(null=True, blank=True)
 
+    def save(self, *args, **kwargs) -> None:
+        if self.id is None:
+            self.updated = timezone.now()
+            super().save(*args, **kwargs)
+
     @property
     def wcag_audits(self) -> QuerySet[WcagAudit]:
         return self.simplified_case.wcagaudit_set.filter(is_deleted=False)
@@ -1059,6 +1064,16 @@ class StatementAudit(AuditRound):
         return (
             self.overview_statement_check_results.filter(
                 check_result_state=StatementCheckResult.Result.NOT_TESTED
+            ).count()
+            == 0
+        )
+
+    @property
+    def all_overview_statement_checks_have_passed(self) -> bool:
+        """Check all overview statement checks have passed"""
+        return (
+            self.overview_statement_check_results.exclude(
+                check_result_state=StatementCheckResult.Result.YES
             ).count()
             == 0
         )
