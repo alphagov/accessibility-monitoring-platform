@@ -10,7 +10,14 @@ from django.template import Context, Template, loader
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 
-from ..audits.models import Audit, CheckResult, Page, WcagDefinition
+from ..audits.models import (
+    Audit,
+    CheckResult,
+    Page,
+    WcagDefinition,
+    WcagPageInitial,
+    WcagPageRetest,
+)
 from ..cases.models import BaseCase
 from ..s3_read_write.models import S3Report
 from ..s3_read_write.utils import S3ReadWriteReport
@@ -88,7 +95,7 @@ class IssueTable:
     Class for issue table in
     """
 
-    def __init__(self, page: Page, rows: list[TableRow]):
+    def __init__(self, page: WcagPageInitial | WcagPageRetest, rows: list[TableRow]):
         self.page = page
         self.rows = rows
 
@@ -98,7 +105,7 @@ class IssueTable:
 
 
 def build_issues_tables(
-    pages: list[Page],
+    pages: list[WcagPageInitial] | list[WcagPageRetest],
     check_results_attr: str = "failed_check_results",
     use_retest_notes: bool = False,
 ) -> list[IssueTable]:

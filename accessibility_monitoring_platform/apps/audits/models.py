@@ -629,6 +629,12 @@ class AuditOverview(models.Model):
         return self.simplified_case.wcagaudit_set.filter(is_deleted=False)
 
     @property
+    def wcag_audit_initial(self) -> WcagAudit | None:
+        return self.wcag_audits.filter(
+            audit_round_type=WcagAudit.AuditRoundType.INITIAL
+        ).first()
+
+    @property
     def first_wcag_audit_12_week_retest(self) -> WcagAudit | None:
         return self.wcag_audits.filter(
             audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK
@@ -797,6 +803,18 @@ class WcagAudit(AuditRound):
         return self.every_wcag_page_initials.exclude(not_found=Boolean.YES).exclude(
             url=""
         )
+
+    @property
+    def wcag_page_retests(self):
+        return self.wcagpageretest_set.filter(is_deleted=False)
+
+    @property
+    def retestable_wcag_page_retests(self):
+        return self.wcag_page_retests.filter(page_missing_date=None)
+
+    @property
+    def wcag_page_retests_missing_at_retest(self):
+        return self.wcag_page_retests.exclude(page_missing_date=None)
 
     @property
     def standard_wcag_page_initials(self) -> QuerySet[WcagPageInitial]:
@@ -1286,6 +1304,10 @@ class WcagPageInitial(models.Model):
             wcag_check_result_initial.wcag_definition: wcag_check_result_initial
             for wcag_check_result_initial in wcag_check_result_initials
         }
+
+    @property
+    def anchor(self):
+        return f"test-page-{self.id}"
 
 
 class WcagPageRetest(models.Model):

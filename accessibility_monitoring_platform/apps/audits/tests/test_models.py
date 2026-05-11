@@ -25,8 +25,10 @@ from ..models import (
     StatementPage,
     WcagAudit,
     WcagCheckResultInitial,
+    WcagCheckResultRetest,
     WcagDefinition,
     WcagPageInitial,
+    WcagPageRetest,
     build_issue_identifier,
 )
 from ..utils import create_checkresults_for_retest
@@ -285,23 +287,27 @@ def test_wcag_page_initial_get_absolute_url():
 @pytest.mark.django_db
 def test_page_str():
     """
-    Test Page.__str__ is as expected
+    Test WcagPageInitial.__str__ is as expected
     """
-    audit: Audit = create_audit_and_pages()
-    page: Page = audit.accessibility_statement_page
+    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
+    wcag_page_initial: WcagPageInitial = wcag_audit.every_wcag_page_initials.filter(
+        page_type=WcagPageInitial.Type.STATEMENT
+    ).first()
 
-    assert page.__str__() == "Accessibility statement"
+    assert wcag_page_initial.__str__() == "Accessibility statement"
 
 
 @pytest.mark.django_db
 def test_html_page_page_title():
     """
-    Test Page.page_title is as expected for HTML page
+    Test WcagPageInitial.page_title is as expected for HTML page
     """
-    audit: Audit = create_audit_and_pages()
-    page: Page = audit.accessibility_statement_page
+    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
+    wcag_page_initial: WcagPageInitial = wcag_audit.every_wcag_page_initials.filter(
+        page_type=WcagPageInitial.Type.STATEMENT
+    ).first()
 
-    assert page.page_title == "Accessibility statement page"
+    assert wcag_page_initial.page_title == "Accessibility statement page"
 
 
 @pytest.mark.django_db
@@ -309,12 +315,14 @@ def test_pdf_page_page_title():
     """
     Test Page.page_title is as expected for PDF page
     """
-    create_audit_and_pages()
-    page: Page = Page.objects.get(page_type=Page.Type.PDF)
-    page.name = "File"
-    page.save()
+    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
+    wcag_page_initial: WcagPageInitial = wcag_audit.every_wcag_page_initials.filter(
+        page_type=WcagPageInitial.Type.PDF
+    ).first()
+    wcag_page_initial.name = "File"
+    wcag_page_initial.save()
 
-    assert page.page_title == "File"
+    assert wcag_page_initial.page_title == "File"
 
 
 @pytest.mark.django_db
@@ -322,19 +330,21 @@ def test_audit_testable_pages_returns_expected_page():
     """
     Deleted, not found and pages without URLs excluded.
     """
-    audit: Audit = create_audit_and_pages()
-    testable_page: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
+    testable_page: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit,
+        page_type=WcagPageInitial.Type.HOME,
+        url="https://example.com",
     )
-    Page.objects.create(
-        audit=audit,
-        page_type=Page.Type.HOME,
+    WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit,
+        page_type=WcagPageInitial.Type.HOME,
         url="https://example.com",
         not_found="yes",
     )
 
-    assert len(audit.testable_pages) == 1
-    assert audit.testable_pages[0].id == testable_page.id
+    assert len(wcag_audit.testable_wcag_page_initials) == 1
+    assert wcag_audit.testable_wcag_page_initials[0].id == testable_page.id
 
 
 @pytest.mark.django_db
@@ -342,90 +352,133 @@ def test_audit_retestable_pages_returns_expected_page():
     """
     Deleted, not found, pages without URLs and missing pages excluded.
     """
-    audit: Audit = create_audit_and_pages()
-    retestable_page: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
+    retestable_wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit,
+        page_type=WcagPageInitial.Type.HOME,
+        url="https://example.com",
     )
-    Page.objects.create(
-        audit=audit,
-        page_type=Page.Type.HOME,
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+        wcag_audit=wcag_audit,
+        wcag_page_initial=retestable_wcag_page_initial,
+        url=retestable_wcag_page_initial.url,
+    )
+    unretestable_wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit,
+        page_type=WcagPageInitial.Type.HOME,
         url="https://example.com",
         not_found="yes",
-        retest_page_missing_date=date.today(),
+    )
+    WcagPageRetest.objects.create(
+        wcag_audit=wcag_audit,
+        wcag_page_initial=unretestable_wcag_page_initial,
+        url=unretestable_wcag_page_initial.url,
+        page_missing_date=date.today(),
     )
 
-    assert len(audit.retestable_pages) == 1
-    assert audit.retestable_pages[0].id == retestable_page.id
+    assert len(wcag_audit.retestable_wcag_page_retests) == 1
+    assert wcag_audit.retestable_wcag_page_retests[0].id == wcag_page_retest.id
 
 
 @pytest.mark.django_db
 def test_audit_missing_at_retest_pages():
     """Test missing at retest pages."""
-    audit: Audit = create_audit_and_pages()
-    page: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
+    retestable_wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit,
+        page_type=WcagPageInitial.Type.HOME,
+        url="https://example.com",
+    )
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+        wcag_audit=wcag_audit,
+        wcag_page_initial=retestable_wcag_page_initial,
+        url=retestable_wcag_page_initial.url,
     )
 
-    assert len(audit.missing_at_retest_pages) == 0
+    assert len(wcag_audit.wcag_page_retests_missing_at_retest) == 0
 
-    page.retest_page_missing_date = TODAY
-    page.save()
+    wcag_page_retest.page_missing_date = TODAY
+    wcag_page_retest.save()
 
-    assert len(audit.missing_at_retest_pages) == 1
-    assert audit.missing_at_retest_pages[0] == page
+    assert len(wcag_audit.wcag_page_retests_missing_at_retest) == 1
+    assert wcag_audit.wcag_page_retests_missing_at_retest[0] == wcag_page_retest
 
 
 @pytest.mark.django_db
 def test_audit_missing_at_retest_check_results():
     """Test missing at retest check results."""
-    audit: Audit = create_audit_and_pages()
-    page: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    wcag_audit_initial: WcagAudit = create_wcag_audit_and_pages()
+    wcag_audit_retest: WcagAudit = WcagAudit.objects.create(
+        simplified_case=wcag_audit_initial.simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
     )
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit_initial,
+        page_type=WcagPageInitial.Type.HOME,
+        url="https://example.com",
+    )
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+        wcag_audit=wcag_audit_retest,
+        wcag_page_initial=wcag_page_initial,
+        url=wcag_page_initial.url,
+        page_missing_date=TODAY,
+    )
+
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
-    check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        check_result_state=CheckResult.Result.ERROR,
+    WcagCheckResultInitial.objects.create(
+        wcag_audit=wcag_audit_initial,
+        wcag_page_initial=wcag_page_initial,
+        check_result_state=WcagCheckResultInitial.Result.ERROR,
         type=wcag_definition.type,
         wcag_definition=wcag_definition,
     )
+    wcag_check_result_retest: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.create(
+            wcag_audit=wcag_audit_retest,
+            wcag_page_retest=wcag_page_retest,
+            retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+        )
+    )
 
-    assert len(audit.missing_at_retest_check_results) == 0
+    assert len(wcag_audit_initial.missing_at_retest_check_results) == 0
 
-    page.retest_page_missing_date = TODAY
-    page.save()
+    wcag_page_retest.page_missing_date = TODAY
+    wcag_page_retest.save()
 
-    assert len(audit.missing_at_retest_check_results) == 1
-    assert audit.missing_at_retest_check_results[0] == check_result
-
-
-@pytest.mark.django_db
-def test_page_string():
-    """
-    Test Page string is name if present otherwise type
-    """
-    audit: Audit = create_audit_and_pages()
-    page: Page = audit.every_page[0]
-
-    assert str(page) == "Additional"
-
-    page.name = PAGE_NAME
-
-    assert str(page) == PAGE_NAME
+    assert len(wcag_audit_retest.missing_at_retest_check_results) == 1
+    assert (
+        wcag_audit_retest.missing_at_retest_check_results[0] == wcag_check_result_retest
+    )
 
 
 @pytest.mark.django_db
-def test_page_anchor():
+def test_wcag_page_initial_string():
+    """
+    Test WcagPageInitial string is name if present otherwise type
+    """
+    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
+    wcag_page_initial: WcagPageInitial = wcag_audit.every_wcag_page_initials[0]
+
+    assert str(wcag_page_initial) == "Additional"
+
+    wcag_page_initial.name = PAGE_NAME
+
+    assert str(wcag_page_initial) == PAGE_NAME
+
+
+@pytest.mark.django_db
+def test_wcag_page_initial_anchor():
     """
     Test Page anchor string
     """
-    audit: Audit = create_audit_and_pages()
-    page: Page = audit.every_page[0]
+    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
+    wcag_page_initial: WcagPageInitial = wcag_audit.every_wcag_page_initials[0]
 
-    assert page.anchor == f"test-page-{page.id}"
+    assert wcag_page_initial.anchor == f"test-page-{wcag_page_initial.id}"
 
 
 @pytest.mark.django_db

@@ -20,6 +20,7 @@ from ..simplified.utils import (
 from .forms import CheckResultForm
 from .models import (
     Audit,
+    AuditOverview,
     CheckResult,
     Page,
     Retest,
@@ -235,6 +236,55 @@ def create_statement_checks_for_new_audit(
             type=statement_check.type,
             statement_check=statement_check,
         )
+
+
+def create_first_twelve_week_wcag_audit(audit_overview: AuditOverview) -> WcagAudit:
+
+    wcag_audit_new: WcagAudit = WcagAudit.objects.create(
+        simplified_case=audit_overview.simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
+    wcag_audit_initial: WcagAudit = audit_overview.wcag_audit_initial
+    for wcag_page_initial in wcag_audit_initial.testable_wcag_page_initials:
+        wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+            wcag_audit=wcag_audit_new,
+            wcag_page_initial=wcag_page_initial,
+            url=wcag_page_initial.url,
+            location=wcag_page_initial.url,
+        )
+        for (
+            wcag_check_result_initial
+        ) in wcag_page_initial.failed_wcag_check_result_initials:
+            WcagCheckResultRetest.objects.create(
+                wcag_audit=wcag_audit_new,
+                issue_identifier=wcag_check_result_initial.issue_identifier,
+                type=wcag_check_result_initial.type,
+                wcag_definition=wcag_check_result_initial.wcag_definition,
+                wcag_page_retest=wcag_page_retest,
+            )
+    return wcag_audit_new
+
+
+def create_first_twelve_week_statement_audit(
+    audit_overview: AuditOverview,
+) -> StatementAudit:
+
+    statement_audit_new: StatementAudit = StatementAudit.objects.create(
+        simplified_case=audit_overview.simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+    )
+    statement_audit_initial: StatementAudit = audit_overview.statement_audit_initial
+    for (
+        statement_check_result
+    ) in statement_audit_initial.statement_check_results.exclude(type=None):
+        StatementCheckResult.objects.create(
+            audit=statement_check_result.audit,
+            statement_audit=statement_audit_new,
+            issue_identifier=statement_check_result.issue_identifier,
+            statement_check=statement_check_result.statement_check,
+            type=statement_check_result.type,
+        )
+    return statement_audit_new
 
 
 def get_next_platform_page_wcag_page_initial(

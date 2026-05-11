@@ -2,7 +2,6 @@
 Views for audits app (called tests by users)
 """
 
-from datetime import date
 from typing import Any
 
 from django.forms.models import ModelForm
@@ -13,7 +12,7 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
-from ...simplified.models import CaseEvent
+from ...simplified.models import CaseEvent, SimplifiedCase
 from ...simplified.utils import (
     record_simplified_model_create_event,
     record_simplified_model_update_event,
@@ -49,14 +48,19 @@ from ..forms import (
 )
 from ..models import (
     Audit,
+    AuditOverview,
     CheckResult,
     Page,
+    StatementAudit,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
+    WcagAudit,
 )
 from ..utils import (
     add_to_check_result_restest_notes_history,
+    create_first_twelve_week_statement_audit,
+    create_first_twelve_week_wcag_audit,
     get_audit_summary_context,
     get_next_platform_page_twelve_week,
     get_other_pages_with_retest_notes,
@@ -665,19 +669,29 @@ def start_retest(
 
     Args:
         request (HttpRequest): Django HttpRequest
-        pk (int): Id of audit to start retest of
+        pk (int): Id of audit_pverview to start retest of
 
     Returns:
         HttpResponse: Django HttpResponse
     """
-    audit: Audit = get_object_or_404(Audit, id=pk)
-    audit.retest_date = date.today()
-    record_simplified_model_update_event(
-        user=request.user, model_object=audit, simplified_case=audit.simplified_case
+    audit_overview: AuditOverview = get_object_or_404(AuditOverview, id=pk)
+    simplified_case: SimplifiedCase = audit_overview.simplified_case
+
+    wcag_audit: WcagAudit = create_first_twelve_week_wcag_audit(
+        wcag_overview=audit_overview
     )
-    audit.save()
+    record_simplified_model_create_event(
+        user=request.user, model_object=wcag_audit, simplified_case=simplified_case
+    )
+    statement_audit: StatementAudit = create_first_twelve_week_statement_audit(
+        wcag_overview=audit_overview
+    )
+    record_simplified_model_create_event(
+        user=request.user, model_object=statement_audit, simplified_case=simplified_case
+    )
+
     CaseEvent.objects.create(
-        simplified_case=audit.simplified_case,
+        simplified_case=simplified_case,
         done_by=request.user,
         event_type=CaseEvent.EventType.START_RETEST,
         message="Started retest",
