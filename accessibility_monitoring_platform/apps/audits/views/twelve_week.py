@@ -22,8 +22,6 @@ from ..forms import (
     AuditRetestCheckResultFormset,
     AuditRetestNew12WeekCustomIssueCreateForm,
     AuditRetestPageChecksForm,
-    AuditRetestPageFormset,
-    AuditRetestPagesUpdateForm,
     AuditRetestStatementCheckResultFormset,
     AuditRetestStatementComplianceUpdateForm,
     AuditRetestStatementCustomUpdateForm,
@@ -45,6 +43,8 @@ from ..forms import (
     TwelveWeekStatementBackupUpdateForm,
     TwelveWeekStatementPagesUpdateForm,
     WcagAuditRetestMetadataUpdateForm,
+    WcagAuditRetestPagesUpdateForm,
+    WcagPageRetestFormset,
 )
 from ..models import (
     Audit,
@@ -77,9 +77,6 @@ from .base import (
 
 
 class WcagAuditRetestMetadataUpdateView(WcagAuditUpdateView):
-    """
-    View to update audit retest metadata
-    """
 
     form_class: type[WcagAuditRetestMetadataUpdateForm] = (
         WcagAuditRetestMetadataUpdateForm
@@ -97,27 +94,26 @@ class WcagAuditRetestMetadataUpdateView(WcagAuditUpdateView):
         )
 
 
-class AuditRetestPagesView(AuditUpdateView):
-    """View to retest pages"""
+class WcagAuditRetestPagesView(WcagAuditUpdateView):
 
-    form_class: type[AuditRetestPagesUpdateForm] = AuditRetestPagesUpdateForm
+    form_class: type[WcagAuditRetestPagesUpdateForm] = WcagAuditRetestPagesUpdateForm
     template_name: str = "audits/forms/twelve_week_pages.html"
 
     def get_next_platform_page(self):
-        audit: Audit = self.object
-        return get_next_platform_page_twelve_week(audit=audit)
+        wcag_audit: WcagAudit = self.object
+        return get_next_platform_page_twelve_week(wcag_audit=wcag_audit)
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        audit: Audit = self.object
+        wcag_audit: WcagAudit = self.object
         if self.request.POST:
-            audit_retest_pages_formset: AuditRetestPageFormset = AuditRetestPageFormset(
+            audit_retest_pages_formset: WcagPageRetestFormset = WcagPageRetestFormset(
                 self.request.POST
             )
         else:
-            audit_retest_pages_formset: AuditRetestPageFormset = AuditRetestPageFormset(
-                queryset=audit.testable_pages
+            audit_retest_pages_formset: WcagPageRetestFormset = WcagPageRetestFormset(
+                queryset=wcag_audit.wcag_page_retests
             )
         context["audit_retest_pages_formset"] = audit_retest_pages_formset
         return context
@@ -125,19 +121,19 @@ class AuditRetestPagesView(AuditUpdateView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: dict[str, Any] = self.get_context_data()
-        audit_retest_pages_formset: AuditRetestPageFormset = context[
+        wcag_page_retests_formset: WcagPageRetestFormset = context[
             "audit_retest_pages_formset"
         ]
 
-        if audit_retest_pages_formset.is_valid():
-            pages: list[Page] = audit_retest_pages_formset.save(commit=False)
-            for page in pages:
+        if wcag_page_retests_formset.is_valid():
+            wcag_page_retests: list[Page] = wcag_page_retests_formset.save(commit=False)
+            for wcag_page_retest in wcag_page_retests:
                 record_simplified_model_update_event(
                     user=self.request.user,
-                    model_object=page,
-                    simplified_case=page.audit.simplified_case,
+                    model_object=wcag_page_retest,
+                    simplified_case=wcag_page_retest.wcag_audit.simplified_case,
                 )
-                page.save()
+                wcag_page_retest.save()
         else:
             return super().form_invalid(form)
 
@@ -145,9 +141,6 @@ class AuditRetestPagesView(AuditUpdateView):
 
 
 class AuditRetestPageChecksFormView(WcagPageChecksBaseFormView):
-    """
-    View to retest check results for a page
-    """
 
     form_class: type[AuditRetestPageChecksForm] = AuditRetestPageChecksForm
     template_name: str = "audits/forms/twelve_week_retest_page_checks.html"
@@ -678,13 +671,13 @@ def start_retest(
     simplified_case: SimplifiedCase = audit_overview.simplified_case
 
     wcag_audit: WcagAudit = create_first_twelve_week_wcag_audit(
-        wcag_overview=audit_overview
+        audit_overview=audit_overview
     )
     record_simplified_model_create_event(
         user=request.user, model_object=wcag_audit, simplified_case=simplified_case
     )
     statement_audit: StatementAudit = create_first_twelve_week_statement_audit(
-        wcag_overview=audit_overview
+        audit_overview=audit_overview
     )
     record_simplified_model_create_event(
         user=request.user, model_object=statement_audit, simplified_case=simplified_case
@@ -696,4 +689,6 @@ def start_retest(
         event_type=CaseEvent.EventType.START_RETEST,
         message="Started retest",
     )
-    return redirect(reverse("audits:edit-audit-retest-metadata", kwargs={"pk": pk}))
+    return redirect(
+        reverse("audits:edit-audit-retest-metadata", kwargs={"pk": wcag_audit.id})
+    )

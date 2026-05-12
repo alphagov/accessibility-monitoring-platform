@@ -249,8 +249,6 @@ def create_first_twelve_week_wcag_audit(audit_overview: AuditOverview) -> WcagAu
         wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
             wcag_audit=wcag_audit_new,
             wcag_page_initial=wcag_page_initial,
-            url=wcag_page_initial.url,
-            location=wcag_page_initial.url,
         )
         for (
             wcag_check_result_initial
@@ -321,18 +319,18 @@ def get_next_platform_page_wcag_page_initial(
 
 
 def get_next_platform_page_twelve_week(
-    audit: Audit, current_page: Page | None = None
+    wcag_audit: WcagAudit, current_page: Page | None = None
 ) -> PlatformPage:
     """
     Return the platform page page to go to when a save and continue button is
     pressed on the page where pages or page check results are retested.
     """
-    testable_pages_with_errors: list[Page] = [
-        page for page in audit.testable_pages if page.failed_check_results
+    testable_pages_with_errors: list[WcagPageRetest] = [
+        page for page in wcag_audit.wcag_page_retests if page.failed_check_results
     ]
     if not testable_pages_with_errors:
         return get_platform_page_by_url_name(
-            url_name="audits:edit-audit-retest-website-decision", instance=audit
+            url_name="audits:edit-audit-retest-website-decision", instance=wcag_audit
         )
 
     if current_page is None:
@@ -343,7 +341,7 @@ def get_next_platform_page_twelve_week(
 
     if testable_pages_with_errors[-1] == current_page:
         return get_platform_page_by_url_name(
-            url_name="audits:edit-audit-retest-website-decision", instance=audit
+            url_name="audits:edit-audit-retest-website-decision", instance=wcag_audit
         )
 
     current_page_position: int = index_or_404(

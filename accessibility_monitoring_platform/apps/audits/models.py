@@ -805,7 +805,7 @@ class WcagAudit(AuditRound):
         )
 
     @property
-    def wcag_page_retests(self):
+    def wcag_page_retests(self) -> QuerySet[WcagPageRetest]:
         return self.wcagpageretest_set.filter(is_deleted=False)
 
     @property
@@ -1328,9 +1328,13 @@ class WcagPageRetest(models.Model):
         return str(self.wcag_page_initial)
 
     @property
-    def all_check_results(self):
+    def page_title(self) -> str:
+        return self.wcag_page_initial.page_title
+
+    @property
+    def all_check_results(self) -> QuerySet[WcagCheckResultRetest]:
         return (
-            self.wcagcheckresultinitial_set.filter(
+            self.wcagcheckresultretest_set.filter(
                 is_deleted=False, wcag_audit=self.wcag_audit
             )
             .order_by("wcag_definition__id")
@@ -1339,9 +1343,9 @@ class WcagPageRetest(models.Model):
         )
 
     @property
-    def failed_check_results(self):
+    def failed_check_results(self) -> QuerySet[WcagCheckResultRetest]:
         return self.all_check_results.filter(
-            check_result_state=CheckResult.Result.ERROR
+            retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED
         )
 
     @property

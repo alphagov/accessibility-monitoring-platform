@@ -21,7 +21,6 @@ from ..audits.forms import (
 )
 from ..audits.models import (
     Audit,
-    Page,
     Retest,
     RetestPage,
     StatementAudit,
@@ -29,6 +28,7 @@ from ..audits.models import (
     StatementPage,
     WcagAudit,
     WcagPageInitial,
+    WcagPageRetest,
 )
 from ..cases.models import BaseCase, CaseFile
 from ..comments.models import Comment
@@ -634,18 +634,21 @@ class CaseEmailTemplatePreviewPlatformPage(PlatformPage):
         super().populate_from_case(case=case)
 
 
-class AuditRetestPagesPlatformPage(AuditPlatformPage):
+class WcagAuditRetestPagesPlatformPage(WcagAuditPlatformPage):
     def populate_from_case(self, case: AnyCaseType):
-        if hasattr(case, "audit") and isinstance(case.audit, Audit):
-            self.set_instance(instance=case.audit)
-            if self.subpages is not None:
-                bound_subpages: list[PlatformPage] = []
-                for page in case.audit.testable_pages:
-                    if page.failed_check_results.count() > 0:
+        if hasattr(case, "audit_overview"):
+            wcag_audit: WcagAudit | None = (
+                case.audit_overview.first_wcag_audit_12_week_retest
+            )
+            if wcag_audit is not None:
+                self.set_instance(instance=wcag_audit)
+                if self.subpages is not None:
+                    bound_subpages: list[PlatformPage] = []
+                    for page in wcag_audit.wcag_page_retests:
                         bound_subpages += populate_subpages_with_instance(
                             platform_page=self, instance=page
                         )
-                self.subpages = bound_subpages
+                    self.subpages = bound_subpages
 
 
 class EqualityBodyRetestPlatformPage(PlatformPage):
@@ -1269,17 +1272,17 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 case_details_form_class=WcagAuditRetestMetadataUpdateForm,
                 case_details_template_name="cases/details/details.html",
             ),
-            AuditRetestPagesPlatformPage(
+            WcagAuditRetestPagesPlatformPage(
                 name="Update page links",
                 url_name="audits:edit-audit-retest-pages",
-                complete_flag_name="audit_retest_pages_complete_date",
+                complete_flag_name="pages_complete_date",
                 subpages=[
                     PlatformPage(
                         name="{instance.page_title} retest",
                         url_name="audits:edit-audit-retest-page-checks",
                         url_kwarg_key="pk",
-                        instance_class=Page,
-                        complete_flag_name="retest_complete_date",
+                        instance_class=WcagPageRetest,
+                        complete_flag_name="complete_date",
                         case_details_template_name="simplified/details/details_twelve_week_page_wcag_results.html",
                     )
                 ],

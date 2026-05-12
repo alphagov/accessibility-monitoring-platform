@@ -544,9 +544,6 @@ class AuditStatementSummaryUpdateForm(VersionForm):
 
 
 class WcagAuditRetestMetadataUpdateForm(VersionForm):
-    """
-    Form for editing audit retest metadata
-    """
 
     date_of_test = AMPDateField(label="Date of retest")
     metadata_complete_date = AMPDatePageCompleteField()
@@ -560,37 +557,34 @@ class WcagAuditRetestMetadataUpdateForm(VersionForm):
         ]
 
 
-class AuditRetestPagesUpdateForm(VersionForm):
-    """
-    Form for editing audit retest pages
-    """
+class WcagAuditRetestPagesUpdateForm(VersionForm):
 
-    audit_retest_pages_complete_date = AMPDatePageCompleteField()
+    pages_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = WcagAudit
         fields: list[str] = [
             "version",
-            "audit_retest_pages_complete_date",
+            "pages_complete_date",
         ]
 
 
-class AuditRetestPageUpdateForm(forms.ModelForm):
+class WcagPageRetestUpdateForm(forms.ModelForm):
     """Form for updating a page at 12-week retest"""
 
-    updated_url = AMPURLField(label="New URL (if applicable)")
-    updated_location = AMPCharFieldWide(label="New page location (if applicable)")
+    url = AMPURLField(label="New URL (if applicable)")
+    location = AMPCharFieldWide(label="New page location (if applicable)")
 
     class Meta:
-        model = Page
+        model = WcagPageRetest
         fields = [
-            "updated_url",
-            "updated_location",
+            "url",
+            "location",
         ]
 
 
-AuditRetestPageFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
-    Page, AuditRetestPageUpdateForm, extra=0
+WcagPageRetestFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
+    WcagPageRetest, WcagPageRetestUpdateForm, extra=0
 )
 
 
