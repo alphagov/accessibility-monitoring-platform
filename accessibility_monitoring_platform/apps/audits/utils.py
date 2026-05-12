@@ -255,10 +255,8 @@ def create_first_twelve_week_wcag_audit(audit_overview: AuditOverview) -> WcagAu
         ) in wcag_page_initial.failed_wcag_check_result_initials:
             WcagCheckResultRetest.objects.create(
                 wcag_audit=wcag_audit_new,
-                issue_identifier=wcag_check_result_initial.issue_identifier,
-                type=wcag_check_result_initial.type,
-                wcag_definition=wcag_check_result_initial.wcag_definition,
                 wcag_page_retest=wcag_page_retest,
+                wcag_check_result_initial=wcag_check_result_initial,
             )
     return wcag_audit_new
 
@@ -319,7 +317,7 @@ def get_next_platform_page_wcag_page_initial(
 
 
 def get_next_platform_page_twelve_week(
-    wcag_audit: WcagAudit, current_page: Page | None = None
+    wcag_audit: WcagAudit, current_page: WcagPageRetest | None = None
 ) -> PlatformPage:
     """
     Return the platform page page to go to when a save and continue button is
@@ -473,13 +471,15 @@ def get_next_platform_page_equality_body(
     )
 
 
-def get_other_pages_with_retest_notes(page: Page) -> list[Page]:
+def get_other_pages_with_retest_notes(
+    wcag_page_retest: WcagPageRetest,
+) -> list[WcagPageRetest]:
     """Check other pages of this case for retest notes and return them"""
-    audit: Audit = page.audit
+    wcag_audit: WcagAudit = wcag_page_retest.wcag_audit
     return [
         other_page
-        for other_page in audit.testable_pages
-        if other_page.retest_notes and other_page != page
+        for other_page in wcag_audit.retestable_wcag_page_retests
+        if other_page.notes and other_page != wcag_page_retest
     ]
 
 
@@ -627,19 +627,12 @@ def add_to_check_result_notes_history(
 
 
 def add_to_check_result_restest_notes_history(
-    wcag_check_result_initial: WcagCheckResultInitial, user: User
+    wcag_check_result_retest: WcagCheckResultRetest, user: User
 ) -> None:
-    """Add latest change to CheckResult.retest_notes history"""
-    previous_wcag_check_result_initial: WcagCheckResultInitial = (
-        WcagCheckResultInitial.objects.get(id=wcag_check_result_initial.id)
-    )
-    if (
-        wcag_check_result_initial.retest_notes
-        != previous_wcag_check_result_initial.retest_notes
-    ):
+    """Add latest change to WcagCheckResultRetest.notes history"""
+    if wcag_check_result_retest.notes:
         WcagCheckResultInitialNotesHistory.objects.create(
-            wcag_check_result_initial=wcag_check_result_initial,
+            wcag_check_result_initial=wcag_check_result_retest.wcag_check_result_initial,
             created_by=user,
-            retest_notes=wcag_check_result_initial.retest_notes,
-            retest_state=wcag_check_result_initial.retest_state,
+            notes=wcag_check_result_retest.notes,
         )

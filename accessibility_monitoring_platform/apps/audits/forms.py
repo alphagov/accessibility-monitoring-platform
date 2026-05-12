@@ -35,6 +35,7 @@ from .models import (
     StatementCheckResult,
     StatementPage,
     WcagAudit,
+    WcagCheckResultRetest,
     WcagDefinition,
     WcagPageInitial,
     WcagPageRetest,
@@ -588,27 +589,27 @@ WcagPageRetestFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
 )
 
 
-class AuditRetestPageChecksForm(forms.Form):
+class WcagPageRetestChecksForm(forms.Form):
     """
     Form for retesting checks for a page
     """
 
-    retest_complete_date = AMPDatePageCompleteField(
+    complete_date = AMPDatePageCompleteField(
         label="Mark this page as complete",
         widget=AMPDateCheckboxWidget(attrs={"label": "Page complete"}),
     )
-    retest_page_missing_date = AMPDatePageCompleteField(
+    page_missing_date = AMPDatePageCompleteField(
         label="Mark page as missing",
         widget=AMPDateCheckboxWidget(attrs={"label": "Page missing"}),
     )
-    retest_notes = AMPTextField(label="Error details for correspondence")
+    notes = AMPTextField(label="Error details for correspondence")
 
     class Meta:
-        model = Audit
+        model = WcagPageRetest
         fields: list[str] = [
-            "retest_complete_date",
-            "retest_page_missing_date",
-            "retest_notes",
+            "complete_date",
+            "page_missing_date",
+            "notes",
         ]
 
 
@@ -650,15 +651,15 @@ class AuditRetestCheckResultFilterForm(forms.Form):
         ]
 
 
-class AuditRetestCheckResultForm(forms.ModelForm):
+class WcagCheckResultRetestForm(forms.ModelForm):
     """
-    Form for updating a single check test on retest
+    Form for updating a single check result on retest
     """
 
     id = forms.IntegerField(widget=forms.HiddenInput())
     retest_state = AMPChoiceRadioField(
         label="Issue fixed?",
-        choices=CheckResult.RetestResult.choices,
+        choices=WcagCheckResultRetest.RetestResult.choices,
         widget=AMPRadioSelectWidget(
             attrs={
                 "horizontal": True,
@@ -666,21 +667,21 @@ class AuditRetestCheckResultForm(forms.ModelForm):
             }
         ),
     )
-    retest_notes = AMPTextField(
+    notes = AMPTextField(
         label="Error details for correspondence", help_text=COPY_TICK_HELP_TEXT
     )
 
     class Meta:
-        model = CheckResult
+        model = WcagCheckResultRetest
         fields = [
             "id",
             "retest_state",
-            "retest_notes",
+            "notes",
         ]
 
 
-AuditRetestCheckResultFormset: forms.formsets.BaseFormSet = forms.formset_factory(
-    AuditRetestCheckResultForm, extra=0
+WcagCheckResultRetestFormset: forms.formsets.BaseFormSet = forms.formset_factory(
+    WcagCheckResultRetestForm, extra=0
 )
 
 

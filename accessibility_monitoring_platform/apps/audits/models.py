@@ -1337,8 +1337,8 @@ class WcagPageRetest(models.Model):
             self.wcagcheckresultretest_set.filter(
                 is_deleted=False, wcag_audit=self.wcag_audit
             )
-            .order_by("wcag_definition__id")
-            .select_related("wcag_definition")
+            .order_by("wcag_check_result_initial__wcag_definition__id")
+            .select_related("wcag_check_result_initial__wcag_definition")
             .all()
         )
 
@@ -1479,11 +1479,16 @@ class CheckResult(models.Model):
         )
 
 
-class WcagCheckResult(models.Model):
+class WcagCheckResultInitial(models.Model):
+
+    class Result(models.TextChoices):
+        ERROR = "error", "Error found"
+        NO_ERROR = "no-error", "No issue"
+        NOT_TESTED = "not-tested", "Not tested"
 
     wcag_audit = models.ForeignKey(WcagAudit, on_delete=models.PROTECT, null=True)
+    wcag_page_initial = models.ForeignKey(WcagPageInitial, on_delete=models.PROTECT)
     issue_identifier = models.CharField(max_length=20, default="")
-    is_deleted = models.BooleanField(default=False)
     type = models.CharField(
         max_length=20,
         choices=WcagDefinition.Type.choices,
@@ -1493,28 +1498,13 @@ class WcagCheckResult(models.Model):
         WcagDefinition,
         on_delete=models.PROTECT,
     )
-
-    class Meta:
-        abstract = True
-
-    def __str__(self) -> str:
-        return self.issue_identifier
-
-
-class WcagCheckResultInitial(WcagCheckResult):
-
-    class Result(models.TextChoices):
-        ERROR = "error", "Error found"
-        NO_ERROR = "no-error", "No issue"
-        NOT_TESTED = "not-tested", "Not tested"
-
-    wcag_page_initial = models.ForeignKey(WcagPageInitial, on_delete=models.PROTECT)
     check_result_state = models.CharField(
         max_length=20,
         choices=Result.choices,
         default=Result.NOT_TESTED,
     )
     notes = models.TextField(default="", blank=True)
+    is_deleted = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs) -> None:
         if not self.id and not self.issue_identifier:
@@ -1526,31 +1516,48 @@ class WcagCheckResultInitial(WcagCheckResult):
             )
         super().save(*args, **kwargs)
 
+    def __str__(self) -> str:
+        return self.issue_identifier
+
     @property
     def last_12_week_retest(self) -> WcagCheckResultRetest | None:
         return WcagCheckResultRetest.objects.filter(
             is_deleted=False,
             wcag_audit__simplified_case=self.wcag_audit.simplified_case,
             wcag_audit__audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-            wcag_definition=self.wcag_definition,
+            wcag_check_result_initial__wcag_definition=self.wcag_definition,
             wcag_page_retest__wcag_page_initial=self.wcag_page_initial,
         ).last()
 
 
-class WcagCheckResultRetest(WcagCheckResult):
+class WcagCheckResultRetest(models.Model):
 
     class RetestResult(models.TextChoices):
         FIXED = "fixed", "Fixed"
         NOT_FIXED = "not-fixed", "Not fixed"
         NOT_RETESTED = "not-retested", "Not retested"
 
+    wcag_audit = models.ForeignKey(WcagAudit, on_delete=models.PROTECT, null=True)
     wcag_page_retest = models.ForeignKey(WcagPageRetest, on_delete=models.PROTECT)
+    wcag_check_result_initial = models.ForeignKey(
+        WcagCheckResultInitial, on_delete=models.PROTECT
+    )
     retest_state = models.CharField(
         max_length=20,
         choices=RetestResult.choices,
         default=RetestResult.NOT_RETESTED,
     )
-    retest_notes = models.TextField(default="", blank=True)
+    notes = models.TextField(default="", blank=True)
+    is_deleted = models.BooleanField(default=False)
+
+    @property
+    def retest_form_initial(self) -> dict[str, int | str | WcagCheckResultRetest]:
+        return {
+            "id": self.id,
+            "retest_state": self.retest_state,
+            "retest_notes": self.notes,
+            "check_result": self,
+        }
 
 
 class CheckResultNotesHistory(models.Model):

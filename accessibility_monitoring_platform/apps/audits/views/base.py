@@ -208,19 +208,6 @@ class StatementAuditUpdateView(AuditUpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class WcagPageChecksBaseFormView(NextPlatformPageMixin, FormView):
-    """
-    View to update check results for a page
-    """
-
-    wcag_page_wcag_audit: WcagPageRetest
-
-    def setup(self, request, *args, **kwargs):
-        """Add audit and page objects to view"""
-        super().setup(request, *args, **kwargs)
-        self.wcag_page_initial = WcagPageInitial.objects.get(pk=kwargs["pk"])
-
-
 class AuditCaseComplianceUpdateView(AuditUpdateView):
     """
     View to update audit and case compliance fields

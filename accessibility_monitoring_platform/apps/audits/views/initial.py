@@ -9,11 +9,12 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import TemplateView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, FormView, UpdateView
 
 from ...common.forms import AMPChoiceCheckboxWidget
 from ...common.mark_deleted_util import mark_object_as_deleted
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
+from ...common.views import NextPlatformPageMixin
 from ...simplified.models import SimplifiedCase
 from ...simplified.utils import (
     record_simplified_model_create_event,
@@ -73,7 +74,6 @@ from .base import (
     StatementAuditUpdateView,
     StatementBackupUpdateView,
     WcagAuditUpdateView,
-    WcagPageChecksBaseFormView,
 )
 
 
@@ -248,11 +248,18 @@ class WcagAuditPagesUpdateView(WcagAuditUpdateView):
         return super().get_success_url()
 
 
-class WcagPageChecksFormView(WcagPageChecksBaseFormView):
+class WcagPageChecksFormView(NextPlatformPageMixin, FormView):
     """View to update check results for a page"""
 
     form_class: type[WcagPageChecksForm] = WcagPageChecksForm
     template_name: str = "audits/forms/page_checks.html"
+
+    wcag_page_initial: WcagPageInitial
+
+    def setup(self, request, *args, **kwargs):
+        """Add audit and page objects to view"""
+        super().setup(request, *args, **kwargs)
+        self.wcag_page_initial = WcagPageInitial.objects.get(pk=kwargs["pk"])
 
     def get_next_platform_page(self):
         wcag_page_wcag_audit_initial: WcagPageRetest = self.wcag_page_initial

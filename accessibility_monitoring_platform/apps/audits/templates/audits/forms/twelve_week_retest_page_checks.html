@@ -69,22 +69,22 @@
         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
         {{ check_results_formset.management_form }}
         {% for form in check_results_formset %}
-            <div class="govuk-grid-row" id="{{ form.initial.check_result.issue_identifier }}"
-                data-check-type="{{ form.initial.check_result.wcag_definition.type }}"
-                data-filter-string="{{ form.initial.check_result.wcag_definition }} {{ form.initial.check_result.wcag_definition.hint }} {{ form.initial.check_result.issue_identifier }}"
+            <div class="govuk-grid-row" id="{{ form.initial.check_result.wcag_check_result_initial.issue_identifier }}"
+                data-check-type="{{ form.initial.check_result.wcag_check_result_initial.wcag_definition.type }}"
+                data-filter-string="{{ form.initial.check_result.wcag_check_result_initial.wcag_definition }} {{ form.initial.check_result.wcag_check_result_initial.wcag_definition.hint }} {{ form.initial.check_result.wcag_check_result_initial.issue_identifier }}"
             >
                 <div class="govuk-grid-column-full">
                     <hr class="amp-width-100 amp-margin-bottom-30">
-                    <p class="govuk-heading-s"><b>{{ form.initial.check_result.wcag_definition }}</b> [{{ form.initial.check_result.issue_identifier }}]</p>
+                    <p class="govuk-heading-s"><b>{{ form.initial.check_result.wcag_check_result_initial.wcag_definition }}</b> [{{ form.initial.check_result.wcag_check_result_initial.issue_identifier }}]</p>
                     <p class="govuk-heading-s amp-margin-bottom-5"><b>Error details for report</b></p>
                     <div class="amp-nav-details__text amp-markdown">
-                        {{ form.initial.check_result.notes|markdown_to_html }}
-                        {% if form.initial.check_result.notes %}
+                        {{ form.initial.check_result.wcag_check_result_initial.notes|markdown_to_html }}
+                        {% if form.initial.check_result.wcag_check_result_initial.notes %}
                             <a
                                 href="#"
                                 class="amp-initial-report-text"
                                 id="amp-report-content-copy-{{forloop.counter0}}"
-                                data-report-text="{{form.initial.check_result.notes}}"
+                                data-report-text="{{form.initial.check_result.wcag_check_result_initial.notes}}"
                             >
                                 Copy report text to error details
                             </a>
@@ -93,8 +93,8 @@
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     {% include 'common/amp_field.html' with field=form.retest_state %}
                     {% include 'audits/helpers/check_result_matching_retest_errors.html' with check_result=form.initial.check_result %}
-                    {% include 'common/amp_field.html' with field=form.retest_notes %}
-                    {% include 'common/preview_markdown.html' with field_id=form.retest_notes.auto_id %}
+                    {% include 'common/amp_field.html' with field=form.notes %}
+                    {% include 'common/preview_markdown.html' with field_id=form.notes.auto_id %}
                     {% include 'audits/helpers/check_result_retest_notes_history.html' with check_result=form.initial.check_result %}
                     <div class="govuk-grid-row amp-margin-bottom-20 amp-margin-top-20">
                         <div class="govuk-grid-column-full govuk-button-group">

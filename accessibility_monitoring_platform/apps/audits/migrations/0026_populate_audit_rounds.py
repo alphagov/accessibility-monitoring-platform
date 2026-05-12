@@ -122,6 +122,7 @@ def populate_audit_rounds(apps, schema_editor):
             )
 
         wcag_page_initials_by_page = {}
+        wcag_check_result_initials_by_page_and_wcag = {}
         for page in Page.objects.filter(audit=audit):
             wcag_page_initial = WcagPageInitial.objects.create(
                 wcag_audit=wcag_audit_initial,
@@ -156,7 +157,7 @@ def populate_audit_rounds(apps, schema_editor):
                         page_missing_date=page.retest_page_missing_date,
                     )
             for check_result in CheckResult.objects.filter(page=page):
-                wcag_check_results_initial = WcagCheckResultInitial.objects.create(
+                wcag_check_result_initial = WcagCheckResultInitial.objects.create(
                     wcag_audit=wcag_audit_initial,
                     wcag_page_initial=wcag_page_initial,
                     issue_identifier=check_result.issue_identifier,
@@ -166,17 +167,18 @@ def populate_audit_rounds(apps, schema_editor):
                     check_result_state=check_result.check_result_state,
                     notes=check_result.notes,
                 )
+                wcag_check_result_initials_by_page_and_wcag[
+                    f"{page.id}-{check_result.wcag_definition.id}"
+                ] = wcag_check_result_initial
                 if wcag_audit_12_week is not None and wcag_page_retest is not None:
                     # if check_result.retest_state != "not-retested" or check_result.retest_notes != "":
                     WcagCheckResultRetest.objects.create(
                         wcag_audit=wcag_audit_12_week,
                         wcag_page_retest=wcag_page_retest,
-                        issue_identifier=check_result.issue_identifier,
+                        wcag_check_result_initial=wcag_check_result_initial,
                         is_deleted=check_result.is_deleted,
-                        type=check_result.type,
-                        wcag_definition=check_result.wcag_definition,
                         retest_state=check_result.retest_state,
-                        retest_notes=check_result.retest_notes,
+                        notes=check_result.retest_notes,
                     )
                 for (
                     check_result_notes_history
@@ -186,7 +188,7 @@ def populate_audit_rounds(apps, schema_editor):
                         Mock(return_value=check_result_notes_history.created),
                     ):
                         WcagCheckResultInitialNotesHistory.objects.create(
-                            wcag_check_result_initial=wcag_check_results_initial,
+                            wcag_check_result_initial=wcag_check_result_initial,
                             notes=check_result_notes_history.notes,
                             created_by=check_result_notes_history.created_by,
                         )
@@ -271,13 +273,14 @@ def populate_audit_rounds(apps, schema_editor):
                     retest_page=retest_page
                 ).order_by("id"):
                     WcagCheckResultRetest.objects.create(
+                        wcag_audit=wcag_audit_retest,
                         wcag_page_retest=wcag_page_retest,
-                        issue_identifier=retest_check_result.issue_identifier,
-                        is_deleted=retest_check_result.is_deleted,
-                        type=retest_check_result.check_result.type,
-                        wcag_definition=retest_check_result.check_result.wcag_definition,
+                        wcag_check_result_initial=wcag_check_result_initials_by_page_and_wcag[
+                            f"{retest_check_result.retest_page.page.id}-{retest_check_result.check_result.wcag_definition.id}"
+                        ],
                         retest_state=retest_check_result.retest_state,
-                        retest_notes=retest_check_result.retest_notes,
+                        notes=retest_check_result.retest_notes,
+                        is_deleted=retest_check_result.is_deleted,
                     )
 
             for (

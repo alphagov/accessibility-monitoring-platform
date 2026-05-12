@@ -9,9 +9,10 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import TemplateView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, FormView, UpdateView
 
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
+from ...common.views import NextPlatformPageMixin
 from ...simplified.models import CaseEvent, SimplifiedCase
 from ...simplified.utils import (
     record_simplified_model_create_event,
@@ -19,9 +20,7 @@ from ...simplified.utils import (
 )
 from ..forms import (
     AuditRetestCheckResultFilterForm,
-    AuditRetestCheckResultFormset,
     AuditRetestNew12WeekCustomIssueCreateForm,
-    AuditRetestPageChecksForm,
     AuditRetestStatementCheckResultFormset,
     AuditRetestStatementComplianceUpdateForm,
     AuditRetestStatementCustomUpdateForm,
@@ -44,18 +43,21 @@ from ..forms import (
     TwelveWeekStatementPagesUpdateForm,
     WcagAuditRetestMetadataUpdateForm,
     WcagAuditRetestPagesUpdateForm,
+    WcagCheckResultRetestFormset,
+    WcagPageRetestChecksForm,
     WcagPageRetestFormset,
 )
 from ..models import (
     Audit,
     AuditOverview,
-    CheckResult,
     Page,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
     WcagAudit,
+    WcagCheckResultRetest,
+    WcagPageRetest,
 )
 from ..utils import (
     add_to_check_result_restest_notes_history,
@@ -72,7 +74,6 @@ from .base import (
     DeleteStatementPageUpdateView,
     StatementBackupUpdateView,
     WcagAuditUpdateView,
-    WcagPageChecksBaseFormView,
 )
 
 
@@ -140,29 +141,37 @@ class WcagAuditRetestPagesView(WcagAuditUpdateView):
         return super().form_valid(form)
 
 
-class AuditRetestPageChecksFormView(WcagPageChecksBaseFormView):
+class WcagPageRetestCheckResultsFormView(NextPlatformPageMixin, FormView):
 
-    form_class: type[AuditRetestPageChecksForm] = AuditRetestPageChecksForm
+    form_class: type[WcagPageRetestChecksForm] = WcagPageRetestChecksForm
     template_name: str = "audits/forms/twelve_week_retest_page_checks.html"
+    wcag_page_retest: WcagPageRetest
+
+    def setup(self, request, *args, **kwargs):
+        """Add audit and page objects to view"""
+        super().setup(request, *args, **kwargs)
+        self.wcag_page_retest = WcagPageRetest.objects.get(pk=kwargs["pk"])
 
     def get_next_platform_page(self):
-        page: Page = self.page
-        return get_next_platform_page_twelve_week(audit=page.audit, current_page=page)
+        wcag_page_retest: WcagPageRetest = self.wcag_page_retest
+        return get_next_platform_page_twelve_week(
+            wcag_audit=wcag_page_retest.wcag_audit, current_page=wcag_page_retest
+        )
 
     def get_form(self, form_class=None):
         """Populate next page fields"""
         form = super().get_form()
-        form.fields["retest_complete_date"].initial = self.page.retest_complete_date
-        form.fields["retest_page_missing_date"].initial = (
-            self.page.retest_page_missing_date
+        form.fields["complete_date"].initial = self.wcag_page_retest.complete_date
+        form.fields["page_missing_date"].initial = (
+            self.wcag_page_retest.page_missing_date
         )
-        form.fields["retest_notes"].initial = self.page.retest_notes
+        form.fields["notes"].initial = self.wcag_page_retest.notes
         return form
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Populate context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        context["page"] = self.page
+        context["page"] = self.wcag_page_retest
         context["filter_form"] = AuditRetestCheckResultFilterForm(
             initial={
                 "fixed": False,
@@ -171,28 +180,28 @@ class AuditRetestPageChecksFormView(WcagPageChecksBaseFormView):
             }
         )
         if self.request.POST:
-            check_results_formset: AuditRetestCheckResultFormset = (
-                AuditRetestCheckResultFormset(
+            check_results_formset: WcagCheckResultRetestFormset = (
+                WcagCheckResultRetestFormset(
                     self.request.POST,
                     initial=[
                         check_result.retest_form_initial
-                        for check_result in self.page.failed_check_results
+                        for check_result in self.wcag_page_retest.all_check_results
                     ],
                 )
             )
         else:
-            check_results_formset: AuditRetestCheckResultFormset = (
-                AuditRetestCheckResultFormset(
+            check_results_formset: WcagCheckResultRetestFormset = (
+                WcagCheckResultRetestFormset(
                     initial=[
                         check_result.retest_form_initial
-                        for check_result in self.page.failed_check_results
+                        for check_result in self.wcag_page_retest.all_check_results
                     ]
                 )
             )
 
         context["check_results_formset"] = check_results_formset
         context["other_pages_with_retest_notes"] = get_other_pages_with_retest_notes(
-            page=self.page
+            wcag_page_retest=self.wcag_page_retest
         )
 
         return context
@@ -200,40 +209,41 @@ class AuditRetestPageChecksFormView(WcagPageChecksBaseFormView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: dict[str, Any] = self.get_context_data()
-        page: Page = self.page
+        wcag_page_retest: Page = self.wcag_page_retest
         if form.changed_data:
-            page.retest_complete_date = form.cleaned_data["retest_complete_date"]
-            page.retest_page_missing_date = form.cleaned_data[
-                "retest_page_missing_date"
-            ]
-            page.retest_notes = form.cleaned_data["retest_notes"]
+            wcag_page_retest.complete_date = form.cleaned_data["complete_date"]
+            wcag_page_retest.page_missing_date = form.cleaned_data["page_missing_date"]
+            wcag_page_retest.notes = form.cleaned_data["notes"]
             record_simplified_model_update_event(
                 user=self.request.user,
-                model_object=page,
-                simplified_case=page.audit.simplified_case,
+                model_object=wcag_page_retest,
+                simplified_case=wcag_page_retest.wcag_audit.simplified_case,
             )
-            page.save()
+            wcag_page_retest.save()
 
-        check_results_formset: AuditRetestCheckResultFormset = context[
+        check_results_formset: WcagCheckResultRetestFormset = context[
             "check_results_formset"
         ]
         if check_results_formset.is_valid():
             for form in check_results_formset.forms:
                 if form.changed_data:
-                    check_result: CheckResult = CheckResult.objects.get(
-                        id=form.cleaned_data["id"]
+                    wcag_check_result_retest: WcagCheckResultRetest = (
+                        WcagCheckResultRetest.objects.get(id=form.cleaned_data["id"])
                     )
-                    check_result.retest_state = form.cleaned_data["retest_state"]
-                    check_result.retest_notes = form.cleaned_data["retest_notes"]
+                    wcag_check_result_retest.retest_state = form.cleaned_data[
+                        "retest_state"
+                    ]
+                    wcag_check_result_retest.notes = form.cleaned_data["notes"]
                     add_to_check_result_restest_notes_history(
-                        check_result=check_result, user=self.request.user
+                        wcag_check_result_retest=wcag_check_result_retest,
+                        user=self.request.user,
                     )
                     record_simplified_model_update_event(
                         user=self.request.user,
-                        model_object=check_result,
-                        simplified_case=check_result.audit.simplified_case,
+                        model_object=wcag_check_result_retest,
+                        simplified_case=wcag_check_result_retest.wcag_audit.simplified_case,
                     )
-                    check_result.save()
+                    wcag_check_result_retest.save()
         else:
             return super().form_invalid(form)
 

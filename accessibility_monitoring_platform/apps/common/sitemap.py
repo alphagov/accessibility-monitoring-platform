@@ -636,7 +636,7 @@ class CaseEmailTemplatePreviewPlatformPage(PlatformPage):
 
 class WcagAuditRetestPagesPlatformPage(WcagAuditPlatformPage):
     def populate_from_case(self, case: AnyCaseType):
-        if hasattr(case, "audit_overview"):
+        if hasattr(case, "audit_overview") and case.audit_overview is not None:
             wcag_audit: WcagAudit | None = (
                 case.audit_overview.first_wcag_audit_12_week_retest
             )
