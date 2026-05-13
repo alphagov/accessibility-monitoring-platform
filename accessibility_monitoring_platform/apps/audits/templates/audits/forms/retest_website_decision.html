@@ -1,6 +1,19 @@
 {% extends 'common/case_form.html' %}
 
 {% block preform %}
-    {% include 'simplified/helpers/view_initial_decision.html' with case=audit.simplified_case %}
-    {% include 'common/error_summary.html' with form=case_compliance_form %}
+    <details class="govuk-details" data-module="govuk-details">
+        <summary class="govuk-details__summary">
+            <span class="govuk-details__summary-text">View initial decision</span>
+        </summary>
+        <div class="govuk-details__text">
+            <div class="govuk-form-group">
+                <label class="govuk-label"><b>Initial compliance decision</b></label>
+                <div class="govuk-hint">{{ wcag_audit.simplified_case.audit_overview.wcag_audit_initial.get_compliance_state_display }}</div>
+            </div>
+            <div class="govuk-form-group">
+                <label class="govuk-label"><b>Initial accessibility statement decision</b></label>
+                <div class="govuk-hint">{{ wcag_audit.simplified_case.audit_overview.statement_audit_initial.get_compliance_state_display }}</div>
+            </div>
+        </div>
+    </details>
 {% endblock %}

@@ -62,7 +62,6 @@ from ..models import (
 )
 from ..utils import (
     create_or_update_check_results_for_page,
-    get_audit_summary_context,
     get_next_platform_page_wcag_page_initial,
     get_page_check_results_formset_initial,
     other_page_failed_check_results,
@@ -70,6 +69,7 @@ from ..utils import (
 from .base import (
     AddStatementLinkUpdateView,
     AuditStatementCheckingView,
+    AuditSummaryFirstMixin,
     DeleteStatementPageUpdateView,
     StatementAuditUpdateView,
     StatementBackupUpdateView,
@@ -366,36 +366,7 @@ class WcagAuditComplianceInitialUpdateView(WcagAuditUpdateView):
     template_name: str = "common/case_form.html"
 
 
-class AuditSummaryMixin:
-
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Get context data for template rendering"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        return {
-            **context,
-            **get_audit_summary_context(
-                request=self.request,
-                wcag_audit_initial=WcagAudit.objects.filter(
-                    simplified_case=self.object.simplified_case,
-                    audit_round_type=WcagAudit.AuditRoundType.INITIAL,
-                ).first(),
-                wcag_audit_12_week=WcagAudit.objects.filter(
-                    simplified_case=self.object.simplified_case,
-                    audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-                ).first(),
-                statement_audit_initial=StatementAudit.objects.filter(
-                    simplified_case=self.object.simplified_case,
-                    audit_round_type=StatementAudit.AuditRoundType.INITIAL,
-                ).first(),
-                statement_audit_12_week=StatementAudit.objects.filter(
-                    simplified_case=self.object.simplified_case,
-                    audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-                ).first(),
-            ),
-        }
-
-
-class FirstWcagAuditSummaryUpdateView(AuditSummaryMixin, WcagAuditUpdateView):
+class WcagAuditSummaryFirstUpdateView(AuditSummaryFirstMixin, WcagAuditUpdateView):
 
     form_class: type[WcagAuditWcagSummaryUpdateForm] = WcagAuditWcagSummaryUpdateForm
     template_name: str = "audits/forms/test_summary_wcag.html"
@@ -690,7 +661,9 @@ class AuditCaseComplianceStatementInitialUpdateView(StatementAuditUpdateView):
     template_name: str = "audits/forms/statement_decision.html"
 
 
-class AuditStatementSummaryUpdateView(AuditSummaryMixin, StatementAuditUpdateView):
+class StatementAuditSummaryFirstUpdateView(
+    AuditSummaryFirstMixin, StatementAuditUpdateView
+):
     """
     View to update audit summary
     """

@@ -42,6 +42,7 @@ from ..forms import (
     WcagAuditComplianceUpdateForm,
     WcagAuditRetestMetadataUpdateForm,
     WcagAuditRetestPagesUpdateForm,
+    WcagAuditWcagSummaryUpdateForm,
     WcagCheckResultRetestFormset,
     WcagPageRetestFormset,
     WcagPageRetestUpdateForm,
@@ -69,6 +70,7 @@ from ..utils import (
 from .base import (
     AddStatementLinkUpdateView,
     AuditCaseComplianceUpdateView,
+    AuditSummaryFirstMixin,
     AuditUpdateView,
     DeleteStatementPageUpdateView,
     StatementBackupUpdateView,
@@ -247,6 +249,14 @@ class WcagAuditComplianceRetestUpdateView(WcagAuditUpdateView):
         form = super().get_form()
         form.fields["compliance_state"].label = "12-week website compliance decision"
         return form
+
+
+class TwelveWeekWcagAuditSummaryFirstUpdateView(
+    AuditSummaryFirstMixin, WcagAuditUpdateView
+):
+
+    form_class: type[WcagAuditWcagSummaryUpdateForm] = WcagAuditWcagSummaryUpdateForm
+    template_name: str = "audits/forms/test_summary_wcag.html"
 
 
 class AuditRetestSummaryUpdateView(AuditUpdateView):
