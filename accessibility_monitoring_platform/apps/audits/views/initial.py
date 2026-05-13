@@ -24,17 +24,17 @@ from ..forms import (
     AuditStatementSummaryUpdateForm,
     CheckResultFilterForm,
     CheckResultFormset,
-    InitialAuditStatementPagesUpdateForm,
     InitialCustomIssueCreateUpdateForm,
     StatementAuditComplianceUpdateForm,
     StatementAuditInitialDisproportionateBurdenUpdateForm,
-    StatementAuditInitialStatementBackupUpdateForm,
+    StatementAuditStatementBackupUpdateForm,
     StatementAuditStatementComplianceUpdateForm,
     StatementAuditStatementCustomUpdateForm,
     StatementAuditStatementDisproportionateUpdateForm,
     StatementAuditStatementFeedbackUpdateForm,
     StatementAuditStatementNonAccessibleUpdateForm,
     StatementAuditStatementOverviewUpdateForm,
+    StatementAuditStatementPagesUpdateForm,
     StatementAuditStatementPreparationUpdateForm,
     StatementAuditStatementWebsiteUpdateForm,
     WcagAuditComplianceUpdateForm,
@@ -375,8 +375,8 @@ class WcagAuditSummaryFirstUpdateView(AuditSummaryFirstMixin, WcagAuditUpdateVie
 class InitialAddStatementPageUpdateView(AddStatementLinkUpdateView):
     """View to add statement link in initial test"""
 
-    form_class: type[InitialAuditStatementPagesUpdateForm] = (
-        InitialAuditStatementPagesUpdateForm
+    form_class: type[StatementAuditStatementPagesUpdateForm] = (
+        StatementAuditStatementPagesUpdateForm
     )
     template_name: str = "audits/forms/initial_add_statement_link.html"
 
@@ -400,8 +400,8 @@ class InitialStatementBackupUpdateView(StatementBackupUpdateView):
     View to backup statement pages in initial test
     """
 
-    form_class: type[StatementAuditInitialStatementBackupUpdateForm] = (
-        StatementAuditInitialStatementBackupUpdateForm
+    form_class: type[StatementAuditStatementBackupUpdateForm] = (
+        StatementAuditStatementBackupUpdateForm
     )
     template_name: str = "audits/forms/initial_statement_backup.html"
 

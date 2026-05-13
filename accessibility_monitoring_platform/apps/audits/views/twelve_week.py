@@ -37,8 +37,8 @@ from ..forms import (
     AuditTwelveWeekDisproportionateBurdenUpdateForm,
     CaseComplianceStatement12WeekUpdateForm,
     New12WeekCustomStatementCheckResultUpdateForm,
-    TwelveWeekStatementBackupUpdateForm,
-    TwelveWeekStatementPagesUpdateForm,
+    StatementAuditStatementBackupUpdateForm,
+    StatementAuditStatementPagesUpdateForm,
     WcagAuditComplianceUpdateForm,
     WcagAuditRetestMetadataUpdateForm,
     WcagAuditRetestPagesUpdateForm,
@@ -287,8 +287,8 @@ class AuditRetestWcagSummaryUpdateView(AuditRetestSummaryUpdateView):
 class TwelveWeekAddStatementPageUpdateView(AddStatementLinkUpdateView):
     """View to add statement page in 12-week retest"""
 
-    form_class: type[TwelveWeekStatementPagesUpdateForm] = (
-        TwelveWeekStatementPagesUpdateForm
+    form_class: type[StatementAuditStatementPagesUpdateForm] = (
+        StatementAuditStatementPagesUpdateForm
     )
     template_name: str = "audits/forms/twelve_week_add_statement_link.html"
 
@@ -310,8 +310,8 @@ class TwelveWeekDeleteStatementPageUpdateView(DeleteStatementPageUpdateView):
 class TwelveWeekStatementBackupUpdateView(StatementBackupUpdateView):
     """View to backup statement in 12-week retest"""
 
-    form_class: type[TwelveWeekStatementBackupUpdateForm] = (
-        TwelveWeekStatementBackupUpdateForm
+    form_class: type[StatementAuditStatementBackupUpdateForm] = (
+        StatementAuditStatementBackupUpdateForm
     )
     template_name: str = "audits/forms/twelve_week_statement_backup.html"
 

@@ -1154,10 +1154,7 @@ class StatementLinkForm(forms.Form):
         ]
 
 
-class InitialAuditStatementPagesUpdateForm(VersionForm):
-    """
-    Form for statement pages update at initial test
-    """
+class StatementAuditStatementPagesUpdateForm(VersionForm):
 
     pages_complete_date = AMPDatePageCompleteField()
 
@@ -1207,7 +1204,7 @@ class StatementBackupForm(forms.Form):
         return file_to_upload
 
 
-class StatementAuditInitialStatementBackupUpdateForm(VersionForm):
+class StatementAuditStatementBackupUpdateForm(VersionForm):
     """Form for initial statement backup"""
 
     backup_complete_date = AMPDatePageCompleteField()
@@ -1225,26 +1222,13 @@ class TwelveWeekStatementPagesUpdateForm(VersionForm):
     Form for statement pages update at 12-week retest
     """
 
-    audit_retest_statement_pages_complete_date = AMPDatePageCompleteField()
+    pages_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Audit
         fields: list[str] = [
             "version",
-            "audit_retest_statement_pages_complete_date",
-        ]
-
-
-class TwelveWeekStatementBackupUpdateForm(VersionForm):
-    """Form for 12-week retest statement backup"""
-
-    audit_retest_statement_backup_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: list[str] = [
-            "version",
-            "audit_retest_statement_backup_complete_date",
+            "pages_complete_date",
         ]
 
 
