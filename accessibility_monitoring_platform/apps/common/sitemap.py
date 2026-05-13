@@ -1279,7 +1279,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 subpages=[
                     PlatformPage(
                         name="{instance.page_title} retest",
-                        url_name="audits:edit-audit-retest-page-checks",
+                        url_name="audits:edit-wcag-page-retest-check-results",
                         url_kwarg_key="pk",
                         instance_class=WcagPageRetest,
                         complete_flag_name="complete_date",

@@ -240,9 +240,9 @@ urlpatterns: list[URLPattern] = [
         name="edit-audit-retest-pages",
     ),
     path(
-        "pages/<int:pk>/edit-audit-retest-page-checks/",
+        "pages/<int:pk>/edit-wcag-page-retest-check-results/",
         login_required(WcagPageRetestCheckResultsUpdateView.as_view()),
-        name="edit-audit-retest-page-checks",
+        name="edit-wcag-page-retest-check-results",
     ),
     path(
         "<int:pk>/edit-retest-website-decision/",

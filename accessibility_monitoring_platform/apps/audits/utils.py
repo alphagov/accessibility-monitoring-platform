@@ -330,7 +330,7 @@ def get_next_platform_page_twelve_week(
 
     if current_page is None:
         return get_platform_page_by_url_name(
-            url_name="audits:edit-audit-retest-page-checks",
+            url_name="audits:edit-wcag-page-retest-check-results",
             instance=wcag_audit.wcag_page_retests.first(),
         )
 
@@ -345,7 +345,7 @@ def get_next_platform_page_twelve_week(
     )
     next_page: WcagPageRetest = wcag_page_retests[current_page_position + 1]
     return get_platform_page_by_url_name(
-        url_name="audits:edit-audit-retest-page-checks", instance=next_page
+        url_name="audits:edit-wcag-page-retest-check-results", instance=next_page
     )
 
 

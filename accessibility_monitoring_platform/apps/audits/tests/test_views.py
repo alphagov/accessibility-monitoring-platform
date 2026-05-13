@@ -1708,7 +1708,7 @@ def test_page_checks_edit_page_contains_hint_text(admin_client):
 
 @pytest.mark.parametrize(
     "url_name",
-    ["audits:edit-audit-page-checks", "audits:edit-audit-retest-page-checks"],
+    ["audits:edit-audit-page-checks", "audits:edit-wcag-page-retest-check-results"],
 )
 def test_data_filter_string_contains_issue_identifier_on_check_result_pages(
     url_name, admin_client
@@ -2173,7 +2173,7 @@ def test_retest_page_checks_edit_page_loads(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-retest-page-checks", kwargs=page_pk)
+        reverse("audits:edit-wcag-page-retest-check-results", kwargs=page_pk)
     )
 
     assert response.status_code == 200
@@ -2210,7 +2210,7 @@ def test_retest_page_checks_edit_saves_results(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-retest-page-checks", kwargs=page_pk),
+        reverse("audits:edit-wcag-page-retest-check-results", kwargs=page_pk),
         {
             "version": audit.version,
             "save": "Button value",
@@ -2296,7 +2296,7 @@ def test_retest_page_checks_edit_adds_to_retest_notes_history(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-retest-page-checks", kwargs=page_pk),
+        reverse("audits:edit-wcag-page-retest-check-results", kwargs=page_pk),
         {
             "version": audit.version,
             "save": "Button value",
@@ -2373,7 +2373,7 @@ def test_retest_page_checks_shows_retest_notes_history(admin_client):
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-retest-page-checks", kwargs=page_pk),
+        reverse("audits:edit-wcag-page-retest-check-results", kwargs=page_pk),
     )
 
     assert response.status_code == 200
@@ -3768,7 +3768,7 @@ def test_nav_details_subpage_renders(admin_client):
     "path_name",
     [
         "audits:edit-audit-page-checks",
-        "audits:edit-audit-retest-page-checks",
+        "audits:edit-wcag-page-retest-check-results",
     ],
 )
 def test_tall_results_page_has_back_to_top_link(path_name, admin_client):

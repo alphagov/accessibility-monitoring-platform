@@ -233,7 +233,7 @@
                             </a>
                             {% if enable_12_week_ui %}
                                 {% if page.failed_check_results %}
-                                    <a href="{% url 'audits:edit-audit-retest-page-checks' page.id %}" class="govuk-link govuk-link--no-visited-state">
+                                    <a href="{% url 'audits:edit-wcag-page-retest-check-results' page.id %}" class="govuk-link govuk-link--no-visited-state">
                                         Edit 12-week test
                                     </a>
                                 {% endif %}
@@ -326,7 +326,7 @@
                                             {% if enable_12_week_ui %}
                                                 {% if summary_wcag_check_result.initial_result.wcag_page_initial.failed_check_results %}
                                                     <li>
-                                                        <a href="{% url 'audits:edit-audit-retest-page-checks' summary_wcag_check_result.initial_result.wcag_page_initial.id %}" class="govuk-link govuk-link--no-visited-state">
+                                                        <a href="{% url 'audits:edit-wcag-page-retest-check-results' summary_wcag_check_result.initial_result.wcag_page_initial.id %}" class="govuk-link govuk-link--no-visited-state">
                                                             Edit 12-week test
                                                         </a>
                                                     </li>
@@ -387,7 +387,7 @@
                             {% if enable_12_week_ui %}
                                 {% if page.failed_check_results %}
                                     <li>
-                                        <a href="{% url 'audits:edit-audit-retest-page-checks' page.id %}" class="govuk-link govuk-link--no-visited-state">
+                                        <a href="{% url 'audits:edit-wcag-page-retest-check-results' page.id %}" class="govuk-link govuk-link--no-visited-state">
                                             Edit 12-week test
                                         </a>
                                     </li>

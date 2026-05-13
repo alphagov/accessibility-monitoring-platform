@@ -28,7 +28,7 @@ const loggedInUrls = [
   '/audits/1/edit-retest-statement-custom/',
   '/audits/create-for-case/1/',
   '/audits/pages/1/edit-audit-page-checks/',
-  '/audits/pages/1/edit-audit-retest-page-checks/',
+  '/audits/pages/1/edit-wcag-page-retest-check-results/',
   '/audits/wcag-definition-create/',
   '/audits/wcag-definition-list/',
   '/audits/1/edit-wcag-definition/',

@@ -542,7 +542,7 @@ def test_get_next_platform_page_twelve_week_audit_with_pages():
     platform_page: PlatformPage = get_next_platform_page_twelve_week(audit=audit)
 
     assert platform_page.url == reverse(
-        "audits:edit-audit-retest-page-checks", kwargs=next_page_pk
+        "audits:edit-wcag-page-retest-check-results", kwargs=next_page_pk
     )
 
     current_page: Page = audit.testable_pages[0]
@@ -553,7 +553,7 @@ def test_get_next_platform_page_twelve_week_audit_with_pages():
     )
 
     assert platform_page.url == reverse(
-        "audits:edit-audit-retest-page-checks", kwargs=next_page_pk
+        "audits:edit-wcag-page-retest-check-results", kwargs=next_page_pk
     )
 
     current_page: Page = audit.testable_pages[1]

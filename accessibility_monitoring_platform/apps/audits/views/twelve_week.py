@@ -141,18 +141,11 @@ class WcagAuditRetestPagesView(WcagAuditUpdateView):
         return super().form_valid(form)
 
 
-# class WcagPageRetestCheckResultsFormView(NextPlatformPageMixin, FormView):
-
-#     form_class: type[WcagPageRetestChecksForm] = WcagPageRetestChecksForm
-#     template_name: str = "audits/forms/twelve_week_retest_page_checks.html"
-#     wcag_page_retest: WcagPageRetest
-
-
 class WcagPageRetestCheckResultsUpdateView(NextPlatformPageMixin, UpdateView):
 
     model: type[WcagPageRetest] = WcagPageRetest
     form_class: type[WcagPageRetestUpdateForm] = WcagPageRetestUpdateForm
-    template_name: str = "audits/forms/twelve_week_retest_page_checks.html"
+    template_name: str = "audits/forms/twelve_week_wcag_page_retest_checks.html"
     context_object_name: str = "wcag_page_retest"
 
     def get_next_platform_page(self):
