@@ -589,9 +589,9 @@ WcagPageRetestFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
 )
 
 
-class WcagPageRetestChecksForm(forms.Form):
+class WcagPageRetestUpdateForm(forms.ModelForm):
     """
-    Form for retesting checks for a page
+    Form for retesting checks for a WcagPageRetest
     """
 
     complete_date = AMPDatePageCompleteField(

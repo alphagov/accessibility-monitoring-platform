@@ -87,7 +87,7 @@ from .views.twelve_week import (
     TwelveWeekStatementBackupUpdateView,
     WcagAuditRetestMetadataUpdateView,
     WcagAuditRetestPagesView,
-    WcagPageRetestCheckResultsFormView,
+    WcagPageRetestCheckResultsUpdateView,
     delete_new_12_week_custom_issue,
     start_retest,
 )
@@ -241,7 +241,7 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "pages/<int:pk>/edit-audit-retest-page-checks/",
-        login_required(WcagPageRetestCheckResultsFormView.as_view()),
+        login_required(WcagPageRetestCheckResultsUpdateView.as_view()),
         name="edit-audit-retest-page-checks",
     ),
     path(

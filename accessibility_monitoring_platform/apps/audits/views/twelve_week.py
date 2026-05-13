@@ -44,8 +44,8 @@ from ..forms import (
     WcagAuditRetestMetadataUpdateForm,
     WcagAuditRetestPagesUpdateForm,
     WcagCheckResultRetestFormset,
-    WcagPageRetestChecksForm,
     WcagPageRetestFormset,
+    WcagPageRetestUpdateForm,
 )
 from ..models import (
     Audit,
@@ -141,37 +141,30 @@ class WcagAuditRetestPagesView(WcagAuditUpdateView):
         return super().form_valid(form)
 
 
-class WcagPageRetestCheckResultsFormView(NextPlatformPageMixin, FormView):
+# class WcagPageRetestCheckResultsFormView(NextPlatformPageMixin, FormView):
 
-    form_class: type[WcagPageRetestChecksForm] = WcagPageRetestChecksForm
+#     form_class: type[WcagPageRetestChecksForm] = WcagPageRetestChecksForm
+#     template_name: str = "audits/forms/twelve_week_retest_page_checks.html"
+#     wcag_page_retest: WcagPageRetest
+
+
+class WcagPageRetestCheckResultsUpdateView(NextPlatformPageMixin, UpdateView):
+
+    model: type[WcagPageRetest] = WcagPageRetest
+    form_class: type[WcagPageRetestUpdateForm] = WcagPageRetestUpdateForm
     template_name: str = "audits/forms/twelve_week_retest_page_checks.html"
-    wcag_page_retest: WcagPageRetest
-
-    def setup(self, request, *args, **kwargs):
-        """Add audit and page objects to view"""
-        super().setup(request, *args, **kwargs)
-        self.wcag_page_retest = WcagPageRetest.objects.get(pk=kwargs["pk"])
+    context_object_name: str = "wcag_page_retest"
 
     def get_next_platform_page(self):
-        wcag_page_retest: WcagPageRetest = self.wcag_page_retest
+        wcag_page_retest: WcagPageRetest = self.object
         return get_next_platform_page_twelve_week(
             wcag_audit=wcag_page_retest.wcag_audit, current_page=wcag_page_retest
         )
 
-    def get_form(self, form_class=None):
-        """Populate next page fields"""
-        form = super().get_form()
-        form.fields["complete_date"].initial = self.wcag_page_retest.complete_date
-        form.fields["page_missing_date"].initial = (
-            self.wcag_page_retest.page_missing_date
-        )
-        form.fields["notes"].initial = self.wcag_page_retest.notes
-        return form
-
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Populate context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        context["page"] = self.wcag_page_retest
+        wcag_page_retest: WcagPageRetest = self.object
         context["filter_form"] = AuditRetestCheckResultFilterForm(
             initial={
                 "fixed": False,
@@ -185,7 +178,7 @@ class WcagPageRetestCheckResultsFormView(NextPlatformPageMixin, FormView):
                     self.request.POST,
                     initial=[
                         check_result.retest_form_initial
-                        for check_result in self.wcag_page_retest.all_check_results
+                        for check_result in wcag_page_retest.all_check_results
                     ],
                 )
             )
@@ -194,14 +187,14 @@ class WcagPageRetestCheckResultsFormView(NextPlatformPageMixin, FormView):
                 WcagCheckResultRetestFormset(
                     initial=[
                         check_result.retest_form_initial
-                        for check_result in self.wcag_page_retest.all_check_results
+                        for check_result in wcag_page_retest.all_check_results
                     ]
                 )
             )
 
         context["check_results_formset"] = check_results_formset
         context["other_pages_with_retest_notes"] = get_other_pages_with_retest_notes(
-            wcag_page_retest=self.wcag_page_retest
+            wcag_page_retest=wcag_page_retest
         )
 
         return context
@@ -209,7 +202,7 @@ class WcagPageRetestCheckResultsFormView(NextPlatformPageMixin, FormView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: dict[str, Any] = self.get_context_data()
-        wcag_page_retest: Page = self.wcag_page_retest
+        wcag_page_retest: WcagPageRetest = self.object
         if form.changed_data:
             wcag_page_retest.complete_date = form.cleaned_data["complete_date"]
             wcag_page_retest.page_missing_date = form.cleaned_data["page_missing_date"]
