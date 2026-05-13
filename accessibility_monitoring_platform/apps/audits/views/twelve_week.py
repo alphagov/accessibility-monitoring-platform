@@ -9,7 +9,7 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import TemplateView
-from django.views.generic.edit import CreateView, FormView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView
 
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
 from ...common.views import NextPlatformPageMixin
@@ -34,13 +34,12 @@ from ..forms import (
     AuditRetestStatementSummaryUpdateForm,
     AuditRetestStatementWebsiteUpdateForm,
     AuditRetestWcagSummaryUpdateForm,
-    AuditRetestWebsiteDecisionUpdateForm,
     AuditTwelveWeekDisproportionateBurdenUpdateForm,
     CaseComplianceStatement12WeekUpdateForm,
-    CaseComplianceWebsite12WeekUpdateForm,
     New12WeekCustomStatementCheckResultUpdateForm,
     TwelveWeekStatementBackupUpdateForm,
     TwelveWeekStatementPagesUpdateForm,
+    WcagAuditComplianceUpdateForm,
     WcagAuditRetestMetadataUpdateForm,
     WcagAuditRetestPagesUpdateForm,
     WcagCheckResultRetestFormset,
@@ -236,18 +235,18 @@ class WcagPageRetestCheckResultsUpdateView(NextPlatformPageMixin, UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class AuditRetestCaseComplianceWebsite12WeekUpdateView(AuditCaseComplianceUpdateView):
+class WcagAuditComplianceRetestUpdateView(WcagAuditUpdateView):
     """
     View to retest website compliance fields
     """
 
-    form_class: type[AuditRetestWebsiteDecisionUpdateForm] = (
-        AuditRetestWebsiteDecisionUpdateForm
-    )
-    case_compliance_form_class: type[CaseComplianceWebsite12WeekUpdateForm] = (
-        CaseComplianceWebsite12WeekUpdateForm
-    )
+    form_class: type[WcagAuditComplianceUpdateForm] = WcagAuditComplianceUpdateForm
     template_name: str = "audits/forms/retest_website_decision.html"
+
+    def get_form(self, form_class=None):
+        form = super().get_form()
+        form.fields["compliance_state"].label = "12-week website compliance decision"
+        return form
 
 
 class AuditRetestSummaryUpdateView(AuditUpdateView):

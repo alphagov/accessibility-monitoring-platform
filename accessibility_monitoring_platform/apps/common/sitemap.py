@@ -1288,10 +1288,10 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 ],
                 case_details_template_name="simplified/details/details_12_week_pages.html",
             ),
-            AuditPlatformPage(
+            WcagAuditTwelveWeekPlatformPage(
                 name="Compliance decision",
                 url_name="audits:edit-audit-retest-website-decision",
-                complete_flag_name="audit_retest_website_decision_complete_date",
+                complete_flag_name="compliance_decision_complete_date",
                 case_details_template_name="simplified/details/details_twelve_week_website_compliance.html",
                 next_page_url_name="audits:edit-audit-retest-wcag-summary",
             ),

@@ -541,15 +541,17 @@ def test_audit_failed_check_results_for_is_contact_page_page_not_returned():
     Test failed_check_results attribute of audit returns only check results where failed is "yes"
     and associated page has not got is_contact_page (used for form pages) is not set.
     """
-    audit: Audit = create_wcag_audit_and_check_results()
+    wcag_audit: WcagAudit = create_wcag_audit_and_check_results()
 
-    assert len(audit.failed_check_results) == 3
+    assert len(wcag_audit.failed_check_results) == 3
 
-    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.PDF)
-    page.is_contact_page = Boolean.YES
-    page.save()
+    wcag_page_initial: WcagPageInitial = Page.objects.get(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.PDF
+    )
+    wcag_page_initial.is_contact_page = Boolean.YES
+    wcag_page_initial.save()
 
-    assert len(audit.failed_check_results) == 2
+    assert len(wcag_audit.failed_check_results) == 2
 
 
 @pytest.mark.django_db
@@ -557,10 +559,12 @@ def test_audit_accessibility_statement_page_returns_page():
     """
     Accessibility Statement page returned
     """
-    audit: Audit = create_audit_and_pages()
-    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.STATEMENT)
+    wcag_audit: WcagAudit = create_wcag_audit_and_check_results()
+    wcag_page_initial: WcagPageInitial = Page.objects.get(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.STATEMENT
+    )
 
-    assert audit.accessibility_statement_page == page
+    assert wcag_audit.accessibility_statement_page == wcag_page_initial
 
 
 @pytest.mark.django_db
@@ -693,17 +697,19 @@ def test_accessibility_statement_found():
     """
     Test that an accessibility statement was found.
     """
-    audit: Audit = create_audit_and_pages()
+    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
     statement_page: StatementPage = StatementPage.objects.create(
-        audit=audit, url=STATEMENT_LINK
+        wcag_audit=wcag_audit,
+        audit=wcag_audit.simplified_case.audit,
+        url=STATEMENT_LINK,
     )
 
-    assert audit.accessibility_statement_found is True
+    assert wcag_audit.accessibility_statement_found is True
 
     statement_page.added_stage = StatementPage.AddedStage.TWELVE_WEEK
     statement_page.save()
 
-    assert audit.accessibility_statement_found is True
+    assert wcag_audit.accessibility_statement_found is True
 
 
 @pytest.mark.django_db

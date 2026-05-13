@@ -13,7 +13,6 @@ from django.utils.text import slugify
 from ..audits.models import (
     Audit,
     CheckResult,
-    Page,
     WcagDefinition,
     WcagPageInitial,
     WcagPageRetest,

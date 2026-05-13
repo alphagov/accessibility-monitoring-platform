@@ -4,8 +4,3 @@
     {% include 'simplified/helpers/view_initial_decision.html' with case=audit.simplified_case %}
     {% include 'common/error_summary.html' with form=case_compliance_form %}
 {% endblock %}
-
-{% block formfields %}
-{% include 'common/amp_form_snippet.html' with form=case_compliance_form %}
-{% include 'common/amp_form_snippet.html' %}
-{% endblock %}

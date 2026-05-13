@@ -12,7 +12,7 @@ from django.forms.models import ModelForm
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic.edit import CreateView, FormView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from ...cases.models import CaseFile
@@ -50,8 +50,6 @@ from ..models import (
     StatementPage,
     WcagAudit,
     WcagDefinition,
-    WcagPageInitial,
-    WcagPageRetest,
 )
 from ..utils import (
     create_mandatory_pages_for_new_audit,

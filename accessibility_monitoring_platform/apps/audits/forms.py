@@ -685,39 +685,6 @@ WcagCheckResultRetestFormset: forms.formsets.BaseFormSet = forms.formset_factory
 )
 
 
-class AuditRetestWebsiteDecisionUpdateForm(VersionForm):
-    """
-    Form for retest website compliance decision completion
-    """
-
-    audit_retest_website_decision_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: list[str] = [
-            "version",
-            "audit_retest_website_decision_complete_date",
-        ]
-
-
-class CaseComplianceWebsite12WeekUpdateForm(VersionForm):
-    """
-    Form to record final website compliance decision
-    """
-
-    website_compliance_state_12_week = AMPChoiceRadioField(
-        label="12-week website compliance decision",
-        choices=CaseCompliance.WebsiteCompliance.choices,
-    )
-
-    class Meta:
-        model = CaseCompliance
-        fields = [
-            "version",
-            "website_compliance_state_12_week",
-        ]
-
-
 class AuditRetestWcagSummaryUpdateForm(VersionForm):
     """
     Form for editing 12-week WCAG test audit summary
