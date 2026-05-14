@@ -30,6 +30,8 @@ from .models import (
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
+    StatementCheckResultInitial,
+    StatementCheckResultRetest,
     WcagAudit,
     WcagCheckResultInitial,
     WcagCheckResultInitialNotesHistory,
@@ -230,8 +232,7 @@ def create_statement_checks_for_new_audit(
     """
     today: date = date.today()
     for statement_check in StatementCheck.objects.on_date(today):
-        StatementCheckResult.objects.create(
-            audit=audit,
+        StatementCheckResultInitial.objects.create(
             statement_audit=statement_audit,
             type=statement_check.type,
             statement_check=statement_check,
@@ -265,22 +266,21 @@ def create_first_twelve_week_statement_audit(
     audit_overview: AuditOverview,
 ) -> StatementAudit:
 
-    statement_audit_new: StatementAudit = StatementAudit.objects.create(
+    statement_audit_twelve_week: StatementAudit = StatementAudit.objects.create(
         simplified_case=audit_overview.simplified_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
     )
     statement_audit_initial: StatementAudit = audit_overview.statement_audit_initial
     for (
-        statement_check_result
+        statement_check_result_initial
     ) in statement_audit_initial.statement_check_results.exclude(type=None):
-        StatementCheckResult.objects.create(
-            audit=statement_check_result.audit,
-            statement_audit=statement_audit_new,
-            issue_identifier=statement_check_result.issue_identifier,
-            statement_check=statement_check_result.statement_check,
-            type=statement_check_result.type,
+        StatementCheckResultRetest.objects.create(
+            statement_audit=statement_audit_twelve_week,
+            statement_check_result_initial=statement_check_result_initial,
+            issue_identifier=statement_check_result_initial.issue_identifier,
+            statement_check=statement_check_result_initial.statement_check,
         )
-    return statement_audit_new
+    return statement_audit_twelve_week
 
 
 def get_next_platform_page_wcag_page_initial(
@@ -511,7 +511,7 @@ def get_audit_summary_context(
                 wcag_page_initial=wcag_failed_check_result_initial.wcag_page_initial,
                 issue_identifier=wcag_failed_check_result_initial.issue_identifier,
                 initial_result=wcag_failed_check_result_initial,
-                retest_result=wcag_failed_check_result_initial.last_12_week_retest,
+                retest_result=wcag_failed_check_result_initial.twelve_week_retest,
             )
             if (
                 show_all
@@ -546,9 +546,7 @@ def get_audit_summary_context(
     summary_statement_check_results: list[SummaryStatementCheckResult] = []
 
     if statement_audit_initial is not None:
-        for (
-            statement_check_result
-        ) in statement_audit_initial.statementcheckresult_set.all():
+        for statement_check_result in statement_audit_initial.statement_check_results:
             type: StatementCheck.Type | None = (
                 statement_check_result.statement_check.type
                 if statement_check_result.statement_check is not None
@@ -568,7 +566,7 @@ def get_audit_summary_context(
                 == StatementCheckResult.Result.NO
                 or (
                     summary_statement_check_result.retest_result is not None
-                    and summary_statement_check_result.retest_result.check_result_state
+                    and summary_statement_check_result.retest_result.retest_state
                     == StatementCheckResult.Result.NO
                 )
             ):

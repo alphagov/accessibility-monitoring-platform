@@ -26,9 +26,9 @@
                         </td>
                         <td class="govuk-table__cell amp-width-one-third">
                             {{ statement_check_result.get_retest_state_display }}
-                            {% if statement_check_result.retest_comment  %}
+                            {% if statement_check_result.retest_email_comment  %}
                                 <br><br>
-                                {{ statement_check_result.retest_comment }}
+                                {{ statement_check_result.retest_email_comment }}
                             {% endif %}
                         </td>
                     </tr>

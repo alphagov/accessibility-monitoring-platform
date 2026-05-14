@@ -19,6 +19,8 @@ from .models import (
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
+    StatementCheckResultInitial,
+    StatementCheckResultRetest,
     StatementPage,
     WcagAudit,
     WcagCheckResultInitial,
@@ -165,7 +167,7 @@ class WcagCheckResultRetestAdmin(admin.ModelAdmin):
         "retest_state",
     ]
     list_filter = ["retest_state"]
-    readonly_fields = ["wcag_audit", "wcag_page_retest"]
+    readonly_fields = ["wcag_audit", "wcag_page_retest", "wcag_check_result_initial"]
     show_facets = admin.ShowFacets.ALWAYS
 
 
@@ -249,15 +251,15 @@ class StatementCheckResultAdmin(admin.ModelAdmin):
 
     search_fields = [
         "issue_identifier",
-        "statement_audit__simplified_case__organisation_name",
-        "statement_audit__simplified_case__case_identifier",
+        "audit__simplified_case__organisation_name",
+        "audit__simplified_case__case_identifier",
         "statement_check__label",
         "statement_check__success_criteria",
         "statement_check__report_text",
     ]
     list_display = [
         "issue_identifier",
-        "statement_audit",
+        "audit",
         "is_deleted",
         "statement_check",
     ]
@@ -274,18 +276,97 @@ class StatementCheckResultAdmin(admin.ModelAdmin):
                 "fields": (
                     ("type", "is_deleted"),
                     ("audit",),
-                    ("statement_audit",),
                     ("statement_check",),
                     ("check_result_state",),
                     ("report_comment",),
                     ("retest_state",),
-                    ("retest_comment",),
+                    ("retest_email_comment",),
                     ("auditor_notes",),
                 )
             },
         ),
     )
-    readonly_fields = ["audit", "statement_audit"]
+    readonly_fields = ["audit"]
+    show_facets = admin.ShowFacets.ALWAYS
+
+
+class StatementCheckResultInitialAdmin(admin.ModelAdmin):
+
+    search_fields = [
+        "issue_identifier",
+        "statement_audit__simplified_case__organisation_name",
+        "statement_audit__simplified_case__case_identifier",
+        "statement_check__label",
+        "statement_check__success_criteria",
+        "statement_check__report_text",
+    ]
+    list_display = [
+        "issue_identifier",
+        "statement_audit",
+        "is_deleted",
+        "statement_check",
+    ]
+    list_filter = [
+        "check_result_state",
+        "type",
+        "is_deleted",
+    ]
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    ("type", "is_deleted"),
+                    ("statement_audit",),
+                    ("statement_check",),
+                    ("check_result_state",),
+                    ("report_comment",),
+                    ("auditor_notes",),
+                )
+            },
+        ),
+    )
+    readonly_fields = ["statement_audit"]
+    show_facets = admin.ShowFacets.ALWAYS
+
+
+class StatementCheckResultRetestAdmin(admin.ModelAdmin):
+
+    search_fields = [
+        "issue_identifier",
+        "statement_audit__simplified_case__organisation_name",
+        "statement_audit__simplified_case__case_identifier",
+        "statement_check__label",
+        "statement_check__success_criteria",
+        "statement_check__report_text",
+    ]
+    list_display = [
+        "issue_identifier",
+        "statement_audit",
+        "is_deleted",
+        "statement_check",
+    ]
+    list_filter = [
+        "retest_state",
+        "is_deleted",
+    ]
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    ("is_deleted"),
+                    ("statement_audit",),
+                    ("statement_check",),
+                    ("check_result_state",),
+                    ("retest_state",),
+                    ("retest_email_comment",),
+                    ("auditor_notes",),
+                )
+            },
+        ),
+    )
+    readonly_fields = ["statement_audit"]
     show_facets = admin.ShowFacets.ALWAYS
 
 
@@ -388,6 +469,8 @@ admin.site.register(CheckResultRetestNotesHistory, CheckResultRetestNotesHistory
 admin.site.register(WcagDefinition, WcagDefinitionAdmin)
 admin.site.register(StatementCheck, StatementCheckAdmin)
 admin.site.register(StatementCheckResult, StatementCheckResultAdmin)
+admin.site.register(StatementCheckResultInitial, StatementCheckResultInitialAdmin)
+admin.site.register(StatementCheckResultRetest, StatementCheckResultRetestAdmin)
 admin.site.register(Retest, RetestAdmin)
 admin.site.register(RetestPage, RetestPageAdmin)
 admin.site.register(RetestCheckResult, RetestCheckResultAdmin)

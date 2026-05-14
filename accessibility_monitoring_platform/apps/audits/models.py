@@ -988,8 +988,12 @@ class StatementAudit(AuditRound):
         return f"{self.simplified_case} {self.get_audit_round_type_display()}{round} ({amp_format_date(self.date_of_test)})"
 
     @property
-    def statement_check_results(self) -> QuerySet[StatementCheckResult]:
-        return self.statementcheckresult_set.all()
+    def statement_check_results(
+        self,
+    ) -> QuerySet[StatementCheckResultInitial] | QuerySet[StatementCheckResultRetest]:
+        if hasattr(self, "statementcheckresultinitial_set"):
+            return self.statementcheckresultinitial_set.all()
+        return self.statementcheckresultrestart_set.all()
 
     @property
     def overview_statement_check_results(self):
@@ -1526,14 +1530,10 @@ class WcagCheckResultInitial(models.Model):
         return self.issue_identifier
 
     @property
-    def last_12_week_retest(self) -> WcagCheckResultRetest | None:
+    def twelve_week_retest(self) -> WcagCheckResultRetest | None:
         return WcagCheckResultRetest.objects.filter(
-            is_deleted=False,
-            wcag_audit__simplified_case=self.wcag_audit.simplified_case,
-            wcag_audit__audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-            wcag_check_result_initial__wcag_definition=self.wcag_definition,
-            wcag_page_retest__wcag_page_initial=self.wcag_page_initial,
-        ).last()
+            wcag_check_result_initial=self
+        ).first()
 
 
 class WcagCheckResultRetest(models.Model):
@@ -1680,9 +1680,7 @@ class StatementCheckResult(models.Model):
         NOT_TESTED = "not-tested", "Not tested"
 
     audit = models.ForeignKey(Audit, on_delete=models.PROTECT)
-    statement_audit = models.ForeignKey(
-        StatementAudit, on_delete=models.PROTECT, null=True
-    )
+    id_within_case = models.IntegerField(default=0, blank=True)
     issue_identifier = models.CharField(max_length=20, default="")
     statement_check = models.ForeignKey(
         StatementCheck, on_delete=models.PROTECT, null=True, blank=True
@@ -1719,6 +1717,87 @@ class StatementCheckResult(models.Model):
 
     def __str__(self) -> str:
         if self.statement_check is None:
+            return f"{self.audit} | Custom [{self.issue_identifier}]"
+        return f"{self.audit} | {self.statement_check} [{self.issue_identifier}]"
+
+    def save(self, *args, **kwargs) -> None:
+        if not self.id:
+            if self.statement_check:
+                self.id_within_case = self.statement_check.issue_number
+            else:
+                self.id_within_case = self.audit.statement_check_results.count() + 1
+            self.issue_identifier = build_issue_identifier(
+                simplified_case=self.audit.simplified_case,
+                issue=self,
+                custom_issue=self.statement_check is None,
+            )
+        super().save(*args, **kwargs)
+
+    @property
+    def label(self):
+        return self.statement_check.label if self.statement_check else "Custom"
+
+    @property
+    def display_value(self):
+        value_str: str = self.get_check_result_state_display()
+        if self.report_comment:
+            value_str += f"<br><br>Auditor's comment: {self.report_comment}"
+        return mark_safe(value_str)
+
+    @property
+    def edit_initial_url_name(self) -> str:
+        if self.statement_check is None:
+            return "audits:edit-statement-custom"
+        return f"audits:edit-statement-{self.statement_check.type}"
+
+    @property
+    def edit_12_week_url_name(self) -> str:
+        if self.statement_check is None:
+            return "audits:edit-retest-statement-custom"
+        return f"audits:edit-retest-statement-{self.type}"
+
+
+class StatementCheckResultInitial(models.Model):
+    """
+    Model for accessibility statement-specific check result
+    """
+
+    class Result(models.TextChoices):
+        YES = "yes", "Yes"
+        NO = "no", "No"
+        NOT_TESTED = "not-tested", "Not tested"
+
+    statement_audit = models.ForeignKey(StatementAudit, on_delete=models.PROTECT)
+    issue_identifier = models.CharField(max_length=20, default="")
+    statement_check = models.ForeignKey(
+        StatementCheck, on_delete=models.PROTECT, null=True, blank=True
+    )
+    type = models.CharField(
+        max_length=20,
+        choices=StatementCheck.Type.choices,
+        default=StatementCheck.Type.CUSTOM,
+    )
+    check_result_state = models.CharField(
+        max_length=10,
+        choices=Result.choices,
+        default=Result.NOT_TESTED,
+    )
+    report_comment = models.TextField(default="", blank=True)
+    auditor_notes = models.TextField(default="", blank=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["statement_check__position", "id"]
+        indexes = [
+            models.Index(
+                fields=[
+                    "issue_identifier",
+                ]
+            ),
+        ]
+
+    def __str__(self) -> str:
+        if self.statement_check is None:
             return f"{self.statement_audit} | Custom [{self.issue_identifier}]"
         return (
             f"{self.statement_audit} | {self.statement_check} [{self.issue_identifier}]"
@@ -1727,13 +1806,22 @@ class StatementCheckResult(models.Model):
     def save(self, *args, **kwargs) -> None:
         if not self.id:
             if self.statement_check:
-                id_within_case = self.statement_check.issue_number
+                id_within_case: int = self.statement_check.issue_number
             else:
-                id_within_case = (
-                    self.statement_audit.statementcheckresult_set.count() + 1
+                statement_audit_initial: StatementAudit = (
+                    self.statement_audit.simplified_case.audit_overview.statement_audit_initial
                 )
+                id_within_case: int = (
+                    statement_audit_initial.statement_check_results.count() + 1
+                )
+                for statement_audit_retest in StatementAudit.objects.filter(
+                    simplified_case=statement_audit_initial.simplified_case
+                ).exclude(audit_round_type=StatementAudit.AuditRoundType.INITIAL):
+                    id_within_case += StatementCheckResultRetest.objects.filter(
+                        statement_audit=statement_audit_retest, statement_check=None
+                    ).count()
             self.issue_identifier = build_issue_identifier(
-                simplified_case=self.audit.simplified_case,
+                simplified_case=self.statement_audit.simplified_case,
                 issue=self,
                 custom_issue=self.statement_check is None,
                 id_within_case=id_within_case,
@@ -1765,7 +1853,7 @@ class StatementCheckResult(models.Model):
 
     @property
     def twelve_week_retest(self) -> StatementCheckResult | None:
-        return StatementCheckResult.objects.filter(
+        return StatementCheckResultRetest.objects.filter(
             is_deleted=False,
             statement_audit__simplified_case=self.statement_audit.simplified_case,
             statement_audit__audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
@@ -1780,54 +1868,61 @@ class StatementCheckResultRetest(models.Model):
         NO = "no", "No"
         NOT_TESTED = "not-tested", "Not tested"
 
-    statement_audit = models.ForeignKey(
-        StatementAudit, on_delete=models.PROTECT, null=True
+    statement_audit = models.ForeignKey(StatementAudit, on_delete=models.PROTECT)
+    statement_check_result_initial = models.ForeignKey(
+        StatementCheckResultInitial, on_delete=models.PROTECT, null=True, blank=True
     )
-    issue_identifier = models.CharField(max_length=20, default="")
     statement_check = models.ForeignKey(
         StatementCheck, on_delete=models.PROTECT, null=True, blank=True
     )
-    type = models.CharField(
-        max_length=20,
-        choices=StatementCheck.Type.choices,
-        default=StatementCheck.Type.CUSTOM,
-    )
-    check_result_state = models.CharField(
+    issue_identifier = models.CharField(max_length=20, default="")
+    retest_state = models.CharField(
         max_length=10,
         choices=Result.choices,
         default=Result.NOT_TESTED,
     )
-    report_comment = models.TextField(default="", blank=True)
-    auditor_notes = models.TextField(default="", blank=True)
+    retest_email_comment = models.TextField(default="", blank=True)
+    retest_information = models.TextField(default="", blank=True)
     is_deleted = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["statement_check__position", "id"]
-        indexes = [
-            models.Index(
-                fields=[
-                    "issue_identifier",
-                ]
-            ),
-        ]
 
     def __str__(self) -> str:
         if self.statement_check is None:
-            return f"{self.audit} | Custom [{self.issue_identifier}]"
-        return f"{self.audit} | {self.statement_check} [{self.issue_identifier}]"
+            return f"{self.statement_audit} | Custom [{self.issue_identifier}]"
+        return (
+            f"{self.statement_audit} | {self.statement_check} [{self.issue_identifier}]"
+        )
 
     def save(self, *args, **kwargs) -> None:
         if not self.id:
-            if self.statement_check:
-                id_within_case = self.statement_check.issue_number
+            if self.statement_check_result_initial:
+                self.issue_identifier = (
+                    self.statement_check_result_initial.issue_identifier
+                )
             else:
-                id_within_case = self.audit.statement_check_results.count() + 1
-            self.issue_identifier = build_issue_identifier(
-                simplified_case=self.audit.simplified_case,
-                issue=self,
-                custom_issue=self.statement_check is None,
-                id_within_case=id_within_case,
-            )
+                if self.statement_check:
+                    id_within_case: int = self.statement_check.issue_number
+                else:
+                    statement_audit_initial: StatementAudit = (
+                        self.statement_audit.simplified_case.audit_overview.statement_audit_initial
+                    )
+                    id_within_case: int = (
+                        statement_audit_initial.statement_check_results.count() + 1
+                    )
+                    for statement_audit_retest in StatementAudit.objects.filter(
+                        simplified_case=self.statement_check.simplified_case
+                    ).exclude(audit_round_type=StatementAudit.AuditRoundType.INITIAL):
+                        id_within_case += StatementCheckResultRetest.objects.filter(
+                            statement_audit=statement_audit_retest, statement_check=None
+                        ).count()
+                self.issue_identifier = build_issue_identifier(
+                    simplified_case=self.statement_audit.simplified_case,
+                    issue=self,
+                    custom_issue=self.statement_check is None,
+                    id_within_case=id_within_case,
+                )
         super().save(*args, **kwargs)
 
     @property

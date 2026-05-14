@@ -33,6 +33,8 @@ from .models import (
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
+    StatementCheckResultInitial,
+    StatementCheckResultRetest,
     StatementPage,
     WcagAudit,
     WcagCheckResultRetest,
@@ -299,7 +301,7 @@ class StatementAuditComplianceUpdateForm(VersionForm):
         ]
 
 
-class StatementCheckResultForm(forms.ModelForm):
+class StatementCheckResultInitialForm(forms.ModelForm):
     """
     Form for updating a single statement check
     """
@@ -312,15 +314,44 @@ class StatementCheckResultForm(forms.ModelForm):
     report_comment = AMPTextField(label="Comments for report")
 
     class Meta:
-        model = StatementCheckResult
+        model = StatementCheckResultInitial
         fields = [
             "check_result_state",
             "report_comment",
         ]
 
 
-StatementCheckResultFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
-    StatementCheckResult, StatementCheckResultForm, extra=0
+StatementCheckResultInitialFormset: forms.formsets.BaseFormSet = (
+    forms.modelformset_factory(
+        StatementCheckResultInitial, StatementCheckResultInitialForm, extra=0
+    )
+)
+
+
+class StatementCheckResultRetestForm(forms.ModelForm):
+    """
+    Form for updating a single statement check
+    """
+
+    retest_state = AMPChoiceRadioField(
+        label="",
+        choices=StatementCheckResult.Result.choices,
+        widget=AMPRadioSelectWidget(),
+    )
+    retest_information = AMPTextField(label="Retest information")
+
+    class Meta:
+        model = StatementCheckResultRetest
+        fields = [
+            "retest_state",
+            "retest_information",
+        ]
+
+
+StatementCheckResultRetestFormset: forms.formsets.BaseFormSet = (
+    forms.modelformset_factory(
+        StatementCheckResultRetest, StatementCheckResultRetestForm, extra=0
+    )
 )
 
 
@@ -446,7 +477,7 @@ class StatementAuditStatementCustomUpdateForm(VersionForm):
         ]
 
 
-class InitialCustomIssueCreateUpdateForm(forms.ModelForm):
+class StatementCheckResultInitialCreateUpdateForm(forms.ModelForm):
     """
     Form for creating or updating a custom issue StatementCheckResult
     """
@@ -455,29 +486,29 @@ class InitialCustomIssueCreateUpdateForm(forms.ModelForm):
     auditor_notes = AMPTextField(label="Notes for auditor")
 
     class Meta:
-        model = StatementCheckResult
+        model = StatementCheckResultInitial
         fields = ["report_comment", "auditor_notes"]
 
 
-class AuditRetestNew12WeekCustomIssueCreateForm(forms.ModelForm):
+class StatementCheckResultRetestCreateForm(forms.ModelForm):
     """
     Form for creating a new 12-week custom issue StatementCheckResult
     """
 
-    retest_comment = AMPTextField(label="Issue description for organisation")
+    retest_email_comment = AMPTextField(label="Issue description for organisation")
     auditor_notes = AMPTextField(label="12-week retest information")
 
     class Meta:
-        model = StatementCheckResult
-        fields = ["retest_comment", "auditor_notes"]
+        model = StatementCheckResultRetest
+        fields = ["retest_email_comment", "auditor_notes"]
 
 
-class New12WeekCustomStatementCheckResultUpdateForm(forms.ModelForm):
+class StatementCheckResultRetestUpdateForm(forms.ModelForm):
     """
     Form for updating a custom statement check result
     """
 
-    retest_comment = AMPTextField(label="Issue description for organisation")
+    retest_email_comment = AMPTextField(label="Issue description for organisation")
     auditor_notes = AMPTextField(label="12-week retest information")
     retest_state = AMPChoiceRadioField(
         label="Mark this statement as resolved",
@@ -486,8 +517,8 @@ class New12WeekCustomStatementCheckResultUpdateForm(forms.ModelForm):
     )
 
     class Meta:
-        model = StatementCheckResult
-        fields = ["retest_comment", "auditor_notes", "retest_state"]
+        model = StatementCheckResultRetest
+        fields = ["retest_email_comment", "auditor_notes", "retest_state"]
 
 
 class StatementAuditInitialDisproportionateBurdenUpdateForm(VersionForm):
@@ -725,13 +756,13 @@ class AuditRetestStatementCheckResultForm(forms.ModelForm):
         choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
-    retest_comment = AMPTextField(label="12-week retest information")
+    retest_email_comment = AMPTextField(label="12-week retest information")
 
     class Meta:
         model = StatementCheckResult
         fields = [
             "retest_state",
-            "retest_comment",
+            "retest_email_comment",
         ]
 
 
@@ -872,13 +903,13 @@ class AuditRetestStatementInitialCustomIssueUpdateForm(forms.ModelForm):
         choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
-    retest_comment = AMPTextField(label="Comments for email")
+    retest_email_comment = AMPTextField(label="Comments for email")
 
     class Meta:
         model = StatementCheckResult
         fields = [
             "retest_state",
-            "retest_comment",
+            "retest_email_comment",
         ]
 
 

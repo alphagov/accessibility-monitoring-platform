@@ -5,8 +5,8 @@
     <p class="govuk-body">None</p>
 {% endif %}
 <h3 class="govuk-heading-s amp-margin-bottom-0">Comments for email</h3>
-{% if custom_issue.retest_comment %}
-    <div class="govuk-body amp-notes amp-margin-bottom-15">{{ custom_issue.retest_comment|markdown_to_html }}</div>
+{% if custom_issue.retest_email_comment %}
+    <div class="govuk-body amp-notes amp-margin-bottom-15">{{ custom_issue.retest_email_comment|markdown_to_html }}</div>
 {% else %}
     <p class="govuk-body">None</p>
 {% endif %}

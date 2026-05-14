@@ -28,6 +28,10 @@ def populate_audit_rounds(apps, schema_editor):
     )
     StatementPage = apps.get_model("audits", "StatementPage")
     StatementCheckResult = apps.get_model("audits", "StatementCheckResult")
+    StatementCheckResultInitial = apps.get_model(
+        "audits", "StatementCheckResultInitial"
+    )
+    StatementCheckResultRetest = apps.get_model("audits", "StatementCheckResultRetest")
     Retest = apps.get_model("audits", "Retest")
     RetestPage = apps.get_model("audits", "RetestPage")
     WcagPageRetest = apps.get_model("audits", "WcagPageRetest")
@@ -193,6 +197,35 @@ def populate_audit_rounds(apps, schema_editor):
                             created_by=check_result_notes_history.created_by,
                         )
 
+        statement_check_results_initial_by_statement_check = {}
+        for statement_check_result in StatementCheckResult.objects.filter(audit=audit):
+            statement_check_result.statement_audit = statement_audit_initial
+            statement_check_result.save()
+            statement_check_result_initial = StatementCheckResultInitial.objects.create(
+                statement_audit=statement_audit_initial,
+                statement_check=statement_check_result.statement_check,
+                issue_identifier=statement_check_result.issue_identifier,
+                type=statement_check_result.type,
+                check_result_state=statement_check_result.check_result_state,
+                report_comment=statement_check_result.report_comment,
+                auditor_notes=statement_check_result.auditor_notes,
+                is_deleted=statement_check_result.is_deleted,
+            )
+            statement_check_results_initial_by_statement_check[
+                statement_check_result.statement_check
+            ] = statement_check_result_initial
+            if statement_audit_12_week is not None:
+                StatementCheckResultRetest.objects.create(
+                    statement_audit=statement_audit_12_week,
+                    statement_check_result_initial=statement_check_result_initial,
+                    statement_check=statement_check_result.statement_check,
+                    issue_identifier=statement_check_result.issue_identifier,
+                    retest_state=statement_check_result.retest_state,
+                    retest_email_comment=statement_check_result.retest_comment,
+                    retest_information=statement_check_result.auditor_notes,
+                    is_deleted=statement_check_result.is_deleted,
+                )
+
         for retest in Retest.objects.filter(
             simplified_case=audit.simplified_case
         ).order_by("id"):
@@ -288,29 +321,22 @@ def populate_audit_rounds(apps, schema_editor):
             ) in RetestStatementCheckResult.objects.filter(retest=retest).order_by(
                 "id"
             ):
-                retest_statement_check_result.statement_audit = statement_audit_retest
-                retest_statement_check_result.save()
+                StatementCheckResultRetest.objects.create(
+                    statement_audit=statement_audit_retest,
+                    statement_check_result_initial=statement_check_results_initial_by_statement_check.get(
+                        retest_statement_check_result.statement_check
+                    ),
+                    statement_check=retest_statement_check_result.statement_check,
+                    issue_identifier=retest_statement_check_result.issue_identifier,
+                    retest_state=retest_statement_check_result.check_result_state,
+                    retest_email_comment=retest_statement_check_result.comment,
+                    is_deleted=retest_statement_check_result.is_deleted,
+                )
 
         for statement_page in StatementPage.objects.filter(audit=audit):
             statement_page.simplified_case = statement_audit_initial.simplified_case
             statement_page.audit_overview = audit_overview
             statement_page.save()
-
-        for statement_check_result in StatementCheckResult.objects.filter(audit=audit):
-            statement_check_result.statement_audit = statement_audit_initial
-            statement_check_result.save()
-            if statement_audit_12_week is not None:
-                StatementCheckResult.objects.create(
-                    audit=statement_check_result.audit,
-                    statement_audit=statement_audit_12_week,
-                    issue_identifier=statement_check_result.issue_identifier,
-                    statement_check=statement_check_result.statement_check,
-                    type=statement_check_result.type,
-                    check_result_state=statement_check_result.retest_state,
-                    report_comment=statement_check_result.retest_comment,
-                    auditor_notes=statement_check_result.auditor_notes,
-                    is_deleted=statement_check_result.is_deleted,
-                )
 
 
 def reverse_code(apps, schema_editor):
@@ -318,7 +344,10 @@ def reverse_code(apps, schema_editor):
     WcagAudit = apps.get_model("audits", "WCAGAudit")
     StatementAudit = apps.get_model("audits", "StatementAudit")
     StatementPage = apps.get_model("audits", "StatementPage")
-    StatementCheckResult = apps.get_model("audits", "StatementCheckResult")
+    StatementCheckResultInitial = apps.get_model(
+        "audits", "StatementCheckResultInitial"
+    )
+    StatementCheckResultRetest = apps.get_model("audits", "StatementCheckResultRetest")
     WcagPageInitial = apps.get_model("audits", "WcagPageInitial")
     WcagPageRetest = apps.get_model("audits", "WcagPageRetest")
     WcagCheckResultInitial = apps.get_model("audits", "WcagCheckResultInitial")
@@ -335,11 +364,8 @@ def reverse_code(apps, schema_editor):
     WcagAudit.objects.all().delete()
     RetestStatementCheckResult.objects.all().update(statement_audit=None)
     StatementPage.objects.all().update(audit_overview=None)
-    for statement_audit in StatementAudit.objects.filter(
-        audit_round_type=TWELVE_WEEK_ROUND_TYPE
-    ):
-        StatementCheckResult.objects.filter(statement_audit=statement_audit).delete()
-    StatementCheckResult.objects.all().update(statement_audit=None)
+    StatementCheckResultInitial.objects.all().delete()
+    StatementCheckResultRetest.objects.all().delete()
     StatementAudit.objects.all().delete()
     AuditOverview.objects.all().delete()
 

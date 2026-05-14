@@ -20,7 +20,6 @@ from ...simplified.utils import (
 )
 from ..forms import (
     AuditRetestCheckResultFilterForm,
-    AuditRetestNew12WeekCustomIssueCreateForm,
     AuditRetestStatementCheckResultFormset,
     AuditRetestStatementComplianceUpdateForm,
     AuditRetestStatementCustomUpdateForm,
@@ -36,10 +35,11 @@ from ..forms import (
     AuditRetestWcagSummaryUpdateForm,
     AuditTwelveWeekDisproportionateBurdenUpdateForm,
     CaseComplianceStatement12WeekUpdateForm,
-    New12WeekCustomStatementCheckResultUpdateForm,
     StatementAuditStatementBackupUpdateForm,
     StatementAuditStatementPagesUpdateForm,
-    StatementCheckResultFormset,
+    StatementCheckResultRetestCreateForm,
+    StatementCheckResultRetestFormset,
+    StatementCheckResultRetestUpdateForm,
     WcagAuditComplianceUpdateForm,
     WcagAuditRetestMetadataUpdateForm,
     WcagAuditRetestPagesUpdateForm,
@@ -55,6 +55,7 @@ from ..models import (
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
+    StatementCheckResultRetest,
     StatementPage,
     WcagAudit,
     WcagCheckResultRetest,
@@ -74,7 +75,7 @@ from .base import (
     AuditSummaryFirstMixin,
     AuditUpdateView,
     DeleteStatementPageUpdateView,
-    StatementAuditCheckingUpdateView,
+    StatementAuditUpdateView,
     StatementBackupUpdateView,
     WcagAuditUpdateView,
 )
@@ -376,12 +377,62 @@ class AuditRetestStatementCheckingView(AuditUpdateView):
         return super().form_valid(form)
 
 
-class TwelveWeekStatementAuditOverviewUpdateView(StatementAuditCheckingUpdateView):
+class StatementCheckResultRetestFormsetView(StatementAuditUpdateView):
+    """
+    View to do statement checks as part of an audit
+    """
+
+    template_name: str = "audits/statement_checks/retest_statement_formset_form.html"
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Populate context data for template rendering"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        statement_audit: StatementAudit = self.object
+
+        if self.request.POST:
+            statement_check_results_formset: StatementCheckResultRetestFormset = (
+                StatementCheckResultRetestFormset(self.request.POST)
+            )
+        else:
+            statement_check_results_formset: StatementCheckResultRetestFormset = (
+                StatementCheckResultRetestFormset(
+                    queryset=StatementCheckResultRetest.objects.filter(
+                        statement_audit=statement_audit,
+                        statement_check_result_initial__type=self.statement_check_type,
+                    )
+                )
+            )
+
+        context["statement_check_results_formset"] = statement_check_results_formset
+
+        return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: dict[str, Any] = self.get_context_data()
+
+        statement_check_results_formset: StatementCheckResultRetestFormset = context[
+            "statement_check_results_formset"
+        ]
+        if statement_check_results_formset.is_valid():
+            for statement_check_results_form in statement_check_results_formset.forms:
+                record_simplified_model_update_event(
+                    user=self.request.user,
+                    model_object=statement_check_results_form.instance,
+                    simplified_case=statement_check_results_form.instance.statement_audit.simplified_case,
+                )
+                statement_check_results_form.save()
+        else:
+            return super().form_invalid(form)
+
+        return super().form_valid(form)
+
+
+class TwelveWeekStatementAuditOverviewUpdateView(StatementCheckResultRetestFormsetView):
 
     form_class: type[AuditRetestStatementOverviewUpdateForm] = (
         AuditRetestStatementOverviewUpdateForm
     )
-    template_name: str = "audits/statement_checks/retest_statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.OVERVIEW
 
     def get_next_platform_page(self) -> PlatformPage:
@@ -398,11 +449,11 @@ class TwelveWeekStatementAuditOverviewUpdateView(StatementAuditCheckingUpdateVie
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        statement_check_results_formset: StatementCheckResultFormset = context[
+        statement_check_results_formset: StatementCheckResultRetestFormset = context[
             "statement_check_results_formset"
         ]
         for form in statement_check_results_formset.forms:
-            form.fields["report_comment"].label = "12-week retest information"
+            form.fields["retest_information"].label = "12-week retest information"
 
         statement_audit: StatementAudit = self.object
         context["next_platform_pages"] = [
@@ -534,8 +585,8 @@ class AuditRetestNew12WeekCustomIssueCreateView(CreateView):
     """
 
     model: type[StatementCheckResult] = StatementCheckResult
-    form_class: type[AuditRetestNew12WeekCustomIssueCreateForm] = (
-        AuditRetestNew12WeekCustomIssueCreateForm
+    form_class: type[StatementCheckResultRetestCreateForm] = (
+        StatementCheckResultRetestCreateForm
     )
     template_name: str = "audits/forms/custom_issue_create.html"
 
@@ -545,7 +596,7 @@ class AuditRetestNew12WeekCustomIssueCreateView(CreateView):
         context["audit"] = get_object_or_404(Audit, id=self.kwargs.get("audit_id"))
         return context
 
-    def form_valid(self, form: AuditRetestNew12WeekCustomIssueCreateForm):
+    def form_valid(self, form: StatementCheckResultRetestCreateForm):
         """Populate custom issue"""
         audit: Audit = get_object_or_404(Audit, id=self.kwargs.get("audit_id"))
         statement_check_result: StatementCheckResult = form.save(commit=False)
@@ -574,12 +625,12 @@ class AuditRetestNew12WeekCustomIssueUpdateView(UpdateView):
 
     model: type[StatementCheckResult] = StatementCheckResult
     context_object_name: str = "custom_issue"
-    form_class: type[New12WeekCustomStatementCheckResultUpdateForm] = (
-        New12WeekCustomStatementCheckResultUpdateForm
+    form_class: type[StatementCheckResultRetestUpdateForm] = (
+        StatementCheckResultRetestUpdateForm
     )
     template_name: str = "audits/forms/new_12_week_custom_issue_update.html"
 
-    def form_valid(self, form: New12WeekCustomStatementCheckResultUpdateForm):
+    def form_valid(self, form: StatementCheckResultRetestUpdateForm):
         """Populate custom issue"""
         custom_issue: StatementCheckResult = form.save(commit=False)
         record_simplified_model_update_event(

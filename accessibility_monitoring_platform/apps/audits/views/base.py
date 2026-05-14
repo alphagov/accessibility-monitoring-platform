@@ -33,7 +33,8 @@ from ..forms import (
     DeleteStatementPageUpdateForm,
     StatementBackupForm,
     StatementCheckCreateUpdateForm,
-    StatementCheckResultFormset,
+    StatementCheckResultInitialFormset,
+    StatementCheckResultRetestFormset,
     StatementCheckSearchForm,
     StatementLinkForm,
     WcagDefinitionCreateUpdateForm,
@@ -46,7 +47,7 @@ from ..models import (
     Retest,
     StatementAudit,
     StatementCheck,
-    StatementCheckResult,
+    StatementCheckResultInitial,
     StatementPage,
     WcagAudit,
     WcagDefinition,
@@ -286,54 +287,6 @@ class AuditCaseComplianceUpdateView(AuditUpdateView):
                     case_compliance_form=case_compliance_form,
                 )
             )
-
-
-class StatementAuditCheckingUpdateView(StatementAuditUpdateView):
-    """
-    View to do statement checks as part of an audit
-    """
-
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Populate context data for template rendering"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        statement_audit: StatementAudit = self.object
-
-        if self.request.POST:
-            statement_check_results_formset: StatementCheckResultFormset = (
-                StatementCheckResultFormset(self.request.POST)
-            )
-        else:
-            statement_check_results_formset: StatementCheckResultFormset = (
-                StatementCheckResultFormset(
-                    queryset=StatementCheckResult.objects.filter(
-                        statement_audit=statement_audit, type=self.statement_check_type
-                    )
-                )
-            )
-
-        context["statement_check_results_formset"] = statement_check_results_formset
-
-        return context
-
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        context: dict[str, Any] = self.get_context_data()
-
-        statement_check_results_formset: StatementCheckResultFormset = context[
-            "statement_check_results_formset"
-        ]
-        if statement_check_results_formset.is_valid():
-            for statement_check_results_form in statement_check_results_formset.forms:
-                record_simplified_model_update_event(
-                    user=self.request.user,
-                    model_object=statement_check_results_form.instance,
-                    simplified_case=statement_check_results_form.instance.audit.simplified_case,
-                )
-                statement_check_results_form.save()
-        else:
-            return super().form_invalid(form)
-
-        return super().form_valid(form)
 
 
 class WcagDefinitionListView(ListView):
