@@ -1355,10 +1355,10 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 case_details_template_name="simplified/details/details_statement_backups.html",
                 next_page_url_name="audits:edit-retest-statement-overview",
             ),
-            AuditPlatformPage(
+            TwelveWeekStatementAuditPlatformPage(
                 name="Statement overview",
                 url_name="audits:edit-retest-statement-overview",
-                complete_flag_name="audit_retest_statement_overview_complete_date",
+                complete_flag_name="statement_overview_complete_date",
                 subpages=[
                     AuditPlatformPage(
                         name="Statement information",

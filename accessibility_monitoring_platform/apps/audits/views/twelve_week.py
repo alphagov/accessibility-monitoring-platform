@@ -39,6 +39,7 @@ from ..forms import (
     New12WeekCustomStatementCheckResultUpdateForm,
     StatementAuditStatementBackupUpdateForm,
     StatementAuditStatementPagesUpdateForm,
+    StatementCheckResultFormset,
     WcagAuditComplianceUpdateForm,
     WcagAuditRetestMetadataUpdateForm,
     WcagAuditRetestPagesUpdateForm,
@@ -73,6 +74,7 @@ from .base import (
     AuditSummaryFirstMixin,
     AuditUpdateView,
     DeleteStatementPageUpdateView,
+    StatementAuditCheckingUpdateView,
     StatementBackupUpdateView,
     WcagAuditUpdateView,
 )
@@ -374,37 +376,43 @@ class AuditRetestStatementCheckingView(AuditUpdateView):
         return super().form_valid(form)
 
 
-class AuditRetestStatementOverviewFormView(AuditRetestStatementCheckingView):
-    """
-    View to update statement overview check results retest
-    """
+class TwelveWeekStatementAuditOverviewUpdateView(StatementAuditCheckingUpdateView):
 
     form_class: type[AuditRetestStatementOverviewUpdateForm] = (
         AuditRetestStatementOverviewUpdateForm
     )
+    template_name: str = "audits/statement_checks/retest_statement_formset_form.html"
     statement_check_type: str = StatementCheck.Type.OVERVIEW
 
     def get_next_platform_page(self) -> PlatformPage:
-        audit: Audit = self.object
-        if audit.all_overview_statement_checks_have_passed:
+        statement_audit: StatementAudit = self.object
+        if statement_audit.all_overview_statement_checks_have_passed:
             return get_platform_page_by_url_name(
-                url_name="audits:edit-retest-statement-website", instance=audit
+                url_name="audits:edit-retest-statement-website",
+                instance=statement_audit,
             )
         return get_platform_page_by_url_name(
-            url_name="audits:edit-retest-statement-custom", instance=audit
+            url_name="audits:edit-retest-statement-custom", instance=statement_audit
         )
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        audit: Audit = self.object
+        statement_check_results_formset: StatementCheckResultFormset = context[
+            "statement_check_results_formset"
+        ]
+        for form in statement_check_results_formset.forms:
+            form.fields["report_comment"].label = "12-week retest information"
+
+        statement_audit: StatementAudit = self.object
         context["next_platform_pages"] = [
             get_platform_page_by_url_name(
-                url_name="audits:edit-retest-statement-website", instance=audit
+                url_name="audits:edit-retest-statement-website",
+                instance=statement_audit,
             ),
             get_platform_page_by_url_name(
                 url_name="audits:edit-retest-statement-custom",
-                instance=audit,
+                instance=statement_audit,
             ),
         ]
         return context

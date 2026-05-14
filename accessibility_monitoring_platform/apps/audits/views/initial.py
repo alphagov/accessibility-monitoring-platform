@@ -49,6 +49,7 @@ from ..forms import (
 )
 from ..models import (
     Audit,
+    AuditOverview,
     CheckResult,
     Page,
     StatementAudit,
@@ -68,9 +69,9 @@ from ..utils import (
 )
 from .base import (
     AddStatementLinkUpdateView,
-    AuditStatementCheckingView,
     AuditSummaryFirstMixin,
     DeleteStatementPageUpdateView,
+    StatementAuditCheckingUpdateView,
     StatementAuditUpdateView,
     StatementBackupUpdateView,
     WcagAuditUpdateView,
@@ -174,9 +175,7 @@ class WcagAuditPagesUpdateView(WcagAuditUpdateView):
         wcag_audit: WcagAudit = form.save(commit=False)
 
         if standard_pages_formset.is_valid():
-            statement_audit: StatementAudit = StatementAudit.objects.filter(
-                simplified_case=wcag_audit.simplified_case
-            ).first()
+            audit_overview: AuditOverview = wcag_audit.simplified_case.audit_overview
             wcag_page_wcag_audit_initials: list[WcagPageRetest] = (
                 standard_pages_formset.save(commit=False)
             )
@@ -186,12 +185,12 @@ class WcagAuditPagesUpdateView(WcagAuditUpdateView):
                     == WcagPageInitial.Type.STATEMENT
                     and wcag_page_wcag_audit_initial.url
                 ):
-                    if statement_audit.statement_pages.count() == 0:
+                    if audit_overview.statement_pages.count() == 0:
                         # Create first statement link
                         statement_page: StatementPage = StatementPage.objects.create(
                             simplified_case=wcag_audit.simplified_case,
                             audit=wcag_audit.simplified_case.audit,
-                            statement_audit=statement_audit,
+                            audit_overview=audit_overview,
                             url=wcag_page_wcag_audit_initial.url,
                         )
                         record_simplified_model_create_event(
@@ -406,7 +405,7 @@ class InitialStatementBackupUpdateView(StatementBackupUpdateView):
     template_name: str = "audits/forms/initial_statement_backup.html"
 
 
-class AuditStatementOverviewFormView(AuditStatementCheckingView):
+class AuditStatementOverviewFormView(StatementAuditCheckingUpdateView):
     """
     View to update statement overview check results
     """
@@ -448,7 +447,7 @@ class AuditStatementOverviewFormView(AuditStatementCheckingView):
         return super().get_success_url()
 
 
-class AuditStatementWebsiteFormView(AuditStatementCheckingView):
+class AuditStatementWebsiteFormView(StatementAuditCheckingUpdateView):
     """
     View to update statement information check results
     """
@@ -460,7 +459,7 @@ class AuditStatementWebsiteFormView(AuditStatementCheckingView):
     statement_check_type: str = StatementCheck.Type.WEBSITE
 
 
-class AuditStatementComplianceFormView(AuditStatementCheckingView):
+class AuditStatementComplianceFormView(StatementAuditCheckingUpdateView):
     """
     View to update statement compliance check results
     """
@@ -472,7 +471,7 @@ class AuditStatementComplianceFormView(AuditStatementCheckingView):
     statement_check_type: str = StatementCheck.Type.COMPLIANCE
 
 
-class AuditStatementNonAccessibleFormView(AuditStatementCheckingView):
+class AuditStatementNonAccessibleFormView(StatementAuditCheckingUpdateView):
     """
     View to update statement non-accessible check results
     """
@@ -484,7 +483,7 @@ class AuditStatementNonAccessibleFormView(AuditStatementCheckingView):
     statement_check_type: str = StatementCheck.Type.NON_ACCESSIBLE
 
 
-class AuditStatementPreparationFormView(AuditStatementCheckingView):
+class AuditStatementPreparationFormView(StatementAuditCheckingUpdateView):
     """
     View to update statement preparation check results
     """
@@ -496,7 +495,7 @@ class AuditStatementPreparationFormView(AuditStatementCheckingView):
     statement_check_type: str = StatementCheck.Type.PREPARATION
 
 
-class AuditStatementFeedbackFormView(AuditStatementCheckingView):
+class AuditStatementFeedbackFormView(StatementAuditCheckingUpdateView):
     """
     View to update statement feedback check results
     """
@@ -508,7 +507,7 @@ class AuditStatementFeedbackFormView(AuditStatementCheckingView):
     statement_check_type: str = StatementCheck.Type.FEEDBACK
 
 
-class AuditStatementDisproportionateFormView(AuditStatementCheckingView):
+class AuditStatementDisproportionateFormView(StatementAuditCheckingUpdateView):
     """
     View to update statement disproportionate burden check results
     """

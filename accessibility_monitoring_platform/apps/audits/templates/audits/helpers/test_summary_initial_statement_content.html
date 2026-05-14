@@ -1,6 +1,6 @@
 <h2 id="statement-{{ summary_statement_check_results.0.initial_result.type }}" class="govuk-heading-m govuk-body govuk-!-font-size-19 govuk-!-font-weight-bold">{{ summary_statement_check_results.0.initial_result.get_type_display }}</h2>
 <p class="govuk-body govuk-button-group amp-margin-bottom-0">
-    <a href="{{ statement_audit_initial.latest_statement_link }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+    <a href="{{ case.audit_overview.latest_statement_link }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
         Open statement page in new tab</a>
     {% if summary_statement_check_results.0.initial_result.edit_initial_url_name %}
         <a href="{% url summary_statement_check_results.0.initial_result.edit_initial_url_name statement_audit.id %}" class="govuk-link govuk-link--no-visited-state">

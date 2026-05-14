@@ -35,7 +35,7 @@ def populate_audit_rounds(apps, schema_editor):
     WcagCheckResultRetest = apps.get_model("audits", "WcagCheckResultRetest")
     RetestStatementCheckResult = apps.get_model("audits", "RetestStatementCheckResult")
     for audit in Audit.objects.all().order_by("id"):
-        AuditOverview.objects.create(
+        audit_overview = AuditOverview.objects.create(
             simplified_case=audit.simplified_case,
             published_report_data_updated_time=audit.published_report_data_updated_time,
             updated=audit.updated,
@@ -293,12 +293,7 @@ def populate_audit_rounds(apps, schema_editor):
 
         for statement_page in StatementPage.objects.filter(audit=audit):
             statement_page.simplified_case = statement_audit_initial.simplified_case
-            if statement_page.added_stage == "12-week-retest":
-                statement_page.statement_audit = statement_audit_12_week
-            elif statement_page.added_stage == "retest":
-                statement_page.statement_audit = statement_audit_retest
-            else:
-                statement_page.statement_audit = statement_audit_initial
+            statement_page.audit_overview = audit_overview
             statement_page.save()
 
         for statement_check_result in StatementCheckResult.objects.filter(audit=audit):
@@ -332,21 +327,21 @@ def reverse_code(apps, schema_editor):
     )
     WcagCheckResultRetest = apps.get_model("audits", "WcagCheckResultRetest")
     RetestStatementCheckResult = apps.get_model("audits", "RetestStatementCheckResult")
-    AuditOverview.objects.all().delete()
     WcagCheckResultInitialNotesHistory.objects.all().delete()
-    WcagCheckResultInitial.objects.all().delete()
     WcagCheckResultRetest.objects.all().delete()
+    WcagCheckResultInitial.objects.all().delete()
     WcagPageRetest.objects.all().delete()
     WcagPageInitial.objects.all().delete()
     WcagAudit.objects.all().delete()
     RetestStatementCheckResult.objects.all().update(statement_audit=None)
-    StatementPage.objects.all().update(statement_audit=None)
+    StatementPage.objects.all().update(audit_overview=None)
     for statement_audit in StatementAudit.objects.filter(
         audit_round_type=TWELVE_WEEK_ROUND_TYPE
     ):
         StatementCheckResult.objects.filter(statement_audit=statement_audit).delete()
     StatementCheckResult.objects.all().update(statement_audit=None)
     StatementAudit.objects.all().delete()
+    AuditOverview.objects.all().delete()
 
 
 class Migration(migrations.Migration):

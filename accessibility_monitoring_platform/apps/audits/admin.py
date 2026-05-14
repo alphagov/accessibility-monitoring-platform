@@ -347,7 +347,7 @@ class StatementPageAdmin(admin.ModelAdmin):
     search_fields = ["audit__simplified_case__case_identifier", "url", "backup_url"]
     list_display = ["id", "url", "backup_url", "added_stage", "is_deleted", "created"]
     list_filter = ["added_stage", "is_deleted"]
-    readonly_fields = ["audit", "statement_audit"]
+    readonly_fields = ["audit", "audit_overview"]
     show_facets = admin.ShowFacets.ALWAYS
 
 

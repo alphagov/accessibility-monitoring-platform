@@ -641,6 +641,16 @@ class AuditOverview(models.Model):
         ).first()
 
     @property
+    def statement_pages(self) -> QuerySet[StatementPage]:
+        return self.statementpage_set.filter(is_deleted=False)
+
+    @property
+    def latest_statement_link(self) -> str | None:
+        for statement_page in self.statement_pages.order_by("-id"):
+            if statement_page.url:
+                return statement_page.url
+
+    @property
     def statement_audits(self) -> QuerySet[StatementAudit]:
         return self.simplified_case.statementaudit_set.filter(is_deleted=False)
 
@@ -976,10 +986,6 @@ class StatementAudit(AuditRound):
         else:
             round = f" #{self.round}"
         return f"{self.simplified_case} {self.get_audit_round_type_display()}{round} ({amp_format_date(self.date_of_test)})"
-
-    @property
-    def statement_pages(self) -> QuerySet[StatementPage]:
-        return self.statementpage_set.filter(is_deleted=False)
 
     @property
     def statement_check_results(self) -> QuerySet[StatementCheckResult]:
@@ -2255,8 +2261,8 @@ class StatementPage(models.Model):
     simplified_case = models.ForeignKey(
         SimplifiedCase, on_delete=models.PROTECT, null=True
     )
-    statement_audit = models.ForeignKey(
-        StatementAudit, on_delete=models.PROTECT, null=True
+    audit_overview = models.ForeignKey(
+        AuditOverview, on_delete=models.PROTECT, null=True
     )
     is_deleted = models.BooleanField(default=False)
 

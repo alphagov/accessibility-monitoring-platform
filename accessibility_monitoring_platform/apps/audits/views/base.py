@@ -288,7 +288,7 @@ class AuditCaseComplianceUpdateView(AuditUpdateView):
             )
 
 
-class AuditStatementCheckingView(StatementAuditUpdateView):
+class StatementAuditCheckingUpdateView(StatementAuditUpdateView):
     """
     View to do statement checks as part of an audit
     """
@@ -539,7 +539,8 @@ class AddStatementLinkUpdateView(StatementAuditUpdateView):
         self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
     ) -> HttpResponseRedirect | HttpResponse:
         """Populate two forms from post request"""
-        self.object: Audit | Retest = self.get_object()
+        self.object: StatementAudit | Retest = self.get_object()
+        simplified_case: SimplifiedCase = self.object.simplified_case
         form: Form = self.form_class(request.POST, instance=self.object)  # type: ignore
         statement_link_form: StatementLinkForm = StatementLinkForm(
             self.request.POST, self.request.FILES
@@ -547,24 +548,34 @@ class AddStatementLinkUpdateView(StatementAuditUpdateView):
         if form.is_valid() and statement_link_form.is_valid():
             form.save()
             if isinstance(self.object, Retest):
-                statement_audit: StatementAudit = (
-                    self.object.simplified_case.first_statement_audit
-                )
+                added_stage: StatementPage.AddedStage = StatementPage.AddedStage.RETEST
             else:
                 statement_audit: StatementAudit = self.object
+                if (
+                    statement_audit.audit_round_type
+                    == StatementAudit.AuditRoundType.INITIAL
+                ):
+                    added_stage: StatementPage.AddedStage = (
+                        StatementPage.AddedStage.INITIAL
+                    )
+                else:
+                    added_stage: StatementPage.AddedStage = (
+                        StatementPage.AddedStage.TWELVE_WEEK
+                    )
             statement_url: str = statement_link_form.cleaned_data["statement_url"]
             if (
                 statement_url
                 and StatementPage.objects.filter(
-                    simplified_case=statement_audit.simplified_case, url=statement_url
+                    simplified_case=simplified_case, url=statement_url
                 ).first()
                 is None
             ):
                 statement_page: StatementPage = StatementPage.objects.create(
-                    audit=statement_audit.simplified_case.audit,
-                    simplified_case=statement_audit.simplified_case,
-                    statement_audit=statement_audit,
+                    audit=simplified_case.audit,
+                    simplified_case=simplified_case,
+                    audit_overview=simplified_case.audit_overview,
                     url=statement_url,
+                    added_stage=added_stage,
                 )
                 user: User = self.request.user
                 record_simplified_model_create_event(

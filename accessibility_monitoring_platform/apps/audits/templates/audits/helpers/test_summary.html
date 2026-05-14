@@ -141,8 +141,8 @@
                 </tr>
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top">
-                        {% if statement_audit_initial.latest_statement_link %}
-                            <a href="{{ statement_audit_initial.latest_statement_link }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
+                        {% if case.audit_overview.latest_statement_link %}
+                            <a href="{{ case.audit_overview.latest_statement_link }}" class="govuk-link govuk-link--no-visited-state" target="_blank">
                                 Accessibility Statement</a>
                             added to case
                         {% else %}

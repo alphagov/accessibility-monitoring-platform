@@ -74,7 +74,6 @@ from .views.twelve_week import (
     AuditRetestStatementDisproportionateFormView,
     AuditRetestStatementFeedbackFormView,
     AuditRetestStatementNonAccessibleFormView,
-    AuditRetestStatementOverviewFormView,
     AuditRetestStatementPreparationFormView,
     AuditRetestStatementSummaryUpdateView,
     AuditRetestStatementWebsiteFormView,
@@ -82,6 +81,7 @@ from .views.twelve_week import (
     TwelveWeekAddStatementPageUpdateView,
     TwelveWeekDeleteStatementPageUpdateView,
     TwelveWeekDisproportionateBurdenUpdateView,
+    TwelveWeekStatementAuditOverviewUpdateView,
     TwelveWeekStatementBackupUpdateView,
     WcagAuditComplianceRetestUpdateView,
     WcagAuditRetestMetadataUpdateView,
@@ -270,7 +270,7 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-retest-statement-overview/",
-        login_required(AuditRetestStatementOverviewFormView.as_view()),
+        login_required(TwelveWeekStatementAuditOverviewUpdateView.as_view()),
         name="edit-retest-statement-overview",
     ),
     path(
