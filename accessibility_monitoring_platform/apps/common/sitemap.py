@@ -1360,50 +1360,50 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 url_name="audits:edit-retest-statement-overview",
                 complete_flag_name="statement_overview_complete_date",
                 subpages=[
-                    AuditPlatformPage(
+                    TwelveWeekStatementAuditPlatformPage(
                         name="Statement information",
                         url_name="audits:edit-retest-statement-website",
-                        complete_flag_name="audit_retest_statement_website_complete_date",
+                        complete_flag_name="statement_website_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
                         case_details_template_name="simplified/details/details_twelve_week_statement_checks_website.html",
                         next_page_url_name="audits:edit-retest-statement-compliance",
                     ),
-                    AuditPlatformPage(
+                    TwelveWeekStatementAuditPlatformPage(
                         name="Compliance status",
                         url_name="audits:edit-retest-statement-compliance",
-                        complete_flag_name="audit_retest_statement_compliance_complete_date",
+                        complete_flag_name="statement_compliance_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
                         case_details_template_name="simplified/details/details_twelve_week_statement_checks_compliance.html",
                         next_page_url_name="audits:edit-retest-statement-non-accessible",
                     ),
-                    AuditPlatformPage(
+                    TwelveWeekStatementAuditPlatformPage(
                         name="Non-accessible content",
                         url_name="audits:edit-retest-statement-non-accessible",
-                        complete_flag_name="audit_retest_statement_non_accessible_complete_date",
+                        complete_flag_name="statement_non_accessible_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
                         case_details_template_name="simplified/details/details_twelve_week_statement_checks_non_accessible.html",
                         next_page_url_name="audits:edit-retest-statement-preparation",
                     ),
-                    AuditPlatformPage(
+                    TwelveWeekStatementAuditPlatformPage(
                         name="Statement preparation",
                         url_name="audits:edit-retest-statement-preparation",
-                        complete_flag_name="audit_retest_statement_preparation_complete_date",
+                        complete_flag_name="statement_preparation_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
                         case_details_template_name="simplified/details/details_twelve_week_statement_checks_preparation.html",
                         next_page_url_name="audits:edit-retest-statement-feedback",
                     ),
-                    AuditPlatformPage(
+                    TwelveWeekStatementAuditPlatformPage(
                         name="Feedback and enforcement procedure",
                         url_name="audits:edit-retest-statement-feedback",
-                        complete_flag_name="audit_retest_statement_feedback_complete_date",
+                        complete_flag_name="statement_feedback_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
                         case_details_template_name="simplified/details/details_twelve_week_statement_checks_feedback.html",
                         next_page_url_name="audits:edit-retest-statement-disproportionate",
                     ),
-                    AuditPlatformPage(
+                    TwelveWeekStatementAuditPlatformPage(
                         name="Disproportionate burden claim",
                         url_name="audits:edit-retest-statement-disproportionate",
-                        complete_flag_name="audit_retest_statement_disproportionate_complete_date",
+                        complete_flag_name="statement_disproportionate_complete_date",
                         show_flag_name="all_overview_statement_checks_have_passed",
                         case_details_template_name="simplified/details/details_twelve_week_statement_checks_disproportionate.html",
                         next_page_url_name="audits:edit-retest-statement-custom",

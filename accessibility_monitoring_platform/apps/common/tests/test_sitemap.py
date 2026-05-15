@@ -36,7 +36,6 @@ from ..sitemap import (
     SITEMAP_BY_URL_NAME,
     AuditPagesPlatformPage,
     AuditPlatformPage,
-    AuditRetestPagesPlatformPage,
     BaseCaseCommentsPlatformPage,
     CaseContactsPlatformPage,
     DetailedCasePlatformPage,
@@ -53,6 +52,7 @@ from ..sitemap import (
     SimplifiedCasePlatformPage,
     SimplifiedCasePlatformPageGroup,
     Sitemap,
+    WcagAuditRetestPagesPlatformPage,
     build_sitemap_by_url_name,
     build_sitemap_for_current_page,
     get_platform_page_by_url_name,
@@ -524,7 +524,9 @@ def test_audit_retest_pages_platform_page():
         url_name="audits:edit-audit-retest-pages",
     )
 
-    assert isinstance(audit_retest_pages_platform_page, AuditRetestPagesPlatformPage)
+    assert isinstance(
+        audit_retest_pages_platform_page, WcagAuditRetestPagesPlatformPage
+    )
     assert audit_retest_pages_platform_page.instance_class == Audit
     assert audit_retest_pages_platform_page.url_kwarg_key == "pk"
 

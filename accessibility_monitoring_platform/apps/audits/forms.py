@@ -746,108 +746,6 @@ class AuditRetestStatementSummaryUpdateForm(VersionForm):
         ]
 
 
-class AuditRetestStatementCheckResultForm(forms.ModelForm):
-    """
-    Form for updating a single statement check retest
-    """
-
-    retest_state = AMPChoiceRadioField(
-        label="",
-        choices=StatementCheckResult.Result.choices,
-        widget=AMPRadioSelectWidget(),
-    )
-    retest_email_comment = AMPTextField(label="12-week retest information")
-
-    class Meta:
-        model = StatementCheckResult
-        fields = [
-            "retest_state",
-            "retest_email_comment",
-        ]
-
-
-AuditRetestStatementCheckResultFormset: forms.formsets.BaseFormSet = (
-    forms.modelformset_factory(
-        StatementCheckResult, AuditRetestStatementCheckResultForm, extra=0
-    )
-)
-
-
-class AuditRetestStatementOverviewUpdateForm(VersionForm):
-    """
-    Form for editing statement overview
-    """
-
-    audit_retest_statement_overview_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: list[str] = [
-            "version",
-            "audit_retest_statement_overview_complete_date",
-        ]
-
-
-class AuditRetestStatementWebsiteUpdateForm(VersionForm):
-    """
-    Form for editing statement information
-    """
-
-    audit_retest_statement_website_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: list[str] = [
-            "version",
-            "audit_retest_statement_website_complete_date",
-        ]
-
-
-class AuditRetestStatementComplianceUpdateForm(VersionForm):
-    """
-    Form for editing statement compliance
-    """
-
-    audit_retest_statement_compliance_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: list[str] = [
-            "version",
-            "audit_retest_statement_compliance_complete_date",
-        ]
-
-
-class AuditRetestStatementNonAccessibleUpdateForm(VersionForm):
-    """
-    Form for editing statement non-accessible
-    """
-
-    audit_retest_statement_non_accessible_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: list[str] = [
-            "version",
-            "audit_retest_statement_non_accessible_complete_date",
-        ]
-
-
-class AuditRetestStatementPreparationUpdateForm(VersionForm):
-    """
-    Form for editing statement preparation
-    """
-
-    audit_retest_statement_preparation_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: list[str] = [
-            "version",
-            "audit_retest_statement_preparation_complete_date",
-        ]
-
-
 class AuditRetestStatementFeedbackUpdateForm(VersionForm):
     """
     Form for editing statement feedback
@@ -860,21 +758,6 @@ class AuditRetestStatementFeedbackUpdateForm(VersionForm):
         fields: list[str] = [
             "version",
             "audit_retest_statement_feedback_complete_date",
-        ]
-
-
-class AuditRetestStatementDisproportionateUpdateForm(VersionForm):
-    """
-    Form for editing disproportionate burden feedback
-    """
-
-    audit_retest_statement_disproportionate_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: list[str] = [
-            "version",
-            "audit_retest_statement_disproportionate_complete_date",
         ]
 
 

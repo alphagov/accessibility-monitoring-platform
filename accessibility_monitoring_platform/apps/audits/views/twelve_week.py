@@ -20,23 +20,22 @@ from ...simplified.utils import (
 )
 from ..forms import (
     AuditRetestCheckResultFilterForm,
-    AuditRetestStatementCheckResultFormset,
-    AuditRetestStatementComplianceUpdateForm,
     AuditRetestStatementCustomUpdateForm,
     AuditRetestStatementDecisionUpdateForm,
-    AuditRetestStatementDisproportionateUpdateForm,
-    AuditRetestStatementFeedbackUpdateForm,
     AuditRetestStatementInitialCustomIssueUpdateForm,
-    AuditRetestStatementNonAccessibleUpdateForm,
-    AuditRetestStatementOverviewUpdateForm,
-    AuditRetestStatementPreparationUpdateForm,
     AuditRetestStatementSummaryUpdateForm,
-    AuditRetestStatementWebsiteUpdateForm,
     AuditRetestWcagSummaryUpdateForm,
     AuditTwelveWeekDisproportionateBurdenUpdateForm,
     CaseComplianceStatement12WeekUpdateForm,
     StatementAuditStatementBackupUpdateForm,
+    StatementAuditStatementComplianceUpdateForm,
+    StatementAuditStatementDisproportionateUpdateForm,
+    StatementAuditStatementFeedbackUpdateForm,
+    StatementAuditStatementNonAccessibleUpdateForm,
+    StatementAuditStatementOverviewUpdateForm,
     StatementAuditStatementPagesUpdateForm,
+    StatementAuditStatementPreparationUpdateForm,
+    StatementAuditStatementWebsiteUpdateForm,
     StatementCheckResultRetestCreateForm,
     StatementCheckResultRetestFormset,
     StatementCheckResultRetestUpdateForm,
@@ -319,64 +318,6 @@ class TwelveWeekStatementBackupUpdateView(StatementBackupUpdateView):
     template_name: str = "audits/forms/twelve_week_statement_backup.html"
 
 
-class AuditRetestStatementCheckingView(AuditUpdateView):
-    """
-    View to do statement checks as part of an audit retest
-    """
-
-    template_name: str = "audits/statement_checks/retest_statement_formset_form.html"
-
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Populate context data for template rendering"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        audit: Audit = self.object
-
-        if self.request.POST:
-            retest_statement_check_results_formset: (
-                AuditRetestStatementCheckResultFormset
-            ) = AuditRetestStatementCheckResultFormset(self.request.POST)
-        else:
-            retest_statement_check_results_formset: (
-                AuditRetestStatementCheckResultFormset
-            ) = AuditRetestStatementCheckResultFormset(
-                queryset=StatementCheckResult.objects.filter(
-                    audit=audit, type=self.statement_check_type
-                )
-            )
-
-        context["retest_statement_check_results_formset"] = (
-            retest_statement_check_results_formset
-        )
-
-        return context
-
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        context: dict[str, Any] = self.get_context_data()
-        audit: Audit = self.object
-        if audit.accessibility_statement_found:
-            retest_statement_check_results_formset: (
-                AuditRetestStatementCheckResultFormset
-            ) = context["retest_statement_check_results_formset"]
-            if retest_statement_check_results_formset.is_valid():
-                for (
-                    retest_statement_check_results_form
-                ) in retest_statement_check_results_formset.forms:
-                    statement_check_result: StatementCheckResult = (
-                        retest_statement_check_results_form.save(commit=False)
-                    )
-                    record_simplified_model_update_event(
-                        user=self.request.user,
-                        model_object=statement_check_result,
-                        simplified_case=statement_check_result.audit.simplified_case,
-                    )
-                    statement_check_result.save()
-            else:
-                return super().form_invalid(form)
-
-        return super().form_valid(form)
-
-
 class StatementCheckResultRetestFormsetView(StatementAuditUpdateView):
     """
     View to do statement checks as part of an audit
@@ -430,8 +371,8 @@ class StatementCheckResultRetestFormsetView(StatementAuditUpdateView):
 
 class TwelveWeekStatementAuditOverviewUpdateView(StatementCheckResultRetestFormsetView):
 
-    form_class: type[AuditRetestStatementOverviewUpdateForm] = (
-        AuditRetestStatementOverviewUpdateForm
+    form_class: type[StatementAuditStatementOverviewUpdateForm] = (
+        StatementAuditStatementOverviewUpdateForm
     )
     statement_check_type: str = StatementCheck.Type.OVERVIEW
 
@@ -469,68 +410,67 @@ class TwelveWeekStatementAuditOverviewUpdateView(StatementCheckResultRetestForms
         return context
 
 
-class AuditRetestStatementWebsiteFormView(AuditRetestStatementCheckingView):
-    """
-    View to update statement information check results retest
-    """
+class AuditRetestStatementWebsiteFormView(StatementCheckResultRetestFormsetView):
 
-    form_class: type[AuditRetestStatementWebsiteUpdateForm] = (
-        AuditRetestStatementWebsiteUpdateForm
+    form_class: type[StatementAuditStatementWebsiteUpdateForm] = (
+        StatementAuditStatementWebsiteUpdateForm
     )
     statement_check_type: str = StatementCheck.Type.WEBSITE
 
 
-class AuditRetestStatementComplianceFormView(AuditRetestStatementCheckingView):
+class AuditRetestStatementComplianceFormView(StatementCheckResultRetestFormsetView):
     """
     View to update statement compliance check results retest
     """
 
-    form_class: type[AuditRetestStatementComplianceUpdateForm] = (
-        AuditRetestStatementComplianceUpdateForm
+    form_class: type[StatementAuditStatementComplianceUpdateForm] = (
+        StatementAuditStatementComplianceUpdateForm
     )
     statement_check_type: str = StatementCheck.Type.COMPLIANCE
 
 
-class AuditRetestStatementNonAccessibleFormView(AuditRetestStatementCheckingView):
+class AuditRetestStatementNonAccessibleFormView(StatementCheckResultRetestFormsetView):
     """
     View to update statement non-accessible check results retest
     """
 
-    form_class: type[AuditRetestStatementNonAccessibleUpdateForm] = (
-        AuditRetestStatementNonAccessibleUpdateForm
+    form_class: type[StatementAuditStatementNonAccessibleUpdateForm] = (
+        StatementAuditStatementNonAccessibleUpdateForm
     )
     statement_check_type: str = StatementCheck.Type.NON_ACCESSIBLE
 
 
-class AuditRetestStatementPreparationFormView(AuditRetestStatementCheckingView):
+class AuditRetestStatementPreparationFormView(StatementCheckResultRetestFormsetView):
     """
     View to update statement preparation check results retest
     """
 
-    form_class: type[AuditRetestStatementPreparationUpdateForm] = (
-        AuditRetestStatementPreparationUpdateForm
+    form_class: type[StatementAuditStatementPreparationUpdateForm] = (
+        StatementAuditStatementPreparationUpdateForm
     )
     statement_check_type: str = StatementCheck.Type.PREPARATION
 
 
-class AuditRetestStatementFeedbackFormView(AuditRetestStatementCheckingView):
+class AuditRetestStatementFeedbackFormView(StatementCheckResultRetestFormsetView):
     """
     View to update statement feedback check results retest
     """
 
-    form_class: type[AuditRetestStatementFeedbackUpdateForm] = (
-        AuditRetestStatementFeedbackUpdateForm
+    form_class: type[StatementAuditStatementFeedbackUpdateForm] = (
+        StatementAuditStatementFeedbackUpdateForm
     )
     statement_check_type: str = StatementCheck.Type.FEEDBACK
 
 
-class AuditRetestStatementDisproportionateFormView(AuditRetestStatementCheckingView):
+class AuditRetestStatementDisproportionateFormView(
+    StatementCheckResultRetestFormsetView
+):
     """
     View to update statement disproportionate burden check results retest
     """
 
-    form_class: type[AuditRetestStatementDisproportionateUpdateForm] = (
-        AuditRetestStatementDisproportionateUpdateForm
+    form_class: type[StatementAuditStatementDisproportionateUpdateForm] = (
+        StatementAuditStatementDisproportionateUpdateForm
     )
     statement_check_type: str = StatementCheck.Type.DISPROPORTIONATE
 
