@@ -761,21 +761,6 @@ class AuditRetestStatementFeedbackUpdateForm(VersionForm):
         ]
 
 
-class AuditRetestStatementCustomUpdateForm(VersionForm):
-    """
-    Form for editing statement custom
-    """
-
-    audit_retest_statement_custom_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: list[str] = [
-            "version",
-            "audit_retest_statement_custom_complete_date",
-        ]
-
-
 class AuditRetestStatementInitialCustomIssueUpdateForm(forms.ModelForm):
     """
     Form for updating an initial statement custom issue

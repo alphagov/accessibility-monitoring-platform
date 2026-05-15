@@ -25,6 +25,8 @@ from ..audits.models import (
     RetestPage,
     StatementAudit,
     StatementCheckResult,
+    StatementCheckResultInitial,
+    StatementCheckResultRetest,
     StatementPage,
     WcagAudit,
     WcagPageInitial,
@@ -588,7 +590,33 @@ class InitialStatementAuditCustomIssuesPlatformPage(InitialStatementAuditPlatfor
 class TwelveWeekStatementAuditCustomIssuesPlatformPage(
     TwelveWeekStatementAuditPlatformPage
 ):
-    pass
+    def populate_from_case(self, case: AnyCaseType):
+        if hasattr(case, "statementaudit_set"):
+            current_statement_audit: StatementAudit | None = (
+                case.statementaudit_set.filter(
+                    audit_round_type=self.audit_round_type
+                ).first()
+            )
+            if current_statement_audit is not None:
+                self.set_instance(instance=current_statement_audit)
+                if self.subpages is not None:
+                    bound_subpages: list[PlatformPage] = (
+                        populate_subpages_with_instance(
+                            platform_page=self, instance=current_statement_audit
+                        )
+                    )
+                    for (
+                        statement_audit
+                    ) in (
+                        current_statement_audit.simplified_case.audit_overview.statement_audits
+                    ):
+                        for (
+                            custom_issue
+                        ) in statement_audit.custom_statement_check_results:
+                            bound_subpages += populate_subpages_with_instance(
+                                platform_page=self, instance=custom_issue
+                            )
+                    self.subpages = bound_subpages
 
 
 class InitialAuditStatementLinksPlatformPage(InitialStatementAuditPlatformPage):
@@ -1411,7 +1439,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 ],
                 case_details_template_name="simplified/details/details_twelve_week_statement_checks_overview.html",
             ),
-            InitialStatementAuditCustomIssuesPlatformPage(
+            TwelveWeekStatementAuditCustomIssuesPlatformPage(
                 name="Custom issues",
                 url_name="audits:edit-retest-statement-custom",
                 complete_flag_name="statement_custom_complete_date",
@@ -1421,7 +1449,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                         url_name="audits:edit-retest-initial-custom-issue-update",
                         url_kwarg_key="pk",
                         visible_only_when_current=True,
-                        instance_class=StatementCheckResult,
+                        instance_class=StatementCheckResultInitial,
                     ),
                     AuditPlatformPage(
                         name="Add 12-week custom issue",
@@ -1434,14 +1462,14 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                         url_name="audits:edit-retest-new-12-week-custom-issue-update",
                         url_kwarg_key="pk",
                         visible_only_when_current=True,
-                        instance_class=StatementCheckResult,
+                        instance_class=StatementCheckResultRetest,
                     ),
                     PlatformPage(
                         name="Remove 12-week custom issue {instance.issue_identifier}",
                         url_name="audits:edit-retest-new-12-week-custom-issue-delete-confirm",
                         url_kwarg_key="pk",
                         visible_only_when_current=True,
-                        instance_class=StatementCheckResult,
+                        instance_class=StatementCheckResultRetest,
                     ),
                 ],
                 case_details_template_name="simplified/details/details_twelve_week_statement_checks_custom.html",

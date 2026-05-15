@@ -1026,6 +1026,10 @@ class StatementAudit(AuditRound):
         return self.statement_check_results.filter(type=StatementCheck.Type.CUSTOM)
 
     @property
+    def new_12_week_custom_statement_check_results(self):
+        return self.statement_check_results.filter(type=StatementCheck.Type.TWELVE_WEEK)
+
+    @property
     def failed_statement_check_results(self):
         return self.statement_check_results.filter(
             check_result_state=StatementCheckResult.Result.NO

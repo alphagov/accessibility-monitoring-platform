@@ -20,7 +20,6 @@ from ...simplified.utils import (
 )
 from ..forms import (
     AuditRetestCheckResultFilterForm,
-    AuditRetestStatementCustomUpdateForm,
     AuditRetestStatementDecisionUpdateForm,
     AuditRetestStatementInitialCustomIssueUpdateForm,
     AuditRetestStatementSummaryUpdateForm,
@@ -29,6 +28,7 @@ from ..forms import (
     CaseComplianceStatement12WeekUpdateForm,
     StatementAuditStatementBackupUpdateForm,
     StatementAuditStatementComplianceUpdateForm,
+    StatementAuditStatementCustomUpdateForm,
     StatementAuditStatementDisproportionateUpdateForm,
     StatementAuditStatementFeedbackUpdateForm,
     StatementAuditStatementNonAccessibleUpdateForm,
@@ -54,6 +54,7 @@ from ..models import (
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
+    StatementCheckResultInitial,
     StatementCheckResultRetest,
     StatementPage,
     WcagAudit,
@@ -475,13 +476,13 @@ class AuditRetestStatementDisproportionateFormView(
     statement_check_type: str = StatementCheck.Type.DISPROPORTIONATE
 
 
-class AuditRetestStatementCustomFormView(AuditUpdateView):
+class AuditRetestStatementCustomFormView(StatementAuditUpdateView):
     """
     View to add/update custom statement issues check results at 12-weeks
     """
 
-    form_class: type[AuditRetestStatementCustomUpdateForm] = (
-        AuditRetestStatementCustomUpdateForm
+    form_class: type[StatementAuditStatementCustomUpdateForm] = (
+        StatementAuditStatementCustomUpdateForm
     )
     template_name: str = "audits/statement_checks/retest_statement_other.html"
 
@@ -491,7 +492,7 @@ class AuditRetestInitialCustomIssueUpdateView(UpdateView):
     View to update an initial custom issue
     """
 
-    model: type[StatementCheckResult] = StatementCheckResult
+    model: type[StatementCheckResultInitial] = StatementCheckResultInitial
     context_object_name: str = "custom_issue"
     form_class: type[AuditRetestStatementInitialCustomIssueUpdateForm] = (
         AuditRetestStatementInitialCustomIssueUpdateForm
