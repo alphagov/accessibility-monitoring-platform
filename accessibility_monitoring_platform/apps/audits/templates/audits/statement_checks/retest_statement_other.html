@@ -1,6 +1,8 @@
 {% extends 'common/case_form.html' %}
 
 {% block preform %}
+    Statement audit: {{statement_audit}}<br>
+    Results: {{statement_audit.statement_check_results}}
     {% include 'audits/helpers/details_statement_links_and_backups.html' %}
 
     {% if not statement_audit.simplified_case.audit_overview.statement_audit_initial.custom_statement_check_results %}

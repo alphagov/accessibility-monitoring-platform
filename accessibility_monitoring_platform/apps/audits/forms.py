@@ -761,7 +761,7 @@ class AuditRetestStatementFeedbackUpdateForm(VersionForm):
         ]
 
 
-class AuditRetestStatementInitialCustomIssueUpdateForm(forms.ModelForm):
+class StatementCheckResultRetestCustomUpdateForm(forms.ModelForm):
     """
     Form for updating an initial statement custom issue
     """
@@ -774,7 +774,7 @@ class AuditRetestStatementInitialCustomIssueUpdateForm(forms.ModelForm):
     retest_email_comment = AMPTextField(label="Comments for email")
 
     class Meta:
-        model = StatementCheckResult
+        model = StatementCheckResultRetest
         fields = [
             "retest_state",
             "retest_email_comment",

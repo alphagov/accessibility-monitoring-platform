@@ -1078,14 +1078,14 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                         url_name="audits:edit-custom-issue-update",
                         url_kwarg_key="pk",
                         visible_only_when_current=True,
-                        instance_class=StatementCheckResult,
+                        instance_class=StatementCheckResultInitial,
                     ),
                     PlatformPage(
                         name="Remove custom issue {instance.issue_identifier}",
                         url_name="audits:edit-custom-issue-delete-confirm",
                         url_kwarg_key="pk",
                         visible_only_when_current=True,
-                        instance_class=StatementCheckResult,
+                        instance_class=StatementCheckResultInitial,
                     ),
                 ],
                 case_details_template_name="simplified/details/details_initial_statement_checks_custom.html",
@@ -1451,7 +1451,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                         visible_only_when_current=True,
                         instance_class=StatementCheckResultInitial,
                     ),
-                    AuditPlatformPage(
+                    TwelveWeekStatementAuditPlatformPage(
                         name="Add 12-week custom issue",
                         url_name="audits:edit-retest-12-week-custom-issue-create",
                         url_kwarg_key="audit_id",
@@ -1475,10 +1475,10 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 case_details_template_name="simplified/details/details_twelve_week_statement_checks_custom.html",
                 next_page_url_name="audits:edit-twelve-week-disproportionate-burden",
             ),
-            AuditPlatformPage(
+            TwelveWeekStatementAuditPlatformPage(
                 name="Disproportionate burden",
                 url_name="audits:edit-twelve-week-disproportionate-burden",
-                complete_flag_name="twelve_week_disproportionate_burden_complete_date",
+                complete_flag_name="disproportionate_burden_complete_date",
                 case_details_form_class=AuditTwelveWeekDisproportionateBurdenUpdateForm,
                 case_details_template_name="cases/details/details.html",
                 next_page_url_name="audits:edit-audit-retest-statement-decision",

@@ -357,16 +357,16 @@ class StatementCheckResultRetestAdmin(admin.ModelAdmin):
                 "fields": (
                     ("is_deleted"),
                     ("statement_audit",),
+                    ("statement_check_result_initial",),
                     ("statement_check",),
-                    ("check_result_state",),
                     ("retest_state",),
                     ("retest_email_comment",),
-                    ("auditor_notes",),
+                    ("retest_information",),
                 )
             },
         ),
     )
-    readonly_fields = ["statement_audit"]
+    readonly_fields = ["statement_audit", "statement_check_result_initial"]
     show_facets = admin.ShowFacets.ALWAYS
 
 

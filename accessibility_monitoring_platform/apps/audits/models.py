@@ -991,9 +991,9 @@ class StatementAudit(AuditRound):
     def statement_check_results(
         self,
     ) -> QuerySet[StatementCheckResultInitial] | QuerySet[StatementCheckResultRetest]:
-        if hasattr(self, "statementcheckresultinitial_set"):
+        if self.audit_round_type == StatementAudit.AuditRoundType.INITIAL:
             return self.statementcheckresultinitial_set.all()
-        return self.statementcheckresultrestart_set.all()
+        return self.statementcheckresultretest_set.all()
 
     @property
     def overview_statement_check_results(self):
@@ -1878,6 +1878,11 @@ class StatementCheckResultRetest(models.Model):
     )
     statement_check = models.ForeignKey(
         StatementCheck, on_delete=models.PROTECT, null=True, blank=True
+    )
+    type = models.CharField(
+        max_length=20,
+        choices=StatementCheck.Type.choices,
+        default=StatementCheck.Type.CUSTOM,
     )
     issue_identifier = models.CharField(max_length=20, default="")
     retest_state = models.CharField(

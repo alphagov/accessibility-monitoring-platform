@@ -82,7 +82,6 @@ INSTALLED_APPS = [
     "django_otp.plugins.otp_email",  # <- if you want email capability.
     "two_factor",
     "two_factor.plugins.email",  # <- if you want email capability.
-    "django_extensions",
 ]
 
 AUTHENTICATION_BACKENDS = [

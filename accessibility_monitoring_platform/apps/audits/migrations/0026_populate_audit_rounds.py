@@ -219,6 +219,7 @@ def populate_audit_rounds(apps, schema_editor):
                     statement_audit=statement_audit_12_week,
                     statement_check_result_initial=statement_check_result_initial,
                     statement_check=statement_check_result.statement_check,
+                    type=statement_check_result.type,
                     issue_identifier=statement_check_result.issue_identifier,
                     retest_state=statement_check_result.retest_state,
                     retest_email_comment=statement_check_result.retest_comment,
@@ -327,6 +328,7 @@ def populate_audit_rounds(apps, schema_editor):
                         retest_statement_check_result.statement_check
                     ),
                     statement_check=retest_statement_check_result.statement_check,
+                    type=retest_statement_check_result.type,
                     issue_identifier=retest_statement_check_result.issue_identifier,
                     retest_state=retest_statement_check_result.check_result_state,
                     retest_email_comment=retest_statement_check_result.comment,
@@ -364,8 +366,8 @@ def reverse_code(apps, schema_editor):
     WcagAudit.objects.all().delete()
     RetestStatementCheckResult.objects.all().update(statement_audit=None)
     StatementPage.objects.all().update(audit_overview=None)
-    StatementCheckResultInitial.objects.all().delete()
     StatementCheckResultRetest.objects.all().delete()
+    StatementCheckResultInitial.objects.all().delete()
     StatementAudit.objects.all().delete()
     AuditOverview.objects.all().delete()
 

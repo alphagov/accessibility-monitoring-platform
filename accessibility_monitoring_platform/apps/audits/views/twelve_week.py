@@ -21,7 +21,6 @@ from ...simplified.utils import (
 from ..forms import (
     AuditRetestCheckResultFilterForm,
     AuditRetestStatementDecisionUpdateForm,
-    AuditRetestStatementInitialCustomIssueUpdateForm,
     AuditRetestStatementSummaryUpdateForm,
     AuditRetestWcagSummaryUpdateForm,
     AuditTwelveWeekDisproportionateBurdenUpdateForm,
@@ -37,6 +36,7 @@ from ..forms import (
     StatementAuditStatementPreparationUpdateForm,
     StatementAuditStatementWebsiteUpdateForm,
     StatementCheckResultRetestCreateForm,
+    StatementCheckResultRetestCustomUpdateForm,
     StatementCheckResultRetestFormset,
     StatementCheckResultRetestUpdateForm,
     WcagAuditComplianceUpdateForm,
@@ -487,21 +487,21 @@ class AuditRetestStatementCustomFormView(StatementAuditUpdateView):
     template_name: str = "audits/statement_checks/retest_statement_other.html"
 
 
-class AuditRetestInitialCustomIssueUpdateView(UpdateView):
+class StatementCheckResultRetestCustomUpdateView(UpdateView):
     """
     View to update an initial custom issue
     """
 
-    model: type[StatementCheckResultInitial] = StatementCheckResultInitial
+    model: type[StatementCheckResultRetest] = StatementCheckResultRetest
     context_object_name: str = "custom_issue"
-    form_class: type[AuditRetestStatementInitialCustomIssueUpdateForm] = (
-        AuditRetestStatementInitialCustomIssueUpdateForm
+    form_class: type[StatementCheckResultRetestCustomUpdateForm] = (
+        StatementCheckResultRetestCustomUpdateForm
     )
     template_name: str = (
         "audits/statement_checks/retest_initial_custom_issue_update.html"
     )
 
-    def form_valid(self, form: AuditRetestStatementInitialCustomIssueUpdateForm):
+    def form_valid(self, form: StatementCheckResultRetestCustomUpdateForm):
         """Populate custom issue"""
         custom_issue: StatementCheckResult = form.save(commit=False)
         record_simplified_model_update_event(

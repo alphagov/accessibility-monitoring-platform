@@ -55,7 +55,6 @@ from ..models import (
     Page,
     StatementAudit,
     StatementCheck,
-    StatementCheckResult,
     StatementCheckResultInitial,
     StatementPage,
     WcagAudit,
@@ -610,7 +609,7 @@ class CustomIssueCreateView(CreateView):
         statement_check_result_initial.audit = statement_audit.simplified_case.audit
         if statement_check_result_initial.type == StatementCheck.Type.CUSTOM:
             statement_check_result_initial.check_result_state = (
-                StatementCheckResult.Result.NO
+                StatementCheckResultInitial.Result.NO
             )
         return super().form_valid(form)
 
@@ -643,7 +642,7 @@ class InitialCustomIssueUpdateView(UpdateView):
 
     def form_valid(self, form: StatementCheckResultInitialCreateUpdateForm):
         """Populate custom issue"""
-        custom_issue: StatementCheckResult = form.save(commit=False)
+        custom_issue: StatementCheckResultInitial = form.save(commit=False)
         record_simplified_model_update_event(
             user=self.request.user,
             model_object=custom_issue,
@@ -653,7 +652,7 @@ class InitialCustomIssueUpdateView(UpdateView):
 
     def get_success_url(self) -> str:
         """Return to the list of custom issues"""
-        custom_issue: StatementCheckResult = self.object
+        custom_issue: StatementCheckResultInitial = self.object
         url: str = reverse(
             "audits:edit-statement-custom", kwargs={"pk": custom_issue.audit.id}
         )
@@ -666,18 +665,18 @@ class InitialCustomIssueDeleteTemplateView(TemplateView):
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add custom issue to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        custom_issue: StatementCheckResult = get_object_or_404(
-            StatementCheckResult, id=kwargs.get("pk")
+        custom_issue: StatementCheckResultInitial = get_object_or_404(
+            StatementCheckResultInitial, id=kwargs.get("pk")
         )
         context["custom_issue"] = custom_issue
         return context
 
 
 def delete_custom_issue(request: HttpRequest, pk: int) -> HttpResponse:
-    """Mark custom issue (StatementCheckResult) as deleted"""
+    """Mark custom issue (StatementCheckResultInitial) as deleted"""
     if request.method == "POST":
-        custom_issue: StatementCheckResult = get_object_or_404(
-            StatementCheckResult, id=pk
+        custom_issue: StatementCheckResultInitial = get_object_or_404(
+            StatementCheckResultInitial, id=pk
         )
         custom_issue.is_deleted = True
         record_simplified_model_update_event(

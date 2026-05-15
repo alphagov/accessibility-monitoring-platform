@@ -1,6 +1,12 @@
 <h3 class="govuk-heading-s amp-margin-bottom-0">Comments for report</h3>
-{% if custom_issue.report_comment %}
-    <div class="govuk-body amp-notes amp-margin-bottom-15">{{ custom_issue.report_comment|markdown_to_html }}</div>
+{% if custom_issue.report_comment or custom_issue.statement_check_result_initial.report_comment %}
+    <div class="govuk-body amp-notes amp-margin-bottom-15">
+        {% if custom_issue.report_comment %}
+            {{ custom_issue.report_comment|markdown_to_html }}
+        {% else %}
+            {{ custom_issue.statement_check_result_initial.report_comment|markdown_to_html }}
+        {% endif %}
+    </div>
 {% else %}
     <p class="govuk-body">None</p>
 {% endif %}
@@ -11,8 +17,11 @@
     <p class="govuk-body">None</p>
 {% endif %}
 <h3 class="govuk-heading-s amp-margin-bottom-0">Notes for auditor</h3>
-{% if custom_issue.auditor_notes %}
-    <div class="govuk-body amp-notes amp-margin-bottom-15">{{ custom_issue.auditor_notes|markdown_to_html }}</div>
+{% if custom_issue.auditor_notes or custom_issue.statement_check_result_initial.auditor_notes %}
+    <div class="govuk-body amp-notes amp-margin-bottom-15">
+        {{ custom_issue.auditor_notes|markdown_to_html }}
+        {{ custom_issue.statement_check_result_initial.auditor_notes|markdown_to_html }}
+    </div>
 {% else %}
     <p class="govuk-body">None</p>
 {% endif %}
