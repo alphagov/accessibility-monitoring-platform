@@ -24,7 +24,6 @@ from ..audits.models import (
     Retest,
     RetestPage,
     StatementAudit,
-    StatementCheckResult,
     StatementCheckResultInitial,
     StatementCheckResultRetest,
     StatementPage,
@@ -606,16 +605,19 @@ class TwelveWeekStatementAuditCustomIssuesPlatformPage(
                         )
                     )
                     for (
-                        statement_audit
+                        custom_issue
+                    ) in current_statement_audit.custom_statement_check_results:
+                        bound_subpages += populate_subpages_with_instance(
+                            platform_page=self, instance=custom_issue
+                        )
+                    for (
+                        custom_issue
                     ) in (
-                        current_statement_audit.simplified_case.audit_overview.statement_audits
+                        current_statement_audit.new_12_week_custom_statement_check_results
                     ):
-                        for (
-                            custom_issue
-                        ) in statement_audit.custom_statement_check_results:
-                            bound_subpages += populate_subpages_with_instance(
-                                platform_page=self, instance=custom_issue
-                            )
+                        bound_subpages += populate_subpages_with_instance(
+                            platform_page=self, instance=custom_issue
+                        )
                     self.subpages = bound_subpages
 
 
@@ -1454,7 +1456,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                     TwelveWeekStatementAuditPlatformPage(
                         name="Add 12-week custom issue",
                         url_name="audits:edit-retest-12-week-custom-issue-create",
-                        url_kwarg_key="audit_id",
+                        url_kwarg_key="statement_audit_id",
                         visible_only_when_current=True,
                     ),
                     PlatformPage(

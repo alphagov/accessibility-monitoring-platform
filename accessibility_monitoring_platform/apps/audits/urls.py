@@ -314,7 +314,7 @@ urlpatterns: list[URLPattern] = [
         name="edit-retest-initial-custom-issue-update",
     ),
     path(
-        "<int:audit_id>/edit-retest-12-week-custom-issue-create/",
+        "<int:statement_audit_id>/edit-retest-12-week-custom-issue-create/",
         login_required(AuditRetestNew12WeekCustomIssueCreateView.as_view()),
         name="edit-retest-12-week-custom-issue-create",
     ),

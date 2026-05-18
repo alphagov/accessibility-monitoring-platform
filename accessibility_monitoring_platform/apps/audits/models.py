@@ -992,8 +992,8 @@ class StatementAudit(AuditRound):
         self,
     ) -> QuerySet[StatementCheckResultInitial] | QuerySet[StatementCheckResultRetest]:
         if self.audit_round_type == StatementAudit.AuditRoundType.INITIAL:
-            return self.statementcheckresultinitial_set.all()
-        return self.statementcheckresultretest_set.all()
+            return self.statementcheckresultinitial_set.exclude(is_deleted=True)
+        return self.statementcheckresultretest_set.exclude(is_deleted=True)
 
     @property
     def overview_statement_check_results(self):
@@ -1911,18 +1911,9 @@ class StatementCheckResultRetest(models.Model):
                 if self.statement_check:
                     id_within_case: int = self.statement_check.issue_number
                 else:
-                    statement_audit_initial: StatementAudit = (
-                        self.statement_audit.simplified_case.audit_overview.statement_audit_initial
-                    )
                     id_within_case: int = (
-                        statement_audit_initial.statement_check_results.count() + 1
+                        self.statement_audit.statementcheckresultretest_set.count() + 1
                     )
-                    for statement_audit_retest in StatementAudit.objects.filter(
-                        simplified_case=self.statement_check.simplified_case
-                    ).exclude(audit_round_type=StatementAudit.AuditRoundType.INITIAL):
-                        id_within_case += StatementCheckResultRetest.objects.filter(
-                            statement_audit=statement_audit_retest, statement_check=None
-                        ).count()
                 self.issue_identifier = build_issue_identifier(
                     simplified_case=self.statement_audit.simplified_case,
                     issue=self,

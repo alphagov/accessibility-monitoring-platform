@@ -526,46 +526,53 @@ class AuditRetestNew12WeekCustomIssueCreateView(CreateView):
     View to create new 12-week custom issue
     """
 
-    model: type[StatementCheckResult] = StatementCheckResult
+    model: type[StatementCheckResultRetest] = StatementCheckResultRetest
     form_class: type[StatementCheckResultRetestCreateForm] = (
         StatementCheckResultRetestCreateForm
     )
-    template_name: str = "audits/forms/custom_issue_create.html"
+    template_name: str = "audits/forms/twelve_week_custom_issue_create.html"
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        context["audit"] = get_object_or_404(Audit, id=self.kwargs.get("audit_id"))
+        context["statement_audit"] = get_object_or_404(
+            StatementAudit, id=self.kwargs.get("statement_audit_id")
+        )
         return context
 
     def form_valid(self, form: StatementCheckResultRetestCreateForm):
         """Populate custom issue"""
-        audit: Audit = get_object_or_404(Audit, id=self.kwargs.get("audit_id"))
-        statement_check_result: StatementCheckResult = form.save(commit=False)
-        statement_check_result.audit = audit
-        statement_check_result.type = StatementCheck.Type.TWELVE_WEEK
+        statement_audit: StatementAudit = get_object_or_404(
+            StatementAudit, id=self.kwargs.get("statement_audit_id")
+        )
+        statement_check_result_retest: StatementCheckResultRetest = form.save(
+            commit=False
+        )
+        statement_check_result_retest.statement_audit = statement_audit
+        statement_check_result_retest.type = StatementCheck.Type.TWELVE_WEEK
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Return to the list of custom issues"""
-        custom_issue: StatementCheckResult = self.object
+        custom_issue: StatementCheckResultRetest = self.object
         record_simplified_model_create_event(
             user=self.request.user,
             model_object=custom_issue,
-            simplified_case=custom_issue.audit.simplified_case,
+            simplified_case=custom_issue.statement_audit.simplified_case,
         )
         url: str = reverse(
-            "audits:edit-retest-statement-custom", kwargs={"pk": custom_issue.audit.id}
+            "audits:edit-retest-statement-custom",
+            kwargs={"pk": custom_issue.statement_audit.id},
         )
         return f"{url}#{custom_issue.issue_identifier}"
 
 
 class AuditRetestNew12WeekCustomIssueUpdateView(UpdateView):
     """
-    View to update a custom issue
+    View to update a custom issue entered at 12-weeks
     """
 
-    model: type[StatementCheckResult] = StatementCheckResult
+    model: type[StatementCheckResultRetest] = StatementCheckResultRetest
     context_object_name: str = "custom_issue"
     form_class: type[StatementCheckResultRetestUpdateForm] = (
         StatementCheckResultRetestUpdateForm
@@ -574,19 +581,20 @@ class AuditRetestNew12WeekCustomIssueUpdateView(UpdateView):
 
     def form_valid(self, form: StatementCheckResultRetestUpdateForm):
         """Populate custom issue"""
-        custom_issue: StatementCheckResult = form.save(commit=False)
+        custom_issue: StatementCheckResultRetest = form.save(commit=False)
         record_simplified_model_update_event(
             user=self.request.user,
             model_object=custom_issue,
-            simplified_case=custom_issue.audit.simplified_case,
+            simplified_case=custom_issue.statement_audit.simplified_case,
         )
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Return to the list of custom issues"""
-        custom_issue: StatementCheckResult = self.object
+        custom_issue: StatementCheckResultRetest = self.object
         url: str = reverse(
-            "audits:edit-retest-statement-custom", kwargs={"pk": custom_issue.audit.id}
+            "audits:edit-retest-statement-custom",
+            kwargs={"pk": custom_issue.statement_audit.id},
         )
         return f"{url}#{custom_issue.issue_identifier}"
 
@@ -597,8 +605,8 @@ class New12WeekCustomIssueDeleteTemplateView(TemplateView):
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add custom issue to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        custom_issue: StatementCheckResult = get_object_or_404(
-            StatementCheckResult, id=kwargs.get("pk")
+        custom_issue: StatementCheckResultRetest = get_object_or_404(
+            StatementCheckResultRetest, id=kwargs.get("pk")
         )
         context["custom_issue"] = custom_issue
         return context
@@ -607,19 +615,20 @@ class New12WeekCustomIssueDeleteTemplateView(TemplateView):
 def delete_new_12_week_custom_issue(request: HttpRequest, pk: int) -> HttpResponse:
     """Mark new 12-week custom issue (StatementCheckResult) as deleted"""
     if request.method == "POST":
-        custom_issue: StatementCheckResult = get_object_or_404(
-            StatementCheckResult, id=pk
+        custom_issue: StatementCheckResultRetest = get_object_or_404(
+            StatementCheckResultRetest, id=pk
         )
         custom_issue.is_deleted = True
         record_simplified_model_update_event(
             user=request.user,
             model_object=custom_issue,
-            simplified_case=custom_issue.audit.simplified_case,
+            simplified_case=custom_issue.statement_audit.simplified_case,
         )
         custom_issue.save()
     return redirect(
         reverse(
-            "audits:edit-retest-statement-custom", kwargs={"pk": custom_issue.audit.id}
+            "audits:edit-retest-statement-custom",
+            kwargs={"pk": custom_issue.statement_audit.id},
         )
     )
 

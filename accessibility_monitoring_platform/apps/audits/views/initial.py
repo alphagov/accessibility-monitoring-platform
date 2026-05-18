@@ -587,7 +587,7 @@ class CustomIssueCreateView(CreateView):
     form_class: type[StatementCheckResultInitialCreateUpdateForm] = (
         StatementCheckResultInitialCreateUpdateForm
     )
-    template_name: str = "audits/forms/custom_issue_create.html"
+    template_name: str = "audits/forms/initial_custom_issue_create.html"
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""

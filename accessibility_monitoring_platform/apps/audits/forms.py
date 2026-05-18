@@ -495,22 +495,22 @@ class StatementCheckResultRetestCreateForm(forms.ModelForm):
     Form for creating a new 12-week custom issue StatementCheckResult
     """
 
-    retest_email_comment = AMPTextField(label="Issue description for organisation")
-    auditor_notes = AMPTextField(label="12-week retest information")
+    public_comment = AMPTextField(label="Issue description for organisation")
+    auditor_information = AMPTextField(label="12-week retest information")
 
     class Meta:
         model = StatementCheckResultRetest
-        fields = ["retest_email_comment", "auditor_notes"]
+        fields = ["public_comment", "auditor_information"]
 
 
 class StatementCheckResultRetestUpdateForm(forms.ModelForm):
     """
-    Form for updating a custom statement check result
+    Form for updating a custom statement check result entered at 12-weeks
     """
 
-    retest_email_comment = AMPTextField(label="Issue description for organisation")
-    auditor_notes = AMPTextField(label="12-week retest information")
-    retest_state = AMPChoiceRadioField(
+    public_comment = AMPTextField(label="Issue description for organisation")
+    auditor_information = AMPTextField(label="12-week retest information")
+    check_result_state = AMPChoiceRadioField(
         label="Mark this statement as resolved",
         choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
@@ -518,7 +518,7 @@ class StatementCheckResultRetestUpdateForm(forms.ModelForm):
 
     class Meta:
         model = StatementCheckResultRetest
-        fields = ["retest_email_comment", "auditor_notes", "retest_state"]
+        fields = ["public_comment", "auditor_information", "check_result_state"]
 
 
 class StatementAuditInitialDisproportionateBurdenUpdateForm(VersionForm):
