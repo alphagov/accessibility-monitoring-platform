@@ -234,6 +234,7 @@ class StatementCheckAdmin(admin.ModelAdmin, ExportCsvMixin):
             None,
             {
                 "fields": (
+                    ("issue_number",),
                     ("type", "position"),
                     ("date_start", "date_end"),
                     ("label",),
@@ -243,6 +244,7 @@ class StatementCheckAdmin(admin.ModelAdmin, ExportCsvMixin):
             },
         ),
     )
+    readonly_fields = ["issue_number"]
     actions = ["export_as_csv"]
     show_facets = admin.ShowFacets.ALWAYS
 
@@ -316,6 +318,7 @@ class StatementCheckResultInitialAdmin(admin.ModelAdmin):
             None,
             {
                 "fields": (
+                    ("issue_identifier",),
                     ("type", "is_deleted"),
                     ("statement_audit",),
                     ("statement_check",),
@@ -326,7 +329,7 @@ class StatementCheckResultInitialAdmin(admin.ModelAdmin):
             },
         ),
     )
-    readonly_fields = ["statement_audit"]
+    readonly_fields = ["statement_audit", "issue_identifier", "statement_check"]
     show_facets = admin.ShowFacets.ALWAYS
 
 

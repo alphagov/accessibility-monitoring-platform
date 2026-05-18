@@ -1699,7 +1699,7 @@ class StatementCheckResult(models.Model):
         choices=Result.choices,
         default=Result.NOT_TESTED,
     )
-    public_comment = models.TextField(default="", blank=True)
+    report_comment = models.TextField(default="", blank=True)
     auditor_notes = models.TextField(default="", blank=True)
     retest_state = models.CharField(
         max_length=10,
@@ -1805,22 +1805,16 @@ class StatementCheckResultInitial(models.Model):
         )
 
     def save(self, *args, **kwargs) -> None:
-        if not self.id:
+        if not self.id and not self.issue_identifier:
             if self.statement_check:
                 id_within_case: int = self.statement_check.issue_number
             else:
-                statement_audit_initial: StatementAudit = (
-                    self.statement_audit.simplified_case.audit_overview.statement_audit_initial
-                )
                 id_within_case: int = (
-                    statement_audit_initial.statement_check_results.count() + 1
-                )
-                for statement_audit_retest in StatementAudit.objects.filter(
-                    simplified_case=statement_audit_initial.simplified_case
-                ).exclude(audit_round_type=StatementAudit.AuditRoundType.INITIAL):
-                    id_within_case += StatementCheckResultRetest.objects.filter(
-                        statement_audit=statement_audit_retest, statement_check=None
+                    self.statement_audit.statementcheckresultinitial_set.filter(
+                        statement_check=None
                     ).count()
+                    + 1
+                )
             self.issue_identifier = build_issue_identifier(
                 simplified_case=self.statement_audit.simplified_case,
                 issue=self,
@@ -1902,7 +1896,7 @@ class StatementCheckResultRetest(models.Model):
         )
 
     def save(self, *args, **kwargs) -> None:
-        if not self.id:
+        if not self.id and not self.issue_identifier:
             if self.statement_check_result_initial:
                 self.issue_identifier = (
                     self.statement_check_result_initial.issue_identifier
@@ -1912,7 +1906,10 @@ class StatementCheckResultRetest(models.Model):
                     id_within_case: int = self.statement_check.issue_number
                 else:
                     id_within_case: int = (
-                        self.statement_audit.statementcheckresultretest_set.count() + 1
+                        self.statement_audit.statementcheckresultretest_set.filter(
+                            statement_check=None
+                        ).count()
+                        + 1
                     )
                 self.issue_identifier = build_issue_identifier(
                     simplified_case=self.statement_audit.simplified_case,
