@@ -311,13 +311,13 @@ class StatementCheckResultInitialForm(forms.ModelForm):
         choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
-    report_comment = AMPTextField(label="Comments for report")
+    public_comment = AMPTextField(label="Comments for report")
 
     class Meta:
         model = StatementCheckResultInitial
         fields = [
             "check_result_state",
-            "report_comment",
+            "public_comment",
         ]
 
 
@@ -333,18 +333,18 @@ class StatementCheckResultRetestForm(forms.ModelForm):
     Form for updating a single statement check
     """
 
-    retest_state = AMPChoiceRadioField(
+    check_result_state = AMPChoiceRadioField(
         label="",
         choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
-    retest_information = AMPTextField(label="Retest information")
+    auditor_information = AMPTextField(label="Retest information")
 
     class Meta:
         model = StatementCheckResultRetest
         fields = [
-            "retest_state",
-            "retest_information",
+            "check_result_state",
+            "auditor_information",
         ]
 
 
@@ -482,12 +482,12 @@ class StatementCheckResultInitialCreateUpdateForm(forms.ModelForm):
     Form for creating or updating a custom issue StatementCheckResult
     """
 
-    report_comment = AMPTextField(label="Comments for report")
-    auditor_notes = AMPTextField(label="Notes for auditor")
+    public_comment = AMPTextField(label="Comments for report")
+    auditor_information = AMPTextField(label="Notes for auditor")
 
     class Meta:
         model = StatementCheckResultInitial
-        fields = ["report_comment", "auditor_notes"]
+        fields = ["public_comment", "auditor_information"]
 
 
 class StatementCheckResultRetestCreateForm(forms.ModelForm):
@@ -766,18 +766,18 @@ class StatementCheckResultRetestCustomUpdateForm(forms.ModelForm):
     Form for updating an initial statement custom issue
     """
 
-    retest_state = AMPChoiceRadioField(
+    check_result_state = AMPChoiceRadioField(
         label="Mark this statement issue as resolved",
         choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
-    retest_email_comment = AMPTextField(label="Comments for email")
+    public_comment = AMPTextField(label="Comments for email")
 
     class Meta:
         model = StatementCheckResultRetest
         fields = [
-            "retest_state",
-            "retest_email_comment",
+            "check_result_state",
+            "public_comment",
         ]
 
 

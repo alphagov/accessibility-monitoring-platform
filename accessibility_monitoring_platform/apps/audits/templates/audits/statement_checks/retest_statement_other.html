@@ -1,15 +1,13 @@
 {% extends 'common/case_form.html' %}
 
 {% block preform %}
-    Statement audit: {{statement_audit}}<br>
-    Results: {{statement_audit.statement_check_results}}
     {% include 'audits/helpers/details_statement_links_and_backups.html' %}
 
     {% if not statement_audit.simplified_case.audit_overview.statement_audit_initial.custom_statement_check_results %}
         <p class="govuk-body">No custom statement issues were initially entered</p>
     {% endif %}
 
-    {% for custom_issue in statement_audit.simplified_case.audit_overview.statement_audit_initial.custom_statement_check_results %}
+    {% for custom_issue in statement_audit.custom_statement_check_results %}
         <h2 id="{{ custom_issue.issue_identifier }}" class="govuk-heading-s">
             <ul class="govuk-body amp-horizontal-list">
                 <li>

@@ -279,6 +279,7 @@ def create_first_twelve_week_statement_audit(
             statement_check_result_initial=statement_check_result_initial,
             issue_identifier=statement_check_result_initial.issue_identifier,
             statement_check=statement_check_result_initial.statement_check,
+            type=statement_check_result_initial.type,
         )
     return statement_audit_twelve_week
 

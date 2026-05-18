@@ -320,8 +320,8 @@ class StatementCheckResultInitialAdmin(admin.ModelAdmin):
                     ("statement_audit",),
                     ("statement_check",),
                     ("check_result_state",),
-                    ("report_comment",),
-                    ("auditor_notes",),
+                    ("public_comment",),
+                    ("auditor_information",),
                 )
             },
         ),
@@ -347,7 +347,8 @@ class StatementCheckResultRetestAdmin(admin.ModelAdmin):
         "statement_check",
     ]
     list_filter = [
-        "retest_state",
+        "check_result_state",
+        "type",
         "is_deleted",
     ]
     fieldsets = (
@@ -355,18 +356,22 @@ class StatementCheckResultRetestAdmin(admin.ModelAdmin):
             None,
             {
                 "fields": (
-                    ("is_deleted"),
+                    ("issue_identifier", "is_deleted"),
                     ("statement_audit",),
                     ("statement_check_result_initial",),
                     ("statement_check",),
-                    ("retest_state",),
-                    ("retest_email_comment",),
-                    ("retest_information",),
+                    ("check_result_state", "type"),
+                    ("public_comment",),
+                    ("auditor_information",),
                 )
             },
         ),
     )
-    readonly_fields = ["statement_audit", "statement_check_result_initial"]
+    readonly_fields = [
+        "statement_audit",
+        "statement_check_result_initial",
+        "issue_identifier",
+    ]
     show_facets = admin.ShowFacets.ALWAYS
 
 

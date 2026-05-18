@@ -207,8 +207,8 @@ def populate_audit_rounds(apps, schema_editor):
                 issue_identifier=statement_check_result.issue_identifier,
                 type=statement_check_result.type,
                 check_result_state=statement_check_result.check_result_state,
-                report_comment=statement_check_result.report_comment,
-                auditor_notes=statement_check_result.auditor_notes,
+                public_comment=statement_check_result.report_comment,
+                auditor_information=statement_check_result.auditor_notes,
                 is_deleted=statement_check_result.is_deleted,
             )
             statement_check_results_initial_by_statement_check[
@@ -221,9 +221,9 @@ def populate_audit_rounds(apps, schema_editor):
                     statement_check=statement_check_result.statement_check,
                     type=statement_check_result.type,
                     issue_identifier=statement_check_result.issue_identifier,
-                    retest_state=statement_check_result.retest_state,
-                    retest_email_comment=statement_check_result.retest_comment,
-                    retest_information=statement_check_result.auditor_notes,
+                    check_result_state=statement_check_result.retest_state,
+                    public_comment=statement_check_result.retest_comment,
+                    auditor_information=statement_check_result.auditor_notes,
                     is_deleted=statement_check_result.is_deleted,
                 )
 
@@ -330,8 +330,8 @@ def populate_audit_rounds(apps, schema_editor):
                     statement_check=retest_statement_check_result.statement_check,
                     type=retest_statement_check_result.type,
                     issue_identifier=retest_statement_check_result.issue_identifier,
-                    retest_state=retest_statement_check_result.check_result_state,
-                    retest_email_comment=retest_statement_check_result.comment,
+                    check_result_state=retest_statement_check_result.check_result_state,
+                    public_comment=retest_statement_check_result.comment,
                     is_deleted=retest_statement_check_result.is_deleted,
                 )
 

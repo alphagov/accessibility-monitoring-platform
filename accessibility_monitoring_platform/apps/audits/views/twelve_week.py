@@ -507,7 +507,7 @@ class StatementCheckResultRetestCustomUpdateView(UpdateView):
         record_simplified_model_update_event(
             user=self.request.user,
             model_object=custom_issue,
-            simplified_case=custom_issue.audit.simplified_case,
+            simplified_case=custom_issue.statement_audit.simplified_case,
         )
         return super().form_valid(form)
 
@@ -515,7 +515,8 @@ class StatementCheckResultRetestCustomUpdateView(UpdateView):
         """Return to the list of custom issues"""
         custom_issue: StatementCheckResult = self.object
         url: str = reverse(
-            "audits:edit-retest-statement-custom", kwargs={"pk": custom_issue.audit.id}
+            "audits:edit-retest-statement-custom",
+            kwargs={"pk": custom_issue.statement_audit.id},
         )
         return f"{url}#{custom_issue.issue_identifier}"
 

@@ -1762,9 +1762,6 @@ class StatementCheckResult(models.Model):
 
 
 class StatementCheckResultInitial(models.Model):
-    """
-    Model for accessibility statement-specific check result
-    """
 
     class Result(models.TextChoices):
         YES = "yes", "Yes"
@@ -1772,7 +1769,6 @@ class StatementCheckResultInitial(models.Model):
         NOT_TESTED = "not-tested", "Not tested"
 
     statement_audit = models.ForeignKey(StatementAudit, on_delete=models.PROTECT)
-    issue_identifier = models.CharField(max_length=20, default="")
     statement_check = models.ForeignKey(
         StatementCheck, on_delete=models.PROTECT, null=True, blank=True
     )
@@ -1781,13 +1777,14 @@ class StatementCheckResultInitial(models.Model):
         choices=StatementCheck.Type.choices,
         default=StatementCheck.Type.CUSTOM,
     )
+    issue_identifier = models.CharField(max_length=20, default="")
     check_result_state = models.CharField(
         max_length=10,
         choices=Result.choices,
         default=Result.NOT_TESTED,
     )
-    report_comment = models.TextField(default="", blank=True)
-    auditor_notes = models.TextField(default="", blank=True)
+    public_comment = models.TextField(default="", blank=True)
+    auditor_information = models.TextField(default="", blank=True)
     is_deleted = models.BooleanField(default=False)
 
     class Meta:
@@ -1885,13 +1882,13 @@ class StatementCheckResultRetest(models.Model):
         default=StatementCheck.Type.CUSTOM,
     )
     issue_identifier = models.CharField(max_length=20, default="")
-    retest_state = models.CharField(
+    check_result_state = models.CharField(
         max_length=10,
         choices=Result.choices,
         default=Result.NOT_TESTED,
     )
-    retest_email_comment = models.TextField(default="", blank=True)
-    retest_information = models.TextField(default="", blank=True)
+    public_comment = models.TextField(default="", blank=True)
+    auditor_information = models.TextField(default="", blank=True)
     is_deleted = models.BooleanField(default=False)
 
     class Meta:

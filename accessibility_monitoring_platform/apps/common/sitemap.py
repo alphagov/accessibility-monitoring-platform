@@ -1449,7 +1449,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                         url_name="audits:edit-retest-initial-custom-issue-update",
                         url_kwarg_key="pk",
                         visible_only_when_current=True,
-                        instance_class=StatementCheckResultInitial,
+                        instance_class=StatementCheckResultRetest,
                     ),
                     TwelveWeekStatementAuditPlatformPage(
                         name="Add 12-week custom issue",

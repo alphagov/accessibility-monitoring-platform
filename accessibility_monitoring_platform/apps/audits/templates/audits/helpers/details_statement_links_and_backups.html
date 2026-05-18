@@ -12,10 +12,18 @@
                 <a href="{% url 'cases:case-file-list' case.id %}" class="govuk-link govuk-link--no-visited-state">
                     View case files manager</a>
             </p>
-        {% else %}
+        {% elif statement_audit %}
             <p class="govuk-body">
                 No statement added. Add a statement in
                 <a href="{% url 'audits:edit-statement-pages' statement_audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    statement links</a>.
+            </p>
+        {% else %}
+            <p class="govuk-body">
+                No statement added. Add a statement in
+                <a href="{% url 'audits:edit-statement-pages' case.audit_overview.statement_audit_initial.id %}"
                     class="govuk-link govuk-link--no-visited-state"
                     rel="noreferrer noopener">
                     statement links</a>.
