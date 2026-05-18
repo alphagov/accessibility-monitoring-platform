@@ -102,12 +102,12 @@ You do not need to provide information from your own audit.
                         <b>Issue {{ statement_check_result.issue_identifier }}</b>
                         <br>
                         {{ statement_check_result.statement_check.report_text }}
-                        {% if statement_check_result.report_comment %}
+                        {% if statement_check_result.public_comment %}
                             {% if statement_check_result.statement_check.report_text %}
                                 <br>
                                 <br>
                             {% endif %}
-                            {{ statement_check_result.report_comment }}
+                            {{ statement_check_result.public_comment }}
                         {% endif %}
                     </td>
                     <td headers="statement-12-week-update" width=50%></td>

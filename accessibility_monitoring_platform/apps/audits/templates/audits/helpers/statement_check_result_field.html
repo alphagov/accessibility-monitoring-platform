@@ -1,4 +1,4 @@
-<div id="issue-{{ statement_check_result_form.instance.issue_identifier }}" class="govuk-form-group{% if field.errors %} govuk-form-group--error{% endif %}">
+<div id="{{ statement_check_result_form.instance.issue_identifier }}" class="govuk-form-group{% if field.errors %} govuk-form-group--error{% endif %}">
     <fieldset class="govuk-fieldset">
         <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
             <h2 id="{{ field.auto_id }}-label" for="{{ field.auto_id }}" class="govuk-heading-m amp-margin-bottom-0">
@@ -15,8 +15,8 @@
             <p class="govuk-body">{{ statement_check_result_form.instance.statement_check_result_initial.get_check_result_state_display }}</p>
             <label class="govuk-label"><b>Comments for report</b></label>
             <p class="govuk-body">
-                {% if statement_check_result_form.instance.statement_check_result_initial.report_comment %}
-                    {{ statement_check_result_form.instance.statement_check_result_initial.report_comment }}
+                {% if statement_check_result_form.instance.statement_check_result_initial.public_comment %}
+                    {{ statement_check_result_form.instance.statement_check_result_initial.public_comment }}
                 {% else %}
                     None
                 {% endif %}

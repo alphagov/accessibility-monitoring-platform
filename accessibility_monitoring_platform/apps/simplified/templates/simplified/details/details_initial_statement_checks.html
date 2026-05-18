@@ -15,8 +15,8 @@
                             {% if statement_check_result.check_result_state == 'no' %}
                                 {{ statement_check_result.statement_check.report_text|markdown_to_html }}
                             {% endif %}
-                            {% if statement_check_result.report_comment  %}
-                                {{ statement_check_result.report_comment|markdown_to_html }}
+                            {% if statement_check_result.public_comment  %}
+                                {{ statement_check_result.public_comment|markdown_to_html }}
                             {% endif %}
                         </td>
                     </tr>

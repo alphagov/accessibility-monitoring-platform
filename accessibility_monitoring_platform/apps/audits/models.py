@@ -1699,7 +1699,7 @@ class StatementCheckResult(models.Model):
         choices=Result.choices,
         default=Result.NOT_TESTED,
     )
-    report_comment = models.TextField(default="", blank=True)
+    public_comment = models.TextField(default="", blank=True)
     auditor_notes = models.TextField(default="", blank=True)
     retest_state = models.CharField(
         max_length=10,
@@ -1744,8 +1744,8 @@ class StatementCheckResult(models.Model):
     @property
     def display_value(self):
         value_str: str = self.get_check_result_state_display()
-        if self.report_comment:
-            value_str += f"<br><br>Auditor's comment: {self.report_comment}"
+        if self.public_comment:
+            value_str += f"<br><br>Auditor's comment: {self.public_comment}"
         return mark_safe(value_str)
 
     @property
@@ -1836,8 +1836,8 @@ class StatementCheckResultInitial(models.Model):
     @property
     def display_value(self):
         value_str: str = self.get_check_result_state_display()
-        if self.report_comment:
-            value_str += f"<br><br>Auditor's comment: {self.report_comment}"
+        if self.public_comment:
+            value_str += f"<br><br>Auditor's comment: {self.public_comment}"
         return mark_safe(value_str)
 
     @property
@@ -1929,8 +1929,8 @@ class StatementCheckResultRetest(models.Model):
     @property
     def display_value(self):
         value_str: str = self.get_check_result_state_display()
-        if self.report_comment:
-            value_str += f"<br><br>Auditor's comment: {self.report_comment}"
+        if self.public_comment:
+            value_str += f"<br><br>Auditor's comment: {self.public_comment}"
         return mark_safe(value_str)
 
     @property

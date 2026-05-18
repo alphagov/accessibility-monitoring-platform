@@ -8,7 +8,7 @@
     {% endif %}
 
     {% for custom_issue in statement_audit.custom_statement_check_results %}
-        <h2 id="issue-{{ custom_issue.issue_identifier }}" class="govuk-heading-s">
+        <h2 id="{{ custom_issue.issue_identifier }}" class="govuk-heading-s">
             <ul class="govuk-body amp-horizontal-list">
                 <li>
                     <b>Custom issue {{ custom_issue.issue_identifier }}</b>

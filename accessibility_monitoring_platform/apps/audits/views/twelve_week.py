@@ -651,11 +651,11 @@ class AuditRetestCaseComplianceStatement12WeekUpdateView(StatementAuditUpdateVie
     template_name: str = "audits/forms/statement_decision.html"
 
 
-class AuditRetestStatementSummaryUpdateView(
+class TwelveWeekStatementSummaryFirstUpdateView(
     AuditSummaryFirstMixin, StatementAuditUpdateView
 ):
     """
-    View to update audit summary for 12-week WCAG test
+    View to update audit summary for 12-week statement test
     """
 
     form_class: type[AuditStatementSummaryUpdateForm] = AuditStatementSummaryUpdateForm

@@ -169,7 +169,7 @@ def create_statement_audit_and_statement_check_results() -> StatementAudit:
     StatementCheckResult.objects.create(
         audit=audit,
         statement_audit=statement_audit,
-        report_comment="Custom statement issue",
+        public_comment="Custom statement issue",
     )
     return statement_audit
 
@@ -2111,7 +2111,7 @@ def test_statement_check_result_display_value():
     assert statement_check_result.display_value == "Not tested"
 
     statement_check_result.check_result_state = StatementCheckResult.Result.NO
-    statement_check_result.report_comment = REPORT_COMMENT
+    statement_check_result.public_comment = REPORT_COMMENT
 
     assert (
         statement_check_result.display_value
@@ -2217,7 +2217,7 @@ def test_issue_identifier():
     second_statement_check_result: StatementCheckResult = (
         StatementCheckResult.objects.create(
             audit=audit,
-            report_comment="Custom statement issue",
+            public_comment="Custom statement issue",
         )
     )
 
@@ -2301,7 +2301,7 @@ def test_build_issue_identifier():
 
     custom_statement_check_result: StatementCheck = StatementCheckResult.objects.create(
         audit=audit,
-        report_comment="Custom statement issue",
+        public_comment="Custom statement issue",
     )
 
     assert (
@@ -2377,7 +2377,7 @@ def test_audit_new_12_week_custom_statement_check_results():
         StatementCheckResult.objects.create(
             audit=audit,
             type=StatementCheck.Type.TWELVE_WEEK,
-            report_comment="12-week custom statement issue",
+            public_comment="12-week custom statement issue",
         )
     )
 

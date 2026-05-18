@@ -33,15 +33,15 @@
                 <tr class="govuk-table__row ">
                     <td class="govuk-table__cell amp-notes">
                         {{ summary_statement_check_result.initial_result.statement_check.report_text|markdown_to_html }}
-                        {% if summary_statement_check_result.initial_result.report_comment %}
-                            {{ summary_statement_check_result.initial_result.report_comment|markdown_to_html }}
+                        {% if summary_statement_check_result.initial_result.public_comment %}
+                            {{ summary_statement_check_result.initial_result.public_comment|markdown_to_html }}
                         {% endif %}
                         [{{ summary_statement_check_result.issue_identifier }}]
                         <a class="govuk-link govuk-link--no-visited-state"
                         {% if enable_12_week_ui and summary_statement_check_result.retest_result %}
-                            href="{% url summary_statement_check_result.retest_result.edit_12_week_url_name statement_audit.id %}#issue-{{ summary_statement_check_result.issue_identifier }}"
+                            href="{% url summary_statement_check_result.retest_result.edit_12_week_url_name statement_audit.id %}#{{ summary_statement_check_result.issue_identifier }}"
                         {% else %}
-                            href="{% url summary_statement_check_result.initial_result.edit_initial_url_name statement_audit.id %}#issue-{{ summary_statement_check_result.issue_identifier }}"
+                            href="{% url summary_statement_check_result.initial_result.edit_initial_url_name statement_audit.id %}#{{ summary_statement_check_result.issue_identifier }}"
                         {% endif %}
                         >Edit</a>
                     </td>

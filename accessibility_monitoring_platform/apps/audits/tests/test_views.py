@@ -160,7 +160,7 @@ def create_audit_and_statement_check_results() -> Audit:
         )
     StatementCheckResult.objects.create(
         audit=audit,
-        report_comment="Custom statement issue",
+        public_comment="Custom statement issue",
     )
     return audit
 
@@ -1027,10 +1027,10 @@ def test_audit_edit_statement_overview_updates_case_status(
             "form-MAX_NUM_FORMS": "1000",
             "form-0-id": "1",
             "form-0-check_result_state": "yes",
-            "form-0-report_comment": "",
+            "form-0-public_comment": "",
             "form-1-id": "2",
             "form-1-check_result_state": "no",
-            "form-1-report_comment": "",
+            "form-1-public_comment": "",
         },
     )
 
@@ -2003,7 +2003,7 @@ def test_add_custom_statement_check_result(admin_client):
     response: HttpResponse = admin_client.post(
         reverse("audits:edit-custom-issue-create", kwargs={"audit_id": audit.id}),
         {
-            "report_comment": CUSTOM_STATEMENT_ISSUE,
+            "public_comment": CUSTOM_STATEMENT_ISSUE,
             "auditor_notes": "",
             "save": "Save",
         },
@@ -2015,7 +2015,7 @@ def test_add_custom_statement_check_result(admin_client):
         StatementCheckResult.objects.get(audit=audit, type=StatementCheck.Type.CUSTOM)
     )
 
-    assert custom_statement_check_result.report_comment == CUSTOM_STATEMENT_ISSUE
+    assert custom_statement_check_result.public_comment == CUSTOM_STATEMENT_ISSUE
 
 
 def test_delete_custom_statement_check_result(admin_client):
@@ -3032,12 +3032,12 @@ def test_test_statement_summary_page_view(url_name, admin_client):
         type=statement_check.type,
         statement_check=statement_check,
         check_result_state=StatementCheckResult.Result.NO,
-        report_comment=STATEMENT_CHECK_INITIAL_COMMENT,
+        public_comment=STATEMENT_CHECK_INITIAL_COMMENT,
     )
     StatementCheckResult.objects.create(
         audit=audit,
         type=StatementCheck.Type.CUSTOM,
-        report_comment=STATEMENT_CHECK_CUSTOM_COMMENT,
+        public_comment=STATEMENT_CHECK_CUSTOM_COMMENT,
     )
     StatementCheckResult.objects.create(
         audit=audit,

@@ -19,9 +19,9 @@
                         </td>
                         <td class="govuk-table__cell amp-width-one-third">
                             {{ statement_check_result.get_check_result_state_display }}
-                            {% if statement_check_result.report_comment  %}
+                            {% if statement_check_result.public_comment  %}
                                 <br><br>
-                                {{ statement_check_result.report_comment }}
+                                {{ statement_check_result.public_comment }}
                             {% endif %}
                         </td>
                         <td class="govuk-table__cell amp-width-one-third">

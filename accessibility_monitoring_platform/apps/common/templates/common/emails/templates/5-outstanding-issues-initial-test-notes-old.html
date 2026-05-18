@@ -58,7 +58,7 @@ Please review the issues listed below and provide an update.
     <td width=1%>{{ forloop.counter }}</td>
     <td headers="statement-issue" width=49%>
     <p>{{ statement_check_result.statement_check.report_text }}</p>
-    {{ statement_check_result.report_comment|markdown_to_html }}
+    {{ statement_check_result.public_comment|markdown_to_html }}
     </td>
     <td headers="statement-12-week-update" width=49%>
     {{ statement_check_result.retest_email_comment|markdown_to_html }}
