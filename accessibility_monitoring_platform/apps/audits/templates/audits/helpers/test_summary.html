@@ -263,7 +263,7 @@
                                     </td>
                                     <td class="govuk-table__cell amp-width-one-third amp-notes{% if not enable_12_week_ui %} amp-disabled{% endif %}">
                                         <p>{{ summary_wcag_check_result.retest_result.get_retest_state_display }}</p>
-                                        {{ summary_wcag_check_result.retest_result.retest_notes|markdown_to_html }}
+                                        {{ summary_wcag_check_result.retest_result.notes|markdown_to_html }}
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -345,7 +345,7 @@
                                     </td>
                                     <td class="govuk-table__cell amp-width-one-third amp-notes{% if not enable_12_week_ui %} amp-disabled{% endif %}">
                                         <p>{{ summary_wcag_check_result.retest_result.get_retest_state_display }}</p>
-                                        {{ summary_wcag_check_result.retest_result.retest_notes|markdown_to_html }}
+                                        {{ summary_wcag_check_result.retest_result.notes|markdown_to_html }}
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -408,7 +408,7 @@
         {% endif %}
     {% endif %}
 {% endif %}
-
+{{summary_statement_check_results_by_type}}
 {% if show_statement_summary %}
     {% for statement_check_type, summary_statement_check_results in summary_statement_check_results_by_type.items %}
         {% if statement_check_type == '12-week' %}

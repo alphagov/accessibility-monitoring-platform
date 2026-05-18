@@ -8,6 +8,7 @@ from datetime import date, datetime
 from typing import Any, TypeVar
 
 from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
 from django.http import Http404, HttpRequest
 from django.utils import timezone
 
@@ -546,32 +547,52 @@ def get_audit_summary_context(
 
     summary_statement_check_results: list[SummaryStatementCheckResult] = []
 
-    if statement_audit_initial is not None:
-        for statement_check_result in statement_audit_initial.statement_check_results:
-            type: StatementCheck.Type | None = (
-                statement_check_result.statement_check.type
-                if statement_check_result.statement_check is not None
-                else None
+    statement_check_results: (
+        QuerySet[StatementCheckResultInitial] | QuerySet[StatementCheckResultRetest]
+    ) = (
+        statement_audit_12_week.statement_check_results
+        if statement_audit_12_week is not None
+        else statement_audit_initial.statement_check_results
+    )
+
+    for statement_check_result in statement_check_results:
+        if hasattr(statement_check_result, "statement_check_result_initial"):
+            initial_result: StatementCheckResultInitial = (
+                statement_check_result.statement_check_result_initial
             )
-            summary_statement_check_result: SummaryStatementCheckResult = (
-                SummaryStatementCheckResult(
-                    type=type,
-                    issue_identifier=statement_check_result.issue_identifier,
-                    initial_result=statement_check_result,
-                    retest_result=statement_check_result.twelve_week_retest,
-                )
+            retest_result: StatementCheckResultRetest = statement_check_result
+        else:
+            initial_result: StatementCheckResultInitial = statement_check_result
+            retest_result: StatementCheckResultRetest = (
+                statement_check_result.twelve_week_retest
             )
-            if (
-                show_all
-                or summary_statement_check_result.initial_result.check_result_state
+
+        type: CheckResult.Type = (
+            initial_result.type if initial_result is not None else retest_result.type
+        )
+
+        summary_statement_check_result: SummaryStatementCheckResult = (
+            SummaryStatementCheckResult(
+                type=type,
+                issue_identifier=statement_check_result.issue_identifier,
+                initial_result=initial_result,
+                retest_result=retest_result,
+            )
+        )
+        if (
+            show_all
+            or (
+                summary_statement_check_result.initial_result is not None
+                and summary_statement_check_result.initial_result.check_result_state
                 == StatementCheckResult.Result.NO
-                or (
-                    summary_statement_check_result.retest_result is not None
-                    and summary_statement_check_result.retest_result.check_result_state
-                    == StatementCheckResult.Result.NO
-                )
-            ):
-                summary_statement_check_results.append(summary_statement_check_result)
+            )
+            or (
+                summary_statement_check_result.retest_result is not None
+                and summary_statement_check_result.retest_result.check_result_state
+                == StatementCheckResult.Result.NO
+            )
+        ):
+            summary_statement_check_results.append(summary_statement_check_result)
 
     if statement_audit_initial.all_overview_statement_checks_have_passed or (
         statement_audit_12_week is not None

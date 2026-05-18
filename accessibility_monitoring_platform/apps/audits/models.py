@@ -1104,10 +1104,7 @@ class StatementAudit(AuditRound):
     def all_overview_statement_checks_have_passed(self) -> bool:
         """Check all overview statement checks have passed"""
         return (
-            self.overview_statement_check_results.exclude(
-                check_result_state=StatementCheckResult.Result.YES
-            ).count()
-            == 0
+            self.simplified_case.audit_overview.all_overview_statement_checks_have_passed
         )
 
     @property
@@ -1125,7 +1122,7 @@ class StatementAudit(AuditRound):
 
     @property
     def latest_statement_link(self) -> str | None:
-        for statement_page in self.statement_pages.order_by("-id"):
+        for statement_page in self.simplified_case.statement_pages.order_by("-id"):
             if statement_page.url:
                 return statement_page.url
 
@@ -1565,7 +1562,7 @@ class WcagCheckResultRetest(models.Model):
         return {
             "id": self.id,
             "retest_state": self.retest_state,
-            "retest_notes": self.notes,
+            "notes": self.notes,
             "check_result": self,
         }
 
