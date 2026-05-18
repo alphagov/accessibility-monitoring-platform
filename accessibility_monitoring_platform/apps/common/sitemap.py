@@ -1485,17 +1485,17 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 case_details_template_name="cases/details/details.html",
                 next_page_url_name="audits:edit-audit-retest-statement-decision",
             ),
-            AuditPlatformPage(
+            TwelveWeekStatementAuditPlatformPage(
                 name="Compliance decision",
                 url_name="audits:edit-audit-retest-statement-decision",
-                complete_flag_name="audit_retest_statement_decision_complete_date",
+                complete_flag_name="compliance_complete_date",
                 case_details_template_name="simplified/details/details_twelve_week_statement_compliance.html",
                 next_page_url_name="audits:edit-audit-retest-statement-summary",
             ),
-            AuditPlatformPage(
+            TwelveWeekStatementAuditPlatformPage(
                 name="Statement summary",
                 url_name="audits:edit-audit-retest-statement-summary",
-                complete_flag_name="audit_retest_statement_summary_complete_date",
+                complete_flag_name="summary_complete_date",
                 next_page_url_name="simplified:edit-review-changes",
             ),
         ],

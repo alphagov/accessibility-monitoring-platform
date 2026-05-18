@@ -567,7 +567,7 @@ def get_audit_summary_context(
                 == StatementCheckResult.Result.NO
                 or (
                     summary_statement_check_result.retest_result is not None
-                    and summary_statement_check_result.retest_result.retest_state
+                    and summary_statement_check_result.retest_result.check_result_state
                     == StatementCheckResult.Result.NO
                 )
             ):

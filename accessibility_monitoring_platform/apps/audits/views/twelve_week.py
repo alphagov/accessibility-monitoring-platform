@@ -20,11 +20,10 @@ from ...simplified.utils import (
 )
 from ..forms import (
     AuditRetestCheckResultFilterForm,
-    AuditRetestStatementDecisionUpdateForm,
-    AuditRetestStatementSummaryUpdateForm,
     AuditRetestWcagSummaryUpdateForm,
+    AuditStatementSummaryUpdateForm,
     AuditTwelveWeekDisproportionateBurdenUpdateForm,
-    CaseComplianceStatement12WeekUpdateForm,
+    StatementAuditComplianceUpdateForm,
     StatementAuditStatementBackupUpdateForm,
     StatementAuditStatementComplianceUpdateForm,
     StatementAuditStatementCustomUpdateForm,
@@ -633,10 +632,7 @@ def delete_new_12_week_custom_issue(request: HttpRequest, pk: int) -> HttpRespon
     )
 
 
-class TwelveWeekDisproportionateBurdenUpdateView(AuditUpdateView):
-    """
-    View to update 12-week disproportionate burden fields
-    """
+class TwelveWeekDisproportionateBurdenUpdateView(StatementAuditUpdateView):
 
     form_class: type[AuditTwelveWeekDisproportionateBurdenUpdateForm] = (
         AuditTwelveWeekDisproportionateBurdenUpdateForm
@@ -644,28 +640,25 @@ class TwelveWeekDisproportionateBurdenUpdateView(AuditUpdateView):
     template_name: str = "audits/forms/twelve_week_disproportionate_burden.html"
 
 
-class AuditRetestCaseComplianceStatement12WeekUpdateView(AuditCaseComplianceUpdateView):
+class AuditRetestCaseComplianceStatement12WeekUpdateView(StatementAuditUpdateView):
     """
     View to retest statement decsion
     """
 
-    form_class: type[AuditRetestStatementDecisionUpdateForm] = (
-        AuditRetestStatementDecisionUpdateForm
+    form_class: type[StatementAuditComplianceUpdateForm] = (
+        StatementAuditComplianceUpdateForm
     )
-    case_compliance_form_class: type[CaseComplianceStatement12WeekUpdateForm] = (
-        CaseComplianceStatement12WeekUpdateForm
-    )
-    template_name: str = "audits/forms/retest_statement_decision.html"
+    template_name: str = "audits/forms/statement_decision.html"
 
 
-class AuditRetestStatementSummaryUpdateView(AuditRetestSummaryUpdateView):
+class AuditRetestStatementSummaryUpdateView(
+    AuditSummaryFirstMixin, StatementAuditUpdateView
+):
     """
     View to update audit summary for 12-week WCAG test
     """
 
-    form_class: type[AuditRetestStatementSummaryUpdateForm] = (
-        AuditRetestStatementSummaryUpdateForm
-    )
+    form_class: type[AuditStatementSummaryUpdateForm] = AuditStatementSummaryUpdateForm
     template_name: str = "audits/forms/test_summary_statement.html"
 
 

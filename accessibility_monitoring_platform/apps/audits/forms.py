@@ -565,13 +565,13 @@ class AuditStatementSummaryUpdateForm(VersionForm):
     Form for editing statement audit summary
     """
 
-    audit_statement_summary_complete_date = AMPDatePageCompleteField()
+    summary_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "audit_statement_summary_complete_date",
+            "summary_complete_date",
         ]
 
 
@@ -805,22 +805,22 @@ class AuditTwelveWeekDisproportionateBurdenUpdateForm(VersionForm):
     Form for editing twelve_week disproportional burden claim
     """
 
-    twelve_week_disproportionate_burden_claim = AMPChoiceRadioField(
+    disproportionate_burden_claim = AMPChoiceRadioField(
         label="12-week disproportionate burden claim · Included in export",
         choices=Audit.DisproportionateBurden.choices,
     )
-    twelve_week_disproportionate_burden_notes = AMPTextField(
+    disproportionate_burden_notes = AMPTextField(
         label="12-week disproportionate burden claim details · Included in export"
     )
-    twelve_week_disproportionate_burden_complete_date = AMPDatePageCompleteField()
+    disproportionate_burden_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Audit
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "twelve_week_disproportionate_burden_claim",
-            "twelve_week_disproportionate_burden_notes",
-            "twelve_week_disproportionate_burden_complete_date",
+            "disproportionate_burden_claim",
+            "disproportionate_burden_notes",
+            "disproportionate_burden_complete_date",
         ]
 
 
