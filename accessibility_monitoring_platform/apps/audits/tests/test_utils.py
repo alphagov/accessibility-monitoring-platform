@@ -51,6 +51,9 @@ from ..utils import (
     other_page_failed_check_results,
     report_data_updated,
 )
+from .create_test_data import (  # create_initial_statement_audit,; create_simplified_case_with_full_audit,; create_twelve_week_statement_audit,; create_twelve_week_wcag_audit,
+    create_initial_wcag_audit,
+)
 
 TODAY: date = date.today()
 HOME_PAGE_URL: str = "https://example.com/home"
@@ -253,50 +256,6 @@ def create_wcag_audit_and_wcag() -> WcagAudit:
     return wcag_audit
 
 
-def create_wcag_audit_and_user() -> tuple[WcagAudit, User]:
-    """Create an audit and pages"""
-    wcag_audit: WcagAudit = create_wcag_audit_and_wcag()
-    user: User = User.objects.create(
-        first_name=USER_FIRST_NAME, last_name=USER_LAST_NAME
-    )
-    wcag_audit.simplified_case.auditor = user
-    wcag_audit.simplified_case.save()
-    return wcag_audit, user
-
-
-def create_wcag_audit_and_check_results() -> WcagAudit:
-    """Create an audit and check results"""
-    wcag_audit, _ = create_wcag_audit_and_user()
-
-    wcag_page_initial_home: WcagPageRetest = WcagPageRetest.objects.create(
-        wvag_audit=wcag_audit, page_type=Page.Type.HOME, url="https://example.com"
-    )
-    wcag_definition_manual: WcagDefinition = WcagDefinition.objects.get(
-        type=WcagDefinition.Type.MANUAL
-    )
-    WcagCheckResultInitial.objects.create(
-        wcag_audit=wcag_audit,
-        wcag_page=wcag_page_initial_home,
-        wcag_definition=wcag_definition_manual,
-        type=wcag_definition_manual.type,
-    )
-
-    page_pdf: Page = Page.objects.create(
-        audit=wcag_audit, page_type=Page.Type.PDF, url="https://example.com/pdf"
-    )
-    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(
-        type=WcagDefinition.Type.PDF
-    )
-    WcagCheckResultInitial.objects.create(
-        wcag_audit=wcag_audit,
-        page=page_pdf,
-        wcag_wcag_definition=wcag_definition_pdf,
-        type=wcag_definition_pdf.type,
-    )
-
-    return wcag_audit
-
-
 @pytest.mark.django_db
 def test_create_mandatory_pages_for_new_audit():
     """Test that the mandatory pages are created for a new audit"""
@@ -320,7 +279,7 @@ def test_create_mandatory_pages_for_new_audit():
 @pytest.mark.django_db
 def test_update_check_results_for_page():
     """Test update of check results for a page"""
-    audit: Audit = create_wcag_audit_and_check_results()
+    audit: Audit = create_initial_wcag_audit()
     page_home: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
 
     check_results: QuerySet[CheckResult] = CheckResult.objects.filter(page=page_home)
@@ -371,7 +330,7 @@ def test_update_check_results_for_page():
 @pytest.mark.django_db
 def test_create_check_results_for_page():
     """Test create of check results for a page"""
-    wcag_audit: Audit = create_wcag_audit_and_check_results()
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
     page_home: WcagPageRetest = WcagPageRetest.objects.get(
         wcag_audit=wcag_audit, page_type=WcagPageRetest.Type.HOME
     )
@@ -426,7 +385,7 @@ def test_create_check_results_for_page():
 @pytest.mark.django_db
 def test_get_all_possible_check_results_for_page():
     """Test building list of all possible test results"""
-    audit: Audit = create_wcag_audit_and_check_results()
+    audit: WcagAudit = create_initial_wcag_audit()
     page_home: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     WcagDefinition.objects.create(type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME)
     wcag_definitions: list[WcagDefinition] = list(WcagDefinition.objects.all())
@@ -530,7 +489,7 @@ def test_get_next_platform_page_twelve_week_audit_with_pages():
     Test get_next_platform_page_twelve_week returns platform page
     for each testable page (with errors) in audit in in turn.
     """
-    audit: Audit = create_wcag_audit_and_check_results()
+    audit: WcagAudit = create_initial_wcag_audit()
     audit_pk: dict[str, int] = {"pk": audit.id}
     for page in audit.testable_pages:
         for check_result in page.all_check_results:
@@ -572,7 +531,7 @@ def test_get_next_platform_page_twelve_week_audit_with_no_errors():
     Test get_next_platform_page_twelve_week returns expected platform page
     for website compliance decision when audit has no pages with errors.
     """
-    audit: Audit = create_wcag_audit_and_check_results()
+    audit: WcagAudit = create_initial_wcag_audit()
     audit_pk: dict[str, int] = {"pk": audit.id}
     assert get_next_platform_page_twelve_week(audit=audit).url == reverse(
         "audits:edit-audit-retest-website-decision", kwargs=audit_pk
@@ -585,7 +544,7 @@ def test_other_page_failed_check_results():
     Test other_page_failed_check_results returns a dictionary of all the failed
     check results entered for other pages
     """
-    audit: Audit = create_wcag_audit_and_check_results()
+    audit: WcagAudit = create_initial_wcag_audit()
     home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     extra_page: Page = Page.objects.create(
         audit=audit, page_type=Page.Type.EXTRA, url="https://example.com/extra"
