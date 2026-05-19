@@ -139,6 +139,7 @@ def populate_audit_rounds(apps, schema_editor):
                 is_contact_page=page.is_contact_page,
                 no_errors_date=page.no_errors_date,
                 complete_date=page.complete_date,
+                updated=page.updated,
             )
             wcag_page_initials_by_page[page.id] = wcag_page_initial
             wcag_page_retest = None
@@ -159,6 +160,7 @@ def populate_audit_rounds(apps, schema_editor):
                         complete_date=page.complete_date,
                         no_errors_date=page.no_errors_date,
                         page_missing_date=page.retest_page_missing_date,
+                        updated=page.updated,
                     )
             for check_result in CheckResult.objects.filter(page=page):
                 wcag_check_result_initial = WcagCheckResultInitial.objects.create(
@@ -170,6 +172,7 @@ def populate_audit_rounds(apps, schema_editor):
                     wcag_definition=check_result.wcag_definition,
                     check_result_state=check_result.check_result_state,
                     notes=check_result.notes,
+                    updated=check_result.updated,
                 )
                 wcag_check_result_initials_by_page_and_wcag[
                     f"{page.id}-{check_result.wcag_definition.id}"
@@ -183,6 +186,7 @@ def populate_audit_rounds(apps, schema_editor):
                         is_deleted=check_result.is_deleted,
                         retest_state=check_result.retest_state,
                         notes=check_result.retest_notes,
+                        updated=check_result.updated,
                     )
                 for (
                     check_result_notes_history

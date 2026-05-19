@@ -587,24 +587,6 @@ class Audit(VersionModel):
                 return statement_page.url
 
     @property
-    def accessibility_statement_initially_found(self) -> bool:
-        return (
-            self.statement_pages.filter(
-                added_stage=StatementPage.AddedStage.INITIAL
-            ).count()
-            > 0
-        )
-
-    @property
-    def twelve_week_accessibility_statement_found(self) -> bool:
-        return (
-            self.statement_pages.filter(
-                added_stage=StatementPage.AddedStage.TWELVE_WEEK
-            ).count()
-            > 0
-        )
-
-    @property
     def accessibility_statement_found(self) -> bool:
         return self.statement_pages.count() > 0 and self.latest_statement_link != ""
 
@@ -1315,6 +1297,11 @@ class WcagPageInitial(models.Model):
     no_errors_date = models.DateField(null=True, blank=True)
     complete_date = models.DateField(null=True, blank=True)
     is_deleted = models.BooleanField(default=False)
+    updated = models.DateTimeField(null=True, blank=True)
+
+    def save(self, *args, **kwargs) -> None:
+        self.updated = timezone.now()
+        super().save(*args, **kwargs)
 
     def __str__(self) -> str:
         return self.name if self.name else self.get_page_type_display()
@@ -1381,6 +1368,11 @@ class WcagPageRetest(models.Model):
     page_missing_date = models.DateField(null=True, blank=True)
     notes = models.TextField(default="", blank=True)
     is_deleted = models.BooleanField(default=False)
+    updated = models.DateTimeField(null=True, blank=True)
+
+    def save(self, *args, **kwargs) -> None:
+        self.updated = timezone.now()
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ["id"]
@@ -1567,6 +1559,7 @@ class WcagCheckResultInitial(models.Model):
     )
     notes = models.TextField(default="", blank=True)
     is_deleted = models.BooleanField(default=False)
+    updated = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs) -> None:
         if not self.id and not self.issue_identifier:
@@ -1576,6 +1569,7 @@ class WcagCheckResultInitial(models.Model):
                 id_within_case=self.wcag_audit.wcagcheckresultinitial_set.all().count()
                 + 1,
             )
+        self.updated = timezone.now()
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:
@@ -1607,6 +1601,11 @@ class WcagCheckResultRetest(models.Model):
     )
     notes = models.TextField(default="", blank=True)
     is_deleted = models.BooleanField(default=False)
+    updated = models.DateTimeField(null=True, blank=True)
+
+    def save(self, *args, **kwargs) -> None:
+        self.updated = timezone.now()
+        super().save(*args, **kwargs)
 
     def __str__(self) -> str:
         return self.wcag_check_result_initial.issue_identifier

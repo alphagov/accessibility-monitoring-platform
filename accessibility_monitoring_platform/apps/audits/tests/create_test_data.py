@@ -109,19 +109,16 @@ def create_initial_statement_audit(
         AuditOverview.objects.create(
             simplified_case=simplified_case,
         )
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     initial_statement_audit: StatementAudit = StatementAudit.objects.create(
         simplified_case=simplified_case
     )
     for statement_check in StatementCheck.objects.all():
         StatementCheckResultInitial.objects.create(
-            audit=audit,
             statement_audit=initial_statement_audit,
             type=statement_check.type,
             statement_check=statement_check,
         )
     StatementCheckResultInitial.objects.create(
-        audit=audit,
         statement_audit=initial_statement_audit,
         public_comment="Custom statement issue",
     )

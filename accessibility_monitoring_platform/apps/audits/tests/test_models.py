@@ -13,7 +13,6 @@ from ...common.models import Boolean
 from ...simplified.models import SimplifiedCase
 from ..models import (
     Audit,
-    AuditOverview,
     CheckResult,
     Page,
     Retest,
@@ -571,36 +570,8 @@ def test_wcag_definition_start_end_date_range():
 
 
 @pytest.mark.django_db
-def test_accessibility_statement_initially_found():
-    """
-    Test that an accessibility statement was initially found.
-    """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-
-    # No page
-    assert audit.accessibility_statement_initially_found is False
-
-    statement_page: StatementPage = StatementPage.objects.create(
-        audit=audit, added_stage=StatementPage.AddedStage.INITIAL
-    )
-
-    # Not found flag not set
-    assert audit.accessibility_statement_initially_found is True
-
-    statement_page.added_stage = StatementPage.AddedStage.TWELVE_WEEK
-    statement_page.save()
-
-    # Not found flag set
-    assert audit.accessibility_statement_initially_found is False
-
-
-@pytest.mark.django_db
 def test_accessibility_statement_found():
-    """
-    Test that an accessibility statement was found.
-    """
-    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
     audit: Audit = Audit.objects.create(simplified_case=wcag_audit.simplified_case)
     StatementPage.objects.create(
         audit=audit,
@@ -615,91 +586,100 @@ def test_accessibility_statement_found():
 
 
 @pytest.mark.django_db
-def test_audit_updated_updated():
-    """Test the audit updated field is updated"""
+def test_wcag_audit_updated_updated():
+    """Test the wcag audit updated field is updated"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
 
     with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_UPDATED)):
-        audit.save()
+        wcag_audit.save()
 
-    assert audit.updated == DATETIME_AUDIT_UPDATED
+    assert wcag_audit.updated == DATETIME_AUDIT_UPDATED
 
 
 @pytest.mark.django_db
 def test_page_updated_updated():
     """Test the page updated field is updated"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    page: Page = Page.objects.create(audit=audit)
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
 
     with patch("django.utils.timezone.now", Mock(return_value=DATETIME_PAGE_UPDATED)):
-        page.save()
+        wcag_page_initial.save()
 
-    assert page.updated == DATETIME_PAGE_UPDATED
+    assert wcag_page_initial.updated == DATETIME_PAGE_UPDATED
 
 
 @pytest.mark.django_db
-def test_check_result_updated_updated():
-    """Test the check result updated field is updated"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    page: Page = Page.objects.create(audit=audit)
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=WcagDefinition.Type.AXE
-    )
-    check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        type=WcagDefinition.Type.AXE,
-        wcag_definition=wcag_definition,
+def test_wcag_check_result_initial_updated_updated():
+    """Test the WCAG check result initial updated field is updated"""
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.filter(
+            wcag_audit=wcag_audit,
+        ).first()
     )
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_CHECK_RESULT_UPDATED)
     ):
-        check_result.save()
+        wcag_check_result_initial.save()
 
-    assert check_result.updated == DATETIME_CHECK_RESULT_UPDATED
+    assert wcag_check_result_initial.updated == DATETIME_CHECK_RESULT_UPDATED
 
 
 @pytest.mark.django_db
 def test_audit_fixed_check_results():
-    """
-    Test that fixed_check_results returns the expected values.
-    """
-    wcag_audit: WcagAudit = create_initial_wcag_audit()
-
-    assert wcag_audit.wcag_fixed_check_result_retests.count() == 0
-
-    home_page: WcagPageInitial = WcagPageInitial.objects.get(
-        wcag_audit=wcag_audit, page_type=Page.Type.HOME
+    """Test that wcag_fixed_check_result_retests returns the expected values"""
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit
     )
-    check_result: CheckResult = home_page.all_check_results[0]
-    check_result.retest_state = CheckResult.RetestResult.FIXED
-    check_result.save()
 
-    updated_audit: Audit = Audit.objects.get(id=wcag_audit.id)
+    assert twelve_week_wcag_audit.wcag_fixed_check_result_retests.count() == 0
 
-    assert updated_audit.fixed_check_results.count() == 1
-    assert updated_audit.fixed_check_results[0].id == check_result.id
+    wcag_check_result_retest: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.filter(wcag_audit=twelve_week_wcag_audit).first()
+    )
+    wcag_check_result_retest.retest_state = CheckResult.RetestResult.FIXED
+    wcag_check_result_retest.save()
+
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        wcag_check_result_retest.wcag_check_result_initial
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+
+    assert twelve_week_wcag_audit.wcag_fixed_check_result_retests.count() == 1
+    assert (
+        twelve_week_wcag_audit.wcag_fixed_check_result_retests[0].id
+        == wcag_check_result_retest.id
+    )
 
 
 @pytest.mark.django_db
-def test_audit_unfixed_check_results():
-    """
-    Test that unfixed_check_results returns the expected values.
-    """
-    audit: Audit = create_initial_wcag_audit()
+def test_audit_wcag_unfixed_check_result_retests():
+    """Test that wcag_unfixed_check_result_retests returns the expected values"""
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit
+    )
 
-    assert audit.unfixed_check_results.count() == 3
+    assert twelve_week_wcag_audit.wcag_unfixed_check_result_retests.count() == 11
 
-    check_result: CheckResult = audit.unfixed_check_results[0]
-    check_result.retest_state = CheckResult.RetestResult.FIXED
-    check_result.save()
+    wcag_check_result_retest: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.filter(wcag_audit=twelve_week_wcag_audit).first()
+    )
+    wcag_check_result_retest.retest_state = CheckResult.RetestResult.FIXED
+    wcag_check_result_retest.save()
 
-    updated_audit: Audit = Audit.objects.get(id=audit.id)
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        wcag_check_result_retest.wcag_check_result_initial
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
 
-    assert updated_audit.unfixed_check_results.count() == 2
+    assert twelve_week_wcag_audit.wcag_unfixed_check_result_retests.count() == 10
 
 
 def test_statement_check_str():
@@ -716,21 +696,17 @@ def test_statement_check_str():
 
 
 @pytest.mark.django_db
-def test_statement_check_result_edit_initial_url_name():
-    """
-    Tests an StatementCheckResult edit_initial_url_name contains the expected string
-    """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    statement_check: StatementCheck = StatementCheck.objects.create(
-        type=StatementCheck.Type.COMPLIANCE
-    )
-    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
-        audit=audit, statement_check=statement_check, type=statement_check.type
+def test_statement_check_result_initial_edit_initial_url_name():
+    statement_audit: StatementAudit = create_initial_statement_audit()
+    statement_check_result_initial: StatementCheckResultInitial = (
+        StatementCheckResultInitial.objects.filter(
+            statement_audit=statement_audit,
+            statement_check__type=StatementCheck.Type.COMPLIANCE,
+        ).first()
     )
 
     assert (
-        statement_check_result.edit_initial_url_name
+        statement_check_result_initial.edit_initial_url_name
         == "audits:edit-statement-compliance"
     )
 
@@ -1520,26 +1496,6 @@ def test_audit_statement_pages():
     statement_page.save()
 
     assert not audit.statement_pages
-
-
-@pytest.mark.django_db
-def test_audit_accessibility_statement_initially_found():
-    """Test audit statement initially found"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-
-    assert audit.accessibility_statement_initially_found is False
-
-    statement_page: StatementPage = StatementPage.objects.create(
-        audit=audit, added_stage=StatementPage.AddedStage.INITIAL
-    )
-
-    assert audit.accessibility_statement_initially_found is True
-
-    statement_page.added_stage = StatementPage.AddedStage.TWELVE_WEEK
-    statement_page.save()
-
-    assert audit.accessibility_statement_initially_found is False
 
 
 @pytest.mark.django_db
