@@ -13,6 +13,7 @@ from ...common.models import Boolean
 from ...simplified.models import SimplifiedCase
 from ..models import (
     Audit,
+    AuditOverview,
     CheckResult,
     Page,
     Retest,
@@ -22,6 +23,8 @@ from ..models import (
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
+    StatementCheckResultInitial,
+    StatementCheckResultRetest,
     StatementPage,
     WcagAudit,
     WcagCheckResultInitial,
@@ -31,7 +34,13 @@ from ..models import (
     WcagPageRetest,
     build_issue_identifier,
 )
-from ..utils import create_checkresults_for_retest
+from .create_test_data import (
+    create_initial_statement_audit,
+    create_initial_wcag_audit,
+    create_simplified_case_with_full_audit,
+    create_twelve_week_statement_audit,
+    create_twelve_week_wcag_audit,
+)
 
 TODAY = date.today()
 PAGE_NAME = "Page name"
@@ -127,53 +136,6 @@ def create_retest_and_retest_check_results(
         return new_retest
 
 
-def create_wcag_audit_and_pages() -> WcagAudit:
-    """Create an wcag_audit with all types of page"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
-    for page_type in [
-        WcagPageInitial.Type.EXTRA,
-        WcagPageInitial.Type.HOME,
-        WcagPageInitial.Type.CONTACT,
-        WcagPageInitial.Type.STATEMENT,
-        WcagPageInitial.Type.PDF,
-        WcagPageInitial.Type.FORM,
-    ]:
-        WcagPageInitial.objects.create(wcag_audit=wcag_audit, page_type=page_type)
-    WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.EXTRA, is_deleted=True
-    )
-    return wcag_audit
-
-
-def create_statement_audit_and_statement_check_results() -> StatementAudit:
-    """Create an audit with all types of statement checks"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case
-    )
-    for count, statement_check in enumerate(StatementCheck.objects.all()):
-        check_result_state: str = (
-            StatementCheckResult.Result.NO
-            if count % 2 == 0
-            else StatementCheckResult.Result.YES
-        )
-        StatementCheckResult.objects.create(
-            audit=audit,
-            statement_audit=statement_audit,
-            type=statement_check.type,
-            statement_check=statement_check,
-            check_result_state=check_result_state,
-        )
-    StatementCheckResult.objects.create(
-        audit=audit,
-        statement_audit=statement_audit,
-        public_comment="Custom statement issue",
-    )
-    return statement_audit
-
-
 def create_retest_and_statement_check_results() -> Retest:
     """Create a retest with all types of statement checks"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
@@ -197,58 +159,10 @@ def create_retest_and_statement_check_results() -> Retest:
     return retest
 
 
-def create_wcag_audit_and_check_results() -> Audit:
-    """Create a wcag audit with failed check results"""
-    html_wcag_definitions: list[WcagDefinition] = [
-        WcagDefinition.objects.create(
-            type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
-        ),
-        WcagDefinition.objects.create(
-            type=WcagDefinition.Type.MANUAL, name=WCAG_TYPE_MANUAL_NAME
-        ),
-    ]
-    pdf_wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=WcagDefinition.Type.PDF, name=WCAG_TYPE_PDF_NAME
-    )
-
-    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
-    wcag_page_initials: QuerySet[Page] = wcag_audit.wcagpageinitial_set.all()
-
-    for wcag_page_initial in wcag_page_initials:
-        check_result_state: str = (
-            WcagCheckResultInitial.Result.ERROR
-            if wcag_page_initial.page_type
-            in [WcagPageInitial.Type.HOME, WcagPageInitial.Type.PDF]
-            else CheckResult.Result.NO_ERROR
-        )
-        if wcag_page_initial.page_type == Page.Type.PDF:
-            WcagCheckResultInitial.objects.create(
-                wcag_audit=wcag_audit,
-                wcag_page_initial=wcag_page_initial,
-                check_result_state=check_result_state,
-                type=pdf_wcag_definition.type,
-                wcag_definition=pdf_wcag_definition,
-            )
-        else:
-            for wcag_definition in html_wcag_definitions:
-                WcagCheckResultInitial.objects.create(
-                    wcag_audit=wcag_audit,
-                    wcag_page_initial=wcag_page_initial,
-                    check_result_state=check_result_state,
-                    type=wcag_definition.type,
-                    wcag_definition=wcag_definition,
-                    notes=ERROR_NOTES,
-                )
-
-    return wcag_audit
-
-
 @pytest.mark.django_db
 def test_wcag_audit_every_wcag_page_initials_returns_all_pages():
-    """
-    Deleted and pages which were not found are also excluded.
-    """
-    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
+    """Deleted and pages which were not found are also excluded"""
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
 
     assert wcag_audit.every_wcag_page_initials.count() == 6
 
@@ -256,7 +170,7 @@ def test_wcag_audit_every_wcag_page_initials_returns_all_pages():
 @pytest.mark.django_db
 def test_wcag_audit_every_wcag_page_initials_returns_pdf_and_statement_last():
     """Statement page returned last. PDF page second-last"""
-    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
 
     assert (
         wcag_audit.every_wcag_page_initials.last().page_type
@@ -273,7 +187,7 @@ def test_wcag_page_initial_get_absolute_url():
     """
     Test WcagPage.get_absolute_url is as expected
     """
-    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
         wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.STATEMENT
     )
@@ -286,10 +200,7 @@ def test_wcag_page_initial_get_absolute_url():
 
 @pytest.mark.django_db
 def test_page_str():
-    """
-    Test WcagPageInitial.__str__ is as expected
-    """
-    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
     wcag_page_initial: WcagPageInitial = wcag_audit.every_wcag_page_initials.filter(
         page_type=WcagPageInitial.Type.STATEMENT
     ).first()
@@ -299,10 +210,7 @@ def test_page_str():
 
 @pytest.mark.django_db
 def test_html_page_page_title():
-    """
-    Test WcagPageInitial.page_title is as expected for HTML page
-    """
-    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
     wcag_page_initial: WcagPageInitial = wcag_audit.every_wcag_page_initials.filter(
         page_type=WcagPageInitial.Type.STATEMENT
     ).first()
@@ -312,10 +220,7 @@ def test_html_page_page_title():
 
 @pytest.mark.django_db
 def test_pdf_page_page_title():
-    """
-    Test Page.page_title is as expected for PDF page
-    """
-    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
     wcag_page_initial: WcagPageInitial = wcag_audit.every_wcag_page_initials.filter(
         page_type=WcagPageInitial.Type.PDF
     ).first()
@@ -327,10 +232,8 @@ def test_pdf_page_page_title():
 
 @pytest.mark.django_db
 def test_audit_testable_pages_returns_expected_page():
-    """
-    Deleted, not found and pages without URLs excluded.
-    """
-    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
+    """Deleted, not found and pages without URLs excluded"""
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
     testable_page: WcagPageInitial = WcagPageInitial.objects.create(
         wcag_audit=wcag_audit,
         page_type=WcagPageInitial.Type.HOME,
@@ -349,10 +252,8 @@ def test_audit_testable_pages_returns_expected_page():
 
 @pytest.mark.django_db
 def test_audit_retestable_pages_returns_expected_page():
-    """
-    Deleted, not found, pages without URLs and missing pages excluded.
-    """
-    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
+    """Deleted, not found, pages without URLs and missing pages excluded"""
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
     retestable_wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
         wcag_audit=wcag_audit,
         page_type=WcagPageInitial.Type.HOME,
@@ -383,84 +284,52 @@ def test_audit_retestable_pages_returns_expected_page():
 @pytest.mark.django_db
 def test_audit_missing_at_retest_pages():
     """Test missing at retest pages."""
-    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
-    retestable_wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit,
-        page_type=WcagPageInitial.Type.HOME,
-        url="https://example.com",
-    )
-    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
-        wcag_audit=wcag_audit,
-        wcag_page_initial=retestable_wcag_page_initial,
-        url=retestable_wcag_page_initial.url,
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit
     )
 
-    assert len(wcag_audit.wcag_page_retests_missing_at_retest) == 0
+    assert len(twelve_week_wcag_audit.wcag_page_retests_missing_at_retest) == 0
 
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.filter(
+        wcag_audit=twelve_week_wcag_audit,
+    ).first()
     wcag_page_retest.page_missing_date = TODAY
     wcag_page_retest.save()
 
-    assert len(wcag_audit.wcag_page_retests_missing_at_retest) == 1
-    assert wcag_audit.wcag_page_retests_missing_at_retest[0] == wcag_page_retest
+    assert len(twelve_week_wcag_audit.wcag_page_retests_missing_at_retest) == 1
+    assert (
+        twelve_week_wcag_audit.wcag_page_retests_missing_at_retest[0]
+        == wcag_page_retest
+    )
 
 
 @pytest.mark.django_db
 def test_audit_missing_at_retest_check_results():
     """Test missing at retest check results."""
-    wcag_audit_initial: WcagAudit = create_wcag_audit_and_pages()
-    wcag_audit_retest: WcagAudit = WcagAudit.objects.create(
-        simplified_case=wcag_audit_initial.simplified_case,
-        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-    )
-    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit_initial,
-        page_type=WcagPageInitial.Type.HOME,
-        url="https://example.com",
-    )
-    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
-        wcag_audit=wcag_audit_retest,
-        wcag_page_initial=wcag_page_initial,
-        url=wcag_page_initial.url,
-        page_missing_date=TODAY,
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit
     )
 
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
-    )
-    WcagCheckResultInitial.objects.create(
-        wcag_audit=wcag_audit_initial,
-        wcag_page_initial=wcag_page_initial,
-        check_result_state=WcagCheckResultInitial.Result.ERROR,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
-    )
     wcag_check_result_retest: WcagCheckResultRetest = (
-        WcagCheckResultRetest.objects.create(
-            wcag_audit=wcag_audit_retest,
-            wcag_page_retest=wcag_page_retest,
-            retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED,
-            type=wcag_definition.type,
-            wcag_definition=wcag_definition,
+        WcagCheckResultRetest.objects.filter(
+            wcag_audit=twelve_week_wcag_audit,
         )
-    )
+    ).first()
+    wcag_page_retest: WcagPageRetest = wcag_check_result_retest.wcag_page_retest
 
-    assert len(wcag_audit_initial.missing_at_retest_check_results) == 0
+    assert len(twelve_week_wcag_audit.missing_at_retest_check_results) == 0
 
     wcag_page_retest.page_missing_date = TODAY
     wcag_page_retest.save()
 
-    assert len(wcag_audit_retest.missing_at_retest_check_results) == 1
-    assert (
-        wcag_audit_retest.missing_at_retest_check_results[0] == wcag_check_result_retest
-    )
+    assert len(twelve_week_wcag_audit.missing_at_retest_check_results) == 2
 
 
 @pytest.mark.django_db
 def test_wcag_page_initial_string():
-    """
-    Test WcagPageInitial string is name if present otherwise type
-    """
-    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
     wcag_page_initial: WcagPageInitial = wcag_audit.every_wcag_page_initials[0]
 
     assert str(wcag_page_initial) == "Additional"
@@ -472,131 +341,157 @@ def test_wcag_page_initial_string():
 
 @pytest.mark.django_db
 def test_wcag_page_initial_anchor():
-    """
-    Test Page anchor string
-    """
-    wcag_audit: WcagAudit = create_wcag_audit_and_pages()
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
     wcag_page_initial: WcagPageInitial = wcag_audit.every_wcag_page_initials[0]
 
     assert wcag_page_initial.anchor == f"test-page-{wcag_page_initial.id}"
 
 
 @pytest.mark.django_db
-def test_audit_failed_check_results_returns_only_failed_checks():
+def test_wcag_audit_wcag_failed_check_result_initials_returns_only_failed_checks():
     """
-    Test failed_check_results attribute of audit returns only check results where failed is "yes".
+    Test wcag_failed_check_result_initials attribute of WcagAudit returns only check
+    results where failed is "yes".
     """
-    audit: Audit = create_wcag_audit_and_check_results()
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
 
-    assert len(audit.failed_check_results) == 3
-    assert (
-        len(
-            [
-                check
-                for check in audit.failed_check_results
-                if check.check_result_state == CheckResult.Result.ERROR
-            ]
-        )
-        == 3
+    assert len(wcag_audit.wcag_failed_check_result_initials) == 0
+
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        wcag_audit.wcagcheckresultinitial_set.all().first()
     )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+
+    assert len(wcag_audit.wcag_failed_check_result_initials) == 1
 
 
 @pytest.mark.django_db
-def test_audit_failed_check_results_for_deleted_page_not_returned():
+def test_audit_wcag_failed_check_result_initials_for_deleted_page_not_returned():
     """
-    Test failed_check_results attribute of audit returns only check results where failed is "yes"
-    and associated page has not been deleted.
+    Test wcag_failed_check_result_initials attribute of audit returns only check
+    results where failed is "yes" and associated page has not been deleted.
     """
-    audit: Audit = create_wcag_audit_and_check_results()
-
-    assert len(audit.failed_check_results) == 3
-
-    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.PDF)
-    page.is_deleted = True
-    page.save()
-
-    assert len(audit.failed_check_results) == 2
-
-
-@pytest.mark.django_db
-def test_audit_failed_check_results_for_missing_page_not_returned():
-    """
-    Test failed_check_results attribute of audit returns only check results
-    where retest page missing is not set.
-    """
-    audit: Audit = create_wcag_audit_and_check_results()
-
-    assert len(audit.failed_check_results) == 3
-
-    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.PDF)
-    page.retest_page_missing_date = date.today()
-    page.save()
-
-    assert len(audit.failed_check_results) == 2
-
-
-@pytest.mark.django_db
-def test_audit_failed_check_results_for_is_contact_page_page_not_returned():
-    """
-    Test failed_check_results attribute of audit returns only check results where failed is "yes"
-    and associated page has not got is_contact_page (used for form pages) is not set.
-    """
-    wcag_audit: WcagAudit = create_wcag_audit_and_check_results()
-
-    assert len(wcag_audit.failed_check_results) == 3
-
-    wcag_page_initial: WcagPageInitial = Page.objects.get(
-        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.PDF
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        wcag_audit.wcagcheckresultinitial_set.all().first()
     )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+
+    assert len(wcag_audit.wcag_failed_check_result_initials) == 1
+
+    wcag_page_initial: WcagPageInitial = wcag_check_result_initial.wcag_page_initial
+    wcag_page_initial.is_deleted = True
+    wcag_page_initial.save()
+
+    assert len(wcag_audit.wcag_failed_check_result_initials) == 0
+
+
+@pytest.mark.django_db
+def test_wcag_audit_wcag_failed_check_result_retests_for_missing_page_not_returned():
+    """
+    Test wcag_failed_check_result_retests attribute of audit returns only check
+    results where retest page missing is not set.
+    """
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        wcag_audit.wcagcheckresultinitial_set.all().first()
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+
+    assert len(wcag_audit.wcag_failed_check_result_initials) == 1
+
+    wcag_page_initial: WcagPageInitial = wcag_check_result_initial.wcag_page_initial
+    wcag_page_initial.page_missing_date = TODAY
+    wcag_page_initial.save()
+
+    assert len(wcag_audit.wcag_failed_check_result_retests) == 0
+
+
+@pytest.mark.django_db
+def test_wcag_audit_failed_check_results_for_is_contact_page_page_not_returned():
+    """
+    Test failed_check_results attribute of audit returns only check results where
+    failed is "yes" and associated page has not got is_contact_page (used for form
+    pages) is not set.
+    """
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        wcag_audit.wcagcheckresultinitial_set.all().first()
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+
+    assert len(wcag_audit.wcag_failed_check_result_initials) == 1
+
+    wcag_page_initial: WcagPageInitial = wcag_check_result_initial.wcag_page_initial
     wcag_page_initial.is_contact_page = Boolean.YES
     wcag_page_initial.save()
 
-    assert len(wcag_audit.failed_check_results) == 2
+    assert len(wcag_audit.wcag_failed_check_result_initials) == 0
 
 
 @pytest.mark.django_db
-def test_audit_accessibility_statement_page_returns_page():
-    """
-    Accessibility Statement page returned
-    """
-    wcag_audit: WcagAudit = create_wcag_audit_and_check_results()
-    wcag_page_initial: WcagPageInitial = Page.objects.get(
+def test_wcag_audit_accessibility_statement_wcag_page_initial_returns_page():
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
         wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.STATEMENT
     )
 
-    assert wcag_audit.accessibility_statement_page == wcag_page_initial
+    assert wcag_audit.accessibility_statement_wcag_page_initial == wcag_page_initial
 
 
 @pytest.mark.django_db
-def test_page_all_check_results_returns_check_results():
+def test_wcag_page_initial_all_wcag_check_result_initials_returns_check_results():
     """
-    Test all_check_results attribute of page returns expected check results.
+    Test all_wcag_check_result_initials attribute of WcagPageInitial returns
+    expected check results.
     """
-    audit: Audit = create_wcag_audit_and_check_results()
-    home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    home_page: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit, page_type=Page.Type.HOME
+    )
 
-    assert len(home_page.all_check_results) == 2
-    assert home_page.all_check_results[0].type == WcagDefinition.Type.AXE
-    assert home_page.all_check_results[1].type == WcagDefinition.Type.MANUAL
+    assert len(home_page.all_wcag_check_result_initials) == 2
+    assert home_page.all_wcag_check_result_initials[0].type == WcagDefinition.Type.AXE
+    assert (
+        home_page.all_wcag_check_result_initials[1].type == WcagDefinition.Type.MANUAL
+    )
 
 
 @pytest.mark.django_db
-def test_page_all_check_results_returns_pdf_check_results_last():
+def test_wcag_audit_wcag_failed_check_result_initials_returns_statement_check_results_last():
     """
-    Test all_check_results attribute of page returns PDF-page check results last.
+    Test wcag_failed_check_result_initials attribute of page returns Statement page
+    check results last.
     """
-    audit: Audit = create_wcag_audit_and_check_results()
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    for wcag_check_result_initial in WcagCheckResultInitial.objects.filter(
+        wcag_audit=wcag_audit
+    ):
+        wcag_check_result_initial.check_result_state = (
+            WcagCheckResultInitial.Result.ERROR
+        )
+        wcag_check_result_initial.save()
 
-    assert len(audit.failed_check_results) == 3
-    assert audit.failed_check_results.last().page.page_type == Page.Type.PDF
+    assert len(wcag_audit.wcag_failed_check_result_initials) > 3
+    assert (
+        wcag_audit.wcag_failed_check_result_initials.last().wcag_page_initial.page_type
+        == Page.Type.STATEMENT
+    )
 
 
 @pytest.mark.django_db
-def test_page_page_title():
-    """Test Page.page_title returns expected title."""
-    audit: Audit = create_wcag_audit_and_check_results()
-    home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
-    pdf_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.PDF)
+def test_wcag_page_initial_page_title():
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    home_page: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit, page_type=Page.Type.HOME
+    )
+    pdf_page: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit, page_type=Page.Type.PDF
+    )
 
     assert home_page.page_title == "Home page"
     assert pdf_page.page_title == "PDF"
@@ -611,19 +506,27 @@ def test_page_page_title():
 
 
 @pytest.mark.django_db
-def test_check_result_returns_id_and_fields_for_retest():
+def test_check_result_retest_form_initial_returns_id_and_fields_for_retest():
     """
-    Test check_result attribute of form_initial returns id and fields for retest form.
+    Test check_result attribute of retest_form_initial returns id and fields for
+    retest form.
     """
-    audit: Audit = create_wcag_audit_and_check_results()
-    home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
-    check_result: CheckResult = home_page.all_check_results[0]
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit
+    )
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_audit=twelve_week_wcag_audit, wcag_page_initial__page_type=Page.Type.HOME
+    )
+    wcag_check_result_retest: WcagCheckResultRetest = (
+        wcag_page_retest.all_wcag_check_result_retests[0]
+    )
 
-    assert check_result.retest_form_initial == {
-        "id": check_result.id,
+    assert wcag_check_result_retest.retest_form_initial == {
+        "id": wcag_check_result_retest.id,
         "retest_state": CheckResult.RetestResult.NOT_RETESTED,
-        "retest_notes": "",
-        "check_result": check_result,
+        "notes": "",
+        "check_result": wcag_check_result_retest,
     }
 
 
@@ -698,18 +601,17 @@ def test_accessibility_statement_found():
     Test that an accessibility statement was found.
     """
     wcag_audit: WcagAudit = create_wcag_audit_and_pages()
-    statement_page: StatementPage = StatementPage.objects.create(
-        wcag_audit=wcag_audit,
-        audit=wcag_audit.simplified_case.audit,
+    audit: Audit = Audit.objects.create(simplified_case=wcag_audit.simplified_case)
+    StatementPage.objects.create(
+        audit=audit,
+        simplified_case=wcag_audit.simplified_case,
+        audit_overview=wcag_audit.simplified_case.audit_overview,
         url=STATEMENT_LINK,
     )
 
-    assert wcag_audit.accessibility_statement_found is True
-
-    statement_page.added_stage = StatementPage.AddedStage.TWELVE_WEEK
-    statement_page.save()
-
-    assert wcag_audit.accessibility_statement_found is True
+    assert (
+        wcag_audit.simplified_case.audit_overview.accessibility_statement_found is True
+    )
 
 
 @pytest.mark.django_db
@@ -765,16 +667,18 @@ def test_audit_fixed_check_results():
     """
     Test that fixed_check_results returns the expected values.
     """
-    audit: Audit = create_wcag_audit_and_check_results()
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
 
-    assert audit.fixed_check_results.count() == 0
+    assert wcag_audit.wcag_fixed_check_result_retests.count() == 0
 
-    home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
+    home_page: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit, page_type=Page.Type.HOME
+    )
     check_result: CheckResult = home_page.all_check_results[0]
     check_result.retest_state = CheckResult.RetestResult.FIXED
     check_result.save()
 
-    updated_audit: Audit = Audit.objects.get(id=audit.id)
+    updated_audit: Audit = Audit.objects.get(id=wcag_audit.id)
 
     assert updated_audit.fixed_check_results.count() == 1
     assert updated_audit.fixed_check_results[0].id == check_result.id
@@ -785,7 +689,7 @@ def test_audit_unfixed_check_results():
     """
     Test that unfixed_check_results returns the expected values.
     """
-    audit: Audit = create_wcag_audit_and_check_results()
+    audit: Audit = create_initial_wcag_audit()
 
     assert audit.unfixed_check_results.count() == 3
 
@@ -1322,7 +1226,7 @@ def test_retest_str():
 @pytest.mark.django_db
 def test_fixed_checks_count_at_12_week():
     """Test fixed checks count at 12-week retest"""
-    audit: Audit = create_wcag_audit_and_check_results()
+    audit: Audit = create_initial_wcag_audit()
     retest: Retest = Retest.objects.create(simplified_case=audit.simplified_case)
 
     assert retest.fixed_checks_count == 0
@@ -1341,8 +1245,8 @@ def test_fixed_checks_count_at_12_week():
 
 @pytest.mark.django_db
 def test_fixed_checks_count_in_retests():
-    """Test fixed checks count at equality body restart"""
-    audit: Audit = create_wcag_audit_and_check_results()
+    """Test fixed checks count at equality body retest"""
+    audit: Audit = create_initial_wcag_audit()
     page: Page = audit.page_audit.all().first()
     retest: Retest = Retest.objects.create(simplified_case=audit.simplified_case)
     retest_page: RetestPage = RetestPage.objects.create(
@@ -1372,7 +1276,7 @@ def test_fixed_checks_count_in_retests():
 @pytest.mark.django_db
 def test_retest_is_incomplete():
     """Test retest compliance status is still default"""
-    audit: Audit = create_wcag_audit_and_check_results()
+    audit: Audit = create_initial_wcag_audit()
     retest: Retest = Retest.objects.create(simplified_case=audit.simplified_case)
 
     assert retest.is_incomplete is True
@@ -1730,34 +1634,6 @@ def test_all_retest_pages():
 
 
 @pytest.mark.django_db
-def test_statement_initially_found_using_overview_statement_check_results():
-    """Tests an all the overview statement check results are 'Yes'"""
-    audit: Audit = create_statement_audit_and_statement_check_results()
-
-    assert audit.statement_initially_found is False
-
-    for statement_check_result in audit.overview_statement_check_results:
-        statement_check_result.check_result_state = StatementCheckResult.Result.YES
-        statement_check_result.save()
-
-    assert audit.statement_initially_found is True
-
-
-@pytest.mark.django_db
-def test_statement_found_at_12_week_retest_using_overview_statement_check_results():
-    """Tests an all the overview statement check results retest states are 'Yes'"""
-    audit: Audit = create_statement_audit_and_statement_check_results()
-
-    assert audit.statement_found_at_12_week_retest is False
-
-    for statement_check_result in audit.overview_statement_check_results:
-        statement_check_result.retest_state = StatementCheckResult.Result.YES
-        statement_check_result.save()
-
-    assert audit.statement_found_at_12_week_retest is True
-
-
-@pytest.mark.django_db
 def test_retest_statement_check_results():
     """Test Retest.statement_check_results"""
     retest: Retest = create_retest_and_statement_check_results()
@@ -2104,21 +1980,6 @@ def test_retest_check_result_matching_wcag_retest_check_results():
     )
 
 
-def test_statement_check_result_display_value():
-    """Test StatementCheckResult.display_value"""
-    statement_check_result: StatementCheckResult = StatementCheckResult()
-
-    assert statement_check_result.display_value == "Not tested"
-
-    statement_check_result.check_result_state = StatementCheckResult.Result.NO
-    statement_check_result.public_comment = REPORT_COMMENT
-
-    assert (
-        statement_check_result.display_value
-        == f"No<br><br>Auditor's comment: {REPORT_COMMENT}"
-    )
-
-
 @pytest.mark.django_db
 def test_check_result_issue_identifier():
     """Test check result gets unique identifier"""
@@ -2126,135 +1987,121 @@ def test_check_result_issue_identifier():
         type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
     simplified_case_1: SimplifiedCase = SimplifiedCase.objects.create()
-    audit_1: Audit = Audit.objects.create(simplified_case=simplified_case_1)
-    page_1: Page = Page.objects.create(audit=audit_1, page_type=Page.Type.HOME)
-    check_result_1a: CheckResult = CheckResult.objects.create(
-        audit=audit_1,
-        page=page_1,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
+    wcag_audit_1: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case_1
+    )
+    wcag_page_initial_1: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit_1, page_type=Page.Type.HOME
+    )
+    wcag_check_result_initial_1a: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit_1,
+            wcag_page_initial=wcag_page_initial_1,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+        )
     )
 
-    assert check_result_1a.issue_identifier == "1-A-1"
+    assert wcag_check_result_initial_1a.issue_identifier == "1-A-1"
 
-    check_result_1b: CheckResult = CheckResult.objects.create(
-        audit=audit_1,
-        page=page_1,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
+    wcag_check_result_initial_1b: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit_1,
+            wcag_page_initial=wcag_page_initial_1,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+        )
     )
 
-    assert check_result_1b.issue_identifier == "1-A-2"
+    assert wcag_check_result_initial_1b.issue_identifier == "1-A-2"
 
     simplified_case_2: SimplifiedCase = SimplifiedCase.objects.create()
-    audit_2: Audit = Audit.objects.create(simplified_case=simplified_case_2)
-    page_2: Page = Page.objects.create(audit=audit_2, page_type=Page.Type.HOME)
-    check_result_2a: CheckResult = CheckResult.objects.create(
-        audit=audit_2,
-        page=page_2,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
+    wcag_audit_2: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case_2
+    )
+    wcag_page_initial_2: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit_2, page_type=WcagPageInitial.Type.HOME
+    )
+    wcag_check_result_initial_2a: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit_2,
+            wcag_page_initial=wcag_page_initial_2,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+        )
     )
 
-    assert check_result_2a.issue_identifier == "2-A-1"
+    assert wcag_check_result_initial_2a.issue_identifier == "2-A-1"
 
 
 @pytest.mark.django_db
 def test_issue_identifier():
     """
-    Test issue_identifier property is populated on CheckResult, StatementCheckResult,
+    Test issue_identifier property is populated on WcagCheckResultInitial,
+    StatementCheckResultInitial,
     RetestCheckResult and RetestStatementCheckResult creation.
     """
 
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
-    page: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit, page_type=Page.Type.HOME
+    )
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit,
+            wcag_page_initial=wcag_page_initial,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+        )
     )
 
-    first_check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
+    assert wcag_check_result_initial.issue_identifier == "1-A-1"
+
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
     )
-
-    assert first_check_result.issue_identifier == "1-A-1"
-
-    second_check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
-    )
-
-    assert second_check_result.issue_identifier == "1-A-2"
-
     statement_check: StatementCheck = StatementCheck.objects.all().first()
-    first_statement_check_result: StatementCheckResult = (
-        StatementCheckResult.objects.create(
-            audit=audit,
+    statement_check_result_initial: StatementCheckResultInitial = (
+        StatementCheckResultInitial.objects.create(
+            statement_audit=statement_audit,
             type=statement_check.type,
             statement_check=statement_check,
         )
     )
 
-    assert first_statement_check_result.issue_identifier == "1-S-1"
+    assert statement_check_result_initial.issue_identifier == "1-S-1"
 
-    second_statement_check_result: StatementCheckResult = (
-        StatementCheckResult.objects.create(
-            audit=audit,
+    statement_audit_retest: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+    )
+    statement_check_result_retest: StatementCheckResultRetest = (
+        StatementCheckResultRetest.objects.create(
+            statement_audit=statement_audit_retest,
+            statement_check_result_initial=statement_check_result_initial,
+            type=statement_check.type,
+            statement_check=statement_check,
+        )
+    )
+
+    assert statement_check_result_retest.issue_identifier == "1-S-1"
+
+    custom_statement_check_result_initial: StatementCheck = (
+        StatementCheckResultInitial.objects.create(
+            statement_audit=statement_audit,
             public_comment="Custom statement issue",
         )
     )
 
-    assert second_statement_check_result.issue_identifier == "1-SC-2"
-
-    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
-    create_checkresults_for_retest(retest=retest)
-
-    first_retest_check_result: RetestCheckResult = (
-        retest.retestcheckresult_set.all().first()
-    )
-    second_retest_check_result: RetestCheckResult = (
-        retest.retestcheckresult_set.all().last()
-    )
-
-    assert first_retest_check_result.issue_identifier == "1-A-1"
-    assert second_retest_check_result.issue_identifier == "1-A-2"
-
-    assert retest.reteststatementcheckresult_set.count() > 2
-
-    first_retest_statement_check_result: RetestStatementCheckResult = (
-        retest.reteststatementcheckresult_set.all().first()
-    )
-    second_retest_statement_check_result: RetestStatementCheckResult = (
-        retest.reteststatementcheckresult_set.all().last()
-    )
-
-    assert first_retest_statement_check_result.issue_identifier == "1-S-1"
-    assert second_retest_statement_check_result.issue_identifier == "1-S-42"
-
-    new_custom_retest_statement_check_result: RetestStatementCheckResult = (
-        RetestStatementCheckResult.objects.create(
-            retest=retest,
-        )
-    )
-
-    assert new_custom_retest_statement_check_result.issue_identifier == "1-SC-43"
+    assert custom_statement_check_result_initial.issue_identifier == "1-SC-1"
 
 
 @pytest.mark.django_db
@@ -2265,8 +2112,74 @@ def test_build_issue_identifier():
         type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit, page_type=Page.Type.HOME
+    )
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit,
+            wcag_page_initial=wcag_page_initial,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+        )
+    )
+
+    assert (
+        build_issue_identifier(
+            simplified_case=simplified_case,
+            issue=wcag_check_result_initial,
+            id_within_case=1,
+        )
+        == "1-A-1"
+    )
+
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+    statement_check: StatementCheck = StatementCheck.objects.all().first()
+    statement_check_result_initial: StatementCheckResultInitial = (
+        StatementCheckResultInitial.objects.create(
+            statement_audit=statement_audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+        )
+    )
+
+    assert (
+        build_issue_identifier(
+            simplified_case=simplified_case,
+            issue=statement_check_result_initial,
+            id_within_case=1,
+        )
+        == "1-S-1"
+    )
+
+    custom_statement_check_result_initial: StatementCheck = (
+        StatementCheckResultInitial.objects.create(
+            statement_audit=statement_audit,
+            public_comment="Custom statement issue",
+        )
+    )
+
+    assert (
+        build_issue_identifier(
+            simplified_case=simplified_case,
+            issue=custom_statement_check_result_initial,
+            custom_issue=True,
+            id_within_case=2,
+        )
+        == "1-SC-2"
+    )
+
+    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
     audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
+    retest_page: RetestPage = RetestPage.objects.create(
+        retest=retest,
+        page=page,
+    )
     check_result: CheckResult = CheckResult.objects.create(
         audit=audit,
         page=page,
@@ -2276,49 +2189,6 @@ def test_build_issue_identifier():
         wcag_definition=wcag_definition,
     )
 
-    assert (
-        build_issue_identifier(
-            simplified_case=simplified_case, issue=check_result, id_within_case=1
-        )
-        == "1-A-1"
-    )
-
-    statement_check: StatementCheck = StatementCheck.objects.all().first()
-    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
-        audit=audit,
-        type=statement_check.type,
-        statement_check=statement_check,
-    )
-
-    assert (
-        build_issue_identifier(
-            simplified_case=simplified_case,
-            issue=statement_check_result,
-            id_within_case=1,
-        )
-        == "1-S-1"
-    )
-
-    custom_statement_check_result: StatementCheck = StatementCheckResult.objects.create(
-        audit=audit,
-        public_comment="Custom statement issue",
-    )
-
-    assert (
-        build_issue_identifier(
-            simplified_case=simplified_case,
-            issue=custom_statement_check_result,
-            custom_issue=True,
-            id_within_case=2,
-        )
-        == "1-SC-2"
-    )
-
-    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
-    retest_page: RetestPage = RetestPage.objects.create(
-        retest=retest,
-        page=page,
-    )
     retest_check_result: RetestCheckResult = RetestCheckResult.objects.create(
         retest=retest,
         id_within_case=check_result.id_within_case,
@@ -2369,21 +2239,24 @@ def test_build_issue_identifier():
 
 
 @pytest.mark.django_db
-def test_audit_new_12_week_custom_statement_check_results():
+def test_statement_audit_new_12_week_custom_statement_check_results():
     """Test statement custom check result found"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    new_12_week_custom_check_result: StatementCheckResult = (
-        StatementCheckResult.objects.create(
-            audit=audit,
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+    )
+    new_12_week_custom_check_result: StatementCheckResultRetest = (
+        StatementCheckResultRetest.objects.create(
+            statement_audit=statement_audit,
             type=StatementCheck.Type.TWELVE_WEEK,
             public_comment="12-week custom statement issue",
         )
     )
 
-    assert audit.new_12_week_custom_statement_check_results.count() == 1
+    assert statement_audit.new_12_week_custom_statement_check_results.count() == 1
     assert (
-        audit.new_12_week_custom_statement_check_results.first()
+        statement_audit.new_12_week_custom_statement_check_results.first()
         == new_12_week_custom_check_result
     )
 

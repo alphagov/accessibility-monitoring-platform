@@ -174,7 +174,7 @@ class WcagPageRetestCheckResultsUpdateView(NextPlatformPageMixin, UpdateView):
                     self.request.POST,
                     initial=[
                         check_result.retest_form_initial
-                        for check_result in wcag_page_retest.all_check_results
+                        for check_result in wcag_page_retest.all_wcag_check_result_retests
                     ],
                 )
             )
@@ -183,7 +183,7 @@ class WcagPageRetestCheckResultsUpdateView(NextPlatformPageMixin, UpdateView):
                 WcagCheckResultRetestFormset(
                     initial=[
                         check_result.retest_form_initial
-                        for check_result in wcag_page_retest.all_check_results
+                        for check_result in wcag_page_retest.all_wcag_check_result_retests
                     ]
                 )
             )
@@ -549,6 +549,9 @@ class AuditRetestNew12WeekCustomIssueCreateView(CreateView):
         )
         statement_check_result_retest.statement_audit = statement_audit
         statement_check_result_retest.type = StatementCheck.Type.TWELVE_WEEK
+        statement_check_result_retest.check_result_state = (
+            StatementCheckResultRetest.Result.NO
+        )
         return super().form_valid(form)
 
     def get_success_url(self) -> str:

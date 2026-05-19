@@ -373,11 +373,10 @@ def reverse_code(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         (
             "audits",
-            "0025_remove_checkresult_id_within_case_and_more",
+            "0025_statementpage_simplified_case_auditoverview_and_more",
         ),
     ]
 

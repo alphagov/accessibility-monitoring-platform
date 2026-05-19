@@ -37,7 +37,9 @@ def build_issue_identifier(
     """Format and return issue identifier"""
     issue_type: str = (
         ISSUE_IDENTIFIER_WCAG
-        if isinstance(issue, (CheckResult, RetestCheckResult))
+        if isinstance(
+            issue, (WcagCheckResultInitial, WcagCheckResultRetest, RetestCheckResult)
+        )
         else ISSUE_IDENTIFIER_STATEMENT
     )
     if custom_issue:
@@ -651,6 +653,10 @@ class AuditOverview(models.Model):
                 return statement_page.url
 
     @property
+    def accessibility_statement_found(self) -> bool:
+        return self.statement_pages.count() > 0 and self.latest_statement_link != ""
+
+    @property
     def statement_audits(self) -> QuerySet[StatementAudit]:
         return self.simplified_case.statementaudit_set.filter(is_deleted=False)
 
@@ -809,6 +815,12 @@ class WcagAudit(AuditRound):
         )
 
     @property
+    def accessibility_statement_wcag_page_initial(self) -> WcagPageInitial | None:
+        return self.every_wcag_page_initials.filter(
+            page_type=Page.Type.STATEMENT
+        ).first()
+
+    @property
     def testable_wcag_page_initials(self) -> QuerySet[WcagPageInitial]:
         return self.every_wcag_page_initials.exclude(not_found=Boolean.YES).exclude(
             url=""
@@ -866,6 +878,42 @@ class WcagAudit(AuditRound):
                 "wcag_definition__id",
             )
             .select_related("wcag_page_initial", "wcag_definition")
+            .all()
+        )
+
+    @property
+    def wcag_failed_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
+        return (
+            self.wcagcheckresultretest_set.filter(
+                is_deleted=False,
+                wcag_check_result_initial__check_result_state=WcagCheckResultInitial.Result.ERROR,
+                wcag_check_result_initial__wcag_page_initial__is_deleted=False,
+                wcag_check_result_initial__wcag_page_initial__not_found=Boolean.NO,
+                wcag_check_result_initial__wcag_page_initial__is_contact_page=Boolean.NO,
+                wcag_page_retest__page_missing_date=None,
+            )
+            .annotate(
+                position_pdf_and_statement_page_last=DjangoCase(
+                    When(
+                        wcag_page_retest__wcag_page_initial__page_type=WcagPageInitial.Type.PDF,
+                        then=1,
+                    ),
+                    When(
+                        wcag_page_retest__wcag_page_initial__page_type=WcagPageInitial.Type.STATEMENT,
+                        then=2,
+                    ),
+                    default=0,
+                )
+            )
+            .order_by(
+                "position_pdf_and_statement_page_last",
+                "wcag_page_retest__id",
+                "wcag_check_result_initial__wcag_definition__id",
+            )
+            .select_related(
+                "wcag_page_retest__wcag_page_initial",
+                "wcag_check_result_initial__wcag_definition",
+            )
             .all()
         )
 
@@ -1291,23 +1339,25 @@ class WcagPageInitial(models.Model):
         )
 
     @property
-    def failed_wcag_check_result_initials(self):
+    def failed_wcag_check_result_initials(self) -> QuerySet[WcagCheckResultInitial]:
         return self.all_wcag_check_result_initials.filter(
             check_result_state=WcagCheckResultInitial.Result.ERROR
         )
 
     @property
-    def count_failed_wcag_check_result_initials(self):
+    def count_failed_wcag_check_result_initials(self) -> int:
         return self.failed_wcag_check_result_initials.count()
 
     @property
-    def unfixed_wcag_check_result_initials(self):
+    def unfixed_wcag_check_result_initials(self) -> QuerySet[WcagCheckResultInitial]:
         return self.failed_wcag_check_result_initials.exclude(
             retest_state=WcagCheckResultInitial.RetestResult.FIXED
         )
 
     @property
-    def wcag_check_result_initials_by_wcag_definition(self):
+    def wcag_check_result_initials_by_wcag_definition(
+        self,
+    ) -> dict[WcagDefinition, WcagCheckResultInitial]:
         wcag_check_result_initials: QuerySet[WcagCheckResultInitial] = (
             self.all_wcag_check_result_initials
         )
@@ -1317,7 +1367,7 @@ class WcagPageInitial(models.Model):
         }
 
     @property
-    def anchor(self):
+    def anchor(self) -> str:
         return f"test-page-{self.id}"
 
 
@@ -1343,7 +1393,7 @@ class WcagPageRetest(models.Model):
         return self.wcag_page_initial.page_title
 
     @property
-    def all_check_results(self) -> QuerySet[WcagCheckResultRetest]:
+    def all_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
         return (
             self.wcagcheckresultretest_set.filter(
                 is_deleted=False, wcag_audit=self.wcag_audit
@@ -1355,13 +1405,13 @@ class WcagPageRetest(models.Model):
 
     @property
     def failed_check_results(self) -> QuerySet[WcagCheckResultRetest]:
-        return self.all_check_results.filter(
+        return self.all_wcag_check_result_retests.filter(
             retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED
         )
 
     @property
     def check_results_by_wcag_definition(self):
-        check_results: QuerySet[CheckResult] = self.all_check_results
+        check_results: QuerySet[CheckResult] = self.all_wcag_check_result_retests
         return {
             check_result.wcag_definition: check_result for check_result in check_results
         }
@@ -1421,6 +1471,7 @@ class CheckResult(models.Model):
     page = models.ForeignKey(
         Page, on_delete=models.PROTECT, related_name="checkresult_page"
     )
+    id_within_case = models.IntegerField(default=0, blank=True)
     issue_identifier = models.CharField(max_length=20, default="")
     is_deleted = models.BooleanField(default=False)
     type = models.CharField(
@@ -1556,6 +1607,9 @@ class WcagCheckResultRetest(models.Model):
     )
     notes = models.TextField(default="", blank=True)
     is_deleted = models.BooleanField(default=False)
+
+    def __str__(self) -> str:
+        return self.wcag_check_result_initial.issue_identifier
 
     @property
     def retest_form_initial(self) -> dict[str, int | str | WcagCheckResultRetest]:
@@ -1742,7 +1796,7 @@ class StatementCheckResult(models.Model):
     def display_value(self):
         value_str: str = self.get_check_result_state_display()
         if self.public_comment:
-            value_str += f"<br><br>Auditor's comment: {self.public_comment}"
+            value_str += f"<br><br>Auditor's comment: {self.report_comment}"
         return mark_safe(value_str)
 
     @property
@@ -2189,6 +2243,7 @@ class RetestCheckResult(models.Model):
     retest = models.ForeignKey(Retest, on_delete=models.PROTECT)
     issue_identifier = models.CharField(max_length=20, default="")
     retest_page = models.ForeignKey(RetestPage, on_delete=models.PROTECT)
+    id_within_case = models.IntegerField(default=0, blank=True)
     check_result = models.ForeignKey(CheckResult, on_delete=models.PROTECT)
     is_deleted = models.BooleanField(default=False)
     retest_state = models.CharField(

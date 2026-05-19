@@ -799,17 +799,23 @@ class SimplifiedCase(BaseCase):
 
     @property
     def csv_export_statement_initially_found(self) -> str:
-        if self.audit is None:
+        if self.audit_overview is None:
             return "unknown"
-        if self.audit.statement_initially_found:
+        if (
+            self.audit_overview.statement_audit_initial is not None
+            and self.audit_overview.statement_audit_initial.all_overview_statement_checks_have_passed
+        ):
             return "Yes"
         return "No"
 
     @property
     def csv_export_statement_found_at_12_week_retest(self) -> str:
-        if self.audit is None:
+        if self.audit_overview is None:
             return "unknown"
-        if self.audit.statement_found_at_12_week_retest:
+        if (
+            self.audit_overview.first_statement_audit_12_week_retest is not None
+            and self.audit_overview.first_statement_audit_12_week_retest.all_overview_statement_checks_have_passed
+        ):
             return "Yes"
         return "No"
 
