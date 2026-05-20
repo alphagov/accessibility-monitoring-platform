@@ -332,17 +332,19 @@ def get_email_template_context(simplified_case: SimplifiedCase) -> dict[str, Any
     context: dict[str, Any] = {}
     context["12_weeks_from_today"] = date.today() + timedelta(days=TWELVE_WEEKS_IN_DAYS)
     context["case"] = simplified_case
+    context["wcag_audit"] = simplified_case.audit_overview.wcag_audit_initial
+    context["statement_audit"] = simplified_case.audit_overview.statement_audit_initial
     context["retest"] = simplified_case.retests.first()
     if simplified_case.audit_overview is not None:
         if simplified_case.audit_overview.wcag_audit_initial is not None:
             context["issues_tables"] = build_issues_tables(
                 pages=simplified_case.audit_overview.wcag_audit_initial.testable_wcag_page_initials,
-                check_results_attr="unfixed_check_results",
+                check_results_attr="unfixed_wcag_check_result_initials",
             )
         if simplified_case.audit_overview.first_wcag_audit_12_week_retest is not None:
             context["retest_issues_tables"] = build_issues_tables(
                 pages=simplified_case.audit_overview.first_wcag_audit_12_week_retest.retestable_wcag_page_retests,
                 use_retest_notes=True,
-                check_results_attr="unfixed_check_results",
+                check_results_attr="failed_check_results",
             )
     return context

@@ -1124,12 +1124,6 @@ class StatementAudit(AuditRound):
         )
 
     @property
-    def custom_outstanding_statement_check_results(self):
-        return self.outstanding_statement_check_results.filter(
-            type=StatementCheck.Type.CUSTOM
-        )
-
-    @property
     def overview_statement_checks_complete(self) -> bool:
         return (
             self.overview_statement_check_results.filter(
@@ -1142,12 +1136,14 @@ class StatementAudit(AuditRound):
     def all_overview_statement_checks_have_passed(self) -> bool:
         """Check all overview statement checks have passed"""
         return (
-            self.simplified_case.audit_overview.all_overview_statement_checks_have_passed
+            self.overview_statement_check_results.exclude(
+                check_result_state=StatementCheckResult.Result.YES
+            ).count()
+            == 0
         )
 
     @property
     def statement_check_result_statement_found(self) -> bool:
-        # TODO: Replace this with all_overview_statement_checks_have_passed above?
         overview_statement_yes_count: CheckResult = (
             self.overview_statement_check_results.filter(
                 check_result_state=StatementCheckResult.Result.YES
@@ -1346,7 +1342,7 @@ class WcagPageInitial(models.Model):
     @property
     def unfixed_wcag_check_result_initials(self) -> QuerySet[WcagCheckResultInitial]:
         return self.failed_wcag_check_result_initials.exclude(
-            retest_state=WcagCheckResultInitial.RetestResult.FIXED
+            wcagcheckresultretest__retest_state=WcagCheckResultRetest.RetestResult.FIXED
         )
 
     @property
@@ -1879,6 +1875,11 @@ class StatementCheckResultInitial(models.Model):
                 custom_issue=self.statement_check is None,
                 id_within_case=id_within_case,
             )
+        if not self.id and self.type in [
+            StatementCheck.Type.CUSTOM,
+            StatementCheck.Type.TWELVE_WEEK,
+        ]:
+            self.check_result_state = StatementCheckResultInitial.Result.NO
         super().save(*args, **kwargs)
 
     @property
@@ -1975,6 +1976,11 @@ class StatementCheckResultRetest(models.Model):
                     custom_issue=self.statement_check is None,
                     id_within_case=id_within_case,
                 )
+        if not self.id and self.type in [
+            StatementCheck.Type.CUSTOM,
+            StatementCheck.Type.TWELVE_WEEK,
+        ]:
+            self.check_result_state = StatementCheckResultRetest.Result.NO
         super().save(*args, **kwargs)
 
     @property

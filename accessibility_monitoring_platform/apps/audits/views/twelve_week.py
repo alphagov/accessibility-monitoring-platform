@@ -549,9 +549,6 @@ class AuditRetestNew12WeekCustomIssueCreateView(CreateView):
         )
         statement_check_result_retest.statement_audit = statement_audit
         statement_check_result_retest.type = StatementCheck.Type.TWELVE_WEEK
-        statement_check_result_retest.check_result_state = (
-            StatementCheckResultRetest.Result.NO
-        )
         return super().form_valid(form)
 
     def get_success_url(self) -> str:

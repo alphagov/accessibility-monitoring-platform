@@ -970,42 +970,26 @@ def test_statement_audit_contains_specific_outstanding_statement_check_results(
 
 
 @pytest.mark.django_db
-def test_statement_audit_contains_custom_outstanding_statement_check_results():
+def test_statement_audit_outstanding_statement_check_results_includes_new_failures():
     """
-    Tests statement_audit contains specific statement check results.
+    Tests specific statement_audit outstanding_statement_check_results property
+    contains new custom errors found for the first time on 12-week retest.
     """
-    statement_audit: StatementAudit = create_initial_statement_audit()
-    failed_statement_check_results: StatementCheckResult = (
-        StatementCheckResult.objects.filter(
-            statement_audit=statement_audit, type=StatementCheck.Type.CUSTOM
+    initial_statement_audit: StatementAudit = create_initial_statement_audit()
+    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+        initial_statement_audit=initial_statement_audit
+    )
+    twelve_week_statement_check_result_retest: StatementCheckResultRetest = (
+        StatementCheckResultRetest.objects.create(
+            statement_audit=twelve_week_statement_audit,
+            type=StatementCheck.Type.TWELVE_WEEK,
+            public_comment="Custom issue found at 12-weeks",
         )
     )
 
-    assertQuerySetEqual(
-        statement_audit.custom_outstanding_statement_check_results,
-        failed_statement_check_results,
-    )
-
-
-@pytest.mark.django_db
-def test_statement_audit_outstanding_statement_check_results_includes_new_failures():
-    """
-    Tests specific statement_audit outstanding_statement_check_results property contains any
-    errors found for the first time on 12-week retest.
-    """
-    statement_audit: StatementAudit = create_initial_statement_audit()
-    untested_statement_check_result: StatementCheckResult = (
-        StatementCheckResult.objects.filter(
-            statement_audit=statement_audit,
-            check_result_state=StatementCheckResult.Result.NOT_TESTED,
-        ).first()
-    )
-    untested_statement_check_result.retest_state = StatementCheckResult.Result.NO
-    untested_statement_check_result.save()
-
     assert (
-        untested_statement_check_result
-        in statement_audit.outstanding_statement_check_results
+        twelve_week_statement_check_result_retest
+        in twelve_week_statement_audit.outstanding_statement_check_results
     )
 
 

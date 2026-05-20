@@ -124,6 +124,7 @@ def create_initial_statement_audit(
     StatementCheckResultInitial.objects.create(
         statement_audit=initial_statement_audit,
         public_comment="Custom statement issue",
+        check_result_state=StatementCheckResultInitial.Result.NO,
     )
     return initial_statement_audit
 

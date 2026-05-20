@@ -607,10 +607,6 @@ class CustomIssueCreateView(CreateView):
         )
         statement_check_result_initial.statement_audit = statement_audit
         statement_check_result_initial.audit = statement_audit.simplified_case.audit
-        if statement_check_result_initial.type == StatementCheck.Type.CUSTOM:
-            statement_check_result_initial.check_result_state = (
-                StatementCheckResultInitial.Result.NO
-            )
         return super().form_valid(form)
 
     def get_success_url(self) -> str:

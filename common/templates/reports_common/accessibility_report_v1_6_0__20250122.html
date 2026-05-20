@@ -171,7 +171,7 @@
     As part of the regulations you must publish an accessibility statement.
 </p>
 <p>
-{% if audit.accessibility_statement_found and audit.statement_check_result_statement_found %}
+{% if audit_overview.accessibility_statement_found and statement_audit.overview_statement_checks_complete %}
     {% if audit.failed_statement_check_results %}
         <p>
             An accessibility statement for the website was found but we found the following issues.
