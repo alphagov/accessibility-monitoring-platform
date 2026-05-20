@@ -207,10 +207,10 @@
         </p>
     {% endif %}
 {% else %}
-    {% if audit.statement_found_check.check_result_state != 'yes' %}
-        <p>{{ audit.statement_found_check.statement_check.report_text|markdown_to_html }}</p>
-    {% elif audit.statement_structure_check.check_result_state != 'yes' %}
-        <p>{{ audit.statement_structure_check.statement_check.report_text|markdown_to_html }}</p>
+    {% if statement_audit.statement_found_check.check_result_state != 'yes' %}
+        <p>{{ statement_audit.statement_found_check.statement_check.report_text|markdown_to_html }}</p>
+    {% elif statement_audit.statement_structure_check.check_result_state != 'yes' %}
+        <p>{{ statement_audit.statement_structure_check.statement_check.report_text|markdown_to_html }}</p>
     {% else %}
         <p>
             An accessibility page for the website could not be found or the accessibility page did

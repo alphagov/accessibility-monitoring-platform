@@ -1030,6 +1030,15 @@ class StatementAudit(AuditRound):
         return self.statement_check_results.filter(type=StatementCheck.Type.OVERVIEW)
 
     @property
+    def statement_found_check(self):
+        return self.overview_statement_check_results.first()
+
+    @property
+    def statement_structure_check(self):
+        """Only worked prior to 30 July 2025 when there was a second overview check"""
+        return self.overview_statement_check_results.last()
+
+    @property
     def website_statement_check_results(self):
         return self.statement_check_results.filter(type=StatementCheck.Type.WEBSITE)
 
@@ -1069,9 +1078,8 @@ class StatementAudit(AuditRound):
     def outstanding_statement_check_results(self):
         return self.statement_check_results.filter(
             Q(check_result_state=StatementCheckResult.Result.NO)
-            | Q(retest_state=StatementCheckResult.Result.NO)
-            | Q(statement_check=None)
-        ).exclude(retest_state=StatementCheckResult.Result.YES)
+            | Q(check_result_state=StatementCheckResult.Result.NOT_TESTED)
+        )
 
     @property
     def overview_outstanding_statement_check_results(self):

@@ -1,6 +1,9 @@
+"""Create Wcag and Statement audit data for unit testing"""
+
+from django.utils import timezone
+
 from ...simplified.models import SimplifiedCase
 from ..models import (
-    Audit,
     AuditOverview,
     StatementAudit,
     StatementCheck,
@@ -112,7 +115,7 @@ def create_initial_statement_audit(
     initial_statement_audit: StatementAudit = StatementAudit.objects.create(
         simplified_case=simplified_case
     )
-    for statement_check in StatementCheck.objects.all():
+    for statement_check in StatementCheck.objects.on_date(timezone.now().date()):
         StatementCheckResultInitial.objects.create(
             statement_audit=initial_statement_audit,
             type=statement_check.type,
@@ -136,7 +139,6 @@ def create_twelve_week_statement_audit(
         )
     else:
         simplified_case: SimplifiedCase = initial_statement_audit.simplified_case
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     twelve_week_statement_audit: StatementAudit = StatementAudit.objects.create(
         simplified_case=simplified_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
@@ -145,18 +147,24 @@ def create_twelve_week_statement_audit(
         for (
             statement_check_result_initial
         ) in initial_statement_audit.statement_check_results:
-            StatementCheckResultRetest.objects.create(
-                audit=audit,
-                statement_audit=twelve_week_statement_audit,
-                type=statement_check_result_initial.statement_check.type,
-                statement_check=statement_check_result_initial.statement_check,
-                statement_check_result_initial=statement_check_result_initial,
-            )
-    StatementCheckResultInitial.objects.create(
-        audit=audit,
-        statement_audit=twelve_week_statement_audit,
-        public_comment="Custom statement issue",
-    )
+            if statement_check_result_initial.statement_check is None:
+                StatementCheckResultRetest.objects.create(
+                    statement_audit=twelve_week_statement_audit,
+                    statement_check_result_initial=statement_check_result_initial,
+                    public_comment="Custom statement issue",
+                )
+            else:
+                StatementCheckResultRetest.objects.create(
+                    statement_audit=twelve_week_statement_audit,
+                    statement_check_result_initial=statement_check_result_initial,
+                    type=statement_check_result_initial.type,
+                    statement_check=statement_check_result_initial.statement_check,
+                )
+        StatementCheckResultRetest.objects.create(
+            statement_audit=twelve_week_statement_audit,
+            type=StatementCheck.Type.TWELVE_WEEK,
+            public_comment="Custom statement issue in retest",
+        )
     return twelve_week_statement_audit
 
 

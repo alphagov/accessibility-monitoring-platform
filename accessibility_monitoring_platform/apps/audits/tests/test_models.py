@@ -41,8 +41,9 @@ from .create_test_data import (
     create_twelve_week_wcag_audit,
 )
 
-TODAY = date.today()
-PAGE_NAME = "Page name"
+TODAY: date = date.today()
+PREVIOUS_STATEMENT_CHECKS_TIME: datetime = datetime(2025, 4, 1, tzinfo=timezone.utc)
+PAGE_NAME: str = "Page name"
 WCAG_TYPE_AXE_NAME: str = "Axe WCAG"
 WCAG_TYPE_MANUAL_NAME: str = "Manual WCAG"
 WCAG_TYPE_PDF_NAME: str = "PDF WCAG"
@@ -712,31 +713,27 @@ def test_statement_check_result_initial_edit_initial_url_name():
 
 
 @pytest.mark.django_db
-def test_statement_check_edit_12_week_url_name():
-    """
-    Tests an StatementCheckResult edit_12_week_url_name contains the expected string
-    """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    statement_check: StatementCheck = StatementCheck.objects.create(
-        type=StatementCheck.Type.COMPLIANCE
+def test_statement_check_result_retest_edit_12_week_url_name():
+    initial_statement_audit: StatementAudit = create_initial_statement_audit()
+    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+        initial_statement_audit=initial_statement_audit
     )
-    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
-        audit=audit, statement_check=statement_check, type=statement_check.type
+    statement_check_result_retest: StatementCheckResultRetest = (
+        StatementCheckResultRetest.objects.filter(
+            statement_audit=twelve_week_statement_audit,
+            statement_check__type=StatementCheck.Type.COMPLIANCE,
+        ).first()
     )
 
     assert (
-        statement_check_result.edit_12_week_url_name
+        statement_check_result_retest.edit_12_week_url_name
         == "audits:edit-retest-statement-compliance"
     )
 
 
 @pytest.mark.django_db
-def test_statement_check_results_str():
-    """Tests an StatementCheckResult __str__ contains the expected string"""
-    statement_audit: StatementAudit = (
-        create_statement_audit_and_statement_check_results()
-    )
+def test_statement_check_result_initial_str():
+    statement_audit: StatementAudit = create_initial_statement_audit()
     statement_check_result: StatementCheckResult = (
         statement_audit.overview_statement_check_results.first()
     )
@@ -759,18 +756,21 @@ def test_statement_check_results_str():
 @pytest.mark.django_db
 def test_statement_audit_statement_check_results():
     """
-    Tests an statement audit.statement_check_results contains the matching statement
-    check results.
+    Tests statement audit statement_check_results contains the matching initial or
+    retest statement check results.
     """
-    statement_audit: StatementAudit = (
-        create_statement_audit_and_statement_check_results()
-    )
-    statement_check_results: StatementCheckResult = StatementCheckResult.objects.filter(
-        audit=statement_audit.simplified_case.audit, statement_audit=statement_audit
+    initial_statement_audit: StatementAudit = create_initial_statement_audit()
+    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+        initial_statement_audit=initial_statement_audit
     )
 
     assertQuerySetEqual(
-        statement_audit.statementcheckresult_set.all(), statement_check_results
+        initial_statement_audit.statementcheckresultinitial_set.all(),
+        initial_statement_audit.statement_check_results,
+    )
+    assertQuerySetEqual(
+        twelve_week_statement_audit.statementcheckresultretest_set.all(),
+        twelve_week_statement_audit.statement_check_results,
     )
 
 
@@ -792,65 +792,83 @@ def test_statement_audit_specific_statement_check_results(type, attr):
     Tests specific statement audit statement_check_results property contains the
     matching statement check results.
     """
-    statement_audit: StatementAudit = (
-        create_statement_audit_and_statement_check_results()
+    initial_statement_audit: StatementAudit = create_initial_statement_audit()
+    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+        initial_statement_audit=initial_statement_audit
     )
-    statement_check_results: StatementCheckResult = StatementCheckResult.objects.filter(
-        audit=statement_audit.simplified_case.audit,
-        statement_audit=statement_audit,
-        type=type,
+    statement_check_results_initial: StatementCheckResultInitial = (
+        StatementCheckResultInitial.objects.filter(
+            statement_audit=initial_statement_audit,
+            type=type,
+        )
+    )
+    statement_check_results_retest: StatementCheckResultRetest = (
+        StatementCheckResultRetest.objects.filter(
+            statement_audit=twelve_week_statement_audit,
+            type=type,
+        )
     )
 
     assertQuerySetEqual(
-        getattr(statement_audit, f"{attr}_statement_check_results"),
-        statement_check_results,
+        getattr(initial_statement_audit, f"{attr}_statement_check_results"),
+        statement_check_results_initial,
+    )
+    assertQuerySetEqual(
+        getattr(twelve_week_statement_audit, f"{attr}_statement_check_results"),
+        statement_check_results_retest,
     )
 
 
 @pytest.mark.django_db
-def test_audit_statement_found_check():
-    """Tests audit statement_found_check property"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    statement_found_check: StatementCheck = StatementCheck.objects.filter(
-        type=StatementCheck.Type.OVERVIEW
-    ).first()
-    statement_found_check_result: StatementCheckResult = (
-        StatementCheckResult.objects.create(
-            audit=audit,
-            type=statement_found_check.type,
-            statement_check=statement_found_check,
-        )
+def test_statement_audit_statement_check_result_initial():
+    """
+    Test StatementAudit.statement_cound_check returns the first overview check result.
+    Only worked prior to 30 July 2025 when there was a second overview check.
+    """
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=PREVIOUS_STATEMENT_CHECKS_TIME)
+    ):
+        initial_statement_audit: StatementAudit = create_initial_statement_audit()
+    statement_found_check_result_initial: StatementCheckResultInitial = (
+        StatementCheckResultInitial.objects.filter(
+            statement_audit=initial_statement_audit,
+            type=StatementCheck.Type.OVERVIEW,
+        ).first()
     )
 
-    assert audit.statement_found_check == statement_found_check_result
+    assert (
+        initial_statement_audit.statement_found_check
+        == statement_found_check_result_initial
+    )
 
 
 @pytest.mark.django_db
 def test_audit_statement_structure_check():
-    """Tests audit statement_structure_check property"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    statement_structure_check: StatementCheck = StatementCheck.objects.filter(
-        type=StatementCheck.Type.OVERVIEW
-    ).last()
-    statement_structure_check_result: StatementCheckResult = (
-        StatementCheckResult.objects.create(
-            audit=audit,
-            type=statement_structure_check.type,
-            statement_check=statement_structure_check,
-        )
+    """
+    Tests audit statement_structure_check property.
+    Only worked prior to 30 July 2025 when there was a second overview check.
+    """
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=PREVIOUS_STATEMENT_CHECKS_TIME)
+    ):
+        initial_statement_audit: StatementAudit = create_initial_statement_audit()
+    statement_structure_check_result: StatementCheckResultInitial = (
+        StatementCheckResultInitial.objects.filter(
+            statement_audit=initial_statement_audit,
+            type=StatementCheck.Type.OVERVIEW,
+        ).last()
     )
 
-    assert audit.statement_structure_check == statement_structure_check_result
+    assert (
+        initial_statement_audit.statement_structure_check
+        == statement_structure_check_result
+    )
 
 
 @pytest.mark.django_db
 def test_statement_audit_overview_statement_checks_complete():
     """Tests statement_audit overview_statement_checks_complete property"""
-    statement_audit: StatementAudit = (
-        create_statement_audit_and_statement_check_results()
-    )
+    statement_audit: StatementAudit = create_initial_statement_audit()
 
     for statement_check_result in statement_audit.overview_statement_check_results:
         statement_check_result.check_result_state = StatementCheckResult.Result.YES
@@ -874,16 +892,34 @@ def test_statement_audit_failed_statement_check_results():
     Tests a statement_audit.failed_statement_check_results contains the failed
     statement check results.
     """
-    statement_audit: StatementAudit = (
-        create_statement_audit_and_statement_check_results()
-    )
-    failed_statement_check_results: StatementCheckResult = (
-        StatementCheckResult.objects.filter(
+    statement_audit: StatementAudit = create_initial_statement_audit()
+    failed_statement_check_results: QuerySet[StatementCheckResultInitial] = (
+        StatementCheckResultInitial.objects.filter(
             statement_audit=statement_audit,
-            check_result_state=StatementCheckResult.Result.NO,
+            check_result_state=StatementCheckResultInitial.Result.NO,
         )
     )
 
+    assert failed_statement_check_results.count() == 0
+    assertQuerySetEqual(
+        statement_audit.failed_statement_check_results, failed_statement_check_results
+    )
+
+    for statement_check_result_initial in StatementCheckResultInitial.objects.filter(
+        statement_audit=statement_audit
+    ):
+        statement_check_result_initial.check_result_state = (
+            StatementCheckResultInitial.Result.NO
+        )
+        statement_check_result_initial.save()
+    failed_statement_check_results: QuerySet[StatementCheckResultInitial] = (
+        StatementCheckResultInitial.objects.filter(
+            statement_audit=statement_audit,
+            check_result_state=StatementCheckResultInitial.Result.NO,
+        )
+    )
+
+    assert failed_statement_check_results.count() > 0
     assertQuerySetEqual(
         statement_audit.failed_statement_check_results, failed_statement_check_results
     )
@@ -905,17 +941,28 @@ def test_statement_audit_contains_specific_outstanding_statement_check_results(
     type, attr
 ):
     """Tests statement audit contains specific outstanding statement check results."""
-    statement_audit: StatementAudit = (
-        create_statement_audit_and_statement_check_results()
-    )
-    failed_statement_check_results: StatementCheckResult = (
-        StatementCheckResult.objects.filter(
+    statement_audit: StatementAudit = create_initial_statement_audit()
+    for count, statement_check_result_initial in enumerate(
+        StatementCheckResultInitial.objects.filter(statement_audit=statement_audit)
+    ):
+        if count % 2 == 0:
+            statement_check_result_initial.check_result_state = (
+                StatementCheckResultInitial.Result.YES
+            )
+        else:
+            statement_check_result_initial.check_result_state = (
+                StatementCheckResultInitial.Result.NO
+            )
+        statement_check_result_initial.save()
+    failed_statement_check_results: StatementCheckResultInitial = (
+        StatementCheckResultInitial.objects.filter(
             statement_audit=statement_audit,
             type=type,
-            check_result_state=StatementCheckResult.Result.NO,
+            check_result_state=StatementCheckResultInitial.Result.NO,
         )
     )
 
+    assert failed_statement_check_results.count() > 0
     assertQuerySetEqual(
         getattr(statement_audit, f"{attr}_outstanding_statement_check_results"),
         failed_statement_check_results,
@@ -927,9 +974,7 @@ def test_statement_audit_contains_custom_outstanding_statement_check_results():
     """
     Tests statement_audit contains specific statement check results.
     """
-    statement_audit: StatementAudit = (
-        create_statement_audit_and_statement_check_results()
-    )
+    statement_audit: StatementAudit = create_initial_statement_audit()
     failed_statement_check_results: StatementCheckResult = (
         StatementCheckResult.objects.filter(
             statement_audit=statement_audit, type=StatementCheck.Type.CUSTOM
@@ -948,9 +993,7 @@ def test_statement_audit_outstanding_statement_check_results_includes_new_failur
     Tests specific statement_audit outstanding_statement_check_results property contains any
     errors found for the first time on 12-week retest.
     """
-    statement_audit: StatementAudit = (
-        create_statement_audit_and_statement_check_results()
-    )
+    statement_audit: StatementAudit = create_initial_statement_audit()
     untested_statement_check_result: StatementCheckResult = (
         StatementCheckResult.objects.filter(
             statement_audit=statement_audit,
@@ -972,9 +1015,7 @@ def test_statement_audit_statement_check_result_statement_found():
     Tests an statement_audit.statement_check_result_statement_found shows if all
     overview statement checks have passed
     """
-    statement_audit: StatementAudit = (
-        create_statement_audit_and_statement_check_results()
-    )
+    statement_audit: StatementAudit = create_initial_statement_audit()
 
     assert statement_audit.statement_check_result_statement_found is False
 
@@ -991,9 +1032,7 @@ def test_statement_audit_all_overview_statement_checks_have_passed():
     Tests an statement_audit.all_overview_statement_checks_have_passed shows if all
     statement check results have passed on test or retest
     """
-    statement_audit: StatementAudit = (
-        create_statement_audit_and_statement_check_results()
-    )
+    statement_audit: StatementAudit = create_initial_statement_audit()
 
     assert statement_audit.all_overview_statement_checks_have_passed is False
 
@@ -1028,7 +1067,7 @@ def test_audit_all_overview_statement_checks_have_passed_when_none():
     Tests audit all overview statement checks have passed is false when
     there are no such checks.
     """
-    audit: Audit = create_statement_audit_and_statement_check_results()
+    audit: Audit = create_initial_statement_audit()
 
     assert audit.all_overview_statement_checks_have_passed is False
 
@@ -1038,7 +1077,7 @@ def test_all_overview_statement_checks_have_passed():
     """
     Tests an audit has all statement checks on overview set to yes.
     """
-    audit: Audit = create_statement_audit_and_statement_check_results()
+    audit: Audit = create_initial_statement_audit()
     overview_statement_check_results: StatementCheckResult = (
         StatementCheckResult.objects.filter(
             audit=audit,
@@ -1148,7 +1187,7 @@ def test_fixed_statement_checks_are_returned():
     Tests fixed statement checks are those which initially failed but
     passed on a retest.
     """
-    audit: Audit = create_statement_audit_and_statement_check_results()
+    audit: Audit = create_initial_statement_audit()
     statement_check_results: QuerySet[StatementCheckResult] = (
         StatementCheckResult.objects.filter(
             audit=audit,
