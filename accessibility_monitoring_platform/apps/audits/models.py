@@ -1075,6 +1075,18 @@ class StatementAudit(AuditRound):
         )
 
     @property
+    def passed_statement_check_results(self):
+        return self.statement_check_results.filter(
+            check_result_state=StatementCheckResultInitial.Result.YES
+        )
+
+    @property
+    def fixed_statement_check_results(self):
+        return self.failed_statement_check_results.filter(
+            statementcheckresultretest__check_result_state=StatementCheckResult.Result.YES
+        )
+
+    @property
     def outstanding_statement_check_results(self):
         return self.statement_check_results.filter(
             Q(check_result_state=StatementCheckResult.Result.NO)
@@ -1585,6 +1597,17 @@ class WcagCheckResultInitial(models.Model):
             wcag_check_result_initial=self
         ).first()
 
+    @property
+    def matching_wcag_with_notes_check_results(self) -> dict[str, str]:
+        """Other check results with notes for matching WcagDefinition"""
+        return (
+            self.wcag_audit.wcag_failed_check_result_initials.filter(
+                wcag_definition=self.wcag_definition
+            )
+            .exclude(wcag_page_initial=self.wcag_page_initial)
+            .exclude(notes="")
+        )
+
 
 class WcagCheckResultRetest(models.Model):
 
@@ -1597,6 +1620,10 @@ class WcagCheckResultRetest(models.Model):
     wcag_page_retest = models.ForeignKey(WcagPageRetest, on_delete=models.PROTECT)
     wcag_check_result_initial = models.ForeignKey(
         WcagCheckResultInitial, on_delete=models.PROTECT
+    )
+    wcag_definition = models.ForeignKey(
+        WcagDefinition,
+        on_delete=models.PROTECT,
     )
     retest_state = models.CharField(
         max_length=20,
@@ -1622,6 +1649,17 @@ class WcagCheckResultRetest(models.Model):
             "notes": self.notes,
             "check_result": self,
         }
+
+    @property
+    def matching_wcag_with_notes_check_results(self) -> dict[str, str]:
+        """Other check results for matching WcagDefinition"""
+        return (
+            self.wcag_audit.wcag_failed_check_result_retests.filter(
+                wcag_check_result_initial__wcag_definition=self.wcag_definition
+            )
+            .exclude(wcag_page_retest=self.wcag_page_retest)
+            .exclude(notes="")
+        )
 
 
 class CheckResultNotesHistory(models.Model):
@@ -2088,9 +2126,13 @@ class Retest(VersionModel):
         body requested retests up to this one.
         """
         fixed_checks_count: int = (
-            CheckResult.objects.filter(audit=self.simplified_case.audit)
-            .filter(retest_state=CheckResult.RetestResult.FIXED)
-            .exclude(page__not_found="yes")
+            WcagCheckResultInitial.objects.filter(
+                wcag_audit=self.simplified_case.audit_overview.wcag_audit_initial
+            )
+            .filter(
+                wcagcheckresultretest__retest_state=WcagCheckResultRetest.RetestResult.FIXED
+            )
+            .exclude(wcag_page_initial__not_found="yes")
             .count()
         )
         for retest in self.simplified_case.retests.exclude(

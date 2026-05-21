@@ -259,6 +259,7 @@ def create_first_twelve_week_wcag_audit(audit_overview: AuditOverview) -> WcagAu
                 wcag_audit=wcag_audit_new,
                 wcag_page_retest=wcag_page_retest,
                 wcag_check_result_initial=wcag_check_result_initial,
+                wcag_definition=wcag_check_result_initial.wcag_definition,
             )
     return wcag_audit_new
 

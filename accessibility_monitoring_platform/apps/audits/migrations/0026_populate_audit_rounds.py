@@ -183,6 +183,7 @@ def populate_audit_rounds(apps, schema_editor):
                         wcag_audit=wcag_audit_12_week,
                         wcag_page_retest=wcag_page_retest,
                         wcag_check_result_initial=wcag_check_result_initial,
+                        wcag_definition=check_result.wcag_definition,
                         is_deleted=check_result.is_deleted,
                         retest_state=check_result.retest_state,
                         notes=check_result.retest_notes,
@@ -316,6 +317,7 @@ def populate_audit_rounds(apps, schema_editor):
                         wcag_check_result_initial=wcag_check_result_initials_by_page_and_wcag[
                             f"{retest_check_result.retest_page.page.id}-{retest_check_result.check_result.wcag_definition.id}"
                         ],
+                        wcag_definition=retest_check_result.check_result.wcag_definition,
                         retest_state=retest_check_result.retest_state,
                         notes=retest_check_result.retest_notes,
                         is_deleted=retest_check_result.is_deleted,

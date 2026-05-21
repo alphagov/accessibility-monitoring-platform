@@ -99,6 +99,7 @@ def create_twelve_week_wcag_audit(
                     wcag_audit=twelve_week_wcag_audit,
                     wcag_page_retest=wcag_page_retest,
                     wcag_check_result_initial=wcag_check_result_initial,
+                    wcag_definition=wcag_check_result_initial.wcag_definition,
                 )
     return twelve_week_wcag_audit
 
