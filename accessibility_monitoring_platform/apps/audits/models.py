@@ -606,7 +606,7 @@ class AuditOverview(models.Model):
     def save(self, *args, **kwargs) -> None:
         if self.id is None:
             self.updated = timezone.now()
-            super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     @property
     def wcag_audits(self) -> QuerySet[WcagAudit]:
@@ -633,6 +633,22 @@ class AuditOverview(models.Model):
         for statement_page in self.statement_pages.order_by("-id"):
             if statement_page.url:
                 return statement_page.url
+
+    @property
+    def archived_google_drive_links(self) -> QuerySet[StatementPage]:
+        """Return statement pages with google drive backup urls"""
+        return self.statement_pages.filter(backup_url__contains="drive.google.com")
+
+    @property
+    def unique_statement_page_urls(self) -> list[StatementPage]:
+        """Return the first statement page for each URL"""
+        statement_urls: list[str] = []
+        unique_url_statement_pages: list[StatementPage] = []
+        for statement_page in self.statement_pages.exclude(url=""):
+            if statement_page.url not in statement_urls:
+                statement_urls.append(statement_page.url)
+                unique_url_statement_pages.append(statement_page)
+        return unique_url_statement_pages
 
     @property
     def accessibility_statement_found(self) -> bool:
@@ -2453,7 +2469,7 @@ class StatementPage(models.Model):
         TWELVE_WEEK = "12-week-retest", "12-week retest"
         RETEST = "retest", "Equality body retest"
 
-    audit = models.ForeignKey(Audit, on_delete=models.PROTECT)
+    audit = models.ForeignKey(Audit, on_delete=models.PROTECT, null=True)
     simplified_case = models.ForeignKey(
         SimplifiedCase, on_delete=models.PROTECT, null=True
     )

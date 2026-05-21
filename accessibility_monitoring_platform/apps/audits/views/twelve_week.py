@@ -53,7 +53,6 @@ from ..models import (
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
-    StatementCheckResultInitial,
     StatementCheckResultRetest,
     StatementPage,
     WcagAudit,
@@ -70,7 +69,6 @@ from ..utils import (
 )
 from .base import (
     AddStatementLinkUpdateView,
-    AuditCaseComplianceUpdateView,
     AuditSummaryFirstMixin,
     AuditUpdateView,
     DeleteStatementPageUpdateView,

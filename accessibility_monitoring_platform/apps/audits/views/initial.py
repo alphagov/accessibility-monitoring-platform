@@ -23,7 +23,6 @@ from ...simplified.utils import (
 from ..forms import (
     AuditStatementSummaryUpdateForm,
     CheckResultFilterForm,
-    CheckResultFormset,
     StatementAuditComplianceUpdateForm,
     StatementAuditInitialDisproportionateBurdenUpdateForm,
     StatementAuditStatementBackupUpdateForm,
@@ -42,6 +41,7 @@ from ..forms import (
     WcagAuditMetadataUpdateForm,
     WcagAuditPagesUpdateForm,
     WcagAuditWcagSummaryUpdateForm,
+    WcagCheckResultInitialFormset,
     WcagPageChecksForm,
     WcagPageInitialFormset,
     WcagPageInitialFormsetOneExtra,
@@ -63,7 +63,7 @@ from ..models import (
     WcagPageRetest,
 )
 from ..utils import (
-    create_or_update_check_results_for_page,
+    create_or_update_wcag_check_result_initials_for_page,
     get_next_platform_page_wcag_page_initial,
     get_page_check_results_formset_initial,
     other_page_failed_check_results,
@@ -91,15 +91,19 @@ def clear_published_report_data_updated_time(
     Returns:
         HttpResponse: Django HttpResponse
     """
-    audit: Audit = get_object_or_404(Audit, id=pk)
-    audit.published_report_data_updated_time = None
+    audit_overview: AuditOverview = get_object_or_404(AuditOverview, id=pk)
+    audit_overview.published_report_data_updated_time = None
     record_simplified_model_update_event(
-        user=request.user, model_object=audit, simplified_case=audit.simplified_case
+        user=request.user,
+        model_object=audit_overview,
+        simplified_case=audit_overview.simplified_case,
     )
-    audit.save()
+    audit_overview.save()
     redirect_destination: str = request.GET.get(
         "redirect_destination",
-        reverse("simplified:case-detail", kwargs={"pk": audit.simplified_case.id}),
+        reverse(
+            "simplified:case-detail", kwargs={"pk": audit_overview.simplified_case.id}
+        ),
     )
     return redirect(redirect_destination)
 
@@ -298,18 +302,22 @@ class WcagPageChecksFormView(NextPlatformPageMixin, FormView):
         )
 
         if self.request.POST:
-            check_results_formset: CheckResultFormset = CheckResultFormset(
-                self.request.POST,
-                initial=get_page_check_results_formset_initial(
-                    wcag_page_initial=self.wcag_page_initial,
-                    wcag_definitions=wcag_definitions,
-                ),
+            check_results_formset: WcagCheckResultInitialFormset = (
+                WcagCheckResultInitialFormset(
+                    self.request.POST,
+                    initial=get_page_check_results_formset_initial(
+                        wcag_page_initial=self.wcag_page_initial,
+                        wcag_definitions=wcag_definitions,
+                    ),
+                )
             )
         else:
-            check_results_formset: CheckResultFormset = CheckResultFormset(
-                initial=get_page_check_results_formset_initial(
-                    wcag_page_initial=self.wcag_page_initial,
-                    wcag_definitions=wcag_definitions,
+            check_results_formset: WcagCheckResultInitialFormset = (
+                WcagCheckResultInitialFormset(
+                    initial=get_page_check_results_formset_initial(
+                        wcag_page_initial=self.wcag_page_initial,
+                        wcag_definitions=wcag_definitions,
+                    )
                 )
             )
 
@@ -341,11 +349,11 @@ class WcagPageChecksFormView(NextPlatformPageMixin, FormView):
             )
             wcag_page_initial.save()
 
-        check_results_formset: CheckResultFormset = CheckResultFormset(
-            self.request.POST
+        check_results_formset: WcagCheckResultInitialFormset = (
+            WcagCheckResultInitialFormset(self.request.POST)
         )
         if check_results_formset.is_valid():
-            create_or_update_check_results_for_page(
+            create_or_update_wcag_check_result_initials_for_page(
                 user=self.request.user,
                 wcag_page_initial=wcag_page_initial,
                 check_result_forms=check_results_formset.forms,

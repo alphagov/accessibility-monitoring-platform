@@ -1,4 +1,5 @@
 """
+        "compliance_state": wcag_audit.compliance_state,
 Utilities for audits app
 """
 
@@ -18,7 +19,7 @@ from ..simplified.utils import (
     record_simplified_model_create_event,
     record_simplified_model_update_event,
 )
-from .forms import CheckResultForm
+from .forms import WcagCheckResultInitialForm
 from .models import (
     Audit,
     AuditOverview,
@@ -96,10 +97,10 @@ class SummaryStatementCheckResult:
     retest_result: StatementCheckResult | None = None
 
 
-def create_or_update_check_results_for_page(
+def create_or_update_wcag_check_result_initials_for_page(
     user: User,
     wcag_page_initial: WcagPageInitial,
-    check_result_forms: list[CheckResultForm],
+    check_result_forms: list[WcagCheckResultInitialForm],
 ) -> None:
     """
     Create or update check results based on form data:
@@ -381,9 +382,9 @@ def other_page_failed_check_results(
 def report_data_updated(wcag_audit: WcagAudit) -> None:
     """Record when an update changing report content as occurred."""
     now: datetime = timezone.now()
-    audit: Audit = wcag_audit.simplified_case.audit
-    audit.published_report_data_updated_time = now
-    audit.save()
+    audit_overview: AuditOverview = wcag_audit.simplified_case.audit_overview
+    audit_overview.published_report_data_updated_time = now
+    audit_overview.save()
 
 
 def create_checkresults_for_retest(retest: Retest) -> None:

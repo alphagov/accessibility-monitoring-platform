@@ -28,6 +28,7 @@ from ...simplified.models import (
 )
 from ..models import (
     Audit,
+    AuditOverview,
     CheckResult,
     CheckResultNotesHistory,
     CheckResultRetestNotesHistory,
@@ -44,6 +45,7 @@ from ..models import (
     WcagDefinition,
 )
 from ..utils import create_checkresults_for_retest, create_mandatory_pages_for_new_audit
+from .create_test_data import create_initial_wcag_audit
 
 TODAY = date.today()
 WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
@@ -1923,7 +1925,7 @@ def test_website_decision_saved_on_case(admin_client):
     "field_name, new_value, report_content_update",
     [
         (
-            "case-compliance-website_compliance_state_initial",
+            "compliance_state",
             "partially-compliant",
             True,
         ),
@@ -1937,14 +1939,15 @@ def test_website_decision_field_updates_report_content(
     Test that a report data updated time changes only when website compliance
     changes
     """
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: dict[str, int] = {"pk": audit.id}
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    audit_pk: dict[str, int] = {"pk": wcag_audit.id}
+    audit_overview: AuditOverview = wcag_audit.simplified_case.audit_overview
 
-    assert audit.published_report_data_updated_time is None
+    assert audit_overview.published_report_data_updated_time is None
+
     context: dict[str, str | int] = {
-        "version": audit.version,
-        "case-compliance-version": audit.simplified_case.compliance.version,
-        "case-compliance-website_compliance_state_initial": audit.simplified_case.compliance.website_compliance_state_initial,
+        "version": wcag_audit.version,
+        "compliance_state": wcag_audit.compliance_state,
         "save": "Button value",
     }
     context[field_name] = new_value
@@ -1955,12 +1958,14 @@ def test_website_decision_field_updates_report_content(
 
     assert response.status_code == 302
 
-    updated_audit: Audit = Audit.objects.get(id=audit.id)
+    updated_audit_overview: AuditOverview = AuditOverview.objects.get(
+        id=audit_overview.id
+    )
 
     if report_content_update:
-        assert updated_audit.published_report_data_updated_time is not None
+        assert updated_audit_overview.published_report_data_updated_time is not None
     else:
-        assert updated_audit.published_report_data_updated_time is None
+        assert updated_audit_overview.published_report_data_updated_time is None
 
 
 def test_add_custom_statement_check_result_form_appears(admin_client):

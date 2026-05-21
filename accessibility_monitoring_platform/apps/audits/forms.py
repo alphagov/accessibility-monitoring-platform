@@ -37,6 +37,7 @@ from .models import (
     StatementCheckResultRetest,
     StatementPage,
     WcagAudit,
+    WcagCheckResultInitial,
     WcagCheckResultRetest,
     WcagDefinition,
     WcagPageInitial,
@@ -225,10 +226,7 @@ class CheckResultFilterForm(forms.Form):
         ]
 
 
-class CheckResultForm(forms.ModelForm):
-    """
-    Form for updating a single check test
-    """
+class WcagCheckResultInitialForm(forms.ModelForm):
 
     wcag_definition = forms.ModelChoiceField(
         queryset=WcagDefinition.objects.all(), widget=forms.HiddenInput()
@@ -246,7 +244,7 @@ class CheckResultForm(forms.ModelForm):
     notes = AMPTextField(label="Error details for report")
 
     class Meta:
-        model = CheckResult
+        model = WcagCheckResultInitial
         fields = [
             "wcag_definition",
             "check_result_state",
@@ -254,8 +252,8 @@ class CheckResultForm(forms.ModelForm):
         ]
 
 
-CheckResultFormset: forms.formsets.BaseFormSet = forms.formset_factory(
-    CheckResultForm, extra=0
+WcagCheckResultInitialFormset: forms.formsets.BaseFormSet = forms.formset_factory(
+    WcagCheckResultInitialForm, extra=0
 )
 
 

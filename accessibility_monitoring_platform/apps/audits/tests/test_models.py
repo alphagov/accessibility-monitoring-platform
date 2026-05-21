@@ -37,7 +37,6 @@ from ..models import (
 from .create_test_data import (
     create_initial_statement_audit,
     create_initial_wcag_audit,
-    create_simplified_case_with_full_audit,
     create_twelve_week_statement_audit,
     create_twelve_week_wcag_audit,
 )
@@ -574,9 +573,7 @@ def test_wcag_definition_start_end_date_range():
 @pytest.mark.django_db
 def test_accessibility_statement_found():
     wcag_audit: WcagAudit = create_initial_wcag_audit()
-    audit: Audit = Audit.objects.create(simplified_case=wcag_audit.simplified_case)
     StatementPage.objects.create(
-        audit=audit,
         simplified_case=wcag_audit.simplified_case,
         audit_overview=wcag_audit.simplified_case.audit_overview,
         url=STATEMENT_LINK,
@@ -1424,12 +1421,11 @@ def test_audit_statement_pages():
     wcag_audit: WcagAudit = create_initial_wcag_audit()
     simplified_case: SimplifiedCase = wcag_audit.simplified_case
     audit_overview: AuditOverview = simplified_case.audit_overview
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
     assert not audit_overview.statement_pages
 
     statement_page: StatementPage = StatementPage.objects.create(
-        audit=audit, simplified_case=simplified_case, audit_overview=audit_overview
+        simplified_case=simplified_case, audit_overview=audit_overview
     )
 
     assert audit_overview.statement_pages.count() == 1
@@ -1448,12 +1444,10 @@ def test_audit_accessibility_statement_found():
     audit_overview: AuditOverview = AuditOverview.objects.create(
         simplified_case=simplified_case,
     )
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
 
     assert audit_overview.accessibility_statement_found is False
 
     statement_page: StatementPage = StatementPage.objects.create(
-        audit=audit,
         simplified_case=simplified_case,
         audit_overview=audit_overview,
         url=STATEMENT_LINK,
@@ -1492,15 +1486,14 @@ def test_latest_statement_link_found():
     it is not on the latest statement page.
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     audit_overview: AuditOverview = AuditOverview.objects.create(
         simplified_case=simplified_case
     )
     early_statement_page: StatementPage = StatementPage.objects.create(
-        audit=audit, simplified_case=simplified_case, audit_overview=audit_overview
+        simplified_case=simplified_case, audit_overview=audit_overview
     )
     StatementPage.objects.create(
-        audit=audit, simplified_case=simplified_case, audit_overview=audit_overview
+        simplified_case=simplified_case, audit_overview=audit_overview
     )
 
     assert audit_overview.latest_statement_link is None
@@ -1508,7 +1501,7 @@ def test_latest_statement_link_found():
     early_statement_page.url = STATEMENT_LINK
     early_statement_page.save()
 
-    assert audit.latest_statement_link == STATEMENT_LINK
+    assert audit_overview.latest_statement_link == STATEMENT_LINK
 
 
 @pytest.mark.django_db
@@ -2258,33 +2251,40 @@ def test_statement_audit_new_12_week_custom_statement_check_results():
 def test_audit_unique_statement_page_urls():
     """Test unique statement page urls returns only first with matching URL"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
     first_new_statement_page: StatementPage = StatementPage.objects.create(
-        audit=audit,
+        audit_overview=audit_overview,
         url=STATEMENT_LINK,
     )
     StatementPage.objects.create(
-        audit=audit,
+        audit_overview=audit_overview,
         url=STATEMENT_LINK,
     )
 
-    assert len(audit.unique_statement_page_urls) == 1
-    assert audit.unique_statement_page_urls[0] == first_new_statement_page
+    assert len(audit_overview.unique_statement_page_urls) == 1
+    assert audit_overview.unique_statement_page_urls[0] == first_new_statement_page
 
 
 @pytest.mark.django_db
 def test_audit_archived_google_drive_links():
     """Test archived google drive lines returned"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
     StatementPage.objects.create(
-        audit=audit,
+        audit_overview=audit_overview,
         backup_url=GOOGLE_DRIVE_LINK,
     )
     StatementPage.objects.create(
-        audit=audit,
+        audit_overview=audit_overview,
         backup_url=NON_GOOGLE_DRIVE_LINK,
     )
 
-    assert audit.archived_google_drive_links.count() == 1
-    assert audit.archived_google_drive_links.first().backup_url == GOOGLE_DRIVE_LINK
+    assert audit_overview.archived_google_drive_links.count() == 1
+    assert (
+        audit_overview.archived_google_drive_links.first().backup_url
+        == GOOGLE_DRIVE_LINK
+    )

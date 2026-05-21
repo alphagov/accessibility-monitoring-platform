@@ -14,7 +14,7 @@ from django.urls import reverse
 from ...common.form_extract_utils import FieldLabelAndValue
 from ...common.sitemap import PlatformPage
 from ...simplified.models import SimplifiedCase
-from ..forms import CheckResultFormset
+from ..forms import WcagCheckResultInitialFormset
 from ..models import (
     Audit,
     CheckResult,
@@ -39,7 +39,7 @@ from ..utils import (
     add_to_check_result_restest_notes_history,
     create_checkresults_for_retest,
     create_mandatory_pages_for_new_audit,
-    create_or_update_check_results_for_page,
+    create_or_update_wcag_check_result_initials_for_page,
     create_statement_checks_for_new_audit,
     get_audit_summary_context,
     get_next_platform_page_equality_body,
@@ -51,9 +51,7 @@ from ..utils import (
     other_page_failed_check_results,
     report_data_updated,
 )
-from .create_test_data import (  # create_initial_statement_audit,; create_simplified_case_with_full_audit,; create_twelve_week_statement_audit,; create_twelve_week_wcag_audit,
-    create_initial_wcag_audit,
-)
+from .create_test_data import create_initial_wcag_audit
 
 TODAY: date = date.today()
 HOME_PAGE_URL: str = "https://example.com/home"
@@ -242,20 +240,6 @@ EXPECTED_AUDIT_REPORT_OPTIONS_ROWS: list[FieldLabelAndValue] = [
 ]
 
 
-def create_wcag_audit_and_wcag() -> WcagAudit:
-    """Create a WcagAudit and WcagDefinitions"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
-    WcagDefinition.objects.all().delete()
-    WcagDefinition.objects.create(
-        id=1, type=WcagDefinition.Type.PDF, name=WCAG_TYPE_PDF_NAME
-    )
-    WcagDefinition.objects.create(
-        id=2, type=WcagDefinition.Type.MANUAL, name=WCAG_TYPE_MANUAL_NAME
-    )
-    return wcag_audit
-
-
 @pytest.mark.django_db
 def test_create_mandatory_pages_for_new_audit():
     """Test that the mandatory pages are created for a new audit"""
@@ -279,10 +263,14 @@ def test_create_mandatory_pages_for_new_audit():
 @pytest.mark.django_db
 def test_update_check_results_for_page():
     """Test update of check results for a page"""
-    audit: Audit = create_initial_wcag_audit()
-    page_home: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    page_home: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
 
-    check_results: QuerySet[CheckResult] = CheckResult.objects.filter(page=page_home)
+    check_results: QuerySet[WcagCheckResultInitial] = (
+        WcagCheckResultInitial.objects.filter(wcag_page_initial=page_home)
+    )
 
     number_of_forms: int = len(check_results) + 1
     formset_data: dict[str, int | str] = {
@@ -304,13 +292,15 @@ def test_update_check_results_for_page():
     formset_data[f"form-{new_form_index}-check_result_state"] = CheckResult.Result.ERROR
     formset_data[f"form-{new_form_index}-notes"] = NEW_CHECK_NOTE
 
-    check_results_formset: CheckResultFormset = CheckResultFormset(formset_data)
+    check_results_formset: WcagCheckResultInitialFormset = (
+        WcagCheckResultInitialFormset(formset_data)
+    )
     check_results_formset.is_valid()
 
-    assert audit.published_report_data_updated_time is None
+    assert wcag_audit.published_report_data_updated_time is None
 
-    create_or_update_check_results_for_page(
-        user=audit.simplified_case.auditor,
+    create_or_update_wcag_check_result_initials_for_page(
+        user=wcag_audit.simplified_case.auditor,
         wcag_page_initial=page_home,
         check_result_forms=check_results_formset.forms,
     )
@@ -322,7 +312,7 @@ def test_update_check_results_for_page():
     assert updated_check_result.check_result_state == CheckResult.Result.ERROR
     assert updated_check_result.notes == UPDATED_NOTE
 
-    updated_audit: Audit = Audit.objects.get(id=audit.id)
+    updated_audit: Audit = Audit.objects.get(id=wcag_audit.id)
 
     assert updated_audit.published_report_data_updated_time is not None
 
@@ -359,12 +349,14 @@ def test_create_check_results_for_page():
     formset_data[f"form-{new_form_index}-check_result_state"] = CheckResult.Result.ERROR
     formset_data[f"form-{new_form_index}-notes"] = NEW_CHECK_NOTE
 
-    check_results_formset: CheckResultFormset = CheckResultFormset(formset_data)
+    check_results_formset: WcagCheckResultInitialFormset = (
+        WcagCheckResultInitialFormset(formset_data)
+    )
     check_results_formset.is_valid()
 
     assert wcag_audit.published_report_data_updated_time is None
 
-    create_or_update_check_results_for_page(
+    create_or_update_wcag_check_result_initials_for_page(
         user=wcag_audit.simplified_case.auditor,
         wcag_page_initial=page_home,
         check_result_forms=check_results_formset.forms,
@@ -433,9 +425,11 @@ def test_get_next_platform_page_audit_with_no_pages():
     Test get_next_platform_page returns website decision page
     when audit has no testable pages.
     """
-    audit: Audit = create_wcag_audit_and_wcag()
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
 
-    platform_page: PlatformPage = get_next_platform_page_wcag_page_initial(audit=audit)
+    platform_page: PlatformPage = get_next_platform_page_wcag_page_initial(
+        wcag_audit=wcag_audit
+    )
 
     assert platform_page.url_name == "audits:edit-website-decision"
 

@@ -33,8 +33,6 @@ from ..forms import (
     DeleteStatementPageUpdateForm,
     StatementBackupForm,
     StatementCheckCreateUpdateForm,
-    StatementCheckResultInitialFormset,
-    StatementCheckResultRetestFormset,
     StatementCheckSearchForm,
     StatementLinkForm,
     WcagDefinitionCreateUpdateForm,
@@ -47,7 +45,6 @@ from ..models import (
     Retest,
     StatementAudit,
     StatementCheck,
-    StatementCheckResultInitial,
     StatementPage,
     WcagAudit,
     WcagDefinition,
@@ -215,6 +212,9 @@ class WcagAuditUpdateView(AuditUpdateView):
                 model_object=self.object,
                 simplified_case=self.object.simplified_case,
             )
+            if "compliance_state" in form.changed_data:
+                report_data_updated(wcag_audit=self.object)
+
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
