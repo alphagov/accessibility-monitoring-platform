@@ -826,7 +826,9 @@ class WcagAudit(AuditRound):
 
     @property
     def wcag_page_retests(self) -> QuerySet[WcagPageRetest]:
-        return self.wcagpageretest_set.filter(is_deleted=False)
+        return self.wcagpageretest_set.filter(is_deleted=False).exclude(
+            wcag_page_initial__url=""
+        )
 
     @property
     def retestable_wcag_page_retests(self):
@@ -1605,7 +1607,7 @@ class WcagCheckResultInitial(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:
-        return self.issue_identifier
+        return f"{self.issue_identifier} ({self.wcag_page_initial})"
 
     @property
     def twelve_week_retest(self) -> WcagCheckResultRetest | None:

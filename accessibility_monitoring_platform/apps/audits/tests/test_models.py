@@ -234,17 +234,18 @@ def test_pdf_page_page_title():
 def test_audit_testable_pages_returns_expected_page():
     """Deleted, not found and pages without URLs excluded"""
     wcag_audit: WcagAudit = create_initial_wcag_audit()
-    testable_page: WcagPageInitial = WcagPageInitial.objects.create(
+    testable_page: WcagPageInitial = WcagPageInitial.objects.get(
         wcag_audit=wcag_audit,
         page_type=WcagPageInitial.Type.HOME,
-        url="https://example.com",
     )
-    WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit,
-        page_type=WcagPageInitial.Type.HOME,
-        url="https://example.com",
-        not_found="yes",
-    )
+    for wcag_page_initial in WcagPageInitial.objects.filter(
+        wcag_audit=wcag_audit
+    ).exclude(page_type=WcagPageInitial.Type.HOME):
+        if wcag_page_initial.page_type == WcagPageInitial.Type.PDF:
+            wcag_page_initial.not_found = Boolean.YES
+        else:
+            wcag_page_initial.url = ""
+        wcag_page_initial.save()
 
     assert len(wcag_audit.testable_wcag_page_initials) == 1
     assert wcag_audit.testable_wcag_page_initials[0].id == testable_page.id

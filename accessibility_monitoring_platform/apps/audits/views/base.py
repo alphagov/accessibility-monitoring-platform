@@ -53,7 +53,7 @@ from ..utils import (
     create_mandatory_pages_for_new_audit,
     create_statement_checks_for_new_audit,
     get_audit_summary_context,
-    report_data_updated,
+    update_published_report_data_updated_time,
 )
 
 
@@ -213,7 +213,7 @@ class WcagAuditUpdateView(AuditUpdateView):
                 simplified_case=self.object.simplified_case,
             )
             if "compliance_state" in form.changed_data:
-                report_data_updated(wcag_audit=self.object)
+                update_published_report_data_updated_time(wcag_audit=self.object)
 
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
@@ -235,58 +235,6 @@ class StatementAuditUpdateView(AuditUpdateView):
             )
             self.object.save()
         return HttpResponseRedirect(self.get_success_url())
-
-
-class AuditCaseComplianceUpdateView(AuditUpdateView):
-    """
-    View to update audit and case compliance fields
-    """
-
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Get context data for template rendering"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-
-        if "case_compliance_form" not in context:
-            if self.request.POST:
-                case_compliance_form: Form = self.case_compliance_form_class(
-                    self.request.POST,
-                    instance=self.object.simplified_case.compliance,
-                    prefix="case-compliance",
-                )
-            else:
-                case_compliance_form: Form = self.case_compliance_form_class(
-                    instance=self.object.simplified_case.compliance,
-                    prefix="case-compliance",
-                )
-            context["case_compliance_form"] = case_compliance_form
-        return context
-
-    def post(
-        self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
-    ) -> HttpResponseRedirect | HttpResponse:
-        """Populate two forms from post request"""
-        self.object: Audit = self.get_object()
-        form: Form = self.form_class(request.POST, instance=self.object)  # type: ignore
-        case_compliance_form: Form = self.case_compliance_form_class(
-            request.POST,
-            instance=self.object.simplified_case.compliance,
-            prefix="case-compliance",
-        )
-        if form.is_valid() and case_compliance_form.is_valid():
-            form.save()
-            case_compliance_form.save()
-            audit: Audit = self.object
-            audit.simplified_case.update_case_status()
-            if "website_compliance_state_initial" in case_compliance_form.changed_data:
-                report_data_updated(audit=self.object)
-            return HttpResponseRedirect(self.get_success_url())
-        else:
-            return self.render_to_response(
-                self.get_context_data(
-                    form=form,
-                    case_compliance_form=case_compliance_form,
-                )
-            )
 
 
 class WcagDefinitionListView(ListView):

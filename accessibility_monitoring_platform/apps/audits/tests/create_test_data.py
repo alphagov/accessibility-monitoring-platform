@@ -1,5 +1,6 @@
 """Create Wcag and Statement audit data for unit testing"""
 
+from django.contrib.auth.models import User
 from django.utils import timezone
 
 from ...simplified.models import SimplifiedCase
@@ -24,7 +25,10 @@ WCAG_TYPE_PDF_NAME: str = "PDF WCAG"
 
 def create_initial_wcag_audit() -> WcagAudit:
     """Create an initial wcag_audit with all types of page and some check results"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    auditor: User = User.objects.create(
+        username="johnsmith", first_name="John", last_name="Smith"
+    )
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=auditor)
     initial_wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=simplified_case
     )
@@ -50,7 +54,9 @@ def create_initial_wcag_audit() -> WcagAudit:
         WcagPageInitial.Type.FORM,
     ]:
         wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
-            wcag_audit=initial_wcag_audit, page_type=page_type
+            wcag_audit=initial_wcag_audit,
+            page_type=page_type,
+            url=f"https://test.com/{page_type}",
         )
         for wcag_definition in wcag_definitions:
             WcagCheckResultInitial.objects.create(
@@ -60,7 +66,9 @@ def create_initial_wcag_audit() -> WcagAudit:
                 wcag_definition=wcag_definition,
             )
     wcag_page_initial_pdf: WcagPageInitial = WcagPageInitial.objects.create(
-        wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.PDF
+        wcag_audit=initial_wcag_audit,
+        page_type=WcagPageInitial.Type.PDF,
+        url="https://test.com/pdf",
     )
     WcagCheckResultInitial.objects.create(
         wcag_audit=initial_wcag_audit,

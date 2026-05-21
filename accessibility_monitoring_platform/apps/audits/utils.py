@@ -1,5 +1,4 @@
 """
-        "compliance_state": wcag_audit.compliance_state,
 Utilities for audits app
 """
 
@@ -141,7 +140,9 @@ def create_or_update_wcag_check_result_initials_for_page(
                 add_to_check_result_notes_history(
                     wcag_check_result_initial=wcag_check_result_initial, user=user
                 )
-                report_data_updated(audit=wcag_check_result_initial.audit)
+                update_published_report_data_updated_time(
+                    wcag_audit=wcag_check_result_initial.wcag_audit
+                )
                 wcag_check_result_initial.save()
         elif (
             notes != ""
@@ -167,7 +168,9 @@ def create_or_update_wcag_check_result_initials_for_page(
                 user=user,
                 new_check_result=True,
             )
-            report_data_updated(wcag_audit=wcag_page_initial.wcag_audit)
+            update_published_report_data_updated_time(
+                wcag_audit=wcag_page_initial.wcag_audit
+            )
 
 
 def get_page_check_results_formset_initial(
@@ -379,7 +382,7 @@ def other_page_failed_check_results(
     return failed_check_results_by_wcag_definition
 
 
-def report_data_updated(wcag_audit: WcagAudit) -> None:
+def update_published_report_data_updated_time(wcag_audit: WcagAudit) -> None:
     """Record when an update changing report content as occurred."""
     now: datetime = timezone.now()
     audit_overview: AuditOverview = wcag_audit.simplified_case.audit_overview

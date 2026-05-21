@@ -18,7 +18,10 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from ..audits.models import WcagAudit
-from ..audits.utils import get_audit_summary_context, report_data_updated
+from ..audits.utils import (
+    get_audit_summary_context,
+    update_published_report_data_updated_time,
+)
 from ..cases.csv_export import populate_equality_body_columns
 from ..cases.forms import CaseSearchForm
 from ..cases.models import TestType
@@ -324,7 +327,9 @@ class CaseMetadataUpdateView(CaseUpdateView):
                 or "home_page_url" in form.changed_data
                 or "organisation_name" in form.changed_data
             ):
-                report_data_updated(audit=simplified_case.audit)
+                update_published_report_data_updated_time(
+                    wcag_audit=simplified_case.audit_overview.wcag_audit_initial
+                )
         return super().form_valid(form=form)
 
 

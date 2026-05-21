@@ -49,9 +49,9 @@ from ..utils import (
     get_page_check_results_formset_initial,
     index_or_404,
     other_page_failed_check_results,
-    report_data_updated,
+    update_published_report_data_updated_time,
 )
-from .create_test_data import create_initial_wcag_audit
+from .create_test_data import create_initial_wcag_audit, create_twelve_week_wcag_audit
 
 TODAY: date = date.today()
 HOME_PAGE_URL: str = "https://example.com/home"
@@ -250,42 +250,44 @@ def test_create_mandatory_pages_for_new_audit():
     create_mandatory_pages_for_new_audit(wcag_audit=wcag_audit)
 
     assert wcag_audit.wcagpageinitial_set.all().count() == len(
-        WcagPageRetest.MANDATORY_PAGE_TYPES
+        WcagPageInitial.MANDATORY_PAGE_TYPES
     )
 
-    home_page: WcagPageRetest = wcag_audit.wcagpageinitial_set.filter(
-        page_type=WcagPageRetest.Type.HOME
-    ).first()
+    home_page: WcagPageInitial = wcag_audit.wcagpageinitial_set.get(
+        page_type=WcagPageInitial.Type.HOME
+    )
 
     assert home_page.url == HOME_PAGE_URL
 
 
 @pytest.mark.django_db
 def test_update_check_results_for_page():
-    """Test update of check results for a page"""
+    """Test update and adding wcag check result initials for a page"""
     wcag_audit: WcagAudit = create_initial_wcag_audit()
-    page_home: WcagPageInitial = WcagPageInitial.objects.get(
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
         wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
     )
 
-    check_results: QuerySet[WcagCheckResultInitial] = (
-        WcagCheckResultInitial.objects.filter(wcag_page_initial=page_home)
+    wcag_check_result_initials: QuerySet[WcagCheckResultInitial] = (
+        WcagCheckResultInitial.objects.filter(wcag_page_initial=wcag_page_initial)
     )
 
-    number_of_forms: int = len(check_results) + 1
+    number_of_forms: int = len(wcag_check_result_initials) + 1
     formset_data: dict[str, int | str] = {
         "form-TOTAL_FORMS": number_of_forms,
         "form-INITIAL_FORMS": number_of_forms,
         "form-MIN_NUM_FORMS": 0,
         "form-MAX_NUM_FORMS": 1000,
     }
-    for count, check_result in enumerate(check_results):
-        formset_data[f"form-{count}-wcag_definition"] = check_result.wcag_definition.id
+    for count, wcag_check_result_initial in enumerate(wcag_check_result_initials):
+        formset_data[f"form-{count}-wcag_definition"] = (
+            wcag_check_result_initial.wcag_definition.id
+        )
         formset_data[f"form-{count}-check_result_state"] = CheckResult.Result.ERROR
         formset_data[f"form-{count}-notes"] = UPDATED_NOTE
 
-    new_form_index: int = len(check_results)
-    new_wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+    new_form_index: int = len(wcag_check_result_initials)
+    new_wcag_definition: WcagDefinition = WcagDefinition.objects.get(
         type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
     formset_data[f"form-{new_form_index}-wcag_definition"] = new_wcag_definition.id
@@ -297,124 +299,76 @@ def test_update_check_results_for_page():
     )
     check_results_formset.is_valid()
 
-    assert wcag_audit.published_report_data_updated_time is None
+    assert (
+        wcag_audit.simplified_case.audit_overview.published_report_data_updated_time
+        is None
+    )
 
     create_or_update_wcag_check_result_initials_for_page(
         user=wcag_audit.simplified_case.auditor,
-        wcag_page_initial=page_home,
+        wcag_page_initial=wcag_page_initial,
         check_result_forms=check_results_formset.forms,
     )
 
-    updated_check_result: CheckResult = CheckResult.objects.get(
-        page=page_home, type=WcagDefinition.Type.MANUAL
+    updated_check_result: WcagCheckResultInitial = WcagCheckResultInitial.objects.get(
+        wcag_page_initial=wcag_page_initial, type=WcagDefinition.Type.MANUAL
     )
 
     assert updated_check_result.check_result_state == CheckResult.Result.ERROR
     assert updated_check_result.notes == UPDATED_NOTE
 
-    updated_audit: Audit = Audit.objects.get(id=wcag_audit.id)
+    updated_wcag_audit: WcagAudit = WcagAudit.objects.get(id=wcag_audit.id)
 
-    assert updated_audit.published_report_data_updated_time is not None
-
-
-@pytest.mark.django_db
-def test_create_check_results_for_page():
-    """Test create of check results for a page"""
-    wcag_audit: WcagAudit = create_initial_wcag_audit()
-    page_home: WcagPageRetest = WcagPageRetest.objects.get(
-        wcag_audit=wcag_audit, page_type=WcagPageRetest.Type.HOME
+    assert (
+        updated_wcag_audit.simplified_case.audit_overview.published_report_data_updated_time
+        is not None
     )
-
-    check_results: QuerySet[CheckResult] = CheckResult.objects.filter(page=page_home)
-
-    number_of_forms: int = len(check_results) + 1
-    formset_data: dict[str, int | str] = {
-        "form-TOTAL_FORMS": number_of_forms,
-        "form-INITIAL_FORMS": number_of_forms,
-        "form-MIN_NUM_FORMS": 0,
-        "form-MAX_NUM_FORMS": 1000,
-    }
-    for count, check_result in enumerate(check_results):
-        formset_data[f"form-{count}-wcag_definition"] = check_result.wcag_definition.id
-        formset_data[f"form-{count}-check_result_state"] = (
-            check_result.check_result_state
-        )
-        formset_data[f"form-{count}-notes"] = check_result.notes
-
-    new_form_index: int = len(check_results)
-    new_wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
-    )
-    formset_data[f"form-{new_form_index}-wcag_definition"] = new_wcag_definition.id
-    formset_data[f"form-{new_form_index}-check_result_state"] = CheckResult.Result.ERROR
-    formset_data[f"form-{new_form_index}-notes"] = NEW_CHECK_NOTE
-
-    check_results_formset: WcagCheckResultInitialFormset = (
-        WcagCheckResultInitialFormset(formset_data)
-    )
-    check_results_formset.is_valid()
-
-    assert wcag_audit.published_report_data_updated_time is None
-
-    create_or_update_wcag_check_result_initials_for_page(
-        user=wcag_audit.simplified_case.auditor,
-        wcag_page_initial=page_home,
-        check_result_forms=check_results_formset.forms,
-    )
-
-    new_check_result: CheckResult = CheckResult.objects.get(
-        page=page_home, type=WcagDefinition.Type.AXE
-    )
-
-    assert new_check_result.check_result_state == CheckResult.Result.ERROR
-    assert new_check_result.notes == NEW_CHECK_NOTE
-
-    updated_audit: Audit = Audit.objects.get(id=wcag_audit.id)
-
-    assert updated_audit.published_report_data_updated_time is not None
 
 
 @pytest.mark.django_db
 def test_get_all_possible_check_results_for_page():
     """Test building list of all possible test results"""
-    audit: WcagAudit = create_initial_wcag_audit()
-    page_home: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
     WcagDefinition.objects.create(type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME)
     wcag_definitions: list[WcagDefinition] = list(WcagDefinition.objects.all())
 
     all_check_results: list[dict[str, str | WcagDefinition | CheckResult]] = (
         get_page_check_results_formset_initial(
-            page=page_home, wcag_definitions=wcag_definitions
+            wcag_page_initial=wcag_page_initial, wcag_definitions=wcag_definitions
         )
     )
 
-    assert len(all_check_results) == 3
+    assert len(all_check_results) == 80
 
-    assert all_check_results == [
+    pdf_wcag_definitions: list[WcagDefinition] = list(
+        WcagDefinition.objects.filter(type=WcagDefinition.Type.PDF)
+    )
+
+    assert len(pdf_wcag_definitions) > 3
+    assert all_check_results[:3] == [
         {
-            "wcag_definition": WcagDefinition.objects.get(type=WcagDefinition.Type.PDF),
-            "check_result_state": "not-tested",
+            "wcag_definition": pdf_wcag_definitions[0],
+            "check_result": None,
+            "check_result_state": CheckResult.Result.NOT_TESTED,
             "notes": "",
             "issue_identifier": "",
+        },
+        {
+            "wcag_definition": pdf_wcag_definitions[1],
             "check_result": None,
-        },
-        {
-            "wcag_definition": WcagDefinition.objects.get(
-                type=WcagDefinition.Type.MANUAL
-            ),
-            "check_result_state": "not-tested",
-            "notes": "",
-            "issue_identifier": "1-A-1",
-            "check_result": CheckResult.objects.get(
-                page=page_home, type=WcagDefinition.Type.MANUAL
-            ),
-        },
-        {
-            "wcag_definition": WcagDefinition.objects.get(type=WcagDefinition.Type.AXE),
-            "check_result_state": "not-tested",
+            "check_result_state": CheckResult.Result.NOT_TESTED,
             "notes": "",
             "issue_identifier": "",
+        },
+        {
+            "wcag_definition": pdf_wcag_definitions[2],
             "check_result": None,
+            "check_result_state": CheckResult.Result.NOT_TESTED,
+            "notes": "",
+            "issue_identifier": "",
         },
     ]
 
@@ -426,6 +380,9 @@ def test_get_next_platform_page_audit_with_no_pages():
     when audit has no testable pages.
     """
     wcag_audit: WcagAudit = create_initial_wcag_audit()
+    for wcag_page_initial in WcagPageInitial.objects.filter(wcag_audit=wcag_audit):
+        wcag_page_initial.url = ""
+        wcag_page_initial.save()
 
     platform_page: PlatformPage = get_next_platform_page_wcag_page_initial(
         wcag_audit=wcag_audit
@@ -443,13 +400,20 @@ def test_get_next_platform_page_audit_with_pages():
         home_page_url=HOME_PAGE_URL
     )
     wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
-    create_mandatory_pages_for_new_audit(wcag_audit=wcag_audit)
     audit_pk: dict[str, int] = {"pk": wcag_audit.id}
+    create_mandatory_pages_for_new_audit(wcag_audit=wcag_audit)
+    wcag_page_initial_pdf: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.PDF
+    )
+    wcag_page_initial_pdf.url = "https://test.com/pdf"
+    wcag_page_initial_pdf.save()
+
+    assert wcag_audit.testable_wcag_page_initials.count() == 2
 
     next_page: WcagPageInitial = wcag_audit.testable_wcag_page_initials[0]
     next_page_pk: dict[str, int] = {"pk": next_page.id}
     platform_page: PlatformPage = get_next_platform_page_wcag_page_initial(
-        audit=wcag_audit
+        wcag_audit=wcag_audit
     )
 
     assert platform_page.url == reverse(
@@ -462,7 +426,7 @@ def test_get_next_platform_page_audit_with_pages():
     next_page: Page = wcag_audit.testable_wcag_page_initials[1]
     next_page_pk: dict[str, int] = {"pk": next_page.id}
     platform_page: PlatformPage = get_next_platform_page_wcag_page_initial(
-        audit=wcag_audit, current_wcag_page_initial=current_wcag_page_initial
+        wcag_audit=wcag_audit, current_wcag_page_initial=current_wcag_page_initial
     )
 
     assert platform_page.url == reverse(
@@ -471,47 +435,66 @@ def test_get_next_platform_page_audit_with_pages():
 
     current_wcag_page_initial: Page = wcag_audit.testable_wcag_page_initials[1]
     platform_page: PlatformPage = get_next_platform_page_wcag_page_initial(
-        audit=wcag_audit, current_wcag_page_initial=current_wcag_page_initial
+        wcag_audit=wcag_audit, current_wcag_page_initial=current_wcag_page_initial
     )
 
     assert platform_page.url == reverse("audits:edit-website-decision", kwargs=audit_pk)
 
 
 @pytest.mark.django_db
-def test_get_next_platform_page_twelve_week_audit_with_pages():
+def test_get_next_platform_page_twelve_week_wcag_audit_with_pages():
     """
     Test get_next_platform_page_twelve_week returns platform page
-    for each testable page (with errors) in audit in in turn.
+    for each testable page (with errors) in audit in turn.
     """
-    audit: WcagAudit = create_initial_wcag_audit()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-    for page in audit.testable_pages:
-        for check_result in page.all_check_results:
-            check_result.check_result_state = CheckResult.Result.ERROR
-            check_result.save()
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit
+    )
+    audit_pk: dict[str, int] = {"pk": twelve_week_wcag_audit.id}
+    for wcag_page_initial in (
+        WcagPageInitial.objects.filter(wcag_audit=initial_wcag_audit)
+        .exclude(page_type=WcagPageInitial.Type.HOME)
+        .exclude(page_type=WcagPageInitial.Type.PDF)
+    ):
+        wcag_page_initial.url = ""
+        wcag_page_initial.save()
 
-    next_page: Page = audit.testable_pages[0]
+    assert twelve_week_wcag_audit.retestable_wcag_page_retests.count() == 2
+
+    for wcag_page_initial in initial_wcag_audit.testable_wcag_page_initials:
+        for (
+            wcag_check_result_initial
+        ) in wcag_page_initial.all_wcag_check_result_initials:
+            wcag_check_result_initial.check_result_state = CheckResult.Result.ERROR
+            wcag_check_result_initial.save()
+
+    next_page: WcagPageRetest = twelve_week_wcag_audit.retestable_wcag_page_retests[0]
     next_page_pk: dict[str, int] = {"pk": next_page.id}
-    platform_page: PlatformPage = get_next_platform_page_twelve_week(audit=audit)
+    platform_page: PlatformPage = get_next_platform_page_twelve_week(
+        wcag_audit=twelve_week_wcag_audit
+    )
 
     assert platform_page.url == reverse(
         "audits:edit-wcag-page-retest-check-results", kwargs=next_page_pk
     )
 
-    current_page: Page = audit.testable_pages[0]
-    next_page: Page = audit.testable_pages[1]
+    current_page: WcagPageInitial = twelve_week_wcag_audit.retestable_wcag_page_retests[
+        0
+    ]
+    next_page: WcagPageInitial = twelve_week_wcag_audit.retestable_wcag_page_retests[1]
     next_page_pk: dict[str, int] = {"pk": next_page.id}
     platform_page: PlatformPage = get_next_platform_page_twelve_week(
-        audit=audit, current_page=current_page
+        wcag_audit=twelve_week_wcag_audit, current_page=current_page
     )
 
     assert platform_page.url == reverse(
         "audits:edit-wcag-page-retest-check-results", kwargs=next_page_pk
     )
 
-    current_page: Page = audit.testable_pages[1]
+    current_page: Page = twelve_week_wcag_audit.retestable_wcag_page_retests[1]
     platform_page: PlatformPage = get_next_platform_page_twelve_week(
-        audit=audit, current_page=current_page
+        wcag_audit=twelve_week_wcag_audit, current_page=current_page
     )
 
     assert platform_page.url == reverse(
@@ -525,10 +508,10 @@ def test_get_next_platform_page_twelve_week_audit_with_no_errors():
     Test get_next_platform_page_twelve_week returns expected platform page
     for website compliance decision when audit has no pages with errors.
     """
-    audit: WcagAudit = create_initial_wcag_audit()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-    assert get_next_platform_page_twelve_week(audit=audit).url == reverse(
-        "audits:edit-audit-retest-website-decision", kwargs=audit_pk
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_audit_pk: dict[str, int] = {"pk": wcag_audit.id}
+    assert get_next_platform_page_twelve_week(wcag_audit=wcag_audit).url == reverse(
+        "audits:edit-audit-retest-website-decision", kwargs=wcag_audit_pk
     )
 
 
@@ -538,42 +521,48 @@ def test_other_page_failed_check_results():
     Test other_page_failed_check_results returns a dictionary of all the failed
     check results entered for other pages
     """
-    audit: WcagAudit = create_initial_wcag_audit()
-    home_page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
-    extra_page: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.EXTRA, url="https://example.com/extra"
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    home_page: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
     )
-    Page.objects.create(
-        audit=audit, page_type=Page.Type.EXTRA, url="https://example.com/extra2"
+    extra_page: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit,
+        page_type=WcagPageInitial.Type.EXTRA,
+        url="https://example.com/extra",
     )
-    wcag_definition_manual: WcagDefinition = WcagDefinition.objects.get(
+    WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit,
+        page_type=WcagPageInitial.Type.EXTRA,
+        url="https://example.com/extra2",
+    )
+    wcag_definition_manual: WcagDefinition = WcagDefinition.objects.filter(
         type=WcagDefinition.Type.MANUAL
-    )
-    for page in audit.html_pages:
-        CheckResult.objects.create(
-            audit=audit,
-            page=page,
+    ).first()
+    for wcag_page_initial in wcag_audit.html_wcag_page_initials:
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit,
+            wcag_page_initial=wcag_page_initial,
             wcag_definition=wcag_definition_manual,
             type=wcag_definition_manual.type,
         )
-        CheckResult.objects.create(
-            audit=audit,
-            page=page,
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit,
+            wcag_page_initial=wcag_page_initial,
             wcag_definition=wcag_definition_manual,
             type=wcag_definition_manual.type,
-            check_result_state=CheckResult.Result.ERROR,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
         )
-    failed_check_results: dict[WcagDefinition, list[CheckResult]] = (
-        other_page_failed_check_results(page=extra_page)
+    failed_check_results: dict[WcagDefinition, list[WcagCheckResultInitial]] = (
+        other_page_failed_check_results(wcag_page_initial=extra_page)
     )
 
-    assert len(home_page.failed_check_results) == 1
+    assert len(home_page.failed_wcag_check_result_initials) == 1
     assert wcag_definition_manual in failed_check_results
-    assert len(failed_check_results[wcag_definition_manual]) == 2
+    assert len(failed_check_results[wcag_definition_manual]) == 6
 
     assert (
-        failed_check_results[wcag_definition_manual][0]
-        == home_page.failed_check_results[0]
+        home_page.failed_wcag_check_result_initials[0]
+        in failed_check_results[wcag_definition_manual]
     )
 
 
@@ -581,13 +570,13 @@ def test_other_page_failed_check_results():
 def test_report_data_updated():
     """Test report data updated fields are populated"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
 
-    assert audit.published_report_data_updated_time is None
+    assert wcag_audit.published_report_data_updated_time is None
 
-    report_data_updated(audit=audit)
+    update_published_report_data_updated_time(wcag_audit=wcag_audit)
 
-    assert audit.published_report_data_updated_time is not None
+    assert wcag_audit.published_report_data_updated_time is not None
 
 
 @pytest.mark.django_db
