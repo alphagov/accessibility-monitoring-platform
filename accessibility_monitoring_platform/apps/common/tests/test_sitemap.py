@@ -8,15 +8,7 @@ from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains
 
-from ...audits.models import (
-    Audit,
-    Page,
-    Retest,
-    RetestPage,
-    WcagAudit,
-    WcagCheckResultInitial,
-    WcagPageInitial,
-)
+from ...audits.models import Audit, Page, Retest, RetestPage, WcagAudit, WcagPageInitial
 from ...audits.tests.create_test_data import (
     create_initial_wcag_audit,
     create_simplified_case_with_full_audit,
@@ -58,6 +50,7 @@ from ..sitemap import (
     SimplifiedCasePlatformPageGroup,
     Sitemap,
     WcagAuditInitialPagesPlatformPage,
+    WcagAuditPlatformPage,
     WcagAuditRetestPagesPlatformPage,
     build_sitemap_by_url_name,
     build_sitemap_for_current_page,
@@ -205,7 +198,7 @@ def test_platform_page_populate_subpage_instances():
         subpages=[
             PlatformPage(name=PLATFORM_PAGE_NAME, instance_class=SimplifiedCase),
             PlatformPage(name=PLATFORM_PAGE_NAME, instance_class=SimplifiedCase),
-            PlatformPage(name=PLATFORM_PAGE_NAME, instance_class=Audit),
+            PlatformPage(name=PLATFORM_PAGE_NAME, instance_class=WcagAudit),
         ],
     )
 
@@ -305,13 +298,14 @@ def test_platform_page_get_case():
         == simplified_case
     )
 
-    audit: Audit = Audit(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit(simplified_case=simplified_case)
 
     assert (
-        PlatformPage(name=PLATFORM_PAGE_NAME, instance=audit).get_case()
+        PlatformPage(name=PLATFORM_PAGE_NAME, instance=wcag_audit).get_case()
         == simplified_case
     )
-    page: Page = Page(audit=audit)
+
+    page: WcagPageInitial = WcagPageInitial(wcag_audit=wcag_audit)
 
     assert (
         PlatformPage(name=PLATFORM_PAGE_NAME, instance=page).get_case()
@@ -465,19 +459,21 @@ def test_case_contacts_platform_page():
 
 
 @pytest.mark.django_db
-def test_audit_platform_page():
-    """Test AuditPlatformPage"""
-    audit_platform_page: AuditPlatformPage = AuditPlatformPage(name=PLATFORM_PAGE_NAME)
+def test_wcag_audit_platform_page():
+    """Test WcagAuditPlatformPage"""
+    audit_platform_page: WcagAuditPlatformPage = WcagAuditPlatformPage(
+        name=PLATFORM_PAGE_NAME
+    )
 
-    assert audit_platform_page.instance_class == Audit
+    assert audit_platform_page.instance_class == WcagAudit
     assert audit_platform_page.url_kwarg_key == "pk"
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
 
     audit_platform_page.populate_from_case(case=simplified_case)
 
-    assert audit_platform_page.instance == audit
+    assert audit_platform_page.instance == wcag_audit
 
 
 @pytest.mark.django_db

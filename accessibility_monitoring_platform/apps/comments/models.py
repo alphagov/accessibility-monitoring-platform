@@ -11,21 +11,27 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
-from ..audits.models import CheckResult, StatementCheck, StatementCheckResult
+from ..audits.models import (
+    CheckResult,
+    StatementCheck,
+    StatementCheckResult,
+    StatementCheckResultInitial,
+    WcagCheckResultInitial,
+)
 from ..cases.models import BaseCase
 from ..common.utils import replace_whole_words, undo_double_escapes
 
 
 def get_initial_check_result_url_from_issue_identifier(issue_identifier: str) -> str:
     try:
-        check_result: CheckResult = CheckResult.objects.get(
-            issue_identifier=issue_identifier
+        wcag_check_result_initial: WcagCheckResultInitial = (
+            WcagCheckResultInitial.objects.get(issue_identifier=issue_identifier)
         )
         url: str = reverse(
             "audits:edit-audit-page-checks",
-            kwargs={"pk": check_result.page.id},
+            kwargs={"pk": wcag_check_result_initial.wcag_page_initial.id},
         )
-    except CheckResult.DoesNotExist:
+    except WcagCheckResultInitial.DoesNotExist:
         url: str = ""
     return url
 
@@ -34,16 +40,16 @@ def get_initial_statement_check_result_url_from_issue_identifier(
     issue_identifier: str,
 ) -> str:
     try:
-        statement_check_result: StatementCheckResult = StatementCheckResult.objects.get(
-            issue_identifier=issue_identifier
+        statement_check_result_initial: StatementCheckResultInitial = (
+            StatementCheckResultInitial.objects.get(issue_identifier=issue_identifier)
         )
-        if statement_check_result.type == StatementCheck.Type.TWELVE_WEEK:
+        if statement_check_result_initial.type == StatementCheck.Type.TWELVE_WEEK:
             return ""
         url: str = reverse(
-            f"audits:edit-statement-{statement_check_result.type}",
-            kwargs={"pk": statement_check_result.audit.id},
+            f"audits:edit-statement-{statement_check_result_initial.type}",
+            kwargs={"pk": statement_check_result_initial.statement_audit.id},
         )
-    except StatementCheckResult.DoesNotExist:
+    except StatementCheckResultInitial.DoesNotExist:
         url: str = ""
     return url
 
