@@ -133,7 +133,6 @@ def create_initial_statement_audit(
     StatementCheckResultInitial.objects.create(
         statement_audit=initial_statement_audit,
         public_comment="Custom statement issue",
-        check_result_state=StatementCheckResultInitial.Result.NO,
     )
     return initial_statement_audit
 
@@ -188,3 +187,4 @@ def create_simplified_case_with_full_audit() -> SimplifiedCase:
         simplified_case=initial_wcag_audit.simplified_case
     )
     create_twelve_week_statement_audit(initial_statement_audit=initial_statement_audit)
+    return initial_statement_audit.simplified_case
