@@ -36,7 +36,13 @@ def populate_audit_rounds(apps, schema_editor):
     RetestPage = apps.get_model("audits", "RetestPage")
     WcagPageRetest = apps.get_model("audits", "WcagPageRetest")
     RetestCheckResult = apps.get_model("audits", "RetestCheckResult")
+    CheckResultRetestNotesHistory = apps.get_model(
+        "audits", "CheckResultRetestNotesHistory"
+    )
     WcagCheckResultRetest = apps.get_model("audits", "WcagCheckResultRetest")
+    WcagCheckResultRetestNotesHistory = apps.get_model(
+        "audits", "WcagCheckResultRetestNotesHistory"
+    )
     RetestStatementCheckResult = apps.get_model("audits", "RetestStatementCheckResult")
     for audit in Audit.objects.all().order_by("id"):
         audit_overview = AuditOverview.objects.create(
@@ -179,7 +185,7 @@ def populate_audit_rounds(apps, schema_editor):
                 ] = wcag_check_result_initial
                 if wcag_audit_12_week is not None and wcag_page_retest is not None:
                     # if check_result.retest_state != "not-retested" or check_result.retest_notes != "":
-                    WcagCheckResultRetest.objects.create(
+                    wcag_check_result_retest = WcagCheckResultRetest.objects.create(
                         wcag_audit=wcag_audit_12_week,
                         wcag_page_retest=wcag_page_retest,
                         wcag_check_result_initial=wcag_check_result_initial,
@@ -189,6 +195,8 @@ def populate_audit_rounds(apps, schema_editor):
                         notes=check_result.retest_notes,
                         updated=check_result.updated,
                     )
+                else:
+                    wcag_check_result_retest = None
                 for (
                     check_result_notes_history
                 ) in CheckResultNotesHistory.objects.filter(check_result=check_result):
@@ -200,6 +208,20 @@ def populate_audit_rounds(apps, schema_editor):
                             wcag_check_result_initial=wcag_check_result_initial,
                             notes=check_result_notes_history.notes,
                             created_by=check_result_notes_history.created_by,
+                        )
+                for (
+                    check_result_retest_notes_history
+                ) in CheckResultRetestNotesHistory.objects.filter(
+                    check_result=check_result
+                ):
+                    with patch(
+                        "django.utils.timezone.now",
+                        Mock(return_value=check_result_retest_notes_history.created),
+                    ):
+                        WcagCheckResultRetestNotesHistory.objects.create(
+                            wcag_check_result_retest=wcag_check_result_retest,
+                            notes=check_result_retest_notes_history.retest_notes,
+                            created_by=check_result_retest_notes_history.created_by,
                         )
 
         statement_check_results_initial_by_statement_check = {}

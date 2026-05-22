@@ -139,7 +139,7 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
         user=request.user, model_object=statement_audit, simplified_case=simplified_case
     )
     create_mandatory_pages_for_new_audit(wcag_audit=wcag_audit)
-    create_statement_checks_for_new_audit(audit=audit, statement_audit=statement_audit)
+    create_statement_checks_for_new_audit(statement_audit=statement_audit)
     CaseEvent.objects.create(
         simplified_case=simplified_case,
         done_by=request.user,

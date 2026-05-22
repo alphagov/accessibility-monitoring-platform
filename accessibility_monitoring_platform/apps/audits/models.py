@@ -1711,7 +1711,25 @@ class WcagCheckResultInitialNotesHistory(models.Model):
 
     class Meta:
         ordering = ["-created"]
-        verbose_name_plural = "Check result notes histories"
+        verbose_name_plural = "WCAG check result initial notes histories"
+
+
+class WcagCheckResultRetestNotesHistory(models.Model):
+    """Model to record history of changes to WcagCheckResultRetest notes"""
+
+    wcag_check_result_retest = models.ForeignKey(
+        WcagCheckResultRetest, on_delete=models.PROTECT
+    )
+    notes = models.TextField(default="", blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"#{self.wcag_check_result_retest} {self.created} {self.created_by}"
+
+    class Meta:
+        ordering = ["-created"]
+        verbose_name_plural = "WCAG check result retest notes histories"
 
 
 class CheckResultRetestNotesHistory(models.Model):

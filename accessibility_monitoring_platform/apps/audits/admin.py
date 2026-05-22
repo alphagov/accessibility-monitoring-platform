@@ -24,7 +24,9 @@ from .models import (
     StatementPage,
     WcagAudit,
     WcagCheckResultInitial,
+    WcagCheckResultInitialNotesHistory,
     WcagCheckResultRetest,
+    WcagCheckResultRetestNotesHistory,
     WcagDefinition,
     WcagPageInitial,
     WcagPageRetest,
@@ -198,6 +200,36 @@ class CheckResultRetestNotesHistoryAdmin(admin.ModelAdmin):
     list_display = ["check_result", "created_by", "retest_state", "created"]
     list_filter = ["created_by", "retest_state"]
     readonly_fields = ["check_result", "created"]
+    show_facets = admin.ShowFacets.ALWAYS
+
+
+class WcagCheckResultInitialNotesHistoryAdmin(admin.ModelAdmin):
+    search_fields = [
+        "wcag_check_result_initial__issue_identifier",
+        "wcag_check_result_initial__wcag_audit_initial__simplified_case__organisation_name",
+        "wcag_check_result_initial__wcag_audit_initial__simplified_case__case_identifier",
+        "wcag_check_result_initial__wcag_definition__name",
+        "wcag_check_result_initial__wcag_page_initial__name",
+        "wcag_check_result_initial__wcag_page_initial__page_type",
+    ]
+    list_display = ["wcag_check_result_initial", "created_by", "created"]
+    list_filter = ["created_by"]
+    readonly_fields = ["wcag_check_result_initial", "created"]
+    show_facets = admin.ShowFacets.ALWAYS
+
+
+class WcagCheckResultRetestNotesHistoryAdmin(admin.ModelAdmin):
+    search_fields = [
+        "wcag_check_result_retest__wcag_check_result_initial__issue_identifier",
+        "wcag_check_result_retest__wcag_check_result_initial__wcag_audit_retest__simplified_case__organisation_name",
+        "wcag_check_result_retest__wcag_check_result_initial__wcag_audit_retest__simplified_case__case_identifier",
+        "wcag_check_result_retest__wcag_check_result_initial__wcag_definition__name",
+        "wcag_check_result_retest__wcag_check_result_initial__wcag_page_initial__name",
+        "wcag_check_result_retest__wcag_check_result_initial__wcag_page_initial__page_type",
+    ]
+    list_display = ["wcag_check_result_retest", "created_by", "created"]
+    list_filter = ["created_by"]
+    readonly_fields = ["wcag_check_result_retest", "created"]
     show_facets = admin.ShowFacets.ALWAYS
 
 
@@ -471,7 +503,13 @@ admin.site.register(WcagPageInitial, WcagPageInitialAdmin)
 admin.site.register(WcagPageRetest, WcagPageRetestAdmin)
 admin.site.register(CheckResult, CheckResultAdmin)
 admin.site.register(WcagCheckResultInitial, WcagCheckResultInitialAdmin)
+admin.site.register(
+    WcagCheckResultInitialNotesHistory, WcagCheckResultInitialNotesHistoryAdmin
+)
 admin.site.register(WcagCheckResultRetest, WcagCheckResultRetestAdmin)
+admin.site.register(
+    WcagCheckResultRetestNotesHistory, WcagCheckResultRetestNotesHistoryAdmin
+)
 admin.site.register(CheckResultNotesHistory, CheckResultNotesHistoryAdmin)
 admin.site.register(CheckResultRetestNotesHistory, CheckResultRetestNotesHistoryAdmin)
 admin.site.register(WcagDefinition, WcagDefinitionAdmin)

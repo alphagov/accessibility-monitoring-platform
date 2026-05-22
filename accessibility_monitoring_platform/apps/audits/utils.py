@@ -37,6 +37,7 @@ from .models import (
     WcagCheckResultInitial,
     WcagCheckResultInitialNotesHistory,
     WcagCheckResultRetest,
+    WcagCheckResultRetestNotesHistory,
     WcagDefinition,
     WcagPageInitial,
     WcagPageRetest,
@@ -229,9 +230,7 @@ def create_mandatory_pages_for_new_audit(wcag_audit: WcagAudit) -> None:
             WcagPageInitial.objects.create(wcag_audit=wcag_audit, page_type=page_type)
 
 
-def create_statement_checks_for_new_audit(
-    audit: Audit, statement_audit: StatementAudit
-) -> None:
+def create_statement_checks_for_new_audit(statement_audit: StatementAudit) -> None:
     """
     Create statement check results for new audit.
     """
@@ -650,12 +649,26 @@ def add_to_check_result_notes_history(
 
 
 def add_to_check_result_restest_notes_history(
-    wcag_check_result_retest: WcagCheckResultRetest, user: User
+    wcag_check_result_retest: WcagCheckResultRetest,
+    user: User,
+    new_check_result_retest: bool = False,
 ) -> None:
     """Add latest change to WcagCheckResultRetest.notes history"""
-    if wcag_check_result_retest.notes:
-        WcagCheckResultInitialNotesHistory.objects.create(
-            wcag_check_result_initial=wcag_check_result_retest.wcag_check_result_initial,
-            created_by=user,
-            notes=wcag_check_result_retest.notes,
+    if new_check_result_retest is True:
+        previous_wcag_check_result_retest: None = None
+    else:
+        previous_wcag_check_result_retest: WcagCheckResultRetest | None = (
+            WcagCheckResultRetest.objects.filter(id=wcag_check_result_retest.id).first()
+            if wcag_check_result_retest.id is not None
+            else None
         )
+    if (
+        previous_wcag_check_result_retest is None
+        or wcag_check_result_retest.notes != previous_wcag_check_result_retest.notes
+    ):
+        if wcag_check_result_retest.notes:
+            WcagCheckResultRetestNotesHistory.objects.create(
+                wcag_check_result_retest=wcag_check_result_retest,
+                created_by=user,
+                notes=wcag_check_result_retest.notes,
+            )
