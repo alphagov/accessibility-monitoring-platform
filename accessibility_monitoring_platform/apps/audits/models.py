@@ -509,6 +509,7 @@ class Audit(VersionModel):
     @property
     def all_overview_statement_checks_have_passed(self) -> bool:
         """Check all overview statement checks have passed test or retest"""
+        breakpoint()
         if self.overview_statement_check_results.count() == 0:
             return False
         return (
@@ -1165,6 +1166,8 @@ class StatementAudit(AuditRound):
     @property
     def all_overview_statement_checks_have_passed(self) -> bool:
         """Check all overview statement checks have passed"""
+        if self.overview_statement_check_results.count() == 0:
+            return False
         return (
             self.overview_statement_check_results.exclude(
                 check_result_state=StatementCheckResult.Result.YES

@@ -12,9 +12,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from ..audits.models import (
-    CheckResult,
     StatementCheck,
-    StatementCheckResult,
     StatementCheckResultInitial,
     WcagCheckResultInitial,
 )
