@@ -40,12 +40,17 @@ from ..models import (
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
+    StatementCheckResultInitial,
     StatementPage,
     WcagAudit,
     WcagDefinition,
 )
 from ..utils import create_checkresults_for_retest, create_mandatory_pages_for_new_audit
-from .create_test_data import create_initial_wcag_audit
+from .create_test_data import (
+    create_initial_statement_audit,
+    create_initial_wcag_audit,
+    create_simplified_case_with_full_audit,
+)
 
 TODAY = date.today()
 WCAG_TYPE_AXE_NAME: str = "WCAG Axe name"
@@ -287,31 +292,101 @@ def test_create_audit_creates_case_event(admin_client):
         ("audits:edit-audit-metadata", "Initial test metadata"),
         ("audits:edit-audit-pages", "Add or remove pages"),
         ("audits:edit-website-decision", "Compliance decision"),
+        ("audits:edit-audit-wcag-summary", "WCAG summary"),
+    ],
+)
+def test_initial_wcag_audit_specific_page_loads(
+    path_name, expected_content, admin_client
+):
+    """Test that the initial wcag audit view page loads"""
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_audit_pk: dict[str, int] = {"pk": wcag_audit.id}
+    create_initial_statement_audit(simplified_case=wcag_audit.simplified_case)
+
+    response: HttpResponse = admin_client.get(reverse(path_name, kwargs=wcag_audit_pk))
+
+    assert response.status_code == 200
+
+    assertContains(response, expected_content)
+
+
+@pytest.mark.parametrize(
+    "path_name, expected_content",
+    [
         (
             "audits:edit-statement-decision",
             "Initial statement compliance decision",
         ),
-        ("audits:edit-audit-wcag-summary", "WCAG summary"),
         ("audits:edit-audit-statement-summary", "Statement summary"),
+    ],
+)
+def test_initial_statement_audit_specific_page_loads(
+    path_name, expected_content, admin_client
+):
+    """Test that the initial statement audit view page loads"""
+    statement_audit: StatementAudit = create_initial_statement_audit()
+    statement_audit_pk: dict[str, int] = {"pk": statement_audit.id}
+
+    response: HttpResponse = admin_client.get(
+        reverse(path_name, kwargs=statement_audit_pk)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, expected_content)
+
+
+@pytest.mark.parametrize(
+    "path_name, expected_content",
+    [
         ("audits:edit-audit-retest-wcag-summary", "WCAG summary"),
-        ("audits:edit-audit-retest-statement-summary", "Statement summary"),
         ("audits:edit-audit-retest-metadata", "12-week retest metadata"),
         (
             "audits:edit-audit-retest-website-decision",
             "Compliance decision",
         ),
+    ],
+)
+def test_twelve_week_wcag_audit_specific_page_loads(
+    path_name, expected_content, admin_client
+):
+    """Test that the twelve-week WCAG audit view page loads"""
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    twelve_week_wcag_audit_pk: dict[str, int] = {
+        "pk": simplified_case.audit_overview.first_wcag_audit_12_week_retest.id
+    }
+
+    response: HttpResponse = admin_client.get(
+        reverse(path_name, kwargs=twelve_week_wcag_audit_pk)
+    )
+
+    assert response.status_code == 200
+
+    assertContains(response, expected_content)
+
+
+@pytest.mark.parametrize(
+    "path_name, expected_content",
+    [
+        ("audits:edit-audit-retest-statement-summary", "Statement summary"),
         (
             "audits:edit-audit-retest-statement-decision",
             "Compliance decision",
         ),
     ],
 )
-def test_audit_specific_page_loads(path_name, expected_content, admin_client):
-    """Test that the audit-specific view page loads"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: dict[str, int] = {"pk": audit.id}
+def test_twelve_week_statement_audit_specific_page_loads(
+    path_name, expected_content, admin_client
+):
+    """Test that the twelve-week statement audit view page loads"""
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    twelve_week_statement_audit_pk: dict[str, int] = {
+        "pk": simplified_case.audit_overview.first_statement_audit_12_week_retest.id
+    }
 
-    response: HttpResponse = admin_client.get(reverse(path_name, kwargs=audit_pk))
+    response: HttpResponse = admin_client.get(
+        reverse(path_name, kwargs=twelve_week_statement_audit_pk)
+    )
 
     assert response.status_code == 200
 
@@ -351,14 +426,18 @@ def test_audit_specific_page_loads(path_name, expected_content, admin_client):
         ),
     ],
 )
-def test_audit_statement_check_specific_page_loads(
+def test_twelve_week_audit_statement_check_specific_page_loads(
     path_name, expected_content, admin_client
 ):
     """Test that the audit with statement checks-specific view page loads"""
-    audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: dict[str, int] = {"pk": audit.id}
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    twelve_week_statement_audit_pk: dict[str, int] = {
+        "pk": simplified_case.audit_overview.first_statement_audit_12_week_retest.id
+    }
 
-    response: HttpResponse = admin_client.get(reverse(path_name, kwargs=audit_pk))
+    response: HttpResponse = admin_client.get(
+        reverse(path_name, kwargs=twelve_week_statement_audit_pk)
+    )
 
     assert response.status_code == 200
 
@@ -370,11 +449,62 @@ def test_audit_statement_check_specific_page_loads(
     [
         ("audits:edit-audit-metadata", "save", "audits:edit-audit-metadata"),
         ("audits:edit-audit-metadata", "save_continue", "audits:edit-audit-pages"),
+        ("audits:edit-website-decision", "save", "audits:edit-website-decision"),
+        (
+            "audits:edit-website-decision",
+            "save_continue",
+            "audits:edit-audit-wcag-summary",
+        ),
         ("audits:edit-audit-wcag-summary", "save", "audits:edit-audit-wcag-summary"),
         (
             "audits:edit-audit-wcag-summary",
             "save_continue",
             "audits:edit-statement-pages",
+        ),
+    ],
+)
+def test_initial_wcag_audit_edit_redirects_based_on_button_pressed(
+    path_name,
+    button_name,
+    expected_redirect_path_name,
+    admin_client,
+):
+    """
+    Test that a successful initial WCAG audit update redirects based on the
+    button pressed
+    """
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    initial_wcag_audit_pk: dict[str, int] = {"pk": initial_wcag_audit.id}
+    create_initial_statement_audit(simplified_case=initial_wcag_audit.simplified_case)
+
+    response: HttpResponse = admin_client.post(
+        reverse(path_name, kwargs=initial_wcag_audit_pk),
+        {
+            "version": initial_wcag_audit.version,
+            button_name: "Button value",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse(
+        expected_redirect_path_name, kwargs=initial_wcag_audit_pk
+    )
+    assert response.url == expected_path
+
+
+@pytest.mark.parametrize(
+    "path_name, button_name, expected_redirect_path_name",
+    [
+        ("audits:edit-statement-decision", "save", "audits:edit-statement-decision"),
+        (
+            "audits:edit-statement-decision",
+            "save_continue",
+            "audits:edit-audit-statement-summary",
         ),
         (
             "audits:edit-audit-statement-summary",
@@ -386,6 +516,47 @@ def test_audit_statement_check_specific_page_loads(
             "save_continue",
             "simplified:edit-create-report",
         ),
+    ],
+)
+def test_initial_statement_audit_edit_redirects_based_on_button_pressed(
+    path_name,
+    button_name,
+    expected_redirect_path_name,
+    admin_client,
+):
+    """
+    Test that a successful initial statement audit update redirects based on the
+    button pressed
+    """
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    initial_statement_audit: StatementAudit = create_initial_statement_audit(
+        simplified_case=initial_wcag_audit.simplified_case
+    )
+    initial_statement_audit_pk: dict[str, int] = {"pk": initial_statement_audit.id}
+
+    response: HttpResponse = admin_client.post(
+        reverse(path_name, kwargs=initial_statement_audit_pk),
+        {
+            "version": initial_statement_audit.version,
+            button_name: "Button value",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse(
+        expected_redirect_path_name, kwargs=initial_statement_audit_pk
+    )
+    assert response.url == expected_path
+
+
+@pytest.mark.parametrize(
+    "path_name, button_name, expected_redirect_path_name",
+    [
         (
             "audits:edit-audit-retest-metadata",
             "save",
@@ -400,6 +571,16 @@ def test_audit_statement_check_specific_page_loads(
             "audits:edit-audit-retest-pages",
             "save",
             "audits:edit-audit-retest-pages",
+        ),
+        (
+            "audits:edit-audit-retest-website-decision",
+            "save",
+            "audits:edit-audit-retest-website-decision",
+        ),
+        (
+            "audits:edit-audit-retest-website-decision",
+            "save_continue",
+            "audits:edit-audit-retest-wcag-summary",
         ),
         (
             "audits:edit-audit-retest-wcag-summary",
@@ -410,6 +591,57 @@ def test_audit_statement_check_specific_page_loads(
             "audits:edit-audit-retest-wcag-summary",
             "save_continue",
             "audits:edit-audit-retest-statement-pages",
+        ),
+    ],
+)
+def test_twelve_week_wcag_audit_edit_redirects_based_on_button_pressed(
+    path_name,
+    button_name,
+    expected_redirect_path_name,
+    admin_client,
+):
+    """
+    Test that a successful twelve week WCAG audit update redirects based on the
+    button pressed
+    """
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.first_wcag_audit_12_week_retest
+    )
+    twelve_week_wcag_audit_pk: dict[str, int] = {"pk": twelve_week_wcag_audit.id}
+
+    response: HttpResponse = admin_client.post(
+        reverse(path_name, kwargs=twelve_week_wcag_audit_pk),
+        {
+            "version": twelve_week_wcag_audit.version,
+            button_name: "Button value",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse(
+        expected_redirect_path_name, kwargs=twelve_week_wcag_audit_pk
+    )
+    assert response.url == expected_path
+
+
+@pytest.mark.parametrize(
+    "path_name, button_name, expected_redirect_path_name",
+    [
+        (
+            "audits:edit-audit-retest-statement-decision",
+            "save",
+            "audits:edit-audit-retest-statement-decision",
+        ),
+        (
+            "audits:edit-audit-retest-statement-decision",
+            "save_continue",
+            "audits:edit-audit-retest-statement-summary",
         ),
         (
             "audits:edit-audit-retest-statement-summary",
@@ -423,24 +655,29 @@ def test_audit_statement_check_specific_page_loads(
         ),
     ],
 )
-def test_audit_edit_redirects_based_on_button_pressed(
+def test_twelve_week_statement_audit_edit_redirects_based_on_button_pressed(
     path_name,
     button_name,
     expected_redirect_path_name,
     admin_client,
 ):
     """
-    Test that a successful audit update redirects based on the button pressed
+    Test that a successful twelve week statement audit update redirects based on
+    the button pressed
     """
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: dict[str, int] = {"pk": audit.id}
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    twelve_week_statement_audit: StatementAudit = (
+        simplified_case.audit_overview.first_statement_audit_12_week_retest
+    )
+    twelve_week_statement_audit_pk: dict[str, int] = {
+        "pk": twelve_week_statement_audit.id
+    }
 
     response: HttpResponse = admin_client.post(
-        reverse(path_name, kwargs=audit_pk),
+        reverse(path_name, kwargs=twelve_week_statement_audit_pk),
         {
-            "version": audit.version,
+            "version": twelve_week_statement_audit.version,
             button_name: "Button value",
-            "case-compliance-version": audit.simplified_case.compliance.version,
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
             "form-MIN_NUM_FORMS": "0",
@@ -450,71 +687,14 @@ def test_audit_edit_redirects_based_on_button_pressed(
 
     assert response.status_code == 302
 
-    expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
-    assert response.url == expected_path
-
-
-@pytest.mark.parametrize(
-    "path_name, button_name, expected_redirect_path_name",
-    [
-        ("audits:edit-website-decision", "save", "audits:edit-website-decision"),
-        (
-            "audits:edit-website-decision",
-            "save_continue",
-            "audits:edit-audit-wcag-summary",
-        ),
-        ("audits:edit-statement-decision", "save", "audits:edit-statement-decision"),
-        (
-            "audits:edit-statement-decision",
-            "save_continue",
-            "audits:edit-audit-statement-summary",
-        ),
-        (
-            "audits:edit-audit-retest-website-decision",
-            "save",
-            "audits:edit-audit-retest-website-decision",
-        ),
-        (
-            "audits:edit-audit-retest-website-decision",
-            "save_continue",
-            "audits:edit-audit-retest-wcag-summary",
-        ),
-        (
-            "audits:edit-audit-retest-statement-decision",
-            "save",
-            "audits:edit-audit-retest-statement-decision",
-        ),
-        (
-            "audits:edit-audit-retest-statement-decision",
-            "save_continue",
-            "audits:edit-audit-retest-statement-summary",
-        ),
-    ],
-)
-def test_audit_compliance_edit_redirects_based_on_button_pressed(
-    path_name,
-    button_name,
-    expected_redirect_path_name,
-    admin_client,
-):
-    """
-    Test that a successful audit update redirects based on the button pressed
-    """
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.post(
-        reverse(path_name, kwargs=audit_pk),
-        {
-            "version": audit.version,
-            button_name: "Button value",
-            "case-compliance-version": audit.simplified_case.compliance.version,
-        },
-    )
-
-    assert response.status_code == 302
-
-    expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
+    if expected_redirect_path_name == "simplified:edit-review-changes":
+        expected_path: str = reverse(
+            expected_redirect_path_name, kwargs={"pk": simplified_case.id}
+        )
+    else:
+        expected_path: str = reverse(
+            expected_redirect_path_name, kwargs=twelve_week_statement_audit_pk
+        )
     assert response.url == expected_path
 
 
@@ -523,16 +703,22 @@ def test_audit_statement_summary_page_redirect_when_report_exists(admin_client):
     Test that audit statement summary page redirects to Report ready for QA
     when a report exists
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
     case_pk: dict[str, int] = {"pk": simplified_case.id}
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    audit_pk: dict[str, int] = {"pk": audit.id}
+    twelve_week_statement_audit: StatementAudit = (
+        simplified_case.audit_overview.first_statement_audit_12_week_retest
+    )
+    twelve_week_statement_audit_pk: dict[str, int] = {
+        "pk": twelve_week_statement_audit.id
+    }
     Report.objects.create(base_case=simplified_case)
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-statement-summary", kwargs=audit_pk),
+        reverse(
+            "audits:edit-audit-statement-summary", kwargs=twelve_week_statement_audit_pk
+        ),
         {
-            "version": audit.version,
+            "version": twelve_week_statement_audit.version,
             "save_continue": "Button value",
         },
     )
@@ -590,13 +776,21 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
     Test that a successful audit statement pages update redirects based
     on the button pressed (with statement checks)
     """
-    audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: dict[str, int] = {"pk": audit.id}
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    twelve_week_statement_audit: StatementAudit = (
+        simplified_case.audit_overview.first_statement_audit_12_week_retest
+    )
+    twelve_week_statement_audit_pk: dict[str, int] = {
+        "pk": twelve_week_statement_audit.id
+    }
+    twelve_week_statement_audit_pk: dict[str, int] = {
+        "pk": twelve_week_statement_audit.id
+    }
 
     response: HttpResponse = admin_client.post(
-        reverse(path_name, kwargs=audit_pk),
+        reverse(path_name, kwargs=twelve_week_statement_audit_pk),
         {
-            "version": audit.version,
+            "version": twelve_week_statement_audit.version,
             button_name: "Button value",
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
@@ -607,7 +801,9 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
 
     assert response.status_code == 302
 
-    expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
+    expected_path: str = reverse(
+        expected_redirect_path_name, kwargs=twelve_week_statement_audit_pk
+    )
     assert response.url == expected_path
 
 
@@ -620,13 +816,12 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
 )
 def test_add_statement_link(url_name, admin_client):
     """Test that add statement link views saves URL"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    statement_audit: StatementAudit = create_initial_statement_audit()
 
     response: HttpResponse = admin_client.post(
-        reverse(url_name, kwargs={"pk": simplified_case.id}),
+        reverse(url_name, kwargs={"pk": statement_audit.id}),
         {
-            "version": audit.version,
+            "version": statement_audit.version,
             "statement_url": STATEMENT_PAGE_URL,
             "save": "Save",
         },
@@ -634,7 +829,9 @@ def test_add_statement_link(url_name, admin_client):
 
     assert response.status_code == 302
 
-    statement_page: StatementPage = StatementPage.objects.get(audit=audit)
+    statement_page: StatementPage = StatementPage.objects.get(
+        simplified_case=statement_audit.simplified_case
+    )
 
     assert statement_page.url == STATEMENT_PAGE_URL
 
@@ -649,8 +846,7 @@ def test_add_statement_link(url_name, admin_client):
 @mock_aws
 def test_add_statement_backup(url_name, admin_client):
     """Test that audit statement backup saves to s3"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    statement_audit: StatementAudit = create_initial_statement_audit()
 
     in_memory_file: InMemoryUploadedFile = InMemoryUploadedFile(
         io.BytesIO(CASE_FILE_CONTENT.encode()),
@@ -662,9 +858,9 @@ def test_add_statement_backup(url_name, admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse(url_name, kwargs={"pk": simplified_case.id}),
+        reverse(url_name, kwargs={"pk": statement_audit.simplified_case.id}),
         {
-            "version": audit.version,
+            "version": statement_audit.version,
             "file_to_upload": in_memory_file,
             "save": "Save",
         },
@@ -672,7 +868,9 @@ def test_add_statement_backup(url_name, admin_client):
 
     assert response.status_code == 302
 
-    case_file: CaseFile = CaseFile.objects.get(base_case=simplified_case)
+    case_file: CaseFile = CaseFile.objects.get(
+        base_case=statement_audit.simplified_case
+    )
 
     assert case_file.name == CASE_FILE_NAME
 
@@ -776,6 +974,47 @@ def test_add_statement_backup(url_name, admin_client):
             "save_continue",
             "audits:edit-statement-decision",
         ),
+    ],
+)
+def test_initial_audit_statement_edit_redirects_based_on_button_pressed(
+    path_name,
+    button_name,
+    expected_redirect_path_name,
+    admin_client,
+):
+    """
+    Test that a successful initial statement audit statement-content page update
+    redirects based on the button pressed
+    """
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    initial_statement_audit: StatementAudit = (
+        simplified_case.audit_overview.statement_audit_initial
+    )
+    initial_statement_audit_pk: dict[str, int] = {"pk": initial_statement_audit.id}
+
+    response: HttpResponse = admin_client.post(
+        reverse(path_name, kwargs=initial_statement_audit_pk),
+        {
+            "version": initial_statement_audit.version,
+            button_name: "Button value",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse(
+        expected_redirect_path_name, kwargs=initial_statement_audit_pk
+    )
+    assert response.url == expected_path
+
+
+@pytest.mark.parametrize(
+    "path_name, button_name, expected_redirect_path_name",
+    [
         (
             "audits:edit-audit-retest-website-decision",
             "save_continue",
@@ -893,24 +1132,28 @@ def test_add_statement_backup(url_name, admin_client):
         ),
     ],
 )
-def test_audit_statement_edit_redirects_based_on_button_pressed(
+def test_twelve_week_audit_statement_edit_redirects_based_on_button_pressed(
     path_name,
     button_name,
     expected_redirect_path_name,
     admin_client,
 ):
     """
-    Test that a successful audit statement update redirects based on the button
-    pressed
+    Test that a successful twelve-week statement audit statement-content page update
+    redirects based on the button pressed
     """
-    audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: dict[str, int] = {"pk": audit.id}
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    twelve_week_statement_audit: StatementAudit = (
+        simplified_case.audit_overview.first_statement_audit_12_week_retest
+    )
+    twelve_week_statement_audit_pk: dict[str, int] = {
+        "pk": twelve_week_statement_audit.id
+    }
 
     response: HttpResponse = admin_client.post(
-        reverse(path_name, kwargs=audit_pk),
+        reverse(path_name, kwargs=twelve_week_statement_audit_pk),
         {
-            "version": audit.version,
-            "case-compliance-version": audit.simplified_case.compliance.version,
+            "version": twelve_week_statement_audit.version,
             button_name: "Button value",
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
@@ -921,7 +1164,9 @@ def test_audit_statement_edit_redirects_based_on_button_pressed(
 
     assert response.status_code == 302
 
-    expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
+    expected_path: str = reverse(
+        expected_redirect_path_name, kwargs=twelve_week_statement_audit_pk
+    )
     assert response.url == expected_path
 
 
@@ -932,18 +1177,18 @@ def test_audit_edit_statement_overview_redirects_to_statement_website(
     Test that a successful audit statement overview update redirects to
     statement information if the overiew checks have passed
     """
-    audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-    for statement_check_result in StatementCheckResult.objects.filter(
-        audit=audit, type=StatementCheck.Type.OVERVIEW
+    statement_audit: StatementAudit = create_initial_statement_audit()
+    statement_audit_pk: dict[str, int] = {"pk": statement_audit.id}
+    for statement_check_result in StatementCheckResultInitial.objects.filter(
+        statement_audit=statement_audit, type=StatementCheck.Type.OVERVIEW
     ):
         statement_check_result.check_result_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-statement-overview", kwargs=audit_pk),
+        reverse("audits:edit-statement-overview", kwargs=statement_audit_pk),
         {
-            "version": audit.version,
+            "version": statement_audit.version,
             "save_continue": "Button value",
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
@@ -954,38 +1199,39 @@ def test_audit_edit_statement_overview_redirects_to_statement_website(
 
     assert response.status_code == 302
 
-    expected_path: str = reverse("audits:edit-statement-website", kwargs=audit_pk)
+    expected_path: str = reverse(
+        "audits:edit-statement-website", kwargs=statement_audit_pk
+    )
     assert response.url == expected_path
 
 
 def test_audit_edit_statement_overview_updates_when_no_statement_exists(
     admin_client,
 ):
-    """
-    Test that audit statement overview update updates when no page exists
-    """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    audit_pk: dict[str, int] = {"pk": audit.id}
+    """Test that audit statement overview update updates when no page exists"""
+    statement_audit: StatementAudit = create_initial_statement_audit()
+    statement_audit_pk: dict[str, int] = {"pk": statement_audit.id}
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-statement-overview", kwargs=audit_pk),
+        reverse("audits:edit-statement-overview", kwargs=statement_audit_pk),
         {
-            "version": audit.version,
+            "version": statement_audit.version,
             "save": "Button value",
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
             "form-MIN_NUM_FORMS": "0",
             "form-MAX_NUM_FORMS": "1000",
-            "audit_statement_overview_complete_date": "on",
+            "statement_overview_complete_date": "on",
         },
     )
 
     assert response.status_code == 302
 
-    audit_from_db: Audit = Audit.objects.get(id=audit.id)
+    statement_audit_from_db: StatementAudit = StatementAudit.objects.get(
+        id=statement_audit.id
+    )
 
-    assert audit_from_db.audit_statement_overview_complete_date == date.today()
+    assert statement_audit_from_db.statement_overview_complete_date == date.today()
 
 
 def test_audit_edit_statement_overview_updates_case_status(
@@ -995,33 +1241,29 @@ def test_audit_edit_statement_overview_updates_case_status(
     Test that a successful audit statement overview update updates case
     status and check results
     """
-    audit: Audit = create_audit_and_statement_check_results()
-    StatementAudit.objects.create(simplified_case=audit.simplified_case)
-    wcag_audit: WcagAudit | None = WcagAudit.objects.filter(
-        simplified_case=audit.simplified_case
-    ).first()
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    wcag_audit: WcagAudit = simplified_case.audit_overview.wcag_audit_initial
     wcag_audit.compliance_state = WcagAudit.WebsiteCompliance.COMPLIANT
     wcag_audit.save()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-
-    simplified_case: SimplifiedCase = audit.simplified_case
+    statement_audit: StatementAudit = (
+        simplified_case.audit_overview.statement_audit_initial
+    )
+    statement_audit_pk: dict[str, int] = {"pk": statement_audit.id}
+    # statement_audit.compliance_state = StatementAudit.StatementCompliance.COMPLIANT
+    # statement_audit.save()
     simplified_case.home_page_url = "https://www.website.com"
     simplified_case.organisation_name = "org name"
     user: User = User.objects.create()
     simplified_case.auditor = user
     simplified_case.save()
-    simplified_case.compliance.website_compliance_state_initial = (
-        CaseCompliance.WebsiteCompliance.COMPLIANT
-    )
-    simplified_case.compliance.save()
     simplified_case.update_case_status()
 
-    assert audit.simplified_case.status == SimplifiedCase.Status.TEST_IN_PROGRESS
+    assert simplified_case.status == SimplifiedCase.Status.TEST_IN_PROGRESS
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-statement-overview", kwargs=audit_pk),
+        reverse("audits:edit-statement-overview", kwargs=statement_audit_pk),
         {
-            "version": audit.version,
+            "version": statement_audit.version,
             "save": "Button value",
             "form-TOTAL_FORMS": "2",
             "form-INITIAL_FORMS": "2",
@@ -1038,19 +1280,22 @@ def test_audit_edit_statement_overview_updates_case_status(
 
     assert response.status_code == 302
 
-    audit_from_db: Audit = Audit.objects.get(id=audit.id)
+    statement_audit_from_db: StatementAudit = StatementAudit.objects.get(
+        id=statement_audit.id
+    )
     assert (
-        audit_from_db.simplified_case.status == SimplifiedCase.Status.REPORT_IN_PROGRESS
+        statement_audit_from_db.simplified_case.status
+        == SimplifiedCase.Status.REPORT_IN_PROGRESS
     )
 
-    statement_checkresult_1: StatementCheckResult = StatementCheckResult.objects.get(
-        id=1
+    statement_checkresult_1: StatementCheckResultInitial = (
+        StatementCheckResultInitial.objects.get(id=1)
     )
 
     assert statement_checkresult_1.check_result_state == "yes"
 
-    statement_checkresult_2: StatementCheckResult = StatementCheckResult.objects.get(
-        id=2
+    statement_checkresult_2: StatementCheckResultInitial = (
+        StatementCheckResultInitial.objects.get(id=2)
     )
 
     assert statement_checkresult_2.check_result_state == "no"

@@ -841,8 +841,10 @@ class SimplifiedCase(BaseCase):
 
     @property
     def statement_checks_still_initial(self) -> bool:
-        if self.audit:
-            return not self.audit.overview_statement_checks_complete
+        if self.audit_overview and self.audit_overview.statement_audit_initial:
+            return (
+                not self.audit_overview.statement_audit_initial.overview_statement_checks_complete
+            )
 
         from ..audits.models import StatementAudit
 

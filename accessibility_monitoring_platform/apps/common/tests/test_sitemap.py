@@ -50,8 +50,9 @@ from ..sitemap import (
     SimplifiedCasePlatformPageGroup,
     Sitemap,
     WcagAuditInitialPagesPlatformPage,
-    WcagAuditPlatformPage,
+    WcagAuditInitialPlatformPage,
     WcagAuditRetestPagesPlatformPage,
+    WcagAuditTwelveWeekPlatformPage,
     build_sitemap_by_url_name,
     build_sitemap_for_current_page,
     get_platform_page_by_url_name,
@@ -459,9 +460,9 @@ def test_case_contacts_platform_page():
 
 
 @pytest.mark.django_db
-def test_wcag_audit_platform_page():
-    """Test WcagAuditPlatformPage"""
-    audit_platform_page: WcagAuditPlatformPage = WcagAuditPlatformPage(
+def test_wcag_audit_initial_platform_page():
+    """Test WcagAuditInitialPlatformPage"""
+    audit_platform_page: WcagAuditInitialPlatformPage = WcagAuditInitialPlatformPage(
         name=PLATFORM_PAGE_NAME
     )
 
@@ -469,11 +470,41 @@ def test_wcag_audit_platform_page():
     assert audit_platform_page.url_kwarg_key == "pk"
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    wcag_audit_initial: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
 
     audit_platform_page.populate_from_case(case=simplified_case)
 
-    assert audit_platform_page.instance == wcag_audit
+    assert audit_platform_page.instance == wcag_audit_initial
+
+
+@pytest.mark.django_db
+def test_wcag_audit_twelve_week_platform_page():
+    """Test WcagAuditTwelveWeekPlatformPage"""
+    audit_platform_page: WcagAuditTwelveWeekPlatformPage = (
+        WcagAuditTwelveWeekPlatformPage(name=PLATFORM_PAGE_NAME)
+    )
+
+    assert audit_platform_page.instance_class == WcagAudit
+    assert audit_platform_page.url_kwarg_key == "pk"
+
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+    )
+    wcag_audit_twelve_week: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
+
+    audit_platform_page.populate_from_case(case=simplified_case)
+
+    assert audit_platform_page.instance == wcag_audit_twelve_week
 
 
 @pytest.mark.django_db
