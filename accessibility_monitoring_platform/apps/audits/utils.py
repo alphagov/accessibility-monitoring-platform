@@ -275,7 +275,13 @@ def create_first_twelve_week_statement_audit(
         simplified_case=audit_overview.simplified_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
     )
-    statement_audit_initial: StatementAudit = audit_overview.statement_audit_initial
+    if audit_overview.statement_audit_initial is None:
+        statement_audit_initial: StatementAudit = StatementAudit.objects.create(
+            simplified_case=audit_overview.simplified_case,
+        )
+        create_statement_checks_for_new_audit(statement_audit=statement_audit_initial)
+    else:
+        statement_audit_initial: StatementAudit = audit_overview.statement_audit_initial
     for (
         statement_check_result_initial
     ) in statement_audit_initial.statement_check_results.exclude(type=None):
@@ -670,5 +676,6 @@ def add_to_check_result_restest_notes_history(
             WcagCheckResultRetestNotesHistory.objects.create(
                 wcag_check_result_retest=wcag_check_result_retest,
                 created_by=user,
+                retest_state=wcag_check_result_retest.retest_state,
                 notes=wcag_check_result_retest.notes,
             )

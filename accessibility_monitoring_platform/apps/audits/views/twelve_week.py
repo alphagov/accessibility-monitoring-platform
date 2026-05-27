@@ -680,17 +680,21 @@ def start_retest(
     audit_overview: AuditOverview = get_object_or_404(AuditOverview, id=pk)
     simplified_case: SimplifiedCase = audit_overview.simplified_case
 
-    wcag_audit: WcagAudit = create_first_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_first_twelve_week_wcag_audit(
         audit_overview=audit_overview
     )
     record_simplified_model_create_event(
-        user=request.user, model_object=wcag_audit, simplified_case=simplified_case
+        user=request.user,
+        model_object=twelve_week_wcag_audit,
+        simplified_case=simplified_case,
     )
-    statement_audit: StatementAudit = create_first_twelve_week_statement_audit(
-        audit_overview=audit_overview
+    twelve_week_statement_audit: StatementAudit = (
+        create_first_twelve_week_statement_audit(audit_overview=audit_overview)
     )
     record_simplified_model_create_event(
-        user=request.user, model_object=statement_audit, simplified_case=simplified_case
+        user=request.user,
+        model_object=twelve_week_statement_audit,
+        simplified_case=simplified_case,
     )
 
     CaseEvent.objects.create(
@@ -700,5 +704,8 @@ def start_retest(
         message="Started retest",
     )
     return redirect(
-        reverse("audits:edit-audit-retest-metadata", kwargs={"pk": wcag_audit.id})
+        reverse(
+            "audits:edit-audit-retest-metadata",
+            kwargs={"pk": twelve_week_wcag_audit.id},
+        )
     )

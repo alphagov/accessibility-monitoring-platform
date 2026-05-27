@@ -1723,6 +1723,11 @@ class WcagCheckResultRetestNotesHistory(models.Model):
     wcag_check_result_retest = models.ForeignKey(
         WcagCheckResultRetest, on_delete=models.PROTECT
     )
+    retest_state = models.CharField(
+        max_length=20,
+        choices=WcagCheckResultRetest.RetestResult.choices,
+        default=WcagCheckResultRetest.RetestResult.NOT_RETESTED,
+    )
     notes = models.TextField(default="", blank=True)
     created_by = models.ForeignKey(User, on_delete=models.PROTECT)
     created = models.DateTimeField(auto_now_add=True)

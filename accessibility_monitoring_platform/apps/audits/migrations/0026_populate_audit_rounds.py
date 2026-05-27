@@ -220,6 +220,7 @@ def populate_audit_rounds(apps, schema_editor):
                     ):
                         WcagCheckResultRetestNotesHistory.objects.create(
                             wcag_check_result_retest=wcag_check_result_retest,
+                            retest_state=check_result_retest_notes_history.retest_state,
                             notes=check_result_retest_notes_history.retest_notes,
                             created_by=check_result_retest_notes_history.created_by,
                         )
@@ -384,9 +385,13 @@ def reverse_code(apps, schema_editor):
     WcagCheckResultInitialNotesHistory = apps.get_model(
         "audits", "WcagCheckResultInitialNotesHistory"
     )
+    WcagCheckResultRetestNotesHistory = apps.get_model(
+        "audits", "WcagCheckResultRetestNotesHistory"
+    )
     WcagCheckResultRetest = apps.get_model("audits", "WcagCheckResultRetest")
     RetestStatementCheckResult = apps.get_model("audits", "RetestStatementCheckResult")
     WcagCheckResultInitialNotesHistory.objects.all().delete()
+    WcagCheckResultRetestNotesHistory.objects.all().delete()
     WcagCheckResultRetest.objects.all().delete()
     WcagCheckResultInitial.objects.all().delete()
     WcagPageRetest.objects.all().delete()
