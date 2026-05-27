@@ -212,12 +212,12 @@ class WcagAuditPagesUpdateView(WcagAuditUpdateView):
             return super().form_invalid(form)
 
         if extra_pages_formset.is_valid():
-            wcag_page_wcag_audit_initials: list[Page] = extra_pages_formset.save(
-                commit=False
+            wcag_page_wcag_audit_initials: list[WcagPageInitial] = (
+                extra_pages_formset.save(commit=False)
             )
             for wcag_page_wcag_audit_initial in wcag_page_wcag_audit_initials:
-                if not wcag_page_wcag_audit_initial.audit_id:
-                    wcag_page_wcag_audit_initial.audit = wcag_audit
+                if not wcag_page_wcag_audit_initial.wcag_audit_id:
+                    wcag_page_wcag_audit_initial.wcag_audit = wcag_audit
                     wcag_page_wcag_audit_initial.save()
                     record_simplified_model_create_event(
                         user=self.request.user,

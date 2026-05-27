@@ -212,6 +212,15 @@ class WcagAuditUpdateView(AuditUpdateView):
                 model_object=self.object,
                 simplified_case=self.object.simplified_case,
             )
+            if self.object.audit_round_type == WcagAudit.AuditRoundType.TWELVE_WEEK:
+                old_audit: WcagAudit = WcagAudit.objects.get(id=self.object.id)
+                if old_audit.date_of_test != self.object.date_of_test:
+                    CaseEvent.objects.create(
+                        simplified_case=self.object.simplified_case,
+                        done_by=self.request.user,
+                        event_type=CaseEvent.EventType.START_RETEST,
+                        message=f"Started retest (date set to {amp_format_date(self.object.date_of_test)})",
+                    )
             if "compliance_state" in form.changed_data:
                 update_published_report_data_updated_time(wcag_audit=self.object)
 

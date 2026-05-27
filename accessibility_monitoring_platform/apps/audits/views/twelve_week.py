@@ -86,13 +86,17 @@ class WcagAuditRetestMetadataUpdateView(WcagAuditUpdateView):
     template_name: str = "audits/forms/twelve_week_retest_metadata.html"
 
     def get_next_platform_page(self):
-        audit: Audit = self.object
-        if not audit.simplified_case.psb_response:
+        wcag_audit: WcagAudit = self.object
+        if not wcag_audit.simplified_case.psb_response:
+            twelve_week_statement_audit: StatementAudit = (
+                wcag_audit.simplified_case.audit_overview.first_statement_audit_12_week_retest
+            )
             return get_platform_page_by_url_name(
-                url_name="audits:edit-audit-retest-statement-pages", instance=audit
+                url_name="audits:edit-audit-retest-statement-pages",
+                instance=twelve_week_statement_audit,
             )
         return get_platform_page_by_url_name(
-            url_name="audits:edit-audit-retest-pages", instance=audit
+            url_name="audits:edit-audit-retest-pages", instance=wcag_audit
         )
 
 

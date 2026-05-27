@@ -55,6 +55,8 @@ from ..utils import (
     update_published_report_data_updated_time,
 )
 from .create_test_data import (
+    WCAG_TYPE_AXE_NAME,
+    WCAG_TYPE_MANUAL_NAME,
     create_initial_statement_audit,
     create_initial_wcag_audit,
     create_twelve_week_statement_audit,
@@ -75,9 +77,6 @@ TYPES_OF_OF_PAGES_CREATED_WITH_NEW_AUDIT: list[str] = [
 NUMBER_OF_PAGES_CREATED_WITH_NEW_AUDIT: int = len(
     TYPES_OF_OF_PAGES_CREATED_WITH_NEW_AUDIT
 )
-WCAG_TYPE_PDF_NAME: str = "PDF WCAG"
-WCAG_TYPE_AXE_NAME: str = "Axe WCAG"
-WCAG_TYPE_MANUAL_NAME: str = "Manual WCAG"
 NUMBER_OF_WCAG_PER_TYPE_OF_PAGE: int = 1
 NUMBER_OF_HTML_PAGES: int = 4
 UPDATED_NOTE: str = "Updated note"

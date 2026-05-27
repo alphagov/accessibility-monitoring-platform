@@ -35,6 +35,8 @@ from ..models import (
     build_issue_identifier,
 )
 from .create_test_data import (
+    WCAG_TYPE_AXE_NAME,
+    WCAG_TYPE_PDF_NAME,
     create_initial_statement_audit,
     create_initial_wcag_audit,
     create_twelve_week_statement_audit,
@@ -44,9 +46,6 @@ from .create_test_data import (
 TODAY: date = date.today()
 PREVIOUS_STATEMENT_CHECKS_TIME: datetime = datetime(2025, 4, 1, tzinfo=timezone.utc)
 PAGE_NAME: str = "Page name"
-WCAG_TYPE_AXE_NAME: str = "Axe WCAG"
-WCAG_TYPE_MANUAL_NAME: str = "Manual WCAG"
-WCAG_TYPE_PDF_NAME: str = "PDF WCAG"
 WCAG_DESCRIPTION: str = "WCAG definition description"
 DATETIME_AUDIT_UPDATED: datetime = datetime(2021, 9, 20, tzinfo=timezone.utc)
 DATETIME_PAGE_UPDATED: datetime = datetime(2021, 9, 22, tzinfo=timezone.utc)
