@@ -15,7 +15,11 @@
         {% elif statement_audit %}
             <p class="govuk-body">
                 No statement added. Add a statement in
-                <a href="{% url 'audits:edit-statement-pages' statement_audit.id %}"
+                {% if statement_audit.audit_round_type == 'initial' %}
+                    <a href="{% url 'audits:edit-statement-pages' statement_audit.id %}"
+                {% else %}
+                    <a href="{% url 'audits:edit-audit-retest-statement-pages' statement_audit.id %}"
+                {% endif %}
                     class="govuk-link govuk-link--no-visited-state"
                     rel="noreferrer noopener">
                     statement links</a>.

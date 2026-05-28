@@ -65,7 +65,6 @@ from .views.initial import (
     delete_custom_issue,
 )
 from .views.twelve_week import (
-    AuditRetestCaseComplianceStatement12WeekUpdateView,
     AuditRetestNew12WeekCustomIssueCreateView,
     AuditRetestNew12WeekCustomIssueUpdateView,
     AuditRetestStatementComplianceFormView,
@@ -82,6 +81,7 @@ from .views.twelve_week import (
     TwelveWeekDisproportionateBurdenUpdateView,
     TwelveWeekStatementAuditOverviewUpdateView,
     TwelveWeekStatementBackupUpdateView,
+    TwelveWeekStatementComplianceStatementUpdateView,
     TwelveWeekStatementSummaryFirstUpdateView,
     WcagAuditComplianceRetestUpdateView,
     WcagAuditRetestMetadataUpdateView,
@@ -340,7 +340,7 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-audit-retest-statement-decision/",
-        login_required(AuditRetestCaseComplianceStatement12WeekUpdateView.as_view()),
+        login_required(TwelveWeekStatementComplianceStatementUpdateView.as_view()),
         name="edit-audit-retest-statement-decision",
     ),
     path(

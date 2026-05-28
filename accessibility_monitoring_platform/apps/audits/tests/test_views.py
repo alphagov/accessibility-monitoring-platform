@@ -30,7 +30,6 @@ from ..models import (
     Audit,
     AuditOverview,
     CheckResult,
-    CheckResultRetestNotesHistory,
     Page,
     Retest,
     RetestCheckResult,
@@ -2791,34 +2790,46 @@ def test_retest_page_checks_edit_adds_to_retest_notes_history(admin_client):
 
 def test_retest_page_checks_shows_retest_notes_history(admin_client):
     """Test retest page checks view shows the retest notes history"""
-    audit: Audit = create_audit_and_wcag()
-    page: Page = Page.objects.create(audit=audit)
-    page_pk: dict[str, int] = {"pk": page.id}
-    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
-        type=WcagDefinition.Type.PDF
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    create_twelve_week_wcag_audit(initial_wcag_audit=initial_wcag_audit)
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=initial_wcag_audit,
+        page_type=WcagPageInitial.Type.HOME,
     )
-    check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_page_initial=wcag_page_initial
     )
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.filter(
+            wcag_audit=initial_wcag_audit,
+            wcag_page_initial=wcag_page_initial,
+        )
+    ).first()
+    wcag_check_result_retest: WcagCheckResultRetest = WcagCheckResultRetest.objects.get(
+        wcag_check_result_initial=wcag_check_result_initial,
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+
     user: User = User.objects.create()
 
-    CheckResultRetestNotesHistory.objects.create(
-        check_result=check_result,
-        retest_notes=HISTORIC_RETEST_NOTES,
+    WcagCheckResultRetestNotesHistory.objects.create(
+        wcag_check_result_retest=wcag_check_result_retest,
         retest_state=CheckResult.RetestResult.NOT_FIXED,
+        notes=HISTORIC_RETEST_NOTES,
         created_by=user,
     )
-    CheckResultRetestNotesHistory.objects.create(
-        check_result=check_result,
+    WcagCheckResultRetestNotesHistory.objects.create(
+        wcag_check_result_retest=wcag_check_result_retest,
         retest_state=CheckResult.RetestResult.NOT_FIXED,
         created_by=user,
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("audits:edit-wcag-page-retest-check-results", kwargs=page_pk),
+        reverse(
+            "audits:edit-wcag-page-retest-check-results",
+            kwargs={"pk": wcag_page_retest.id},
+        ),
     )
 
     assert response.status_code == 200
@@ -2828,33 +2839,23 @@ def test_retest_page_checks_shows_retest_notes_history(admin_client):
 
 def test_retest_pages_shows_location(admin_client):
     """Test page location is shown"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-    page: Page = Page.objects.create(
-        audit=audit, url="https://example.com", location=PAGE_LOCATION
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit
     )
-    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.get(
-        type=WcagDefinition.Type.PDF
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=initial_wcag_audit,
+        page_type=WcagPageInitial.Type.HOME,
     )
-    wcag_definition_axe: WcagDefinition = WcagDefinition.objects.get(
-        type=WcagDefinition.Type.AXE
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_page_initial=wcag_page_initial
     )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition_pdf,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.FIXED,
-        notes=FIXED_ERROR_NOTES,
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition_axe,
-        check_result_state=CheckResult.Result.ERROR,
-    )
+    wcag_page_retest.location = PAGE_LOCATION
+    wcag_page_retest.save()
 
-    url: str = reverse("audits:edit-audit-retest-pages", kwargs=audit_pk)
+    url: str = reverse(
+        "audits:edit-audit-retest-pages", kwargs={"pk": twelve_week_wcag_audit.id}
+    )
 
     response: HttpResponse = admin_client.get(url)
 
@@ -2863,96 +2864,24 @@ def test_retest_pages_shows_location(admin_client):
     assertContains(response, PAGE_LOCATION)
 
 
-def test_retest_website_decision_saved_on_case(admin_client):
-    """Test that a retest website decision is saved on case"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-retest-website-decision", kwargs=audit_pk),
-        {
-            "version": audit.version,
-            "save": "Button value",
-            "case-compliance-version": audit.simplified_case.compliance.version,
-            "case-compliance-website_compliance_state_12_week": WEBSITE_COMPLIANCE_STATE,
-        },
-    )
-
-    assert response.status_code == 302
-
-    updated_case: SimplifiedCase = SimplifiedCase.objects.get(
-        id=audit.simplified_case.id
-    )
-
-    assert (
-        updated_case.compliance.website_compliance_state_12_week
-        == WEBSITE_COMPLIANCE_STATE
-    )
-
-
-def test_retest_statement_decision_saved_on_case(admin_client):
-    """Test that a retest statement decision is saved on case"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-
-    response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-retest-statement-decision", kwargs=audit_pk),
-        {
-            "version": audit.version,
-            "save": "Button value",
-            "case-compliance-version": audit.simplified_case.compliance.version,
-            "case-compliance-statement_compliance_state_12_week": STATEMENT_COMPLIANCE_STATE,
-        },
-    )
-
-    assert response.status_code == 302
-
-    updated_case: SimplifiedCase = SimplifiedCase.objects.get(
-        id=audit.simplified_case.id
-    )
-
-    assert (
-        updated_case.compliance.statement_compliance_state_12_week
-        == STATEMENT_COMPLIANCE_STATE
-    )
-
-
-def test_retest_statement_decision_hides_initial_decision(admin_client):
-    """
-    Test that retest statement decision hides initial decision if none
-    was entered.
-    """
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-    statement_page: StatementPage = StatementPage.objects.create(
-        audit=audit, added_stage=StatementPage.AddedStage.INITIAL
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-retest-statement-decision", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-    assertContains(response, "View initial decision")
-
-    statement_page.added_stage = (StatementPage.AddedStage.TWELVE_WEEK,)
-    statement_page.save()
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-retest-statement-decision", kwargs=audit_pk)
-    )
-
-    assert response.status_code == 200
-    assertContains(response, "Statement missing during initial test")
-
-
 def test_retest_statement_custom_no_initial(admin_client):
     """Test that a retest statement custom with no initial failure shows placeholder"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: dict[str, int] = {"pk": audit.id}
+    initial_statement_audit: StatementAudit = create_initial_statement_audit()
+    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+        initial_statement_audit=initial_statement_audit
+    )
+    StatementCheckResultRetest.objects.filter(
+        statement_audit=twelve_week_statement_audit, type=StatementCheck.Type.CUSTOM
+    ).delete()
+    StatementCheckResultInitial.objects.filter(
+        statement_audit=initial_statement_audit, type=StatementCheck.Type.CUSTOM
+    ).delete()
 
     response: HttpResponse = admin_client.get(
-        reverse("audits:edit-retest-statement-custom", kwargs=audit_pk),
+        reverse(
+            "audits:edit-retest-statement-custom",
+            kwargs={"pk": twelve_week_statement_audit.id},
+        ),
     )
 
     assert response.status_code == 200
@@ -2961,13 +2890,16 @@ def test_retest_statement_custom_no_initial(admin_client):
 
 def test_retest_statement_custom_with_initial(admin_client):
     """Test that a retest statement custom with an initial failure shows it"""
-    audit: Audit = create_audit_and_statement_check_results()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-
-    StatementPage.objects.create(audit=audit)
+    initial_statement_audit: StatementAudit = create_initial_statement_audit()
+    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+        initial_statement_audit=initial_statement_audit
+    )
 
     response: HttpResponse = admin_client.get(
-        reverse("audits:edit-retest-statement-custom", kwargs=audit_pk),
+        reverse(
+            "audits:edit-retest-statement-custom",
+            kwargs={"pk": twelve_week_statement_audit.id},
+        ),
     )
 
     assert response.status_code == 200
@@ -3065,30 +2997,33 @@ def test_update_wcag_definition_works(admin_client):
 
 def test_clear_published_report_data_updated_time_view(admin_client):
     """Test that clear report data updated time view empties that field"""
-    audit: Audit = create_audit()
-    audit.published_report_data_updated_time = timezone.now()
-    audit.save()
-    audit_pk: dict[str, int] = {"pk": audit.id}
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    audit_overview: AuditOverview = wcag_audit.simplified_case.audit_overview
+    audit_overview.published_report_data_updated_time = timezone.now()
+    audit_overview.save()
 
     admin_client.get(
-        reverse("audits:clear-outdated-published-report-warning", kwargs=audit_pk)
+        reverse(
+            "audits:clear-outdated-published-report-warning",
+            kwargs={"pk": audit_overview.id},
+        )
     )
 
-    audit_from_db: Audit = Audit.objects.get(**audit_pk)
+    audit_overview_from_db: AuditOverview = AuditOverview.objects.get(
+        id=audit_overview.id
+    )
 
-    assert audit_from_db.published_report_data_updated_time is None
+    assert audit_overview_from_db.published_report_data_updated_time is None
 
 
 def test_update_audit_checks_version(admin_client):
     """Test that updating an audit shows an error if the version of the audit has changed"""
-    audit: Audit = create_audit()
-    simplified_case: SimplifiedCase = audit.simplified_case
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}),
+        reverse("audits:edit-audit-metadata", kwargs={"pk": wcag_audit.id}),
         {
-            "version": audit.version - 1,
-            "case-compliance-version": simplified_case.compliance.version,
+            "version": wcag_audit.version - 1,
             "save": "Button value",
         },
     )
@@ -3099,7 +3034,7 @@ def test_update_audit_checks_version(admin_client):
         f"""<div class="govuk-error-summary__body">
             <ul class="govuk-list govuk-error-summary__list">
                 <li class="govuk-error-message">
-                    {str(audit)} has changed since this page loaded
+                    {str(wcag_audit)} has changed since this page loaded
                 </li>
             </ul>
         </div>""",
@@ -3108,59 +3043,22 @@ def test_update_audit_checks_version(admin_client):
 
 
 @pytest.mark.parametrize(
-    "url_name",
+    "url_name, create_test_data_function",
     [
-        "audits:edit-website-decision",
-        "audits:edit-statement-decision",
-        "audits:edit-audit-retest-website-decision",
-        "audits:edit-audit-retest-statement-decision",
+        ("audits:edit-audit-metadata", create_initial_wcag_audit),
+        ("audits:edit-statement-overview", create_initial_statement_audit),
     ],
 )
-def test_update_audit_checks_case_version(url_name, admin_client):
-    """
-    Test that updating a case shows an error if the version of the case compliance has changed
-    """
-    audit: Audit = create_audit()
-    simplified_case: SimplifiedCase = audit.simplified_case
-
-    response: HttpResponse = admin_client.post(
-        reverse(url_name, kwargs={"pk": audit.id}),
-        {
-            "version": audit.version,
-            "case-compliance-version": simplified_case.compliance.version - 1,
-            "save": "Button value",
-        },
-    )
-    assert response.status_code == 200
-
-    assertContains(
-        response,
-        f"""<div class="govuk-error-summary__body">
-            <ul class="govuk-list govuk-error-summary__list">
-                <li class="govuk-error-message">
-                    {str(simplified_case.compliance)} has changed since this page loaded
-                </li>
-            </ul>
-        </div>""",
-        html=True,
-    )
-
-
-@pytest.mark.parametrize(
-    "url_name",
-    [
-        "audits:edit-audit-metadata",
-        "audits:edit-statement-overview",
-    ],
-)
-def test_frequently_used_links_displayed(url_name, admin_client):
+def test_frequently_used_links_displayed(
+    url_name, create_test_data_function, admin_client
+):
     """
     Test that the frequently used links are displayed
     """
-    audit: Audit = create_audit()
+    wcag_or_statement_audit: WcagAudit | StatementAudit = create_test_data_function()
 
     response: HttpResponse = admin_client.get(
-        reverse(url_name, kwargs={"pk": audit.id}),
+        reverse(url_name, kwargs={"pk": wcag_or_statement_audit.id}),
     )
 
     assert response.status_code == 200
@@ -3295,32 +3193,28 @@ def test_update_statement_check_works(admin_client):
 
 
 @pytest.mark.parametrize(
-    "url_name",
+    "url_name, audit_overview_attr",
     [
-        "audits:edit-audit-wcag-summary",
-        "audits:edit-audit-retest-wcag-summary",
+        ("audits:edit-audit-wcag-summary", "wcag_audit_initial"),
+        ("audits:edit-audit-retest-wcag-summary", "first_wcag_audit_12_week_retest"),
     ],
 )
-def test_summary_page_view(url_name, admin_client):
+def test_summary_page_view(url_name, audit_overview_attr, admin_client):
     """Test that summary page view renders with results grouped by page"""
-    audit: Audit = create_audit()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-    page: Page = Page.objects.create(audit=audit, url="https://example.com")
-    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.filter(
-        type=WcagDefinition.Type.PDF
-    ).first()
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition_pdf,
-        check_result_state=CheckResult.Result.ERROR,
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    wcag_audit: WcagAudit = getattr(simplified_case.audit_overview, audit_overview_attr)
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.all().first()
     )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
 
     response: HttpResponse = admin_client.get(
-        f"{reverse(url_name, kwargs=audit_pk)}?page-view=true",
+        f"{reverse(url_name, kwargs={"pk": wcag_audit.id})}?page-view=true",
     )
 
     assert response.status_code == 200
+
     assertContains(
         response,
         '<th scope="col" class="govuk-table__header amp-width-one-third">WCAG issue</th>',
@@ -3330,28 +3224,25 @@ def test_summary_page_view(url_name, admin_client):
 
 
 @pytest.mark.parametrize(
-    "url_name",
+    "url_name, audit_overview_attr",
     [
-        "audits:edit-audit-wcag-summary",
-        "audits:edit-audit-retest-wcag-summary",
+        ("audits:edit-audit-wcag-summary", "wcag_audit_initial"),
+        ("audits:edit-audit-retest-wcag-summary", "first_wcag_audit_12_week_retest"),
     ],
 )
-def test_summary_wcag_view(url_name, admin_client):
+def test_summary_wcag_view(url_name, audit_overview_attr, admin_client):
     """Test that summary page view renders with results grouped by WCAG issue"""
-    audit: Audit = create_audit()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-    page: Page = Page.objects.create(audit=audit, url="https://example.com")
-    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.filter(
-        type=WcagDefinition.Type.PDF
-    ).first()
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition_pdf,
-        check_result_state=CheckResult.Result.ERROR,
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    wcag_audit: WcagAudit = getattr(simplified_case.audit_overview, audit_overview_attr)
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.all().first()
     )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
 
-    response: HttpResponse = admin_client.get(reverse(url_name, kwargs=audit_pk))
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs={"pk": wcag_audit.id})
+    )
 
     assert response.status_code == 200
     assertContains(
@@ -3363,39 +3254,53 @@ def test_summary_wcag_view(url_name, admin_client):
 
 
 @pytest.mark.parametrize(
-    "url_name",
+    "url_name, audit_overview_attr",
     [
-        "audits:edit-audit-wcag-summary",
-        "audits:edit-audit-retest-wcag-summary",
+        ("audits:edit-audit-wcag-summary", "wcag_audit_initial"),
+        ("audits:edit-audit-retest-wcag-summary", "first_wcag_audit_12_week_retest"),
     ],
 )
-def test_summary_page_view_unfixed(url_name, admin_client):
+def test_summary_page_view_unfixed(url_name, audit_overview_attr, admin_client):
     """Test that summary page view renders with unfixed results only"""
-    audit: Audit = create_audit()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-    page: Page = Page.objects.create(audit=audit, url="https://example.com")
-    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.filter(
-        type=WcagDefinition.Type.PDF
-    ).first()
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition_pdf,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.FIXED,
-        retest_notes=FIXED_ERROR_NOTES,
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    wcag_audit: WcagAudit = getattr(simplified_case.audit_overview, audit_overview_attr)
+    wcag_check_result_initial_fixed: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.all().first()
     )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition_pdf,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
-        retest_notes=UNFIXED_ERROR_NOTES,
+    wcag_check_result_initial_fixed.check_result_state = (
+        WcagCheckResultInitial.Result.ERROR
     )
+    wcag_check_result_initial_fixed.save()
+    wcag_check_result_retest_fixed: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.get(
+            wcag_check_result_initial=wcag_check_result_initial_fixed
+        )
+    )
+    wcag_check_result_retest_fixed.retest_state = (
+        WcagCheckResultRetest.RetestResult.FIXED
+    )
+    wcag_check_result_retest_fixed.notes = FIXED_ERROR_NOTES
+    wcag_check_result_retest_fixed.save()
+    wcag_check_result_initial_unfixed: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.all().last()
+    )
+    wcag_check_result_initial_unfixed.check_result_state = (
+        WcagCheckResultInitial.Result.ERROR
+    )
+    wcag_check_result_initial_unfixed.save()
+    wcag_check_result_retest_unfixed: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.get(
+            wcag_check_result_initial=wcag_check_result_initial_unfixed
+        )
+    )
+    wcag_check_result_retest_unfixed.retest_state = (
+        WcagCheckResultRetest.RetestResult.NOT_FIXED
+    )
+    wcag_check_result_retest_unfixed.notes = UNFIXED_ERROR_NOTES
+    wcag_check_result_retest_unfixed.save()
 
     response: HttpResponse = admin_client.get(
-        reverse(url_name, kwargs=audit_pk),
+        reverse(url_name, kwargs={"pk": wcag_audit.id}),
     )
 
     assert response.status_code == 200
@@ -3406,39 +3311,53 @@ def test_summary_page_view_unfixed(url_name, admin_client):
 
 
 @pytest.mark.parametrize(
-    "url_name",
+    "url_name, audit_overview_attr",
     [
-        "audits:edit-audit-wcag-summary",
-        "audits:edit-audit-retest-wcag-summary",
+        ("audits:edit-audit-wcag-summary", "wcag_audit_initial"),
+        ("audits:edit-audit-retest-wcag-summary", "first_wcag_audit_12_week_retest"),
     ],
 )
-def test_summary_page_view_show_all(url_name, admin_client):
+def test_summary_page_view_show_all(url_name, audit_overview_attr, admin_client):
     """Test that summary page view renders with all results"""
-    audit: Audit = create_audit()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-    page: Page = Page.objects.create(audit=audit, url="https://example.com")
-    wcag_definition_pdf: WcagDefinition = WcagDefinition.objects.filter(
-        type=WcagDefinition.Type.PDF
-    ).first()
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition_pdf,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.FIXED,
-        retest_notes=FIXED_ERROR_NOTES,
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    wcag_audit: WcagAudit = getattr(simplified_case.audit_overview, audit_overview_attr)
+    wcag_check_result_initial_fixed: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.all().first()
     )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition_pdf,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
-        retest_notes=UNFIXED_ERROR_NOTES,
+    wcag_check_result_initial_fixed.check_result_state = (
+        WcagCheckResultInitial.Result.ERROR
     )
+    wcag_check_result_initial_fixed.save()
+    wcag_check_result_retest_fixed: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.get(
+            wcag_check_result_initial=wcag_check_result_initial_fixed
+        )
+    )
+    wcag_check_result_retest_fixed.retest_state = (
+        WcagCheckResultRetest.RetestResult.FIXED
+    )
+    wcag_check_result_retest_fixed.notes = FIXED_ERROR_NOTES
+    wcag_check_result_retest_fixed.save()
+    wcag_check_result_initial_unfixed: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.all().last()
+    )
+    wcag_check_result_initial_unfixed.check_result_state = (
+        WcagCheckResultInitial.Result.ERROR
+    )
+    wcag_check_result_initial_unfixed.save()
+    wcag_check_result_retest_unfixed: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.get(
+            wcag_check_result_initial=wcag_check_result_initial_unfixed
+        )
+    )
+    wcag_check_result_retest_unfixed.retest_state = (
+        WcagCheckResultRetest.RetestResult.NOT_FIXED
+    )
+    wcag_check_result_retest_unfixed.notes = UNFIXED_ERROR_NOTES
+    wcag_check_result_retest_unfixed.save()
 
     response: HttpResponse = admin_client.get(
-        f"{reverse(url_name, kwargs=audit_pk)}?show-all=true",
+        f"{reverse(url_name, kwargs={"pk": wcag_audit.id})}?show-all=true",
     )
 
     assert response.status_code == 200
@@ -3449,48 +3368,81 @@ def test_summary_page_view_show_all(url_name, admin_client):
 
 
 @pytest.mark.parametrize(
-    "url_name",
+    "url_name, audit_overview_attr",
     [
-        "audits:edit-audit-statement-summary",
-        "audits:edit-audit-retest-statement-summary",
+        ("audits:edit-audit-statement-summary", "statement_audit_initial"),
+        (
+            "audits:edit-audit-retest-statement-summary",
+            "first_statement_audit_12_week_retest",
+        ),
     ],
 )
-def test_test_statement_summary_page_view(url_name, admin_client):
+def test_test_statement_summary_page_view(url_name, audit_overview_attr, admin_client):
     """Test that statement summary page views contain statement results"""
-    audit: Audit = create_audit()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-    StatementPage.objects.create(audit=audit, url="https://example.com")
-    overview_statement_check: StatementCheck | None = StatementCheck.objects.filter(
-        type=StatementCheck.Type.OVERVIEW
-    ).first()
-    StatementCheckResult.objects.create(
-        statement_check=overview_statement_check,
-        audit=audit,
-        type=StatementCheck.Type.OVERVIEW,
-        check_result_state=StatementCheckResult.Result.YES,
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    statement_audit_initial: StatementAudit = (
+        simplified_case.audit_overview.statement_audit_initial
     )
-    statement_check: StatementCheck = StatementCheck.objects.filter(
-        type=StatementCheck.Type.WEBSITE
-    ).first()
-    StatementCheckResult.objects.create(
-        audit=audit,
-        type=statement_check.type,
-        statement_check=statement_check,
-        check_result_state=StatementCheckResult.Result.NO,
-        public_comment=STATEMENT_CHECK_INITIAL_COMMENT,
+    statement_audit_12_week: StatementAudit = (
+        simplified_case.audit_overview.first_statement_audit_12_week_retest
     )
-    StatementCheckResult.objects.create(
-        audit=audit,
-        type=StatementCheck.Type.CUSTOM,
-        public_comment=STATEMENT_CHECK_CUSTOM_COMMENT,
+    statement_audit_for_url: StatementAudit = getattr(
+        simplified_case.audit_overview, audit_overview_attr
     )
-    StatementCheckResult.objects.create(
-        audit=audit,
-        type=StatementCheck.Type.TWELVE_WEEK,
-        retest_comment=NEW_12_WEEK_CUSTOM_RETEST_COMMENT,
+    overview_statement_check: StatementCheck | None = (
+        StatementCheck.objects.on_date(timezone.now().date())
+        .filter(type=StatementCheck.Type.OVERVIEW)
+        .first()
     )
+    overview_statement_check_result: StatementCheckResultInitial = (
+        StatementCheckResultInitial.objects.get(
+            statement_check=overview_statement_check,
+            statement_audit=statement_audit_initial,
+        )
+    )
+    overview_statement_check_result.type = StatementCheck.Type.OVERVIEW
+    overview_statement_check_result.check_result_state = (
+        StatementCheckResultInitial.Result.YES
+    )
+    overview_statement_check_result.save()
+    website_statement_check: StatementCheck = (
+        StatementCheck.objects.on_date(timezone.now().date())
+        .filter(type=StatementCheck.Type.WEBSITE)
+        .first()
+    )
+    website_statement_check_result: StatementCheckResultInitial = (
+        StatementCheckResultInitial.objects.get(
+            statement_check=website_statement_check,
+            statement_audit=statement_audit_initial,
+        )
+    )
+    website_statement_check_result.check_result_state = (
+        StatementCheckResultInitial.Result.NO
+    )
+    website_statement_check_result.public_comment = STATEMENT_CHECK_INITIAL_COMMENT
+    website_statement_check_result.save()
+    custom_statement_check_result: StatementCheckResultInitial = (
+        StatementCheckResultInitial.objects.get(
+            type=StatementCheck.Type.CUSTOM,
+            statement_audit=statement_audit_initial,
+        )
+    )
+    custom_statement_check_result.public_comment = STATEMENT_CHECK_CUSTOM_COMMENT
+    custom_statement_check_result.save()
+    twelve_week_statement_check_result: StatementCheckResultRetest = (
+        StatementCheckResultRetest.objects.get(
+            type=StatementCheck.Type.TWELVE_WEEK,
+            statement_audit=statement_audit_12_week,
+        )
+    )
+    twelve_week_statement_check_result.public_comment = (
+        NEW_12_WEEK_CUSTOM_RETEST_COMMENT
+    )
+    twelve_week_statement_check_result.save()
 
-    response: HttpResponse = admin_client.get(reverse(url_name, kwargs=audit_pk))
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs={"pk": statement_audit_for_url.id})
+    )
 
     assert response.status_code == 200
 
@@ -3500,19 +3452,30 @@ def test_test_statement_summary_page_view(url_name, admin_client):
 
 
 @pytest.mark.parametrize(
-    "url_name",
+    "url_name, audit_overview_attr",
     [
-        "audits:edit-audit-statement-summary",
-        "audits:edit-audit-retest-statement-summary",
+        ("audits:edit-audit-statement-summary", "statement_audit_initial"),
+        (
+            "audits:edit-audit-retest-statement-summary",
+            "first_statement_audit_12_week_retest",
+        ),
     ],
 )
-def test_test_statement_summary_page_summary(url_name, admin_client):
+def test_test_statement_summary_page_summary(
+    url_name, audit_overview_attr, admin_client
+):
     """
     Test that statement summary page shows initial compliance values before 12-week
     values are entered.
     """
-    audit: Audit = create_audit()
-    audit_pk: dict[str, int] = {"pk": audit.id}
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    statement_audit_12_week: StatementAudit = (
+        simplified_case.audit_overview.first_statement_audit_12_week_retest
+    )
+    statement_audit_for_url: StatementAudit = getattr(
+        simplified_case.audit_overview, audit_overview_attr
+    )
+    audit_pk: dict[str, int] = {"pk": statement_audit_for_url.id}
 
     response: HttpResponse = admin_client.get(reverse(url_name, kwargs=audit_pk))
 
@@ -3522,14 +3485,13 @@ def test_test_statement_summary_page_summary(url_name, admin_client):
     assertNotContains(response, "12-week statement compliance")
     assertNotContains(response, "12-week disproportionate burden")
 
-    audit.twelve_week_disproportionate_burden_claim = (
-        Audit.DisproportionateBurden.ASSESSMENT
+    statement_audit_12_week.disproportionate_burden_claim = (
+        StatementAudit.DisproportionateBurden.ASSESSMENT
     )
-    audit.save()
-    audit.simplified_case.compliance.statement_compliance_state_12_week = (
-        CaseCompliance.StatementCompliance.COMPLIANT
+    statement_audit_12_week.compliance_state = (
+        StatementAudit.StatementCompliance.COMPLIANT
     )
-    audit.simplified_case.compliance.save()
+    statement_audit_12_week.save()
 
     response: HttpResponse = admin_client.get(reverse(url_name, kwargs=audit_pk))
 

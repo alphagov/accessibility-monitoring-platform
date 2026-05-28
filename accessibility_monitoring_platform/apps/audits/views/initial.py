@@ -686,11 +686,14 @@ def delete_custom_issue(request: HttpRequest, pk: int) -> HttpResponse:
         record_simplified_model_update_event(
             user=request.user,
             model_object=custom_issue,
-            simplified_case=custom_issue.audit.simplified_case,
+            simplified_case=custom_issue.statement_audit.simplified_case,
         )
         custom_issue.save()
     return redirect(
-        reverse("audits:edit-statement-custom", kwargs={"pk": custom_issue.audit.id})
+        reverse(
+            "audits:edit-statement-custom",
+            kwargs={"pk": custom_issue.statement_audit.id},
+        )
     )
 
 

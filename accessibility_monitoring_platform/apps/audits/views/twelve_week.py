@@ -642,15 +642,12 @@ class TwelveWeekDisproportionateBurdenUpdateView(StatementAuditUpdateView):
     template_name: str = "audits/forms/twelve_week_disproportionate_burden.html"
 
 
-class AuditRetestCaseComplianceStatement12WeekUpdateView(StatementAuditUpdateView):
-    """
-    View to retest statement decsion
-    """
+class TwelveWeekStatementComplianceStatementUpdateView(StatementAuditUpdateView):
 
     form_class: type[StatementAuditComplianceUpdateForm] = (
         StatementAuditComplianceUpdateForm
     )
-    template_name: str = "audits/forms/statement_decision.html"
+    template_name: str = "audits/forms/retest_statement_decision.html"
 
 
 class TwelveWeekStatementSummaryFirstUpdateView(
