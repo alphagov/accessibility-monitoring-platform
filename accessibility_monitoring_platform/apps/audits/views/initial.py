@@ -237,7 +237,7 @@ class WcagAuditPagesUpdateView(WcagAuditUpdateView):
         mark_object_as_deleted(
             request=self.request,
             delete_button_prefix="remove_extra_page_",
-            object_to_delete_model=Page,
+            object_to_delete_model=WcagPageInitial,
         )
 
         return super().form_valid(form)

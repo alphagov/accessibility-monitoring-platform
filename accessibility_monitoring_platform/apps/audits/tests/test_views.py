@@ -65,56 +65,24 @@ TODAY = date.today()
 EXTRA_PAGE_NAME: str = "Extra page name"
 EXTRA_PAGE_URL: str = "https://extra-page.com"
 CHECK_RESULT_NOTES: str = "Check result notes"
-NEW_PAGE_NAME: str = "New page name"
-NEW_PAGE_URL: str = "https://example.com/extra"
-UPDATED_PAGE_NAME: str = "Updated page name"
-UPDATED_PAGE_URL: str = "https://example.com/updated"
-WEBSITE_COMPLIANCE_STATE: str = "partially-compliant"
-STATEMENT_COMPLIANCE_STATE: str = "not-compliant"
 FIXED_ERROR_NOTES: str = "Fixed error notes"
 UNFIXED_ERROR_NOTES: str = "Unfixed error notes"
 WCAG_DEFINITION_TYPE: str = "axe"
 WCAG_DEFINITION_NAME: str = "WCAG definiton name"
 WCAG_DEFINITION_URL: str = "https://example.com"
 PAGE_RETEST_NOTES: str = "Retest notes"
-ACCESSIBILITY_STATEMENT_URL: str = "https://example.com/accessibility-statement"
-NO_ACCESSIBILITY_STATEMENT: str = """<p class="govuk-body">
-No statement added. Add a statement in
-<a href="/audits/1/edit-statement-pages/" class="govuk-link govuk-link--no-visited-state" rel="noreferrer noopener">
-    statement links</a>.
-</p>"""
-NO_RETEST_ACCESSIBILITY_STATEMENT: str = """<p class="govuk-body">
-No statement added. Add a statement in
-<a href="/audits/1/edit-audit-retest-statement-pages/" class="govuk-link govuk-link--no-visited-state" rel="noreferrer noopener">
-    statement links</a>.
-</p>"""
-ACCESSIBILITY_STATEMENT_12_WEEK_URL: str = (
-    "https://example.com/12-week-accessibility-statement"
-)
-MISSING_PAGE_ON_RETEST: str = "This page has been removed by the organisation."
 ORGANISATION_NAME: str = "Organisation name"
 CUSTOM_STATEMENT_ISSUE: str = "Custom statement issue"
 STATEMENT_CHECK_LABEL: str = "Test statement check"
 STATEMENT_CHECK_TYPE: str = "custom"
 STATEMENT_CHECK_SUCCESS_CRITERIA: str = "Success criteria"
 STATEMENT_CHECK_REPORT_TEXT: str = "Report text"
-STATEMENT_PAGE_INITIAL_CHECKED: str = """<input class="govuk-radios__input"
-type="radio" name="form-0-added_stage" value="initial"
-id="id_form-0-added_stage_0" checked="">"""
-STATEMENT_PAGE_TWELVE_WEEK_CHECKED: str = """<input class="govuk-radios__input"
-type="radio" name="form-0-added_stage" value="12-week-retest"
-id="id_form-0-added_stage_1" checked="">"""
-STATEMENT_PAGE_EWUALITY_BODY_RETEST_CHECKED: str = """<input class="govuk-radios__input"
-type="radio" name="form-0-added_stage" value="retest"
-id="id_form-0-added_stage_2" checked="">"""
 STATEMENT_PAGE_URL: str = "https://example.com/statement"
 WCAG_DEFINITION_HINT: str = "WCAG definition hint text"
 PAGE_LOCATION: str = "Press button then click on link"
 STATEMENT_CHECK_INITIAL_COMMENT: str = "Statement check initial comment"
 STATEMENT_CHECK_CUSTOM_COMMENT: str = "Statement check custom comment"
-NEW_12_WEEK_CUSTOM_REPORT_COMMENT: str = "New 12-week custom report comment"
 NEW_12_WEEK_CUSTOM_RETEST_COMMENT: str = "New 12-week custom retest comment"
-NEW_12_WEEK_CUSTOM_AUDITOR_NOTES: str = "New 12-week custom auditor notes"
 HISTORIC_RETEST_NOTES: str = "Historic retest notes"
 HISTORIC_CHECK_RESULT_NOTES: str = "Historic check result notes"
 CASE_FILE_NAME: str = "case_file.txt"
@@ -212,29 +180,32 @@ def create_equality_body_retest() -> Retest:
     return retest
 
 
-def test_restore_page_view(admin_client):
-    """Test that restore page view restores audit"""
-    audit: Audit = create_audit()
-    audit_pk: dict[str, int] = {"pk": audit.id}
-    page: Page = Page.objects.create(audit=audit, is_deleted=True)
-    page_pk: dict[str, int] = {"pk": page.id}
+def test_restore_wcag_page_initial_view(admin_client):
+    """Test that restore WCAG page initial view restores audit"""
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_audit_pk: dict[str, int] = {"pk": wcag_audit.id}
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit, is_deleted=True
+    )
 
     response: HttpResponse = admin_client.get(
         reverse(
             "audits:restore-page",
-            kwargs=page_pk,
+            kwargs={"pk": wcag_page_initial.id},
         ),
     )
 
     assert response.status_code == 302
     assert response.url == reverse(
         "audits:edit-audit-pages",
-        kwargs=audit_pk,
+        kwargs=wcag_audit_pk,
     )
 
-    page_from_db: Page = Page.objects.get(**page_pk)
+    wcag_page_initial_from_db: WcagPageInitial = WcagPageInitial.objects.get(
+        id=wcag_page_initial.id
+    )
 
-    assert page_from_db.is_deleted is False
+    assert wcag_page_initial_from_db.is_deleted is False
 
 
 def test_create_audit_redirects(admin_client):
@@ -256,20 +227,21 @@ def test_create_audit_redirects(admin_client):
 
 def test_create_audit_does_not_create_a_duplicate(admin_client):
     """Test that audit create does not create a duplicate audit"""
-    audit: Audit = create_audit()
-    path_kwargs: dict[str, int] = {"case_id": audit.simplified_case.id}
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    WcagAudit.objects.create(simplified_case=simplified_case)
+    AuditOverview.objects.create(simplified_case=simplified_case)
 
-    assert Audit.objects.filter(simplified_case=audit.simplified_case).count() == 1
+    assert WcagAudit.objects.filter(simplified_case=simplified_case).count() == 1
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:audit-create", kwargs=path_kwargs),
+        reverse("audits:audit-create", kwargs={"case_id": simplified_case.id}),
         {
             "save_continue": "Create test",
         },
     )
 
     assert response.status_code == 302
-    assert Audit.objects.filter(simplified_case=audit.simplified_case).count() == 1
+    assert WcagAudit.objects.filter(simplified_case=simplified_case).count() == 1
 
 
 def test_create_audit_creates_case_event(admin_client):
@@ -1588,13 +1560,14 @@ def test_pages_redirects_based_on_button_pressed(
     button_name, expected_redirect_path_name, admin_client
 ):
     """Test that a successful audit update redirects based on the button pressed"""
-    audit: Audit = create_audit_and_wcag()
-    audit_pk: dict[str, int] = {"pk": audit.id}
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    wcag_audit_pk: dict[str, int] = {"pk": wcag_audit.id}
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-pages", kwargs=audit_pk),
+        reverse("audits:edit-audit-pages", kwargs=wcag_audit_pk),
         {
-            "version": audit.version,
+            "version": wcag_audit.version,
             button_name: "Button value",
             "standard-TOTAL_FORMS": "0",
             "standard-INITIAL_FORMS": "0",
@@ -1609,7 +1582,7 @@ def test_pages_redirects_based_on_button_pressed(
 
     assert response.status_code == 302
 
-    expected_path: str = reverse(expected_redirect_path_name, kwargs=audit_pk)
+    expected_path: str = reverse(expected_redirect_path_name, kwargs=wcag_audit_pk)
     assert response.url == expected_path
 
 
@@ -1756,14 +1729,14 @@ def test_add_extra_page(admin_client):
 
 def test_delete_extra_page(admin_client):
     """Test deleting an extra page"""
-    audit: Audit = create_audit_and_pages()
-    extra_page: Page = Page.objects.create(
-        audit=audit,
-        page_type=Page.Type.EXTRA,
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    extra_page: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit,
+        page_type=WcagPageInitial.Type.EXTRA,
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-audit-pages", kwargs={"pk": audit.id}),
+        reverse("audits:edit-audit-pages", kwargs={"pk": wcag_audit.id}),
         {
             "standard-TOTAL_FORMS": "0",
             "standard-INITIAL_FORMS": "0",
@@ -1773,14 +1746,14 @@ def test_delete_extra_page(admin_client):
             "extra-INITIAL_FORMS": "0",
             "extra-MIN_NUM_FORMS": "0",
             "extra-MAX_NUM_FORMS": "1000",
-            "version": audit.version,
+            "version": wcag_audit.version,
             f"remove_extra_page_{extra_page.id}": "Remove page",
         },
         follow=True,
     )
     assert response.status_code == 200
 
-    updated_extra_page: Page = Page.objects.get(id=extra_page.id)
+    updated_extra_page: WcagPageInitial = WcagPageInitial.objects.get(id=extra_page.id)
 
     assert updated_extra_page.is_deleted
 
@@ -2046,19 +2019,21 @@ def test_page_checks_edit_page_shows_location(admin_client):
 
 def test_page_checks_edit_page_contains_hint_text(admin_client):
     """
-    Test page checks page loads and contains WCAG definitoon hint text
+    Test page checks page loads and contains WCAG definition hint text
     """
-    audit: Audit = create_audit_and_wcag()
-    page: Page = Page.objects.create(audit=audit)
-    page_pk: dict[str, int] = {"pk": page.id}
-    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
-        type=WcagDefinition.Type.PDF
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    page: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit,
+        page_type=WcagPageInitial.Type.HOME,
     )
+    wcag_definition: WcagDefinition = WcagDefinition.objects.filter(
+        type=WcagDefinition.Type.AXE
+    ).first()
     wcag_definition.hint = WCAG_DEFINITION_HINT
     wcag_definition.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-page-checks", kwargs=page_pk)
+        reverse("audits:edit-audit-page-checks", kwargs={"pk": page.id})
     )
 
     assert response.status_code == 200
@@ -2158,9 +2133,11 @@ def test_data_filter_string_contains_issue_identifier_on_retest_check_result_pag
 
 def test_page_checks_edit_hides_future_wcag_definitions(admin_client):
     """Test page checks edit view page loads and hides future WCAG definitions"""
-    audit: Audit = create_audit_and_wcag()
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
     wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
-    page: Page = Page.objects.create(audit=audit)
+    page: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
     page_pk: dict[str, int] = {"pk": page.id}
 
     response: HttpResponse = admin_client.get(
@@ -2171,7 +2148,7 @@ def test_page_checks_edit_hides_future_wcag_definitions(admin_client):
 
     assertContains(response, wcag_definition.name)
 
-    wcag_definition.date_start = audit.date_of_test + timedelta(days=10)
+    wcag_definition.date_start = wcag_audit.date_of_test + timedelta(days=10)
     wcag_definition.save()
 
     response: HttpResponse = admin_client.get(
@@ -2185,9 +2162,12 @@ def test_page_checks_edit_hides_future_wcag_definitions(admin_client):
 
 def test_page_checks_edit_hides_past_wcag_definitions(admin_client):
     """Test page checks edit view page loads and hides past WCAG definitions"""
-    audit: Audit = create_audit_and_wcag()
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    page: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit,
+        page_type=WcagPageInitial.Type.HOME,
+    )
     wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
-    page: Page = Page.objects.create(audit=audit)
     page_pk: dict[str, int] = {"pk": page.id}
 
     response: HttpResponse = admin_client.get(
@@ -2198,7 +2178,7 @@ def test_page_checks_edit_hides_past_wcag_definitions(admin_client):
 
     assertContains(response, wcag_definition.name)
 
-    wcag_definition.date_end = audit.date_of_test - timedelta(days=10)
+    wcag_definition.date_end = wcag_audit.date_of_test - timedelta(days=10)
     wcag_definition.save()
 
     response: HttpResponse = admin_client.get(
@@ -2280,15 +2260,17 @@ def test_page_checks_edit_saves_results(admin_client):
 
 def test_page_checks_edit_stays_on_page(admin_client):
     """Test that a successful page checks edit stays on the page"""
-    audit: Audit = create_audit_and_wcag()
-    page: Page = Page.objects.create(audit=audit)
-    page_pk: dict[str, int] = {"pk": page.id}
-    url: str = reverse("audits:edit-audit-page-checks", kwargs=page_pk)
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    page: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit,
+        page_type=WcagPageInitial.Type.HOME,
+    )
+    url: str = reverse("audits:edit-audit-page-checks", kwargs={"pk": page.id})
 
     response: HttpResponse = admin_client.post(
         url,
         {
-            "version": audit.version,
+            "version": wcag_audit.version,
             "save": "Button value",
             "form-TOTAL_FORMS": "2",
             "form-INITIAL_FORMS": "2",
@@ -2504,7 +2486,6 @@ def test_start_retest_creates_case_event(admin_client):
     wcag_audit: WcagAudit = create_initial_wcag_audit()
     simplified_case: SimplifiedCase = wcag_audit.simplified_case
     create_initial_statement_audit(simplified_case=simplified_case)
-    wcag_audit: Audit = create_audit()
 
     response: HttpResponse = admin_client.post(
         reverse(
@@ -3561,7 +3542,6 @@ def test_delete_retest(admin_client):
     Test that equality body retest deletion works
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    # Audit.objects.create(simplified_case=simplified_case)
     retest: Retest = Retest.objects.create(simplified_case=simplified_case)
 
     assert retest.is_deleted is False
@@ -4323,31 +4303,65 @@ def test_retest_next_page_name(path_name, expected_next_page, admin_client):
     assertContains(response, f"<b>{expected_next_page}</b>", html=True)
 
 
-@pytest.mark.parametrize(
-    "path_name, redirect_path_name",
-    [
-        ("initial-remove-statement-page", "edit-statement-pages"),
-        (
-            "edit-audit-retest-remove-statement-page",
-            "edit-audit-retest-statement-pages",
-        ),
-    ],
-)
-def test_statement_page_removal(path_name, redirect_path_name, admin_client):
+def test_initial_statement_page_removal(admin_client):
     """Test statement page removal and redirect"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+    statement_page: StatementPage = StatementPage.objects.create(
+        simplified_case=simplified_case, audit_overview=audit_overview
+    )
 
     response: HttpResponse = admin_client.post(
-        reverse(f"audits:{path_name}", kwargs={"pk": statement_page.id}),
+        reverse(
+            "audits:initial-remove-statement-page", kwargs={"pk": statement_page.id}
+        ),
         {},
     )
 
     assert response.status_code == 302
 
     assert response.url == reverse(
-        f"audits:{redirect_path_name}", kwargs={"pk": audit.id}
+        "audits:edit-statement-pages", kwargs={"pk": statement_audit.id}
+    )
+
+    events: QuerySet[SimplifiedEventHistory] = SimplifiedEventHistory.objects.all()
+
+    assert events.count() == 1
+    assert events[0].parent == statement_page
+    assert events[0].event_type == SimplifiedEventHistory.Type.UPDATE
+
+
+def test_twelve_week_statement_page_removal(admin_client):
+    """Test statement page removal and redirect"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+    )
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+    statement_page: StatementPage = StatementPage.objects.create(
+        simplified_case=simplified_case, audit_overview=audit_overview
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "audits:edit-audit-retest-remove-statement-page",
+            kwargs={"pk": statement_page.id},
+        ),
+        {},
+    )
+
+    assert response.status_code == 302
+
+    assert response.url == reverse(
+        "audits:edit-audit-retest-statement-pages", kwargs={"pk": statement_audit.id}
     )
 
     events: QuerySet[SimplifiedEventHistory] = SimplifiedEventHistory.objects.all()

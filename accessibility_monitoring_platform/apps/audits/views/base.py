@@ -41,13 +41,13 @@ from ..forms import (
 from ..models import (
     Audit,
     AuditOverview,
-    Page,
     Retest,
     StatementAudit,
     StatementCheck,
     StatementPage,
     WcagAudit,
     WcagDefinition,
+    WcagPageInitial,
 )
 from ..utils import (
     create_mandatory_pages_for_new_audit,
@@ -112,18 +112,15 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
         HttpResponse: Django HttpResponse
     """
     simplified_case: SimplifiedCase = get_object_or_404(SimplifiedCase, id=case_id)
-    if simplified_case.audit:
+    if simplified_case.audit_overview:
         return redirect(
             reverse(
-                "audits:edit-audit-metadata", kwargs={"pk": simplified_case.audit.id}
+                "audits:edit-audit-metadata",
+                kwargs={"pk": simplified_case.audit_overview.wcag_audit_initial.id},
             )
         )
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     audit_overview: AuditOverview = AuditOverview.objects.create(
         simplified_case=simplified_case
-    )
-    record_simplified_model_create_event(
-        user=request.user, model_object=audit, simplified_case=simplified_case
     )
     record_simplified_model_create_event(
         user=request.user, model_object=audit_overview, simplified_case=simplified_case
@@ -160,13 +157,19 @@ def restore_page(request: HttpRequest, pk: int) -> HttpResponse:
     Returns:
         HttpResponse: Django HttpResponse
     """
-    page: Page = get_object_or_404(Page, id=pk)
-    page.is_deleted = False
+    wcag_page_initial: WcagPageInitial = get_object_or_404(WcagPageInitial, id=pk)
+    wcag_page_initial.is_deleted = False
     record_simplified_model_update_event(
-        user=request.user, model_object=page, simplified_case=page.audit.simplified_case
+        user=request.user,
+        model_object=wcag_page_initial,
+        simplified_case=wcag_page_initial.wcag_audit.simplified_case,
     )
-    page.save()
-    return redirect(reverse("audits:edit-audit-pages", kwargs={"pk": page.audit.id}))
+    wcag_page_initial.save()
+    return redirect(
+        reverse(
+            "audits:edit-audit-pages", kwargs={"pk": wcag_page_initial.wcag_audit.id}
+        )
+    )
 
 
 class AuditUpdateView(NextPlatformPageMixin, UpdateView):
@@ -517,7 +520,7 @@ class DeleteStatementPageUpdateView(UpdateView):
         record_simplified_model_update_event(
             user=self.request.user,
             model_object=self.object,
-            simplified_case=self.object.audit.simplified_case,
+            simplified_case=self.object.simplified_case,
         )
         return super().form_valid(form)
 

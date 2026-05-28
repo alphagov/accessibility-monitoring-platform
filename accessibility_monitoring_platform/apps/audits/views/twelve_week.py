@@ -47,7 +47,6 @@ from ..forms import (
     WcagPageRetestUpdateForm,
 )
 from ..models import (
-    Audit,
     AuditOverview,
     Page,
     StatementAudit,
@@ -307,7 +306,9 @@ class TwelveWeekDeleteStatementPageUpdateView(DeleteStatementPageUpdateView):
         statement_page: StatementPage = self.object
         return reverse(
             "audits:edit-audit-retest-statement-pages",
-            kwargs={"pk": statement_page.audit.id},
+            kwargs={
+                "pk": statement_page.audit_overview.first_statement_audit_12_week_retest.id
+            },
         )
 
 
