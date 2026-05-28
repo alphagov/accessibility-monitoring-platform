@@ -398,7 +398,7 @@ class InitialDeleteStatementPageUpdateView(DeleteStatementPageUpdateView):
         statement_page: StatementPage = self.object
         return reverse(
             "audits:edit-statement-pages",
-            kwargs={"pk": statement_page.statement_audit.id},
+            kwargs={"pk": statement_page.id},
         )
 
 
@@ -650,7 +650,7 @@ class InitialCustomIssueUpdateView(UpdateView):
         record_simplified_model_update_event(
             user=self.request.user,
             model_object=custom_issue,
-            simplified_case=custom_issue.audit.simplified_case,
+            simplified_case=custom_issue.statement_audit.simplified_case,
         )
         return super().form_valid(form)
 
@@ -658,7 +658,8 @@ class InitialCustomIssueUpdateView(UpdateView):
         """Return to the list of custom issues"""
         custom_issue: StatementCheckResultInitial = self.object
         url: str = reverse(
-            "audits:edit-statement-custom", kwargs={"pk": custom_issue.audit.id}
+            "audits:edit-statement-custom",
+            kwargs={"pk": custom_issue.statement_audit.id},
         )
         return f"{url}#{custom_issue.issue_identifier}"
 

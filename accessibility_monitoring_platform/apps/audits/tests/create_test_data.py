@@ -47,11 +47,11 @@ def create_initial_wcag_audit() -> WcagAudit:
         type=WcagDefinition.Type.PDF, name=WCAG_TYPE_PDF_NAME
     )
     for page_type in [
-        WcagPageInitial.Type.EXTRA,
         WcagPageInitial.Type.HOME,
         WcagPageInitial.Type.CONTACT,
         WcagPageInitial.Type.STATEMENT,
         WcagPageInitial.Type.FORM,
+        WcagPageInitial.Type.EXTRA,
     ]:
         wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
             wcag_audit=initial_wcag_audit,

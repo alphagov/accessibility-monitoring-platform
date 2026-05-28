@@ -491,7 +491,7 @@ class AddStatementLinkUpdateView(StatementAuditUpdateView):
                 record_simplified_model_create_event(
                     user=user,
                     model_object=statement_page,
-                    simplified_case=statement_audit.simplified_case,
+                    simplified_case=simplified_case,
                 )
             return HttpResponseRedirect(self.get_success_url())
         else:
