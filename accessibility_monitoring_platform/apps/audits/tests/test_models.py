@@ -332,7 +332,7 @@ def test_wcag_page_initial_string():
     wcag_audit: WcagAudit = create_initial_wcag_audit()
     wcag_page_initial: WcagPageInitial = wcag_audit.every_wcag_page_initials[0]
 
-    assert str(wcag_page_initial) == "Additional"
+    assert str(wcag_page_initial) == "Home"
 
     wcag_page_initial.name = PAGE_NAME
 

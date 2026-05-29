@@ -1716,7 +1716,7 @@ def test_add_extra_page(admin_client):
     )
     assert response.status_code == 200
 
-    extra_pages: list[Page] = list(
+    extra_pages: list[WcagPageInitial] = list(
         WcagPageInitial.objects.filter(
             wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.EXTRA
         )

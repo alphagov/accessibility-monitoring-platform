@@ -527,10 +527,10 @@ def test_audit_pages_platform_page():
     assert audit_pages_platform_page.instance == initial_wcag_audit
     assert audit_pages_platform_page.subpages is not None
     assert len(audit_pages_platform_page.subpages) == 6
-    assert audit_pages_platform_page.subpages[0].get_name() == "Additional page test"
-    assert audit_pages_platform_page.subpages[1].get_name() == "Home page test"
-    assert audit_pages_platform_page.subpages[2].get_name() == "Contact page test"
-    assert audit_pages_platform_page.subpages[3].get_name() == "Form page test"
+    assert audit_pages_platform_page.subpages[0].get_name() == "Home page test"
+    assert audit_pages_platform_page.subpages[1].get_name() == "Contact page test"
+    assert audit_pages_platform_page.subpages[2].get_name() == "Form page test"
+    assert audit_pages_platform_page.subpages[3].get_name() == "Additional page test"
     assert audit_pages_platform_page.subpages[4].get_name() == "PDF test"
     assert (
         audit_pages_platform_page.subpages[5].get_name()
@@ -581,15 +581,15 @@ def test_audit_retest_pages_platform_page():
     assert audit_retest_pages_platform_page.instance == twelve_week_wcag_audit
     assert audit_retest_pages_platform_page.subpages is not None
     assert len(audit_retest_pages_platform_page.subpages) == 6
+    assert audit_retest_pages_platform_page.subpages[0].get_name() == "Home page retest"
     assert (
-        audit_retest_pages_platform_page.subpages[0].get_name()
+        audit_retest_pages_platform_page.subpages[1].get_name() == "Contact page retest"
+    )
+    assert audit_retest_pages_platform_page.subpages[2].get_name() == "Form page retest"
+    assert (
+        audit_retest_pages_platform_page.subpages[3].get_name()
         == "Additional page retest"
     )
-    assert audit_retest_pages_platform_page.subpages[1].get_name() == "Home page retest"
-    assert (
-        audit_retest_pages_platform_page.subpages[2].get_name() == "Contact page retest"
-    )
-    assert audit_retest_pages_platform_page.subpages[3].get_name() == "Form page retest"
     assert audit_retest_pages_platform_page.subpages[4].get_name() == "PDF retest"
     assert (
         audit_retest_pages_platform_page.subpages[5].get_name()

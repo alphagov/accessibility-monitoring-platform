@@ -25,9 +25,13 @@ WCAG_TYPE_PDF_NAME: str = "PDF WCAG"
 
 def create_initial_wcag_audit() -> WcagAudit:
     """Create an initial wcag_audit with all types of page and some check results"""
-    auditor: User = User.objects.create(
+    auditor: User | None = User.objects.filter(
         username="johnsmith", first_name="John", last_name="Smith"
-    )
+    ).first()
+    if auditor is None:
+        auditor: User = User.objects.create(
+            username="johnsmith", first_name="John", last_name="Smith"
+        )
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=auditor)
     initial_wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=simplified_case
