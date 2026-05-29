@@ -12,7 +12,7 @@ from django.utils.text import slugify
 
 from ..audits.models import (
     Audit,
-    CheckResult,
+    WcagCheckResultInitial,
     WcagDefinition,
     WcagPageInitial,
     WcagPageRetest,
@@ -30,7 +30,9 @@ WCAG_DEFINITION_BOILERPLATE_TEMPLATE: str = """**Issue {{ check_result.issue_ide
 {{ wcag_definition.report_boilerplate|safe }}
 {% endif %}"""
 CHECK_RESULTS_NOTES_TEMPLATE: str = """{{ check_result.notes|safe }}"""
-CHECK_RESULTS_RETEST_NOTES_TEMPLATE: str = """{{ check_result.retest_notes|safe }}"""
+CHECK_RESULTS_RETEST_NOTES_TEMPLATE: str = (
+    """{{ check_result.twelve_week_retest.notes|safe }}"""
+)
 DELETE_ROW_BUTTON_PREFIX: str = "delete_table_row_"
 UNDELETE_ROW_BUTTON_PREFIX: str = "undelete_table_row_"
 MOVE_ROW_UP_BUTTON_PREFIX: str = "move_table_row_up_"
@@ -105,7 +107,7 @@ class IssueTable:
 
 def build_issues_tables(
     pages: list[WcagPageInitial] | list[WcagPageRetest],
-    check_results_attr: str = "failed_check_results",
+    check_results_attr: str = "failed_wcag_check_result_initials",
     use_retest_notes: bool = False,
 ) -> list[IssueTable]:
     """
@@ -128,7 +130,7 @@ def build_issues_tables(
 
 
 def build_issue_table_rows(
-    check_results: list[CheckResult],
+    check_results: list[WcagCheckResultInitial],
     used_wcag_definitions: set[WcagDefinition],
     use_retest_notes: bool = False,
 ) -> list[TableRow]:
@@ -173,14 +175,18 @@ def build_report_context(
 ) -> dict[str, Report | list[IssueTable] | Audit]:
     """Return context used to render report"""
     issues_tables: list[IssueTable] = (
-        build_issues_tables(pages=report.base_case.simplifiedcase.audit.testable_pages)
-        if report.base_case.simplifiedcase.audit is not None
+        build_issues_tables(
+            pages=report.base_case.simplifiedcase.audit_overview.wcag_audit_initial.testable_wcag_page_initials
+        )
+        if report.base_case.simplifiedcase.audit_overview is not None
+        and report.base_case.simplifiedcase.audit_overview.wcag_audit_initial
+        is not None
         else []
     )
     return {
         "report": report,
         "issues_tables": issues_tables,
-        "audit": report.base_case.simplifiedcase.audit,
+        "simplified_case": report.base_case.simplifiedcase,
         "audit_overview": report.base_case.simplifiedcase.audit_overview,
         "wcag_audit": report.base_case.simplifiedcase.audit_overview.wcag_audit_initial,
         "statement_audit": report.base_case.simplifiedcase.audit_overview.statement_audit_initial,

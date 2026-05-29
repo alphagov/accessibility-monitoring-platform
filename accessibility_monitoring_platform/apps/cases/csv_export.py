@@ -117,7 +117,7 @@ def populate_csv_columns(
         source_instances[SimplifiedContact] = case.contact_set.filter(
             is_deleted=False
         ).first()
-        if hasattr(case, "audit_overview"):
+        if hasattr(case, "audit_overview") and case.audit_overview is not None:
             source_instances[WCAG_AUDIT_INITIAL] = (
                 case.audit_overview.wcag_audit_initial
             )

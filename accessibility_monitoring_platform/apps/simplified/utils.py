@@ -345,6 +345,6 @@ def get_email_template_context(simplified_case: SimplifiedCase) -> dict[str, Any
             context["retest_issues_tables"] = build_issues_tables(
                 pages=simplified_case.audit_overview.first_wcag_audit_12_week_retest.retestable_wcag_page_retests,
                 use_retest_notes=True,
-                check_results_attr="failed_check_results",
+                check_results_attr="unfixed_wcag_check_result_initials",
             )
     return context
