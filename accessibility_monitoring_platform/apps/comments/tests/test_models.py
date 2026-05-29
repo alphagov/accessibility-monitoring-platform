@@ -8,12 +8,15 @@ from unittest.mock import Mock, patch
 import pytest
 
 from ...audits.models import (
-    Audit,
-    CheckResult,
-    Page,
+    StatementAudit,
     StatementCheck,
-    StatementCheckResult,
-    WcagDefinition,
+    StatementCheckResultInitial,
+    WcagAudit,
+    WcagCheckResultInitial,
+)
+from ...audits.tests.create_test_data import (
+    create_initial_statement_audit,
+    create_initial_wcag_audit,
 )
 from ...detailed.models import DetailedCase
 from ...mobile.models import MobileCase
@@ -62,20 +65,15 @@ def test_body_html_with_issue_identifier_links_matching_check_result():
     Test the comment body_html_with_issue_identifier_links converts issue identifier
     to link to initial check result page for matching issue.
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    page: Page = Page.objects.create(audit=audit, url="https://example.com")
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=WcagDefinition.Type.AXE, name="WCAG definition"
-    )
-    check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    simplified_case: SimplifiedCase = wcag_audit.simplified_case
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.filter(
+            wcag_audit=wcag_audit,
+        ).first()
     )
     body: str = (
-        f"{check_result.issue_identifier} {simplified_case.case_number}-S-2 {simplified_case.case_number}-SC-2"
+        f"{wcag_check_result_initial.issue_identifier} {simplified_case.case_number}-S-2 {simplified_case.case_number}-SC-2"
     )
     comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
 
@@ -91,24 +89,21 @@ def test_body_html_with_issue_identifier_links_longer_issue_identifier():
     Test the comment body_html_with_issue_identifier_links does not convert longer issue
     identifier to link.
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    page: Page = Page.objects.create(audit=audit, url="https://example.com")
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=WcagDefinition.Type.AXE, name="WCAG definition"
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    simplified_case: SimplifiedCase = wcag_audit.simplified_case
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.filter(
+            wcag_audit=wcag_audit,
+        ).first()
     )
-    check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
+    body: str = (
+        f"{wcag_check_result_initial.issue_identifier} {wcag_check_result_initial.issue_identifier}99"
     )
-    body: str = f"{check_result.issue_identifier} {check_result.issue_identifier}1"
     comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
 
     assert (
         comment.body_html_with_issue_identifier_links
-        == '<p><a href="/audits/pages/1/edit-audit-page-checks/#1-A-1" class="govuk-link govuk-link--no-visited-state" target="_blank">1-A-1</a> 1-A-11</p>'
+        == '<p><a href="/audits/pages/1/edit-audit-page-checks/#1-A-1" class="govuk-link govuk-link--no-visited-state" target="_blank">1-A-1</a> 1-A-199</p>'
     )
 
 
@@ -118,13 +113,15 @@ def test_body_html_with_issue_identifier_links_matching_statement_check_result()
     Test the comment body_html_with_issue_identifier_links converts issue identifier
     to link to initial statement check result page for matching issue.
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    statement_audit: StatementAudit = create_initial_statement_audit()
+    simplified_case: SimplifiedCase = statement_audit.simplified_case
     statement_check: StatementCheck = StatementCheck.objects.all().first()
-    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
-        audit=audit,
-        type=statement_check.type,
-        statement_check=statement_check,
+    statement_check_result: StatementCheckResultInitial = (
+        StatementCheckResultInitial.objects.create(
+            statement_audit=statement_audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+        )
     )
     body: str = (
         f"{simplified_case.case_number}-A-2 {statement_check_result.issue_identifier} {simplified_case.case_number}-SC-2"
@@ -143,10 +140,12 @@ def test_body_html_with_issue_identifier_links_matching_custom_statement_check_r
     Test the comment body_html_with_issue_identifier_links converts issue identifier
     to link to initial custom statement check result page for matching issue.
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
-        audit=audit,
+    statement_audit: StatementAudit = create_initial_statement_audit()
+    simplified_case: SimplifiedCase = statement_audit.simplified_case
+    statement_check_result: StatementCheckResultInitial = (
+        StatementCheckResultInitial.objects.create(
+            statement_audit=statement_audit,
+        )
     )
     body: str = (
         f"{simplified_case.case_number}-A-2 {simplified_case.case_number}-S-2 {statement_check_result.issue_identifier}"
@@ -155,29 +154,21 @@ def test_body_html_with_issue_identifier_links_matching_custom_statement_check_r
 
     assert (
         comment.body_html_with_issue_identifier_links
-        == '<p>1-A-2 1-S-2 <a href="/audits/1/edit-statement-custom/#1-SC-1" class="govuk-link govuk-link--no-visited-state" target="_blank">1-SC-1</a></p>'
+        == '<p>1-A-2 1-S-2 <a href="/audits/1/edit-statement-custom/#1-SC-2" class="govuk-link govuk-link--no-visited-state" target="_blank">1-SC-2</a></p>'
     )
 
 
 @pytest.mark.django_db
 def test_get_initial_check_result_url_from_issue_identifier():
     """Test expected check result url found from issue identifier"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    page: Page = Page.objects.create(audit=audit, url="https://example.com")
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=WcagDefinition.Type.AXE, name="WCAG definition"
-    )
-    check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.filter(wcag_audit=wcag_audit).first()
     )
 
     assert (
         get_initial_check_result_url_from_issue_identifier(
-            issue_identifier=check_result.issue_identifier
+            issue_identifier=wcag_check_result_initial.issue_identifier
         )
         == "/audits/pages/1/edit-audit-page-checks/"
     )
@@ -186,17 +177,16 @@ def test_get_initial_check_result_url_from_issue_identifier():
 @pytest.mark.django_db
 def test_get_initial_statement_check_result_url_from_issue_identifier():
     """Test expected statement check result url found from issue identifier"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    statement_audit: StatementAudit = create_initial_statement_audit()
     for statement_check_type in StatementCheck.Type:
         if statement_check_type == StatementCheck.Type.TWELVE_WEEK:
             continue  # Issues added at 12-weeks don't appear in initial results
         statement_check: StatementCheck = StatementCheck.objects.filter(
             type=statement_check_type
         ).first()
-        statement_check_result: StatementCheckResult = (
-            StatementCheckResult.objects.create(
-                audit=audit,
+        statement_check_result: StatementCheckResultInitial = (
+            StatementCheckResultInitial.objects.create(
+                statement_audit=statement_audit,
                 type=statement_check_type,
                 statement_check=statement_check,
             )

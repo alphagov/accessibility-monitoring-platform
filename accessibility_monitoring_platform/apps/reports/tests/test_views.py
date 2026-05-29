@@ -13,12 +13,14 @@ from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import (
-    Audit,
-    Page,
+    StatementAudit,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
+    WcagAudit,
+    WcagPageInitial,
 )
+from ...audits.tests.create_test_data import create_simplified_case_with_full_audit
 from ...common.models import Boolean
 from ...simplified.models import CaseCompliance, CaseEvent, SimplifiedCase
 from ..models import REPORT_VERSION_DEFAULT, Report, ReportVisitsMetrics
@@ -32,24 +34,13 @@ SECOND_CODENAME: str = "SecondCodename"
 STATEMENT_CUSTOM_CHECK_COMMENT: str = "Statement custom check result comment"
 
 
-def create_report() -> Report:
-    """Create a report"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    CaseCompliance.objects.create(simplified_case=simplified_case)
-    Audit.objects.create(simplified_case=simplified_case)
-    report: Report = Report.objects.create(base_case=simplified_case)
-    return report
-
-
 def test_create_report_uses_latest_template(admin_client):
     """Test that report create uses latest report template"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    path_kwargs: dict[str, int] = {"case_id": simplified_case.id}
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    StatementCheckResult.objects.create(audit=audit)
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    report: Report = Report.objects.create(base_case=simplified_case)
 
     response: HttpResponse = admin_client.get(
-        reverse("reports:report-create", kwargs=path_kwargs),
+        reverse("reports:report-create", kwargs={"case_id": simplified_case.id}),
     )
 
     assert response.status_code == 302
@@ -77,7 +68,8 @@ def test_create_report_redirects(admin_client):
 
 def test_create_report_does_not_create_duplicate(admin_client):
     """Test that report create does not create a duplicate report"""
-    report: Report = create_report()
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    report: Report = Report.objects.create(base_case=simplified_case)
     path_kwargs: dict[str, int] = {"case_id": report.base_case.id}
 
     assert Report.objects.filter(base_case=report.base_case).count() == 1
@@ -115,11 +107,14 @@ def test_report_includes_page_location(admin_client):
     """
     Test that report contains the page location
     """
-    report: Report = create_report()
-    audit: Audit = report.base_case.simplifiedcase.audit
-    Page.objects.create(
-        audit=audit, page_type=Page.Type.HOME, url=HOME_PAGE_URL, location=PAGE_LOCATION
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    report: Report = Report.objects.create(base_case=simplified_case)
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        page_type=WcagPageInitial.Type.HOME
     )
+    wcag_page_initial.url = HOME_PAGE_URL
+    wcag_page_initial.location = PAGE_LOCATION
+    wcag_page_initial.save()
 
     report_pk_kwargs: dict[str, int] = {"pk": report.id}
 
@@ -142,7 +137,8 @@ def test_report_includes_page_location(admin_client):
 )
 def test_report_specific_page_loads(path_name, expected_header, admin_client):
     """Test that the report-specific page loads"""
-    report: Report = create_report()
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    report: Report = Report.objects.create(base_case=simplified_case)
     report_pk_kwargs: dict[str, int] = {"pk": report.id}
 
     response: HttpResponse = admin_client.get(
@@ -209,7 +205,12 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     """
     Test that the report details page tells user to review report
     """
-    report: Report = create_report()
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    wcag_audit: WcagAudit = simplified_case.audit_overview.wcag_audit_initial
+    statement_audit: StatementAudit = (
+        simplified_case.audit_overview.statement_audit_initial
+    )
+    report: Report = Report.objects.create(base_case=simplified_case)
     simplified_case: SimplifiedCase = report.base_case.get_case()
     case_pk_kwargs: dict[str, int] = {"pk": simplified_case.id}
     user = User.objects.create()
@@ -217,14 +218,11 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     simplified_case.organisation_name = "org name"
     simplified_case.auditor = user
     simplified_case.report_review_status = Boolean.YES
-    simplified_case.compliance.statement_compliance_state_initial = (
-        CaseCompliance.StatementCompliance.COMPLIANT
-    )
-    simplified_case.compliance.website_compliance_state_initial = (
-        CaseCompliance.WebsiteCompliance.COMPLIANT
-    )
-    simplified_case.compliance.save()
     simplified_case.save()
+    statement_audit.compliance_state = StatementAudit.StatementCompliance.COMPLIANT
+    statement_audit.save()
+    wcag_audit.compliance_state = WcagAudit.WebsiteCompliance.COMPLIANT
+    wcag_audit.save()
 
     response: HttpResponse = admin_client.get(
         reverse("simplified:edit-publish-report", kwargs=case_pk_kwargs)
@@ -239,7 +237,8 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
 
 
 def test_report_metrics_displays_in_report_logs(admin_client):
-    report: Report = create_report()
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    report: Report = Report.objects.create(base_case=simplified_case)
     report_pk_kwargs: dict[str, int] = {"pk": report.id}
     simplified_case: SimplifiedCase = report.base_case.get_case()
     simplified_case.save()
@@ -299,7 +298,8 @@ def test_report_metrics_unique_vists_shows_only_current_report(admin_client):
     Visits to other reports can have the same fingerprint hash, make sure
     that they are not included.
     """
-    report: Report = create_report()
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    report: Report = Report.objects.create(base_case=simplified_case)
     report_pk_kwargs: dict[str, int] = {"pk": report.id}
     simplified_case: SimplifiedCase = report.base_case.get_case()
     other_simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
@@ -341,21 +341,23 @@ def test_report_includes_statement_custom_issue(admin_client):
     """
     Test that report contains the page location
     """
-    report: Report = create_report()
-    audit: Audit = report.base_case.simplifiedcase.audit
-    StatementPage.objects.create(audit=audit, url="https://example.com")
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    statement_audit: StatementAudit = (
+        simplified_case.audit_overview.statement_audit_initial
+    )
+    report: Report = Report.objects.create(base_case=simplified_case)
+    StatementPage.objects.create(
+        simplified_case=simplified_case, url="https://example.com"
+    )
 
     report_pk_kwargs: dict[str, int] = {"pk": report.id}
 
-    for statement_check_result in StatementCheckResult.objects.filter(
-        type=StatementCheck.Type.CUSTOM
-    ):
-        statement_check_result.check_result_state = StatementCheckResult.Result.YES
-        statement_check_result.save()
-
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-custom-issue-create", kwargs={"audit_id": audit.id}),
-        {"report_comment": STATEMENT_CUSTOM_CHECK_COMMENT, "save": "Save and return"},
+        reverse(
+            "audits:edit-custom-issue-create",
+            kwargs={"statement_audit_id": statement_audit.id},
+        ),
+        {"public_comment": STATEMENT_CUSTOM_CHECK_COMMENT, "save": "Save and return"},
     )
 
     assert response.status_code == 302
@@ -372,9 +374,9 @@ def test_report_republish_button_show(admin_client):
     """
     Test that report contains the page location
     """
-    report: Report = create_report()
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    report: Report = Report.objects.create(base_case=simplified_case)
     report_pk_kwargs: dict[str, int] = {"pk": report.id}
-    simplified_case: SimplifiedCase = report.base_case.get_case()
     simplified_case.report_approved_status = (
         SimplifiedCase.ReportApprovedStatus.APPROVED
     )

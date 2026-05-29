@@ -1,5 +1,5 @@
             <li>
-                {% if edit_name == 'audits:edit-audit-page-checks' or edit_name == 'audits:edit-audit-retest-page-checks' or edit_name == 'audits:edit-retest-page-checks' %}
+                {% if edit_name == 'audits:edit-audit-page-checks' or edit_name == 'audits:edit-wcag-page-retest-check-results' or edit_name == 'audits:edit-retest-page-checks' %}
                     {% if current_page == edit_name and page_id == page.id %}
                         {{ page }}
                         {% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}

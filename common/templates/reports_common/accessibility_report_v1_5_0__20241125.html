@@ -31,11 +31,11 @@
 </p>
 <p>
     You’ve been sent this report because
-    {% if audit.simplified_case.website_name %}
-        {{ audit.simplified_case.website_name }}
-        (<a href="{{ audit.simplified_case.home_page_url }}">{{ audit.simplified_case.home_page_url }}</a>)
+    {% if simplified_case.website_name %}
+        {{ simplified_case.website_name }}
+        (<a href="{{ simplified_case.home_page_url }}">{{ simplified_case.home_page_url }}</a>)
     {% else %}
-        <a href="{{ audit.simplified_case.home_page_url }}">{{ audit.simplified_case.home_page_url }}</a>
+        <a href="{{ simplified_case.home_page_url }}">{{ simplified_case.home_page_url }}</a>
     {% endif %}
     is one of the websites we’ve monitored. This report explains:
 </p>
@@ -54,27 +54,27 @@
 <h2 id="report-how-accessible-the-website-is" class="amp-new-page">How accessible the website is</h2>
 <p>
     We checked
-    {% if audit.simplified_case.website_name %}
-        {{ audit.simplified_case.website_name }}
-        (<a href="{{ audit.simplified_case.home_page_url }}">{{ audit.simplified_case.home_page_url }}</a>)
+    {% if simplified_case.website_name %}
+        {{ simplified_case.website_name }}
+        (<a href="{{ simplified_case.home_page_url }}">{{ simplified_case.home_page_url }}</a>)
     {% else %}
-        <a href="{{ audit.simplified_case.home_page_url }}">{{ audit.simplified_case.home_page_url }}</a>
+        <a href="{{ simplified_case.home_page_url }}">{{ simplified_case.home_page_url }}</a>
     {% endif %}
     on
-    {{ audit.date_of_test|date:"j F Y" }}
+    {{ wcag_audit.date_of_test|date:"j F Y" }}
     against the
     <a href="https://www.w3.org/TR/WCAG22/">Web Content Accessibility Guidelines (WCAG) 2.2 AA</a>
     standard.
 </p>
 <p>
-    {% if audit.simplified_case.compliance.website_compliance_state_initial  == 'not-compliant' %}
+    {% if wcag_audit.compliance_state  == 'not-compliant' %}
         Based on our testing, this site is not compliant with WCAG 2.2 AA.
         This means there are some things which would cause significant barriers
         to users with certain accessibility needs.
-    {% elif audit.simplified_case.compliance.website_compliance_state_initial  == 'partially-compliant' %}
+    {% elif wcag_audit.compliance_state  == 'partially-compliant' %}
         Based on our testing, this site is partially compliant with WCAG 2.2 AA.
         This means there are some things which are not fully accessible.
-    {% elif audit.simplified_case.compliance.website_compliance_state_initial  == 'compliant' %}
+    {% elif wcag_audit.compliance_state  == 'compliant' %}
         Based on our testing, this site is compliant with WCAG 2.2 AA.
         This means no serious or critical issues were found during our testing.
         We run basic tests on a small part of your website so we can't say for
@@ -100,7 +100,7 @@
 </p>
 <p>
     Tests were completed using different settings in the Google Chrome browser
-    on Mac OSX with a {{ audit.get_screen_size_display }} screen.
+    on Mac OSX with a {{ wcag_audit.get_screen_size_display }} screen.
 </p>
 
 <br />
@@ -114,7 +114,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for page in audit.testable_pages %}
+        {% for page in wcag_audit.testable_wcag_page_initials %}
             <tr valign="top" >
                 <td headers="name">{{ page }}</td>
                 <td headers="url"><a href="{{ page.url }}">{{ page.url }}</a> {{ page.location }}</td>
@@ -173,8 +173,8 @@
     As part of the regulations you must publish an accessibility statement.
 </p>
 <p>
-{% if audit.accessibility_statement_found and audit.statement_check_result_statement_found %}
-    {% if audit.failed_statement_check_results %}
+{% if audit_overview.accessibility_statement_found and statement_audit.overview_statement_checks_complete %}
+    {% if statement_audit.failed_statement_check_results %}
         <p>
             An accessibility statement for the website was found but we found the following issues.
         </p>
@@ -187,13 +187,13 @@
                 </tr>
             </thead>
             <tbody>
-                {% for statement_check_result in audit.failed_statement_check_results %}
+                {% for statement_check_result in statement_audit.failed_statement_check_results %}
                     <tr valign="top">
                         <td class="amp-report-column-counter"><span class="govuk-visually-hidden">Issue:</span>{{ forloop.counter }}</td>
                         <td headers="statement-issues" class="amp-notes">
                             {{ statement_check_result.statement_check.report_text|markdown_to_html }}
-                            {% if statement_check_result.report_comment %}
-                                {{ statement_check_result.report_comment|markdown_to_html }}
+                            {% if statement_check_result.public_comment %}
+                                {{ statement_check_result.public_comment|markdown_to_html }}
                             {% endif %}
                         </td>
                     </tr>
@@ -206,10 +206,10 @@
         </p>
     {% endif %}
 {% else %}
-    {% if audit.statement_found_check.check_result_state != 'yes' %}
-        <p>{{ audit.statement_found_check.statement_check.report_text|markdown_to_html }}</p>
-    {% elif audit.statement_structure_check.check_result_state != 'yes' %}
-        <p>{{ audit.statement_structure_check.statement_check.report_text|markdown_to_html }}</p>
+    {% if statement_audit.statement_found_check.check_result_state != 'yes' %}
+        <p>{{ statement_audit.statement_found_check.statement_check.report_text|markdown_to_html }}</p>
+    {% elif statement_audit.statement_structure_check.check_result_state != 'yes' %}
+        <p>{{ statement_audit.statement_structure_check.statement_check.report_text|markdown_to_html }}</p>
     {% else %}
         <p>
             An accessibility page for the website could not be found or the accessibility page did
@@ -218,7 +218,7 @@
         </p>
     {% endif %}
 {% endif %}
-{{ audit.statement_extra_report_text|markdown_to_html }}
+{{ statement_audit.statement_extra_report_text|markdown_to_html }}
 <p>
     More information about accessibility statements can be found at
     <a href="https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps">https://www.gov.uk/guidance/accessibility-requirements-for-public-sector-websites-and-apps</a>.
@@ -245,14 +245,14 @@
 <h2 id="report-enforcement" class="amp-new-page">Enforcement</h2>
 <p>
     On behalf of the Minister for the Cabinet Office we provide the
-    {% if audit.simplified_case.enforcement_body == 'ehrc' %}
+    {% if simplified_case.enforcement_body == 'ehrc' %}
         Equality and Human Rights Commission (EHRC)
     {% else %}
         Equality Commission for Northern Ireland (ECNI)
     {% endif %}
     with details about public sector bodies who have been monitored. If
     accessibility issues remain after giving you time to fix them, the
-    {% if audit.simplified_case.enforcement_body == 'ehrc' %}
+    {% if simplified_case.enforcement_body == 'ehrc' %}
         EHRC
     {% else %}
         ECNI

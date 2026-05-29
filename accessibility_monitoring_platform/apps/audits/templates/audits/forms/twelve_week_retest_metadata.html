@@ -5,15 +5,15 @@
         <div class="govuk-grid-column-full">
             <div class="govuk-form-group">
                 <label class="govuk-label"><b>Original date test</b></label>
-                <div class="govuk-hint">{{ audit.date_of_test|amp_date }}</div>
+                <div class="govuk-hint">{{ wcag_audit.simplified_case.first_wcag_audit.date_of_test|amp_date }}</div>
             </div>
             <div class="govuk-form-group">
                 <label class="govuk-label"><b>Original screen size</b></label>
-                <div class="govuk-hint">{{ audit.get_screen_size_display }}</div>
+                <div class="govuk-hint">{{ wcag_audit.simplified_case.first_wcag_audit.get_screen_size_display }}</div>
             </div>
             <div class="govuk-form-group">
                 <label class="govuk-label"><b>Original exemptions</b></label>
-                <div class="govuk-hint">{{ audit.get_exemptions_state_display }}</div>
+                <div class="govuk-hint">{{ wcag_audit.simplified_case.first_wcag_audit.get_exemptions_state_display }}</div>
             </div>
         </div>
     </div>

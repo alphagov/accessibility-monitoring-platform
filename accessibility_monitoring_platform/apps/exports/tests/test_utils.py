@@ -1,10 +1,10 @@
 import pytest
 from django.http import StreamingHttpResponse
 
-from ...audits.models import Audit
+from ...audits.tests.create_test_data import create_simplified_case_with_full_audit
 from ...common.tests.test_utils import decode_csv_response, validate_csv_response
 from ...simplified.csv_export import SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT
-from ...simplified.models import CaseCompliance, SimplifiedCase
+from ...simplified.models import SimplifiedCase
 from ..utils import download_equality_body_simplified_cases, get_exportable_cases
 from .test_forms import CUTOFF_DATE, create_exportable_case
 
@@ -14,10 +14,8 @@ CSV_EXPORT_FILENAME: str = "cases_export.csv"
 @pytest.mark.django_db
 def test_download_equality_body_simplified_cases():
     """Test creation of CSV for equality bodies simplified cases"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    CaseCompliance.objects.create(simplified_case=simplified_case)
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
     simplified_cases: list[SimplifiedCase] = [simplified_case]
-    Audit.objects.create(simplified_case=simplified_case)
 
     response: StreamingHttpResponse = download_equality_body_simplified_cases(
         cases=simplified_cases, filename=CSV_EXPORT_FILENAME
@@ -62,7 +60,7 @@ def test_download_equality_body_simplified_cases():
         "0",
         "0",
         "n/a",
-        "Yes",
+        "No",
         "Not assessed",
         "Not checked",
         "",

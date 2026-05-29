@@ -23,14 +23,14 @@
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             <br />
-                            <h2 class="govuk-heading-m">{{ page_form.instance.page_title }}</h2>
+                            <h2 class="govuk-heading-m">{{ page_form.instance.wcag_page_initial.page_title }}</h2>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>URL</b></label>
-                                <div class="govuk-hint">{{ page_form.instance.url }}</div>
+                                <div class="govuk-hint">{{ page_form.instance.wcag_page_initial.url }}</div>
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Page location description if single page app</b></label>
-                                <div class="govuk-hint">{% if page_form.instance.location %}{{ page_form.instance.location }}{% else %}None{% endif %}</div>
+                                <div class="govuk-hint">{% if page_form.instance.wcag_page_initial.location %}{{ page_form.instance.wcag_page_initial.location }}{% else %}None{% endif %}</div>
                             </div>
                             {% include 'common/form_errors.html' with errors=page_form.non_field_errors %}
                             {% include 'common/form_hidden_fields.html' with hidden_fields=page_form.hidden_fields %}

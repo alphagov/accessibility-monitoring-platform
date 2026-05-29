@@ -11,8 +11,8 @@
     </div>
     <div class="govuk-grid-column-one-third govuk-button-group">
         <p class="govuk-body-m amp-margin-bottom-10">
-            {% if page.url %}
-                <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link amp-margin-right-5">
+            {% if wcag_page_initial.url %}
+                <a href="{{ wcag_page_initial.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link amp-margin-right-5">
                     Open page in new tab
                 </a>
                 <div class="amp-new-window"></div>
@@ -20,9 +20,9 @@
                 None
             {% endif %}
         </p>
-        {% if page.location %}
+        {% if wcag_page_initial.location %}
             <p class="govuk-body-m">
-                Page location: {{ page.location }}
+                Page location: {{ wcag_page_initial.location }}
             </p>
         {% endif %}
     </div>
@@ -31,7 +31,7 @@
 {% endblock %}
 
 {% block form %}
-<form method="post" action="{% url 'audits:edit-audit-page-checks' page.id %}">
+<form method="post" action="{% url sitemap.current_platform_page.url_name wcag_page_initial.id %}">
     <div class="govuk-grid-row">
         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
         <div class="govuk-grid-column-full">

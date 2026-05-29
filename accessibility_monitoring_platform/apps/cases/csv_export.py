@@ -7,11 +7,15 @@ from typing import Any, Generator
 from django.db.models import QuerySet
 from django.urls import reverse
 
-from ..audits.models import Audit
+from ..audits.models import StatementAudit, WcagAudit
 from ..common.csv_export import (
+    STATEMENT_AUDIT_INITIAL,
+    STATEMENT_AUDIT_TWELVE_WEEK,
+    WCAG_AUDIT_INITIAL,
+    WCAG_AUDIT_TWELVE_WEEK,
     CSVColumn,
     EqualityBodyCSVColumn,
-    ExportableClasses,
+    ExportableClassKeys,
     format_model_field,
 )
 from ..detailed.models import Contact as DetailedContact
@@ -19,14 +23,20 @@ from ..detailed.models import DetailedCase
 from ..mobile.models import MobileCase, MobileContact
 from ..reports.models import Report
 from ..simplified.csv_export import SIMPLIFIED_EQUALITY_BODY_COLUMNS_FOR_EXPORT
-from ..simplified.models import CaseCompliance, CaseStatus
+from ..simplified.models import CaseStatus
 from ..simplified.models import Contact as SimplifiedContact
 from ..simplified.models import SimplifiedCase
 
 DOWNLOAD_CASES_CHUNK_SIZE: int = 500
 
 EqualityBodySourceClasses = (
-    Audit | DetailedCase | CaseCompliance | Report | SimplifiedCase | MobileCase | None
+    WcagAudit
+    | DetailedCase
+    | Report
+    | SimplifiedCase
+    | StatementAudit
+    | MobileCase
+    | None
 )
 
 
@@ -46,10 +56,19 @@ def populate_equality_body_columns(
         source_instances[DetailedCase] = case
     elif isinstance(case, SimplifiedCase):
         source_instances[SimplifiedCase] = case
-        if hasattr(case, "audit"):
-            source_instances[Audit] = case.audit
-        if hasattr(case, "compliance"):
-            source_instances[CaseCompliance] = case.compliance
+        if hasattr(case, "audit_overview") and case.audit_overview is not None:
+            source_instances[WCAG_AUDIT_INITIAL] = (
+                case.audit_overview.wcag_audit_initial
+            )
+            source_instances[WCAG_AUDIT_TWELVE_WEEK] = (
+                case.audit_overview.first_wcag_audit_12_week_retest
+            )
+            source_instances[STATEMENT_AUDIT_INITIAL] = (
+                case.audit_overview.statement_audit_initial
+            )
+            source_instances[STATEMENT_AUDIT_TWELVE_WEEK] = (
+                case.audit_overview.first_statement_audit_12_week_retest
+            )
         if hasattr(case, "report"):
             source_instances[Report] = case.report
 
@@ -57,10 +76,10 @@ def populate_equality_body_columns(
 
     for column in columns:
         source_instance: EqualityBodySourceClasses = source_instances.get(
-            column.source_class
+            column.source_classkey
         )
         edit_url_instance: EqualityBodySourceClasses = source_instances.get(
-            column.edit_url_class
+            column.edit_url_classkey
         )
 
         column.formatted_data = format_model_field(
@@ -81,7 +100,7 @@ def populate_csv_columns(
     case: DetailedCase | SimplifiedCase, column_definitions: list[CSVColumn]
 ) -> list[CSVColumn]:
     """Collect data for a case to export"""
-    source_instances: dict[type[ExportableClasses], ExportableClasses] = {}
+    source_instances: dict[type[ExportableClassKeys], ExportableClassKeys] = {}
     if isinstance(case, DetailedCase):
         source_instances[DetailedCase] = case
         source_instances[DetailedContact] = case.detailed_contacts.filter(
@@ -98,12 +117,25 @@ def populate_csv_columns(
         source_instances[SimplifiedContact] = case.contact_set.filter(
             is_deleted=False
         ).first()
-        if hasattr(case, "compliance"):
-            source_instances[CaseCompliance] = case.compliance
+        if hasattr(case, "audit_overview") and case.audit_overview is not None:
+            source_instances[WCAG_AUDIT_INITIAL] = (
+                case.audit_overview.wcag_audit_initial
+            )
+            source_instances[WCAG_AUDIT_TWELVE_WEEK] = (
+                case.audit_overview.first_wcag_audit_12_week_retest
+            )
+            source_instances[STATEMENT_AUDIT_INITIAL] = (
+                case.audit_overview.statement_audit_initial
+            )
+            source_instances[STATEMENT_AUDIT_TWELVE_WEEK] = (
+                case.audit_overview.first_statement_audit_12_week_retest
+            )
 
     columns: list[CSVColumn] = copy.deepcopy(column_definitions)
     for column in columns:
-        source_instance: ExportableClasses = source_instances.get(column.source_class)
+        source_instance: ExportableClassKeys = source_instances.get(
+            column.source_classkey
+        )
         column.formatted_data = format_model_field(
             source_instance=source_instance, column=column
         )

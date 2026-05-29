@@ -102,12 +102,12 @@ You do not need to provide information from your own audit.
                         <b>Issue {{ statement_check_result.issue_identifier }}</b>
                         <br>
                         {{ statement_check_result.statement_check.report_text }}
-                        {% if statement_check_result.report_comment %}
+                        {% if statement_check_result.public_comment %}
                             {% if statement_check_result.statement_check.report_text %}
                                 <br>
                                 <br>
                             {% endif %}
-                            {{ statement_check_result.report_comment }}
+                            {{ statement_check_result.public_comment }}
                         {% endif %}
                     </td>
                     <td headers="statement-12-week-update" width=50%></td>
@@ -115,7 +115,7 @@ You do not need to provide information from your own audit.
             {% endfor %}
         </tbody>
     </table>
-{% elif case.audit.accessibility_statement_found and case.audit.statement_check_result_statement_found %}
+{% elif case.audit_overview.accessibility_statement_found and statement_audit.overview_statement_checks_complete %}
     An accessibility statement for the website was found in the correct format.
 {% else %}
     An accessibility statement for the website was not found.

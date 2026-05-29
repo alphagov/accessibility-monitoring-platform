@@ -22,9 +22,13 @@ from ...audits.models import (
     StatementCheck,
     StatementCheckResult,
     StatementPage,
+    WcagAudit,
     WcagDefinition,
 )
-from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_results
+from ...audits.tests.create_test_data import (  # create_initial_statement_audit,; create_simplified_case_with_full_audit,; create_twelve_week_statement_audit,; create_twelve_week_wcag_audit,
+    create_initial_wcag_audit,
+)
+from ...audits.tests.test_models import ERROR_NOTES
 from ...comments.models import Comment
 from ...common.models import (
     AUDITOR_GROUP_NAME,
@@ -351,6 +355,7 @@ def test_view_case_includes_tests(admin_client):
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     Audit.objects.create(simplified_case=simplified_case, retest_date=TODAY)
+    WcagAudit.objects.create(simplified_case=simplified_case, date_of_test=TODAY)
 
     response: HttpResponse = admin_client.get(
         reverse("simplified:case-detail", kwargs={"pk": simplified_case.id}),
@@ -3174,7 +3179,7 @@ def test_outstanding_issues(admin_client):
     """
     Test out standing issues page renders according to URL parameters.
     """
-    audit: Audit = create_audit_and_check_results()
+    audit: WcagAudit = create_initial_wcag_audit()
     url: str = reverse(
         "simplified:outstanding-issues", kwargs={"pk": audit.simplified_case.id}
     )
@@ -3271,7 +3276,7 @@ def test_twelve_week_email_template_contains_issues(admin_client):
     """
     Test twelve week email template contains issues.
     """
-    audit: Audit = create_audit_and_check_results()
+    audit: WcagAudit = create_initial_wcag_audit()
     page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
     page.url = "https://example.com"
     page.save()
@@ -3854,7 +3859,7 @@ def test_case_close_no_missing_data(admin_client):
 
 def test_case_overview(admin_client):
     """Test case overview."""
-    audit: Audit = create_audit_and_check_results()
+    audit: WcagAudit = create_initial_wcag_audit()
     accessibility_statement_page: Page = audit.accessibility_statement_page
     accessibility_statement_page.url = "https://example.com"
     accessibility_statement_page.retest_page_missing_date = TODAY
@@ -4158,7 +4163,7 @@ def test_bulk_copy_issue_ids_to_clipboard(admin_client):
     """
     Test summary pages include option to bulk copy all issue ids for a single WCAG
     """
-    audit: Audit = create_audit_and_check_results()
+    audit: WcagAudit = create_initial_wcag_audit()
     page: Page = Page.objects.filter(audit=audit).first()
     wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
     check_result_1: CheckResult = CheckResult.objects.create(

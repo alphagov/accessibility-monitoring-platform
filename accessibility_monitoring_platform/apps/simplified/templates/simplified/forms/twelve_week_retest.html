@@ -3,7 +3,7 @@
 {% block preform %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% if not case.audit %}
+            {% if not case.audit_overview %}
                 <p class="govuk-body">
                     This case does not have a test. Start test in
                     <a
@@ -12,10 +12,10 @@
                     >
                         testing details</a>.
                 </p>
-            {% elif case.audit.retest_date %}
+            {% elif case.audit_overview.first_wcag_audit_12_week_retest %}
                 <div class="govuk-button-group">
                     <a
-                        href="{% url 'audits:edit-audit-retest-metadata' case.audit.id %}"
+                        href="{% url 'audits:edit-audit-retest-metadata' case.audit_overview.first_wcag_audit_12_week_retest.id %}"
                         role="button"
                         draggable="false"
                         class="govuk-button govuk-button--secondary"
@@ -35,7 +35,7 @@
                 </p>
                 <div class="govuk-button-group">
                     <a
-                        href="{% url 'audits:audit-retest-start' case.audit.id %}"
+                        href="{% url 'audits:audit-retest-start' case.audit_overview.id %}"
                         role="button"
                         draggable="false"
                         class="govuk-button govuk-button--secondary"

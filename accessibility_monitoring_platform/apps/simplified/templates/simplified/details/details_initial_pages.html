@@ -1,7 +1,7 @@
 {% extends 'cases/details/details.html' %}
 
 {% block prefixrows %}
-    {% for page in case.audit.testable_pages %}
+    {% for page in case.wcagaudit_set.all.first.testable_pages %}
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">{{ page.page_title }}</th>
             <td class="govuk-table__cell amp-width-one-half">

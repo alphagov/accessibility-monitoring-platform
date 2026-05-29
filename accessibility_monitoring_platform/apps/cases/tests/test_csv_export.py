@@ -4,6 +4,7 @@ from typing import Generator
 
 import pytest
 
+from ...audits.tests.create_test_data import create_simplified_case_with_full_audit
 from ...common.csv_export import CSVColumn, EqualityBodyCSVColumn
 from ...detailed.csv_export import DETAILED_CASE_COLUMNS_FOR_EXPORT
 from ...detailed.models import DetailedCase
@@ -11,7 +12,6 @@ from ...simplified.csv_export import (
     SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
     SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
 )
-from ...simplified.models import CaseCompliance
 from ...simplified.models import Contact as SimplifiedContact
 from ...simplified.models import SimplifiedCase
 from ..csv_export import (
@@ -30,8 +30,7 @@ DETAILED_CONTACT_DETAILS: str = "Detailed contact details"
 @pytest.mark.django_db
 def test_populate_csv_columns_simplified():
     """Test collection of case data for CSV export for simplified case"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    CaseCompliance.objects.create(simplified_case=simplified_case)
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
     simplified_case.update_case_status()
     SimplifiedContact.objects.create(
         simplified_case=simplified_case, email=SIMPLIFIED_CONTACT_EMAIL
@@ -69,8 +68,7 @@ def test_populate_csv_columns_detailed():
 @pytest.mark.django_db
 def test_populate_feedback_survey_columns():
     """Test collection of case data for feedback survey export"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    CaseCompliance.objects.create(simplified_case=simplified_case)
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
     simplified_case.update_case_status()
     SimplifiedContact.objects.create(
         simplified_case=simplified_case, email=SIMPLIFIED_CONTACT_EMAIL
@@ -92,8 +90,7 @@ def test_csv_output_generator():
     2. Next 500 Cases (current DOWNLOAD_CASES_CHUNK_SIZE)
     3. Stops after all Cases returned
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    CaseCompliance.objects.create(simplified_case=simplified_case)
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
     simplified_cases: list[SimplifiedCase] = [simplified_case for _ in range(501)]
 
     generator: Generator[str, None, None] = csv_output_generator(
@@ -115,8 +112,7 @@ def test_csv_output_generator():
 @pytest.mark.django_db
 def test_populate_equality_body_columns():
     """Test collection of case data for equality body export"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    CaseCompliance.objects.create(simplified_case=simplified_case)
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
     SimplifiedContact.objects.create(
         simplified_case=simplified_case, email=SIMPLIFIED_CONTACT_EMAIL
     )

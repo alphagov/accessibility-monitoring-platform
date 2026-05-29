@@ -13,7 +13,7 @@
 <tr class="govuk-table__row">
     <th scope="row" class="govuk-table__header amp-width-one-half">Statement exists</th>
     <td class="govuk-table__cell amp-width-one-half">
-        {% if case.audit.accessibility_statement_initially_found or case.audit.twelve_week_accessibility_statement_found %}
+        {% if case.audit_overview.latest_statement_link %}
             Yes
         {% else %}
             No

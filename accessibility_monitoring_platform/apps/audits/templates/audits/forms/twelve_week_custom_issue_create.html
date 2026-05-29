@@ -2,13 +2,17 @@
 
 {% block preform %}
 {% include 'audits/helpers/details_statement_links_and_backups.html' %}
-{% include 'audits/statement_checks/custom_issue_detail.html' %}
 {% endblock %}
 
-{% block formbuttons %}
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
-        <div class="govuk-button-group">
+{% block form %}
+<form method="post" action="{% url sitemap.current_platform_page.url_name statement_audit.id %}">
+    {% csrf_token %}
+    {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'common/amp_form_snippet.html' %}
+        </div>
+        <div class="govuk-grid-column-full govuk-button-group">
             <input
                 type="submit"
                 value="Save and return"
@@ -17,12 +21,12 @@
                 data-module="govuk-button"
             />
             <a
-                href="{% url 'audits:edit-retest-statement-custom' case.audit_overview.first_statement_audit_12_week_retest.id %}"
+                href="{% url 'audits:edit-retest-statement-custom' statement_audit.id %}"
                 class="govuk-link govuk-link--no-visited-state"
             >
                 Cancel
             </a>
         </div>
     </div>
-</div>
+</form>
 {% endblock %}
