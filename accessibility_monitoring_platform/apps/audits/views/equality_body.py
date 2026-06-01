@@ -54,7 +54,6 @@ from ..models import (
     RetestPage,
     RetestStatementCheckResult,
     StatementCheck,
-    StatementPage,
 )
 from ..utils import create_checkresults_for_retest, get_next_platform_page_equality_body
 from .base import (
