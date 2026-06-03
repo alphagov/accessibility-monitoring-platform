@@ -518,7 +518,7 @@ class Audit(VersionModel):
             ).count()
             == 0
             or self.overview_statement_check_results.exclude(
-                retest_state=StatementCheckResult.Result.YES
+                check_result_state=StatementCheckResult.Result.YES
             ).count()
             == 0
         )
@@ -626,6 +626,16 @@ class AuditOverview(models.Model):
         ).first()
 
     @property
+    def website_compliance_display(self) -> str:
+        if (
+            self.first_wcag_audit_12_week_retest is not None
+            and self.first_wcag_audit_12_week_retest.compliance_state
+            != WcagAudit.WebsiteCompliance.UNKNOWN
+        ):
+            return self.first_wcag_audit_12_week_retest.get_compliance_state_display()
+        return self.wcag_audit_initial.get_compliance_state_display()
+
+    @property
     def statement_pages(self) -> QuerySet[StatementPage]:
         return self.statementpage_set.filter(is_deleted=False)
 
@@ -683,17 +693,17 @@ class AuditOverview(models.Model):
         if self.first_statement_audit_12_week_retest is None:
             return (
                 self.statement_audit_initial.overview_statement_check_results.exclude(
-                    check_result_state=StatementCheckResult.Result.YES
+                    check_result_state=StatementCheckResultInitial.Result.YES
                 ).count()
                 == 0
             )
         return (
             self.statement_audit_initial.overview_statement_check_results.exclude(
-                check_result_state=StatementCheckResult.Result.YES
+                check_result_state=StatementCheckResultInitial.Result.YES
             ).count()
             == 0
             or self.first_statement_audit_12_week_retest.overview_statement_check_results.exclude(
-                retest_state=StatementCheckResult.Result.YES
+                check_result_state=StatementCheckResult.ResultRetest.YES
             ).count()
             == 0
         )
@@ -1433,9 +1443,15 @@ class WcagPageRetest(models.Model):
         )
 
     @property
-    def failed_check_results(self) -> QuerySet[WcagCheckResultRetest]:
+    def failed_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
         return self.all_wcag_check_result_retests.filter(
             retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED
+        )
+
+    @property
+    def unfixed_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
+        return self.all_wcag_check_result_retests.exclude(
+            retest_state=WcagCheckResultRetest.RetestResult.FIXED
         )
 
     @property

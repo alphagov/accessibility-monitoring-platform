@@ -15,7 +15,7 @@ from django.db.models import QuerySet
 from django.http import StreamingHttpResponse
 from django.urls import reverse
 
-from ..audits.models import Audit, StatementAudit, WcagAudit
+from ..audits.models import Audit, AuditOverview, StatementAudit, WcagAudit
 from ..cases.csv_export import csv_output_generator
 from ..cases.utils import CaseDetailPage, CaseDetailSection
 from ..common.form_extract_utils import (
@@ -233,12 +233,14 @@ def create_case_and_compliance(**kwargs) -> SimplifiedCase:
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         **non_compliance_args
     )
+    AuditOverview.objects.create(simplified_case=simplified_case)
     WcagAudit.objects.create(
         simplified_case=simplified_case, compliance_state=wcag_compliance_state_initial
     )
     if wcag_compliance_state_12_week != WcagAudit.WebsiteCompliance.UNKNOWN:
         WcagAudit.objects.create(
             simplified_case=simplified_case,
+            audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
             compliance_state=wcag_compliance_state_12_week,
         )
     StatementAudit.objects.create(
@@ -248,6 +250,7 @@ def create_case_and_compliance(**kwargs) -> SimplifiedCase:
     if statement_compliance_state_12_week != StatementAudit.StatementCompliance.UNKNOWN:
         StatementAudit.objects.create(
             simplified_case=simplified_case,
+            audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
             compliance_state=statement_compliance_state_12_week,
         )
     return simplified_case
@@ -345,6 +348,6 @@ def get_email_template_context(simplified_case: SimplifiedCase) -> dict[str, Any
             context["retest_issues_tables"] = build_issues_tables(
                 pages=simplified_case.audit_overview.first_wcag_audit_12_week_retest.retestable_wcag_page_retests,
                 use_retest_notes=True,
-                check_results_attr="unfixed_wcag_check_result_initials",
+                check_results_attr="unfixed_wcag_check_result_retests",
             )
     return context

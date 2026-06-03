@@ -511,6 +511,10 @@ def get_audit_summary_context(
     context["wcag_audit_12_week"] = wcag_audit_12_week
     context["statement_audit_initial"] = statement_audit_initial
     context["statement_audit_12_week"] = statement_audit_12_week
+    if statement_audit_12_week is not None:
+        context["statement_audit"] = statement_audit_12_week
+    else:
+        context["statement_audit"] = statement_audit_initial
 
     summary_wcag_check_results: list[SummaryWcagCheckResult] = []
 

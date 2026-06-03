@@ -39,7 +39,7 @@ The issues found in the report have been listed below.
 You do not need to provide information from your own audit.
 <br>
 <br>
-{% if case.audit.unfixed_check_results %}
+{% if case.audit_overview.first_wcag_audit_12_week_retest.wcag_failed_check_result_retests %}
     Please provide these by filling in the last column of the below tables
     and provide an update on the Accessibility statement.
     <br>
@@ -79,12 +79,12 @@ You do not need to provide information from your own audit.
 <br>
 <h2>Accessibility statement comments</h2>
 <br>
-{% if case.audit.latest_statement_link %}
-    <a href="{{ case.audit.latest_statement_link }}">{{ case.audit.latest_statement_link }}</a>
+{% if case.audit_overview.latest_statement_link %}
+    <a href="{{ case.audit_overview.latest_statement_link }}">{{ case.audit_overview.latest_statement_link }}</a>
     <br>
     <br>
 {% endif %}
-{% if case.audit.failed_statement_check_results %}
+{% if case.audit_overview.first_statement_audit_12_week_retest.failed_statement_check_results %}
     We found the following issues.
     <br>
     <br>
@@ -96,7 +96,7 @@ You do not need to provide information from your own audit.
             </tr>
         </thead>
         <tbody>
-            {% for statement_check_result in case.audit.failed_statement_check_results %}
+            {% for statement_check_result in case.audit_overview.first_statement_audit_12_week_retest.failed_statement_check_results %}
                 <tr valign="top">
                     <td headers="statement-issue" width=50%>
                         <b>Issue {{ statement_check_result.issue_identifier }}</b>

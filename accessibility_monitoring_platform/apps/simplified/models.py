@@ -753,12 +753,9 @@ class SimplifiedCase(BaseCase):
 
     @property
     def website_compliance_display(self):
-        if (
-            self.compliance.website_compliance_state_12_week
-            == CaseCompliance.WebsiteCompliance.UNKNOWN
-        ):
-            return self.compliance.get_website_compliance_state_initial_display()
-        return self.compliance.get_website_compliance_state_12_week_display()
+        if self.audit_overview is None:
+            return "Test not yet started"
+        return self.audit_overview.website_compliance_display
 
     @property
     def accessibility_statement_compliance_display(self):
@@ -841,22 +838,15 @@ class SimplifiedCase(BaseCase):
 
     @property
     def statement_checks_still_initial(self) -> bool:
+        if (
+            self.audit_overview is None
+            or self.audit_overview.statement_audit_initial is None
+        ):
+            return True
         if self.audit_overview and self.audit_overview.statement_audit_initial:
             return (
                 not self.audit_overview.statement_audit_initial.overview_statement_checks_complete
             )
-
-        from ..audits.models import StatementAudit
-
-        initial_statement_audit: StatementAudit | None = (
-            self.statementaudit_set.all().first()
-        )
-        if initial_statement_audit is None:
-            return True
-        return (
-            initial_statement_audit.compliance_state
-            == StatementAudit.StatementCompliance.UNKNOWN
-        )
 
     @property
     def archived_sections(self):
@@ -1295,12 +1285,11 @@ class CaseStatus(models.Model):
         ):
             return CaseStatus.Status.TEST_IN_PROGRESS
         elif (
-            initial_wcag_audit.compliance_state
-            != CaseCompliance.WebsiteCompliance.UNKNOWN
+            initial_wcag_audit.compliance_state != WcagAudit.WebsiteCompliance.UNKNOWN
             and (
                 not self.simplified_case.statement_checks_still_initial
                 or initial_statement_audit.compliance_state
-                != CaseCompliance.StatementCompliance.UNKNOWN
+                != StatementAudit.StatementCompliance.UNKNOWN
             )
             and self.simplified_case.report_review_status != Boolean.YES
         ):

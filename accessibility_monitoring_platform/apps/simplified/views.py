@@ -620,7 +620,8 @@ class CaseNoPSBResponseUpdateView(
         simplified_case: SimplifiedCase = self.object
         if (
             simplified_case.no_psb_contact == Boolean.YES
-            and simplified_case.audit is not None
+            and simplified_case.audit_overview is not None
+            and simplified_case.audit_overview.wcag_audit_initial is not None
         ):
             if simplified_case.show_start_12_week_retest is True:
                 return reverse(
@@ -629,7 +630,9 @@ class CaseNoPSBResponseUpdateView(
                 )
             return reverse(
                 "audits:edit-audit-retest-statement-pages",
-                kwargs={"pk": simplified_case.audit.id},
+                kwargs={
+                    "pk": simplified_case.audit_overview.first_statement_audit_12_week_retest.id
+                },
             )
         return super().get_success_url()
 
@@ -740,19 +743,22 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
 
     def get_next_platform_page(self) -> PlatformPage:
         simplified_case: SimplifiedCase = self.object
-        wcag_audit_12_week: WcagAudit = WcagAudit.objects.filter(
-            audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK
-        ).first()
-        if wcag_audit_12_week:
+        if (
+            simplified_case.audit_overview
+            and simplified_case.audit_overview.wcag_audit_initial
+        ):
             if simplified_case.show_start_12_week_retest:
                 return get_platform_page_by_url_name(
                     url_name="simplified:edit-twelve-week-retest",
                     instance=simplified_case,
                 )
             else:
+                wcag_audit_12_week: WcagAudit = (
+                    simplified_case.audit_overview.first_wcag_audit_12_week_retest
+                )
                 return get_platform_page_by_url_name(
                     url_name="audits:edit-audit-retest-metadata",
-                    instance=simplified_case.audit,
+                    instance=wcag_audit_12_week,
                 )
         return get_platform_page_by_url_name(
             url_name="simplified:edit-review-changes", instance=simplified_case
@@ -912,11 +918,15 @@ class CaseOutstandingIssuesDetailView(
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
         simplified_case: SimplifiedCase = self.object
-        if simplified_case.audit is not None:
+        if simplified_case.audit_overview is not None:
             return {
                 **context,
                 **get_audit_summary_context(
-                    request=self.request, audit=simplified_case.audit
+                    request=self.request,
+                    wcag_audit_initial=simplified_case.audit_overview.wcag_audit_initial,
+                    wcag_audit_12_week=simplified_case.audit_overview.first_wcag_audit_12_week_retest,
+                    statement_audit_initial=simplified_case.audit_overview.statement_audit_initial,
+                    statement_audit_12_week=simplified_case.audit_overview.first_statement_audit_12_week_retest,
                 ),
             }
         return context

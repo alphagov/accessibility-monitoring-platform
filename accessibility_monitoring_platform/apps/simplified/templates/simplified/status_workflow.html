@@ -30,12 +30,8 @@
 
 <h2 class="govuk-heading-s amp-margin-bottom-5">
     Test in progress
-    {% if case.audit %}
-        {% if case.compliance.website_compliance_state_initial != 'not-known' and not case.statement_checks_still_initial and case.compliance.statement_compliance_state_initial != 'unknown'  %}
-            [COMPLETE]
-        {% endif %}
-    {% else %}
-        {% if case.compliance.website_compliance_state_initial != 'not-known' and case.compliance.statement_compliance_state_initial != 'unknown' %}
+    {% if case.audit_overview.wcag_audit_initial and case.audit_overview.statement_audit_initial %}
+        {% if case.audit_overview.wcag_audit_initial.compliance_state != 'not-known' and not case.statement_checks_still_initial and case.cudit_overview.statement_audit_initial.compliance_state != 'unknown'  %}
             [COMPLETE]
         {% endif %}
     {% endif %}
@@ -48,8 +44,8 @@
         {% if case.compliance.website_compliance_state_initial != 'not-known' %}&check;{% endif %}
     </li>
     <li>
-        {% if case.audit %}
-            <a href="{% url 'audits:edit-statement-overview' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+        {% if case.audit_overview.statement_audit_initial %}
+            <a href="{% url 'audits:edit-statement-overview' case.audit_overview.statement_audit_initial.id %}" class="govuk-link govuk-link--no-visited-state">
                 Statement overview not filled in
             </a>
             {% if not case.statement_checks_still_initial %}&check;{% endif %}
