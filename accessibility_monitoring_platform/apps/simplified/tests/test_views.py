@@ -17,6 +17,7 @@ from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import (
     Audit,
+    AuditOverview,
     CheckResult,
     Page,
     StatementAudit,
@@ -3632,14 +3633,13 @@ def test_updating_equality_body_updates_published_report_data_updated_time(
     Test that updating the equality body updates the published report data updated
     time (so a notification banner to republish the report is shown).
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        home_page_url="https://example.com"
-    )
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case.home_page_url = "https://example.com"
+    simplified_case.save()
     Report.objects.create(base_case=simplified_case)
     S3Report.objects.create(base_case=simplified_case, version=0, latest_published=True)
 
-    assert audit.published_report_data_updated_time is None
+    assert simplified_case.audit_overview.published_report_data_updated_time is None
 
     response: HttpResponse = admin_client.post(
         reverse("simplified:edit-case-metadata", kwargs={"pk": simplified_case.id}),
@@ -3652,9 +3652,11 @@ def test_updating_equality_body_updates_published_report_data_updated_time(
     )
     assert response.status_code == 302
 
-    audit_from_db: Audit = Audit.objects.get(id=audit.id)
+    audit_overview: AuditOverview = AuditOverview.objects.get(
+        id=simplified_case.audit_overview.id
+    )
 
-    assert audit_from_db.published_report_data_updated_time is not None
+    assert audit_overview.published_report_data_updated_time is not None
 
 
 def test_updating_home_page_url_updates_published_report_data_updated_time(
