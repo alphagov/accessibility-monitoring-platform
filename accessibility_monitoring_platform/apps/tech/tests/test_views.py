@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains
 
-from ...audits.models import Audit
+from ...audits.tests.create_test_data import create_simplified_case_with_full_audit
 from ...reports.models import Report
 from ...simplified.models import SimplifiedCase
 from ...users.tests.test_views import VALID_PASSWORD, VALID_USER_EMAIL, create_user
@@ -28,8 +28,7 @@ LOG_MESSAGE: str = "Hello"
 )
 def test_page_renders(url_name, page_name, admin_client):
     """Test common page is rendered"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(simplified_case=simplified_case)
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
     Report.objects.create(base_case=simplified_case)
 
     response: HttpResponse = admin_client.get(reverse(url_name))
@@ -68,8 +67,7 @@ def test_platform_checking_writes_log(admin_client, caplog):
 @pytest.mark.django_db
 def test_tech_page_staff_access(url_name, page_name, client):
     """Tests if staff users can access tech pages"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(simplified_case=simplified_case)
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
     Report.objects.create(base_case=simplified_case)
 
     user: User = create_user()

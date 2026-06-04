@@ -12,17 +12,10 @@ from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
-from ...audits.models import (
-    StatementAudit,
-    StatementCheck,
-    StatementCheckResult,
-    StatementPage,
-    WcagAudit,
-    WcagPageInitial,
-)
+from ...audits.models import StatementAudit, StatementPage, WcagAudit, WcagPageInitial
 from ...audits.tests.create_test_data import create_simplified_case_with_full_audit
 from ...common.models import Boolean
-from ...simplified.models import CaseCompliance, CaseEvent, SimplifiedCase
+from ...simplified.models import CaseEvent, SimplifiedCase
 from ..models import REPORT_VERSION_DEFAULT, Report, ReportVisitsMetrics
 
 USER_NAME: str = "user1"

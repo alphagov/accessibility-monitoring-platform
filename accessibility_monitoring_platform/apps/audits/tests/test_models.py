@@ -663,8 +663,17 @@ def test_audit_wcag_unfixed_check_result_retests():
     twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
+    for counter, wcag_check_result_initial in enumerate(
+        WcagCheckResultInitial.objects.filter(wcag_audit=initial_wcag_audit)
+    ):
+        wcag_check_result_initial.check_result_state = (
+            WcagCheckResultInitial.Result.ERROR
+        )
+        wcag_check_result_initial.save()
+        if counter > 2:
+            break
 
-    assert twelve_week_wcag_audit.wcag_unfixed_check_result_retests.count() == 11
+    assert twelve_week_wcag_audit.wcag_unfixed_check_result_retests.count() == 4
 
     wcag_check_result_retest: WcagCheckResultRetest = (
         WcagCheckResultRetest.objects.filter(wcag_audit=twelve_week_wcag_audit).first()
@@ -672,13 +681,7 @@ def test_audit_wcag_unfixed_check_result_retests():
     wcag_check_result_retest.retest_state = CheckResult.RetestResult.FIXED
     wcag_check_result_retest.save()
 
-    wcag_check_result_initial: WcagCheckResultInitial = (
-        wcag_check_result_retest.wcag_check_result_initial
-    )
-    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
-    wcag_check_result_initial.save()
-
-    assert twelve_week_wcag_audit.wcag_unfixed_check_result_retests.count() == 10
+    assert twelve_week_wcag_audit.wcag_unfixed_check_result_retests.count() == 3
 
 
 def test_statement_check_str():

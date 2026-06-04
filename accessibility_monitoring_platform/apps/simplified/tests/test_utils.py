@@ -29,13 +29,7 @@ from ..csv_export import (
     SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
     SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
 )
-from ..models import (
-    CaseCompliance,
-    CaseEvent,
-    Contact,
-    SimplifiedCase,
-    SimplifiedEventHistory,
-)
+from ..models import CaseEvent, Contact, SimplifiedCase, SimplifiedEventHistory
 from ..utils import (
     build_edit_link_html,
     create_case_and_compliance,

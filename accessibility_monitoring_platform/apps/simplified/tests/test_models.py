@@ -28,7 +28,6 @@ from ...audits.models import (
 )
 from ...audits.tests.create_test_data import (
     create_initial_statement_audit,
-    create_initial_wcag_audit,
     create_twelve_week_statement_audit,
 )
 from ...comments.models import Comment

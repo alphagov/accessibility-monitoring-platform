@@ -509,7 +509,6 @@ class Audit(VersionModel):
     @property
     def all_overview_statement_checks_have_passed(self) -> bool:
         """Check all overview statement checks have passed test or retest"""
-        breakpoint()
         if self.overview_statement_check_results.count() == 0:
             return False
         return (
@@ -942,14 +941,16 @@ class WcagAudit(AuditRound):
 
     @property
     def wcag_unfixed_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
-        return self.wcag_check_result_retests.exclude(
+        return self.wcag_check_result_retests.filter(
+            wcag_check_result_initial__check_result_state=WcagCheckResultInitial.Result.ERROR
+        ).exclude(
             retest_state=WcagCheckResultRetest.RetestResult.FIXED,
         )
 
     @property
     def percentage_wcag_issues_fixed(self) -> int:
         return calculate_percentage(
-            total=self.wcag_failed_check_result_initials.count(),
+            total=self.simplified_case.audit_overview.wcag_audit_initial.wcag_failed_check_result_initials.count(),
             partial=self.wcag_fixed_check_result_retests.count(),
         )
 

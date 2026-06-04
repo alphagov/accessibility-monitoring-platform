@@ -12,7 +12,6 @@ from ...audits.models import (
     WcagCheckResultRetest,
     WcagDefinition,
     WcagPageInitial,
-    WcagPageRetest,
 )
 from ...audits.tests.create_test_data import create_simplified_case_with_full_audit
 from ...simplified.models import SimplifiedCase

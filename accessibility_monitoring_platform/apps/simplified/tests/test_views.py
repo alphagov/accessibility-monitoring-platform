@@ -18,24 +18,22 @@ from pytest_django.asserts import assertContains, assertNotContains
 from ...audits.models import (
     Audit,
     AuditOverview,
-    CheckResult,
     Page,
     StatementAudit,
     StatementCheck,
-    StatementCheckResult,
     StatementCheckResultInitial,
     StatementPage,
     WcagAudit,
     WcagCheckResultInitial,
     WcagCheckResultRetest,
     WcagDefinition,
+    WcagPageInitial,
+    WcagPageRetest,
 )
 from ...audits.tests.create_test_data import (
     create_initial_statement_audit,
     create_initial_wcag_audit,
     create_simplified_case_with_full_audit,
-    create_twelve_week_statement_audit,
-    create_twelve_week_wcag_audit,
 )
 from ...audits.tests.test_models import ERROR_NOTES
 from ...comments.models import Comment
@@ -3666,14 +3664,14 @@ def test_updating_home_page_url_updates_published_report_data_updated_time(
     Test that updating the home page URL updates the published report data updated
     time (so a notification banner to republish the report is shown).
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        home_page_url="https://example.com"
-    )
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case.home_page_url = "https://example.com"
+    simplified_case.save()
+    audit_overview: AuditOverview = simplified_case.audit_overview
     Report.objects.create(base_case=simplified_case)
     S3Report.objects.create(base_case=simplified_case, version=0, latest_published=True)
 
-    assert audit.published_report_data_updated_time is None
+    assert audit_overview.published_report_data_updated_time is None
 
     response: HttpResponse = admin_client.post(
         reverse("simplified:edit-case-metadata", kwargs={"pk": simplified_case.id}),
@@ -3686,9 +3684,9 @@ def test_updating_home_page_url_updates_published_report_data_updated_time(
     )
     assert response.status_code == 302
 
-    audit_from_db: Audit = Audit.objects.get(id=audit.id)
+    audit_overview: AuditOverview = AuditOverview.objects.get(id=audit_overview.id)
 
-    assert audit_from_db.published_report_data_updated_time is not None
+    assert audit_overview.published_report_data_updated_time is not None
 
 
 def test_updating_organisation_name_updates_published_report_data_updated_time(
@@ -3698,14 +3696,14 @@ def test_updating_organisation_name_updates_published_report_data_updated_time(
     Test that updating the organisation name updates the published report data updated
     time (so a notification banner to republish the report is shown).
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        home_page_url="https://example.com"
-    )
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case.home_page_url = "https://example.com"
+    simplified_case.save()
+    audit_overview: AuditOverview = simplified_case.audit_overview
     Report.objects.create(base_case=simplified_case)
     S3Report.objects.create(base_case=simplified_case, version=0, latest_published=True)
 
-    assert audit.published_report_data_updated_time is None
+    assert audit_overview.published_report_data_updated_time is None
 
     response: HttpResponse = admin_client.post(
         reverse("simplified:edit-case-metadata", kwargs={"pk": simplified_case.id}),
@@ -3720,9 +3718,9 @@ def test_updating_organisation_name_updates_published_report_data_updated_time(
 
     assert response.status_code == 302
 
-    audit_from_db: Audit = Audit.objects.get(id=audit.id)
+    audit_overview: AuditOverview = AuditOverview.objects.get(id=audit_overview.id)
 
-    assert audit_from_db.published_report_data_updated_time is not None
+    assert audit_overview.published_report_data_updated_time is not None
 
 
 def test_case_close(admin_client):
@@ -3881,38 +3879,56 @@ def test_case_close_no_missing_data(admin_client):
 
 def test_case_overview(admin_client):
     """Test case overview."""
-    audit: WcagAudit = create_initial_wcag_audit()
-    accessibility_statement_page: Page = audit.accessibility_statement_page
-    accessibility_statement_page.url = "https://example.com"
-    accessibility_statement_page.retest_page_missing_date = TODAY
-    accessibility_statement_page.save()
-    statement_check: StatementCheck = StatementCheck.objects.all().first()
-    StatementCheckResult.objects.create(
-        audit=audit,
-        type=statement_check.type,
-        statement_check=statement_check,
-        check_result_state=StatementCheckResult.Result.NO,
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        page_type=WcagPageInitial.Type.STATEMENT
     )
+    wcag_page_initial.url = "https://example.com/statement"
+    wcag_page_initial.save()
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_page_initial=wcag_page_initial
+    )
+    wcag_page_retest.page_missing_date = TODAY
+    wcag_page_retest.save()
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.all().first()
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+    statement_found_check_result: StatementCheckResultInitial = (
+        simplified_case.audit_overview.statement_audit_initial.statement_found_check
+    )
+    statement_found_check_result.check_result_state = (
+        StatementCheckResultInitial.Result.YES
+    )
+    statement_found_check_result.save()
+    statement_check_result_initial_last: StatementCheckResultInitial = (
+        StatementCheckResultInitial.objects.all().last()
+    )
+    statement_check_result_initial_last.check_result_state = (
+        StatementCheckResultInitial.Result.NO
+    )
+    statement_check_result_initial_last.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("simplified:case-detail", kwargs={"pk": audit.simplified_case.id})
+        reverse("simplified:case-detail", kwargs={"pk": simplified_case.id})
     )
 
     assert response.status_code == 200
 
     assertContains(
         response,
-        """<p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">Initial test: 3</p>""",
-        html=True,
-    )
-    assertContains(
-        response,
-        """<p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">Retest: 3 (0% fixed) (1 deleted page)</p>""",
-        html=True,
-    )
-    assertContains(
-        response,
         """<p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">Initial test: 1</p>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">Retest: 1 (0% fixed) (1 deleted page)</p>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">Initial test: 2</p>""",
         html=True,
     )
     assertContains(
@@ -3973,7 +3989,7 @@ def test_case_email_template_list_view_hides_deleted(admin_client):
 
 def test_case_email_template_preview_view(admin_client):
     """Test case email template list page is rendered"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
     email_template: EmailTemplate = EmailTemplate.objects.create(
         template_name="4-12-week-update-request"
     )
@@ -4170,7 +4186,7 @@ def test_next_page_name_with_audit(path_name, expected_next_page, admin_client):
     """
     Test next page shown for when Save and continue button pressed on Case with Audit
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
     Audit.objects.create(simplified_case=simplified_case, retest_date=TODAY)
     url: str = reverse(f"simplified:{path_name}", kwargs={"pk": simplified_case.id})
 
@@ -4185,23 +4201,26 @@ def test_bulk_copy_issue_ids_to_clipboard(admin_client):
     """
     Test summary pages include option to bulk copy all issue ids for a single WCAG
     """
-    audit: WcagAudit = create_initial_wcag_audit()
-    page: Page = Page.objects.filter(audit=audit).first()
+    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    wcag_audit: WcagAudit = simplified_case.audit_overview.wcag_audit_initial
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.filter(
+        wcag_audit=wcag_audit
+    ).first()
     wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
-    check_result_1: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
+    wcag_check_result_1: WcagCheckResultInitial = WcagCheckResultInitial.objects.create(
+        wcag_audit=wcag_audit,
+        wcag_page_initial=wcag_page_initial,
         wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
+        check_result_state=WcagCheckResultInitial.Result.ERROR,
     )
-    check_result_2: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
+    wcag_check_result_2: WcagCheckResultInitial = WcagCheckResultInitial.objects.create(
+        wcag_audit=wcag_audit,
+        wcag_page_initial=wcag_page_initial,
         wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
+        check_result_state=WcagCheckResultInitial.Result.ERROR,
     )
     url: str = reverse(
-        "simplified:outstanding-issues", kwargs={"pk": audit.simplified_case.id}
+        "simplified:outstanding-issues", kwargs={"pk": simplified_case.id}
     )
 
     response: HttpResponse = admin_client.get(url)
@@ -4210,11 +4229,11 @@ def test_bulk_copy_issue_ids_to_clipboard(admin_client):
 
     assertContains(
         response,
-        f"[{check_result_1.issue_identifier} {check_result_2.issue_identifier}]",
+        f"[{wcag_check_result_1.issue_identifier} {wcag_check_result_2.issue_identifier}]",
     )
     assertContains(
         response,
-        f'data-text-to-copy="{check_result_1.issue_identifier} {check_result_2.issue_identifier}"',
+        f'data-text-to-copy="{wcag_check_result_1.issue_identifier} {wcag_check_result_2.issue_identifier}"',
     )
 
 

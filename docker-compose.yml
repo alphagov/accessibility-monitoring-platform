@@ -13,19 +13,19 @@ services:
     ports:
       - "5432:5432"
 
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@linuxhint.com
-      PGADMIN_DEFAULT_PASSWORD: secret
-      PGADMIN_LISTEN_PORT: 80
-    ports:
-      - "8080:80"
-    volumes:
-      - ./data/pgadmin-data:/var/lib/pgadmin
-    links:
-      - "db:pgsql-server"
+  # pgadmin:
+  #   image: dpage/pgadmin4:latest
+  #   restart: always
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@linuxhint.com
+  #     PGADMIN_DEFAULT_PASSWORD: secret
+  #     PGADMIN_LISTEN_PORT: 80
+  #   ports:
+  #     - "8080:80"
+  #   volumes:
+  #     - ./data/pgadmin-data:/var/lib/pgadmin
+  #   links:
+  #     - "db:pgsql-server"
 
   localstack:
     image: localstack/localstack:4.14
@@ -45,4 +45,4 @@ services:
 
 volumes:
   db-data:
-  pgadmin-data:
+  # pgadmin-data:
