@@ -21,7 +21,7 @@ from ...audits.models import (
     Page,
     StatementAudit,
     StatementCheck,
-    StatementCheckResultInitial,
+    StatementCheckResultRound,
     StatementPage,
     WcagAudit,
     WcagCheckResultInitial,
@@ -3038,9 +3038,7 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
     )
 
     for statement_check_result in statement_audit.overview_statement_check_results:
-        statement_check_result.check_result_state = (
-            StatementCheckResultInitial.Result.YES
-        )
+        statement_check_result.check_result_state = StatementCheckResultRound.Result.YES
         statement_check_result.save()
 
     response: HttpResponse = admin_client.get(
@@ -3194,12 +3192,10 @@ def test_outstanding_issues(admin_client):
     for wcag_check_result in WcagCheckResultInitial.objects.all():
         wcag_check_result.check_result_state = WcagCheckResultInitial.Result.ERROR
         wcag_check_result.save()
-    for statement_check_result in StatementCheckResultInitial.objects.filter(
+    for statement_check_result in StatementCheckResultRound.objects.filter(
         type=StatementCheck.Type.OVERVIEW
     ):
-        statement_check_result.check_result_state = (
-            StatementCheckResultInitial.Result.NO
-        )
+        statement_check_result.check_result_state = StatementCheckResultRound.Result.NO
         statement_check_result.save()
     url: str = reverse(
         "simplified:outstanding-issues", kwargs={"pk": simplified_case.id}
@@ -3895,18 +3891,18 @@ def test_case_overview(admin_client):
     )
     wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
     wcag_check_result_initial.save()
-    statement_found_check_result: StatementCheckResultInitial = (
+    statement_found_check_result: StatementCheckResultRound = (
         simplified_case.audit_overview.statement_audit_initial.statement_found_check
     )
     statement_found_check_result.check_result_state = (
-        StatementCheckResultInitial.Result.YES
+        StatementCheckResultRound.Result.YES
     )
     statement_found_check_result.save()
-    statement_check_result_initial_last: StatementCheckResultInitial = (
-        StatementCheckResultInitial.objects.all().last()
+    statement_check_result_initial_last: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.all().last()
     )
     statement_check_result_initial_last.check_result_state = (
-        StatementCheckResultInitial.Result.NO
+        StatementCheckResultRound.Result.NO
     )
     statement_check_result_initial_last.save()
 

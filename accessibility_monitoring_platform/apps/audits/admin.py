@@ -19,8 +19,7 @@ from .models import (
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
-    StatementCheckResultInitial,
-    StatementCheckResultRetest,
+    StatementCheckResultRound,
     StatementPage,
     WcagAudit,
     WcagCheckResultInitial,
@@ -324,7 +323,7 @@ class StatementCheckResultAdmin(admin.ModelAdmin):
     show_facets = admin.ShowFacets.ALWAYS
 
 
-class StatementCheckResultInitialAdmin(admin.ModelAdmin):
+class StatementCheckResultRoundAdmin(admin.ModelAdmin):
 
     search_fields = [
         "issue_identifier",
@@ -344,6 +343,7 @@ class StatementCheckResultInitialAdmin(admin.ModelAdmin):
         "check_result_state",
         "type",
         "is_deleted",
+        "statement_audit__audit_round_type",
     ]
     fieldsets = (
         (
@@ -362,51 +362,6 @@ class StatementCheckResultInitialAdmin(admin.ModelAdmin):
         ),
     )
     readonly_fields = ["statement_audit", "issue_identifier", "statement_check"]
-    show_facets = admin.ShowFacets.ALWAYS
-
-
-class StatementCheckResultRetestAdmin(admin.ModelAdmin):
-
-    search_fields = [
-        "issue_identifier",
-        "statement_audit__simplified_case__organisation_name",
-        "statement_audit__simplified_case__case_identifier",
-        "statement_check__label",
-        "statement_check__success_criteria",
-        "statement_check__report_text",
-    ]
-    list_display = [
-        "issue_identifier",
-        "statement_audit",
-        "is_deleted",
-        "statement_check",
-    ]
-    list_filter = [
-        "check_result_state",
-        "type",
-        "is_deleted",
-    ]
-    fieldsets = (
-        (
-            None,
-            {
-                "fields": (
-                    ("issue_identifier", "is_deleted"),
-                    ("statement_audit",),
-                    ("statement_check_result_initial",),
-                    ("statement_check",),
-                    ("check_result_state", "type"),
-                    ("public_comment",),
-                    ("auditor_information",),
-                )
-            },
-        ),
-    )
-    readonly_fields = [
-        "statement_audit",
-        "statement_check_result_initial",
-        "issue_identifier",
-    ]
     show_facets = admin.ShowFacets.ALWAYS
 
 
@@ -515,8 +470,7 @@ admin.site.register(CheckResultRetestNotesHistory, CheckResultRetestNotesHistory
 admin.site.register(WcagDefinition, WcagDefinitionAdmin)
 admin.site.register(StatementCheck, StatementCheckAdmin)
 admin.site.register(StatementCheckResult, StatementCheckResultAdmin)
-admin.site.register(StatementCheckResultInitial, StatementCheckResultInitialAdmin)
-admin.site.register(StatementCheckResultRetest, StatementCheckResultRetestAdmin)
+admin.site.register(StatementCheckResultRound, StatementCheckResultRoundAdmin)
 admin.site.register(Retest, RetestAdmin)
 admin.site.register(RetestPage, RetestPageAdmin)
 admin.site.register(RetestCheckResult, RetestCheckResultAdmin)

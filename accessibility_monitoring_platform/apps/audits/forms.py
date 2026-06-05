@@ -33,8 +33,7 @@ from .models import (
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
-    StatementCheckResultInitial,
-    StatementCheckResultRetest,
+    StatementCheckResultRound,
     StatementPage,
     WcagAudit,
     WcagCheckResultInitial,
@@ -299,7 +298,7 @@ class StatementAuditComplianceUpdateForm(VersionForm):
         ]
 
 
-class StatementCheckResultInitialForm(forms.ModelForm):
+class StatementCheckResultRoundForm(forms.ModelForm):
     """
     Form for updating a single statement check
     """
@@ -312,16 +311,16 @@ class StatementCheckResultInitialForm(forms.ModelForm):
     public_comment = AMPTextField(label="Comments for report")
 
     class Meta:
-        model = StatementCheckResultInitial
+        model = StatementCheckResultRound
         fields = [
             "check_result_state",
             "public_comment",
         ]
 
 
-StatementCheckResultInitialFormset: forms.formsets.BaseFormSet = (
+StatementCheckResultRoundFormset: forms.formsets.BaseFormSet = (
     forms.modelformset_factory(
-        StatementCheckResultInitial, StatementCheckResultInitialForm, extra=0
+        StatementCheckResultRound, StatementCheckResultRoundForm, extra=0
     )
 )
 
@@ -339,7 +338,7 @@ class StatementCheckResultRetestForm(forms.ModelForm):
     auditor_information = AMPTextField(label="Retest information")
 
     class Meta:
-        model = StatementCheckResultRetest
+        model = StatementCheckResultRound
         fields = [
             "check_result_state",
             "auditor_information",
@@ -348,7 +347,7 @@ class StatementCheckResultRetestForm(forms.ModelForm):
 
 StatementCheckResultRetestFormset: forms.formsets.BaseFormSet = (
     forms.modelformset_factory(
-        StatementCheckResultRetest, StatementCheckResultRetestForm, extra=0
+        StatementCheckResultRound, StatementCheckResultRetestForm, extra=0
     )
 )
 
@@ -475,7 +474,7 @@ class StatementAuditStatementCustomUpdateForm(VersionForm):
         ]
 
 
-class StatementCheckResultInitialCreateUpdateForm(forms.ModelForm):
+class StatementCheckResultRoundCreateUpdateForm(forms.ModelForm):
     """
     Form for creating or updating a custom issue StatementCheckResult
     """
@@ -484,7 +483,7 @@ class StatementCheckResultInitialCreateUpdateForm(forms.ModelForm):
     auditor_information = AMPTextField(label="Notes for auditor")
 
     class Meta:
-        model = StatementCheckResultInitial
+        model = StatementCheckResultRound
         fields = ["public_comment", "auditor_information"]
 
 
@@ -497,7 +496,7 @@ class StatementCheckResultRetestCreateForm(forms.ModelForm):
     auditor_information = AMPTextField(label="12-week retest information")
 
     class Meta:
-        model = StatementCheckResultRetest
+        model = StatementCheckResultRound
         fields = ["public_comment", "auditor_information"]
 
 
@@ -515,7 +514,7 @@ class StatementCheckResultRetestUpdateForm(forms.ModelForm):
     )
 
     class Meta:
-        model = StatementCheckResultRetest
+        model = StatementCheckResultRound
         fields = ["public_comment", "auditor_information", "check_result_state"]
 
 
@@ -772,7 +771,7 @@ class StatementCheckResultRetestCustomUpdateForm(forms.ModelForm):
     public_comment = AMPTextField(label="Comments for email")
 
     class Meta:
-        model = StatementCheckResultRetest
+        model = StatementCheckResultRound
         fields = [
             "check_result_state",
             "public_comment",
@@ -932,21 +931,18 @@ class StatementCheckCreateUpdateForm(forms.ModelForm):
         ]
 
 
-class RetestUpdateForm(forms.ModelForm):
-    """
-    Form for updating equality body retest
-    """
+class WcagAuditRetestUpdateForm(forms.ModelForm):
 
-    date_of_retest = AMPDateField(label="Date of retest")
-    retest_notes = AMPTextField(label="Retest notes")
-    complete_date = AMPDatePageCompleteField()
+    date_of_test = AMPDateField(label="Date of retest")
+    notes = AMPTextField(label="Retest notes")
+    metadata_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Retest
+        model = WcagAudit
         fields: list[str] = [
-            "date_of_retest",
-            "retest_notes",
-            "complete_date",
+            "date_of_test",
+            "notes",
+            "metadata_complete_date",
         ]
 
 

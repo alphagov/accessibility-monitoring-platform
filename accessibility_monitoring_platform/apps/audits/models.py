@@ -692,13 +692,13 @@ class AuditOverview(models.Model):
         if self.first_statement_audit_12_week_retest is None:
             return (
                 self.statement_audit_initial.overview_statement_check_results.exclude(
-                    check_result_state=StatementCheckResultInitial.Result.YES
+                    check_result_state=StatementCheckResultRound.Result.YES
                 ).count()
                 == 0
             )
         return (
             self.statement_audit_initial.overview_statement_check_results.exclude(
-                check_result_state=StatementCheckResultInitial.Result.YES
+                check_result_state=StatementCheckResultRound.Result.YES
             ).count()
             == 0
             or self.first_statement_audit_12_week_retest.overview_statement_check_results.exclude(
@@ -1050,10 +1050,8 @@ class StatementAudit(AuditRound):
     @property
     def statement_check_results(
         self,
-    ) -> QuerySet[StatementCheckResultInitial] | QuerySet[StatementCheckResultRetest]:
-        if self.audit_round_type == StatementAudit.AuditRoundType.INITIAL:
-            return self.statementcheckresultinitial_set.exclude(is_deleted=True)
-        return self.statementcheckresultretest_set.exclude(is_deleted=True)
+    ) -> QuerySet[StatementCheckResultRound]:
+        return self.statementcheckresultround_set.exclude(is_deleted=True)
 
     @property
     def overview_statement_check_results(self):
@@ -1107,13 +1105,13 @@ class StatementAudit(AuditRound):
     @property
     def passed_statement_check_results(self):
         return self.statement_check_results.filter(
-            check_result_state=StatementCheckResultInitial.Result.YES
+            check_result_state=StatementCheckResultRound.Result.YES
         )
 
     @property
     def fixed_statement_check_results(self):
         return self.failed_statement_check_results.filter(
-            statementcheckresultretest__check_result_state=StatementCheckResult.Result.YES
+            statementcheckresultround__check_result_state=StatementCheckResult.Result.YES
         )
 
     @property
@@ -1914,7 +1912,7 @@ class StatementCheckResult(models.Model):
         return f"audits:edit-retest-statement-{self.type}"
 
 
-class StatementCheckResultInitial(models.Model):
+class StatementCheckResultRound(models.Model):
 
     class Result(models.TextChoices):
         YES = "yes", "Yes"
@@ -1924,6 +1922,9 @@ class StatementCheckResultInitial(models.Model):
     statement_audit = models.ForeignKey(StatementAudit, on_delete=models.PROTECT)
     statement_check = models.ForeignKey(
         StatementCheck, on_delete=models.PROTECT, null=True, blank=True
+    )
+    statement_check_result_initial = models.ForeignKey(
+        "StatementCheckResultRound", on_delete=models.PROTECT, blank=True, null=True
     )
     type = models.CharField(
         max_length=20,
@@ -1963,7 +1964,7 @@ class StatementCheckResultInitial(models.Model):
                 id_within_case: int = self.statement_check.issue_number
             else:
                 id_within_case: int = (
-                    self.statement_audit.statementcheckresultinitial_set.filter(
+                    self.statement_audit.statementcheckresultround_set.filter(
                         statement_check=None
                     ).count()
                     + 1
@@ -1974,11 +1975,8 @@ class StatementCheckResultInitial(models.Model):
                 custom_issue=self.statement_check is None,
                 id_within_case=id_within_case,
             )
-        if not self.id and self.type in [
-            StatementCheck.Type.CUSTOM,
-            StatementCheck.Type.TWELVE_WEEK,
-        ]:
-            self.check_result_state = StatementCheckResultInitial.Result.NO
+        if not self.id and self.statement_check is None:
+            self.check_result_state = StatementCheckResultRound.Result.NO
         super().save(*args, **kwargs)
 
     @property
@@ -2006,104 +2004,16 @@ class StatementCheckResultInitial(models.Model):
 
     @property
     def twelve_week_retest(self) -> StatementCheckResult | None:
-        return StatementCheckResultRetest.objects.filter(
-            is_deleted=False,
-            statement_audit__simplified_case=self.statement_audit.simplified_case,
-            statement_audit__audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-            statement_check=self.statement_check,
-        ).first()
-
-
-class StatementCheckResultRetest(models.Model):
-
-    class Result(models.TextChoices):
-        YES = "yes", "Yes"
-        NO = "no", "No"
-        NOT_TESTED = "not-tested", "Not tested"
-
-    statement_audit = models.ForeignKey(StatementAudit, on_delete=models.PROTECT)
-    statement_check_result_initial = models.ForeignKey(
-        StatementCheckResultInitial, on_delete=models.PROTECT, null=True, blank=True
-    )
-    statement_check = models.ForeignKey(
-        StatementCheck, on_delete=models.PROTECT, null=True, blank=True
-    )
-    type = models.CharField(
-        max_length=20,
-        choices=StatementCheck.Type.choices,
-        default=StatementCheck.Type.CUSTOM,
-    )
-    issue_identifier = models.CharField(max_length=20, default="")
-    check_result_state = models.CharField(
-        max_length=10,
-        choices=Result.choices,
-        default=Result.NOT_TESTED,
-    )
-    public_comment = models.TextField(default="", blank=True)
-    auditor_information = models.TextField(default="", blank=True)
-    is_deleted = models.BooleanField(default=False)
-
-    class Meta:
-        ordering = ["statement_check__position", "id"]
-
-    def __str__(self) -> str:
-        if self.statement_check is None:
-            return f"{self.statement_audit} | Custom [{self.issue_identifier}]"
         return (
-            f"{self.statement_audit} | {self.statement_check} [{self.issue_identifier}]"
+            StatementCheckResultRound.objects.filter(
+                is_deleted=False,
+                statement_audit__simplified_case=self.statement_audit.simplified_case,
+                statement_audit__audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+                statement_check=self.statement_check,
+            )
+            .exclude(statement_check=None)
+            .first()
         )
-
-    def save(self, *args, **kwargs) -> None:
-        if not self.id and not self.issue_identifier:
-            if self.statement_check_result_initial:
-                self.issue_identifier = (
-                    self.statement_check_result_initial.issue_identifier
-                )
-            else:
-                if self.statement_check:
-                    id_within_case: int = self.statement_check.issue_number
-                else:
-                    id_within_case: int = (
-                        self.statement_audit.statementcheckresultretest_set.filter(
-                            statement_check=None
-                        ).count()
-                        + 1
-                    )
-                self.issue_identifier = build_issue_identifier(
-                    simplified_case=self.statement_audit.simplified_case,
-                    issue=self,
-                    custom_issue=self.statement_check is None,
-                    id_within_case=id_within_case,
-                )
-        if not self.id and self.type in [
-            StatementCheck.Type.CUSTOM,
-            StatementCheck.Type.TWELVE_WEEK,
-        ]:
-            self.check_result_state = StatementCheckResultRetest.Result.NO
-        super().save(*args, **kwargs)
-
-    @property
-    def label(self):
-        return self.statement_check.label if self.statement_check else "Custom"
-
-    @property
-    def display_value(self):
-        value_str: str = self.get_check_result_state_display()
-        if self.public_comment:
-            value_str += f"<br><br>Auditor's comment: {self.public_comment}"
-        return mark_safe(value_str)
-
-    @property
-    def edit_initial_url_name(self) -> str:
-        if self.statement_check is None:
-            return "audits:edit-statement-custom"
-        return f"audits:edit-statement-{self.statement_check.type}"
-
-    @property
-    def edit_12_week_url_name(self) -> str:
-        if self.statement_check is None:
-            return "audits:edit-retest-statement-custom"
-        return f"audits:edit-retest-statement-{self.type}"
 
 
 class Retest(VersionModel):

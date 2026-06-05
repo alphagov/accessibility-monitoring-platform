@@ -35,8 +35,8 @@ from ..forms import (
     StatementAuditStatementPagesUpdateForm,
     StatementAuditStatementPreparationUpdateForm,
     StatementAuditStatementWebsiteUpdateForm,
-    StatementCheckResultInitialCreateUpdateForm,
-    StatementCheckResultInitialFormset,
+    StatementCheckResultRoundCreateUpdateForm,
+    StatementCheckResultRoundFormset,
     WcagAuditComplianceUpdateForm,
     WcagAuditMetadataUpdateForm,
     WcagAuditPagesUpdateForm,
@@ -55,7 +55,7 @@ from ..models import (
     Page,
     StatementAudit,
     StatementCheck,
-    StatementCheckResultInitial,
+    StatementCheckResultRound,
     StatementPage,
     WcagAudit,
     WcagDefinition,
@@ -413,7 +413,7 @@ class InitialStatementBackupUpdateView(StatementBackupUpdateView):
     template_name: str = "audits/forms/initial_statement_backup.html"
 
 
-class StatementCheckResultInitialFormsetView(StatementAuditUpdateView):
+class StatementCheckResultRoundFormsetView(StatementAuditUpdateView):
     """
     View to do statement checks as part of an audit
     """
@@ -424,13 +424,13 @@ class StatementCheckResultInitialFormsetView(StatementAuditUpdateView):
         statement_audit: StatementAudit = self.object
 
         if self.request.POST:
-            statement_check_results_formset: StatementCheckResultInitialFormset = (
-                StatementCheckResultInitialFormset(self.request.POST)
+            statement_check_results_formset: StatementCheckResultRoundFormset = (
+                StatementCheckResultRoundFormset(self.request.POST)
             )
         else:
-            statement_check_results_formset: StatementCheckResultInitialFormset = (
-                StatementCheckResultInitialFormset(
-                    queryset=StatementCheckResultInitial.objects.filter(
+            statement_check_results_formset: StatementCheckResultRoundFormset = (
+                StatementCheckResultRoundFormset(
+                    queryset=StatementCheckResultRound.objects.filter(
                         statement_audit=statement_audit, type=self.statement_check_type
                     )
                 )
@@ -444,7 +444,7 @@ class StatementCheckResultInitialFormsetView(StatementAuditUpdateView):
         """Process contents of valid form"""
         context: dict[str, Any] = self.get_context_data()
 
-        statement_check_results_formset: StatementCheckResultInitialFormset = context[
+        statement_check_results_formset: StatementCheckResultRoundFormset = context[
             "statement_check_results_formset"
         ]
         if statement_check_results_formset.is_valid():
@@ -461,7 +461,7 @@ class StatementCheckResultInitialFormsetView(StatementAuditUpdateView):
         return super().form_valid(form)
 
 
-class AuditStatementOverviewFormView(StatementCheckResultInitialFormsetView):
+class AuditStatementOverviewFormView(StatementCheckResultRoundFormsetView):
     """
     View to update statement overview check results
     """
@@ -503,7 +503,7 @@ class AuditStatementOverviewFormView(StatementCheckResultInitialFormsetView):
         return super().get_success_url()
 
 
-class AuditStatementWebsiteFormView(StatementCheckResultInitialFormsetView):
+class AuditStatementWebsiteFormView(StatementCheckResultRoundFormsetView):
     """
     View to update statement information check results
     """
@@ -515,7 +515,7 @@ class AuditStatementWebsiteFormView(StatementCheckResultInitialFormsetView):
     statement_check_type: str = StatementCheck.Type.WEBSITE
 
 
-class AuditStatementComplianceFormView(StatementCheckResultInitialFormsetView):
+class AuditStatementComplianceFormView(StatementCheckResultRoundFormsetView):
     """
     View to update statement compliance check results
     """
@@ -527,7 +527,7 @@ class AuditStatementComplianceFormView(StatementCheckResultInitialFormsetView):
     statement_check_type: str = StatementCheck.Type.COMPLIANCE
 
 
-class AuditStatementNonAccessibleFormView(StatementCheckResultInitialFormsetView):
+class AuditStatementNonAccessibleFormView(StatementCheckResultRoundFormsetView):
     """
     View to update statement non-accessible check results
     """
@@ -539,7 +539,7 @@ class AuditStatementNonAccessibleFormView(StatementCheckResultInitialFormsetView
     statement_check_type: str = StatementCheck.Type.NON_ACCESSIBLE
 
 
-class AuditStatementPreparationFormView(StatementCheckResultInitialFormsetView):
+class AuditStatementPreparationFormView(StatementCheckResultRoundFormsetView):
     """
     View to update statement preparation check results
     """
@@ -551,7 +551,7 @@ class AuditStatementPreparationFormView(StatementCheckResultInitialFormsetView):
     statement_check_type: str = StatementCheck.Type.PREPARATION
 
 
-class AuditStatementFeedbackFormView(StatementCheckResultInitialFormsetView):
+class AuditStatementFeedbackFormView(StatementCheckResultRoundFormsetView):
     """
     View to update statement feedback check results
     """
@@ -563,7 +563,7 @@ class AuditStatementFeedbackFormView(StatementCheckResultInitialFormsetView):
     statement_check_type: str = StatementCheck.Type.FEEDBACK
 
 
-class AuditStatementDisproportionateFormView(StatementCheckResultInitialFormsetView):
+class AuditStatementDisproportionateFormView(StatementCheckResultRoundFormsetView):
     """
     View to update statement disproportionate burden check results
     """
@@ -591,9 +591,9 @@ class CustomIssueCreateView(CreateView):
     View to create custom issue
     """
 
-    model: type[StatementCheckResultInitial] = StatementCheckResultInitial
-    form_class: type[StatementCheckResultInitialCreateUpdateForm] = (
-        StatementCheckResultInitialCreateUpdateForm
+    model: type[StatementCheckResultRound] = StatementCheckResultRound
+    form_class: type[StatementCheckResultRoundCreateUpdateForm] = (
+        StatementCheckResultRoundCreateUpdateForm
     )
     template_name: str = "audits/forms/initial_custom_issue_create.html"
 
@@ -605,12 +605,12 @@ class CustomIssueCreateView(CreateView):
         )
         return context
 
-    def form_valid(self, form: StatementCheckResultInitialCreateUpdateForm):
+    def form_valid(self, form: StatementCheckResultRoundCreateUpdateForm):
         """Populate custom issue"""
         statement_audit: StatementAudit = get_object_or_404(
             StatementAudit, id=self.kwargs.get("statement_audit_id")
         )
-        statement_check_result_initial: StatementCheckResultInitial = form.save(
+        statement_check_result_initial: StatementCheckResultRound = form.save(
             commit=False
         )
         statement_check_result_initial.statement_audit = statement_audit
@@ -619,7 +619,7 @@ class CustomIssueCreateView(CreateView):
 
     def get_success_url(self) -> str:
         """Return to the list of custom issues"""
-        custom_issue: StatementCheckResultInitial = self.object
+        custom_issue: StatementCheckResultRound = self.object
         record_simplified_model_create_event(
             user=self.request.user,
             model_object=custom_issue,
@@ -637,16 +637,16 @@ class InitialCustomIssueUpdateView(UpdateView):
     View to update a custom issue
     """
 
-    model: type[StatementCheckResultInitial] = StatementCheckResultInitial
+    model: type[StatementCheckResultRound] = StatementCheckResultRound
     context_object_name: str = "custom_issue"
-    form_class: type[StatementCheckResultInitialCreateUpdateForm] = (
-        StatementCheckResultInitialCreateUpdateForm
+    form_class: type[StatementCheckResultRoundCreateUpdateForm] = (
+        StatementCheckResultRoundCreateUpdateForm
     )
     template_name: str = "audits/forms/initial_custom_issue_update.html"
 
-    def form_valid(self, form: StatementCheckResultInitialCreateUpdateForm):
+    def form_valid(self, form: StatementCheckResultRoundCreateUpdateForm):
         """Populate custom issue"""
-        custom_issue: StatementCheckResultInitial = form.save(commit=False)
+        custom_issue: StatementCheckResultRound = form.save(commit=False)
         record_simplified_model_update_event(
             user=self.request.user,
             model_object=custom_issue,
@@ -656,7 +656,7 @@ class InitialCustomIssueUpdateView(UpdateView):
 
     def get_success_url(self) -> str:
         """Return to the list of custom issues"""
-        custom_issue: StatementCheckResultInitial = self.object
+        custom_issue: StatementCheckResultRound = self.object
         url: str = reverse(
             "audits:edit-statement-custom",
             kwargs={"pk": custom_issue.statement_audit.id},
@@ -670,18 +670,18 @@ class InitialCustomIssueDeleteTemplateView(TemplateView):
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add custom issue to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        custom_issue: StatementCheckResultInitial = get_object_or_404(
-            StatementCheckResultInitial, id=kwargs.get("pk")
+        custom_issue: StatementCheckResultRound = get_object_or_404(
+            StatementCheckResultRound, id=kwargs.get("pk")
         )
         context["custom_issue"] = custom_issue
         return context
 
 
 def delete_custom_issue(request: HttpRequest, pk: int) -> HttpResponse:
-    """Mark custom issue (StatementCheckResultInitial) as deleted"""
+    """Mark custom issue (StatementCheckResultRound) as deleted"""
     if request.method == "POST":
-        custom_issue: StatementCheckResultInitial = get_object_or_404(
-            StatementCheckResultInitial, id=pk
+        custom_issue: StatementCheckResultRound = get_object_or_404(
+            StatementCheckResultRound, id=pk
         )
         custom_issue.is_deleted = True
         record_simplified_model_update_event(

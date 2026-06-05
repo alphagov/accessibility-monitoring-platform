@@ -28,10 +28,7 @@ def populate_audit_rounds(apps, schema_editor):
     )
     StatementPage = apps.get_model("audits", "StatementPage")
     StatementCheckResult = apps.get_model("audits", "StatementCheckResult")
-    StatementCheckResultInitial = apps.get_model(
-        "audits", "StatementCheckResultInitial"
-    )
-    StatementCheckResultRetest = apps.get_model("audits", "StatementCheckResultRetest")
+    StatementCheckResultRound = apps.get_model("audits", "StatementCheckResultRound")
     Retest = apps.get_model("audits", "Retest")
     RetestPage = apps.get_model("audits", "RetestPage")
     WcagPageRetest = apps.get_model("audits", "WcagPageRetest")
@@ -229,7 +226,7 @@ def populate_audit_rounds(apps, schema_editor):
         for statement_check_result in StatementCheckResult.objects.filter(audit=audit):
             statement_check_result.statement_audit = statement_audit_initial
             statement_check_result.save()
-            statement_check_result_initial = StatementCheckResultInitial.objects.create(
+            statement_check_result_initial = StatementCheckResultRound.objects.create(
                 statement_audit=statement_audit_initial,
                 statement_check=statement_check_result.statement_check,
                 issue_identifier=statement_check_result.issue_identifier,
@@ -243,7 +240,7 @@ def populate_audit_rounds(apps, schema_editor):
                 statement_check_result.statement_check
             ] = statement_check_result_initial
             if statement_audit_12_week is not None:
-                StatementCheckResultRetest.objects.create(
+                StatementCheckResultRound.objects.create(
                     statement_audit=statement_audit_12_week,
                     statement_check_result_initial=statement_check_result_initial,
                     statement_check=statement_check_result.statement_check,
@@ -351,7 +348,7 @@ def populate_audit_rounds(apps, schema_editor):
             ) in RetestStatementCheckResult.objects.filter(retest=retest).order_by(
                 "id"
             ):
-                StatementCheckResultRetest.objects.create(
+                StatementCheckResultRound.objects.create(
                     statement_audit=statement_audit_retest,
                     statement_check_result_initial=statement_check_results_initial_by_statement_check.get(
                         retest_statement_check_result.statement_check
@@ -375,10 +372,7 @@ def reverse_code(apps, schema_editor):
     WcagAudit = apps.get_model("audits", "WCAGAudit")
     StatementAudit = apps.get_model("audits", "StatementAudit")
     StatementPage = apps.get_model("audits", "StatementPage")
-    StatementCheckResultInitial = apps.get_model(
-        "audits", "StatementCheckResultInitial"
-    )
-    StatementCheckResultRetest = apps.get_model("audits", "StatementCheckResultRetest")
+    StatementCheckResultRound = apps.get_model("audits", "StatementCheckResultRound")
     WcagPageInitial = apps.get_model("audits", "WcagPageInitial")
     WcagPageRetest = apps.get_model("audits", "WcagPageRetest")
     WcagCheckResultInitial = apps.get_model("audits", "WcagCheckResultInitial")
@@ -399,8 +393,7 @@ def reverse_code(apps, schema_editor):
     WcagAudit.objects.all().delete()
     RetestStatementCheckResult.objects.all().update(statement_audit=None)
     StatementPage.objects.all().update(audit_overview=None)
-    StatementCheckResultRetest.objects.all().delete()
-    StatementCheckResultInitial.objects.all().delete()
+    StatementCheckResultRound.objects.all().delete()
     StatementAudit.objects.all().delete()
     AuditOverview.objects.all().delete()
 

@@ -45,17 +45,23 @@ from ..forms import (
     RetestStatementPreparationUpdateForm,
     RetestStatementResultsUpdateForm,
     RetestStatementWebsiteUpdateForm,
-    RetestUpdateForm,
     StatementBackupForm,
+    WcagAuditRetestUpdateForm,
 )
 from ..models import (
     Retest,
     RetestCheckResult,
     RetestPage,
     RetestStatementCheckResult,
+    StatementAudit,
     StatementCheck,
+    WcagAudit,
 )
-from ..utils import create_checkresults_for_retest, get_next_platform_page_equality_body
+from ..utils import (
+    create_checkresults_for_wcag_audit_retest,
+    create_statement_audit_and_checks,
+    get_next_platform_page_equality_body,
+)
 from .base import (
     AddStatementLinkUpdateView,
     DeleteStatementPageUpdateView,
@@ -75,17 +81,26 @@ def create_equality_body_retest(request: HttpRequest, case_id: int) -> HttpRespo
         HttpResponse: Django HttpResponse
     """
     simplified_case: SimplifiedCase = get_object_or_404(SimplifiedCase, id=case_id)
-    id_within_case: int = simplified_case.retests.count()
-    if id_within_case == 0:
-        id_within_case = 1
-    retest: Retest = Retest.objects.create(
-        simplified_case=simplified_case, id_within_case=id_within_case
+    wcag_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
     )
     record_simplified_model_create_event(
-        user=request.user, model_object=retest, simplified_case=simplified_case
+        user=request.user, model_object=wcag_audit, simplified_case=simplified_case
     )
-    create_checkresults_for_retest(retest=retest)
-    return redirect(reverse("audits:retest-metadata-update", kwargs={"pk": retest.id}))
+    create_checkresults_for_wcag_audit_retest(wcag_audit=wcag_audit)
+    statement_audit: StatementAudit = create_statement_audit_and_checks(
+        audit_overview=simplified_case.audit_overview,
+        audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY,
+    )
+    record_simplified_model_create_event(
+        user=request.user,
+        model_object=statement_audit,
+        simplified_case=simplified_case,
+    )
+    return redirect(
+        reverse("audits:retest-metadata-update", kwargs={"pk": wcag_audit.id})
+    )
 
 
 def mark_retest_as_deleted(request: HttpRequest, pk: int) -> HttpResponse:
@@ -108,13 +123,13 @@ class RetestMetadataUpdateView(NextPlatformPageMixin, UpdateView):
     View to update a equality body retest metadata
     """
 
-    model: type[Retest] = Retest
-    form_class: type[RetestUpdateForm] = RetestUpdateForm
+    model: type[WcagAudit] = WcagAudit
+    form_class: type[WcagAuditRetestUpdateForm] = WcagAuditRetestUpdateForm
     template_name: str = "audits/forms/equality_body_retest_metadata_update.html"
     context_object_name: str = "retest"
 
     def get_next_platform_page(self) -> PlatformPage:
-        return get_next_platform_page_equality_body(retest=self.object)
+        return get_next_platform_page_equality_body(wcag_audit=self.object)
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add record event on change"""

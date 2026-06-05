@@ -8,8 +8,7 @@ from ..models import (
     AuditOverview,
     StatementAudit,
     StatementCheck,
-    StatementCheckResultInitial,
-    StatementCheckResultRetest,
+    StatementCheckResultRound,
     WcagAudit,
     WcagCheckResultInitial,
     WcagCheckResultRetest,
@@ -129,12 +128,12 @@ def create_initial_statement_audit(
         simplified_case=simplified_case
     )
     for statement_check in StatementCheck.objects.on_date(timezone.now().date()):
-        StatementCheckResultInitial.objects.create(
+        StatementCheckResultRound.objects.create(
             statement_audit=initial_statement_audit,
             type=statement_check.type,
             statement_check=statement_check,
         )
-    StatementCheckResultInitial.objects.create(
+    StatementCheckResultRound.objects.create(
         statement_audit=initial_statement_audit,
         public_comment="Custom statement issue",
     )
@@ -161,19 +160,19 @@ def create_twelve_week_statement_audit(
             statement_check_result_initial
         ) in initial_statement_audit.statement_check_results:
             if statement_check_result_initial.statement_check is None:
-                StatementCheckResultRetest.objects.create(
+                StatementCheckResultRound.objects.create(
                     statement_audit=twelve_week_statement_audit,
                     statement_check_result_initial=statement_check_result_initial,
                     public_comment="Custom statement issue",
                 )
             else:
-                StatementCheckResultRetest.objects.create(
+                StatementCheckResultRound.objects.create(
                     statement_audit=twelve_week_statement_audit,
                     statement_check_result_initial=statement_check_result_initial,
                     type=statement_check_result_initial.type,
                     statement_check=statement_check_result_initial.statement_check,
                 )
-        StatementCheckResultRetest.objects.create(
+        StatementCheckResultRound.objects.create(
             statement_audit=twelve_week_statement_audit,
             type=StatementCheck.Type.TWELVE_WEEK,
             public_comment="Custom statement issue in retest",

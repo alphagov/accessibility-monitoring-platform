@@ -21,8 +21,7 @@ from ...audits.models import (
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
-    StatementCheckResultInitial,
-    StatementCheckResultRetest,
+    StatementCheckResultRound,
     WcagAudit,
     WcagDefinition,
 )
@@ -665,22 +664,22 @@ def test_case_statement_checks_still_initial():
 
     assert simplified_case.statement_checks_still_initial is True
 
-    statement_check_result_initial: StatementCheckResultInitial = (
-        StatementCheckResultInitial.objects.get(
+    statement_check_result_initial: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.get(
             statement_audit=statement_audit,
             type=StatementCheck.Type.OVERVIEW,
         )
     )
 
     statement_check_result_initial.check_result_state = (
-        StatementCheckResultInitial.Result.NO
+        StatementCheckResultRound.Result.NO
     )
     statement_check_result_initial.save()
 
     assert simplified_case.statement_checks_still_initial is False
 
     statement_check_result_initial.check_result_state = (
-        StatementCheckResultInitial.Result.YES
+        StatementCheckResultRound.Result.YES
     )
     statement_check_result_initial.save()
 
@@ -1204,12 +1203,10 @@ def test_csv_export_statement_initially_found():
 
     assert simplified_case_with_test.csv_export_statement_initially_found == "No"
 
-    for statement_check_result in StatementCheckResultInitial.objects.filter(
+    for statement_check_result in StatementCheckResultRound.objects.filter(
         type=StatementCheck.Type.OVERVIEW
     ):
-        statement_check_result.check_result_state = (
-            StatementCheckResultInitial.Result.YES
-        )
+        statement_check_result.check_result_state = StatementCheckResultRound.Result.YES
         statement_check_result.save()
 
     assert simplified_case_with_test.csv_export_statement_initially_found == "Yes"
@@ -1230,12 +1227,10 @@ def test_csv_export_statement_found_at_12_week_retest():
 
     assert simplified_case.csv_export_statement_found_at_12_week_retest == "No"
 
-    for statement_check_result in StatementCheckResultRetest.objects.filter(
+    for statement_check_result in StatementCheckResultRound.objects.filter(
         statement_audit=twelve_week_statement_audit, type=StatementCheck.Type.OVERVIEW
     ):
-        statement_check_result.check_result_state = (
-            StatementCheckResultRetest.Result.YES
-        )
+        statement_check_result.check_result_state = StatementCheckResultRound.Result.YES
         statement_check_result.save()
 
     assert simplified_case.csv_export_statement_found_at_12_week_retest == "Yes"

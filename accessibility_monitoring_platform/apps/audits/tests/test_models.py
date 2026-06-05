@@ -23,8 +23,7 @@ from ..models import (
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
-    StatementCheckResultInitial,
-    StatementCheckResultRetest,
+    StatementCheckResultRound,
     StatementPage,
     WcagAudit,
     WcagCheckResultInitial,
@@ -700,8 +699,8 @@ def test_statement_check_str():
 @pytest.mark.django_db
 def test_statement_check_result_initial_edit_initial_url_name():
     statement_audit: StatementAudit = create_initial_statement_audit()
-    statement_check_result_initial: StatementCheckResultInitial = (
-        StatementCheckResultInitial.objects.filter(
+    statement_check_result_initial: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.filter(
             statement_audit=statement_audit,
             statement_check__type=StatementCheck.Type.COMPLIANCE,
         ).first()
@@ -719,8 +718,8 @@ def test_statement_check_result_retest_edit_12_week_url_name():
     twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
-    statement_check_result_retest: StatementCheckResultRetest = (
-        StatementCheckResultRetest.objects.filter(
+    statement_check_result_retest: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.filter(
             statement_audit=twelve_week_statement_audit,
             statement_check__type=StatementCheck.Type.COMPLIANCE,
         ).first()
@@ -766,11 +765,11 @@ def test_statement_audit_statement_check_results():
     )
 
     assertQuerySetEqual(
-        initial_statement_audit.statementcheckresultinitial_set.all(),
+        initial_statement_audit.statementcheckresultround_set.all(),
         initial_statement_audit.statement_check_results,
     )
     assertQuerySetEqual(
-        twelve_week_statement_audit.statementcheckresultretest_set.all(),
+        twelve_week_statement_audit.statementcheckresultround_set.all(),
         twelve_week_statement_audit.statement_check_results,
     )
 
@@ -797,14 +796,14 @@ def test_statement_audit_specific_statement_check_results(type, attr):
     twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
-    statement_check_results_initial: StatementCheckResultInitial = (
-        StatementCheckResultInitial.objects.filter(
+    statement_check_results_initial: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.filter(
             statement_audit=initial_statement_audit,
             type=type,
         )
     )
-    statement_check_results_retest: StatementCheckResultRetest = (
-        StatementCheckResultRetest.objects.filter(
+    statement_check_results_retest: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.filter(
             statement_audit=twelve_week_statement_audit,
             type=type,
         )
@@ -830,8 +829,8 @@ def test_statement_audit_statement_check_result_initial():
         "django.utils.timezone.now", Mock(return_value=PREVIOUS_STATEMENT_CHECKS_TIME)
     ):
         initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    statement_found_check_result_initial: StatementCheckResultInitial = (
-        StatementCheckResultInitial.objects.filter(
+    statement_found_check_result_initial: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.filter(
             statement_audit=initial_statement_audit,
             type=StatementCheck.Type.OVERVIEW,
         ).first()
@@ -853,8 +852,8 @@ def test_audit_statement_structure_check():
         "django.utils.timezone.now", Mock(return_value=PREVIOUS_STATEMENT_CHECKS_TIME)
     ):
         initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    statement_structure_check_result: StatementCheckResultInitial = (
-        StatementCheckResultInitial.objects.filter(
+    statement_structure_check_result: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.filter(
             statement_audit=initial_statement_audit,
             type=StatementCheck.Type.OVERVIEW,
         ).last()
@@ -894,10 +893,10 @@ def test_statement_audit_failed_statement_check_results():
     statement check results.
     """
     statement_audit: StatementAudit = create_initial_statement_audit()
-    failed_statement_check_results: QuerySet[StatementCheckResultInitial] = (
-        StatementCheckResultInitial.objects.filter(
+    failed_statement_check_results: QuerySet[StatementCheckResultRound] = (
+        StatementCheckResultRound.objects.filter(
             statement_audit=statement_audit,
-            check_result_state=StatementCheckResultInitial.Result.NO,
+            check_result_state=StatementCheckResultRound.Result.NO,
         )
     )
 
@@ -906,17 +905,17 @@ def test_statement_audit_failed_statement_check_results():
         statement_audit.failed_statement_check_results, failed_statement_check_results
     )
 
-    for statement_check_result_initial in StatementCheckResultInitial.objects.filter(
+    for statement_check_result_initial in StatementCheckResultRound.objects.filter(
         statement_audit=statement_audit
     ):
         statement_check_result_initial.check_result_state = (
-            StatementCheckResultInitial.Result.NO
+            StatementCheckResultRound.Result.NO
         )
         statement_check_result_initial.save()
-    failed_statement_check_results: QuerySet[StatementCheckResultInitial] = (
-        StatementCheckResultInitial.objects.filter(
+    failed_statement_check_results: QuerySet[StatementCheckResultRound] = (
+        StatementCheckResultRound.objects.filter(
             statement_audit=statement_audit,
-            check_result_state=StatementCheckResultInitial.Result.NO,
+            check_result_state=StatementCheckResultRound.Result.NO,
         )
     )
 
@@ -944,22 +943,22 @@ def test_statement_audit_contains_specific_outstanding_statement_check_results(
     """Tests statement audit contains specific outstanding statement check results."""
     statement_audit: StatementAudit = create_initial_statement_audit()
     for count, statement_check_result_initial in enumerate(
-        StatementCheckResultInitial.objects.filter(statement_audit=statement_audit)
+        StatementCheckResultRound.objects.filter(statement_audit=statement_audit)
     ):
         if count % 2 == 0:
             statement_check_result_initial.check_result_state = (
-                StatementCheckResultInitial.Result.YES
+                StatementCheckResultRound.Result.YES
             )
         else:
             statement_check_result_initial.check_result_state = (
-                StatementCheckResultInitial.Result.NO
+                StatementCheckResultRound.Result.NO
             )
         statement_check_result_initial.save()
-    failed_statement_check_results: StatementCheckResultInitial = (
-        StatementCheckResultInitial.objects.filter(
+    failed_statement_check_results: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.filter(
             statement_audit=statement_audit,
             type=type,
-            check_result_state=StatementCheckResultInitial.Result.NO,
+            check_result_state=StatementCheckResultRound.Result.NO,
         )
     )
 
@@ -980,8 +979,8 @@ def test_statement_audit_outstanding_statement_check_results_includes_new_failur
     twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
-    twelve_week_statement_check_result_retest: StatementCheckResultRetest = (
-        StatementCheckResultRetest.objects.create(
+    twelve_week_statement_check_result_retest: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.create(
             statement_audit=twelve_week_statement_audit,
             type=StatementCheck.Type.TWELVE_WEEK,
             public_comment="Custom issue found at 12-weeks",
@@ -1007,8 +1006,8 @@ def test_statement_audit_all_overview_statement_checks_have_passed():
 
     assert initial_statement_audit.all_overview_statement_checks_have_passed is False
 
-    overview_statement_check_result_initials: StatementCheckResultInitial = (
-        StatementCheckResultInitial.objects.filter(
+    overview_statement_check_result_initials: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.filter(
             statement_audit=initial_statement_audit,
             type=StatementCheck.Type.OVERVIEW,
         )
@@ -1023,8 +1022,8 @@ def test_statement_audit_all_overview_statement_checks_have_passed():
         twelve_week_statement_audit.all_overview_statement_checks_have_passed is False
     )
 
-    overview_statement_check_result_retests: StatementCheckResultRetest = (
-        StatementCheckResultRetest.objects.filter(
+    overview_statement_check_result_retests: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.filter(
             statement_audit=twelve_week_statement_audit,
             type=StatementCheck.Type.OVERVIEW,
         )
@@ -1059,26 +1058,26 @@ def test_fixed_statement_checks_are_returned():
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
     create_twelve_week_statement_audit(initial_statement_audit=initial_statement_audit)
 
-    passed_statement_check_result: StatementCheckResultInitial = (
+    passed_statement_check_result: StatementCheckResultRound = (
         initial_statement_audit.statement_check_results.first()
     )
     passed_statement_check_result.check_result_state = (
-        StatementCheckResultInitial.Result.YES
+        StatementCheckResultRound.Result.YES
     )
     passed_statement_check_result.save()
 
-    fixed_statement_check_result: StatementCheckResultInitial = (
+    fixed_statement_check_result: StatementCheckResultRound = (
         initial_statement_audit.statement_check_results.last()
     )
     fixed_statement_check_result.check_result_state = (
-        StatementCheckResultInitial.Result.NO
+        StatementCheckResultRound.Result.NO
     )
     fixed_statement_check_result.save()
-    statement_check_result_retest: StatementCheckResultRetest = (
+    statement_check_result_retest: StatementCheckResultRound = (
         fixed_statement_check_result.twelve_week_retest
     )
     statement_check_result_retest.check_result_state = (
-        StatementCheckResultRetest.Result.YES
+        StatementCheckResultRound.Result.YES
     )
     statement_check_result_retest.save()
 
@@ -2030,7 +2029,7 @@ def test_check_result_issue_identifier():
 def test_issue_identifier():
     """
     Test issue_identifier property is populated on WcagCheckResultInitial,
-    StatementCheckResultInitial,
+    StatementCheckResultRound,
     RetestCheckResult and RetestStatementCheckResult creation.
     """
 
@@ -2058,8 +2057,8 @@ def test_issue_identifier():
         simplified_case=simplified_case
     )
     statement_check: StatementCheck = StatementCheck.objects.all().first()
-    statement_check_result_initial: StatementCheckResultInitial = (
-        StatementCheckResultInitial.objects.create(
+    statement_check_result_initial: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.create(
             statement_audit=statement_audit,
             type=statement_check.type,
             statement_check=statement_check,
@@ -2072,8 +2071,8 @@ def test_issue_identifier():
         simplified_case=simplified_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
     )
-    statement_check_result_retest: StatementCheckResultRetest = (
-        StatementCheckResultRetest.objects.create(
+    statement_check_result_retest: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.create(
             statement_audit=statement_audit_retest,
             statement_check_result_initial=statement_check_result_initial,
             type=statement_check.type,
@@ -2084,7 +2083,7 @@ def test_issue_identifier():
     assert statement_check_result_retest.issue_identifier == "1-S-1"
 
     custom_statement_check_result_initial: StatementCheck = (
-        StatementCheckResultInitial.objects.create(
+        StatementCheckResultRound.objects.create(
             statement_audit=statement_audit,
             public_comment="Custom statement issue",
         )
@@ -2128,8 +2127,8 @@ def test_build_issue_identifier():
         simplified_case=simplified_case
     )
     statement_check: StatementCheck = StatementCheck.objects.all().first()
-    statement_check_result_initial: StatementCheckResultInitial = (
-        StatementCheckResultInitial.objects.create(
+    statement_check_result_initial: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.create(
             statement_audit=statement_audit,
             type=statement_check.type,
             statement_check=statement_check,
@@ -2146,7 +2145,7 @@ def test_build_issue_identifier():
     )
 
     custom_statement_check_result_initial: StatementCheck = (
-        StatementCheckResultInitial.objects.create(
+        StatementCheckResultRound.objects.create(
             statement_audit=statement_audit,
             public_comment="Custom statement issue",
         )
@@ -2235,8 +2234,8 @@ def test_statement_audit_new_12_week_custom_statement_check_results():
         simplified_case=simplified_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
     )
-    new_12_week_custom_check_result: StatementCheckResultRetest = (
-        StatementCheckResultRetest.objects.create(
+    new_12_week_custom_check_result: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.create(
             statement_audit=statement_audit,
             type=StatementCheck.Type.TWELVE_WEEK,
             public_comment="12-week custom statement issue",

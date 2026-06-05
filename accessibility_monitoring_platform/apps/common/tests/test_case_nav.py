@@ -9,7 +9,7 @@ from ...audits.models import (
     AuditOverview,
     StatementAudit,
     StatementCheck,
-    StatementCheckResultInitial,
+    StatementCheckResultRound,
     WcagAudit,
     WcagPageInitial,
 )
@@ -263,11 +263,11 @@ def test_dynamic_statement_pages_shown(admin_client):
     statement_check: StatementCheck | None = StatementCheck.objects.filter(
         type=StatementCheck.Type.OVERVIEW
     ).first()
-    StatementCheckResultInitial.objects.create(
+    StatementCheckResultRound.objects.create(
         statement_check=statement_check,
         statement_audit=statement_audit,
         type=StatementCheck.Type.OVERVIEW,
-        check_result_state=StatementCheckResultInitial.Result.YES,
+        check_result_state=StatementCheckResultRound.Result.YES,
     )
 
     response: HttpResponse = admin_client.get(

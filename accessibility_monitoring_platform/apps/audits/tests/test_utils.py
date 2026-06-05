@@ -21,13 +21,11 @@ from ..models import (
     CheckResult,
     Page,
     Retest,
-    RetestCheckResult,
     RetestPage,
-    RetestStatementCheckResult,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
-    StatementCheckResultInitial,
+    StatementCheckResultRound,
     WcagAudit,
     WcagCheckResultInitial,
     WcagCheckResultInitialNotesHistory,
@@ -40,7 +38,7 @@ from ..models import (
 from ..utils import (
     add_to_check_result_notes_history,
     add_to_check_result_restest_notes_history,
-    create_checkresults_for_retest,
+    create_checkresults_for_wcag_audit_retest,
     create_mandatory_pages_for_new_audit,
     create_or_update_wcag_check_result_initials_for_page,
     create_statement_checks_for_new_audit,
@@ -598,7 +596,7 @@ def test_create_statement_checks_for_new_audit():
     )
 
     assert (
-        StatementCheckResultInitial.objects.filter(
+        StatementCheckResultRound.objects.filter(
             statement_audit=statement_audit
         ).count()
         == 0
@@ -609,7 +607,7 @@ def test_create_statement_checks_for_new_audit():
     number_of_statement_checks: int = StatementCheck.objects.on_date(TODAY).count()
 
     assert (
-        StatementCheckResultInitial.objects.filter(
+        StatementCheckResultRound.objects.filter(
             statement_audit=statement_audit
         ).count()
         == number_of_statement_checks
@@ -635,7 +633,7 @@ def test_create_skips_future_statement_checks():
     number_of_statement_checks: int = StatementCheck.objects.on_date(TODAY).count()
 
     assert (
-        StatementCheckResultInitial.objects.filter(
+        StatementCheckResultRound.objects.filter(
             statement_audit=statement_audit
         ).count()
         == number_of_statement_checks
@@ -661,7 +659,7 @@ def test_create_skips_past_statement_checks():
     number_of_statement_checks: int = StatementCheck.objects.on_date(TODAY).count()
 
     assert (
-        StatementCheckResultInitial.objects.filter(
+        StatementCheckResultRound.objects.filter(
             statement_audit=statement_audit
         ).count()
         == number_of_statement_checks
@@ -669,104 +667,22 @@ def test_create_skips_past_statement_checks():
 
 
 @pytest.mark.django_db
-def test_create_checkresults_for_retest():
-    """
-    Copy unfixed checks from 12-week retest to create a hidden retest with
-    id-in-case set to zero.
-
-    All subsequent retests are created by copying unfixed retests and
-    incrementing id-in-case.
-    """
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
+def test_create_checkresults_for_wcag_audit_retest():
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.filter(
+            wcag_audit=wcag_audit,
+        ).first()
     )
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    page: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
-    )
-    unfixed_page_check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        check_result_state=CheckResult.Result.NO_ERROR,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+    new_wcag_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=wcag_audit.simplified_case
     )
 
-    assert Retest.objects.all().count() == 0
+    create_checkresults_for_wcag_audit_retest(wcag_audit=new_wcag_audit)
 
-    retest_1: Retest = Retest.objects.create(simplified_case=simplified_case)
-
-    create_checkresults_for_retest(retest=retest_1)
-
-    assert Retest.objects.all().count() == 2
-
-    retest_0: Retest = Retest.objects.get(id_within_case=0)
-    retest_page_0: RetestPage = RetestPage.objects.get(retest=retest_0)
-
-    assert retest_page_0.page == page
-    assert RetestCheckResult.objects.filter(retest=retest_0).count() == 1
-
-    retest_checkresult_0: RetestCheckResult = RetestCheckResult.objects.get(
-        retest=retest_0
-    )
-
-    assert retest_checkresult_0.check_result == unfixed_page_check_result
-
-    retest_page_1: RetestPage = RetestPage.objects.get(retest=retest_1)
-
-    assert retest_page_1.page == page
-    assert RetestCheckResult.objects.filter(retest=retest_1).count() == 1
-
-    retest_checkresult_1: RetestCheckResult = RetestCheckResult.objects.get(
-        retest=retest_1
-    )
-
-    assert retest_checkresult_1.check_result == unfixed_page_check_result
-
-    retest_2: Retest = Retest.objects.create(
-        simplified_case=simplified_case, id_within_case=2
-    )
-
-    create_checkresults_for_retest(retest=retest_2)
-
-    assert Retest.objects.all().count() == 3
-
-    retest_2: Retest = Retest.objects.get(id_within_case=2)
-    retest_page_2: RetestPage = RetestPage.objects.get(retest=retest_2)
-
-    assert retest_page_2.page == page
-    assert RetestCheckResult.objects.filter(retest=retest_2).count() == 1
-
-    retest_checkresult_2: RetestCheckResult = RetestCheckResult.objects.get(
-        retest=retest_2
-    )
-
-    assert retest_checkresult_2.check_result == unfixed_page_check_result
-
-
-@pytest.mark.django_db
-def test_create_checkresults_for_retest_creates_statement_checks():
-    """
-    RetestStatementCheckResults are created for each new retest.
-    """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(simplified_case=simplified_case)
-    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
-
-    assert RetestStatementCheckResult.objects.all().count() == 0
-
-    create_checkresults_for_retest(retest=retest)
-
-    assert RetestStatementCheckResult.objects.all().count() > 0
+    assert new_wcag_audit.wcag_check_result_retests.count() == 1
 
 
 @pytest.mark.django_db
@@ -776,10 +692,12 @@ def test_get_next_platform_page_equality_body_with_no_pages():
     comparison update when retest has no retest pages.
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
-    platform_page: PlatformPage = get_next_platform_page_equality_body(retest=retest)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    platform_page: PlatformPage = get_next_platform_page_equality_body(
+        wcag_audit=wcag_audit
+    )
     assert platform_page.url == reverse(
-        "audits:retest-comparison-update", kwargs={"pk": retest.id}
+        "audits:retest-comparison-update", kwargs={"pk": wcag_audit.id}
     )
 
 
@@ -1274,11 +1192,11 @@ def test_get_audit_summary_issue_counts(rf):
     assert "number_of_statement_issues" in context
     assert context["number_of_statement_issues"] == 1
 
-    for statement_check_result_initial in StatementCheckResultInitial.objects.filter(
+    for statement_check_result_initial in StatementCheckResultRound.objects.filter(
         type=StatementCheck.Type.OVERVIEW
     ):
         statement_check_result_initial.check_result_state = (
-            StatementCheckResultInitial.Result.YES
+            StatementCheckResultRound.Result.YES
         )
         statement_check_result_initial.save()
 
@@ -1325,8 +1243,8 @@ def test_get_audit_summary_statement_check_results_by_type(rf):
     assert "overview" in summary_statement_check_results_by_type
     assert len(summary_statement_check_results_by_type["overview"]) == 1
 
-    statement_check_result_initial_overview: StatementCheckResultInitial = (
-        StatementCheckResultInitial.objects.get(
+    statement_check_result_initial_overview: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.get(
             statement_audit=initial_statement_audit, type=StatementCheck.Type.OVERVIEW
         )
     )
@@ -1344,7 +1262,7 @@ def test_get_audit_summary_statement_check_results_by_type(rf):
     assert context["summary_statement_check_results_by_type"] == {}
 
     statement_check_result_initial_overview.check_result_state = (
-        StatementCheckResultInitial.Result.NO
+        StatementCheckResultRound.Result.NO
     )
     statement_check_result_initial_overview.save()
 
