@@ -8,8 +8,8 @@ from django.db import migrations
 INITIAL_ROUND_TYPE: str = "initial"
 TWELVE_WEEK_ROUND_TYPE = "12-week"
 EQUALITY_BODY_ROUND_TYPE = "equality-body"
-INITIAL_ROUND: int = 0
-TWELVE_WEEK_ROUND: int = 1
+INITIAL_ROUND_NUMBER: int = 0
+TWELVE_WEEK_ROUND_NUMBER: int = 1
 
 
 def populate_audit_rounds(apps, schema_editor):
@@ -50,7 +50,7 @@ def populate_audit_rounds(apps, schema_editor):
         wcag_audit_initial = WcagAudit.objects.create(
             simplified_case=audit.simplified_case,
             audit_round_type=INITIAL_ROUND_TYPE,
-            round=INITIAL_ROUND,
+            round_number=INITIAL_ROUND_NUMBER,
             updated=audit.updated,
             date_of_test=audit.date_of_test,
             screen_size=audit.screen_size,
@@ -65,7 +65,7 @@ def populate_audit_rounds(apps, schema_editor):
         statement_audit_initial = StatementAudit.objects.create(
             simplified_case=audit.simplified_case,
             audit_round_type=INITIAL_ROUND_TYPE,
-            round=INITIAL_ROUND,
+            round_number=INITIAL_ROUND_NUMBER,
             updated=audit.updated,
             date_of_test=audit.date_of_test,
             pages_complete_date=audit.audit_statement_pages_complete_date,
@@ -92,7 +92,7 @@ def populate_audit_rounds(apps, schema_editor):
             wcag_audit_12_week = WcagAudit.objects.create(
                 simplified_case=audit.simplified_case,
                 audit_round_type=TWELVE_WEEK_ROUND_TYPE,
-                round=TWELVE_WEEK_ROUND,
+                round_number=TWELVE_WEEK_ROUND_NUMBER,
                 updated=audit.updated,
                 date_of_test=audit.retest_date,
                 notes=audit.audit_retest_metadata_notes,
@@ -106,7 +106,7 @@ def populate_audit_rounds(apps, schema_editor):
             statement_audit_12_week = StatementAudit.objects.create(
                 simplified_case=audit.simplified_case,
                 audit_round_type=TWELVE_WEEK_ROUND_TYPE,
-                round=TWELVE_WEEK_ROUND,
+                round_number=TWELVE_WEEK_ROUND_NUMBER,
                 updated=audit.updated,
                 date_of_test=audit.retest_date,
                 pages_complete_date=audit.audit_retest_statement_pages_complete_date,
@@ -255,7 +255,7 @@ def populate_audit_rounds(apps, schema_editor):
         for retest in Retest.objects.filter(
             simplified_case=audit.simplified_case
         ).order_by("id"):
-            round: int = WcagAudit.objects.filter(
+            round_number: int = WcagAudit.objects.filter(
                 simplified_case=retest.simplified_case
             ).count()
             updated: datetime = datetime(
@@ -267,7 +267,7 @@ def populate_audit_rounds(apps, schema_editor):
             wcag_audit_retest = WcagAudit.objects.create(
                 simplified_case=retest.simplified_case,
                 audit_round_type=EQUALITY_BODY_ROUND_TYPE,
-                round=round,
+                round_number=round_number,
                 updated=updated,
                 date_of_test=retest.date_of_retest,
                 notes=retest.retest_notes,
@@ -277,13 +277,13 @@ def populate_audit_rounds(apps, schema_editor):
                 compliance_decision_complete_date=retest.compliance_complete_date,
                 summary_complete_date=retest.comparison_complete_date,
             )
-            round: int = StatementAudit.objects.filter(
+            round_number: int = StatementAudit.objects.filter(
                 simplified_case=retest.simplified_case
             ).count()
             statement_audit_retest = StatementAudit.objects.create(
                 simplified_case=retest.simplified_case,
                 audit_round_type=EQUALITY_BODY_ROUND_TYPE,
-                round=round,
+                round_number=round_number,
                 updated=updated,
                 date_of_test=retest.date_of_retest,
                 notes=retest.retest_notes,
@@ -392,8 +392,9 @@ def reverse_code(apps, schema_editor):
     WcagPageInitial.objects.all().delete()
     WcagAudit.objects.all().delete()
     RetestStatementCheckResult.objects.all().update(statement_audit=None)
-    StatementPage.objects.all().update(audit_overview=None)
+    StatementCheckResultRound.objects.all().update(statement_check_result_initial=None)
     StatementCheckResultRound.objects.all().delete()
+    StatementPage.objects.all().update(audit_overview=None)
     StatementAudit.objects.all().delete()
     AuditOverview.objects.all().delete()
 

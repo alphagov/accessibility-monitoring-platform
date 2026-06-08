@@ -59,7 +59,7 @@ from ..models import (
 )
 from ..utils import (
     create_checkresults_for_wcag_audit_retest,
-    create_statement_audit_and_checks,
+    create_statement_audit_and_check_results,
     get_next_platform_page_equality_body,
 )
 from .base import (
@@ -89,7 +89,7 @@ def create_equality_body_retest(request: HttpRequest, case_id: int) -> HttpRespo
         user=request.user, model_object=wcag_audit, simplified_case=simplified_case
     )
     create_checkresults_for_wcag_audit_retest(wcag_audit=wcag_audit)
-    statement_audit: StatementAudit = create_statement_audit_and_checks(
+    statement_audit: StatementAudit = create_statement_audit_and_check_results(
         audit_overview=simplified_case.audit_overview,
         audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY,
     )

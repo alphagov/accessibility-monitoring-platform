@@ -4,7 +4,7 @@ Utilities for audits app
 
 from collections import namedtuple
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import datetime
 from typing import Any, TypeVar
 
 from django.contrib.auth.models import User
@@ -229,8 +229,7 @@ def create_statement_checks_for_new_audit(statement_audit: StatementAudit) -> No
     """
     Create statement check results for new audit.
     """
-    today: date = date.today()
-    for statement_check in StatementCheck.objects.on_date(today):
+    for statement_check in StatementCheck.objects.on_date(statement_audit.date_of_test):
         StatementCheckResultRound.objects.create(
             statement_audit=statement_audit,
             type=statement_check.type,
@@ -238,31 +237,52 @@ def create_statement_checks_for_new_audit(statement_audit: StatementAudit) -> No
         )
 
 
-def create_first_twelve_week_wcag_audit(audit_overview: AuditOverview) -> WcagAudit:
+def create_retest_wcag_audit_and_check_results(
+    audit_overview: AuditOverview, audit_round_type: WcagAudit.AuditRoundType
+) -> WcagAudit:
 
-    wcag_audit_new: WcagAudit = WcagAudit.objects.create(
+    new_wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=audit_overview.simplified_case,
-        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        audit_round_type=audit_round_type,
     )
-    wcag_audit_initial: WcagAudit = audit_overview.wcag_audit_initial
-    for wcag_page_initial in wcag_audit_initial.testable_wcag_page_initials:
-        wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
-            wcag_audit=wcag_audit_new,
-            wcag_page_initial=wcag_page_initial,
-        )
-        for (
-            wcag_check_result_initial
-        ) in wcag_page_initial.failed_wcag_check_result_initials:
-            WcagCheckResultRetest.objects.create(
-                wcag_audit=wcag_audit_new,
-                wcag_page_retest=wcag_page_retest,
-                wcag_check_result_initial=wcag_check_result_initial,
-                wcag_definition=wcag_check_result_initial.wcag_definition,
+    previous_wcag_audit: WcagAudit = WcagAudit.objects.get(
+        simplified_case=audit_overview.simplified_case,
+        round_number=new_wcag_audit.round_number - 1,
+    )
+    if previous_wcag_audit == audit_overview.wcag_audit_initial:
+        for wcag_page_initial in previous_wcag_audit.testable_wcag_page_initials:
+            wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+                wcag_audit=new_wcag_audit,
+                wcag_page_initial=wcag_page_initial,
             )
-    return wcag_audit_new
+            for (
+                wcag_check_result_initial
+            ) in wcag_page_initial.failed_wcag_check_result_initials:
+                WcagCheckResultRetest.objects.create(
+                    wcag_audit=new_wcag_audit,
+                    wcag_page_retest=wcag_page_retest,
+                    wcag_check_result_initial=wcag_check_result_initial,
+                    wcag_definition=wcag_check_result_initial.wcag_definition,
+                )
+        else:
+            for wcag_page_retest in previous_wcag_audit.retestable_wcag_page_retests:
+                wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+                    wcag_audit=new_wcag_audit,
+                    wcag_page_initial=wcag_page_retest.wcag_page_initial,
+                )
+                for (
+                    wcag_check_result_retest
+                ) in wcag_page_retest.failed_wcag_check_result_retests:
+                    WcagCheckResultRetest.objects.create(
+                        wcag_audit=new_wcag_audit,
+                        wcag_page_retest=wcag_page_retest,
+                        wcag_check_result_initial=wcag_check_result_retest.wcag_check_result_initial,
+                        wcag_definition=wcag_check_result_retest.wcag_definition,
+                    )
+    return new_wcag_audit
 
 
-def create_statement_audit_and_checks(
+def create_statement_audit_and_check_results(
     audit_overview: AuditOverview,
     audit_round_type: StatementAudit.AuditRoundType = StatementAudit.AuditRoundType.INITIAL,
 ) -> StatementAudit:
@@ -277,7 +297,7 @@ def create_statement_audit_and_checks(
         statement_audit_initial: StatementAudit = audit_overview.statement_audit_initial
     statement_audit: StatementAudit = StatementAudit.objects.create(
         simplified_case=audit_overview.simplified_case,
-        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+        audit_round_type=audit_round_type,
     )
     for (
         statement_check_result_initial
@@ -398,7 +418,8 @@ def create_checkresults_for_wcag_audit_retest(wcag_audit: WcagAudit) -> None:
     """
 
     previous_wcag_audit: WcagAudit = WcagAudit.objects.get(
-        simplified_case=wcag_audit.simplified_case, round=wcag_audit.round - 1
+        simplified_case=wcag_audit.simplified_case,
+        round_number=wcag_audit.round_number - 1,
     )
 
     if previous_wcag_audit.audit_round_type == WcagAudit.AuditRoundType.TWELVE_WEEK:
@@ -457,7 +478,6 @@ def get_next_platform_page_equality_body(
     pressed.
     """
     wcag_page_retests: list[WcagPageRetest] = list(wcag_audit.wcag_page_retests)
-    breakpoint()
     if not wcag_page_retests:
         return get_platform_page_by_url_name(
             url_name="audits:retest-comparison-update", instance=wcag_audit
@@ -571,7 +591,7 @@ def get_audit_summary_context(
     )
 
     for statement_check_result in statement_check_results:
-        if hasattr(statement_check_result, "statement_check_result_initial"):
+        if statement_check_result.statement_check_result_initial is not None:
             initial_result: StatementCheckResultRound = (
                 statement_check_result.statement_check_result_initial
             )

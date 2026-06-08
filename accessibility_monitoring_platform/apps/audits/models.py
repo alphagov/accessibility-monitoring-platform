@@ -727,7 +727,7 @@ class AuditRound(VersionModel):
         choices=AuditRoundType.choices,
         default=AuditRoundType.INITIAL,
     )
-    round = models.IntegerField(default=0, blank=True)
+    round_number = models.IntegerField(default=0, blank=True)
     updated = models.DateTimeField(null=True, blank=True)
     date_of_test = models.DateField(default=date.today)
     notes = models.TextField(default="", blank=True)
@@ -743,10 +743,10 @@ class AuditRound(VersionModel):
 
     def __str__(self) -> str:
         if self.audit_round_type == WcagAudit.AuditRoundType.INITIAL:
-            round = ""
+            round_suffix: str = ""
         else:
-            round = f" #{self.round}"
-        return f"{self.simplified_case} {self.get_audit_round_type_display()}{round} ({amp_format_date(self.date_of_test)})"
+            round_suffix: str = f" #{self.round_number}"
+        return f"{self.simplified_case} {self.get_audit_round_type_display()}{round_suffix} ({amp_format_date(self.date_of_test)})"
 
 
 class WcagAudit(AuditRound):
@@ -769,12 +769,12 @@ class WcagAudit(AuditRound):
 
     # metadata page
     # date_of_test
-    screen_size = models.CharField(  # KEEP
+    screen_size = models.CharField(
         max_length=20,
         choices=ScreenSize.choices,
         default=ScreenSize.SIZE_13,
     )
-    exemptions_state = models.CharField(  # KEEP
+    exemptions_state = models.CharField(
         max_length=20,
         choices=Exemptions.choices,
         default=Exemptions.UNKNOWN,
@@ -801,7 +801,7 @@ class WcagAudit(AuditRound):
 
     def save(self, *args, **kwargs) -> None:
         if self.id is None:
-            self.round = self.simplified_case.wcagaudit_set.all().count()
+            self.round_number = self.simplified_case.wcagaudit_set.all().count()
         super().save(*args, **kwargs)
 
     def get_absolute_url(self) -> str:
@@ -1037,15 +1037,15 @@ class StatementAudit(AuditRound):
 
     def save(self, *args, **kwargs) -> None:
         if self.id is None:
-            self.round = self.simplified_case.statementaudit_set.all().count()
+            self.round_number = self.simplified_case.statementaudit_set.all().count()
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:
         if self.audit_round_type == WcagAudit.AuditRoundType.INITIAL:
-            round = ""
+            round_suffix: str = ""
         else:
-            round = f" #{self.round}"
-        return f"{self.simplified_case} {self.get_audit_round_type_display()}{round} ({amp_format_date(self.date_of_test)})"
+            round_suffix: str = f" #{self.round_number}"
+        return f"{self.simplified_case} {self.get_audit_round_type_display()}{round_suffix} ({amp_format_date(self.date_of_test)})"
 
     @property
     def statement_check_results(

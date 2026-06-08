@@ -64,10 +64,10 @@ class AuditRoundAdmin(admin.ModelAdmin):
         "date_of_test",
         "audit_round_type",
         "compliance_state",
-        "round",
+        "round_number",
         "simplified_case",
     ]
-    list_filter = ["audit_round_type", "compliance_state", "round", "is_deleted"]
+    list_filter = ["audit_round_type", "compliance_state", "round_number", "is_deleted"]
     readonly_fields = ["simplified_case"]
     show_facets = admin.ShowFacets.ALWAYS
 

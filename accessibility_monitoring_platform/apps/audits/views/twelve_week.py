@@ -60,8 +60,8 @@ from ..models import (
 )
 from ..utils import (
     add_to_check_result_restest_notes_history,
-    create_first_twelve_week_wcag_audit,
-    create_statement_audit_and_checks,
+    create_retest_wcag_audit_and_check_results,
+    create_statement_audit_and_check_results,
     get_audit_summary_context,
     get_next_platform_page_twelve_week,
     get_other_pages_with_retest_notes,
@@ -678,17 +678,20 @@ def start_retest(
     audit_overview: AuditOverview = get_object_or_404(AuditOverview, id=pk)
     simplified_case: SimplifiedCase = audit_overview.simplified_case
 
-    twelve_week_wcag_audit: WcagAudit = create_first_twelve_week_wcag_audit(
-        audit_overview=audit_overview
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit_and_check_results(
+        audit_overview=audit_overview,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
     )
     record_simplified_model_create_event(
         user=request.user,
         model_object=twelve_week_wcag_audit,
         simplified_case=simplified_case,
     )
-    twelve_week_statement_audit: StatementAudit = create_statement_audit_and_checks(
-        audit_overview=audit_overview,
-        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+    twelve_week_statement_audit: StatementAudit = (
+        create_statement_audit_and_check_results(
+            audit_overview=audit_overview,
+            audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+        )
     )
     record_simplified_model_create_event(
         user=request.user,
