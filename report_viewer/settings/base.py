@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "accessibility_monitoring_platform.apps.reports",
     "accessibility_monitoring_platform.apps.audits",
     "accessibility_monitoring_platform.apps.notifications",
+    "accessibility_monitoring_platform.apps.users",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
