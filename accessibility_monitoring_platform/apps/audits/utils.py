@@ -436,6 +436,7 @@ def create_checkresults_for_wcag_audit_retest(wcag_audit: WcagAudit) -> None:
                     wcag_audit=wcag_audit,
                     wcag_page_retest=wcag_page_retest,
                     wcag_check_result_initial=previous_wcag_check_result_retest.wcag_check_result_initial,
+                    wcag_definition=previous_wcag_check_result_retest.wcag_definition,
                 )
     else:
         for wcag_page_initial in previous_wcag_audit.every_wcag_page_initials:
@@ -452,22 +453,6 @@ def create_checkresults_for_wcag_audit_retest(wcag_audit: WcagAudit) -> None:
                     wcag_check_result_initial=failed_wcag_check_result_initial,
                     wcag_definition=failed_wcag_check_result_initial.wcag_definition,
                 )
-
-
-def create_checkresults_for_statement_audit_retest(
-    statement_audit: StatementAudit,
-) -> None:
-    """Create statement checkresults for restest"""
-
-    for (
-        previous_statement_check_result_retest
-    ) in (
-        statement_audit.simplified_case.audit_overview.first_statement_audit_12_week_retest.statement_check_results
-    ):
-        StatementCheckResultRound.objects.create(
-            statement_audit=statement_audit,
-            statement_check_result_initial=previous_statement_check_result_retest.statement_check_result_initial,
-        )
 
 
 def get_next_platform_page_equality_body(

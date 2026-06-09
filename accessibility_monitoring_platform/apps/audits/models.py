@@ -808,6 +808,29 @@ class WcagAudit(AuditRound):
         return reverse("audits:edit-audit-metadata", kwargs={"pk": self.pk})
 
     @property
+    def previous_equality_body_retest(self) -> WcagAudit | None:
+        """Return previous equality body retest"""
+        return WcagAudit.objects.filter(
+            simplified_case=self.simplified_case,
+            audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+            round_number=self.round_number - 1,
+        ).first()
+
+    @property
+    def equivalent_equality_body_statement_retest(self) -> StatementAudit | None:
+        """Return matching equality body statement retest"""
+        return StatementAudit.objects.filter(
+            simplified_case=self.simplified_case,
+            audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY,
+            round_number=self.round_number,
+        ).first()
+
+    @property
+    def equality_body_retest_name(self) -> str:
+        retest_number: int = self.round_number - 1
+        return f"Retest #{retest_number}"
+
+    @property
     def every_wcag_page_initials(self) -> QuerySet[WcagPageInitial]:
         """Sort page of type PDF to be last apart from the accessibility statement"""
         return (
@@ -1046,6 +1069,15 @@ class StatementAudit(AuditRound):
         else:
             round_suffix: str = f" #{self.round_number}"
         return f"{self.simplified_case} {self.get_audit_round_type_display()}{round_suffix} ({amp_format_date(self.date_of_test)})"
+
+    @property
+    def previous_equality_body_retest(self):
+        """Return previous equality body retest"""
+        return StatementAudit.objects.filter(
+            simplified_case=self.simplified_case,
+            audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+            round_number=self.round_number - 1,
+        ).first()
 
     @property
     def statement_check_results(

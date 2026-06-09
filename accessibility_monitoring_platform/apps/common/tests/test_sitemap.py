@@ -38,7 +38,7 @@ from ..sitemap import (
     DetailedCasePlatformPage,
     DetailedCasePlatformPageGroup,
     EqualityBodyRetestPagesPlatformPage,
-    EqualityBodyRetestPlatformPage,
+    EqualityBodyRetestWcagPlatformPage,
     ExportPlatformPage,
     MobileCasePlatformPage,
     MobileCasePlatformPageGroup,
@@ -599,8 +599,8 @@ def test_audit_retest_pages_platform_page():
 
 def test_equality_body_retest_platform_page():
     """Test EqualityBodyRetestPlatformPage"""
-    equality_body_retest_platform_page: EqualityBodyRetestPlatformPage = (
-        EqualityBodyRetestPlatformPage(name=PLATFORM_PAGE_NAME)
+    equality_body_retest_platform_page: EqualityBodyRetestWcagPlatformPage = (
+        EqualityBodyRetestWcagPlatformPage(name=PLATFORM_PAGE_NAME)
     )
 
     assert equality_body_retest_platform_page.instance_class == Retest

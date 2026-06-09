@@ -49,6 +49,7 @@ from ..forms import (
     WcagAuditRetestUpdateForm,
 )
 from ..models import (
+    AuditOverview,
     Retest,
     RetestCheckResult,
     RetestPage,
@@ -118,15 +119,29 @@ def mark_retest_as_deleted(request: HttpRequest, pk: int) -> HttpResponse:
     )
 
 
-class RetestMetadataUpdateView(NextPlatformPageMixin, UpdateView):
-    """
-    View to update a equality body retest metadata
-    """
+class EqualityBodyRetestWcagAuditUpdateView(NextPlatformPageMixin, UpdateView):
 
     model: type[WcagAudit] = WcagAudit
-    form_class: type[WcagAuditRetestUpdateForm] = WcagAuditRetestUpdateForm
-    template_name: str = "audits/forms/equality_body_retest_metadata_update.html"
-    context_object_name: str = "retest"
+    context_object_name: str = "wcag_audit"
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Populate context data for template rendering"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+
+        wcag_audit: WcagAudit = self.object
+        audit_overview: AuditOverview = wcag_audit.simplified_case.audit_overview
+
+        context["case"] = wcag_audit.simplified_case
+        context["wcag_audit_initial"] = audit_overview.wcag_audit_initial
+        context["first_wcag_audit_12_week_retest"] = (
+            audit_overview.first_wcag_audit_12_week_retest
+        )
+        context["wcag_audit"] = wcag_audit
+        context["statement_audit"] = (
+            wcag_audit.equivalent_equality_body_statement_retest
+        )
+
+        return context
 
     def get_next_platform_page(self) -> PlatformPage:
         return get_next_platform_page_equality_body(wcag_audit=self.object)
@@ -134,13 +149,22 @@ class RetestMetadataUpdateView(NextPlatformPageMixin, UpdateView):
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add record event on change"""
         if form.changed_data:
-            self.object: Retest = form.save(commit=False)
+            self.object: WcagAudit = form.save(commit=False)
             record_simplified_model_update_event(
                 user=self.request.user,
                 model_object=self.object,
                 simplified_case=self.object.simplified_case,
             )
         return super().form_valid(form)
+
+
+class RetestMetadataUpdateView(EqualityBodyRetestWcagAuditUpdateView):
+    """
+    View to update a equality body retest metadata
+    """
+
+    form_class: type[WcagAuditRetestUpdateForm] = WcagAuditRetestUpdateForm
+    template_name: str = "audits/forms/equality_body_retest_metadata_update.html"
 
 
 class RetestPageChecksFormView(NextPlatformPageMixin, UpdateView):

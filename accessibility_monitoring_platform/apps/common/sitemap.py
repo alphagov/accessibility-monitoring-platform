@@ -699,17 +699,17 @@ class WcagAuditRetestPagesPlatformPage(WcagAuditPlatformPage):
                 self.set_instance(instance=wcag_audit)
                 if self.subpages is not None:
                     bound_subpages: list[PlatformPage] = []
-                    for page in wcag_audit.wcag_page_retests:
+                    for page in wcag_audit.retestable_wcag_page_retests:
                         bound_subpages += populate_subpages_with_instance(
                             platform_page=self, instance=page
                         )
                     self.subpages = bound_subpages
 
 
-class EqualityBodyRetestPlatformPage(PlatformPage):
+class EqualityBodyRetestWcagPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.instance_class: type[models.Model] = Retest
+        self.instance_class: type[models.Model] = WcagAudit
         if self.url_kwarg_key is None:
             self.url_kwarg_key: str = "pk"
 
@@ -726,6 +726,14 @@ class EqualityBodyRetestPlatformPage(PlatformPage):
             return self.instance.simplified_case
 
 
+class EqualityBodyRetestStatementPlatformPage(EqualityBodyRetestWcagPlatformPage):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.instance_class: type[models.Model] = StatementAudit
+        if self.url_kwarg_key is None:
+            self.url_kwarg_key: str = "pk"
+
+
 class RetestOverviewPlatformPage(SimplifiedCasePlatformPage):
     def populate_from_case(self, case: AnyCaseType):
         self.set_instance(instance=case)
@@ -740,18 +748,18 @@ class RetestOverviewPlatformPage(SimplifiedCasePlatformPage):
             self.subpages = bound_subpages
 
 
-class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestPlatformPage):
+class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestWcagPlatformPage):
     def populate_subpage_instances(self):
         if self.subpages is not None and self.instance is not None:
             bound_subpages: list[PlatformPage] = []
-            for retest_page in self.instance.retestpage_set.all():
+            for wcag_page_retest in self.instance.retestable_wcag_page_retests:
                 bound_subpages += populate_subpages_with_instance(
-                    platform_page=self, instance=retest_page
+                    platform_page=self, instance=wcag_page_retest
                 )
             self.subpages = bound_subpages
 
 
-class EqualityBodyRetestStatementLinksPlatformPage(EqualityBodyRetestPlatformPage):
+class EqualityBodyRetestStatementLinksPlatformPage(EqualityBodyRetestWcagPlatformPage):
     def populate_subpage_instances(self):
         if self.subpages is not None and self.instance is not None:
             bound_subpages: list[PlatformPage] = []
@@ -1570,8 +1578,8 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 name="Retest overview",
                 url_name="simplified:edit-retest-overview",
                 subpages=[
-                    EqualityBodyRetestPlatformPage(
-                        name="Retest #{instance.id_within_case}",
+                    EqualityBodyRetestWcagPlatformPage(
+                        name="{instance.equality_body_retest_name}",
                         subpages=[
                             WcagAuditPlatformPage(
                                 name="Retest metadata",
@@ -1589,13 +1597,13 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                                     )
                                 ],
                             ),
-                            EqualityBodyRetestPlatformPage(
+                            EqualityBodyRetestWcagPlatformPage(
                                 name="Comparison",
                                 url_name="audits:retest-comparison-update",
                                 complete_flag_name="comparison_complete_date",
                                 next_page_url_name="audits:retest-compliance-update",
                             ),
-                            EqualityBodyRetestPlatformPage(
+                            EqualityBodyRetestWcagPlatformPage(
                                 name="Compliance decision",
                                 url_name="audits:retest-compliance-update",
                                 complete_flag_name="compliance_complete_date",
@@ -1616,54 +1624,54 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                                     )
                                 ],
                             ),
-                            EqualityBodyRetestPlatformPage(
+                            EqualityBodyRetestWcagPlatformPage(
                                 name="Statement backups",
                                 url_name="audits:edit-equality-body-statement-backup",
                                 complete_flag_name="statement_backup_complete_date",
                                 next_page_url_name="audits:edit-equality-body-statement-overview",
                             ),
-                            EqualityBodyRetestPlatformPage(
+                            EqualityBodyRetestWcagPlatformPage(
                                 name="Statement overview",
                                 url_name="audits:edit-equality-body-statement-overview",
                                 complete_flag_name="statement_overview_complete_date",
                                 subpages=[
-                                    EqualityBodyRetestPlatformPage(
+                                    EqualityBodyRetestWcagPlatformPage(
                                         name="Statement information",
                                         url_name="audits:edit-equality-body-statement-website",
                                         complete_flag_name="statement_website_complete_date",
                                         next_page_url_name="audits:edit-equality-body-statement-compliance",
                                     ),
-                                    EqualityBodyRetestPlatformPage(
+                                    EqualityBodyRetestWcagPlatformPage(
                                         name="Compliance status",
                                         url_name="audits:edit-equality-body-statement-compliance",
                                         complete_flag_name="statement_compliance_complete_date",
                                         next_page_url_name="audits:edit-equality-body-statement-non-accessible",
                                     ),
-                                    EqualityBodyRetestPlatformPage(
+                                    EqualityBodyRetestWcagPlatformPage(
                                         name="Non-accessible content",
                                         url_name="audits:edit-equality-body-statement-non-accessible",
                                         complete_flag_name="statement_non_accessible_complete_date",
                                         next_page_url_name="audits:edit-equality-body-statement-preparation",
                                     ),
-                                    EqualityBodyRetestPlatformPage(
+                                    EqualityBodyRetestWcagPlatformPage(
                                         name="Statement preparation",
                                         url_name="audits:edit-equality-body-statement-preparation",
                                         complete_flag_name="statement_preparation_complete_date",
                                         next_page_url_name="audits:edit-equality-body-statement-feedback",
                                     ),
-                                    EqualityBodyRetestPlatformPage(
+                                    EqualityBodyRetestWcagPlatformPage(
                                         name="Feedback and enforcement procedure",
                                         url_name="audits:edit-equality-body-statement-feedback",
                                         complete_flag_name="statement_feedback_complete_date",
                                         next_page_url_name="audits:edit-equality-body-statement-disproportionate",
                                     ),
-                                    EqualityBodyRetestPlatformPage(
+                                    EqualityBodyRetestWcagPlatformPage(
                                         name="Disproportionate burden claim",
                                         url_name="audits:edit-equality-body-statement-disproportionate",
                                         complete_flag_name="statement_disproportionate_complete_date",
                                         next_page_url_name="audits:edit-equality-body-statement-custom",
                                     ),
-                                    EqualityBodyRetestPlatformPage(
+                                    EqualityBodyRetestWcagPlatformPage(
                                         name="Custom statement issues",
                                         url_name="audits:edit-equality-body-statement-custom",
                                         complete_flag_name="statement_custom_complete_date",
@@ -1671,19 +1679,19 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                                     ),
                                 ],
                             ),
-                            EqualityBodyRetestPlatformPage(
+                            EqualityBodyRetestWcagPlatformPage(
                                 name="Statement results",
                                 url_name="audits:edit-equality-body-statement-results",
                                 complete_flag_name="statement_results_complete_date",
                                 next_page_url_name="audits:edit-equality-body-disproportionate-burden",
                             ),
-                            EqualityBodyRetestPlatformPage(
+                            EqualityBodyRetestWcagPlatformPage(
                                 name="Disproportionate burden",
                                 url_name="audits:edit-equality-body-disproportionate-burden",
                                 complete_flag_name="disproportionate_burden_complete_date",
                                 next_page_url_name="audits:edit-equality-body-statement-decision",
                             ),
-                            EqualityBodyRetestPlatformPage(
+                            EqualityBodyRetestWcagPlatformPage(
                                 name="Statement decision",
                                 url_name="audits:edit-equality-body-statement-decision",
                                 complete_flag_name="statement_decision_complete_date",
