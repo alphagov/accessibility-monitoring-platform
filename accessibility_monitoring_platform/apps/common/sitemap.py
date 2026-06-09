@@ -22,7 +22,6 @@ from ..audits.forms import (
 from ..audits.models import (
     Audit,
     Retest,
-    RetestPage,
     StatementAudit,
     StatementCheckResultRound,
     StatementPage,
@@ -699,7 +698,7 @@ class WcagAuditRetestPagesPlatformPage(WcagAuditPlatformPage):
                 self.set_instance(instance=wcag_audit)
                 if self.subpages is not None:
                     bound_subpages: list[PlatformPage] = []
-                    for page in wcag_audit.retestable_wcag_page_retests:
+                    for page in wcag_audit.wcag_page_retests:
                         bound_subpages += populate_subpages_with_instance(
                             platform_page=self, instance=page
                         )
@@ -752,7 +751,7 @@ class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestWcagPlatformPage):
     def populate_subpage_instances(self):
         if self.subpages is not None and self.instance is not None:
             bound_subpages: list[PlatformPage] = []
-            for wcag_page_retest in self.instance.retestable_wcag_page_retests:
+            for wcag_page_retest in self.instance.wcag_page_retests:
                 bound_subpages += populate_subpages_with_instance(
                     platform_page=self, instance=wcag_page_retest
                 )
@@ -1590,9 +1589,9 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                                 name="Pages",
                                 subpages=[
                                     PlatformPage(
-                                        name="{instance.retest} | {instance}",
+                                        name="{instance.wcag_audit.equality_body_retest_name} | {instance}",
                                         url_name="audits:edit-retest-page-checks",
-                                        instance_class=RetestPage,
+                                        instance_class=WcagPageRetest,
                                         complete_flag_name="complete_date",
                                     )
                                 ],

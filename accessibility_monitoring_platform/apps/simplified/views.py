@@ -1130,9 +1130,10 @@ class CaseRetestOverviewTemplateView(CaseUpdateView):
         """Add platform settings to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
         simplified_case: SimplifiedCase = self.object
-        context["equality_body_retests"] = simplified_case.retests.filter(
-            id_within_case__gt=0
-        )
+        context["equality_body_retests"] = WcagAudit.objects.filter(
+            simplified_case=simplified_case,
+            audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+        ).order_by("-id")
         return context
 
 

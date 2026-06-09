@@ -57,6 +57,7 @@ from ..models import (
     StatementAudit,
     StatementCheck,
     WcagAudit,
+    WcagPageRetest,
 )
 from ..utils import (
     create_checkresults_for_wcag_audit_retest,
@@ -68,6 +69,7 @@ from .base import (
     DeleteStatementPageUpdateView,
     StatementBackupMixin,
 )
+from .twelve_week import WcagPageRetestCheckResultsUpdateView
 
 
 def create_equality_body_retest(request: HttpRequest, case_id: int) -> HttpResponse:
@@ -167,61 +169,46 @@ class RetestMetadataUpdateView(EqualityBodyRetestWcagAuditUpdateView):
     template_name: str = "audits/forms/equality_body_retest_metadata_update.html"
 
 
-class RetestPageChecksFormView(NextPlatformPageMixin, UpdateView):
+class RetestPageChecksFormView(WcagPageRetestCheckResultsUpdateView):
     """
     View to update check results for a page in a retest requested by an equality body
     """
 
-    model: type[RetestPage] = RetestPage
-    form_class: type[RetestPageChecksForm] = RetestPageChecksForm
     template_name: str = "audits/forms/equality_body_retest_page_checks.html"
-    context_object_name: str = "retest_page"
-
-    def get_next_platform_page(self) -> PlatformPage:
-        retest_page: RetestPage = self.object
-        return get_next_platform_page_equality_body(
-            retest=retest_page.retest, current_page=retest_page
-        )
+    context_object_name: str = "wcag_page_retest"
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Populate context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
+        wcag_page_retest: WcagPageRetest = self.object
+        wcag_audit: WcagAudit = wcag_page_retest.wcag_audit
+        audit_overview: AuditOverview = wcag_audit.simplified_case.audit_overview
 
-        if self.request.POST:
-            retest_check_results_formset: RetestCheckResultFormset = (
-                RetestCheckResultFormset(self.request.POST)
-            )
-        else:
-            retest_check_results_formset: RetestCheckResultFormset = (
-                RetestCheckResultFormset(
-                    queryset=self.object.retestcheckresult_set.all()
-                )
-            )
-
-        context["retest_check_results_formset"] = retest_check_results_formset
-
+        context["case"] = wcag_audit.simplified_case
+        context["wcag_audit_initial"] = audit_overview.wcag_audit_initial
+        context["first_wcag_audit_12_week_retest"] = (
+            audit_overview.first_wcag_audit_12_week_retest
+        )
+        context["wcag_audit"] = wcag_audit
+        context["statement_audit"] = (
+            wcag_audit.equivalent_equality_body_statement_retest
+        )
         return context
 
-    def form_valid(self, form: ModelForm):
-        """Process contents of valid form"""
-        context: dict[str, Any] = self.get_context_data()
-        if "missing_date" in form.changed_data:
-            retest_page: RetestPage = self.object
-            if form.cleaned_data["missing_date"]:
-                retest_page.page.not_found = Boolean.YES
-            else:
-                retest_page.page.not_found = Boolean.NO
-            retest_page.page.save()
+    #     if self.request.POST:
+    #         retest_check_results_formset: RetestCheckResultFormset = (
+    #             RetestCheckResultFormset(self.request.POST)
+    #         )
+    #     else:
+    #         retest_check_results_formset: RetestCheckResultFormset = (
+    #             RetestCheckResultFormset(
+    #                 queryset=self.object.retestcheckresult_set.all()
+    #             )
+    #         )
 
-        retest_check_results_formset: RetestCheckResultFormset = context[
-            "retest_check_results_formset"
-        ]
-        if retest_check_results_formset.is_valid():
-            retest_check_results_formset.save()
-        else:
-            return super().form_invalid(form)
+    #     context["retest_check_results_formset"] = retest_check_results_formset
 
-        return super().form_valid(form)
+    #     return context
 
 
 class RetestComparisonUpdateView(NextPlatformPageMixin, UpdateView):

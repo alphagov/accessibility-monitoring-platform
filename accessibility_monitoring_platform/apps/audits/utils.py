@@ -481,9 +481,9 @@ def get_next_platform_page_equality_body(
     current_page_position: int = index_or_404(
         items=wcag_page_retests, item=current_page
     )
-    next_retest_page: RetestPage = wcag_page_retests[current_page_position + 1]
+    next_wcag_page_retest: WcagPageRetest = wcag_page_retests[current_page_position + 1]
     return get_platform_page_by_url_name(
-        url_name="audits:edit-retest-page-checks", instance=next_retest_page
+        url_name="audits:edit-retest-page-checks", instance=next_wcag_page_retest
     )
 
 

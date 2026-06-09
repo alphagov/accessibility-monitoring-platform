@@ -5,7 +5,7 @@
         <li>
             Pages:
             <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                {% for page in wcag_audit.retestable_wcag_page_retests %}
+                {% for page in wcag_audit.wcag_page_retests %}
                     {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-retest-page-checks' key_id=page.id complete=page.complete_date %}
                 {% endfor %}
             </ul>
