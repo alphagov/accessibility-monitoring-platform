@@ -1,21 +1,21 @@
-            <li>
-                {% if edit_name == 'audits:edit-audit-page-checks' or edit_name == 'audits:edit-wcag-page-retest-check-results' or edit_name == 'audits:edit-retest-page-checks' %}
-                    {% if current_page == edit_name and page_id == page.id %}
-                        {{ page }}
-                        {% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
-                    {% else %}
-                        <a href="{% url edit_name page.id %}" class="govuk-link govuk-link--no-visited-state" data-cy="nav-step">
-                            {{ page }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
-                    {% endif %}
-                    {% if complete %}&check;{% endif %}
-                {% else %}
-                    {% if current_page == edit_name %}
-                        {{ name }}
-                        {% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
-                    {% else %}
-                        <a href="{% url edit_name key_id %}" class="govuk-link govuk-link--no-visited-state"  data-cy="nav-step">
-                            {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
-                    {% endif %}
-                    {% if complete %}&check;{% endif %}
-                {% endif %}
-            </li>
+<li>
+    {% if edit_name == 'audits:edit-retest-page-checks' %}
+        {% if sitemap.current_platform_page.url_name == edit_name and key_id == sitemap.current_platform_page.instance.id %}
+            {{ page }}
+            {% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
+        {% else %}
+            <a href="{% url edit_name page.id %}" class="govuk-link govuk-link--no-visited-state" data-cy="nav-step">
+                {{ page }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+        {% endif %}
+        {% if complete %}&check;{% endif %}
+    {% else %}
+        {% if sitemap.current_platform_page.url_name == edit_name %}
+            {{ name }}
+            {% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}
+        {% else %}
+            <a href="{% url edit_name key_id %}" class="govuk-link govuk-link--no-visited-state"  data-cy="nav-step">
+                {{ name }}{% if complete %}<span class="govuk-visually-hidden">complete</span>{% endif %}</a>
+        {% endif %}
+        {% if complete %}&check;{% endif %}
+    {% endif %}
+</li>

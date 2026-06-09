@@ -100,13 +100,13 @@
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     {{ retest_check_results_formset.management_form }}
                     {% if retest_check_results_formset.forms %}
-                        {% for form in retest_check_results_formset %}
+                        {% for form in retest_check_results_formset.forms %}
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
                                     <hr class="amp-width-100 amp-margin-bottom-15">
                                     <h2 class="govuk-label amp-margin-bottom-15">
-                                        <b>{{ form.instance.check_result.wcag_definition }}</b>
-                                        {% include 'audits/helpers/issue_identifier.html' with issue=form.instance %}
+                                        <b>{{ form.instance.check_result.wcag_check_result_initial.wcag_definition }}</b>
+                                        {% include 'audits/helpers/issue_identifier.html' with issue=form.instance.check_result.wcag_check_result_initial %}
                                     </h2>
                                     <details class="govuk-details amp-margin-bottom-10" data-module="govuk-details">
                                         <summary class="govuk-details__summary">
@@ -114,9 +114,9 @@
                                         </summary>
                                         <div class="govuk-details__text">
                                             <label class="govuk-label"><b>Initial notes</b></label>
-                                            {{ form.instance.check_result.notes|markdown_to_html }}
+                                            {{ form.instance.check_result.wcag_check_result_initial.notes|markdown_to_html }}
                                             {% for retest_check_result in form.instance.all_retest_check_results %}
-                                                {% if retest_check_result != form.instance %}
+                                                {% if retest_check_result != form.instance.check_result %}
                                                     <label class="govuk-label">
                                                         <b>
                                                             {{ retest_check_result.retest }} notes

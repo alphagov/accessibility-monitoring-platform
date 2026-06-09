@@ -15,7 +15,6 @@ from django.views.generic.edit import UpdateView
 
 from ...cases.models import CaseFile
 from ...common.mark_deleted_util import mark_object_as_deleted
-from ...common.models import Boolean
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
 from ...common.utils import list_to_dictionary_of_lists
 from ...common.views import NextPlatformPageMixin
@@ -26,11 +25,9 @@ from ...simplified.utils import (
 )
 from ..forms import (
     RetestAddStatementPageUpdateForm,
-    RetestCheckResultFormset,
     RetestComparisonUpdateForm,
     RetestComplianceUpdateForm,
     RetestDisproportionateBurdenUpdateForm,
-    RetestPageChecksForm,
     RetestStatementBackupUpdateForm,
     RetestStatementCheckResultFormset,
     RetestStatementComplianceUpdateForm,
@@ -47,6 +44,8 @@ from ..forms import (
     RetestStatementWebsiteUpdateForm,
     StatementBackupForm,
     WcagAuditRetestUpdateForm,
+    WcagCheckResultRetestFormset,
+    WcagPageRetestUpdateForm,
 )
 from ..models import (
     AuditOverview,
@@ -69,7 +68,6 @@ from .base import (
     DeleteStatementPageUpdateView,
     StatementBackupMixin,
 )
-from .twelve_week import WcagPageRetestCheckResultsUpdateView
 
 
 def create_equality_body_retest(request: HttpRequest, case_id: int) -> HttpResponse:
@@ -169,13 +167,21 @@ class RetestMetadataUpdateView(EqualityBodyRetestWcagAuditUpdateView):
     template_name: str = "audits/forms/equality_body_retest_metadata_update.html"
 
 
-class RetestPageChecksFormView(WcagPageRetestCheckResultsUpdateView):
+class RetestPageChecksFormView(NextPlatformPageMixin, UpdateView):
     """
     View to update check results for a page in a retest requested by an equality body
     """
 
+    model: type[WcagPageRetest] = WcagPageRetest
+    form_class: type[WcagPageRetestUpdateForm] = WcagPageRetestUpdateForm
     template_name: str = "audits/forms/equality_body_retest_page_checks.html"
     context_object_name: str = "wcag_page_retest"
+
+    def get_next_platform_page(self):
+        wcag_page_retest: WcagPageRetest = self.object
+        return get_next_platform_page_equality_body(
+            wcag_audit=wcag_page_retest.wcag_audit, current_page=wcag_page_retest
+        )
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Populate context data for template rendering"""
@@ -193,22 +199,21 @@ class RetestPageChecksFormView(WcagPageRetestCheckResultsUpdateView):
         context["statement_audit"] = (
             wcag_audit.equivalent_equality_body_statement_retest
         )
+
+        if self.request.POST:
+            retest_check_results_formset: WcagCheckResultRetestFormset = (
+                WcagCheckResultRetestFormset(self.request.POST)
+            )
+        else:
+            retest_check_results_formset: WcagCheckResultRetestFormset = (
+                WcagCheckResultRetestFormset(
+                    queryset=wcag_page_retest.all_wcag_check_result_retests
+                )
+            )
+
+        context["retest_check_results_formset"] = retest_check_results_formset
+
         return context
-
-    #     if self.request.POST:
-    #         retest_check_results_formset: RetestCheckResultFormset = (
-    #             RetestCheckResultFormset(self.request.POST)
-    #         )
-    #     else:
-    #         retest_check_results_formset: RetestCheckResultFormset = (
-    #             RetestCheckResultFormset(
-    #                 queryset=self.object.retestcheckresult_set.all()
-    #             )
-    #         )
-
-    #     context["retest_check_results_formset"] = retest_check_results_formset
-
-    #     return context
 
 
 class RetestComparisonUpdateView(NextPlatformPageMixin, UpdateView):
