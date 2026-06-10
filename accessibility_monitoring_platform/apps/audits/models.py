@@ -742,11 +742,15 @@ class AuditRound(VersionModel):
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:
-        if self.audit_round_type == WcagAudit.AuditRoundType.INITIAL:
+        if (
+            self.audit_round_type == WcagAudit.AuditRoundType.INITIAL
+            or self.audit_round_type == WcagAudit.AuditRoundType.TWELVE_WEEK
+        ):
             round_suffix: str = ""
         else:
-            round_suffix: str = f" #{self.round_number}"
-        return f"{self.simplified_case} {self.get_audit_round_type_display()}{round_suffix} ({amp_format_date(self.date_of_test)})"
+            round_number: int = self.round_number - 1
+            round_suffix: str = f" #{round_number}"
+        return f"{self.get_audit_round_type_display()}{round_suffix} ({amp_format_date(self.date_of_test)})"
 
 
 class WcagAudit(AuditRound):
@@ -1492,6 +1496,29 @@ class WcagPageRetest(models.Model):
             check_result.wcag_definition: check_result for check_result in check_results
         }
 
+    @property
+    def all_wcag_page_retests(self):
+        """Return all wcag page retests for this page"""
+        return WcagPageRetest.objects.filter(wcag_page_initial=self.wcag_page_initial)
+
+    @property
+    def latest_page_url(self):
+        """Return most recent URL entered for this page"""
+        url: str = self.wcag_page_initial.url
+        for wcag_page_retest in self.all_wcag_page_retests:
+            if wcag_page_retest.url:
+                url = wcag_page_retest.url
+        return url
+
+    @property
+    def latest_page_location(self):
+        """Return most recent location entered for this page"""
+        location: str = self.wcag_page_initial.location
+        for wcag_page_retest in self.all_wcag_page_retests:
+            if wcag_page_retest.location:
+                location = wcag_page_retest.location
+        return location
+
 
 class WcagDefinition(models.Model):
     """
@@ -1719,15 +1746,11 @@ class WcagCheckResultRetest(models.Model):
         }
 
     @property
-    def matching_wcag_with_notes_check_results(self) -> dict[str, str]:
+    def other_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
         """Other check results for matching WcagDefinition"""
-        return (
-            self.wcag_audit.wcag_failed_check_result_retests.filter(
-                wcag_check_result_initial__wcag_definition=self.wcag_definition
-            )
-            .exclude(wcag_page_retest=self.wcag_page_retest)
-            .exclude(notes="")
-        )
+        return WcagCheckResultRetest.objects.filter(
+            wcag_check_result_initial=self.wcag_check_result_initial
+        ).exclude(wcag_page_retest=self.wcag_page_retest)
 
 
 class CheckResultNotesHistory(models.Model):

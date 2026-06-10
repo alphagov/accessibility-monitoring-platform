@@ -679,6 +679,27 @@ class AuditRetestCheckResultFilterForm(forms.Form):
         ]
 
 
+class EqualityBodyWcagPageRetestUpdateForm(forms.ModelForm):
+
+    complete_date = AMPDatePageCompleteField(
+        label="",
+        widget=AMPDateCheckboxWidget(attrs={"label": "Page complete"}),
+    )
+    page_missing_date = AMPDatePageCompleteField(
+        label="",
+        widget=AMPDateCheckboxWidget(attrs={"label": "Page missing"}),
+    )
+    notes = AMPTextField(label="Additional issues found on page")
+
+    class Meta:
+        model = WcagPageRetest
+        fields: list[str] = [
+            "complete_date",
+            "page_missing_date",
+            "notes",
+        ]
+
+
 class WcagCheckResultRetestForm(forms.ModelForm):
     """
     Form for updating a single check result on retest
@@ -710,6 +731,11 @@ class WcagCheckResultRetestForm(forms.ModelForm):
 
 WcagCheckResultRetestFormset: forms.formsets.BaseFormSet = forms.formset_factory(
     WcagCheckResultRetestForm, extra=0
+)
+EqualityBodyWcagCheckResultRetestFormset: forms.formsets.BaseFormSet = (
+    forms.modelformset_factory(
+        WcagCheckResultRetest, form=WcagCheckResultRetestForm, extra=0
+    )
 )
 
 

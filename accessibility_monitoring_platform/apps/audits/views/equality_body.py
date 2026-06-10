@@ -15,6 +15,7 @@ from django.views.generic.edit import UpdateView
 
 from ...cases.models import CaseFile
 from ...common.mark_deleted_util import mark_object_as_deleted
+from ...common.models import Boolean
 from ...common.sitemap import PlatformPage, get_platform_page_by_url_name
 from ...common.utils import list_to_dictionary_of_lists
 from ...common.views import NextPlatformPageMixin
@@ -24,6 +25,8 @@ from ...simplified.utils import (
     record_simplified_model_update_event,
 )
 from ..forms import (
+    EqualityBodyWcagCheckResultRetestFormset,
+    EqualityBodyWcagPageRetestUpdateForm,
     RetestAddStatementPageUpdateForm,
     RetestComparisonUpdateForm,
     RetestComplianceUpdateForm,
@@ -44,8 +47,6 @@ from ..forms import (
     RetestStatementWebsiteUpdateForm,
     StatementBackupForm,
     WcagAuditRetestUpdateForm,
-    WcagCheckResultRetestFormset,
-    WcagPageRetestUpdateForm,
 )
 from ..models import (
     AuditOverview,
@@ -173,7 +174,9 @@ class RetestPageChecksFormView(NextPlatformPageMixin, UpdateView):
     """
 
     model: type[WcagPageRetest] = WcagPageRetest
-    form_class: type[WcagPageRetestUpdateForm] = WcagPageRetestUpdateForm
+    form_class: type[EqualityBodyWcagPageRetestUpdateForm] = (
+        EqualityBodyWcagPageRetestUpdateForm
+    )
     template_name: str = "audits/forms/equality_body_retest_page_checks.html"
     context_object_name: str = "wcag_page_retest"
 
@@ -201,12 +204,12 @@ class RetestPageChecksFormView(NextPlatformPageMixin, UpdateView):
         )
 
         if self.request.POST:
-            retest_check_results_formset: WcagCheckResultRetestFormset = (
-                WcagCheckResultRetestFormset(self.request.POST)
+            retest_check_results_formset: EqualityBodyWcagCheckResultRetestFormset = (
+                EqualityBodyWcagCheckResultRetestFormset(self.request.POST)
             )
         else:
-            retest_check_results_formset: WcagCheckResultRetestFormset = (
-                WcagCheckResultRetestFormset(
+            retest_check_results_formset: EqualityBodyWcagCheckResultRetestFormset = (
+                EqualityBodyWcagCheckResultRetestFormset(
                     queryset=wcag_page_retest.all_wcag_check_result_retests
                 )
             )
@@ -214,6 +217,27 @@ class RetestPageChecksFormView(NextPlatformPageMixin, UpdateView):
         context["retest_check_results_formset"] = retest_check_results_formset
 
         return context
+
+    def form_valid(self, form: ModelForm):
+        """Process contents of valid form"""
+        context: dict[str, Any] = self.get_context_data()
+        if "missing_date" in form.changed_data:
+            retest_page: RetestPage = self.object
+            if form.cleaned_data["missing_date"]:
+                retest_page.page.not_found = Boolean.YES
+            else:
+                retest_page.page.not_found = Boolean.NO
+            retest_page.page.save()
+
+        retest_check_results_formset: EqualityBodyWcagCheckResultRetestFormset = (
+            context["retest_check_results_formset"]
+        )
+        if retest_check_results_formset.is_valid():
+            retest_check_results_formset.save()
+        else:
+            return super().form_invalid(form)
+
+        return super().form_valid(form)
 
 
 class RetestComparisonUpdateView(NextPlatformPageMixin, UpdateView):

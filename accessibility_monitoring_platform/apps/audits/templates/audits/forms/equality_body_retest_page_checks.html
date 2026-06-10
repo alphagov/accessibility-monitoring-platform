@@ -42,7 +42,7 @@
                         </div>
                         {% if retest_check_results_formset.forms %}
                             <div class="govuk-grid-column-one-half">
-                                {% include 'common/amp_field.html' with field=form.missing_date %}
+                                {% include 'common/amp_field.html' with field=form.page_missing_date %}
                             </div>
                         {% endif %}
                     </div>
@@ -53,17 +53,23 @@
                                     <span class="govuk-details__summary-text">Additional issues found on page</span>
                                 </summary>
                                 <div class="govuk-details__text">
-                                    {% for retest_page in form.instance.all_retest_pages %}
+                                    <label class="govuk-label amp-margin-bottom-15"><b>{{ wcag_page_retest.wcag_page_initial.wcag_audit }} additional issues</b></label>
+                                    {% if wcag_page_retest.wcag_page_initial.notes %}
+                                        {{ wcag_page_retest.wcag_page_initial.notes|markdown_to_html }}
+                                    {% else %}
+                                        <p>None</p>
+                                    {% endif %}
+                                    {% for retest_page in wcag_page_retest.all_wcag_page_retests %}
                                         {% if retest_page != form.instance %}
-                                            <label class="govuk-label amp-margin-bottom-15"><b>{{ retest_page.retest }} additional issues</b></label>
-                                            {% if retest_page.additional_issues_notes %}
-                                                {{ retest_page.additional_issues_notes|markdown_to_html }}
+                                            <label class="govuk-label amp-margin-bottom-15"><b>{{ retest_page.wcag_audit }} additional issues</b></label>
+                                            {% if retest_page.notes %}
+                                                {{ retest_page.notes|markdown_to_html }}
                                             {% else %}
                                                 <p>None</p>
                                             {% endif %}
                                         {% endif %}
                                     {% endfor %}
-                                    {% include 'common/amp_field.html' with field=form.additional_issues_notes %}
+                                    {% include 'common/amp_field.html' with field=form.notes %}
                                 </div>
                             </details>
                         </div>
@@ -84,11 +90,11 @@
                                 class="govuk-button govuk-button--secondary"
                                 data-module="govuk-button"
                             />
-                            <a href="{{ retest_page.page.url }}" class="govuk-link" target="_blank">
-                                Link to {% if retest_page.page.page_type == 'pdf' %}{{ retest_page.page }}{% else %}{{ retest_page.page|lower }}{% endif %}
+                            <a href="{{ wcag_page_retest.latest_page_url }}" class="govuk-link" target="_blank">
+                                Link to {% if wcag_page_retest.wcag_page_initial.page_type == 'pdf' %}{{ wcag_page_retest.wcag_page_initial }}{% else %}{{ wcag_page_retest.wcag_page_initial|lower }}{% endif %}
                             </a>
-                            {% if retest_page.page.location %}
-                                <p class="govuk-body">{{ retest_page.page.location }}</p>
+                            {% if wcag_page_retest.latest_page_location %}
+                                <p class="govuk-body">{{ wcag_page_retest.latest_page_location }}</p>
                             {% endif %}
                         </div>
                     </div>
@@ -105,31 +111,22 @@
                                 <div class="govuk-grid-column-full">
                                     <hr class="amp-width-100 amp-margin-bottom-15">
                                     <h2 class="govuk-label amp-margin-bottom-15">
-                                        <b>{{ form.instance.check_result.wcag_check_result_initial.wcag_definition }}</b>
-                                        {% include 'audits/helpers/issue_identifier.html' with issue=form.instance.check_result.wcag_check_result_initial %}
+                                        <b>{{ form.instance.wcag_check_result_initial.wcag_definition }}</b>
+                                        {% include 'audits/helpers/issue_identifier.html' with issue=form.instance.wcag_check_result_initial %}
                                     </h2>
                                     <details class="govuk-details amp-margin-bottom-10" data-module="govuk-details">
                                         <summary class="govuk-details__summary">
                                             <span class="govuk-details__summary-text">Previous test notes</span>
                                         </summary>
                                         <div class="govuk-details__text">
-                                            <label class="govuk-label"><b>Initial notes</b></label>
-                                            {{ form.instance.check_result.wcag_check_result_initial.notes|markdown_to_html }}
-                                            {% for retest_check_result in form.instance.all_retest_check_results %}
-                                                {% if retest_check_result != form.instance.check_result %}
-                                                    <label class="govuk-label">
-                                                        <b>
-                                                            {{ retest_check_result.retest }} notes
-                                                            {% if retest_check_result.retest.id_within_case > 0 %}
-                                                                ({{ retest_check_result.retest.date_of_retest|amp_date }})
-                                                            {% endif %}
-                                                        </b>
-                                                    </label>
-                                                    {% if retest_check_result.retest_notes %}
-                                                        {{ retest_check_result.retest_notes|markdown_to_html }}
-                                                    {% else %}
-                                                        <p>None</p>
-                                                    {% endif %}
+                                            <label class="govuk-label"><b>{{ form.instance.wcag_check_result_initial.wcag_audit }} notes</b></label>
+                                            {{ form.instance.wcag_check_result_initial.notes|markdown_to_html }}
+                                            {% for other_wcag_check_result_retest in form.instance.other_wcag_check_result_retests %}
+                                                <label class="govuk-label"><b>{{ other_wcag_check_result_retest.wcag_audit }} notes</b></label>
+                                                {% if other_wcag_check_result_retest.notes %}
+                                                    {{ other_wcag_check_result_retest.notes|markdown_to_html }}
+                                                {% else %}
+                                                    <p>None</p>
                                                 {% endif %}
                                             {% endfor %}
                                         </div>
