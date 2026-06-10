@@ -25,7 +25,6 @@ from ...simplified.utils import (
     record_simplified_model_update_event,
 )
 from ..forms import (
-    EqualityBodyWcagCheckResultRetestFormset,
     EqualityBodyWcagPageRetestUpdateForm,
     RetestAddStatementPageUpdateForm,
     RetestComparisonUpdateForm,
@@ -47,6 +46,7 @@ from ..forms import (
     RetestStatementWebsiteUpdateForm,
     StatementBackupForm,
     WcagAuditRetestUpdateForm,
+    WcagCheckResultRetestFormset,
 )
 from ..models import (
     AuditOverview,
@@ -204,12 +204,12 @@ class RetestPageChecksFormView(NextPlatformPageMixin, UpdateView):
         )
 
         if self.request.POST:
-            retest_check_results_formset: EqualityBodyWcagCheckResultRetestFormset = (
-                EqualityBodyWcagCheckResultRetestFormset(self.request.POST)
+            retest_check_results_formset: WcagCheckResultRetestFormset = (
+                WcagCheckResultRetestFormset(self.request.POST)
             )
         else:
-            retest_check_results_formset: EqualityBodyWcagCheckResultRetestFormset = (
-                EqualityBodyWcagCheckResultRetestFormset(
+            retest_check_results_formset: WcagCheckResultRetestFormset = (
+                WcagCheckResultRetestFormset(
                     queryset=wcag_page_retest.all_wcag_check_result_retests
                 )
             )
@@ -229,9 +229,9 @@ class RetestPageChecksFormView(NextPlatformPageMixin, UpdateView):
                 retest_page.page.not_found = Boolean.NO
             retest_page.page.save()
 
-        retest_check_results_formset: EqualityBodyWcagCheckResultRetestFormset = (
-            context["retest_check_results_formset"]
-        )
+        retest_check_results_formset: WcagCheckResultRetestFormset = context[
+            "retest_check_results_formset"
+        ]
         if retest_check_results_formset.is_valid():
             retest_check_results_formset.save()
         else:

@@ -1737,15 +1737,6 @@ class WcagCheckResultRetest(models.Model):
         return self.wcag_check_result_initial.issue_identifier
 
     @property
-    def retest_form_initial(self) -> dict[str, int | str | WcagCheckResultRetest]:
-        return {
-            "id": self.id,
-            "retest_state": self.retest_state,
-            "notes": self.notes,
-            "check_result": self,
-        }
-
-    @property
     def other_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
         """Other check results for matching WcagDefinition"""
         return WcagCheckResultRetest.objects.filter(

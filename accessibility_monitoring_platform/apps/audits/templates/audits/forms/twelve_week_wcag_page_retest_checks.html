@@ -69,22 +69,22 @@
         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
         {{ check_results_formset.management_form }}
         {% for check_result_form in check_results_formset %}
-            <div class="govuk-grid-row" id="{{ check_result_form.initial.check_result.wcag_check_result_initial.issue_identifier }}"
-                data-check-type="{{ check_result_form.initial.check_result.wcag_check_result_initial.wcag_definition.type }}"
-                data-filter-string="{{ check_result_form.initial.check_result.wcag_check_result_initial.wcag_definition }} {{ check_result_form.initial.check_result.wcag_check_result_initial.wcag_definition.hint }} {{ check_result_form.initial.check_result.wcag_check_result_initial.issue_identifier }}"
+            <div class="govuk-grid-row" id="{{ check_result_form.instance.wcag_check_result_initial.issue_identifier }}"
+                data-check-type="{{ check_result_form.instance.wcag_check_result_initial.wcag_definition.type }}"
+                data-filter-string="{{ check_result_form.instance.wcag_check_result_initial.wcag_definition }} {{ check_result_form.instance.wcag_check_result_initial.wcag_definition.hint }} {{ check_result_form.instance.wcag_check_result_initial.issue_identifier }}"
             >
                 <div class="govuk-grid-column-full">
                     <hr class="amp-width-100 amp-margin-bottom-30">
-                    <p class="govuk-heading-s"><b>{{ check_result_form.initial.check_result.wcag_check_result_initial.wcag_definition }}</b> [{{ check_result_form.initial.check_result.wcag_check_result_initial.issue_identifier }}]</p>
+                    <p class="govuk-heading-s"><b>{{ check_result_form.instance.wcag_check_result_initial.wcag_definition }}</b> [{{ check_result_form.instance.wcag_check_result_initial.issue_identifier }}]</p>
                     <p class="govuk-heading-s amp-margin-bottom-5"><b>Error details for report</b></p>
                     <div class="amp-nav-details__text amp-markdown">
-                        {{ check_result_form.initial.check_result.wcag_check_result_initial.notes|markdown_to_html }}
-                        {% if check_result_form.initial.check_result.wcag_check_result_initial.notes %}
+                        {{ check_result_form.instance.wcag_check_result_initial.notes|markdown_to_html }}
+                        {% if check_result_form.instance.wcag_check_result_initial.notes %}
                             <a
                                 href="#"
                                 class="amp-initial-report-text"
                                 id="amp-report-content-copy-{{ forloop.counter0 }}"
-                                data-report-text="{{ check_result_form.initial.check_result.wcag_check_result_initial.notes }}"
+                                data-report-text="{{ check_result_form.instance.wcag_check_result_initial.notes }}"
                             >
                                 Copy report text to error details
                             </a>
@@ -92,10 +92,10 @@
                     </div>
                     {% include 'common/form_hidden_fields.html' with hidden_fields=check_result_form.hidden_fields %}
                     {% include 'common/amp_field.html' with field=check_result_form.retest_state %}
-                    {% include 'audits/helpers/check_result_matching_retest_errors.html' with check_result=check_result_form.initial.check_result %}
+                    {% include 'audits/helpers/check_result_matching_retest_errors.html' with check_result=check_result_form.instance %}
                     {% include 'common/amp_field.html' with field=check_result_form.notes %}
                     {% include 'common/preview_markdown.html' with field_id=check_result_form.notes.auto_id %}
-                    {% include 'audits/helpers/check_result_retest_notes_history.html' with check_result=check_result_form.initial.check_result %}
+                    {% include 'audits/helpers/check_result_retest_notes_history.html' with check_result=check_result_form.instance %}
                     <div class="govuk-grid-row amp-margin-bottom-20 amp-margin-top-20">
                         <div class="govuk-grid-column-full govuk-button-group">
                             ▼ &nbsp; <a href="#save-and-continue-buttons" class="govuk-link govuk-link--no-visited-state">Go to save and continue</a>

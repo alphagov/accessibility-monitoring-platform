@@ -729,13 +729,8 @@ class WcagCheckResultRetestForm(forms.ModelForm):
         ]
 
 
-WcagCheckResultRetestFormset: forms.formsets.BaseFormSet = forms.formset_factory(
-    WcagCheckResultRetestForm, extra=0
-)
-EqualityBodyWcagCheckResultRetestFormset: forms.formsets.BaseFormSet = (
-    forms.modelformset_factory(
-        WcagCheckResultRetest, form=WcagCheckResultRetestForm, extra=0
-    )
+WcagCheckResultRetestFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
+    WcagCheckResultRetest, form=WcagCheckResultRetestForm, extra=0
 )
 
 

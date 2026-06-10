@@ -173,19 +173,12 @@ class WcagPageRetestCheckResultsUpdateView(NextPlatformPageMixin, UpdateView):
             check_results_formset: WcagCheckResultRetestFormset = (
                 WcagCheckResultRetestFormset(
                     self.request.POST,
-                    initial=[
-                        check_result.retest_form_initial
-                        for check_result in wcag_page_retest.all_wcag_check_result_retests
-                    ],
                 )
             )
         else:
             check_results_formset: WcagCheckResultRetestFormset = (
                 WcagCheckResultRetestFormset(
-                    initial=[
-                        check_result.retest_form_initial
-                        for check_result in wcag_page_retest.all_wcag_check_result_retests
-                    ]
+                    queryset=wcag_page_retest.all_wcag_check_result_retests
                 )
             )
 
