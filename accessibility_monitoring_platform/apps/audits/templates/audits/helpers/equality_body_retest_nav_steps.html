@@ -11,7 +11,7 @@
             </ul>
         </li>
         {% include 'audits/helpers/nav_step.html' with edit_name='audits:retest-comparison-update' key_id=wcag_audit.id name='Comparison' complete=wcag_audit.comparison_complete_date %}
-        {% include 'audits/helpers/nav_step.html' with edit_name='audits:retest-compliance-update' key_id=wcag_audit.id name='Compliance decision' complete=wcag_audit.compliance_complete_date %}
+        {% include 'audits/helpers/nav_step.html' with edit_name='audits:retest-compliance-update' key_id=wcag_audit.id name='Compliance decision' complete=wcag_audit.compliance_decision_complete_date %}
         {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-pages' key_id=statement_audit.id name='Statement links' complete=statement_audit.statement_pages_complete_date %}
         {% if current_page == 'audits:edit-equality-body-retest-remove-statement-page' %}
             <li>

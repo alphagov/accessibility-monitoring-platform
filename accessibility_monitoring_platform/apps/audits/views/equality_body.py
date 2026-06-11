@@ -147,9 +147,6 @@ class EqualityBodyRetestWcagAuditUpdateView(NextPlatformPageMixin, UpdateView):
 
         return context
 
-    def get_next_platform_page(self) -> PlatformPage:
-        return get_next_platform_page_equality_body(wcag_audit=self.object)
-
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add record event on change"""
         if form.changed_data:
@@ -169,6 +166,9 @@ class RetestMetadataUpdateView(EqualityBodyRetestWcagAuditUpdateView):
 
     form_class: type[WcagAuditRetestUpdateForm] = WcagAuditRetestUpdateForm
     template_name: str = "audits/forms/equality_body_retest_metadata_update.html"
+
+    def get_next_platform_page(self) -> PlatformPage:
+        return get_next_platform_page_equality_body(wcag_audit=self.object)
 
 
 class RetestPageChecksFormView(NextPlatformPageMixin, UpdateView):
@@ -311,26 +311,13 @@ class RetestComparisonUpdateView(EqualityBodyRetestWcagAuditUpdateView):
         return super().form_valid(form)
 
 
-class RetestComplianceUpdateView(NextPlatformPageMixin, UpdateView):
+class RetestComplianceUpdateView(EqualityBodyRetestWcagAuditUpdateView):
     """
     View to update a equality body retest compliance
     """
 
-    model: type[Retest] = Retest
     form_class: type[RetestComplianceUpdateForm] = RetestComplianceUpdateForm
     template_name: str = "audits/forms/equality_body_retest_compliance_update.html"
-    context_object_name: str = "retest"
-
-    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
-        """Add record event on change"""
-        if form.changed_data:
-            self.object: Retest = form.save(commit=False)
-            record_simplified_model_update_event(
-                user=self.request.user,
-                model_object=self.object,
-                simplified_case=self.object.simplified_case,
-            )
-        return super().form_valid(form)
 
 
 class RetestAddStatementPageUpdateView(AddStatementLinkUpdateView):

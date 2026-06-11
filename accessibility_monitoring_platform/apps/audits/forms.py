@@ -1041,19 +1041,19 @@ class RetestComplianceUpdateForm(forms.ModelForm):
     Form for updating equality body retest compliance
     """
 
-    retest_compliance_state = AMPChoiceRadioField(
+    compliance_state = AMPChoiceRadioField(
         label="Website compliance decision",
         choices=Retest.Compliance.choices,
     )
     compliance_notes = AMPTextField(label="Notes")
-    compliance_complete_date = AMPDatePageCompleteField()
+    compliance_decision_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Retest
+        model = WcagAudit
         fields: list[str] = [
-            "retest_compliance_state",
+            "compliance_state",
             "compliance_notes",
-            "compliance_complete_date",
+            "compliance_decision_complete_date",
         ]
 
 

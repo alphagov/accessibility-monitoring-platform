@@ -1602,10 +1602,10 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                                 complete_flag_name="comparison_complete_date",
                                 next_page_url_name="audits:retest-compliance-update",
                             ),
-                            EqualityBodyRetestWcagPlatformPage(
+                            WcagAuditPlatformPage(
                                 name="Compliance decision",
                                 url_name="audits:retest-compliance-update",
-                                complete_flag_name="compliance_complete_date",
+                                complete_flag_name="compliance_decision_complete_date",
                                 next_page_url_name="audits:edit-equality-body-statement-pages",
                             ),
                             EqualityBodyRetestStatementLinksPlatformPage(

@@ -2,13 +2,13 @@
 
 {% load l10n %}
 
-{% block title %}{{ retest }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
+{% block title %}{{ wcag_audit.ui_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include 'cases/helpers/case_banner.html' with case=retest.simplified_case %}
+            {% include 'cases/helpers/case_banner.html' %}
         </div>
     </div>
     {% include 'audits/helpers/retest_breadcrumbs.html' %}
@@ -26,7 +26,7 @@
                 {% include 'common/error_summary.html' %}
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-full">
-                        <form method="post" action="{% url 'audits:retest-compliance-update' retest.id %}">
+                        <form method="post" action="{% url 'audits:retest-compliance-update' wcag_audit.id %}">
                             {% csrf_token %}
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">
@@ -48,7 +48,7 @@
                                         data-module="govuk-button"
                                     />
                                     <a
-                                        href="{% url 'simplified:edit-retest-overview' retest.simplified_case.id %}"
+                                        href="{% url 'simplified:edit-retest-overview' case.id %}"
                                         class="govuk-link govuk-link--no-visited-state"
                                     >
                                         Cancel and return to retest overview
