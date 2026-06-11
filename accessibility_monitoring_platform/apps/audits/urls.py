@@ -414,7 +414,7 @@ urlpatterns: list[URLPattern] = [
         name="edit-equality-body-statement-pages",
     ),
     path(
-        "retests/<int:retest_id>/links/<int:pk>/edit-equality-body-retest-remove-statement-page/",
+        "retests/<int:statement_audit_id>/links/<int:pk>/edit-equality-body-retest-remove-statement-page/",
         login_required(RetestDeleteStatementPageUpdateView.as_view()),
         name="edit-equality-body-remove-statement-page",
     ),

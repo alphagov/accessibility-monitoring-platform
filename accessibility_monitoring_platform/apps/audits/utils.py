@@ -689,3 +689,29 @@ def add_to_check_result_restest_notes_history(
                 retest_state=wcag_check_result_retest.retest_state,
                 notes=wcag_check_result_retest.notes,
             )
+
+
+def build_equality_body_retest_context_data(
+    wcag_audit: WcagAudit | None = None, statement_audit: StatementAudit | None = None
+) -> dict[str, Any]:
+    """Populate context data for equality body retest template rendering"""
+    context: dict[str, Any] = {}
+
+    if wcag_audit is not None:
+        statement_audit: StatementAudit = (
+            wcag_audit.equivalent_equality_body_statement_retest
+        )
+    else:
+        wcag_audit: WcagAudit = statement_audit.equivalent_equality_body_wcag_retest
+
+    audit_overview: AuditOverview = statement_audit.simplified_case.audit_overview
+
+    context["case"] = statement_audit.simplified_case
+    context["wcag_audit_initial"] = audit_overview.wcag_audit_initial
+    context["first_wcag_audit_12_week_retest"] = (
+        audit_overview.first_wcag_audit_12_week_retest
+    )
+    context["statement_audit"] = statement_audit
+    context["wcag_audit"] = wcag_audit
+
+    return context

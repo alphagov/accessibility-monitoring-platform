@@ -1151,13 +1151,13 @@ class RetestAddStatementPageUpdateForm(VersionForm):
     Form for statement pages update at equality body-requested retest
     """
 
-    statement_pages_complete_date = AMPDatePageCompleteField()
+    pages_complete_date = AMPDatePageCompleteField()
 
     class Meta:
         model = Retest
         fields: list[str] = [
             "version",
-            "statement_pages_complete_date",
+            "pages_complete_date",
         ]
 
 

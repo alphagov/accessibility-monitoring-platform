@@ -51,8 +51,6 @@ from ..forms import (
 from ..models import (
     AuditOverview,
     Retest,
-    RetestCheckResult,
-    RetestPage,
     RetestStatementCheckResult,
     StatementAudit,
     StatementCheck,
@@ -63,6 +61,7 @@ from ..models import (
 )
 from ..utils import (
     add_to_check_result_restest_notes_history,
+    build_equality_body_retest_context_data,
     create_checkresults_for_wcag_audit_retest,
     create_statement_audit_and_check_results,
     get_next_platform_page_equality_body,
@@ -131,20 +130,8 @@ class EqualityBodyRetestWcagAuditUpdateView(NextPlatformPageMixin, UpdateView):
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Populate context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-
         wcag_audit: WcagAudit = self.object
-        audit_overview: AuditOverview = wcag_audit.simplified_case.audit_overview
-
-        context["case"] = wcag_audit.simplified_case
-        context["wcag_audit_initial"] = audit_overview.wcag_audit_initial
-        context["first_wcag_audit_12_week_retest"] = (
-            audit_overview.first_wcag_audit_12_week_retest
-        )
-        context["wcag_audit"] = wcag_audit
-        context["statement_audit"] = (
-            wcag_audit.equivalent_equality_body_statement_retest
-        )
-
+        context.update(build_equality_body_retest_context_data(wcag_audit=wcag_audit))
         return context
 
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
@@ -320,13 +307,39 @@ class RetestComplianceUpdateView(EqualityBodyRetestWcagAuditUpdateView):
     template_name: str = "audits/forms/equality_body_retest_compliance_update.html"
 
 
-class RetestAddStatementPageUpdateView(AddStatementLinkUpdateView):
+class EqualityBodyRetestStatementAuditUpdateView(NextPlatformPageMixin, UpdateView):
+
+    model: type[StatementAudit] = StatementAudit
+    context_object_name: str = "wcag_audit"
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Populate context data for template rendering"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        statement_audit: StatementAudit = self.object
+        context.update(
+            build_equality_body_retest_context_data(statement_audit=statement_audit)
+        )
+        return context
+
+    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
+        """Add record event on change"""
+        if form.changed_data:
+            self.object: StatementAudit = form.save(commit=False)
+            record_simplified_model_update_event(
+                user=self.request.user,
+                model_object=self.object,
+                simplified_case=self.object.simplified_case,
+            )
+        return super().form_valid(form)
+
+
+class RetestAddStatementPageUpdateView(
+    EqualityBodyRetestStatementAuditUpdateView, AddStatementLinkUpdateView
+):
     """
     View to add statement link in equality body-requested retest
     """
 
-    model: type[Retest] = Retest
-    context_object_name: str = "retest"
     form_class: type[RetestAddStatementPageUpdateForm] = (
         RetestAddStatementPageUpdateForm
     )
@@ -341,16 +354,22 @@ class RetestDeleteStatementPageUpdateView(DeleteStatementPageUpdateView):
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add retest to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        retest: Retest = get_object_or_404(Retest, id=self.kwargs.get("retest_id"))
-        context["retest"] = retest
+        statement_audit: StatementAudit = get_object_or_404(
+            StatementAudit, id=self.kwargs.get("statement_audit_id")
+        )
+        context.update(
+            build_equality_body_retest_context_data(statement_audit=statement_audit)
+        )
         return context
 
     def get_success_url(self) -> str:
         """Return to the list of statement links"""
-        retest: Retest = get_object_or_404(Retest, id=self.kwargs.get("retest_id"))
+        statement_audit: StatementAudit = get_object_or_404(
+            StatementAudit, id=self.kwargs.get("statement_audit_id")
+        )
         return reverse(
             "audits:edit-equality-body-statement-pages",
-            kwargs={"pk": retest.id},
+            kwargs={"pk": statement_audit.id},
         )
 
 

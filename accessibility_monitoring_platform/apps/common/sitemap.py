@@ -496,11 +496,7 @@ class WcagAuditTwelveWeekPlatformPage(WcagAuditPlatformPage):
         super().populate_from_case(case=case)
 
 
-class InitialStatementAuditPlatformPage(PlatformPage):
-    audit_round_type: StatementAudit.AuditRoundType = (
-        StatementAudit.AuditRoundType.INITIAL
-    )
-
+class StatementAuditPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.instance_class: type[StatementAudit] = StatementAudit
@@ -510,6 +506,12 @@ class InitialStatementAuditPlatformPage(PlatformPage):
     def get_case(self) -> SimplifiedCase | None:
         if self.instance is not None:
             return self.instance.simplified_case
+
+
+class InitialStatementAuditPlatformPage(StatementAuditPlatformPage):
+    audit_round_type: StatementAudit.AuditRoundType = (
+        StatementAudit.AuditRoundType.INITIAL
+    )
 
     def set_instance(self, instance: models.Model | None):
         if isinstance(instance, SimplifiedCase):
@@ -650,6 +652,25 @@ class TwelveWeekAuditStatementLinksPlatformPage(InitialAuditStatementLinksPlatfo
     audit_round_type: StatementAudit.AuditRoundType = (
         StatementAudit.AuditRoundType.TWELVE_WEEK
     )
+
+
+class EqualityBodyAuditStatementLinksPlatformPage(
+    InitialAuditStatementLinksPlatformPage
+):
+    audit_round_type: StatementAudit.AuditRoundType = (
+        StatementAudit.AuditRoundType.EQUALITY_BODY
+    )
+
+    def set_instance(self, instance: models.Model | None):
+        if isinstance(instance, StatementAudit):
+            self.instance = instance
+        elif (
+            isinstance(instance, WcagAudit)
+            and instance.audit_round_type == WcagAudit.AuditRoundType.EQUALITY_BODY
+        ):
+            self.instance = instance.equivalent_equality_body_statement_retest
+        else:
+            super().set_instance(instance=instance)
 
 
 class ReportPlatformPage(PlatformPage):
@@ -1608,10 +1629,10 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                                 complete_flag_name="compliance_decision_complete_date",
                                 next_page_url_name="audits:edit-equality-body-statement-pages",
                             ),
-                            EqualityBodyRetestStatementLinksPlatformPage(
+                            EqualityBodyAuditStatementLinksPlatformPage(
                                 name="Statement links",
                                 url_name="audits:edit-equality-body-statement-pages",
-                                complete_flag_name="statement_pages_complete_date",
+                                complete_flag_name="pages_complete_date",
                                 next_page_url_name="audits:edit-equality-body-statement-backup",
                                 subpages=[
                                     PlatformPage(
