@@ -57,9 +57,12 @@ from ..models import (
     StatementAudit,
     StatementCheck,
     WcagAudit,
+    WcagCheckResultRetest,
+    WcagPageInitial,
     WcagPageRetest,
 )
 from ..utils import (
+    add_to_check_result_restest_notes_history,
     create_checkresults_for_wcag_audit_retest,
     create_statement_audit_and_check_results,
     get_next_platform_page_equality_body,
@@ -221,19 +224,43 @@ class RetestPageChecksFormView(NextPlatformPageMixin, UpdateView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: dict[str, Any] = self.get_context_data()
-        if "missing_date" in form.changed_data:
-            retest_page: RetestPage = self.object
-            if form.cleaned_data["missing_date"]:
-                retest_page.page.not_found = Boolean.YES
-            else:
-                retest_page.page.not_found = Boolean.NO
-            retest_page.page.save()
+        if form.changed_data:
+            wcag_page_retest: WcagPageRetest = form.save(commit=False)
+            if form.cleaned_data["page_missing_date"]:
+                wcag_page_initial: WcagPageInitial = wcag_page_retest.wcag_page_initial
+                wcag_page_initial.not_found = Boolean.YES
+                record_simplified_model_update_event(
+                    user=self.request.user,
+                    model_object=wcag_page_initial,
+                    simplified_case=wcag_page_initial.wcag_audit.simplified_case,
+                )
+                wcag_page_initial.save()
+            record_simplified_model_update_event(
+                user=self.request.user,
+                model_object=wcag_page_retest,
+                simplified_case=wcag_page_retest.wcag_audit.simplified_case,
+            )
+            wcag_page_retest.save()
 
         retest_check_results_formset: WcagCheckResultRetestFormset = context[
             "retest_check_results_formset"
         ]
         if retest_check_results_formset.is_valid():
-            retest_check_results_formset.save()
+            for form in retest_check_results_formset.forms:
+                if form.changed_data:
+                    wcag_check_result_retest: WcagCheckResultRetest = form.save(
+                        commit=False
+                    )
+                    add_to_check_result_restest_notes_history(
+                        wcag_check_result_retest=wcag_check_result_retest,
+                        user=self.request.user,
+                    )
+                    record_simplified_model_update_event(
+                        user=self.request.user,
+                        model_object=wcag_check_result_retest,
+                        simplified_case=wcag_check_result_retest.wcag_audit.simplified_case,
+                    )
+                    wcag_check_result_retest.save()
         else:
             return super().form_invalid(form)
 

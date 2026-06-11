@@ -192,11 +192,8 @@ class WcagPageRetestCheckResultsUpdateView(NextPlatformPageMixin, UpdateView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         context: dict[str, Any] = self.get_context_data()
-        wcag_page_retest: WcagPageRetest = self.object
         if form.changed_data:
-            wcag_page_retest.complete_date = form.cleaned_data["complete_date"]
-            wcag_page_retest.page_missing_date = form.cleaned_data["page_missing_date"]
-            wcag_page_retest.notes = form.cleaned_data["notes"]
+            wcag_page_retest: WcagPageRetest = form.save(commit=False)
             record_simplified_model_update_event(
                 user=self.request.user,
                 model_object=wcag_page_retest,
@@ -210,13 +207,9 @@ class WcagPageRetestCheckResultsUpdateView(NextPlatformPageMixin, UpdateView):
         if check_results_formset.is_valid():
             for form in check_results_formset.forms:
                 if form.changed_data:
-                    wcag_check_result_retest: WcagCheckResultRetest = (
-                        WcagCheckResultRetest.objects.get(id=form.cleaned_data["id"])
+                    wcag_check_result_retest: WcagCheckResultRetest = form.save(
+                        commit=False
                     )
-                    wcag_check_result_retest.retest_state = form.cleaned_data[
-                        "retest_state"
-                    ]
-                    wcag_check_result_retest.notes = form.cleaned_data["notes"]
                     add_to_check_result_restest_notes_history(
                         wcag_check_result_retest=wcag_check_result_retest,
                         user=self.request.user,
