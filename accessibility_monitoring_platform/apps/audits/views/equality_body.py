@@ -374,12 +374,10 @@ class RetestDeleteStatementPageUpdateView(DeleteStatementPageUpdateView):
 
 
 class RetestStatementBackupUpdateView(
-    NextPlatformPageMixin, StatementBackupMixin, UpdateView
+    StatementBackupMixin, EqualityBodyRetestStatementAuditUpdateView
 ):
     """View to add statement backup in equality body-requested retest"""
 
-    model: type[Retest] = Retest
-    context_object_name: str = "retest"
     form_class: type[RetestStatementBackupUpdateForm] = RetestStatementBackupUpdateForm
     template_name: str = "audits/forms/equality_body_retest_statement_backup.html"
 

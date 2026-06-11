@@ -1164,13 +1164,13 @@ class RetestAddStatementPageUpdateForm(VersionForm):
 class RetestStatementBackupUpdateForm(VersionForm):
     """Form for statement backup at equality body-requested retest"""
 
-    statement_backup_complete_date = AMPDatePageCompleteField()
+    backup_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Retest
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "statement_backup_complete_date",
+            "backup_complete_date",
         ]
 
 

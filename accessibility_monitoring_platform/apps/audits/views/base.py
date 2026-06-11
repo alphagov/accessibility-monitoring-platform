@@ -201,7 +201,7 @@ class AuditUpdateView(NextPlatformPageMixin, UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class WcagAuditUpdateView(AuditUpdateView):
+class WcagAuditUpdateView(NextPlatformPageMixin, UpdateView):
 
     model: type[WcagAudit] = WcagAudit
     context_object_name: str = "wcag_audit"
@@ -231,7 +231,7 @@ class WcagAuditUpdateView(AuditUpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class StatementAuditUpdateView(AuditUpdateView):
+class StatementAuditUpdateView(NextPlatformPageMixin, UpdateView):
 
     model: type[StatementAudit] = StatementAudit
     context_object_name: str = "statement_audit"

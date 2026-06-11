@@ -1644,7 +1644,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                                     )
                                 ],
                             ),
-                            EqualityBodyRetestWcagPlatformPage(
+                            StatementAuditPlatformPage(
                                 name="Statement backups",
                                 url_name="audits:edit-equality-body-statement-backup",
                                 complete_flag_name="statement_backup_complete_date",

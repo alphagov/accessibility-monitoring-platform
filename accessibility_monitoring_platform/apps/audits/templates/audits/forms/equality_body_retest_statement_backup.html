@@ -4,7 +4,7 @@
 <div class="govuk-width-container">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include 'cases/helpers/case_banner.html' with case=retest.simplified_case %}
+            {% include 'cases/helpers/case_banner.html' %}
         </div>
     </div>
     {% include 'audits/helpers/retest_breadcrumbs.html' %}
@@ -21,17 +21,17 @@
             <div class="govuk-grid-column-two-thirds">
             <div class="govuk-grid-row amp-margin-bottom-30">
                 <div class="govuk-grid-column-full">
-                    {% include "audits/helpers/details_google_drive_statement_backups.html" with audit=retest.simplified_case.audit %}
-                    {% include "audits/helpers/details_statement_links_and_backups.html" with audit=retest.simplified_case.audit %}
+                    {% include "audits/helpers/details_google_drive_statement_backups.html" %}
+                    {% include "audits/helpers/details_statement_links_and_backups.html" %}
                 </div>
             </div>
             {% include "common/messages.html" %}
-            <form method="post" action="{% url sitemap.current_platform_page.url_name retest.id %}" enctype="multipart/form-data">
+            <form method="post" action="{% url sitemap.current_platform_page.url_name statement_audit.id %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                 {% include 'common/form_hidden_fields.html' with hidden_fields=statement_backup_form.hidden_fields %}
                 {% include 'common/amp_field.html' with field=statement_backup_form.file_to_upload %}
-                {% include 'common/amp_field.html' with field=form.statement_backup_complete_date %}
+                {% include 'common/amp_field.html' with field=form.backup_complete_date %}
                 {% include 'simplified/helpers/save_continue_cancel.html' %}
             </form>
         </div>
