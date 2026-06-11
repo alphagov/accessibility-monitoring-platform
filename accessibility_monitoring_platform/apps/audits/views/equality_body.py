@@ -240,16 +240,15 @@ class RetestPageChecksFormView(NextPlatformPageMixin, UpdateView):
                 model_object=wcag_page_retest,
                 simplified_case=wcag_page_retest.wcag_audit.simplified_case,
             )
-            wcag_page_retest.save()
 
         retest_check_results_formset: WcagCheckResultRetestFormset = context[
             "retest_check_results_formset"
         ]
         if retest_check_results_formset.is_valid():
-            for form in retest_check_results_formset.forms:
-                if form.changed_data:
-                    wcag_check_result_retest: WcagCheckResultRetest = form.save(
-                        commit=False
+            for retest_check_result_form in retest_check_results_formset.forms:
+                if retest_check_result_form.changed_data:
+                    wcag_check_result_retest: WcagCheckResultRetest = (
+                        retest_check_result_form.save(commit=False)
                     )
                     add_to_check_result_restest_notes_history(
                         wcag_check_result_retest=wcag_check_result_retest,
@@ -267,26 +266,23 @@ class RetestPageChecksFormView(NextPlatformPageMixin, UpdateView):
         return super().form_valid(form)
 
 
-class RetestComparisonUpdateView(NextPlatformPageMixin, UpdateView):
-    """
-    View to update a equality body retest comparison
-    """
+class RetestComparisonUpdateView(EqualityBodyRetestWcagAuditUpdateView):
 
-    model: type[Retest] = Retest
     form_class: type[RetestComparisonUpdateForm] = RetestComparisonUpdateForm
     template_name: str = "audits/forms/equality_body_retest_comparison_update.html"
-    context_object_name: str = "retest"
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Populate context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        retest: Retest = self.object
+        wcag_audit: WcagAudit = self.object
 
         hide_fixed = "hide-fixed" in self.request.GET
         context["hide_fixed"] = hide_fixed
 
-        retest_check_results: QuerySet[RetestCheckResult] = (
-            retest.unfixed_check_results if hide_fixed else retest.check_results
+        retest_check_results: QuerySet[WcagCheckResultRetest] = (
+            wcag_audit.wcag_unfixed_check_result_retests
+            if hide_fixed
+            else wcag_audit.wcag_check_result_retests
         )
 
         view_url_param: str | None = self.request.GET.get("view")
@@ -298,9 +294,7 @@ class RetestComparisonUpdateView(NextPlatformPageMixin, UpdateView):
                 items=retest_check_results, group_by_attr="wcag_definition"
             )
 
-        context["missing_pages"] = RetestPage.objects.filter(retest=retest).exclude(
-            missing_date=None
-        )
+        context["missing_pages"] = wcag_audit.missing_wcag_page_retests
 
         return context
 
@@ -308,6 +302,7 @@ class RetestComparisonUpdateView(NextPlatformPageMixin, UpdateView):
         """Add record event on change"""
         if form.changed_data:
             self.object: Retest = form.save(commit=False)
+
             record_simplified_model_update_event(
                 user=self.request.user,
                 model_object=self.object,

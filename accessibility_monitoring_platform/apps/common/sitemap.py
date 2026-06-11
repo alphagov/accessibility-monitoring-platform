@@ -1583,7 +1583,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                             WcagAuditPlatformPage(
                                 name="Retest metadata",
                                 url_name="audits:retest-metadata-update",
-                                complete_flag_name="complete_date",
+                                complete_flag_name="metadata_complete_date",
                             ),
                             EqualityBodyRetestPagesPlatformPage(
                                 name="Pages",
@@ -1596,7 +1596,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                                     )
                                 ],
                             ),
-                            EqualityBodyRetestWcagPlatformPage(
+                            WcagAuditPlatformPage(
                                 name="Comparison",
                                 url_name="audits:retest-comparison-update",
                                 complete_flag_name="comparison_complete_date",

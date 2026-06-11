@@ -625,6 +625,12 @@ class AuditOverview(models.Model):
         ).first()
 
     @property
+    def first_wcag_audit_equality_body_retest(self) -> WcagAudit | None:
+        return self.wcag_audits.filter(
+            audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY
+        ).first()
+
+    @property
     def website_compliance_display(self) -> str:
         if (
             self.first_wcag_audit_12_week_retest is not None
@@ -742,6 +748,10 @@ class AuditRound(VersionModel):
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:
+        return f"{self.simplified_case} {self.get_audit_round_type_display()}{self.round_suffix} ({amp_format_date(self.date_of_test)})"
+
+    @property
+    def round_suffix(self) -> str:
         if (
             self.audit_round_type == WcagAudit.AuditRoundType.INITIAL
             or self.audit_round_type == WcagAudit.AuditRoundType.TWELVE_WEEK
@@ -750,7 +760,13 @@ class AuditRound(VersionModel):
         else:
             round_number: int = self.round_number - 1
             round_suffix: str = f" #{round_number}"
-        return f"{self.get_audit_round_type_display()}{round_suffix} ({amp_format_date(self.date_of_test)})"
+        return round_suffix
+
+    def ui_name(self) -> str:
+        return f"{self.get_audit_round_type_display()}{self.round_suffix}"
+
+    def ui_name_with_date_of_test(self) -> str:
+        return f"{self.get_audit_round_type_display()}{self.round_suffix} ({amp_format_date(self.date_of_test)})"
 
 
 class WcagAudit(AuditRound):
@@ -813,7 +829,14 @@ class WcagAudit(AuditRound):
 
     @property
     def previous_equality_body_retest(self) -> WcagAudit | None:
-        """Return previous equality body retest"""
+        """Return previous equality body or 12-week retest"""
+        if self.audit_round_type != WcagAudit.AuditRoundType.EQUALITY_BODY:
+            return None
+        if (
+            self
+            == self.simplified_case.audit_overview.first_wcag_audit_equality_body_retest
+        ):
+            return self.simplified_case.audit_overview.first_wcag_audit_12_week_retest
         return WcagAudit.objects.filter(
             simplified_case=self.simplified_case,
             audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
@@ -982,7 +1005,7 @@ class WcagAudit(AuditRound):
         )
 
     @property
-    def missing_wcag_page_retests(self):
+    def missing_wcag_page_retests(self) -> QuerySet[WcagPageRetest]:
         return self.wcagpageretest_set.filter(is_deleted=False).exclude(
             page_missing_date=None
         )
@@ -1742,6 +1765,22 @@ class WcagCheckResultRetest(models.Model):
         return WcagCheckResultRetest.objects.filter(
             wcag_check_result_initial=self.wcag_check_result_initial
         ).exclude(wcag_page_retest=self.wcag_page_retest)
+
+    @property
+    def previous_wcag_check_result_retest(self) -> WcagCheckResultRetest | None:
+        """Other check results for matching WcagDefinition"""
+        if (
+            self.wcag_audit
+            == self.wcag_audit.simplified_case.audit_overview.first_wcag_audit_equality_body_retest
+        ):
+            return WcagCheckResultRetest.objects.filter(
+                wcag_check_result_initial=self.wcag_check_result_initial,
+                wcag_audit=self.wcag_audit.simplified_case.audit_overview.first_wcag_audit_12_week_retest,
+            ).first()
+        return WcagCheckResultRetest.objects.filter(
+            wcag_check_result_initial=self.wcag_check_result_initial,
+            wcag_audit=self.wcag_audit.previous_equality_body_retest,
+        ).first()
 
 
 class CheckResultNotesHistory(models.Model):

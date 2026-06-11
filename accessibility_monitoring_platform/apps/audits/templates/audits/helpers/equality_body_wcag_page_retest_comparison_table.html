@@ -1,0 +1,25 @@
+<tbody class="govuk-table__body">
+    <tr class="govuk-table__row">
+        <th scope="row" class="govuk-table__header amp-width-one-third">WCAG Issue</th>
+        <th scope="row" class="govuk-table__header amp-width-one-third">{{ wcag_audit.previous_equality_body_retest.ui_name }}</th>
+        <th scope="row" class="govuk-table__header amp-width-one-third">{{ wcag_audit.ui_name }}</th>
+    </tr>
+    {% for wcag_check_result_retest in wcag_check_result_retests %}
+        <tr class="govuk-table__row">
+            <td class="govuk-table__cell amp-width-one-third">
+                <label class="govuk-label">{{ wcag_check_result_retest.wcag_definition }}</label>
+                <div class="govuk-hint">
+                    {% include 'audits/helpers/issue_identifier.html' with issue=wcag_check_result_retest.wcag_check_result_initial %}
+                </div>
+            </td>
+            <td class="govuk-table__cell amp-width-one-third">
+                <label class="govuk-label">{{ wcag_check_result_retest.previous_wcag_check_result_retest.get_retest_state_display }}</label>
+                <div class="govuk-hint">{{ wcag_check_result_retest.previous_wcag_check_result_retest.notes|markdown_to_html }}</div>
+            </td>
+            <td class="govuk-table__cell amp-width-one-third">
+                <label class="govuk-label">{{ wcag_check_result_retest.get_retest_state_display }}</label>
+                <div class="govuk-hint">{{ wcag_check_result_retest.notes|markdown_to_html }}</div>
+            </td>
+        </tr>
+    {% endfor %}
+</tbody>

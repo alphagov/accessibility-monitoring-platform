@@ -205,10 +205,10 @@ class WcagPageRetestCheckResultsUpdateView(NextPlatformPageMixin, UpdateView):
             "check_results_formset"
         ]
         if check_results_formset.is_valid():
-            for form in check_results_formset.forms:
-                if form.changed_data:
-                    wcag_check_result_retest: WcagCheckResultRetest = form.save(
-                        commit=False
+            for check_result_form in check_results_formset.forms:
+                if check_result_form.changed_data:
+                    wcag_check_result_retest: WcagCheckResultRetest = (
+                        check_result_form.save(commit=False)
                     )
                     add_to_check_result_restest_notes_history(
                         wcag_check_result_retest=wcag_check_result_retest,
