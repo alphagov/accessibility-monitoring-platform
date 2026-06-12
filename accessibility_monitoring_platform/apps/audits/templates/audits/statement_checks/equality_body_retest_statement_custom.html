@@ -40,7 +40,7 @@
                                             </label>
                                         {% endif %}
                                         {% include 'common/form_hidden_fields.html' with hidden_fields=statement_check_result_form.hidden_fields %}
-                                        {% include 'common/amp_field.html' with field=statement_check_result_form.comment %}
+                                        {% include 'common/amp_field.html' with field=statement_check_result_form.public_comment %}
                                     </div>
                                 </div>
                                 {% if statement_check_result_form.instance.id %}

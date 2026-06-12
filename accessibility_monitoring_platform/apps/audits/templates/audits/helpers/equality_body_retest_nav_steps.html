@@ -35,9 +35,9 @@
                 </ul>
             </li>
         {% endif %}
-        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-results' key_id=statement_audit.id name='Statement results' complete=statement_audit.statement_results_complete_date %}
+        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-results' key_id=statement_audit.id name='Statement results' complete=statement_audit.summary_complete_date %}
         {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-disproportionate-burden' key_id=statement_audit.id name='Disproportionate burden claim' complete=statement_audit.disproportionate_burden_complete_date %}
-        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-decision' key_id=statement_audit.id name='Statement decision' complete=statement_audit.statement_decision_complete_date %}
+        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-decision' key_id=statement_audit.id name='Statement decision' complete=statement_audit.compliance_complete_date %}
     </ul>
     {% include 'common/tools_and_frequently_used_links.html' with in_testing_ui='true' %}
 </nav>

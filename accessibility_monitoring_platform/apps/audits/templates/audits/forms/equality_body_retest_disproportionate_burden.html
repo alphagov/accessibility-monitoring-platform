@@ -6,7 +6,7 @@
 <div class="govuk-width-container">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include 'cases/helpers/case_banner.html' with case=retest.simplified_case %}
+            {% include 'cases/helpers/case_banner.html' %}
         </div>
     </div>
     {% include 'audits/helpers/retest_breadcrumbs.html' %}
@@ -21,8 +21,8 @@
                 {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:edit-equality-body-disproportionate-burden' %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                {% include 'audits/helpers/details_statement_links_and_backups.html' with audit=retest.simplified_case.audit %}
-                <form method="post" action="{% url 'audits:edit-equality-body-disproportionate-burden' retest.id %}">
+                {% include 'audits/helpers/details_statement_links_and_backups.html' %}
+                <form method="post" action="{% url 'audits:edit-equality-body-disproportionate-burden' statement_audit.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">

@@ -1323,29 +1323,33 @@ class RetestStatementCustomUpdateForm(VersionForm):
         ]
 
 
-class RetestStatementCustomCheckResultForm(forms.ModelForm):
+class EqualityBodyRetestCustomStatementCheckResultForm(forms.ModelForm):
     """
     Form for updating a single statement check retest
     """
 
-    comment = AMPTextField(label="Retest comments")
+    public_comment = AMPTextField(label="Retest comments")
 
     class Meta:
-        model = RetestStatementCheckResult
+        model = StatementCheckResultRound
         fields = [
-            "comment",
+            "public_comment",
         ]
 
 
-RetestStatementCustomCheckResultFormset: forms.formsets.BaseFormSet = (
+EqualityBodyRetestCustomStatementCheckResultFormset: forms.formsets.BaseFormSet = (
     forms.modelformset_factory(
-        RetestStatementCheckResult, RetestStatementCustomCheckResultForm, extra=0
+        StatementCheckResultRound,
+        EqualityBodyRetestCustomStatementCheckResultForm,
+        extra=0,
     )
 )
-RetestStatementCustomCheckResultFormsetOneExtra: forms.formsets.BaseFormSet = (
-    forms.modelformset_factory(
-        RetestStatementCheckResult, RetestStatementCustomCheckResultForm, extra=1
-    )
+EqualityBodyRetestCustomStatementCheckResultFormsetOneExtra: (
+    forms.formsets.BaseFormSet
+) = forms.modelformset_factory(
+    StatementCheckResultRound,
+    EqualityBodyRetestCustomStatementCheckResultForm,
+    extra=1,
 )
 
 
@@ -1354,13 +1358,13 @@ class RetestStatementResultsUpdateForm(VersionForm):
     Form for completion of page showing results of statement content checks
     """
 
-    statement_results_complete_date = AMPDatePageCompleteField()
+    summary_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Retest
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "statement_results_complete_date",
+            "summary_complete_date",
         ]
 
 
@@ -1379,7 +1383,7 @@ class RetestDisproportionateBurdenUpdateForm(VersionForm):
     disproportionate_burden_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Retest
+        model = StatementAudit
         fields: list[str] = [
             "version",
             "disproportionate_burden_claim",
@@ -1393,18 +1397,18 @@ class RetestStatementDecisionUpdateForm(VersionForm):
     Form for editing equality body requested retest statement compliance decision completion
     """
 
-    statement_compliance_state = AMPChoiceRadioField(
+    compliance_state = AMPChoiceRadioField(
         label="Statement compliance decision",
         choices=CaseCompliance.StatementCompliance.choices,
     )
-    statement_compliance_notes = AMPTextField(label="Notes")
-    statement_decision_complete_date = AMPDatePageCompleteField()
+    compliance_notes = AMPTextField(label="Notes")
+    compliance_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Retest
+        model = StatementAudit
         fields: list[str] = [
             "version",
-            "statement_compliance_state",
-            "statement_compliance_notes",
-            "statement_decision_complete_date",
+            "compliance_state",
+            "compliance_notes",
+            "compliance_complete_date",
         ]
