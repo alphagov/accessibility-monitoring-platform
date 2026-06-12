@@ -1174,7 +1174,7 @@ class RetestStatementBackupUpdateForm(VersionForm):
         ]
 
 
-class RetestStatementCheckResultForm(forms.ModelForm):
+class EqualityBodyRetestStatementCheckResultRoundForm(forms.ModelForm):
     """
     Form for updating a single statement check retest
     """
@@ -1184,24 +1184,26 @@ class RetestStatementCheckResultForm(forms.ModelForm):
         choices=RetestStatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
-    comment = AMPTextField(label="Comments for equality body email")
+    public_comment = AMPTextField(label="Comments for equality body email")
 
     class Meta:
-        model = RetestStatementCheckResult
+        model = StatementCheckResultRound
         fields = [
             "check_result_state",
-            "comment",
+            "public_comment",
         ]
 
 
-RetestStatementCheckResultFormset: forms.formsets.BaseFormSet = (
+EqualityBodyRetestStatementCheckResultRoundFormset: forms.formsets.BaseFormSet = (
     forms.modelformset_factory(
-        RetestStatementCheckResult, RetestStatementCheckResultForm, extra=0
+        StatementCheckResultRound,
+        EqualityBodyRetestStatementCheckResultRoundForm,
+        extra=0,
     )
 )
 
 
-class RetestStatementOverviewUpdateForm(VersionForm):
+class EqualityBodyRetestStatementOverviewUpdateForm(VersionForm):
     """
     Form for editing retest statement overview
     """
@@ -1209,7 +1211,7 @@ class RetestStatementOverviewUpdateForm(VersionForm):
     statement_overview_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Retest
+        model = StatementAudit
         fields: list[str] = [
             "version",
             "statement_overview_complete_date",
@@ -1224,7 +1226,7 @@ class RetestStatementWebsiteUpdateForm(VersionForm):
     statement_website_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Retest
+        model = StatementAudit
         fields: list[str] = [
             "version",
             "statement_website_complete_date",
@@ -1239,7 +1241,7 @@ class RetestStatementComplianceUpdateForm(VersionForm):
     statement_compliance_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Retest
+        model = StatementAudit
         fields: list[str] = [
             "version",
             "statement_compliance_complete_date",
@@ -1254,7 +1256,7 @@ class RetestStatementNonAccessibleUpdateForm(VersionForm):
     statement_non_accessible_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Retest
+        model = StatementAudit
         fields: list[str] = [
             "version",
             "statement_non_accessible_complete_date",
@@ -1269,7 +1271,7 @@ class RetestStatementPreparationUpdateForm(VersionForm):
     statement_preparation_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Retest
+        model = StatementAudit
         fields: list[str] = [
             "version",
             "statement_preparation_complete_date",
@@ -1284,7 +1286,7 @@ class RetestStatementFeedbackUpdateForm(VersionForm):
     statement_feedback_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Retest
+        model = StatementAudit
         fields: list[str] = [
             "version",
             "statement_feedback_complete_date",
@@ -1299,7 +1301,7 @@ class RetestStatementDisproportionateUpdateForm(VersionForm):
     statement_disproportionate_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Retest
+        model = StatementAudit
         fields: list[str] = [
             "version",
             "statement_disproportionate_complete_date",
@@ -1314,7 +1316,7 @@ class RetestStatementCustomUpdateForm(VersionForm):
     statement_custom_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Retest
+        model = StatementAudit
         fields: list[str] = [
             "version",
             "statement_custom_complete_date",

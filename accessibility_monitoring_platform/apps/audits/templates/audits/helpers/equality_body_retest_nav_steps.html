@@ -20,24 +20,24 @@
                 </ul>
             </li>
         {% endif %}
-        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-backup' key_id=statement_audit.id name='Statement backups' complete=retest.statement_backup_complete_date %}
-        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-overview' key_id=statement_audit.id name='Statement overview' complete=retest.statement_overview_complete_date %}
-        {% if retest.all_overview_statement_checks_have_passed %}
+        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-backup' key_id=statement_audit.id name='Statement backups' complete=statement_audit.backup_complete_date %}
+        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-overview' key_id=statement_audit.id name='Statement overview' complete=statement_audit.statement_overview_complete_date %}
+        {% if statement_audit.all_overview_statement_checks_have_passed %}
             <li>
                 <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
-                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-website' key_id=statement_audit.id name='Statement information' complete=retest.statement_website_complete_date %}
-                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-compliance' key_id=statement_audit.id name='Compliance status' complete=retest.statement_compliance_complete_date %}
-                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-non-accessible' key_id=statement_audit.id name='Non-accessible content' complete=retest.statement_non_accessible_complete_date %}
-                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-preparation' key_id=statement_audit.id name='Statement preparation' complete=retest.statement_preparation_complete_date %}
-                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-feedback' key_id=statement_audit.id name='Feedback and enforcement procedure' complete=retest.statement_feedback_complete_date %}
-                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-disproportionate' key_id=statement_audit.id name='Disproportionate burden claim' complete=retest.statement_disproportionate_complete_date %}
-                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-custom' key_id=statement_audit.id name='Custom statement issues' complete=retest.statement_custom_complete_date %}
+                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-website' key_id=statement_audit.id name='Statement information' complete=statement_audit.statement_website_complete_date %}
+                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-compliance' key_id=statement_audit.id name='Compliance status' complete=statement_audit.statement_compliance_complete_date %}
+                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-non-accessible' key_id=statement_audit.id name='Non-accessible content' complete=statement_audit.statement_non_accessible_complete_date %}
+                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-preparation' key_id=statement_audit.id name='Statement preparation' complete=statement_audit.statement_preparation_complete_date %}
+                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-feedback' key_id=statement_audit.id name='Feedback and enforcement procedure' complete=statement_audit.statement_feedback_complete_date %}
+                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-disproportionate' key_id=statement_audit.id name='Disproportionate burden claim' complete=statement_audit.statement_disproportionate_complete_date %}
+                    {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-custom' key_id=statement_audit.id name='Custom statement issues' complete=statement_audit.statement_custom_complete_date %}
                 </ul>
             </li>
         {% endif %}
-        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-results' key_id=statement_audit.id name='Statement results' complete=retest.statement_results_complete_date %}
-        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-disproportionate-burden' key_id=statement_audit.id name='Disproportionate burden claim' complete=retest.disproportionate_burden_complete_date %}
-        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-decision' key_id=statement_audit.id name='Statement decision' complete=retest.statement_decision_complete_date %}
+        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-results' key_id=statement_audit.id name='Statement results' complete=statement_audit.statement_results_complete_date %}
+        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-disproportionate-burden' key_id=statement_audit.id name='Disproportionate burden claim' complete=statement_audit.disproportionate_burden_complete_date %}
+        {% include 'audits/helpers/nav_step.html' with edit_name='audits:edit-equality-body-statement-decision' key_id=statement_audit.id name='Statement decision' complete=statement_audit.statement_decision_complete_date %}
     </ul>
-    {% include 'common/tools_and_frequently_used_links.html' with in_testing_ui='true' case=retest.simplified_case %}
+    {% include 'common/tools_and_frequently_used_links.html' with in_testing_ui='true' %}
 </nav>

@@ -1122,11 +1122,11 @@ class StatementAudit(AuditRound):
         return self.statementcheckresultround_set.exclude(is_deleted=True)
 
     @property
-    def overview_statement_check_results(self):
+    def overview_statement_check_results(self) -> QuerySet[StatementCheckResultRound]:
         return self.statement_check_results.filter(type=StatementCheck.Type.OVERVIEW)
 
     @property
-    def statement_found_check(self):
+    def statement_found_check(self) -> StatementCheckResultRound | None:
         return self.overview_statement_check_results.first()
 
     @property
@@ -1135,98 +1135,120 @@ class StatementAudit(AuditRound):
         return self.overview_statement_check_results.last()
 
     @property
-    def website_statement_check_results(self):
+    def website_statement_check_results(self) -> QuerySet[StatementCheckResultRound]:
         return self.statement_check_results.filter(type=StatementCheck.Type.WEBSITE)
 
     @property
-    def compliance_statement_check_results(self):
+    def compliance_statement_check_results(self) -> QuerySet[StatementCheckResultRound]:
         return self.statement_check_results.filter(type=StatementCheck.Type.COMPLIANCE)
 
     @property
-    def non_accessible_statement_check_results(self):
+    def non_accessible_statement_check_results(
+        self,
+    ) -> QuerySet[StatementCheckResultRound]:
         return self.statement_check_results.filter(
             type=StatementCheck.Type.NON_ACCESSIBLE
         )
 
     @property
-    def preparation_statement_check_results(self):
+    def preparation_statement_check_results(
+        self,
+    ) -> QuerySet[StatementCheckResultRound]:
         return self.statement_check_results.filter(type=StatementCheck.Type.PREPARATION)
 
     @property
-    def feedback_statement_check_results(self):
+    def feedback_statement_check_results(self) -> QuerySet[StatementCheckResultRound]:
         return self.statement_check_results.filter(type=StatementCheck.Type.FEEDBACK)
 
     @property
-    def custom_statement_check_results(self):
+    def custom_statement_check_results(self) -> QuerySet[StatementCheckResultRound]:
         return self.statement_check_results.filter(type=StatementCheck.Type.CUSTOM)
 
     @property
-    def new_12_week_custom_statement_check_results(self):
+    def new_12_week_custom_statement_check_results(
+        self,
+    ) -> QuerySet[StatementCheckResultRound]:
         return self.statement_check_results.filter(type=StatementCheck.Type.TWELVE_WEEK)
 
     @property
-    def failed_statement_check_results(self):
+    def failed_statement_check_results(self) -> QuerySet[StatementCheckResultRound]:
         return self.statement_check_results.filter(
             check_result_state=StatementCheckResult.Result.NO
         )
 
     @property
-    def passed_statement_check_results(self):
+    def passed_statement_check_results(self) -> QuerySet[StatementCheckResultRound]:
         return self.statement_check_results.filter(
             check_result_state=StatementCheckResultRound.Result.YES
         )
 
     @property
-    def fixed_statement_check_results(self):
+    def fixed_statement_check_results(self) -> QuerySet[StatementCheckResultRound]:
         return self.failed_statement_check_results.filter(
             statementcheckresultround__check_result_state=StatementCheckResult.Result.YES
         )
 
     @property
-    def outstanding_statement_check_results(self):
+    def outstanding_statement_check_results(
+        self,
+    ) -> QuerySet[StatementCheckResultRound]:
         return self.statement_check_results.filter(
             Q(check_result_state=StatementCheckResult.Result.NO)
             | Q(check_result_state=StatementCheckResult.Result.NOT_TESTED)
         )
 
     @property
-    def overview_outstanding_statement_check_results(self):
+    def overview_outstanding_statement_check_results(
+        self,
+    ) -> QuerySet[StatementCheckResultRound]:
         return self.outstanding_statement_check_results.filter(
             type=StatementCheck.Type.OVERVIEW
         )
 
     @property
-    def website_outstanding_statement_check_results(self):
+    def website_outstanding_statement_check_results(
+        self,
+    ) -> QuerySet[StatementCheckResultRound]:
         return self.outstanding_statement_check_results.filter(
             type=StatementCheck.Type.WEBSITE
         )
 
     @property
-    def compliance_outstanding_statement_check_results(self):
+    def compliance_outstanding_statement_check_results(
+        self,
+    ) -> QuerySet[StatementCheckResultRound]:
         return self.outstanding_statement_check_results.filter(
             type=StatementCheck.Type.COMPLIANCE
         )
 
     @property
-    def non_accessible_outstanding_statement_check_results(self):
+    def non_accessible_outstanding_statement_check_results(
+        self,
+    ) -> QuerySet[StatementCheckResultRound]:
         return self.outstanding_statement_check_results.filter(
             type=StatementCheck.Type.NON_ACCESSIBLE
         )
 
     @property
-    def preparation_outstanding_statement_check_results(self):
+    def preparation_outstanding_statement_check_results(
+        self,
+    ) -> QuerySet[StatementCheckResultRound]:
         return self.outstanding_statement_check_results.filter(
             type=StatementCheck.Type.PREPARATION
         )
 
     @property
-    def feedback_outstanding_statement_check_results(self):
+    def feedback_outstanding_statement_check_results(
+        self,
+    ) -> QuerySet[StatementCheckResultRound]:
         return self.outstanding_statement_check_results.filter(
             type=StatementCheck.Type.FEEDBACK
         )
 
     @property
-    def disproportionate_outstanding_statement_check_results(self):
+    def disproportionate_outstanding_statement_check_results(
+        self,
+    ) -> QuerySet[StatementCheckResultRound]:
         return self.outstanding_statement_check_results.filter(
             type=StatementCheck.Type.DISPROPORTIONATE
         )
