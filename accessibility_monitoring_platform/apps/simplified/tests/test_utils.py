@@ -19,7 +19,7 @@ from ...audits.models import Audit, AuditOverview, Retest, WcagAudit
 from ...audits.tests.create_test_data import (
     create_initial_statement_audit,
     create_initial_wcag_audit,
-    create_simplified_case_with_full_audit,
+    create_simplified_case_with_initial_and_12_week_audits,
 )
 from ...cases.utils import CaseDetailSection
 from ...common.models import Boolean
@@ -284,7 +284,9 @@ def test_record_model_update_event():
 @pytest.mark.django_db
 def test_download_cases_simplified():
     """Test creation of CSV download of simplified cases"""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     simplified_case.contact_notes = "Contact for CSV export"
     simplified_case.created = datetime(2022, 12, 16, tzinfo=timezone.utc)
     simplified_case.save()
@@ -405,7 +407,9 @@ def test_download_cases_simplified():
 @pytest.mark.django_db
 def test_download_feedback_survey_cases():
     """Test creation of CSV for feedback survey"""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     simplified_case.compliance_email_sent_date = datetime(
         2022, 12, 16, tzinfo=timezone.utc
     )
@@ -521,7 +525,9 @@ def test_get_email_template_context_with_audit():
 @pytest.mark.django_db
 def test_get_email_template_context_with_retest():
     """Test get_email_template_context for Case with equality body retest"""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     retest: Retest = Retest.objects.create(simplified_case=simplified_case)
     email_template_context: dict[str, Any] = get_email_template_context(
         simplified_case=simplified_case

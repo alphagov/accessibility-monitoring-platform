@@ -179,7 +179,7 @@ def test_get_initial_statement_check_result_url_from_issue_identifier():
     """Test expected statement check result url found from issue identifier"""
     statement_audit: StatementAudit = create_initial_statement_audit()
     for statement_check_type in StatementCheck.Type:
-        if statement_check_type == StatementCheck.Type.TWELVE_WEEK:
+        if statement_check_type == StatementCheck.Type.RETEST:
             continue  # Issues added at 12-weeks don't appear in initial results
         statement_check: StatementCheck = StatementCheck.objects.filter(
             type=statement_check_type

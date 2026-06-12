@@ -34,7 +34,6 @@ from ..models import (
     Retest,
     RetestCheckResult,
     RetestPage,
-    RetestStatementCheckResult,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
@@ -56,11 +55,12 @@ from ..utils import (
 from .create_test_data import (
     WCAG_TYPE_AXE_NAME,
     WCAG_TYPE_PDF_NAME,
+    create_equality_body_audits,
     create_initial_statement_audit,
     create_initial_wcag_audit,
-    create_simplified_case_with_full_audit,
-    create_twelve_week_statement_audit,
-    create_twelve_week_wcag_audit,
+    create_retest_statement_audit,
+    create_retest_wcag_audit,
+    create_simplified_case_with_initial_and_12_week_audits,
 )
 
 TODAY = date.today()
@@ -334,7 +334,9 @@ def test_twelve_week_wcag_audit_specific_page_loads(
     path_name, expected_content, admin_client
 ):
     """Test that the twelve-week WCAG audit view page loads"""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     twelve_week_wcag_audit_pk: dict[str, int] = {
         "pk": simplified_case.audit_overview.first_wcag_audit_12_week_retest.id
     }
@@ -362,7 +364,9 @@ def test_twelve_week_statement_audit_specific_page_loads(
     path_name, expected_content, admin_client
 ):
     """Test that the twelve-week statement audit view page loads"""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": simplified_case.audit_overview.first_statement_audit_12_week_retest.id
     }
@@ -413,7 +417,9 @@ def test_twelve_week_audit_statement_check_specific_page_loads(
     path_name, expected_content, admin_client
 ):
     """Test that the audit with statement checks-specific view page loads"""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": simplified_case.audit_overview.first_statement_audit_12_week_retest.id
     }
@@ -587,7 +593,9 @@ def test_twelve_week_wcag_audit_edit_redirects_based_on_button_pressed(
     Test that a successful twelve week WCAG audit update redirects based on the
     button pressed
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     twelve_week_wcag_audit: WcagAudit = (
         simplified_case.audit_overview.first_wcag_audit_12_week_retest
     )
@@ -648,7 +656,9 @@ def test_twelve_week_statement_audit_edit_redirects_based_on_button_pressed(
     Test that a successful twelve week statement audit update redirects based on
     the button pressed
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     twelve_week_statement_audit: StatementAudit = (
         simplified_case.audit_overview.first_statement_audit_12_week_retest
     )
@@ -686,7 +696,9 @@ def test_audit_statement_summary_page_redirect_when_report_exists(admin_client):
     Test that audit statement summary page redirects to Report ready for QA
     when a report exists
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     case_pk: dict[str, int] = {"pk": simplified_case.id}
     twelve_week_statement_audit: StatementAudit = (
         simplified_case.audit_overview.first_statement_audit_12_week_retest
@@ -759,7 +771,9 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
     Test that a successful audit statement pages update redirects based
     on the button pressed (with statement checks)
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     twelve_week_statement_audit: StatementAudit = (
         simplified_case.audit_overview.first_statement_audit_12_week_retest
     )
@@ -969,7 +983,9 @@ def test_initial_audit_statement_edit_redirects_based_on_button_pressed(
     Test that a successful initial statement audit statement-content page update
     redirects based on the button pressed
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     initial_statement_audit: StatementAudit = (
         simplified_case.audit_overview.statement_audit_initial
     )
@@ -1125,7 +1141,9 @@ def test_twelve_week_audit_statement_edit_redirects_based_on_button_pressed(
     Test that a successful twelve-week statement audit statement-content page update
     redirects based on the button pressed
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     twelve_week_statement_audit: StatementAudit = (
         simplified_case.audit_overview.first_statement_audit_12_week_retest
     )
@@ -1224,7 +1242,9 @@ def test_audit_edit_statement_overview_updates_case_status(
     Test that a successful audit statement overview update updates case
     status and check results
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     wcag_audit: WcagAudit = simplified_case.audit_overview.wcag_audit_initial
     wcag_audit.compliance_state = WcagAudit.WebsiteCompliance.COMPLIANT
     wcag_audit.save()
@@ -1290,7 +1310,7 @@ def test_audit_retest_statement_overview_updates_when_no_statement_exists(
     """
     Test that audit retest statement overview update updates when no page exists
     """
-    statement_audit: StatementAudit = create_twelve_week_statement_audit()
+    statement_audit: StatementAudit = create_retest_statement_audit()
     statement_audit_pk: dict[str, int] = {"pk": statement_audit.id}
 
     response: HttpResponse = admin_client.post(
@@ -1323,7 +1343,7 @@ def test_audit_retest_statement_overview_no_statement(
     even if there is no statement page.
     """
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
@@ -1353,7 +1373,9 @@ def test_audit_retest_statement_overview_updates_statement_checkresult(
     Test that a successful audit retest statement overview update updates
     check results
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     simplified_case.home_page_url = "https://www.website.com"
     simplified_case.organisation_name = "org name"
     user: User = User.objects.create()
@@ -1422,7 +1444,9 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
     Test that a successful audit retest statement overview update updates
     check results when no initial statement was found
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     simplified_case.home_page_url = "https://www.website.com"
     simplified_case.organisation_name = "org name"
     user: User = User.objects.create()
@@ -1488,7 +1512,7 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
 def test_retest_date_change_creates_case_event(admin_client):
     """Test that changing the retest date creates a case event"""
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     twelve_week_wcag_audit_pk: dict[str, int] = {"pk": twelve_week_wcag_audit.id}
@@ -1521,7 +1545,9 @@ def test_retest_metadata_skips_to_statement_when_no_psb_response(admin_client):
     Test save and continue button causes user to skip to statement pages
     when no response was received from public sector body.
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     simplified_case.no_psb_contact = Boolean.YES
     simplified_case.save()
     twelve_week_wcag_audit: WcagAudit = (
@@ -2102,7 +2128,7 @@ def test_data_filter_string_contains_issue_identifier_on_retest_check_result_pag
             type=wcag_definition.type,
         )
     )
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
@@ -2434,21 +2460,28 @@ def test_delete_custom_retest_statement_check_result_on_retest(admin_client):
     """
     Test that pressing the remove issue button deletes the custom statement issue
     """
-    audit: Audit = create_audit_and_statement_check_results()
-    retest: Retest = Retest.objects.create(simplified_case=audit.simplified_case)
-    custom_retest_statement_check_result: StatementCheckResult = (
-        RetestStatementCheckResult.objects.create(retest=retest)
+    create_equality_body_audits()
+    statement_audit: StatementAudit = StatementAudit.objects.get(
+        audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY
+    )
+    custom_statement_check_result: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.filter(
+            statement_audit=statement_audit, statement_check=None
+        ).first()
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-equality-body-statement-custom", kwargs={"pk": retest.id}),
+        reverse(
+            "audits:edit-equality-body-statement-custom",
+            kwargs={"pk": statement_audit.id},
+        ),
         {
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
             "form-MIN_NUM_FORMS": "0",
             "form-MAX_NUM_FORMS": "1000",
-            "version": audit.version,
-            f"remove_custom_{custom_retest_statement_check_result.id}": "Remove issue",
+            "version": statement_audit.version,
+            f"remove_custom_{custom_statement_check_result.id}": "Remove issue",
         },
         follow=True,
     )
@@ -2456,10 +2489,8 @@ def test_delete_custom_retest_statement_check_result_on_retest(admin_client):
     assert response.status_code == 200
     assertContains(response, "No custom statement issues have been entered")
 
-    result_on_database: RetestStatementCheckResult = (
-        RetestStatementCheckResult.objects.get(
-            id=custom_retest_statement_check_result.id
-        )
+    result_on_database: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.get(id=custom_statement_check_result.id)
     )
 
     assert result_on_database.is_deleted is True
@@ -2511,7 +2542,7 @@ def test_start_retest_creates_case_event(admin_client):
 def test_retest_page_checks_edit_page_loads(admin_client):
     """Test retest page checks edit view page loads and contains errors"""
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    create_twelve_week_wcag_audit(initial_wcag_audit=initial_wcag_audit)
+    create_retest_wcag_audit(initial_wcag_audit=initial_wcag_audit)
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
         wcag_audit=initial_wcag_audit,
         page_type=WcagPageInitial.Type.HOME,
@@ -2565,7 +2596,7 @@ def test_retest_page_checks_edit_page_loads(admin_client):
 def test_retest_page_checks_edit_saves_results(admin_client):
     """Test retest page checks edit view saves the entered results"""
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
@@ -2676,7 +2707,7 @@ def test_retest_page_checks_edit_adds_to_retest_notes_history(admin_client):
     retest notes have changed
     """
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
@@ -2774,7 +2805,7 @@ def test_retest_page_checks_edit_adds_to_retest_notes_history(admin_client):
 def test_retest_page_checks_shows_retest_notes_history(admin_client):
     """Test retest page checks view shows the retest notes history"""
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    create_twelve_week_wcag_audit(initial_wcag_audit=initial_wcag_audit)
+    create_retest_wcag_audit(initial_wcag_audit=initial_wcag_audit)
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
         wcag_audit=initial_wcag_audit,
         page_type=WcagPageInitial.Type.HOME,
@@ -2823,7 +2854,7 @@ def test_retest_page_checks_shows_retest_notes_history(admin_client):
 def test_retest_pages_shows_location(admin_client):
     """Test page location is shown"""
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
@@ -2850,7 +2881,7 @@ def test_retest_pages_shows_location(admin_client):
 def test_retest_statement_custom_no_initial(admin_client):
     """Test that a retest statement custom with no initial failure shows placeholder"""
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
     StatementCheckResultRound.objects.filter(
@@ -2874,7 +2905,7 @@ def test_retest_statement_custom_no_initial(admin_client):
 def test_retest_statement_custom_with_initial(admin_client):
     """Test that a retest statement custom with an initial failure shows it"""
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
 
@@ -3184,7 +3215,9 @@ def test_update_statement_check_works(admin_client):
 )
 def test_summary_page_view(url_name, audit_overview_attr, admin_client):
     """Test that summary page view renders with results grouped by page"""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     wcag_audit: WcagAudit = getattr(simplified_case.audit_overview, audit_overview_attr)
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.all().first()
@@ -3215,7 +3248,9 @@ def test_summary_page_view(url_name, audit_overview_attr, admin_client):
 )
 def test_summary_wcag_view(url_name, audit_overview_attr, admin_client):
     """Test that summary page view renders with results grouped by WCAG issue"""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     wcag_audit: WcagAudit = getattr(simplified_case.audit_overview, audit_overview_attr)
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.all().first()
@@ -3245,7 +3280,9 @@ def test_summary_wcag_view(url_name, audit_overview_attr, admin_client):
 )
 def test_summary_page_view_unfixed(url_name, audit_overview_attr, admin_client):
     """Test that summary page view renders with unfixed results only"""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     wcag_audit: WcagAudit = getattr(simplified_case.audit_overview, audit_overview_attr)
     wcag_check_result_initial_fixed: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.all().first()
@@ -3302,7 +3339,9 @@ def test_summary_page_view_unfixed(url_name, audit_overview_attr, admin_client):
 )
 def test_summary_page_view_show_all(url_name, audit_overview_attr, admin_client):
     """Test that summary page view renders with all results"""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     wcag_audit: WcagAudit = getattr(simplified_case.audit_overview, audit_overview_attr)
     wcag_check_result_initial_fixed: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.all().first()
@@ -3362,7 +3401,9 @@ def test_summary_page_view_show_all(url_name, audit_overview_attr, admin_client)
 )
 def test_test_statement_summary_page_view(url_name, audit_overview_attr, admin_client):
     """Test that statement summary page views contain statement results"""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     statement_audit_initial: StatementAudit = (
         simplified_case.audit_overview.statement_audit_initial
     )
@@ -3414,7 +3455,7 @@ def test_test_statement_summary_page_view(url_name, audit_overview_attr, admin_c
     custom_statement_check_result.save()
     twelve_week_statement_check_result: StatementCheckResultRound = (
         StatementCheckResultRound.objects.get(
-            type=StatementCheck.Type.TWELVE_WEEK,
+            type=StatementCheck.Type.RETEST,
             statement_audit=statement_audit_12_week,
         )
     )
@@ -3451,7 +3492,9 @@ def test_test_statement_summary_page_summary(
     Test that statement summary page shows initial compliance values before 12-week
     values are entered.
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     statement_audit_12_week: StatementAudit = (
         simplified_case.audit_overview.first_statement_audit_12_week_retest
     )
@@ -3487,8 +3530,8 @@ def test_test_statement_summary_page_summary(
 
 def test_create_equality_body_retest_redirects(admin_client):
     """Test that equality body retest create redirects to retest metadata"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(simplified_case=simplified_case)
+    wcag_audit_initial: WcagAudit = create_initial_wcag_audit()
+    simplified_case: SimplifiedCase = wcag_audit_initial.simplified_case
     path_kwargs: dict[str, int] = {"case_id": simplified_case.id}
 
     response: HttpResponse = admin_client.get(
@@ -3497,46 +3540,13 @@ def test_create_equality_body_retest_redirects(admin_client):
 
     assert response.status_code == 302
 
-    retest: Retest = Retest.objects.filter(simplified_case=simplified_case).first()
+    wcag_audit: WcagAudit = WcagAudit.objects.get(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
     assert response.url == reverse(
-        "audits:retest-metadata-update", kwargs={"pk": retest.id}
+        "audits:retest-metadata-update", kwargs={"pk": wcag_audit.id}
     )
-
-
-def test_create_equality_body_retest_creates_retest_0(admin_client):
-    """
-    Test that equality body retest create creates an extra retest (with
-    id_within_case set to zero) the first time only.
-    """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(simplified_case=simplified_case)
-    path_kwargs: dict[str, int] = {"case_id": simplified_case.id}
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:create-equality-body-retest", kwargs=path_kwargs)
-    )
-
-    assert response.status_code == 302
-
-    assert Retest.objects.filter(simplified_case=simplified_case).count() == 2
-
-    retest_1: Retest = Retest.objects.filter(simplified_case=simplified_case).first()
-    retest_0: Retest = Retest.objects.filter(simplified_case=simplified_case).last()
-
-    assert retest_1.id_within_case == 1
-    assert retest_0.id_within_case == 0
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:create-equality-body-retest", kwargs=path_kwargs)
-    )
-
-    assert response.status_code == 302
-
-    assert Retest.objects.filter(simplified_case=simplified_case).count() == 3
-
-    retest_2: Retest = Retest.objects.filter(simplified_case=simplified_case).first()
-
-    assert retest_2.id_within_case == 2
 
 
 def test_delete_retest(admin_client):
@@ -3577,144 +3587,9 @@ def test_delete_retest(admin_client):
             "audits:retest-compliance-update",
         ),
         ("audits:retest-compliance-update", "save", "audits:retest-compliance-update"),
-        (
-            "audits:retest-compliance-update",
-            "save_continue",
-            "audits:edit-equality-body-statement-pages",
-        ),
-        (
-            "audits:edit-equality-body-statement-pages",
-            "save",
-            "audits:edit-equality-body-statement-pages",
-        ),
-        (
-            "audits:edit-equality-body-statement-pages",
-            "save_continue",
-            "audits:edit-equality-body-statement-backup",
-        ),
-        (
-            "audits:edit-equality-body-statement-backup",
-            "save",
-            "audits:edit-equality-body-statement-backup",
-        ),
-        (
-            "audits:edit-equality-body-statement-backup",
-            "save_continue",
-            "audits:edit-equality-body-statement-overview",
-        ),
-        (
-            "audits:edit-equality-body-statement-overview",
-            "save",
-            "audits:edit-equality-body-statement-overview",
-        ),
-        (
-            "audits:edit-equality-body-statement-overview",
-            "save_continue",
-            "audits:edit-equality-body-statement-website",
-        ),
-        (
-            "audits:edit-equality-body-statement-website",
-            "save",
-            "audits:edit-equality-body-statement-website",
-        ),
-        (
-            "audits:edit-equality-body-statement-website",
-            "save_continue",
-            "audits:edit-equality-body-statement-compliance",
-        ),
-        (
-            "audits:edit-equality-body-statement-compliance",
-            "save",
-            "audits:edit-equality-body-statement-compliance",
-        ),
-        (
-            "audits:edit-equality-body-statement-compliance",
-            "save_continue",
-            "audits:edit-equality-body-statement-non-accessible",
-        ),
-        (
-            "audits:edit-equality-body-statement-non-accessible",
-            "save",
-            "audits:edit-equality-body-statement-non-accessible",
-        ),
-        (
-            "audits:edit-equality-body-statement-non-accessible",
-            "save_continue",
-            "audits:edit-equality-body-statement-preparation",
-        ),
-        (
-            "audits:edit-equality-body-statement-preparation",
-            "save",
-            "audits:edit-equality-body-statement-preparation",
-        ),
-        (
-            "audits:edit-equality-body-statement-preparation",
-            "save_continue",
-            "audits:edit-equality-body-statement-feedback",
-        ),
-        (
-            "audits:edit-equality-body-statement-feedback",
-            "save",
-            "audits:edit-equality-body-statement-feedback",
-        ),
-        (
-            "audits:edit-equality-body-statement-feedback",
-            "save_continue",
-            "audits:edit-equality-body-statement-disproportionate",
-        ),
-        (
-            "audits:edit-equality-body-statement-disproportionate",
-            "save",
-            "audits:edit-equality-body-statement-disproportionate",
-        ),
-        (
-            "audits:edit-equality-body-statement-disproportionate",
-            "save_continue",
-            "audits:edit-equality-body-statement-custom",
-        ),
-        (
-            "audits:edit-equality-body-statement-custom",
-            "save",
-            "audits:edit-equality-body-statement-custom",
-        ),
-        (
-            "audits:edit-equality-body-statement-custom",
-            "save_continue",
-            "audits:edit-equality-body-statement-results",
-        ),
-        (
-            "audits:edit-equality-body-statement-results",
-            "save",
-            "audits:edit-equality-body-statement-results",
-        ),
-        (
-            "audits:edit-equality-body-statement-results",
-            "save_continue",
-            "audits:edit-equality-body-disproportionate-burden",
-        ),
-        (
-            "audits:edit-equality-body-disproportionate-burden",
-            "save",
-            "audits:edit-equality-body-disproportionate-burden",
-        ),
-        (
-            "audits:edit-equality-body-disproportionate-burden",
-            "save_continue",
-            "audits:edit-equality-body-statement-decision",
-        ),
-        (
-            "audits:edit-equality-body-statement-decision",
-            "save",
-            "audits:edit-equality-body-statement-decision",
-        ),
-        (
-            "audits:edit-equality-body-statement-decision",
-            "save_continue",
-            "simplified:edit-retest-overview",
-        ),
     ],
 )
-def test_equality_body_retest_edit_redirects_based_on_button_pressed(
+def test_equality_body_wcag_audit_edit_redirects_based_on_button_pressed(
     path_name,
     button_name,
     expected_redirect_path_name,
@@ -3723,13 +3598,13 @@ def test_equality_body_retest_edit_redirects_based_on_button_pressed(
     """
     Test that a successful equality body retest update redirects based on the button pressed
     """
-    retest: Retest = create_equality_body_retest()
-    retest_pk: dict[str, int] = {"pk": retest.id}
+    wcag_audit: WcagAudit = create_equality_body_audits()
+    wcag_audit_pk: dict[str, int] = {"pk": wcag_audit.id}
 
     response: HttpResponse = admin_client.post(
-        reverse(path_name, kwargs=retest_pk),
+        reverse(path_name, kwargs=wcag_audit_pk),
         {
-            "version": retest.version,
+            "version": wcag_audit.version,
             button_name: "Button value",
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
@@ -3740,20 +3615,291 @@ def test_equality_body_retest_edit_redirects_based_on_button_pressed(
 
     assert response.status_code == 302
 
-    expected_path: str = reverse(expected_redirect_path_name, kwargs=retest_pk)
+    expected_path: str = reverse(expected_redirect_path_name, kwargs=wcag_audit_pk)
+    assert response.url == expected_path
+
+
+@pytest.mark.parametrize(
+    "path_name, button_name, expected_redirect_path_name",
+    [
+        (
+            "audits:edit-equality-body-statement-pages",
+            "save",
+            "audits:edit-equality-body-statement-pages",
+        ),
+        (
+            "audits:edit-equality-body-statement-pages",
+            "save_continue",
+            "audits:edit-equality-body-statement-backup",
+        ),
+        (
+            "audits:edit-equality-body-statement-backup",
+            "save",
+            "audits:edit-equality-body-statement-backup",
+        ),
+        (
+            "audits:edit-equality-body-statement-backup",
+            "save_continue",
+            "audits:edit-equality-body-statement-overview",
+        ),
+        (
+            "audits:edit-equality-body-statement-overview",
+            "save",
+            "audits:edit-equality-body-statement-overview",
+        ),
+        (
+            "audits:edit-equality-body-statement-overview",
+            "save_continue",
+            "audits:edit-equality-body-statement-results",
+        ),
+        (
+            "audits:edit-equality-body-statement-website",
+            "save",
+            "audits:edit-equality-body-statement-website",
+        ),
+        (
+            "audits:edit-equality-body-statement-website",
+            "save_continue",
+            "audits:edit-equality-body-statement-compliance",
+        ),
+        (
+            "audits:edit-equality-body-statement-compliance",
+            "save",
+            "audits:edit-equality-body-statement-compliance",
+        ),
+        (
+            "audits:edit-equality-body-statement-compliance",
+            "save_continue",
+            "audits:edit-equality-body-statement-non-accessible",
+        ),
+        (
+            "audits:edit-equality-body-statement-non-accessible",
+            "save",
+            "audits:edit-equality-body-statement-non-accessible",
+        ),
+        (
+            "audits:edit-equality-body-statement-non-accessible",
+            "save_continue",
+            "audits:edit-equality-body-statement-preparation",
+        ),
+        (
+            "audits:edit-equality-body-statement-preparation",
+            "save",
+            "audits:edit-equality-body-statement-preparation",
+        ),
+        (
+            "audits:edit-equality-body-statement-preparation",
+            "save_continue",
+            "audits:edit-equality-body-statement-feedback",
+        ),
+        (
+            "audits:edit-equality-body-statement-feedback",
+            "save",
+            "audits:edit-equality-body-statement-feedback",
+        ),
+        (
+            "audits:edit-equality-body-statement-feedback",
+            "save_continue",
+            "audits:edit-equality-body-statement-disproportionate",
+        ),
+        (
+            "audits:edit-equality-body-statement-disproportionate",
+            "save",
+            "audits:edit-equality-body-statement-disproportionate",
+        ),
+        (
+            "audits:edit-equality-body-statement-disproportionate",
+            "save_continue",
+            "audits:edit-equality-body-statement-custom",
+        ),
+        (
+            "audits:edit-equality-body-statement-custom",
+            "save",
+            "audits:edit-equality-body-statement-custom",
+        ),
+        (
+            "audits:edit-equality-body-statement-custom",
+            "save_continue",
+            "audits:edit-equality-body-statement-results",
+        ),
+        (
+            "audits:edit-equality-body-statement-results",
+            "save",
+            "audits:edit-equality-body-statement-results",
+        ),
+        (
+            "audits:edit-equality-body-statement-results",
+            "save_continue",
+            "audits:edit-equality-body-disproportionate-burden",
+        ),
+        (
+            "audits:edit-equality-body-disproportionate-burden",
+            "save",
+            "audits:edit-equality-body-disproportionate-burden",
+        ),
+        (
+            "audits:edit-equality-body-disproportionate-burden",
+            "save_continue",
+            "audits:edit-equality-body-statement-decision",
+        ),
+        (
+            "audits:edit-equality-body-statement-decision",
+            "save",
+            "audits:edit-equality-body-statement-decision",
+        ),
+    ],
+)
+def test_equality_body_statement_audit_edit_redirects_based_on_button_pressed(
+    path_name,
+    button_name,
+    expected_redirect_path_name,
+    admin_client,
+):
+    """
+    Test that a successful equality body retest update redirects based on the button pressed
+    """
+    create_equality_body_audits()
+    statement_audit: StatementAudit = StatementAudit.objects.get(
+        audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY
+    )
+    statement_audit_pk: dict[str, int] = {"pk": statement_audit.id}
+
+    response: HttpResponse = admin_client.post(
+        reverse(path_name, kwargs=statement_audit_pk),
+        {
+            "version": statement_audit.version,
+            button_name: "Button value",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse(expected_redirect_path_name, kwargs=statement_audit_pk)
+    assert response.url == expected_path
+
+
+def test_equality_body_wcag_redirects_to_statement_audit(
+    admin_client,
+):
+    """
+    Test that the last WCAG audit page redirects to the first statement audit page
+    """
+    wcag_audit: WcagAudit = create_equality_body_audits()
+    statement_audit: StatementAudit = StatementAudit.objects.get(
+        audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:retest-compliance-update", kwargs={"pk": wcag_audit.id}),
+        {
+            "version": wcag_audit.version,
+            "save_continue": "Button value",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse(
+        "audits:edit-equality-body-statement-pages", kwargs={"pk": statement_audit.id}
+    )
+    assert response.url == expected_path
+
+
+def test_equality_body_statement_audit_overview_redirects_to_website(
+    admin_client,
+):
+    """
+    Test that a successful equality body retest update to statement overview to
+    statement website when all overview checks have passed
+    """
+    create_equality_body_audits()
+    statement_audit: StatementAudit = StatementAudit.objects.get(
+        audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY
+    )
+    statement_audit_pk: dict[str, int] = {"pk": statement_audit.id}
+    for statement_check_result in statement_audit.overview_statement_check_results:
+        statement_check_result.check_result_state = StatementCheckResultRound.Result.YES
+        statement_check_result.save()
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "audits:edit-equality-body-statement-overview", kwargs=statement_audit_pk
+        ),
+        {
+            "version": statement_audit.version,
+            "save_continue": "Button value",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse(
+        "audits:edit-equality-body-statement-website", kwargs=statement_audit_pk
+    )
+    assert response.url == expected_path
+
+
+def test_equality_body_statement_audit_redirects_to_case(
+    admin_client,
+):
+    """
+    Test that the last statement audit page redirects to the parent case
+    """
+    create_equality_body_audits()
+    statement_audit: StatementAudit = StatementAudit.objects.get(
+        audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "audits:edit-equality-body-statement-decision",
+            kwargs={"pk": statement_audit.id},
+        ),
+        {
+            "version": statement_audit.version,
+            "save_continue": "Button value",
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+        },
+    )
+
+    assert response.status_code == 302
+
+    expected_path: str = reverse(
+        "simplified:edit-retest-overview",
+        kwargs={"pk": statement_audit.simplified_case.id},
+    )
     assert response.url == expected_path
 
 
 def test_equality_body_retest_add_statement_link(admin_client):
     """Test that add statement link views saves URL"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
+    create_equality_body_audits()
+    statement_audit: StatementAudit = StatementAudit.objects.get(
+        audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY
+    )
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-equality-body-statement-pages", kwargs={"pk": retest.id}),
+        reverse(
+            "audits:edit-equality-body-statement-pages",
+            kwargs={"pk": statement_audit.id},
+        ),
         {
-            "version": audit.version,
+            "version": statement_audit.version,
             "statement_url": STATEMENT_PAGE_URL,
             "save": "Save",
         },
@@ -3761,7 +3907,9 @@ def test_equality_body_retest_add_statement_link(admin_client):
 
     assert response.status_code == 302
 
-    statement_page: StatementPage = StatementPage.objects.get(audit=audit)
+    statement_page: StatementPage = StatementPage.objects.get(
+        simplified_case=statement_audit.simplified_case
+    )
 
     assert statement_page.url == STATEMENT_PAGE_URL
 
@@ -3769,9 +3917,11 @@ def test_equality_body_retest_add_statement_link(admin_client):
 @mock_aws
 def test_equality_body_retest_statement_backup(admin_client):
     """Test that equality body retest statement backup saves to s3"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(simplified_case=simplified_case)
-    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
+    create_equality_body_audits()
+    statement_audit: StatementAudit = StatementAudit.objects.get(
+        audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY
+    )
+    simplified_case: SimplifiedCase = statement_audit.simplified_case
 
     in_memory_file: InMemoryUploadedFile = InMemoryUploadedFile(
         io.BytesIO(CASE_FILE_CONTENT.encode()),
@@ -3783,9 +3933,12 @@ def test_equality_body_retest_statement_backup(admin_client):
     )
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-equality-body-statement-backup", kwargs={"pk": retest.id}),
+        reverse(
+            "audits:edit-equality-body-statement-backup",
+            kwargs={"pk": statement_audit.id},
+        ),
         {
-            "version": retest.version,
+            "version": statement_audit.version,
             "file_to_upload": in_memory_file,
             "type": CaseFile.Type.STATEMENT,
             "save": "Save",
@@ -3810,22 +3963,21 @@ def test_equality_body_retest_statement_overview_redirects_when_no(admin_client)
     Test that an equality body retest statement overview redirects to statement
     results when one of the overview questions has been answered 'no'.
     """
-    retest: Retest = create_equality_body_retest()
-    retest_pk: dict[str, int] = {"pk": retest.id}
-    statement_check: StatementCheck = StatementCheck.objects.filter(
-        type=StatementCheck.Type.OVERVIEW
-    ).first()
-    RetestStatementCheckResult.objects.create(
-        retest=retest,
-        statement_check=statement_check,
-        type=StatementCheck.Type.OVERVIEW,
-        check_result_state=RetestStatementCheckResult.Result.NO,
+    create_equality_body_audits()
+    statement_audit: StatementAudit = StatementAudit.objects.get(
+        audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY
     )
+    statement_audit_pk: dict[str, int] = {"pk": statement_audit.id}
+    for statement_check_result in statement_audit.overview_statement_check_results:
+        statement_check_result.check_result_state = StatementCheckResultRound.Result.NO
+        statement_check_result.save()
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-equality-body-statement-overview", kwargs=retest_pk),
+        reverse(
+            "audits:edit-equality-body-statement-overview", kwargs=statement_audit_pk
+        ),
         {
-            "version": retest.version,
+            "version": statement_audit.version,
             "save_continue": "Button value",
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
@@ -3837,7 +3989,7 @@ def test_equality_body_retest_statement_overview_redirects_when_no(admin_client)
     assert response.status_code == 302
 
     assert response.url == reverse(
-        "audits:edit-equality-body-statement-results", kwargs=retest_pk
+        "audits:edit-equality-body-statement-results", kwargs=statement_audit_pk
     )
 
 
@@ -3848,15 +4000,15 @@ def test_equality_body_retest_metadata_update_redirects_to_retest_page_checks(
     Test that a equality body retest metadata update redirects to retest page checks when save
     and continue button is pressed.
     """
-    retest: Retest = create_equality_body_retest()
-    retest_pk: dict[str, int] = {"pk": retest.id}
-    retest_page: RetestPage = retest.retestpage_set.first()
-    retest_page_pk: dict[str, int] = {"pk": retest_page.id}
+    wcag_audit: WcagAudit = create_equality_body_audits()
+    wcag_audit_pk: dict[str, int] = {"pk": wcag_audit.id}
+    wcag_page_retest: WcagPageRetest = wcag_audit.wcag_page_retests.first()
+    wcag_page_retest_pk: dict[str, int] = {"pk": wcag_page_retest.id}
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:retest-metadata-update", kwargs=retest_pk),
+        reverse("audits:retest-metadata-update", kwargs=wcag_audit_pk),
         {
-            "version": retest.version,
+            "version": wcag_audit.version,
             "save_continue": "Button value",
         },
     )
@@ -3864,7 +4016,7 @@ def test_equality_body_retest_metadata_update_redirects_to_retest_page_checks(
     assert response.status_code == 302
 
     expected_path: str = reverse(
-        "audits:edit-retest-page-checks", kwargs=retest_page_pk
+        "audits:edit-retest-page-checks", kwargs=wcag_page_retest_pk
     )
     assert response.url == expected_path
 
@@ -3873,12 +4025,12 @@ def test_equality_body_page_checks_save(
     admin_client,
 ):
     """Test that a equality body retest page checks saves"""
-    retest: Retest = create_equality_body_retest()
-    retest_page: RetestPage = retest.retestpage_set.first()
-    retest_page_pk: dict[str, int] = {"pk": retest_page.id}
+    wcag_audit: WcagAudit = create_equality_body_audits()
+    wcag_page_retest: WcagPageRetest = wcag_audit.wcag_page_retests.first()
+    wcag_page_retest_pk: dict[str, int] = {"pk": wcag_page_retest.id}
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-retest-page-checks", kwargs=retest_page_pk),
+        reverse("audits:edit-retest-page-checks", kwargs=wcag_page_retest_pk),
         {
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
@@ -3891,22 +4043,21 @@ def test_equality_body_page_checks_save(
     assert response.status_code == 302
 
     expected_path: str = reverse(
-        "audits:edit-retest-page-checks", kwargs=retest_page_pk
+        "audits:edit-retest-page-checks", kwargs=wcag_page_retest_pk
     )
     assert response.url == expected_path
 
 
 def test_equality_body_page_location_shown(admin_client):
     """Test that a equality body retest page show the location"""
-    retest: Retest = create_equality_body_retest()
-    retest_page: RetestPage = retest.retestpage_set.first()
-    retest_page_pk: dict[str, int] = {"pk": retest_page.id}
-    page: Page = retest_page.page
-    page.location = PAGE_LOCATION
-    page.save()
+    wcag_audit: WcagAudit = create_equality_body_audits()
+    wcag_page_retest: WcagPageRetest = wcag_audit.wcag_page_retests.first()
+    wcag_page_retest_pk: dict[str, int] = {"pk": wcag_page_retest.id}
+    wcag_page_retest.location = PAGE_LOCATION
+    wcag_page_retest.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("audits:edit-retest-page-checks", kwargs=retest_page_pk),
+        reverse("audits:edit-retest-page-checks", kwargs=wcag_page_retest_pk),
     )
 
     assert response.status_code == 200
@@ -3918,13 +4069,13 @@ def test_equality_body_page_checks_save_continue(
     admin_client,
 ):
     """Test that a equality body retest page checks redirects on save and continue"""
-    retest: Retest = create_equality_body_retest()
-    retest_pk: dict[str, int] = {"pk": retest.id}
-    retest_page: RetestPage = retest.retestpage_set.first()
-    retest_page_pk: dict[str, int] = {"pk": retest_page.id}
+    wcag_audit: WcagAudit = create_equality_body_audits()
+    wcag_audit_pk: dict[str, int] = {"pk": wcag_audit.id}
+    wcag_page_retest: WcagPageRetest = wcag_audit.wcag_page_retests.last()
+    wcag_page_retest_pk: dict[str, int] = {"pk": wcag_page_retest.id}
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-retest-page-checks", kwargs=retest_page_pk),
+        reverse("audits:edit-retest-page-checks", kwargs=wcag_page_retest_pk),
         {
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
@@ -3936,7 +4087,9 @@ def test_equality_body_page_checks_save_continue(
 
     assert response.status_code == 302
 
-    expected_path: str = reverse("audits:retest-comparison-update", kwargs=retest_pk)
+    expected_path: str = reverse(
+        "audits:retest-comparison-update", kwargs=wcag_audit_pk
+    )
     assert response.url == expected_path
 
 
@@ -3947,21 +4100,28 @@ def test_equality_body_retest_statement_compliance_update_redirects_to_retest_ov
     Test that a equality body retest statement compliance update redirects
     to retest overview when save and continue button is pressed.
     """
-    retest: Retest = create_equality_body_retest()
-    retest_pk: dict[str, int] = {"pk": retest.id}
-    case_pk: dict[str, int] = {"pk": retest.simplified_case.id}
+    create_equality_body_audits()
+    statement_audit: StatementAudit = StatementAudit.objects.get(
+        audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY
+    )
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-equality-body-statement-decision", kwargs=retest_pk),
+        reverse(
+            "audits:edit-equality-body-statement-decision",
+            kwargs={"pk": statement_audit.id},
+        ),
         {
-            "version": retest.version,
+            "version": statement_audit.version,
             "save_continue": "Button value",
         },
     )
 
     assert response.status_code == 302
 
-    expected_path: str = reverse("simplified:edit-retest-overview", kwargs=case_pk)
+    expected_path: str = reverse(
+        "simplified:edit-retest-overview",
+        kwargs={"pk": statement_audit.simplified_case.id},
+    )
     assert response.url == expected_path
 
 
@@ -3972,17 +4132,17 @@ def test_equality_body_page_checks_page_missing(
     Test that when equality body retest page is marked as missing the underling
     page is also so marked.
     """
-    retest: Retest = create_equality_body_retest()
-    retest_page: RetestPage = retest.retestpage_set.first()
-    retest_page_pk: dict[str, int] = {"pk": retest_page.id}
+    wcag_audit: WcagAudit = create_equality_body_audits()
+    wcag_page_retest: WcagPageRetest = wcag_audit.wcag_page_retests.last()
+    wcag_page_retest_pk: dict[str, int] = {"pk": wcag_page_retest.id}
 
-    assert retest_page.missing_date is None
-    assert retest_page.page.not_found == "no"
+    assert wcag_page_retest.page_missing_date is None
+    assert wcag_page_retest.wcag_page_initial.not_found == Boolean.NO
 
     response: HttpResponse = admin_client.post(
-        reverse("audits:edit-retest-page-checks", kwargs=retest_page_pk),
+        reverse("audits:edit-retest-page-checks", kwargs=wcag_page_retest_pk),
         {
-            "missing_date": "on",
+            "page_missing_date": "on",
             "form-TOTAL_FORMS": "0",
             "form-INITIAL_FORMS": "0",
             "form-MIN_NUM_FORMS": "0",
@@ -3993,10 +4153,12 @@ def test_equality_body_page_checks_page_missing(
 
     assert response.status_code == 302
 
-    updated_retest_page: RetestPage = RetestPage.objects.get(id=retest_page.id)
+    updated_wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        id=wcag_page_retest.id
+    )
 
-    assert updated_retest_page.missing_date is not None
-    assert updated_retest_page.page.not_found == "yes"
+    assert updated_wcag_page_retest.page_missing_date is not None
+    assert updated_wcag_page_retest.wcag_page_initial.not_found == Boolean.YES
 
 
 def test_retest_comparison_page_groups_by_page_or_wcag(admin_client):
@@ -4165,7 +4327,9 @@ def test_nav_details_subpage_renders(admin_client):
 )
 def test_tall_results_page_has_back_to_top_link(path_name, admin_client):
     """Test that tall pages include a back to top link"""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
         wcag_audit=simplified_case.audit_overview.wcag_audit_initial,
         page_type=WcagPageInitial.Type.HOME,

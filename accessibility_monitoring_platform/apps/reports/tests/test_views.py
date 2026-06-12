@@ -13,7 +13,9 @@ from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import StatementAudit, StatementPage, WcagAudit, WcagPageInitial
-from ...audits.tests.create_test_data import create_simplified_case_with_full_audit
+from ...audits.tests.create_test_data import (
+    create_simplified_case_with_initial_and_12_week_audits,
+)
 from ...common.models import Boolean
 from ...simplified.models import CaseEvent, SimplifiedCase
 from ..models import REPORT_VERSION_DEFAULT, Report, ReportVisitsMetrics
@@ -29,7 +31,9 @@ STATEMENT_CUSTOM_CHECK_COMMENT: str = "Statement custom check result comment"
 
 def test_create_report_uses_latest_template(admin_client):
     """Test that report create uses latest report template"""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     report: Report = Report.objects.create(base_case=simplified_case)
 
     response: HttpResponse = admin_client.get(
@@ -61,7 +65,9 @@ def test_create_report_redirects(admin_client):
 
 def test_create_report_does_not_create_duplicate(admin_client):
     """Test that report create does not create a duplicate report"""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     report: Report = Report.objects.create(base_case=simplified_case)
     path_kwargs: dict[str, int] = {"case_id": report.base_case.id}
 
@@ -100,7 +106,9 @@ def test_report_includes_page_location(admin_client):
     """
     Test that report contains the page location
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     report: Report = Report.objects.create(base_case=simplified_case)
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
         page_type=WcagPageInitial.Type.HOME
@@ -130,7 +138,9 @@ def test_report_includes_page_location(admin_client):
 )
 def test_report_specific_page_loads(path_name, expected_header, admin_client):
     """Test that the report-specific page loads"""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     report: Report = Report.objects.create(base_case=simplified_case)
     report_pk_kwargs: dict[str, int] = {"pk": report.id}
 
@@ -198,7 +208,9 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     """
     Test that the report details page tells user to review report
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     wcag_audit: WcagAudit = simplified_case.audit_overview.wcag_audit_initial
     statement_audit: StatementAudit = (
         simplified_case.audit_overview.statement_audit_initial
@@ -230,7 +242,9 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
 
 
 def test_report_metrics_displays_in_report_logs(admin_client):
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     report: Report = Report.objects.create(base_case=simplified_case)
     report_pk_kwargs: dict[str, int] = {"pk": report.id}
     simplified_case: SimplifiedCase = report.base_case.get_case()
@@ -291,7 +305,9 @@ def test_report_metrics_unique_vists_shows_only_current_report(admin_client):
     Visits to other reports can have the same fingerprint hash, make sure
     that they are not included.
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     report: Report = Report.objects.create(base_case=simplified_case)
     report_pk_kwargs: dict[str, int] = {"pk": report.id}
     simplified_case: SimplifiedCase = report.base_case.get_case()
@@ -334,7 +350,9 @@ def test_report_includes_statement_custom_issue(admin_client):
     """
     Test that report contains the page location
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     statement_audit: StatementAudit = (
         simplified_case.audit_overview.statement_audit_initial
     )
@@ -367,7 +385,9 @@ def test_report_republish_button_show(admin_client):
     """
     Test that report contains the page location
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     report: Report = Report.objects.create(base_case=simplified_case)
     report_pk_kwargs: dict[str, int] = {"pk": report.id}
     simplified_case.report_approved_status = (

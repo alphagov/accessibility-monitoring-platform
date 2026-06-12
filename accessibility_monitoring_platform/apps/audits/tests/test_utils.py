@@ -57,8 +57,8 @@ from .create_test_data import (
     WCAG_TYPE_MANUAL_NAME,
     create_initial_statement_audit,
     create_initial_wcag_audit,
-    create_twelve_week_statement_audit,
-    create_twelve_week_wcag_audit,
+    create_retest_statement_audit,
+    create_retest_wcag_audit,
 )
 
 TODAY: date = date.today()
@@ -453,7 +453,7 @@ def test_get_next_platform_page_twelve_week_wcag_audit_with_pages():
     for each testable page (with errors) in audit in turn.
     """
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     audit_pk: dict[str, int] = {"pk": twelve_week_wcag_audit.id}
@@ -742,7 +742,7 @@ def test_get_other_pages_with_retest_notes():
     Test get_other_pages_with_retest_notes returns only other retest pages with notes
     """
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
@@ -774,11 +774,11 @@ def test_get_audit_summary_context(rf):
     """Test get_audit_summary_context returned"""
     request: HttpRequest = rf.get("/")
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
 
@@ -811,11 +811,11 @@ def test_get_audit_summary_enable_12_week_ui(rf):
     """Test enable_12_week_ui set when a 12-week WCAG retest is provided"""
     request: HttpRequest = rf.get("/")
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
 
@@ -847,11 +847,11 @@ def test_get_audit_summary_show_failures_by_page(rf):
     """Test show_failures_by_page set as expected"""
     request: HttpRequest = rf.get("/")
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
 
@@ -885,11 +885,11 @@ def test_get_audit_summary_wcag_check_results_by_page(rf):
     """Test summary_wcag_check_results_by_page set as expected"""
     request: HttpRequest = rf.get("/")
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
 
@@ -951,11 +951,11 @@ def test_get_audit_summary_pages_with_retest_notes(rf):
     """Test pages_with_retest_notes set as expected"""
     request: HttpRequest = rf.get("/")
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
 
@@ -994,11 +994,11 @@ def test_get_audit_summary_wcag_check_results_by_wcag(rf):
     """Test summary_wcag_check_results_by_wcag set as expected"""
     request: HttpRequest = rf.get("/")
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
 
@@ -1059,11 +1059,11 @@ def test_get_audit_summary_unfixed_audit_failures(rf):
     """Test fixed results are not returned when show_all URL paremeter not set"""
     request: HttpRequest = rf.get("/")
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
@@ -1159,11 +1159,11 @@ def test_get_audit_summary_issue_counts(rf):
     request: HttpRequest = rf.get("/")
     request.GET = {"show-all": "true"}
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
@@ -1218,11 +1218,11 @@ def test_get_audit_summary_statement_check_results_by_type(rf):
     request: HttpRequest = rf.get("/")
     request.GET = {"show-all": "true"}
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
 

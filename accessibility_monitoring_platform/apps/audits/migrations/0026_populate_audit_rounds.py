@@ -244,7 +244,7 @@ def populate_audit_rounds(apps, schema_editor):
                     statement_audit=statement_audit_12_week,
                     statement_check_result_initial=statement_check_result_initial,
                     statement_check=statement_check_result.statement_check,
-                    type=statement_check_result.type,
+                    type="retest-custom",
                     issue_identifier=statement_check_result.issue_identifier,
                     check_result_state=statement_check_result.retest_state,
                     public_comment=statement_check_result.retest_comment,
@@ -354,7 +354,7 @@ def populate_audit_rounds(apps, schema_editor):
                         retest_statement_check_result.statement_check
                     ),
                     statement_check=retest_statement_check_result.statement_check,
-                    type=retest_statement_check_result.type,
+                    type="retest-custom",
                     issue_identifier=retest_statement_check_result.issue_identifier,
                     check_result_state=retest_statement_check_result.check_result_state,
                     public_comment=retest_statement_check_result.comment,

@@ -38,8 +38,8 @@ from .create_test_data import (
     WCAG_TYPE_PDF_NAME,
     create_initial_statement_audit,
     create_initial_wcag_audit,
-    create_twelve_week_statement_audit,
-    create_twelve_week_wcag_audit,
+    create_retest_statement_audit,
+    create_retest_wcag_audit,
 )
 
 TODAY: date = date.today()
@@ -284,7 +284,7 @@ def test_audit_retestable_pages_returns_expected_page():
 def test_audit_missing_at_retest_pages():
     """Test missing at retest pages."""
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
 
@@ -307,7 +307,7 @@ def test_audit_missing_at_retest_pages():
 def test_audit_missing_at_retest_check_results():
     """Test missing at retest check results."""
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
 
@@ -511,7 +511,7 @@ def test_check_result_retest_form_initial_returns_id_and_fields_for_retest():
     retest form.
     """
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
@@ -630,7 +630,7 @@ def test_wcag_check_result_initial_updated_updated():
 def test_audit_fixed_check_results():
     """Test that wcag_fixed_check_result_retests returns the expected values"""
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
 
@@ -659,7 +659,7 @@ def test_audit_fixed_check_results():
 def test_audit_wcag_unfixed_check_result_retests():
     """Test that wcag_unfixed_check_result_retests returns the expected values"""
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     for counter, wcag_check_result_initial in enumerate(
@@ -715,7 +715,7 @@ def test_statement_check_result_initial_edit_initial_url_name():
 @pytest.mark.django_db
 def test_statement_check_result_retest_edit_12_week_url_name():
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
     statement_check_result_retest: StatementCheckResultRound = (
@@ -760,7 +760,7 @@ def test_statement_audit_statement_check_results():
     retest statement check results.
     """
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
 
@@ -793,7 +793,7 @@ def test_statement_audit_specific_statement_check_results(type, attr):
     matching statement check results.
     """
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
     statement_check_results_initial: StatementCheckResultRound = (
@@ -976,13 +976,13 @@ def test_statement_audit_outstanding_statement_check_results_includes_new_failur
     contains new custom errors found for the first time on 12-week retest.
     """
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
     twelve_week_statement_check_result_retest: StatementCheckResultRound = (
         StatementCheckResultRound.objects.create(
             statement_audit=twelve_week_statement_audit,
-            type=StatementCheck.Type.TWELVE_WEEK,
+            type=StatementCheck.Type.RETEST,
             public_comment="Custom issue found at 12-weeks",
         )
     )
@@ -1000,7 +1000,7 @@ def test_statement_audit_all_overview_statement_checks_have_passed():
     statement check results have passed on test or retest
     """
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
 
@@ -1056,7 +1056,7 @@ def test_fixed_statement_checks_are_returned():
     retest.
     """
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    create_twelve_week_statement_audit(initial_statement_audit=initial_statement_audit)
+    create_retest_statement_audit(initial_statement_audit=initial_statement_audit)
 
     passed_statement_check_result: StatementCheckResultRound = (
         initial_statement_audit.statement_check_results.first()
@@ -1122,7 +1122,7 @@ def test_retest_str():
 def test_fixed_checks_count_at_12_week():
     """Test fixed checks count at 12-week retest"""
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     retest: Retest = Retest.objects.create(
@@ -1155,10 +1155,10 @@ def test_fixed_checks_count_at_12_week():
 def test_fixed_checks_count_in_equality_body_retests():
     """Test fixed checks count at equality body retest"""
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     retest: Retest = Retest.objects.create(
@@ -1791,7 +1791,7 @@ def test_wcag_check_result_retest_matching_wcag_with_notes_check_results():
     check results on the other pages with the same WCAG definition and retest notes
     """
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
     wcag_definition: WcagDefinition = WcagDefinition.objects.get(
@@ -2237,7 +2237,7 @@ def test_statement_audit_new_12_week_custom_statement_check_results():
     new_12_week_custom_check_result: StatementCheckResultRound = (
         StatementCheckResultRound.objects.create(
             statement_audit=statement_audit,
-            type=StatementCheck.Type.TWELVE_WEEK,
+            type=StatementCheck.Type.RETEST,
             public_comment="12-week custom statement issue",
         )
     )

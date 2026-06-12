@@ -33,7 +33,7 @@ from ...audits.models import (
 from ...audits.tests.create_test_data import (
     create_initial_statement_audit,
     create_initial_wcag_audit,
-    create_simplified_case_with_full_audit,
+    create_simplified_case_with_initial_and_12_week_audits,
 )
 from ...audits.tests.test_models import ERROR_NOTES
 from ...comments.models import Comment
@@ -360,7 +360,9 @@ def test_view_case_includes_tests(admin_client):
     """
     Test that the Case overview displays test and 12-week retest.
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("simplified:case-detail", kwargs={"pk": simplified_case.id}),
@@ -1352,7 +1354,9 @@ def test_platform_case_with_audit_edit_redirects_based_on_button_pressed(
     """
     Test that a successful case with audit update redirects based on the button pressed
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
 
     response: HttpResponse = admin_client.post(
         reverse(case_edit_path, kwargs={"pk": simplified_case.id}),
@@ -1935,7 +1939,9 @@ def test_no_psb_response_redirects_to_start_12_week_retest(admin_client):
 
 def test_no_psb_response_redirects_to_12_week_retest_statement_links(admin_client):
     """Test no PSB response redirects to 12-week retest statement links"""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     simplified_case.no_psb_contact = Boolean.NO
     simplified_case.save()
 
@@ -2401,7 +2407,9 @@ def test_twelve_week_retest_page_shows_if_statement_exists(
     """
     Test that the twelve week retest page shows if statement exists.
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
 
     response: HttpResponse = admin_client.get(
         reverse(
@@ -3188,7 +3196,9 @@ def test_outstanding_issues(admin_client):
     """
     Test out standing issues page renders according to URL parameters.
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     for wcag_check_result in WcagCheckResultInitial.objects.all():
         wcag_check_result.check_result_state = WcagCheckResultInitial.Result.ERROR
         wcag_check_result.save()
@@ -3290,7 +3300,9 @@ def test_frequently_used_links_displayed(url_name, admin_client):
 
 
 def test_twelve_week_email_template_contains_issues(admin_client):
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.all().first()
     )
@@ -3317,7 +3329,9 @@ def test_twelve_week_email_template_contains_no_issues(admin_client):
     """
     Test twelve week email template with no issues contains placeholder text.
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     email_template: EmailTemplate = EmailTemplate.objects.create(
         template_name="4-12-week-update-request"
     )
@@ -3337,7 +3351,9 @@ def test_outstanding_issues_are_unfixed_in_email_template_context(admin_client):
     """
     Test outstanding issues (issues_table) contains only unfixed issues
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.all().first()
     )
@@ -3627,7 +3643,9 @@ def test_updating_equality_body_updates_published_report_data_updated_time(
     Test that updating the equality body updates the published report data updated
     time (so a notification banner to republish the report is shown).
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     simplified_case.home_page_url = "https://example.com"
     simplified_case.save()
     Report.objects.create(base_case=simplified_case)
@@ -3660,7 +3678,9 @@ def test_updating_home_page_url_updates_published_report_data_updated_time(
     Test that updating the home page URL updates the published report data updated
     time (so a notification banner to republish the report is shown).
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     simplified_case.home_page_url = "https://example.com"
     simplified_case.save()
     audit_overview: AuditOverview = simplified_case.audit_overview
@@ -3692,7 +3712,9 @@ def test_updating_organisation_name_updates_published_report_data_updated_time(
     Test that updating the organisation name updates the published report data updated
     time (so a notification banner to republish the report is shown).
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     simplified_case.home_page_url = "https://example.com"
     simplified_case.save()
     audit_overview: AuditOverview = simplified_case.audit_overview
@@ -3875,7 +3897,9 @@ def test_case_close_no_missing_data(admin_client):
 
 def test_case_overview(admin_client):
     """Test case overview."""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
         page_type=WcagPageInitial.Type.STATEMENT
     )
@@ -3985,7 +4009,9 @@ def test_case_email_template_list_view_hides_deleted(admin_client):
 
 def test_case_email_template_preview_view(admin_client):
     """Test case email template list page is rendered"""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     email_template: EmailTemplate = EmailTemplate.objects.create(
         template_name="4-12-week-update-request"
     )
@@ -4182,7 +4208,9 @@ def test_next_page_name_with_audit(path_name, expected_next_page, admin_client):
     """
     Test next page shown for when Save and continue button pressed on Case with Audit
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     Audit.objects.create(simplified_case=simplified_case, retest_date=TODAY)
     url: str = reverse(f"simplified:{path_name}", kwargs={"pk": simplified_case.id})
 
@@ -4197,7 +4225,9 @@ def test_bulk_copy_issue_ids_to_clipboard(admin_client):
     """
     Test summary pages include option to bulk copy all issue ids for a single WCAG
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     wcag_audit: WcagAudit = simplified_case.audit_overview.wcag_audit_initial
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.filter(
         wcag_audit=wcag_audit

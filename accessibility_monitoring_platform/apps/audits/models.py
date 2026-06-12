@@ -436,7 +436,7 @@ class Audit(VersionModel):
 
     @property
     def new_12_week_custom_statement_check_results(self):
-        return self.statement_check_results.filter(type=StatementCheck.Type.TWELVE_WEEK)
+        return self.statement_check_results.filter(type=StatementCheck.Type.RETEST)
 
     @property
     def failed_statement_check_results(self):
@@ -1168,7 +1168,7 @@ class StatementAudit(AuditRound):
     def new_12_week_custom_statement_check_results(
         self,
     ) -> QuerySet[StatementCheckResultRound]:
-        return self.statement_check_results.filter(type=StatementCheck.Type.TWELVE_WEEK)
+        return self.statement_check_results.filter(type=StatementCheck.Type.RETEST)
 
     @property
     def failed_statement_check_results(self) -> QuerySet[StatementCheckResultRound]:
@@ -1905,7 +1905,7 @@ class StatementCheck(models.Model):
         PREPARATION = "preparation", "Statement preparation"
         FEEDBACK = "feedback", "Feedback and enforcement procedure"
         CUSTOM = "custom", "Custom statement issues"
-        TWELVE_WEEK = "12-week", "New 12-week custom statement issues"
+        RETEST = "retest-custom", "Retest custom statement issues"
         DISPROPORTIONATE = "disproportionate", "Disproportionate burden"
 
     type = models.CharField(

@@ -41,7 +41,7 @@ def get_initial_statement_check_result_url_from_issue_identifier(
         statement_check_result_initial: StatementCheckResultRound = (
             StatementCheckResultRound.objects.get(issue_identifier=issue_identifier)
         )
-        if statement_check_result_initial.type == StatementCheck.Type.TWELVE_WEEK:
+        if statement_check_result_initial.type == StatementCheck.Type.RETEST:
             return ""
         url: str = reverse(
             f"audits:edit-statement-{statement_check_result_initial.type}",

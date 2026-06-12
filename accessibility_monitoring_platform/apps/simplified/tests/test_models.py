@@ -27,7 +27,7 @@ from ...audits.models import (
 )
 from ...audits.tests.create_test_data import (
     create_initial_statement_audit,
-    create_twelve_week_statement_audit,
+    create_retest_statement_audit,
 )
 from ...comments.models import Comment
 from ...common.models import Boolean, EmailTemplate, Link
@@ -1221,7 +1221,7 @@ def test_csv_export_statement_found_at_12_week_retest():
 
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
     simplified_case: SimplifiedCase = initial_statement_audit.simplified_case
-    twelve_week_statement_audit: StatementAudit = create_twelve_week_statement_audit(
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
 

@@ -13,7 +13,9 @@ from ...audits.models import (
     WcagDefinition,
     WcagPageInitial,
 )
-from ...audits.tests.create_test_data import create_simplified_case_with_full_audit
+from ...audits.tests.create_test_data import (
+    create_simplified_case_with_initial_and_12_week_audits,
+)
 from ...simplified.models import SimplifiedCase
 from ..models import Report
 from ..utils import (
@@ -70,7 +72,9 @@ def test_build_issue_table_rows():
 @pytest.mark.django_db
 def test_twelve_week_build_issue_table_rows():
     """Test issue table row created for 12-week retest failed check"""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     wcag_audit: WcagAudit = (
         simplified_case.audit_overview.first_wcag_audit_12_week_retest
     )
@@ -166,7 +170,9 @@ def test_report_boilerplate_shown_only_once():
 @pytest.mark.django_db
 def test_generate_report_content_issues_tables():
     """Test report contains issues tables for each page"""
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     wcag_audit: WcagAudit = simplified_case.audit_overview.wcag_audit_initial
     home_page: WcagPageInitial = WcagPageInitial.objects.get(
         wcag_audit=wcag_audit,

@@ -11,8 +11,8 @@ from pytest_django.asserts import assertContains
 from ...audits.models import Audit, Page, Retest, RetestPage, WcagAudit, WcagPageInitial
 from ...audits.tests.create_test_data import (
     create_initial_wcag_audit,
-    create_simplified_case_with_full_audit,
-    create_twelve_week_wcag_audit,
+    create_retest_wcag_audit,
+    create_simplified_case_with_initial_and_12_week_audits,
 )
 from ...cases.models import BaseCase
 from ...comments.models import Comment
@@ -570,7 +570,7 @@ def test_audit_retest_pages_platform_page():
     assert audit_retest_pages_platform_page.url_kwarg_key == "pk"
 
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_twelve_week_wcag_audit(
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
 
@@ -959,7 +959,9 @@ def test_page_name(url, expected_page_name, admin_client):
     """
     Test that the page renders and its name is as expected.
     """
-    simplified_case: SimplifiedCase = create_simplified_case_with_full_audit()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     audit: Audit = Audit.objects.create(simplified_case=simplified_case)
     page: Page = Page.objects.create(audit=audit, name="Pagename")
     Report.objects.create(base_case=simplified_case)

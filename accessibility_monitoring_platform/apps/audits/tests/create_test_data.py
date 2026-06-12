@@ -82,10 +82,14 @@ def create_initial_wcag_audit() -> WcagAudit:
     return initial_wcag_audit
 
 
-def create_twelve_week_wcag_audit(
+def create_retest_wcag_audit(
     initial_wcag_audit: WcagAudit | None = None,
+    audit_round_type: WcagAudit.AuditRoundType = WcagAudit.AuditRoundType.TWELVE_WEEK,
 ) -> WcagAudit:
-    """Create a twelve week wcag_audit with all types of page and some check results"""
+    """
+    Create a twelve week or equality body retest wcag_audit with all types of page and
+    some check results
+    """
     if initial_wcag_audit is None:
         simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
         AuditOverview.objects.create(
@@ -93,26 +97,26 @@ def create_twelve_week_wcag_audit(
         )
     else:
         simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
-    twelve_week_wcag_audit: WcagAudit = WcagAudit.objects.create(
+    retest_wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=simplified_case,
-        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        audit_round_type=audit_round_type,
     )
     if initial_wcag_audit is not None:
         for wcag_page_initial in initial_wcag_audit.every_wcag_page_initials:
             wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
-                wcag_audit=twelve_week_wcag_audit,
+                wcag_audit=retest_wcag_audit,
                 wcag_page_initial=wcag_page_initial,
             )
             for (
                 wcag_check_result_initial
             ) in wcag_page_initial.all_wcag_check_result_initials:
                 WcagCheckResultRetest.objects.create(
-                    wcag_audit=twelve_week_wcag_audit,
+                    wcag_audit=retest_wcag_audit,
                     wcag_page_retest=wcag_page_retest,
                     wcag_check_result_initial=wcag_check_result_initial,
                     wcag_definition=wcag_check_result_initial.wcag_definition,
                 )
-    return twelve_week_wcag_audit
+    return retest_wcag_audit
 
 
 def create_initial_statement_audit(
@@ -140,8 +144,9 @@ def create_initial_statement_audit(
     return initial_statement_audit
 
 
-def create_twelve_week_statement_audit(
+def create_retest_statement_audit(
     initial_statement_audit: StatementAudit | None = None,
+    audit_round_type: StatementAudit.AuditRoundType = StatementAudit.AuditRoundType.TWELVE_WEEK,
 ) -> StatementAudit:
     """Create a twelve week statement audit with all types of statement checks"""
     if initial_statement_audit is None:
@@ -151,9 +156,9 @@ def create_twelve_week_statement_audit(
         )
     else:
         simplified_case: SimplifiedCase = initial_statement_audit.simplified_case
-    twelve_week_statement_audit: StatementAudit = StatementAudit.objects.create(
+    retest_statement_audit: StatementAudit = StatementAudit.objects.create(
         simplified_case=simplified_case,
-        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+        audit_round_type=audit_round_type,
     )
     if initial_statement_audit is not None:
         for (
@@ -161,33 +166,50 @@ def create_twelve_week_statement_audit(
         ) in initial_statement_audit.statement_check_results:
             if statement_check_result_initial.statement_check is None:
                 StatementCheckResultRound.objects.create(
-                    statement_audit=twelve_week_statement_audit,
+                    statement_audit=retest_statement_audit,
                     statement_check_result_initial=statement_check_result_initial,
                     public_comment="Custom statement issue",
                 )
             else:
                 StatementCheckResultRound.objects.create(
-                    statement_audit=twelve_week_statement_audit,
+                    statement_audit=retest_statement_audit,
                     statement_check_result_initial=statement_check_result_initial,
                     type=statement_check_result_initial.type,
                     statement_check=statement_check_result_initial.statement_check,
                 )
         StatementCheckResultRound.objects.create(
-            statement_audit=twelve_week_statement_audit,
-            type=StatementCheck.Type.TWELVE_WEEK,
+            statement_audit=retest_statement_audit,
+            type=StatementCheck.Type.RETEST,
             public_comment="Custom statement issue in retest",
         )
-    return twelve_week_statement_audit
+    return retest_statement_audit
 
 
-def create_simplified_case_with_full_audit() -> SimplifiedCase:
+def create_simplified_case_with_initial_and_12_week_audits() -> SimplifiedCase:
     """
     Create simplified case with initial and twelve week wcag and statement audits
     """
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    create_twelve_week_wcag_audit(initial_wcag_audit=initial_wcag_audit)
+    create_retest_wcag_audit(initial_wcag_audit=initial_wcag_audit)
     initial_statement_audit: StatementAudit = create_initial_statement_audit(
         simplified_case=initial_wcag_audit.simplified_case
     )
-    create_twelve_week_statement_audit(initial_statement_audit=initial_statement_audit)
+    create_retest_statement_audit(initial_statement_audit=initial_statement_audit)
     return initial_statement_audit.simplified_case
+
+
+def create_equality_body_audits() -> WcagAudit:
+    """Create initial and equality body wcag and statement audits"""
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    equality_body_wcag_audit: WcagAudit = create_retest_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
+    initial_statement_audit: StatementAudit = create_initial_statement_audit(
+        simplified_case=initial_wcag_audit.simplified_case
+    )
+    create_retest_statement_audit(
+        initial_statement_audit=initial_statement_audit,
+        audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY,
+    )
+    return equality_body_wcag_audit
