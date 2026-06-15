@@ -504,31 +504,6 @@ def test_wcag_page_initial_page_title():
     assert pdf_page.page_title == "Document"
 
 
-@pytest.mark.django_db
-def test_check_result_retest_form_initial_returns_id_and_fields_for_retest():
-    """
-    Test check_result attribute of retest_form_initial returns id and fields for
-    retest form.
-    """
-    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
-        initial_wcag_audit=initial_wcag_audit
-    )
-    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
-        wcag_audit=twelve_week_wcag_audit, wcag_page_initial__page_type=Page.Type.HOME
-    )
-    wcag_check_result_retest: WcagCheckResultRetest = (
-        wcag_page_retest.all_wcag_check_result_retests[0]
-    )
-
-    assert wcag_check_result_retest.retest_form_initial == {
-        "id": wcag_check_result_retest.id,
-        "retest_state": CheckResult.RetestResult.NOT_RETESTED,
-        "notes": "",
-        "check_result": wcag_check_result_retest,
-    }
-
-
 def test_wcag_definition_strings():
     """
     Test WCAG definitions return expected string values.
@@ -1781,107 +1756,6 @@ def test_wcag_check_result_initial_matching_wcag_with_notes_check_results():
     assert (
         first_check_result.matching_wcag_with_notes_check_results.last()
         == third_check_result
-    )
-
-
-@pytest.mark.django_db
-def test_wcag_check_result_retest_matching_wcag_with_notes_check_results():
-    """
-    Test WcagCheckResultRetest.matching_wcag_with_retest_notes_check_results returns other
-    check results on the other pages with the same WCAG definition and retest notes
-    """
-    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
-        initial_wcag_audit=initial_wcag_audit
-    )
-    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
-        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
-    )
-    home_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
-        wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.HOME
-    )
-    contact_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
-        wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.CONTACT
-    )
-    form_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
-        wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.FORM
-    )
-    first_check_result_initial: WcagCheckResultInitial = (
-        WcagCheckResultInitial.objects.create(
-            wcag_audit=initial_wcag_audit,
-            wcag_page_initial=home_page_initial,
-            check_result_state=WcagCheckResultInitial.Result.ERROR,
-            type=wcag_definition.type,
-            wcag_definition=wcag_definition,
-        )
-    )
-    second_check_result_initial: WcagCheckResultInitial = (
-        WcagCheckResultInitial.objects.create(
-            wcag_audit=initial_wcag_audit,
-            wcag_page_initial=contact_page_initial,
-            check_result_state=WcagCheckResultInitial.Result.ERROR,
-            type=wcag_definition.type,
-            wcag_definition=wcag_definition,
-            notes="Sample note",
-        )
-    )
-    third_check_result_initial: WcagCheckResultInitial = (
-        WcagCheckResultInitial.objects.create(
-            wcag_audit=initial_wcag_audit,
-            wcag_page_initial=form_page_initial,
-            check_result_state=WcagCheckResultInitial.Result.ERROR,
-            type=wcag_definition.type,
-            wcag_definition=wcag_definition,
-            notes="Another note",
-        )
-    )
-    home_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
-        wcag_audit=twelve_week_wcag_audit, wcag_page_initial=home_page_initial
-    )
-    contact_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
-        wcag_audit=twelve_week_wcag_audit, wcag_page_initial=contact_page_initial
-    )
-    form_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
-        wcag_audit=twelve_week_wcag_audit, wcag_page_initial=form_page_initial
-    )
-    first_check_result_retest: WcagCheckResultRetest = (
-        WcagCheckResultRetest.objects.create(
-            wcag_audit=twelve_week_wcag_audit,
-            wcag_page_retest=home_page_retest,
-            wcag_check_result_initial=first_check_result_initial,
-            wcag_definition=wcag_definition,
-            retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED,
-        )
-    )
-    second_check_result_retest: WcagCheckResultRetest = (
-        WcagCheckResultRetest.objects.create(
-            wcag_audit=twelve_week_wcag_audit,
-            wcag_page_retest=contact_page_retest,
-            wcag_check_result_initial=second_check_result_initial,
-            wcag_definition=wcag_definition,
-            retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED,
-            notes="Sample note",
-        )
-    )
-    third_check_result_retest: WcagCheckResultRetest = (
-        WcagCheckResultRetest.objects.create(
-            wcag_audit=twelve_week_wcag_audit,
-            wcag_page_retest=form_page_retest,
-            wcag_check_result_initial=third_check_result_initial,
-            wcag_definition=wcag_definition,
-            retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED,
-            notes="Another note",
-        )
-    )
-
-    assert first_check_result_retest.matching_wcag_with_notes_check_results.count() == 2
-    assert (
-        first_check_result_retest.matching_wcag_with_notes_check_results.first()
-        == second_check_result_retest
-    )
-    assert (
-        first_check_result_retest.matching_wcag_with_notes_check_results.last()
-        == third_check_result_retest
     )
 
 

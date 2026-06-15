@@ -31,8 +31,11 @@
                                 {% if wcag_audit.previous_equality_body_retest %}
                                     <a href="{% url 'audits:retest-metadata-update' wcag_audit.previous_equality_body_retest.id %}" class="govuk-link govuk-link--no-visited-state">
                                         {{ wcag_audit.previous_equality_body_retest.equality_body_retest_name }}</a>.
-                                {% else %}
+                                {% elif wcag_audit.simplified_case.audit_overview.first_wcag_audit_12_week_retest %}
                                     <a href="{% url 'audits:edit-audit-retest-metadata' wcag_audit.simplified_case.audit_overview.first_wcag_audit_12_week_retest.id %}" class="govuk-link govuk-link--no-visited-state">
+                                        12-week retest</a>.
+                                {% else %}
+                                    <a href="{% url 'audits:edit-audit-metadata' wcag_audit.simplified_case.audit_overview.wcag_audit_initial.id %}" class="govuk-link govuk-link--no-visited-state">
                                         12-week retest</a>.
                                 {% endif %}
                             </p>

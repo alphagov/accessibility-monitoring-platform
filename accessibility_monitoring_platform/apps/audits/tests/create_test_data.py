@@ -198,15 +198,32 @@ def create_simplified_case_with_initial_and_12_week_audits() -> SimplifiedCase:
     return initial_statement_audit.simplified_case
 
 
-def create_equality_body_audits() -> WcagAudit:
+def create_equality_body_audits(simplified_case: SimplifiedCase = None) -> WcagAudit:
     """Create initial and equality body wcag and statement audits"""
-    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    if (
+        simplified_case is None
+        or simplified_case.audit_overview.wcag_audit_initial is None
+    ):
+        initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    else:
+        initial_wcag_audit: WcagAudit = (
+            simplified_case.audit_overview.wcag_audit_initial
+        )
+    if (
+        simplified_case is None
+        or simplified_case.audit_overview.statement_audit_initial is None
+    ):
+        initial_statement_audit: StatementAudit = create_initial_statement_audit(
+            simplified_case=initial_wcag_audit.simplified_case
+        )
+    else:
+        initial_statement_audit: StatementAudit = (
+            simplified_case.audit_overview.statement_audit_initial
+        )
+
     equality_body_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit,
         audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
-    )
-    initial_statement_audit: StatementAudit = create_initial_statement_audit(
-        simplified_case=initial_wcag_audit.simplified_case
     )
     create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit,

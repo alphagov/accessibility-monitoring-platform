@@ -48,10 +48,7 @@ from ..models import (
     WcagPageInitial,
     WcagPageRetest,
 )
-from ..utils import (
-    create_checkresults_for_wcag_audit_retest,
-    create_mandatory_pages_for_new_audit,
-)
+from ..utils import create_mandatory_pages_for_new_audit
 from .create_test_data import (
     WCAG_TYPE_AXE_NAME,
     WCAG_TYPE_PDF_NAME,
@@ -4166,11 +4163,10 @@ def test_retest_comparison_page_groups_by_page_or_wcag(admin_client):
     Test that equality body retest comparison page groups content by page or
     WCAG based on URL parameter.
     """
-    retest: Retest = create_equality_body_retest()
-    retest_pk: dict[str, int] = {"pk": retest.id}
-    create_checkresults_for_wcag_audit_retest(retest=retest)
+    wcag_audit: WcagAudit = create_equality_body_audits()
+    wcag_audit_pk: dict[str, int] = {"pk": wcag_audit.id}
 
-    url: str = reverse("audits:retest-comparison-update", kwargs=retest_pk)
+    url: str = reverse("audits:retest-comparison-update", kwargs=wcag_audit_pk)
 
     response: HttpResponse = admin_client.get(url)
 
@@ -4189,16 +4185,15 @@ def test_retest_comparison_page_shows_location(admin_client):
     """
     Test that equality body retest comparison page shows page location
     """
-    retest: Retest = create_equality_body_retest()
-    retest_pk: dict[str, int] = {"pk": retest.id}
-    create_checkresults_for_wcag_audit_retest(retest=retest)
+    wcag_audit: WcagAudit = create_equality_body_audits()
+    wcag_audit_pk: dict[str, int] = {"pk": wcag_audit.id}
 
-    retest_page: RetestPage = retest.retestpage_set.first()
-    page: Page = retest_page.page
-    page.location = PAGE_LOCATION
-    page.save()
+    wcag_page_retest: WcagPageRetest = wcag_audit.wcag_page_retests.last()
+    wcag_page_initial: WcagPageInitial = wcag_page_retest.wcag_page_initial
+    wcag_page_initial.location = PAGE_LOCATION
+    wcag_page_initial.save()
 
-    url: str = reverse("audits:retest-comparison-update", kwargs=retest_pk)
+    url: str = reverse("audits:retest-comparison-update", kwargs=wcag_audit_pk)
 
     response: HttpResponse = admin_client.get(url)
 
@@ -4449,7 +4444,7 @@ def test_twelve_week_statement_audit_next_page_name(
 @pytest.mark.parametrize(
     "path_name, expected_next_page",
     [
-        ("retest-metadata-update", "Post case | Retest #1 | Home"),
+        ("retest-metadata-update", "Post case | Retest #0 | Home"),
         ("edit-equality-body-statement-overview", "Post case | Statement information"),
         ("edit-equality-body-statement-overview", "Post case | Statement results"),
     ],
@@ -4459,8 +4454,8 @@ def test_retest_next_page_name(path_name, expected_next_page, admin_client):
     Test next page shown for when Save and continue button pressed on equality
     body retest
     """
-    retest: Retest = create_equality_body_retest()
-    url: str = reverse(f"audits:{path_name}", kwargs={"pk": retest.id})
+    wcag_audit: WcagAudit = create_equality_body_audits()
+    url: str = reverse(f"audits:{path_name}", kwargs={"pk": wcag_audit.id})
 
     response: HttpResponse = admin_client.get(url)
 
@@ -4539,15 +4534,19 @@ def test_twelve_week_statement_page_removal(admin_client):
 
 def test_equality_body_retest_statement_page_removal(admin_client):
     """Test equality body retest statement page removal and redirect"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    statement_page: StatementPage = StatementPage.objects.create(audit=audit)
-    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = create_equality_body_audits()
+    statement_audit: StatementAudit = StatementAudit.objects.get(
+        audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY
+    )
+    simplified_case: SimplifiedCase = wcag_audit.simplified_case
+    statement_page: StatementPage = StatementPage.objects.create(
+        simplified_case=simplified_case, audit_overview=simplified_case.audit_overview
+    )
 
     response: HttpResponse = admin_client.post(
         reverse(
             "audits:edit-equality-body-remove-statement-page",
-            kwargs={"retest_id": retest.id, "pk": statement_page.id},
+            kwargs={"statement_audit_id": statement_audit.id, "pk": statement_page.id},
         ),
         {},
     )
@@ -4555,7 +4554,7 @@ def test_equality_body_retest_statement_page_removal(admin_client):
     assert response.status_code == 302
 
     assert response.url == reverse(
-        "audits:edit-equality-body-statement-pages", kwargs={"pk": retest.id}
+        "audits:edit-equality-body-statement-pages", kwargs={"pk": statement_audit.id}
     )
 
     events: QuerySet[SimplifiedEventHistory] = SimplifiedEventHistory.objects.all()

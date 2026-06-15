@@ -762,10 +762,10 @@ class AuditRound(VersionModel):
             round_suffix: str = f" #{round_number}"
         return round_suffix
 
-    def ui_name(self) -> str:
+    def short_name(self) -> str:
         return f"{self.get_audit_round_type_display()}{self.round_suffix}"
 
-    def ui_name_with_date_of_test(self) -> str:
+    def short_name_with_date_of_test(self) -> str:
         return f"{self.get_audit_round_type_display()}{self.round_suffix} ({amp_format_date(self.date_of_test)})"
 
 
@@ -832,11 +832,6 @@ class WcagAudit(AuditRound):
         """Return previous equality body or 12-week retest"""
         if self.audit_round_type != WcagAudit.AuditRoundType.EQUALITY_BODY:
             return None
-        if (
-            self
-            == self.simplified_case.audit_overview.first_wcag_audit_equality_body_retest
-        ):
-            return self.simplified_case.audit_overview.first_wcag_audit_12_week_retest
         return WcagAudit.objects.filter(
             simplified_case=self.simplified_case,
             audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
@@ -1655,15 +1650,6 @@ class CheckResult(models.Model):
     )
     retest_notes = models.TextField(default="", blank=True)
     updated = models.DateTimeField(null=True, blank=True)
-
-    @property
-    def retest_form_initial(self) -> dict[str, str]:
-        return {
-            "id": self.id,
-            "retest_state": self.retest_state,
-            "retest_notes": self.retest_notes,
-            "check_result": self,
-        }
 
     class Meta:
         ordering = ["id"]

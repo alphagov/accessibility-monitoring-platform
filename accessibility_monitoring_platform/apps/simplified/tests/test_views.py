@@ -3896,7 +3896,7 @@ def test_case_close_no_missing_data(admin_client):
 
 
 def test_case_overview(admin_client):
-    """Test case overview."""
+    """Test overview section on Simplified case overview page"""
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
@@ -3922,13 +3922,15 @@ def test_case_overview(admin_client):
         StatementCheckResultRound.Result.YES
     )
     statement_found_check_result.save()
-    statement_check_result_initial_last: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.all().last()
-    )
-    statement_check_result_initial_last.check_result_state = (
-        StatementCheckResultRound.Result.NO
-    )
-    statement_check_result_initial_last.save()
+    for statement_check_type in [
+        StatementCheck.Type.WEBSITE,
+        StatementCheck.Type.PREPARATION,
+    ]:
+        statement_check_result: StatementCheckResultRound = (
+            StatementCheckResultRound.objects.filter(type=statement_check_type).first()
+        )
+        statement_check_result.check_result_state = StatementCheckResultRound.Result.NO
+        statement_check_result.save()
 
     response: HttpResponse = admin_client.get(
         reverse("simplified:case-detail", kwargs={"pk": simplified_case.id})
@@ -3948,7 +3950,7 @@ def test_case_overview(admin_client):
     )
     assertContains(
         response,
-        """<p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">Initial test: 2</p>""",
+        """<p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">Initial test: 3</p>""",
         html=True,
     )
     assertContains(

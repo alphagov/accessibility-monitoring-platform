@@ -760,20 +760,6 @@ class EqualityBodyRetestStatementPlatformPage(EqualityBodyRetestWcagPlatformPage
             self.url_kwarg_key: str = "pk"
 
 
-class RetestOverviewPlatformPage(SimplifiedCasePlatformPage):
-    def populate_from_case(self, case: AnyCaseType):
-        self.set_instance(instance=case)
-        if self.subpages is not None:
-            bound_subpages: list[PlatformPage] = []
-            if hasattr(case, "retests"):
-                for retest in case.retests:
-                    if retest.id_within_case > 0:
-                        bound_subpages += populate_subpages_with_instance(
-                            platform_page=self, instance=retest
-                        )
-            self.subpages = bound_subpages
-
-
 class EqualityBodyRetestPagesPlatformPage(EqualityBodyRetestWcagPlatformPage):
     def populate_subpage_instances(self):
         if self.subpages is not None and self.instance is not None:
@@ -1600,7 +1586,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 ],
                 case_details_template_name="simplified/details/details_equality_body_correspondence.html",
             ),
-            RetestOverviewPlatformPage(
+            SimplifiedCasePlatformPage(
                 name="Retest overview",
                 url_name="simplified:edit-retest-overview",
                 subpages=[

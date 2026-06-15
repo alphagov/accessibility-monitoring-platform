@@ -119,7 +119,7 @@
                                             <span class="govuk-details__summary-text">Previous test notes</span>
                                         </summary>
                                         <div class="govuk-details__text">
-                                            <label class="govuk-label"><b>{{ form.instance.wcag_check_result_initial.wcag_audit.ui_name_with_date_of_test }} notes</b></label>
+                                            <label class="govuk-label"><b>{{ form.instance.wcag_check_result_initial.wcag_audit.short_name_with_date_of_test }} notes</b></label>
                                             {{ form.instance.wcag_check_result_initial.notes|markdown_to_html }}
                                             {% for other_wcag_check_result_retest in form.instance.other_wcag_check_result_retests %}
                                                 <label class="govuk-label"><b>{{ other_wcag_check_result_retest.wcag_audit }} notes</b></label>

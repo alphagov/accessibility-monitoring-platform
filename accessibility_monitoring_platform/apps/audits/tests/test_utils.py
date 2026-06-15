@@ -16,12 +16,9 @@ from ...common.sitemap import PlatformPage
 from ...simplified.models import SimplifiedCase
 from ..forms import WcagCheckResultInitialFormset
 from ..models import (
-    Audit,
     AuditOverview,
     CheckResult,
     Page,
-    Retest,
-    RetestPage,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
@@ -55,6 +52,7 @@ from ..utils import (
 from .create_test_data import (
     WCAG_TYPE_AXE_NAME,
     WCAG_TYPE_MANUAL_NAME,
+    create_equality_body_audits,
     create_initial_statement_audit,
     create_initial_wcag_audit,
     create_retest_statement_audit,
@@ -704,36 +702,32 @@ def test_get_next_platform_page_equality_body_with_no_pages():
 @pytest.mark.django_db
 def test_get_next_platform_page_equality_body_with_pages():
     """
-    Test get_next_platform_page_equality_bodyreturns patform pages
+    Test get_next_platform_page_equality_body returns platform pages
     for each retest page in retest in in turn.
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    page: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.HOME, url="https://example.com"
-    )
-    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = create_equality_body_audits()
 
-    first_retest_page: RetestPage = RetestPage.objects.create(
-        retest=retest,
-        page=page,
-    )
-    last_retest_page: RetestPage = RetestPage.objects.create(
-        retest=retest,
-        page=page,
+    wcag_page_retests: list[WcagPageRetest] = list(
+        WcagPageRetest.objects.filter(wcag_audit=wcag_audit)
     )
 
-    assert get_next_platform_page_equality_body(retest).url == reverse(
-        "audits:edit-retest-page-checks", kwargs={"pk": first_retest_page.id}
+    assert len(wcag_page_retests) > 2
+
+    first_wcag_page_retest: WcagPageRetest = wcag_page_retests[0]
+    second_wcag_page_retest: WcagPageRetest = wcag_page_retests[1]
+    last_wcag_page_retest: WcagPageRetest = wcag_page_retests[-1]
+
+    assert get_next_platform_page_equality_body(wcag_audit).url == reverse(
+        "audits:edit-retest-page-checks", kwargs={"pk": first_wcag_page_retest.id}
     )
     assert get_next_platform_page_equality_body(
-        retest, current_page=first_retest_page
+        wcag_audit, current_page=first_wcag_page_retest
     ).url == reverse(
-        "audits:edit-retest-page-checks", kwargs={"pk": last_retest_page.id}
+        "audits:edit-retest-page-checks", kwargs={"pk": second_wcag_page_retest.id}
     )
     assert get_next_platform_page_equality_body(
-        retest, current_page=last_retest_page
-    ).url == reverse("audits:retest-comparison-update", kwargs={"pk": retest.id})
+        wcag_audit, current_page=last_wcag_page_retest
+    ).url == reverse("audits:retest-comparison-update", kwargs={"pk": wcag_audit.id})
 
 
 @pytest.mark.django_db
