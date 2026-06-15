@@ -25,7 +25,7 @@
 
 {% block form %}
     {% include "common/messages.html" %}
-    <form method="post" action="{% url sitemap.current_platform_page.url_name statement_audit.id %}">
+    <form method="post" action="{% url sitemap.current_platform_page.url_name object.id %}">
         {% csrf_token %}
         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
         {% include 'common/form_hidden_fields.html' with hidden_fields=statement_link_form.hidden_fields %}

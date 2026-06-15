@@ -197,7 +197,7 @@
                 {% endif %}
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-full">
-                        <form method="post" action="{% url 'audits:retest-comparison-update' wcag_audit.id %}">
+                        <form method="post" action="{% url 'audits:retest-comparison-update' object.id %}">
                             {% csrf_token %}
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full">

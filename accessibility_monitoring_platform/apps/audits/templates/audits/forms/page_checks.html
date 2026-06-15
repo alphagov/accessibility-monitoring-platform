@@ -31,7 +31,7 @@
 {% endblock %}
 
 {% block form %}
-<form method="post" action="{% url sitemap.current_platform_page.url_name wcag_page_initial.id %}">
+<form method="post" action="{% url sitemap.current_platform_page.url_name sitemap.current_platform_page.instance.id %}">
     <div class="govuk-grid-row">
         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
         <div class="govuk-grid-column-full">

@@ -706,7 +706,6 @@ def build_equality_body_retest_context_data(
 
     audit_overview: AuditOverview = statement_audit.simplified_case.audit_overview
 
-    context["case"] = statement_audit.simplified_case
     context["wcag_audit_initial"] = audit_overview.wcag_audit_initial
     context["first_wcag_audit_12_week_retest"] = (
         audit_overview.first_wcag_audit_12_week_retest

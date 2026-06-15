@@ -34,7 +34,7 @@
                         </div>
                     </div>
                 {% endif %}
-                <form method="post" action="{% url 'audits:edit-retest-page-checks' wcag_page_retest.id %}">
+                <form method="post" action="{% url 'audits:edit-retest-page-checks' object.id %}">
                     <div class="govuk-grid-row">
                         {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                         <div class="govuk-grid-column-one-half">

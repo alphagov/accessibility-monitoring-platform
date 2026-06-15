@@ -21,7 +21,6 @@ from ..audits.forms import (
 )
 from ..audits.models import (
     Audit,
-    Retest,
     StatementAudit,
     StatementCheckResultRound,
     StatementPage,
@@ -744,7 +743,7 @@ class EqualityBodyRetestWcagPlatformPage(PlatformPage):
         return False
 
     def set_instance(self, instance: models.Model | None):
-        if isinstance(instance, Retest):
+        if isinstance(instance, self.instance_class):
             self.instance = instance
 
     def get_case(self) -> SimplifiedCase | None:
@@ -2744,7 +2743,8 @@ def build_sitemap_for_current_page(
 
     if current_platform_page.next_page_url_name is not None:
         current_platform_page.next_page = get_platform_page_by_url_name(
-            url_name=current_platform_page.next_page_url_name, instance=case
+            url_name=current_platform_page.next_page_url_name,
+            instance=current_platform_page.instance,
         )
 
     if case is not None and case_nav_type is not None:

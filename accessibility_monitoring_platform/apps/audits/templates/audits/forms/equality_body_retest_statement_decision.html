@@ -22,7 +22,7 @@
             </div>
             <div class="govuk-grid-column-two-thirds">
                 {% include 'audits/helpers/details_statement_links_and_backups.html' %}
-                <form method="post" action="{% url 'audits:edit-equality-body-statement-decision' statement_audit.id %}">
+                <form method="post" action="{% url 'audits:edit-equality-body-statement-decision' object.id %}">
                     {% csrf_token %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
