@@ -55,11 +55,11 @@ from .views.initial import (
     InitialDeleteStatementPageUpdateView,
     InitialDisproportionateBurdenUpdateView,
     InitialStatementBackupUpdateView,
+    InitialWcagAuditSummaryFirstUpdateView,
     StatementAuditSummaryFirstUpdateView,
     WcagAuditComplianceInitialUpdateView,
     WcagAuditMetadataUpdateView,
     WcagAuditPagesUpdateView,
-    WcagAuditSummaryFirstUpdateView,
     WcagPageChecksFormView,
     clear_published_report_data_updated_time,
     delete_custom_issue,
@@ -83,6 +83,7 @@ from .views.twelve_week import (
     TwelveWeekStatementBackupUpdateView,
     TwelveWeekStatementComplianceStatementUpdateView,
     TwelveWeekStatementSummaryFirstUpdateView,
+    TwelveWeekWcagAuditSummaryFirstUpdateView,
     WcagAuditComplianceRetestUpdateView,
     WcagAuditRetestMetadataUpdateView,
     WcagAuditRetestPagesView,
@@ -122,6 +123,11 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-website-decision/",
         login_required(WcagAuditComplianceInitialUpdateView.as_view()),
         name="edit-website-decision",
+    ),
+    path(
+        "<int:pk>/edit-audit-wcag-summary/",
+        login_required(InitialWcagAuditSummaryFirstUpdateView.as_view()),
+        name="edit-audit-wcag-summary",
     ),
     path(
         "<int:pk>/edit-statement-pages/",
@@ -209,11 +215,6 @@ urlpatterns: list[URLPattern] = [
         name="edit-statement-decision",
     ),
     path(
-        "<int:pk>/edit-audit-wcag-summary/",
-        login_required(WcagAuditSummaryFirstUpdateView.as_view()),
-        name="edit-audit-wcag-summary",
-    ),
-    path(
         "<int:pk>/edit-audit-statement-summary/",
         login_required(StatementAuditSummaryFirstUpdateView.as_view()),
         name="edit-audit-statement-summary",
@@ -250,7 +251,7 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-retest-wcag-summary/",
-        login_required(WcagAuditSummaryFirstUpdateView.as_view()),
+        login_required(TwelveWeekWcagAuditSummaryFirstUpdateView.as_view()),
         name="edit-audit-retest-wcag-summary",
     ),
     path(

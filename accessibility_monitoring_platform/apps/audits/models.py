@@ -828,6 +828,14 @@ class WcagAudit(AuditRound):
         return reverse("audits:edit-audit-metadata", kwargs={"pk": self.pk})
 
     @property
+    def equivalent_statement_audit(self) -> StatementAudit:
+        """Return matching statement audit"""
+        return StatementAudit.objects.get(
+            simplified_case=self.simplified_case,
+            round_number=self.round_number,
+        )
+
+    @property
     def previous_equality_body_retest(self) -> WcagAudit | None:
         """Return previous equality body or 12-week retest"""
         if self.audit_round_type != WcagAudit.AuditRoundType.EQUALITY_BODY:

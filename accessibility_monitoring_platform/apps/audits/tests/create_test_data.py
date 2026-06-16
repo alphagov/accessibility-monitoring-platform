@@ -195,7 +195,7 @@ def create_simplified_case_with_initial_and_12_week_audits() -> SimplifiedCase:
         simplified_case=initial_wcag_audit.simplified_case
     )
     create_retest_statement_audit(initial_statement_audit=initial_statement_audit)
-    return initial_statement_audit.simplified_case
+    return initial_wcag_audit.simplified_case
 
 
 def create_equality_body_audits(simplified_case: SimplifiedCase = None) -> WcagAudit:

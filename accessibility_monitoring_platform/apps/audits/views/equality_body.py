@@ -306,6 +306,13 @@ class RetestComplianceUpdateView(EqualityBodyRetestWcagAuditUpdateView):
     form_class: type[RetestComplianceUpdateForm] = RetestComplianceUpdateForm
     template_name: str = "audits/forms/equality_body_retest_compliance_update.html"
 
+    def get_next_platform_page(self) -> PlatformPage:
+        wcag_audit: WcagAudit = self.object
+        return get_platform_page_by_url_name(
+            url_name="audits:edit-equality-body-statement-pages",
+            instance=wcag_audit.equivalent_statement_audit,
+        )
+
 
 class EqualityBodyRetestStatementAuditUpdateView(NextPlatformPageMixin, UpdateView):
 

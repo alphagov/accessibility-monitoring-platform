@@ -612,9 +612,20 @@ def test_twelve_week_wcag_audit_edit_redirects_based_on_button_pressed(
 
     assert response.status_code == 302
 
-    expected_path: str = reverse(
-        expected_redirect_path_name, kwargs=twelve_week_wcag_audit_pk
-    )
+    if expected_redirect_path_name == "audits:edit-audit-retest-statement-pages":
+        twelve_week_statement_audit: StatementAudit = (
+            simplified_case.audit_overview.first_statement_audit_12_week_retest
+        )
+        twelve_week_statement_audit_pk: dict[str, int] = {
+            "pk": twelve_week_statement_audit.id
+        }
+        expected_path: str = reverse(
+            expected_redirect_path_name, kwargs=twelve_week_statement_audit_pk
+        )
+    else:
+        expected_path: str = reverse(
+            expected_redirect_path_name, kwargs=twelve_week_wcag_audit_pk
+        )
     assert response.url == expected_path
 
 
