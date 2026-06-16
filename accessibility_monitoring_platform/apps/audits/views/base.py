@@ -41,7 +41,6 @@ from ..forms import (
 from ..models import (
     Audit,
     AuditOverview,
-    Retest,
     StatementAudit,
     StatementCheck,
     StatementPage,
@@ -437,7 +436,7 @@ class AddStatementLinkUpdateView(StatementAuditUpdateView):
         self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
     ) -> HttpResponseRedirect | HttpResponse:
         """Populate two forms from post request"""
-        self.object: StatementAudit | Retest = self.get_object()
+        self.object: StatementAudit = self.get_object()
         simplified_case: SimplifiedCase = self.object.simplified_case
         form: Form = self.form_class(request.POST, instance=self.object)  # type: ignore
         statement_link_form: StatementLinkForm = StatementLinkForm(
@@ -445,21 +444,21 @@ class AddStatementLinkUpdateView(StatementAuditUpdateView):
         )
         if form.is_valid() and statement_link_form.is_valid():
             form.save()
-            if isinstance(self.object, Retest):
-                added_stage: StatementPage.AddedStage = StatementPage.AddedStage.RETEST
+            statement_audit: StatementAudit = self.object
+            if (
+                statement_audit.audit_round_type
+                == StatementAudit.AuditRoundType.INITIAL
+            ):
+                added_stage: StatementPage.AddedStage = StatementPage.AddedStage.INITIAL
+            elif (
+                statement_audit.audit_round_type
+                == StatementAudit.AuditRoundType.TWELVE_WEEK
+            ):
+                added_stage: StatementPage.AddedStage = (
+                    StatementPage.AddedStage.TWELVE_WEEK
+                )
             else:
-                statement_audit: StatementAudit = self.object
-                if (
-                    statement_audit.audit_round_type
-                    == StatementAudit.AuditRoundType.INITIAL
-                ):
-                    added_stage: StatementPage.AddedStage = (
-                        StatementPage.AddedStage.INITIAL
-                    )
-                else:
-                    added_stage: StatementPage.AddedStage = (
-                        StatementPage.AddedStage.TWELVE_WEEK
-                    )
+                added_stage: StatementPage.AddedStage = StatementPage.AddedStage.RETEST
             statement_url: str = statement_link_form.cleaned_data["statement_url"]
             if (
                 statement_url

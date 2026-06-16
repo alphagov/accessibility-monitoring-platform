@@ -36,7 +36,6 @@ from .views.equality_body import (
     RetestStatementResultsUpdateView,
     RetestStatementWebsiteFormView,
     create_equality_body_retest,
-    mark_retest_as_deleted,
 )
 from .views.initial import (
     AuditCaseComplianceStatementInitialUpdateView,
@@ -223,11 +222,6 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/audit-retest-start/",
         login_required(start_retest),
         name="audit-retest-start",
-    ),
-    path(
-        "<int:pk>/delete-retest/",
-        login_required(mark_retest_as_deleted),
-        name="delete-retest",
     ),
     path(
         "<int:pk>/edit-audit-retest-metadata/",

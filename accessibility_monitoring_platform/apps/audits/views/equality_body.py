@@ -107,21 +107,6 @@ def create_equality_body_retest(request: HttpRequest, case_id: int) -> HttpRespo
     )
 
 
-def mark_retest_as_deleted(request: HttpRequest, pk: int) -> HttpResponse:
-    """Set Retest.is_deleted to True"""
-    retest: Retest = get_object_or_404(Retest, id=pk)
-    retest.is_deleted = True
-    record_simplified_model_update_event(
-        user=request.user, model_object=retest, simplified_case=retest.simplified_case
-    )
-    retest.save()
-    return redirect(
-        reverse(
-            "simplified:edit-retest-overview", kwargs={"pk": retest.simplified_case.id}
-        )
-    )
-
-
 class EqualityBodyRetestWcagAuditUpdateView(NextPlatformPageMixin, UpdateView):
 
     model: type[WcagAudit] = WcagAudit

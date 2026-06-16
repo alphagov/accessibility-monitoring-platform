@@ -22,20 +22,10 @@ from accessibility_monitoring_platform.apps.common.models import Boolean
 from ...cases.models import CaseFile
 from ...cases.utils import S3ReadWriteFile
 from ...reports.models import Report
-from ...simplified.models import (
-    CaseCompliance,
-    CaseEvent,
-    SimplifiedCase,
-    SimplifiedEventHistory,
-)
+from ...simplified.models import CaseEvent, SimplifiedCase, SimplifiedEventHistory
 from ..models import (
-    Audit,
     AuditOverview,
     CheckResult,
-    Page,
-    Retest,
-    RetestCheckResult,
-    RetestPage,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
@@ -50,7 +40,6 @@ from ..models import (
     WcagPageInitial,
     WcagPageRetest,
 )
-from ..utils import create_mandatory_pages_for_new_audit
 from ..views.base import AuditSummaryFirstMixin
 from .create_test_data import (
     WCAG_TYPE_AXE_NAME,
@@ -94,96 +83,8 @@ SECOND_STATEMENT_CHECK_RESULT_ID: int = 2
 STATEMENT_CHECK_RESULT_COMMENT: str = "Statement check result comment"
 
 
-def create_audit() -> Audit:
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        organisation_name=ORGANISATION_NAME
-    )
-    CaseCompliance.objects.create(simplified_case=simplified_case)
-    simplified_case.update_case_status()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    return audit
-
-
-def create_wcag_audit() -> Audit:
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        organisation_name=ORGANISATION_NAME
-    )
-    CaseCompliance.objects.create(simplified_case=simplified_case)
-    simplified_case.update_case_status()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    return audit
-
-
-def create_audit_and_pages() -> Audit:
-    audit: Audit = create_audit()
-    wcag_audit: WcagAudit = WcagAudit.objects.create(
-        simplified_case=audit.simplified_case
-    )
-    create_mandatory_pages_for_new_audit(wcag_audit=wcag_audit)
-    return audit
-
-
-def create_audit_and_wcag() -> Audit:
-    audit: Audit = create_audit_and_pages()
-    WcagDefinition.objects.all().delete()
-    WcagDefinition.objects.create(
-        id=1, type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
-    )
-    WcagDefinition.objects.create(
-        id=2, type=WcagDefinition.Type.PDF, name=WCAG_TYPE_PDF_NAME
-    )
-    return audit
-
-
-def create_audit_and_statement_check_results() -> Audit:
-    """Create an audit with all types of statement checks"""
-    audit: Audit = create_audit_and_wcag()
-    for count, statement_check in enumerate(StatementCheck.objects.on_date(TODAY)):
-        StatementCheckResult.objects.create(
-            audit=audit,
-            type=statement_check.type,
-            statement_check=statement_check,
-        )
-    StatementCheckResult.objects.create(
-        audit=audit,
-        report_comment="Custom statement issue",
-    )
-    return audit
-
-
-def create_equality_body_retest() -> Retest:
-    """Create equality body retest and associated data"""
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
-    )
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
-    check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
-    )
-
-    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
-    retest_page: RetestPage = RetestPage.objects.create(
-        retest=retest,
-        page=page,
-    )
-    RetestCheckResult.objects.create(
-        retest=retest,
-        retest_page=retest_page,
-        check_result=check_result,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
-    )
-    return retest
-
-
 def test_restore_wcag_page_initial_view(admin_client):
-    """Test that restore WCAG page initial view restores audit"""
+    """Test that restore WCAG page initial view restores page"""
     wcag_audit: WcagAudit = create_initial_wcag_audit()
     wcag_audit_pk: dict[str, int] = {"pk": wcag_audit.id}
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
@@ -816,15 +717,31 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
 
 
 @pytest.mark.parametrize(
-    "url_name",
+    "url_name,audit_round_type,added_stage",
     [
-        "audits:edit-statement-pages",
-        "audits:edit-audit-retest-statement-pages",
+        (
+            "audits:edit-statement-pages",
+            StatementAudit.AuditRoundType.INITIAL,
+            StatementPage.AddedStage.INITIAL,
+        ),
+        (
+            "audits:edit-audit-retest-statement-pages",
+            StatementAudit.AuditRoundType.TWELVE_WEEK,
+            StatementPage.AddedStage.TWELVE_WEEK,
+        ),
+        (
+            "audits:edit-equality-body-statement-pages",
+            StatementAudit.AuditRoundType.EQUALITY_BODY,
+            StatementPage.AddedStage.RETEST,
+        ),
     ],
 )
-def test_add_statement_link(url_name, admin_client):
+def test_add_statement_link(url_name, audit_round_type, added_stage, admin_client):
     """Test that add statement link views saves URL"""
-    statement_audit: StatementAudit = create_initial_statement_audit()
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case, audit_round_type=audit_round_type
+    )
 
     response: HttpResponse = admin_client.post(
         reverse(url_name, kwargs={"pk": statement_audit.id}),
@@ -842,6 +759,7 @@ def test_add_statement_link(url_name, admin_client):
     )
 
     assert statement_page.url == STATEMENT_PAGE_URL
+    assert statement_page.added_stage == added_stage
 
 
 @pytest.mark.parametrize(
@@ -3632,33 +3550,6 @@ def test_create_equality_body_retest_redirects(admin_client):
     )
 
 
-def test_delete_retest(admin_client):
-    """
-    Test that equality body retest deletion works
-    """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
-
-    assert retest.is_deleted is False
-
-    response: HttpResponse = admin_client.get(
-        reverse("audits:delete-retest", kwargs={"pk": retest.id})
-    )
-
-    assert response.status_code == 302
-    assert response.url == "/simplified/1/retest-overview/"
-
-    retest_from_db: Retest = Retest.objects.get(id=retest.id)
-    assert retest_from_db.is_deleted is True
-
-    events: QuerySet[SimplifiedEventHistory] = SimplifiedEventHistory.objects.all()
-
-    assert events.count() == 1
-    assert events[0].parent == retest
-    assert events[0].event_type == SimplifiedEventHistory.Type.UPDATE
-    assert events[0].difference == '{"is_deleted": "False -> True"}'
-
-
 @pytest.mark.parametrize(
     "path_name, button_name, expected_redirect_path_name",
     [
@@ -3967,34 +3858,6 @@ def test_equality_body_statement_audit_redirects_to_case(
         kwargs={"pk": statement_audit.simplified_case.id},
     )
     assert response.url == expected_path
-
-
-def test_equality_body_retest_add_statement_link(admin_client):
-    """Test that add statement link views saves URL"""
-    create_equality_body_audits()
-    statement_audit: StatementAudit = StatementAudit.objects.get(
-        audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY
-    )
-
-    response: HttpResponse = admin_client.post(
-        reverse(
-            "audits:edit-equality-body-statement-pages",
-            kwargs={"pk": statement_audit.id},
-        ),
-        {
-            "version": statement_audit.version,
-            "statement_url": STATEMENT_PAGE_URL,
-            "save": "Save",
-        },
-    )
-
-    assert response.status_code == 302
-
-    statement_page: StatementPage = StatementPage.objects.get(
-        simplified_case=statement_audit.simplified_case
-    )
-
-    assert statement_page.url == STATEMENT_PAGE_URL
 
 
 @mock_aws
