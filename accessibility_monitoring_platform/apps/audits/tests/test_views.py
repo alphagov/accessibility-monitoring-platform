@@ -4,12 +4,14 @@ Tests for audits views
 
 import io
 from datetime import date, timedelta
+from typing import Any
+from unittest.mock import MagicMock
 
 import pytest
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db.models.query import QuerySet
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
 from django.utils import timezone
 from moto import mock_aws
@@ -49,6 +51,7 @@ from ..models import (
     WcagPageRetest,
 )
 from ..utils import create_mandatory_pages_for_new_audit
+from ..views.base import AuditSummaryFirstMixin
 from .create_test_data import (
     WCAG_TYPE_AXE_NAME,
     WCAG_TYPE_PDF_NAME,
@@ -3212,6 +3215,78 @@ def test_update_statement_check_works(admin_client):
     assert statement_check_from_db.type == STATEMENT_CHECK_TYPE
     assert statement_check_from_db.success_criteria == STATEMENT_CHECK_SUCCESS_CRITERIA
     assert statement_check_from_db.report_text == STATEMENT_CHECK_REPORT_TEXT
+
+
+@pytest.mark.django_db
+def test_summary_page_context(rf):
+    """Test that AuditSummaryFirstMixin builds the correct context"""
+
+    class ParentClassTest:
+
+        def get_context_data(self, **kwargs) -> dict[str, Any]:
+            return {}
+
+    class AuditSummaryFirstMixinTest(AuditSummaryFirstMixin, ParentClassTest):
+        object: MagicMock
+
+        def __init__(
+            self, request: HttpRequest, simplified_case: SimplifiedCase
+        ) -> None:
+            self.request = request
+            self.object = MagicMock()
+            self.object.simplified_case = simplified_case
+
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    request = rf.get(
+        reverse(
+            "simplified:mark-qa-comments-as-read", kwargs={"pk": simplified_case.id}
+        ),
+    )
+
+    test_object: AuditSummaryFirstMixinTest = AuditSummaryFirstMixinTest(
+        request=request, simplified_case=simplified_case
+    )
+
+    context: dict[str, Any] = test_object.get_context_data()
+
+    assert "show_failures_by_page" in context
+    assert "show_all" in context
+    assert "enable_12_week_ui" in context
+    assert "wcag_audit_initial" in context
+    assert "wcag_audit_12_week" in context
+    assert "statement_audit_initial" in context
+    assert "statement_audit_12_week" in context
+    assert "statement_audit" in context
+    assert "summary_wcag_check_results_by_page" in context
+    assert "pages_with_retest_notes" in context
+    assert "summary_wcag_check_results_by_wcag" in context
+    assert "summary_statement_check_results" in context
+    assert "summary_statement_check_results_by_type" in context
+    assert "number_of_wcag_issues" in context
+    assert "number_of_statement_issues" in context
+
+    assert (
+        context["wcag_audit_initial"]
+        == simplified_case.audit_overview.wcag_audit_initial
+    )
+    assert (
+        context["wcag_audit_12_week"]
+        == simplified_case.audit_overview.first_wcag_audit_12_week_retest
+    )
+    assert (
+        context["statement_audit_initial"]
+        == simplified_case.audit_overview.statement_audit_initial
+    )
+    assert (
+        context["statement_audit_12_week"]
+        == simplified_case.audit_overview.first_statement_audit_12_week_retest
+    )
+    assert (
+        context["statement_audit"]
+        == simplified_case.audit_overview.first_statement_audit_12_week_retest
+    )
 
 
 @pytest.mark.parametrize(

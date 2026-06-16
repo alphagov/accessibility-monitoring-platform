@@ -768,20 +768,16 @@ def test_get_audit_summary_context(rf):
     """Test get_audit_summary_context returned"""
     request: HttpRequest = rf.get("/")
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
-        initial_wcag_audit=initial_wcag_audit
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
+    create_retest_wcag_audit(initial_wcag_audit=initial_wcag_audit)
+    initial_statement_audit: StatementAudit = create_initial_statement_audit(
+        simplified_case=simplified_case
     )
-    initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
-        initial_statement_audit=initial_statement_audit
-    )
+    create_retest_statement_audit(initial_statement_audit=initial_statement_audit)
 
     context: dict[str, Any] = get_audit_summary_context(
         request=request,
-        wcag_audit_initial=initial_wcag_audit,
-        wcag_audit_12_week=twelve_week_wcag_audit,
-        statement_audit_initial=initial_statement_audit,
-        statement_audit_12_week=twelve_week_statement_audit,
+        simplified_case=simplified_case,
     )
 
     assert "show_failures_by_page" in context
@@ -805,31 +801,25 @@ def test_get_audit_summary_enable_12_week_ui(rf):
     """Test enable_12_week_ui set when a 12-week WCAG retest is provided"""
     request: HttpRequest = rf.get("/")
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
-        initial_wcag_audit=initial_wcag_audit
-    )
-    initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
-        initial_statement_audit=initial_statement_audit
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
+    initial_statement_audit: StatementAudit = create_initial_statement_audit(
+        simplified_case=simplified_case
     )
 
     context: dict[str, Any] = get_audit_summary_context(
         request=request,
-        wcag_audit_initial=initial_wcag_audit,
-        wcag_audit_12_week=None,
-        statement_audit_initial=initial_statement_audit,
-        statement_audit_12_week=None,
+        simplified_case=simplified_case,
     )
 
     assert "enable_12_week_ui" in context
     assert context["enable_12_week_ui"] is False
 
+    create_retest_wcag_audit(initial_wcag_audit=initial_wcag_audit)
+    create_retest_statement_audit(initial_statement_audit=initial_statement_audit)
+
     context: dict[str, Any] = get_audit_summary_context(
         request=request,
-        wcag_audit_initial=initial_wcag_audit,
-        wcag_audit_12_week=twelve_week_wcag_audit,
-        statement_audit_initial=initial_statement_audit,
-        statement_audit_12_week=twelve_week_statement_audit,
+        simplified_case=simplified_case,
     )
 
     assert "enable_12_week_ui" in context
@@ -841,20 +831,16 @@ def test_get_audit_summary_show_failures_by_page(rf):
     """Test show_failures_by_page set as expected"""
     request: HttpRequest = rf.get("/")
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
-        initial_wcag_audit=initial_wcag_audit
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
+    create_retest_wcag_audit(initial_wcag_audit=initial_wcag_audit)
+    initial_statement_audit: StatementAudit = create_initial_statement_audit(
+        simplified_case=simplified_case
     )
-    initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
-        initial_statement_audit=initial_statement_audit
-    )
+    create_retest_statement_audit(initial_statement_audit=initial_statement_audit)
 
     context: dict[str, Any] = get_audit_summary_context(
         request=request,
-        wcag_audit_initial=initial_wcag_audit,
-        wcag_audit_12_week=twelve_week_wcag_audit,
-        statement_audit_initial=initial_statement_audit,
-        statement_audit_12_week=twelve_week_statement_audit,
+        simplified_case=simplified_case,
     )
 
     assert "show_failures_by_page" in context
@@ -864,10 +850,7 @@ def test_get_audit_summary_show_failures_by_page(rf):
 
     context: dict[str, Any] = get_audit_summary_context(
         request=request,
-        wcag_audit_initial=initial_wcag_audit,
-        wcag_audit_12_week=twelve_week_wcag_audit,
-        statement_audit_initial=initial_statement_audit,
-        statement_audit_12_week=twelve_week_statement_audit,
+        simplified_case=simplified_case,
     )
 
     assert "show_failures_by_page" in context
@@ -879,20 +862,16 @@ def test_get_audit_summary_wcag_check_results_by_page(rf):
     """Test summary_wcag_check_results_by_page set as expected"""
     request: HttpRequest = rf.get("/")
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
-        initial_wcag_audit=initial_wcag_audit
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
+    create_retest_wcag_audit(initial_wcag_audit=initial_wcag_audit)
+    initial_statement_audit: StatementAudit = create_initial_statement_audit(
+        simplified_case=simplified_case
     )
-    initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
-        initial_statement_audit=initial_statement_audit
-    )
+    create_retest_statement_audit(initial_statement_audit=initial_statement_audit)
 
     context: dict[str, Any] = get_audit_summary_context(
         request=request,
-        wcag_audit_initial=initial_wcag_audit,
-        wcag_audit_12_week=twelve_week_wcag_audit,
-        statement_audit_initial=initial_statement_audit,
-        statement_audit_12_week=twelve_week_statement_audit,
+        simplified_case=simplified_case,
     )
 
     assert "summary_wcag_check_results_by_page" in context
@@ -908,10 +887,7 @@ def test_get_audit_summary_wcag_check_results_by_page(rf):
 
     context: dict[str, Any] = get_audit_summary_context(
         request=request,
-        wcag_audit_initial=initial_wcag_audit,
-        wcag_audit_12_week=twelve_week_wcag_audit,
-        statement_audit_initial=initial_statement_audit,
-        statement_audit_12_week=twelve_week_statement_audit,
+        simplified_case=simplified_case,
     )
 
     assert "summary_wcag_check_results_by_page" in context
@@ -945,20 +921,18 @@ def test_get_audit_summary_pages_with_retest_notes(rf):
     """Test pages_with_retest_notes set as expected"""
     request: HttpRequest = rf.get("/")
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
     twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
-    initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
-        initial_statement_audit=initial_statement_audit
+    initial_statement_audit: StatementAudit = create_initial_statement_audit(
+        simplified_case=simplified_case
     )
+    create_retest_statement_audit(initial_statement_audit=initial_statement_audit)
 
     context: dict[str, Any] = get_audit_summary_context(
         request=request,
-        wcag_audit_initial=initial_wcag_audit,
-        wcag_audit_12_week=twelve_week_wcag_audit,
-        statement_audit_initial=initial_statement_audit,
-        statement_audit_12_week=twelve_week_statement_audit,
+        simplified_case=simplified_case,
     )
 
     assert context["pages_with_retest_notes"].exists() is False
@@ -972,10 +946,7 @@ def test_get_audit_summary_pages_with_retest_notes(rf):
 
     context: dict[str, Any] = get_audit_summary_context(
         request=request,
-        wcag_audit_initial=initial_wcag_audit,
-        wcag_audit_12_week=twelve_week_wcag_audit,
-        statement_audit_initial=initial_statement_audit,
-        statement_audit_12_week=twelve_week_statement_audit,
+        simplified_case=simplified_case,
     )
 
     assert "pages_with_retest_notes" in context
@@ -988,20 +959,16 @@ def test_get_audit_summary_wcag_check_results_by_wcag(rf):
     """Test summary_wcag_check_results_by_wcag set as expected"""
     request: HttpRequest = rf.get("/")
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
-        initial_wcag_audit=initial_wcag_audit
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
+    create_retest_wcag_audit(initial_wcag_audit=initial_wcag_audit)
+    initial_statement_audit: StatementAudit = create_initial_statement_audit(
+        simplified_case=simplified_case
     )
-    initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
-        initial_statement_audit=initial_statement_audit
-    )
+    create_retest_statement_audit(initial_statement_audit=initial_statement_audit)
 
     context: dict[str, Any] = get_audit_summary_context(
         request=request,
-        wcag_audit_initial=initial_wcag_audit,
-        wcag_audit_12_week=twelve_week_wcag_audit,
-        statement_audit_initial=initial_statement_audit,
-        statement_audit_12_week=twelve_week_statement_audit,
+        simplified_case=simplified_case,
     )
 
     assert "summary_wcag_check_results_by_wcag" in context
@@ -1017,10 +984,7 @@ def test_get_audit_summary_wcag_check_results_by_wcag(rf):
 
     context: dict[str, Any] = get_audit_summary_context(
         request=request,
-        wcag_audit_initial=initial_wcag_audit,
-        wcag_audit_12_week=twelve_week_wcag_audit,
-        statement_audit_initial=initial_statement_audit,
-        statement_audit_12_week=twelve_week_statement_audit,
+        simplified_case=simplified_case,
     )
 
     assert "summary_wcag_check_results_by_wcag" in context
@@ -1053,13 +1017,13 @@ def test_get_audit_summary_unfixed_audit_failures(rf):
     """Test fixed results are not returned when show_all URL paremeter not set"""
     request: HttpRequest = rf.get("/")
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
-        initial_wcag_audit=initial_wcag_audit
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
+    create_retest_wcag_audit(initial_wcag_audit=initial_wcag_audit)
+    initial_statement_audit: StatementAudit = create_initial_statement_audit(
+        simplified_case=simplified_case
     )
-    initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
-        initial_statement_audit=initial_statement_audit
-    )
+    create_retest_statement_audit(initial_statement_audit=initial_statement_audit)
+
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.filter(
             wcag_audit=initial_wcag_audit,
@@ -1070,10 +1034,7 @@ def test_get_audit_summary_unfixed_audit_failures(rf):
 
     context: dict[str, Any] = get_audit_summary_context(
         request=request,
-        wcag_audit_initial=initial_wcag_audit,
-        wcag_audit_12_week=twelve_week_wcag_audit,
-        statement_audit_initial=initial_statement_audit,
-        statement_audit_12_week=twelve_week_statement_audit,
+        simplified_case=simplified_case,
     )
 
     assert "summary_wcag_check_results_by_wcag" in context
@@ -1133,10 +1094,7 @@ def test_get_audit_summary_unfixed_audit_failures(rf):
 
     context: dict[str, Any] = get_audit_summary_context(
         request=request,
-        wcag_audit_initial=initial_wcag_audit,
-        wcag_audit_12_week=twelve_week_wcag_audit,
-        statement_audit_initial=initial_statement_audit,
-        statement_audit_12_week=twelve_week_statement_audit,
+        simplified_case=simplified_case,
     )
 
     assert "summary_wcag_check_results_by_wcag" in context
@@ -1153,13 +1111,12 @@ def test_get_audit_summary_issue_counts(rf):
     request: HttpRequest = rf.get("/")
     request.GET = {"show-all": "true"}
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
-        initial_wcag_audit=initial_wcag_audit
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
+    create_retest_wcag_audit(initial_wcag_audit=initial_wcag_audit)
+    initial_statement_audit: StatementAudit = create_initial_statement_audit(
+        simplified_case=simplified_case
     )
-    initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
-        initial_statement_audit=initial_statement_audit
-    )
+    create_retest_statement_audit(initial_statement_audit=initial_statement_audit)
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.filter(
             wcag_audit=initial_wcag_audit,
@@ -1175,10 +1132,7 @@ def test_get_audit_summary_issue_counts(rf):
 
     context: dict[str, Any] = get_audit_summary_context(
         request=request,
-        wcag_audit_initial=initial_wcag_audit,
-        wcag_audit_12_week=twelve_week_wcag_audit,
-        statement_audit_initial=initial_statement_audit,
-        statement_audit_12_week=twelve_week_statement_audit,
+        simplified_case=simplified_case,
     )
 
     assert "number_of_wcag_issues" in context
@@ -1196,10 +1150,7 @@ def test_get_audit_summary_issue_counts(rf):
 
     context: dict[str, Any] = get_audit_summary_context(
         request=request,
-        wcag_audit_initial=initial_wcag_audit,
-        wcag_audit_12_week=twelve_week_wcag_audit,
-        statement_audit_initial=initial_statement_audit,
-        statement_audit_12_week=twelve_week_statement_audit,
+        simplified_case=simplified_case,
     )
 
     assert "number_of_statement_issues" in context
@@ -1212,20 +1163,13 @@ def test_get_audit_summary_statement_check_results_by_type(rf):
     request: HttpRequest = rf.get("/")
     request.GET = {"show-all": "true"}
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
-        initial_wcag_audit=initial_wcag_audit
-    )
+    create_retest_wcag_audit(initial_wcag_audit=initial_wcag_audit)
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
-        initial_statement_audit=initial_statement_audit
-    )
+    create_retest_statement_audit(initial_statement_audit=initial_statement_audit)
 
     context: dict[str, Any] = get_audit_summary_context(
         request=request,
-        wcag_audit_initial=initial_wcag_audit,
-        wcag_audit_12_week=twelve_week_wcag_audit,
-        statement_audit_initial=initial_statement_audit,
-        statement_audit_12_week=twelve_week_statement_audit,
+        simplified_case=initial_statement_audit.simplified_case,
     )
 
     assert "summary_statement_check_results_by_type" in context
@@ -1246,10 +1190,7 @@ def test_get_audit_summary_statement_check_results_by_type(rf):
 
     context: dict[str, Any] = get_audit_summary_context(
         request=request,
-        wcag_audit_initial=initial_wcag_audit,
-        wcag_audit_12_week=twelve_week_wcag_audit,
-        statement_audit_initial=initial_statement_audit,
-        statement_audit_12_week=twelve_week_statement_audit,
+        simplified_case=initial_statement_audit.simplified_case,
     )
 
     assert "summary_statement_check_results_by_type" in context
@@ -1262,10 +1203,7 @@ def test_get_audit_summary_statement_check_results_by_type(rf):
 
     context: dict[str, Any] = get_audit_summary_context(
         request=request,
-        wcag_audit_initial=initial_wcag_audit,
-        wcag_audit_12_week=twelve_week_wcag_audit,
-        statement_audit_initial=initial_statement_audit,
-        statement_audit_12_week=twelve_week_statement_audit,
+        simplified_case=initial_statement_audit.simplified_case,
     )
 
     assert "summary_statement_check_results_by_type" in context

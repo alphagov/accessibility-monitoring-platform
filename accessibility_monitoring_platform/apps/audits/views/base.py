@@ -66,22 +66,7 @@ class AuditSummaryFirstMixin:
             **context,
             **get_audit_summary_context(
                 request=self.request,
-                wcag_audit_initial=WcagAudit.objects.filter(
-                    simplified_case=self.object.simplified_case,
-                    audit_round_type=WcagAudit.AuditRoundType.INITIAL,
-                ).first(),
-                wcag_audit_12_week=WcagAudit.objects.filter(
-                    simplified_case=self.object.simplified_case,
-                    audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-                ).first(),
-                statement_audit_initial=StatementAudit.objects.filter(
-                    simplified_case=self.object.simplified_case,
-                    audit_round_type=StatementAudit.AuditRoundType.INITIAL,
-                ).first(),
-                statement_audit_12_week=StatementAudit.objects.filter(
-                    simplified_case=self.object.simplified_case,
-                    audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-                ).first(),
+                simplified_case=self.object.simplified_case,
             ),
         }
 

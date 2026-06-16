@@ -923,10 +923,7 @@ class CaseOutstandingIssuesDetailView(
                 **context,
                 **get_audit_summary_context(
                     request=self.request,
-                    wcag_audit_initial=simplified_case.audit_overview.wcag_audit_initial,
-                    wcag_audit_12_week=simplified_case.audit_overview.first_wcag_audit_12_week_retest,
-                    statement_audit_initial=simplified_case.audit_overview.statement_audit_initial,
-                    statement_audit_12_week=simplified_case.audit_overview.first_statement_audit_12_week_retest,
+                    simplified_case=simplified_case,
                 ),
             }
         return context

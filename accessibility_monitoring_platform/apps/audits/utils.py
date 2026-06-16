@@ -14,6 +14,7 @@ from django.utils import timezone
 
 from ..common.sitemap import PlatformPage, get_platform_page_by_url_name
 from ..common.utils import list_to_dictionary_of_lists
+from ..simplified.models import SimplifiedCase
 from ..simplified.utils import (
     record_simplified_model_create_event,
     record_simplified_model_update_event,
@@ -501,12 +502,20 @@ def get_other_pages_with_retest_notes(
 
 def get_audit_summary_context(
     request: HttpRequest,
-    wcag_audit_initial: WcagAudit | None,
-    wcag_audit_12_week: WcagAudit | None,
-    statement_audit_initial: StatementAudit | None,
-    statement_audit_12_week: StatementAudit | None,
+    simplified_case: SimplifiedCase,
 ) -> dict[str, Any]:
     """Return the context for test summary pages"""
+    audit_overview: AuditOverview = simplified_case.audit_overview
+    wcag_audit_initial: WcagAudit | None = audit_overview.wcag_audit_initial
+    wcag_audit_12_week: WcagAudit | None = (
+        audit_overview.first_wcag_audit_12_week_retest
+    )
+    statement_audit_initial: StatementAudit | None = (
+        audit_overview.statement_audit_initial
+    )
+    statement_audit_12_week: StatementAudit | None = (
+        audit_overview.first_statement_audit_12_week_retest
+    )
     context: dict[str, Any] = {}
     show_failures_by_page: bool = "page-view" in request.GET
     show_all: bool = "show-all" in request.GET
