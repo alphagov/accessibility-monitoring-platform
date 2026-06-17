@@ -69,6 +69,7 @@ from ..utils import (
 from .base import (
     AddStatementLinkUpdateView,
     DeleteStatementPageUpdateView,
+    StatementAuditUpdateView,
     StatementBackupMixin,
 )
 
@@ -131,7 +132,7 @@ class EqualityBodyRetestWcagAuditUpdateView(NextPlatformPageMixin, UpdateView):
         return super().form_valid(form)
 
 
-class RetestMetadataUpdateView(EqualityBodyRetestWcagAuditUpdateView):
+class EqualityBodyRetestMetadataUpdateView(EqualityBodyRetestWcagAuditUpdateView):
     """
     View to update a equality body retest metadata
     """
@@ -143,7 +144,7 @@ class RetestMetadataUpdateView(EqualityBodyRetestWcagAuditUpdateView):
         return get_next_platform_page_equality_body(wcag_audit=self.object)
 
 
-class RetestPageChecksFormView(NextPlatformPageMixin, UpdateView):
+class EqualityBodyRetestPageChecksFormView(NextPlatformPageMixin, UpdateView):
     """
     View to update check results for a page in a retest requested by an equality body
     """
@@ -168,7 +169,6 @@ class RetestPageChecksFormView(NextPlatformPageMixin, UpdateView):
         wcag_audit: WcagAudit = wcag_page_retest.wcag_audit
         audit_overview: AuditOverview = wcag_audit.simplified_case.audit_overview
 
-        context["case"] = wcag_audit.simplified_case
         context["wcag_audit_initial"] = audit_overview.wcag_audit_initial
         context["first_wcag_audit_12_week_retest"] = (
             audit_overview.first_wcag_audit_12_week_retest
@@ -299,10 +299,7 @@ class RetestComplianceUpdateView(EqualityBodyRetestWcagAuditUpdateView):
         )
 
 
-class EqualityBodyRetestStatementAuditUpdateView(NextPlatformPageMixin, UpdateView):
-
-    model: type[StatementAudit] = StatementAudit
-    context_object_name: str = "wcag_audit"
+class EqualityBodyRetestStatementAuditUpdateView(StatementAuditUpdateView):
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Populate context data for template rendering"""
@@ -312,17 +309,6 @@ class EqualityBodyRetestStatementAuditUpdateView(NextPlatformPageMixin, UpdateVi
             build_equality_body_retest_context_data(statement_audit=statement_audit)
         )
         return context
-
-    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
-        """Add record event on change"""
-        if form.changed_data:
-            self.object: StatementAudit = form.save(commit=False)
-            record_simplified_model_update_event(
-                user=self.request.user,
-                model_object=self.object,
-                simplified_case=self.object.simplified_case,
-            )
-        return super().form_valid(form)
 
 
 class RetestAddStatementPageUpdateView(
@@ -403,27 +389,6 @@ class RetestStatementBackupUpdateView(
                     statement_backup_form=statement_backup_form,
                 )
             )
-
-
-class StatementAuditUpdateView(NextPlatformPageMixin, UpdateView):
-    """
-    View to update equality body retest
-    """
-
-    model: type[StatementAudit] = StatementAudit
-    context_object_name: str = "statement_audit"
-
-    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
-        """Add event on change of retest"""
-        if form.changed_data:
-            self.object: StatementAudit = form.save(commit=False)
-            record_simplified_model_update_event(
-                user=self.request.user,
-                model_object=self.object,
-                simplified_case=self.object.simplified_case,
-            )
-            self.object.save()
-        return HttpResponseRedirect(self.get_success_url())
 
 
 class EqualityBodyRetestStatementCheckingView(StatementAuditUpdateView):

@@ -17,13 +17,13 @@ from .views.base import (
     restore_page,
 )
 from .views.equality_body import (
+    EqualityBodyRetestMetadataUpdateView,
+    EqualityBodyRetestPageChecksFormView,
     RetestAddStatementPageUpdateView,
     RetestComparisonUpdateView,
     RetestComplianceUpdateView,
     RetestDeleteStatementPageUpdateView,
     RetestDisproportionateBurdenUpdateView,
-    RetestMetadataUpdateView,
-    RetestPageChecksFormView,
     RetestStatementBackupUpdateView,
     RetestStatementComplianceFormView,
     RetestStatementCustomFormView,
@@ -385,12 +385,12 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "retests/<int:pk>/retest-metadata-update/",
-        login_required(RetestMetadataUpdateView.as_view()),
+        login_required(EqualityBodyRetestMetadataUpdateView.as_view()),
         name="retest-metadata-update",
     ),
     path(
         "retest-pages/<int:pk>/retest-page-checks/",
-        login_required(RetestPageChecksFormView.as_view()),
+        login_required(EqualityBodyRetestPageChecksFormView.as_view()),
         name="edit-retest-page-checks",
     ),
     path(
