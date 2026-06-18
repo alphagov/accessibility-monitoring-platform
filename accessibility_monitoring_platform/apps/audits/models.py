@@ -294,6 +294,10 @@ class AuditOverview(models.Model):
         return self.equality_body_wcag_audits.first()
 
     @property
+    def last_equality_body_wcag_audit(self) -> WcagAudit | None:
+        return self.equality_body_wcag_audits.last()
+
+    @property
     def website_compliance_display(self) -> str:
         if (
             self.first_wcag_audit_12_week_retest is not None
@@ -344,10 +348,26 @@ class AuditOverview(models.Model):
         ).first()
 
     @property
-    def first_statement_audit_12_week_retest(self) -> StatementAudit | None:
+    def twelve_week_statement_audits(self) -> StatementAudit | None:
         return self.statement_audits.filter(
             audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK
-        ).first()
+        )
+
+    @property
+    def equality_body_statement_audits(self) -> StatementAudit | None:
+        return self.statement_audits.filter(
+            audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY
+        )
+
+    @property
+    def first_statement_audit_12_week_retest(self) -> StatementAudit | None:
+        if self.twelve_week_statement_audits is not None:
+            return self.twelve_week_statement_audits.first()
+
+    @property
+    def last_equality_body_statement_audit(self) -> WcagAudit | None:
+        if self.equality_body_statement_audits is not None:
+            return self.equality_body_statement_audits.last()
 
     @property
     def all_overview_statement_checks_have_passed(self) -> bool:
@@ -505,7 +525,6 @@ class WcagAudit(AuditRound):
             return None
         return WcagAudit.objects.filter(
             simplified_case=self.simplified_case,
-            audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
             round_number=self.round_number - 1,
         ).first()
 

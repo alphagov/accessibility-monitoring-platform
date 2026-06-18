@@ -8,7 +8,7 @@ Report published: {{ case.report.latest_s3_report.created|amp_date }}
 <br>
 Case sent to Equality body: {{ case.sent_to_enforcement_body_sent_date|amp_date }}
 <br>
-Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
+Most recent retest: {{ last_equality_body_wcag_audit.date_of_test|amp_date }}
 <br>
 <br>
 <h2 class="amp-margin-bottom-0">Overview</h2>
@@ -16,22 +16,22 @@ Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
     <li>
     Retest results:
     <ul>
-    {% for retest_page in retest.retestpage_set.all %}
+    {% for wcag_page_retest in last_equality_body_wcag_audit.wcag_page_retests %}
     <li>
-    {{ retest_page.page }}{% if retest_page.page.page_type != 'pdf' %} page{% endif %}
-    ({{ retest_page.unfixed_check_results.count }} of {{ retest_page.original_check_results.count }}
-    issue{% if retest_page.original_check_results.count != 1 %}s{% endif %} remaining)
+    {{ wcag_page_retest.wcag_page_initial }}{% if wcag_page_retest.wcag_page_initial.page_type != 'pdf' %} page{% endif %}
+    ({{ wcag_page_retest.unfixed_wcag_check_result_retests.count }} of {{ wcag_page_retest.wcag_page_initial.all_wcag_check_result_initials.count }}
+    issue{% if wcag_page_retest.wcag_page_initial.all_wcag_check_result_initials.count != 1 %}s{% endif %} remaining)
     </li>
     {% endfor %}
     </ul>
     </li>
 </ul>
 <br>
-{% if retest.retest_notes %}
+{% if last_equality_body_wcag_audit.notes %}
         <br>
 	<h2 class="amp-margin-bottom-20">Retest notes</h2>
         <br>
-	{{ retest.retest_notes|markdown_to_html }}
+	{{ last_equality_body_wcag_audit.notes|markdown_to_html }}
         <br>
 {% endif %}
 <br>
@@ -44,11 +44,11 @@ Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
     </tr>
     </thead>
     <tbody>
-    {% for retest_page in retest.retestpage_set.all %}
+    {% for wcag_page_retest in last_equality_body_wcag_audit.wcag_page_retests %}
     <tr valign="top">
-    <td headers="page-name" width=50%>{{ retest_page.page }}</td>
+    <td headers="page-name" width=50%>{{ wcag_page_retest.wcag_page_initial }}</td>
     <td headers="page-url" width=50%>
-    <a href="{{ retest_page.page.url }}">{{ retest_page.page.url }}</a>
+        <a href="{{ wcag_page_retest.latest_page_url }}">{{ wcag_page_retest.latest_page_url }}</a>
     </td>
     </tr>
     {% endfor %}
@@ -95,14 +95,14 @@ Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
 {% endif %}
 <h2 class="amp-margin-bottom-0">Errors found in retest</h2>
 <br>
-{% for retest_page in retest.retestpage_set.all %}
-    <b>{{ retest_page.page }}{% if retest_page.page.page_type != 'pdf' %} page{% endif %} issues</b>
-    ({{ retest_page.unfixed_check_results.count }} issue{% if retest_page.unfixed_check_results.count != 1 %}s{% endif %} remaining)
+{% for wcag_page_retest in last_equality_body_wcag_audit.wcag_page_retests %}
+    <b>{{ wcag_page_retest.wcag_page_initial }}{% if wcag_page_retest.wcag_page_initial.page_type != 'pdf' %} page{% endif %} issues</b>
+    ({{ wcag_page_retest.unfixed_wcag_check_result_retests.count }} issue{% if wcag_page_retest.unfixed_wcag_check_result_retests.count != 1 %}s{% endif %} remaining)
     <br>
-    <a href="{{ retest_page.page.url }}">{{ retest_page.page.url }}</a>
+    <a href="{{ wcag_page_retest.latest_page_url }}">{{ wcag_page_retest.latest_page_url }}</a>
     <br>
     <br>
-    {% if retest_page.missing_date %}
+    {% if wcag_page_retest.missing_date %}
     This page has been removed by the organisation.
     <br>
     <br>
@@ -116,44 +116,40 @@ Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
     </tr>
     </thead>
     <tbody>
-    {% for retest_check_result in retest_page.original_check_results %}
+    {% for wcag_check_result_retest in wcag_page_retest.all_wcag_check_result_retests %}
     <tr valign="top">
     <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>
-    <b>Issue {{ retest_check_result.issue_identifier }}</b>
+    <b>Issue {{ wcag_check_result_retest.issue_identifier }}</b>
     <br>
     <br>
-    {% if retest_check_result.check_result.wcag_definition.url_on_w3 %}
-    <a href="{{ retest_check_result.check_result.wcag_definition.url_on_w3 }}">
-    {{ retest_check_result.check_result.wcag_definition.name }}</a>
+    {% if wcag_check_result_retest.wcag_definition.url_on_w3 %}
+    <a href="{{ wcag_check_result_retest.check_result.wcag_definition.url_on_w3 }}">
+    {{ wcag_check_result_retest.wcag_definition.name }}</a>
     {% else %}
-    {{ retest_check_result.check_result.wcag_definition.name }}
+    {{ wcag_check_result_retest.wcag_definition.name }}
     {% endif %}
     <br>
     <br>
-    {{ retest_check_result.check_result.wcag_definition.description|markdown_to_html }}
+    {{ wcag_check_result_retest.wcag_definition.description|markdown_to_html }}
     <br>
-    {{ retest_check_result.check_result.wcag_definition.report_boilerplate|markdown_to_html }}
+    {{ wcag_check_result_retest.wcag_definition.report_boilerplate|markdown_to_html }}
     </td>
     <td headers="where-found-{{ forloop.parentloop.counter }}" width=33%>
-    {{ retest_check_result.check_result.notes|markdown_to_html }}
+    {{ wcag_check_result_retest.wcag_check_result_initial.notes|markdown_to_html }}
     </td>
     <td headers="retest-update-{{ forloop.parentloop.counter }}" width=33%>
-    {% if retest_check_result.latest_retest_check_result %}
-    {{ retest_check_result.latest_retest_check_result.get_retest_state_display }}
+    {{ wcag_check_result_retest.get_retest_state_display }}
     <br>
     <br>
-    {{ retest_check_result.latest_retest_check_result.retest_notes|markdown_to_html }}
-    {% else %}
-    Fixed in a previous retest
-    {% endif %}
+    {{ wcag_check_result_retest.retest_notes|markdown_to_html }}
     </td>
     </tr>
     {% endfor %}
     </tbody>
     </table>
     <b>Additional issues found</b>
-    {% if retest_page.additional_issues_notes %}
-    {{ retest_page.additional_issues_notes|markdown_to_html }}
+    {% if wcag_page_retest.notes %}
+    {{ wcag_page_retest.notes|markdown_to_html }}
     {% else %}
     <br>
     <br>
@@ -165,21 +161,21 @@ Most recent retest: {{ case.retests.first.date_of_retest|amp_date }}
 {% endfor %}
 <h2 class="amp-margin-bottom-0">Statement assessment</h2>
 <br>
-The statement in the most recent retest was: {{ retest.get_statement_compliance_state_display }}.
+The statement in the most recent retest was: {{ last_equality_body_statement_audit.get_compliance_state_display }}.
 <br>
 <br>
-Disproportionate burden was: {{ retest.get_disproportionate_burden_claim_display }}.
+Disproportionate burden was: {{ last_equality_body_statement_audit.get_disproportionate_burden_claim_display }}.
 <br>
 <br>
-{% if retest.disproportionate_burden_notes %}
+{% if last_equality_body_statement_audit.disproportionate_burden_notes %}
     Notes regarding the disproportionate burden:
     <br>
     <br>
-    {{ retest.disproportionate_burden_notes|markdown_to_html }}
+    {{ last_equality_body_statement_audit.disproportionate_burden_notes|markdown_to_html }}
     <br>
     <br>
 {% endif %}
-{% if retest.failed_statement_check_results %}
+{% if last_equality_body_statement_audit.failed_statement_check_results %}
     <table id="email-statement-issues-table">
     <thead>
     <tr>
@@ -187,7 +183,7 @@ Disproportionate burden was: {{ retest.get_disproportionate_burden_claim_display
     </tr>
     </thead>
     <tbody>
-    {% for failed_statement_check_result in retest.failed_statement_check_results %}
+    {% for failed_statement_check_result in last_equality_body_statement_audit.failed_statement_check_results %}
     <tr valign="top">
     <td headers="statement-issue-{{ forloop.parentloop.counter }}" width=100%>
     <b>Issue {{ failed_statement_check_result.issue_identifier }}</b>
