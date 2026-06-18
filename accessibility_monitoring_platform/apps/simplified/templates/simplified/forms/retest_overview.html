@@ -5,7 +5,7 @@
 <div class="govuk-grid-row amp-margin-top-20">
     <div class="govuk-grid-column-full govuk-button-group">
         <a
-            {% if case.latest_retest.is_incomplete %}
+            {% if case.audit_overview.equality_body_wcag_audits.last.compliance_state == 'not-known' %}
                 href="{% url 'simplified:retest-create-error' case.id %}"
             {% else %}
                 href="{% url 'audits:create-equality-body-retest' case.id %}"

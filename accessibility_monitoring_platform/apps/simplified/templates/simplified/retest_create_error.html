@@ -9,7 +9,7 @@
         </div>
         <div class="govuk-grid-column-full govuk-button-group">
             <a
-                href="{% url 'audits:retest-compliance-update' case.latest_retest.id %}"
+                href="{% url 'audits:retest-compliance-update'  case.audit_overview.equality_body_wcag_audits.last.id %}"
                 role="button"
                 draggable="false"
                 class="govuk-button"

@@ -9,7 +9,7 @@ from datetime import date
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Case as DjangoCase
-from django.db.models import Max, Q, When
+from django.db.models import Q, When
 from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
@@ -25,21 +25,14 @@ ISSUE_IDENTIFIER_STATEMENT: str = "S"
 
 def build_issue_identifier(
     simplified_case: SimplifiedCase,
-    issue: (
-        CheckResult
-        | StatementCheckResult
-        | RetestCheckResult
-        | RetestStatementCheckResult
-    ),
+    issue: WcagCheckResultInitial | StatementCheckResultRound,
     custom_issue: bool = False,
     id_within_case: int = 1,
 ) -> str:
     """Format and return issue identifier"""
     issue_type: str = (
         ISSUE_IDENTIFIER_WCAG
-        if isinstance(
-            issue, (WcagCheckResultInitial, WcagCheckResultRetest, RetestCheckResult)
-        )
+        if isinstance(issue, WcagCheckResultInitial)
         else ISSUE_IDENTIFIER_STATEMENT
     )
     if custom_issue:
@@ -256,340 +249,6 @@ class Audit(VersionModel):
     def __str__(self) -> str:
         return f"{self.simplified_case} (Test {amp_format_date(self.date_of_test)})"
 
-    def save(self, *args, **kwargs) -> None:
-        self.updated = timezone.now()
-        super().save(*args, **kwargs)
-
-    @property
-    def deleted_pages(self):
-        return self.page_audit.filter(is_deleted=True)
-
-    @property
-    def every_page(self):
-        """Sort page of type PDF to be last apart from the accessibility statement"""
-        return (
-            self.page_audit.filter(is_deleted=False)
-            .annotate(
-                position_pdfs_statements_last=DjangoCase(
-                    When(page_type=Page.Type.PDF, then=1),
-                    When(page_type=Page.Type.STATEMENT, then=2),
-                    default=0,
-                )
-            )
-            .order_by("position_pdfs_statements_last", "id")
-        )
-
-    @property
-    def testable_pages(self):
-        return self.every_page.exclude(not_found=Boolean.YES).exclude(url="")
-
-    @property
-    def retestable_pages(self):
-        return self.testable_pages.filter(retest_page_missing_date=None)
-
-    @property
-    def html_pages(self):
-        return self.every_page.exclude(page_type=Page.Type.PDF)
-
-    @property
-    def accessibility_statement_page(self):
-        return self.every_page.filter(page_type=Page.Type.STATEMENT).first()
-
-    @property
-    def contact_page(self):
-        return self.every_page.filter(page_type=Page.Type.CONTACT).first()
-
-    @property
-    def standard_pages(self):
-        return self.every_page.exclude(page_type=Page.Type.EXTRA)
-
-    @property
-    def extra_pages(self):
-        return self.html_pages.filter(page_type=Page.Type.EXTRA)
-
-    @property
-    def missing_at_retest_pages(self):
-        return self.testable_pages.exclude(retest_page_missing_date=None)
-
-    @property
-    def missing_at_retest_check_results(self):
-        return self.checkresult_audit.filter(
-            is_deleted=False,
-            check_result_state=CheckResult.Result.ERROR,
-            page__in=self.missing_at_retest_pages,
-        )
-
-    @property
-    def failed_check_results(self):
-        return (
-            self.checkresult_audit.filter(
-                is_deleted=False,
-                check_result_state=CheckResult.Result.ERROR,
-                page__is_deleted=False,
-                page__not_found=Boolean.NO,
-                page__retest_page_missing_date=None,
-                page__is_contact_page=Boolean.NO,
-            )
-            .annotate(
-                position_pdf_and_statement_page_last=DjangoCase(
-                    When(page__page_type=Page.Type.PDF, then=1),
-                    When(page__page_type=Page.Type.STATEMENT, then=2),
-                    default=0,
-                )
-            )
-            .order_by(
-                "position_pdf_and_statement_page_last",
-                "page__id",
-                "wcag_definition__id",
-            )
-            .select_related("page", "wcag_definition")
-            .all()
-        )
-
-    @property
-    def fixed_check_results(self):
-        return self.failed_check_results.filter(
-            retest_state=CheckResult.RetestResult.FIXED
-        )
-
-    @property
-    def unfixed_check_results(self):
-        return self.failed_check_results.exclude(
-            retest_state=CheckResult.RetestResult.FIXED
-        )
-
-    @property
-    def percentage_wcag_issues_fixed(self) -> int:
-        return calculate_percentage(
-            total=self.failed_check_results.count(),
-            partial=self.fixed_check_results.count(),
-        )
-
-    @property
-    def statement_check_results(self):
-        return self.statementcheckresult_set.filter(is_deleted=False)
-
-    @property
-    def overview_statement_check_results(self):
-        return self.statement_check_results.filter(type=StatementCheck.Type.OVERVIEW)
-
-    @property
-    def statement_found_check(self):
-        return self.overview_statement_check_results.first()
-
-    @property
-    def statement_structure_check(self):
-        return self.overview_statement_check_results.last()
-
-    @property
-    def overview_statement_checks_complete(self) -> bool:
-        return (
-            self.overview_statement_check_results.filter(
-                check_result_state=StatementCheckResult.Result.NOT_TESTED
-            ).count()
-            == 0
-        )
-
-    @property
-    def statement_check_result_statement_found(self) -> bool:
-        overview_statement_yes_count: CheckResult = (
-            self.overview_statement_check_results.filter(
-                check_result_state=StatementCheckResult.Result.YES
-            ).count()
-        )
-        return (
-            overview_statement_yes_count
-            == self.overview_statement_check_results.count()
-        )
-
-    @property
-    def website_statement_check_results(self):
-        return self.statement_check_results.filter(type=StatementCheck.Type.WEBSITE)
-
-    @property
-    def compliance_statement_check_results(self):
-        return self.statement_check_results.filter(type=StatementCheck.Type.COMPLIANCE)
-
-    @property
-    def non_accessible_statement_check_results(self):
-        return self.statement_check_results.filter(
-            type=StatementCheck.Type.NON_ACCESSIBLE
-        )
-
-    @property
-    def preparation_statement_check_results(self):
-        return self.statement_check_results.filter(type=StatementCheck.Type.PREPARATION)
-
-    @property
-    def feedback_statement_check_results(self):
-        return self.statement_check_results.filter(type=StatementCheck.Type.FEEDBACK)
-
-    @property
-    def disproportionate_statement_check_results(self):
-        return self.statement_check_results.filter(
-            type=StatementCheck.Type.DISPROPORTIONATE
-        )
-
-    @property
-    def custom_statement_check_results(self):
-        return self.statement_check_results.filter(type=StatementCheck.Type.CUSTOM)
-
-    @property
-    def new_12_week_custom_statement_check_results(self):
-        return self.statement_check_results.filter(type=StatementCheck.Type.RETEST)
-
-    @property
-    def failed_statement_check_results(self):
-        return self.statement_check_results.filter(
-            check_result_state=StatementCheckResult.Result.NO
-        )
-
-    @property
-    def passed_statement_check_results(self):
-        return self.statement_check_results.filter(
-            check_result_state=StatementCheckResult.Result.YES
-        )
-
-    @property
-    def outstanding_statement_check_results(self):
-        return self.statement_check_results.filter(
-            Q(check_result_state=StatementCheckResult.Result.NO)
-            | Q(retest_state=StatementCheckResult.Result.NO)
-            | Q(statement_check=None)
-        ).exclude(retest_state=StatementCheckResult.Result.YES)
-
-    @property
-    def overview_outstanding_statement_check_results(self):
-        return self.outstanding_statement_check_results.filter(
-            type=StatementCheck.Type.OVERVIEW
-        )
-
-    @property
-    def website_outstanding_statement_check_results(self):
-        return self.outstanding_statement_check_results.filter(
-            type=StatementCheck.Type.WEBSITE
-        )
-
-    @property
-    def compliance_outstanding_statement_check_results(self):
-        return self.outstanding_statement_check_results.filter(
-            type=StatementCheck.Type.COMPLIANCE
-        )
-
-    @property
-    def non_accessible_outstanding_statement_check_results(self):
-        return self.outstanding_statement_check_results.filter(
-            type=StatementCheck.Type.NON_ACCESSIBLE
-        )
-
-    @property
-    def preparation_outstanding_statement_check_results(self):
-        return self.outstanding_statement_check_results.filter(
-            type=StatementCheck.Type.PREPARATION
-        )
-
-    @property
-    def feedback_outstanding_statement_check_results(self):
-        return self.outstanding_statement_check_results.filter(
-            type=StatementCheck.Type.FEEDBACK
-        )
-
-    @property
-    def disproportionate_outstanding_statement_check_results(self):
-        return self.outstanding_statement_check_results.filter(
-            type=StatementCheck.Type.DISPROPORTIONATE
-        )
-
-    @property
-    def custom_outstanding_statement_check_results(self):
-        return self.outstanding_statement_check_results.filter(
-            type=StatementCheck.Type.CUSTOM
-        )
-
-    @property
-    def all_overview_statement_checks_have_passed(self) -> bool:
-        """Check all overview statement checks have passed test or retest"""
-        if self.overview_statement_check_results.count() == 0:
-            return False
-        return (
-            self.overview_statement_check_results.exclude(
-                check_result_state=StatementCheckResult.Result.YES
-            ).count()
-            == 0
-            or self.overview_statement_check_results.exclude(
-                check_result_state=StatementCheckResult.Result.YES
-            ).count()
-            == 0
-        )
-
-    @property
-    def statement_initially_found(self) -> bool:
-        """Check an accesibility statement was initially found"""
-        return (
-            self.overview_statement_check_results.exclude(
-                check_result_state=StatementCheckResult.Result.YES
-            ).count()
-            == 0
-        )
-
-    @property
-    def statement_found_at_12_week_retest(self) -> bool:
-        """Check an accessibility statement was found at 12-week retest"""
-        return (
-            self.overview_statement_check_results.exclude(
-                retest_state=StatementCheckResult.Result.YES
-            ).count()
-            == 0
-        )
-
-    @property
-    def failed_retest_statement_check_results(self):
-        return self.statement_check_results.filter(
-            retest_state=StatementCheckResult.Result.NO
-        )
-
-    @property
-    def passed_retest_statement_check_results(self):
-        return self.statement_check_results.filter(
-            retest_state=StatementCheckResult.Result.YES
-        )
-
-    @property
-    def fixed_statement_check_results(self):
-        return self.failed_statement_check_results.filter(
-            retest_state=StatementCheckResult.Result.YES
-        )
-
-    @property
-    def statement_pages(self):
-        return self.statementpage_set.filter(is_deleted=False)
-
-    @property
-    def unique_statement_page_urls(self) -> list[StatementPage]:
-        """Return the first statement page for each URL"""
-        statement_urls: list[str] = []
-        unique_url_statement_pages: list[StatementPage] = []
-        for statement_page in self.statement_pages.exclude(url=""):
-            if statement_page.url not in statement_urls:
-                statement_urls.append(statement_page.url)
-                unique_url_statement_pages.append(statement_page)
-        return unique_url_statement_pages
-
-    @property
-    def archived_google_drive_links(self) -> QuerySet[StatementPage]:
-        """Return statement pages with google drive backup urls"""
-        return self.statement_pages.filter(backup_url__contains="drive.google.com")
-
-    @property
-    def latest_statement_link(self) -> str | None:
-        for statement_page in self.statement_pages.order_by("-id"):
-            if statement_page.url:
-                return statement_page.url
-
-    @property
-    def accessibility_statement_found(self) -> bool:
-        return self.statement_pages.count() > 0 and self.latest_statement_link != ""
-
 
 class AuditOverview(models.Model):
 
@@ -625,10 +284,14 @@ class AuditOverview(models.Model):
         ).first()
 
     @property
-    def first_wcag_audit_equality_body_retest(self) -> WcagAudit | None:
+    def equality_body_wcag_audits(self) -> WcagAudit | None:
         return self.wcag_audits.filter(
             audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY
-        ).first()
+        )
+
+    @property
+    def first_wcag_audit_equality_body_retest(self) -> WcagAudit | None:
+        return self.equality_body_wcag_audits.first()
 
     @property
     def website_compliance_display(self) -> str:
@@ -984,6 +647,7 @@ class WcagAudit(AuditRound):
     def wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
         return self.wcagcheckresultretest_set.filter(
             is_deleted=False,
+            wcag_check_result_initial__wcag_page_initial__not_found=Boolean.NO,
         )
 
     @property
@@ -1297,9 +961,6 @@ class StatementAudit(AuditRound):
 
 
 class Page(models.Model):
-    """
-    Model for test/audit page
-    """
 
     class Type(models.TextChoices):
         EXTRA = "extra", "Additional"
@@ -1348,56 +1009,6 @@ class Page(models.Model):
 
     def __str__(self) -> str:  # pylint: disable=invalid-str-returned
         return self.name if self.name else self.get_page_type_display()
-
-    @property
-    def page_title(self) -> str:
-        title: str = str(self)
-        if self.page_type != Page.Type.PDF:
-            title += " page"
-        return title
-
-    def save(self, *args, **kwargs) -> None:
-        self.updated = timezone.now()
-        super().save(*args, **kwargs)
-
-    def get_absolute_url(self) -> str:
-        return reverse("audits:edit-audit-page-checks", kwargs={"pk": self.pk})
-
-    @property
-    def all_check_results(self):
-        return (
-            self.checkresult_page.filter(is_deleted=False)
-            .order_by("wcag_definition__id")
-            .select_related("wcag_definition")
-            .all()
-        )
-
-    @property
-    def failed_check_results(self):
-        return self.all_check_results.filter(
-            check_result_state=CheckResult.Result.ERROR
-        )
-
-    @property
-    def count_failed_check_results(self):
-        return self.failed_check_results.count()
-
-    @property
-    def unfixed_check_results(self):
-        return self.failed_check_results.exclude(
-            retest_state=CheckResult.RetestResult.FIXED
-        )
-
-    @property
-    def check_results_by_wcag_definition(self):
-        check_results: QuerySet[CheckResult] = self.all_check_results
-        return {
-            check_result.wcag_definition: check_result for check_result in check_results
-        }
-
-    @property
-    def anchor(self):
-        return f"test-page-{self.id}"
 
 
 class WcagPageInitial(models.Model):
@@ -1611,9 +1222,6 @@ class WcagDefinition(models.Model):
 
 
 class CheckResult(models.Model):
-    """
-    Model for test result
-    """
 
     class Result(models.TextChoices):
         ERROR = "error", "Error found"
@@ -1671,25 +1279,6 @@ class CheckResult(models.Model):
 
     def __str__(self) -> str:
         return f"{self.page} | {self.wcag_definition} | {self.issue_identifier}"
-
-    def save(self, *args, **kwargs) -> None:
-        self.updated = timezone.now()
-        if not self.id:
-            self.issue_identifier = build_issue_identifier(
-                simplified_case=self.audit.simplified_case,
-                issue=self,
-                id_within_case=self.audit.checkresult_audit.all().count() + 1,
-            )
-        super().save(*args, **kwargs)
-
-    @property
-    def matching_wcag_with_retest_notes_check_results(self) -> dict[str, str]:
-        """Other check results with retest notes for matching WCAGDefinition"""
-        return (
-            self.audit.failed_check_results.filter(wcag_definition=self.wcag_definition)
-            .exclude(page=self.page)
-            .exclude(retest_notes="")
-        )
 
 
 class WcagCheckResultInitial(models.Model):
@@ -1985,42 +1574,6 @@ class StatementCheckResult(models.Model):
             return f"{self.audit} | Custom [{self.issue_identifier}]"
         return f"{self.audit} | {self.statement_check} [{self.issue_identifier}]"
 
-    def save(self, *args, **kwargs) -> None:
-        if not self.id:
-            if self.statement_check:
-                self.id_within_case = self.statement_check.issue_number
-            else:
-                self.id_within_case = self.audit.statement_check_results.count() + 1
-            self.issue_identifier = build_issue_identifier(
-                simplified_case=self.audit.simplified_case,
-                issue=self,
-                custom_issue=self.statement_check is None,
-            )
-        super().save(*args, **kwargs)
-
-    @property
-    def label(self):
-        return self.statement_check.label if self.statement_check else "Custom"
-
-    @property
-    def display_value(self):
-        value_str: str = self.get_check_result_state_display()
-        if self.public_comment:
-            value_str += f"<br><br>Auditor's comment: {self.report_comment}"
-        return mark_safe(value_str)
-
-    @property
-    def edit_initial_url_name(self) -> str:
-        if self.statement_check is None:
-            return "audits:edit-statement-custom"
-        return f"audits:edit-statement-{self.statement_check.type}"
-
-    @property
-    def edit_12_week_url_name(self) -> str:
-        if self.statement_check is None:
-            return "audits:edit-retest-statement-custom"
-        return f"audits:edit-retest-statement-{self.type}"
-
 
 class StatementCheckResultRound(models.Model):
 
@@ -2188,141 +1741,10 @@ class Retest(VersionModel):
     class Meta:
         ordering = ["simplified_case_id", "-id_within_case"]
 
-    def get_absolute_url(self) -> str:
-        return reverse("audits:retest-compliance-update", kwargs={"pk": self.id})
-
     def __str__(self) -> str:
         if self.id_within_case == 0:
             return "12-week retest"
         return f"Retest #{self.id_within_case}"
-
-    @property
-    def is_incomplete(self) -> bool:
-        return self.retest_compliance_state == Retest.Compliance.NOT_KNOWN
-
-    @property
-    def fixed_checks_count(self):
-        """
-        Add the numbers of checks fixed in the 12-week retest and all equality
-        body requested retests up to this one.
-        """
-        fixed_checks_count: int = (
-            WcagCheckResultInitial.objects.filter(
-                wcag_audit=self.simplified_case.audit_overview.wcag_audit_initial
-            )
-            .filter(
-                wcagcheckresultretest__retest_state=WcagCheckResultRetest.RetestResult.FIXED
-            )
-            .exclude(wcag_page_initial__not_found="yes")
-            .count()
-        )
-        for retest in self.simplified_case.retests.exclude(
-            id_within_case__gt=self.id_within_case
-        ).exclude(id_within_case=0):
-            fixed_checks_count += (
-                RetestCheckResult.objects.filter(retest=retest)
-                .filter(retest_state=CheckResult.RetestResult.FIXED)
-                .exclude(retest_page__page__not_found="yes")
-                .count()
-            )
-        return fixed_checks_count
-
-    @property
-    def original_retest(self):
-        """Copy of 12-week retest results"""
-        return self.simplified_case.retests.filter(id_within_case=0).first()
-
-    @property
-    def previous_retest(self):
-        """Return previous retest"""
-        if self.id_within_case > 0:
-            return self.simplified_case.retests.filter(
-                id_within_case=self.id_within_case - 1
-            ).first()
-        return None
-
-    @property
-    def latest_retest(self):
-        """Return latest retest"""
-        return self.simplified_case.retests.first()
-
-    @property
-    def check_results(self):
-        return (
-            self.retestcheckresult_set.filter(
-                retest_page__missing_date=None,
-            )
-            .annotate(
-                position_pdf_and_statement_page_last=DjangoCase(
-                    When(retest_page__page__page_type=Page.Type.PDF, then=1), default=0
-                )
-            )
-            .order_by(
-                "position_pdf_and_statement_page_last",
-                "retest_page__id",
-                "check_result__wcag_definition__id",
-            )
-        )
-
-    @property
-    def unfixed_check_results(self):
-        return self.check_results.exclude(retest_state=CheckResult.RetestResult.FIXED)
-
-    @property
-    def statement_check_results(self):
-        return self.reteststatementcheckresult_set.filter(is_deleted=False)
-
-    @property
-    def failed_statement_check_results(self):
-        return self.statement_check_results.filter(
-            check_result_state=StatementCheckResult.Result.NO
-        )
-
-    @property
-    def overview_statement_check_results(self):
-        return self.statement_check_results.filter(type=StatementCheck.Type.OVERVIEW)
-
-    @property
-    def all_overview_statement_checks_have_passed(self) -> bool:
-        """Check all overview statement checks have passed"""
-        return (
-            self.overview_statement_check_results.exclude(
-                check_result_state=StatementCheckResult.Result.YES
-            ).count()
-            == 0
-        )
-
-    @property
-    def website_statement_check_results(self):
-        return self.statement_check_results.filter(type=StatementCheck.Type.WEBSITE)
-
-    @property
-    def compliance_statement_check_results(self):
-        return self.statement_check_results.filter(type=StatementCheck.Type.COMPLIANCE)
-
-    @property
-    def non_accessible_statement_check_results(self):
-        return self.statement_check_results.filter(
-            type=StatementCheck.Type.NON_ACCESSIBLE
-        )
-
-    @property
-    def preparation_statement_check_results(self):
-        return self.statement_check_results.filter(type=StatementCheck.Type.PREPARATION)
-
-    @property
-    def feedback_statement_check_results(self):
-        return self.statement_check_results.filter(type=StatementCheck.Type.FEEDBACK)
-
-    @property
-    def disproportionate_statement_check_results(self):
-        return self.statement_check_results.filter(
-            type=StatementCheck.Type.DISPROPORTIONATE
-        )
-
-    @property
-    def custom_statement_check_results(self):
-        return self.statement_check_results.filter(type=StatementCheck.Type.CUSTOM)
 
 
 class RetestPage(models.Model):
@@ -2341,34 +1763,6 @@ class RetestPage(models.Model):
 
     def __str__(self) -> str:  # pylint: disable=invalid-str-returned
         return f"{self.page}"
-
-    def get_absolute_url(self) -> str:
-        return reverse("audits:edit-retest-page-checks", kwargs={"pk": self.pk})
-
-    @property
-    def heading(self):
-        return f"{self.retest} | {self.page}"
-
-    @property
-    def all_check_results(self):
-        return self.retestcheckresult_set.all()
-
-    @property
-    def unfixed_check_results(self):
-        return self.all_check_results.exclude(
-            retest_state=CheckResult.RetestResult.FIXED
-        )
-
-    @property
-    def original_check_results(self):
-        return self.retest.original_retest.retestpage_set.get(
-            page=self.page
-        ).all_check_results
-
-    @property
-    def all_retest_pages(self):
-        """Return all retest pages for this page"""
-        return RetestPage.objects.filter(page=self.page)
 
 
 class RetestCheckResult(models.Model):
@@ -2390,17 +1784,6 @@ class RetestCheckResult(models.Model):
     retest_notes = models.TextField(default="", blank=True)
     updated = models.DateTimeField(null=True, blank=True)
 
-    @property
-    def matching_wcag_retest_check_results(self) -> dict[str, str]:
-        """Other retest check results with retest notes for same WCAGDefinition"""
-        return (
-            self.retest.check_results.filter(
-                check_result__wcag_definition=self.check_result.wcag_definition
-            )
-            .exclude(retest_page=self.retest_page)
-            .exclude(retest_notes="")
-        )
-
     class Meta:
         ordering = ["id"]
         indexes = [
@@ -2413,46 +1796,6 @@ class RetestCheckResult(models.Model):
 
     def __str__(self) -> str:
         return f"{self.retest_page} | {self.check_result}"
-
-    def save(self, *args, **kwargs) -> None:
-        self.updated = timezone.now()
-        if not self.id:
-            self.issue_identifier = build_issue_identifier(
-                simplified_case=self.retest.simplified_case,
-                issue=self,
-                id_within_case=self.check_result.id_within_case,
-            )
-        super().save(*args, **kwargs)
-
-    @property
-    def wcag_definition(self):
-        return self.check_result.wcag_definition
-
-    @property
-    def original_retest_check_result(self):
-        """Return original copy of 12-week retest result for this check"""
-        return self.retest.original_retest.retestcheckresult_set.filter(
-            check_result=self.check_result
-        ).first()
-
-    @property
-    def latest_retest_check_result(self):
-        """Return latest retest result for this check"""
-        return self.retest.latest_retest.retestcheckresult_set.filter(
-            check_result=self.check_result
-        ).first()
-
-    @property
-    def previous_retest_check_result(self):
-        """Return previous retest result for this check"""
-        return self.retest.previous_retest.retestcheckresult_set.filter(
-            check_result=self.check_result
-        ).first()
-
-    @property
-    def all_retest_check_results(self):
-        """Return all retest results for this check"""
-        return RetestCheckResult.objects.filter(check_result=self.check_result)
 
 
 class RetestStatementCheckResult(models.Model):
@@ -2497,29 +1840,12 @@ class RetestStatementCheckResult(models.Model):
             ),
         ]
 
-    def save(self, *args, **kwargs) -> None:
-        if not self.id:
-            self.issue_identifier = build_issue_identifier(
-                simplified_case=self.retest.simplified_case,
-                issue=self,
-                custom_issue=self.statement_check is None,
-                id_within_case=RetestStatementCheckResult.objects.filter(
-                    retest__simplified_case=self.retest.simplified_case
-                ).aggregate(Max("id_within_case", default=0))["id_within_case__max"]
-                + 1,
-            )
-        super().save(*args, **kwargs)
-
     def __str__(self) -> str:
         if self.statement_check is None:
             return f"{self.statement_audit} | Custom [{self.issue_identifier}]"
         return (
             f"{self.statement_audit} | {self.statement_check} [{self.issue_identifier}]"
         )
-
-    @property
-    def label(self):
-        return self.statement_check.label if self.statement_check else "Custom"
 
 
 class StatementPage(models.Model):

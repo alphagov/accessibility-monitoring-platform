@@ -914,24 +914,6 @@ def test_case_number_retests():
 
 
 @pytest.mark.django_db
-def test_case_latest_retest_returns_most_recent():
-    """Test SimplifiedCase.latest_retest returns most recent"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-
-    assert simplified_case.latest_retest is None
-
-    first_retest: Retest = Retest.objects.create(simplified_case=simplified_case)
-
-    assert simplified_case.latest_retest == first_retest
-
-    second_retest: Retest = Retest.objects.create(
-        simplified_case=simplified_case, id_within_case=2
-    )
-
-    assert simplified_case.latest_retest == second_retest
-
-
-@pytest.mark.django_db
 def test_case_incomplete_retests_returns_incomplete_retests():
     """Test SimplifiedCase.incomplete_retests returns retests with the default state"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()

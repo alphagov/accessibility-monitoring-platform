@@ -786,12 +786,19 @@ class SimplifiedCase(BaseCase):
 
     @property
     def percentage_website_issues_fixed(self) -> int | str:
-        if self.audit is None:
+        if (
+            self.audit_overview is None
+            or self.audit_overview.first_wcag_audit_12_week_retest is None
+        ):
             return "n/a"
-        failed_checks_count: int = self.audit.failed_check_results.count()
+        failed_checks_count: int = (
+            self.audit_overview.wcag_audit_initial.wcag_failed_check_result_initials.count()
+        )
         if failed_checks_count == 0:
             return "n/a"
-        fixed_checks_count: int = self.audit.fixed_check_results.count()
+        fixed_checks_count: int = (
+            self.audit_overview.first_wcag_audit_12_week_retest.wcag_fixed_check_result_retests.count()
+        )
         return int(fixed_checks_count * 100 / failed_checks_count)
 
     @property
@@ -818,11 +825,16 @@ class SimplifiedCase(BaseCase):
 
     @property
     def overview_issues_website(self) -> str:
-        if self.audit is None:
+        if (
+            self.audit_overview is None
+            or self.audit_overview.wcag_audit_initial is None
+        ):
             return "No test exists"
+        if self.audit_overview.first_wcag_audit_12_week_retest is None:
+            return "No retest exists"
         return format_outstanding_issues(
-            failed_checks_count=self.audit.failed_check_results.count(),
-            fixed_checks_count=self.audit.fixed_check_results.count(),
+            failed_checks_count=self.audit_overview.wcag_audit_initial.wcag_failed_check_result_initials.count(),
+            fixed_checks_count=self.audit_overview.first_wcag_audit_12_week_retest.wcag_fixed_check_result_retests.count(),
         )
 
     @property
@@ -871,10 +883,6 @@ class SimplifiedCase(BaseCase):
     @property
     def incomplete_retests(self):
         return self.retests.filter(retest_compliance_state="not-known")
-
-    @property
-    def latest_retest(self):
-        return self.retests.first()
 
     @property
     def equality_body_correspondences(self):
