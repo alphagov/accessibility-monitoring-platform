@@ -11,9 +11,14 @@ from ...audits.models import (
     Audit,
     CheckResult,
     Page,
+    StatementAudit,
     StatementCheck,
     StatementCheckResult,
+    StatementCheckResultRound,
     WcagDefinition,
+)
+from ...audits.tests.create_test_data import (
+    create_simplified_case_with_initial_and_12_week_audits,
 )
 from ...reports.models import ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
@@ -96,33 +101,56 @@ def test_thirty_day_metric_progress_percentage(
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "statement_check_result_params, expected_fixed, expected_total",
+    "initial_statement_check_result, final_statement_check_result, expected_fixed, expected_total",
     [
-        ({}, 0, 0),
-        ({"check_result_state": "yes"}, 0, 0),
-        ({"check_result_state": "no"}, 0, 1),
-        ({"check_result_state": "yes", "retest_state": "yes"}, 0, 0),
-        ({"check_result_state": "no", "retest_state": "yes"}, 1, 1),
-        ({"check_result_state": "no", "retest_state": "no"}, 0, 1),
+        (
+            StatementCheckResult.Result.NOT_TESTED,
+            StatementCheckResult.Result.NOT_TESTED,
+            0,
+            0,
+        ),
+        (StatementCheckResult.Result.YES, StatementCheckResult.Result.NOT_TESTED, 0, 0),
+        (StatementCheckResult.Result.NO, StatementCheckResult.Result.NOT_TESTED, 0, 1),
+        (StatementCheckResult.Result.YES, StatementCheckResult.Result.YES, 0, 0),
+        (StatementCheckResult.Result.NO, StatementCheckResult.Result.YES, 1, 1),
+        (StatementCheckResult.Result.NO, StatementCheckResult.Result.NO, 0, 1),
     ],
 )
 def test_count_statement_issues(
-    statement_check_result_params: dict[str, str],
+    initial_statement_check_result: StatementCheckResult.Result,
+    final_statement_check_result: StatementCheckResult.Result,
     expected_fixed: int,
     expected_total: int,
 ):
     """Test counting issues and fixed issues for accessibility statements"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    statement_check: StatementCheck = StatementCheck.objects.all().first()
-    StatementCheckResult.objects.create(
-        **statement_check_result_params,
-        audit=audit,
-        type=statement_check.type,
-        statement_check=statement_check,
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
     )
+    StatementCheckResultRound.objects.filter(type=StatementCheck.Type.CUSTOM).exclude(
+        statement_check_result_initial=None
+    ).delete()
+    StatementCheckResultRound.objects.filter(type=StatementCheck.Type.RETEST).exclude(
+        statement_check_result_initial=None
+    ).delete()
+    StatementCheckResultRound.objects.filter(type=StatementCheck.Type.CUSTOM).delete()
+    StatementCheckResultRound.objects.filter(type=StatementCheck.Type.RETEST).delete()
+    final_statement_audit: StatementAudit = (
+        simplified_case.audit_overview.final_statement_audit
+    )
+    final_statement_check_result_round: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.filter(statement_audit=final_statement_audit)
+    ).last()
+    initial_statement_check_result_round: StatementCheckResultRound = (
+        final_statement_check_result_round.statement_check_result_initial
+    )
+    initial_statement_check_result_round.check_result_state = (
+        initial_statement_check_result
+    )
+    initial_statement_check_result_round.save()
+    final_statement_check_result_round.check_result_state = final_statement_check_result
+    final_statement_check_result_round.save()
 
-    assert count_statement_issues(audits=Audit.objects.all()) == (
+    assert count_statement_issues(audit_overviews=[simplified_case.audit_overview]) == (
         expected_fixed,
         expected_total,
     )

@@ -9,7 +9,7 @@ from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db.models.query import QuerySet
 from django.utils import timezone
 
-from ..audits.models import Audit, CheckResult
+from ..audits.models import Audit, AuditOverview, CheckResult
 from ..reports.models import ReportVisitsMetrics
 from ..s3_read_write.models import S3Report
 from ..simplified.models import CaseCompliance, CaseStatus, SimplifiedCase
@@ -85,13 +85,18 @@ class EqualityBodyCasesMetric:
     in_progress_count: int
 
 
-def count_statement_issues(audits: QuerySet[Audit]) -> tuple[int, int]:
+def count_statement_issues(audit_overviews: QuerySet[AuditOverview]) -> tuple[int, int]:
     """Count numbers of statement errors and how many were fixed"""
     statement_issues_count: int = 0
     fixed_statement_issues_count: int = 0
-    for audit in audits:
-        statement_issues_count += audit.failed_statement_check_results.count()
-        fixed_statement_issues_count += audit.fixed_statement_check_results.count()
+    for audit_overview in audit_overviews:
+        if audit_overview.final_statement_audit is not None:
+            fixed_statement_issues_count += (
+                audit_overview.final_statement_audit.fixed_statement_check_results.count()
+            )
+            statement_issues_count += (
+                audit_overview.statement_audit_initial.failed_statement_check_results.count()
+            )
     return (fixed_statement_issues_count, statement_issues_count)
 
 

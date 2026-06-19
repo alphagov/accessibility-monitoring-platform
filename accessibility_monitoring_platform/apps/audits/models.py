@@ -360,6 +360,10 @@ class AuditOverview(models.Model):
         )
 
     @property
+    def final_statement_audit(self) -> StatementAudit | None:
+        return self.statement_audits.last()
+
+    @property
     def first_statement_audit_12_week_retest(self) -> StatementAudit | None:
         if self.twelve_week_statement_audits is not None:
             return self.twelve_week_statement_audits.first()
@@ -870,8 +874,8 @@ class StatementAudit(AuditRound):
 
     @property
     def fixed_statement_check_results(self) -> QuerySet[StatementCheckResultRound]:
-        return self.failed_statement_check_results.filter(
-            statementcheckresultround__check_result_state=StatementCheckResult.Result.YES
+        return self.passed_statement_check_results.filter(
+            statement_check_result_initial__check_result_state=StatementCheckResult.Result.NO
         )
 
     @property

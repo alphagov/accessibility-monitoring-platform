@@ -12,14 +12,7 @@ from pytest_django.asserts import assertQuerySetEqual
 from ...common.models import Boolean
 from ...simplified.models import SimplifiedCase
 from ..models import (
-    Audit,
     AuditOverview,
-    CheckResult,
-    Page,
-    Retest,
-    RetestCheckResult,
-    RetestPage,
-    RetestStatementCheckResult,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
@@ -355,7 +348,7 @@ def test_wcag_page_initial_all_wcag_check_result_initials_returns_check_results(
     """
     wcag_audit: WcagAudit = create_initial_wcag_audit()
     home_page: WcagPageInitial = WcagPageInitial.objects.get(
-        wcag_audit=wcag_audit, page_type=Page.Type.HOME
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
     )
 
     assert len(home_page.all_wcag_check_result_initials) == 2
@@ -383,7 +376,7 @@ def test_wcag_audit_wcag_failed_check_result_initials_returns_statement_check_re
     assert len(wcag_audit.wcag_failed_check_result_initials) > 3
     assert (
         wcag_audit.wcag_failed_check_result_initials.last().wcag_page_initial.page_type
-        == Page.Type.STATEMENT
+        == WcagPageInitial.Type.STATEMENT
     )
 
 
@@ -391,10 +384,10 @@ def test_wcag_audit_wcag_failed_check_result_initials_returns_statement_check_re
 def test_wcag_page_initial_page_title():
     wcag_audit: WcagAudit = create_initial_wcag_audit()
     home_page: WcagPageInitial = WcagPageInitial.objects.get(
-        wcag_audit=wcag_audit, page_type=Page.Type.HOME
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
     )
     pdf_page: WcagPageInitial = WcagPageInitial.objects.get(
-        wcag_audit=wcag_audit, page_type=Page.Type.PDF
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.PDF
     )
 
     assert home_page.page_title == "Home page"
@@ -519,7 +512,7 @@ def test_audit_fixed_check_results():
     wcag_check_result_retest: WcagCheckResultRetest = (
         WcagCheckResultRetest.objects.filter(wcag_audit=twelve_week_wcag_audit).first()
     )
-    wcag_check_result_retest.retest_state = CheckResult.RetestResult.FIXED
+    wcag_check_result_retest.retest_state = WcagCheckResultRetest.RetestResult.FIXED
     wcag_check_result_retest.save()
 
     wcag_check_result_initial: WcagCheckResultInitial = (
@@ -557,7 +550,7 @@ def test_audit_wcag_unfixed_check_result_retests():
     wcag_check_result_retest: WcagCheckResultRetest = (
         WcagCheckResultRetest.objects.filter(wcag_audit=twelve_week_wcag_audit).first()
     )
-    wcag_check_result_retest.retest_state = CheckResult.RetestResult.FIXED
+    wcag_check_result_retest.retest_state = WcagCheckResultRetest.RetestResult.FIXED
     wcag_check_result_retest.save()
 
     assert twelve_week_wcag_audit.wcag_unfixed_check_result_retests.count() == 3
@@ -992,12 +985,6 @@ def test_statement_check_start_end_date_range():
     assert StatementCheck.objects.on_date(current_date).first() == wcag_definition
 
 
-def test_retest_str():
-    """Test Retest.__str__"""
-    assert str(Retest(id_within_case=0)) == "12-week retest"
-    assert str(Retest(id_within_case=1)) == "Retest #1"
-
-
 @pytest.mark.django_db
 def test_fixed_checks_count_at_12_week():
     """Test fixed checks count at 12-week retest"""
@@ -1130,128 +1117,6 @@ def test_wcag_page_retest_failed_wcag_check_result_retests():
 
 
 @pytest.mark.django_db
-def test_retest_page_original_check_results():
-    """Test original_check_results returned by retest page"""
-    original_retest: Retest = create_retest_and_retest_check_results()
-    original_retest.id_within_case = 0
-    original_retest.save()
-    page: Page = original_retest.retestpage_set.all().first().page
-    retest: Retest = Retest.objects.create(
-        simplified_case=original_retest.simplified_case
-    )
-    retest_page: RetestPage = RetestPage.objects.create(retest=retest, page=page)
-
-    assert retest_page.original_check_results.count() == 1
-    assert retest_page.original_check_results.first().retest_page.page == page
-
-
-@pytest.mark.django_db
-def test_retest_check_result_original_retest_check_result():
-    """Test original_retest_check_result returned by retest retest_check_result"""
-    original_retest: Retest = create_retest_and_retest_check_results()
-    original_retest.id_within_case = 0
-    original_retest.save()
-    original_retest_page: RetestPage = original_retest.retestpage_set.all().first()
-    original_retest_check_result: RetestCheckResult = (
-        original_retest_page.retestcheckresult_set.all().first()
-    )
-
-    new_retest: Retest = create_retest_and_retest_check_results(
-        simplified_case=original_retest.simplified_case
-    )
-    new_retest_page: RetestPage = new_retest.retestpage_set.all().first()
-    new_retest_check_result: RetestCheckResult = (
-        new_retest_page.retestcheckresult_set.all().first()
-    )
-
-    assert new_retest_check_result.original_retest_check_result is not None
-    assert (
-        new_retest_check_result.original_retest_check_result
-        == original_retest_check_result
-    )
-
-
-@pytest.mark.django_db
-def test_retest_check_result_latest_retest_check_result():
-    """Test latest_retest_check_result returned by retest retest_check_result"""
-    original_retest: Retest = create_retest_and_retest_check_results()
-    original_retest.id_within_case = 0
-    original_retest.save()
-    original_retest_page: RetestPage = original_retest.retestpage_set.all().first()
-    original_retest_check_result: RetestCheckResult = (
-        original_retest_page.retestcheckresult_set.all().first()
-    )
-
-    new_retest: Retest = create_retest_and_retest_check_results(
-        simplified_case=original_retest.simplified_case
-    )
-    new_retest_page: RetestPage = new_retest.retestpage_set.all().first()
-    new_retest_check_result: RetestCheckResult = (
-        new_retest_page.retestcheckresult_set.all().first()
-    )
-
-    assert (
-        original_retest_check_result.latest_retest_check_result
-        == new_retest_check_result
-    )
-
-
-@pytest.mark.django_db
-def test_retest_check_result_previous_retest_check_result():
-    """Test previous_retest_check_result returned by retest retest_check_result"""
-    original_retest: Retest = create_retest_and_retest_check_results()
-    original_retest.id_within_case = 0
-    original_retest.save()
-    original_retest_page: RetestPage = original_retest.retestpage_set.all().first()
-    original_retest_check_result: RetestCheckResult = (
-        original_retest_page.retestcheckresult_set.all().first()
-    )
-
-    new_retest: Retest = create_retest_and_retest_check_results(
-        simplified_case=original_retest.simplified_case
-    )
-    new_retest_page: RetestPage = new_retest.retestpage_set.all().first()
-    new_retest_check_result: RetestCheckResult = (
-        new_retest_page.retestcheckresult_set.all().first()
-    )
-
-    assert (
-        new_retest_check_result.previous_retest_check_result
-        == original_retest_check_result
-    )
-
-
-@pytest.mark.django_db
-def test_retest_check_result_all_retest_check_result():
-    """Test all_retest_check_result returned by retest retest_check_result"""
-    original_retest: Retest = create_retest_and_retest_check_results()
-    original_retest.id_within_case = 0
-    original_retest.save()
-    original_retest_page: RetestPage = original_retest.retestpage_set.all().first()
-    original_retest_check_result: RetestCheckResult = (
-        original_retest_page.retestcheckresult_set.all().first()
-    )
-
-    new_retest: Retest = create_retest_and_retest_check_results(
-        simplified_case=original_retest.simplified_case
-    )
-    new_retest_page: RetestPage = new_retest.retestpage_set.all().first()
-    new_retest_check_result: RetestCheckResult = (
-        new_retest_page.retestcheckresult_set.all().first()
-    )
-
-    assert new_retest_check_result.all_retest_check_results.count() == 2
-    assert (
-        new_retest_check_result.all_retest_check_results.first()
-        == original_retest_check_result
-    )
-    assert (
-        new_retest_check_result.all_retest_check_results.last()
-        == new_retest_check_result
-    )
-
-
-@pytest.mark.django_db
 def test_audit_statement_pages():
     """Test audit statement pages"""
     wcag_audit: WcagAudit = create_initial_wcag_audit()
@@ -1341,206 +1206,25 @@ def test_latest_statement_link_found():
 
 
 @pytest.mark.django_db
-def test_all_retest_pages():
-    """Test all_retest_pages for page returned by retest"""
-    retest: Retest = create_retest_and_retest_check_results()
-    retest_pages: QuerySet[RetestPage] = RetestPage.objects.filter(retest=retest)
-    retest_page: RetestPage = retest_pages.first()
-    page: Page = retest_page.page
-    all_retest_pages_for_page: QuerySet[RetestPage] = RetestPage.objects.filter(
-        page=page
+def test_wcag_page_retest_all_wcag_page_retests():
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    create_retest_wcag_audit(initial_wcag_audit=initial_wcag_audit)
+    twelve_week_wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_page_initial__page_type=WcagPageInitial.Type.HOME
     )
-
-    assertQuerySetEqual(retest_page.all_retest_pages, all_retest_pages_for_page)
-
-
-@pytest.mark.django_db
-def test_retest_statement_check_results():
-    """Test Retest.statement_check_results"""
-    retest: Retest = create_retest_and_statement_check_results()
-    retest_statement_check_results: QuerySet[RetestStatementCheckResult] = (
-        RetestStatementCheckResult.objects.filter(retest=retest)
+    create_retest_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
     )
-
-    assertQuerySetEqual(retest.statement_check_results, retest_statement_check_results)
-
-
-@pytest.mark.django_db
-def test_retest_failed_statement_check_results():
-    """Test Retest.failed_statement_check_results"""
-    retest: Retest = create_retest_and_statement_check_results()
-    retest_failed_statement_check_results: QuerySet[RetestStatementCheckResult] = (
-        RetestStatementCheckResult.objects.filter(
-            retest=retest, check_result_state=StatementCheckResult.Result.NO
+    all_wcag_page_retests_for_page: QuerySet[WcagPageRetest] = (
+        WcagPageRetest.objects.filter(
+            wcag_page_initial=twelve_week_wcag_page_retest.wcag_page_initial
         )
     )
 
     assertQuerySetEqual(
-        retest.failed_statement_check_results, retest_failed_statement_check_results
-    )
-
-
-@pytest.mark.django_db
-def test_retest_overview_statement_check_results():
-    """Test Retest.overview_statement_check_results"""
-    retest: Retest = create_retest_and_statement_check_results()
-    retest_overview_statement_check_results: QuerySet[RetestStatementCheckResult] = (
-        RetestStatementCheckResult.objects.filter(
-            retest=retest, type=StatementCheck.Type.OVERVIEW
-        )
-    )
-
-    assertQuerySetEqual(
-        retest.overview_statement_check_results, retest_overview_statement_check_results
-    )
-
-
-@pytest.mark.django_db
-def test_retest_all_overview_statement_checks_have_passed():
-    """Test Retest.all_overview_statement_checks_have_passed"""
-    retest: Retest = create_retest_and_statement_check_results()
-
-    assert retest.all_overview_statement_checks_have_passed is False
-
-    retest_overview_statement_check_results: QuerySet[RetestStatementCheckResult] = (
-        RetestStatementCheckResult.objects.filter(
-            retest=retest, type=StatementCheck.Type.OVERVIEW
-        )
-    )
-    for (
-        retest_overview_statement_check_result
-    ) in retest_overview_statement_check_results:
-        retest_overview_statement_check_result.check_result_state = (
-            StatementCheckResult.Result.YES
-        )
-        retest_overview_statement_check_result.save()
-
-    assert retest.all_overview_statement_checks_have_passed is True
-
-
-@pytest.mark.django_db
-def test_retest_website_statement_check_results():
-    """Test Retest.website_statement_check_results"""
-    retest: Retest = create_retest_and_statement_check_results()
-    retest_website_statement_check_results: QuerySet[RetestStatementCheckResult] = (
-        RetestStatementCheckResult.objects.filter(
-            retest=retest, type=StatementCheck.Type.WEBSITE
-        )
-    )
-
-    assertQuerySetEqual(
-        retest.website_statement_check_results, retest_website_statement_check_results
-    )
-
-
-@pytest.mark.django_db
-def test_retest_compliance_statement_check_results():
-    """Test Retest.compliance_statement_check_results"""
-    retest: Retest = create_retest_and_statement_check_results()
-    retest_compliance_statement_check_results: QuerySet[RetestStatementCheckResult] = (
-        RetestStatementCheckResult.objects.filter(
-            retest=retest, type=StatementCheck.Type.COMPLIANCE
-        )
-    )
-
-    assertQuerySetEqual(
-        retest.compliance_statement_check_results,
-        retest_compliance_statement_check_results,
-    )
-
-
-@pytest.mark.django_db
-def test_retest_non_accessible_statement_check_results():
-    """Test Retest.non_accessible_statement_check_results"""
-    retest: Retest = create_retest_and_statement_check_results()
-    retest_non_accessible_statement_check_results: QuerySet[
-        RetestStatementCheckResult
-    ] = RetestStatementCheckResult.objects.filter(
-        retest=retest, type=StatementCheck.Type.NON_ACCESSIBLE
-    )
-
-    assertQuerySetEqual(
-        retest.non_accessible_statement_check_results,
-        retest_non_accessible_statement_check_results,
-    )
-
-
-@pytest.mark.django_db
-def test_retest_preparation_statement_check_results():
-    """Test Retest.preparation_statement_check_results"""
-    retest: Retest = create_retest_and_statement_check_results()
-    retest_preparation_statement_check_results: QuerySet[RetestStatementCheckResult] = (
-        RetestStatementCheckResult.objects.filter(
-            retest=retest, type=StatementCheck.Type.PREPARATION
-        )
-    )
-
-    assertQuerySetEqual(
-        retest.preparation_statement_check_results,
-        retest_preparation_statement_check_results,
-    )
-
-
-@pytest.mark.django_db
-def test_retest_feedback_statement_check_results():
-    """Test Retest.feedback_statement_check_results"""
-    retest: Retest = create_retest_and_statement_check_results()
-    retest_feedback_statement_check_results: QuerySet[RetestStatementCheckResult] = (
-        RetestStatementCheckResult.objects.filter(
-            retest=retest, type=StatementCheck.Type.FEEDBACK
-        )
-    )
-
-    assertQuerySetEqual(
-        retest.feedback_statement_check_results,
-        retest_feedback_statement_check_results,
-    )
-
-
-@pytest.mark.django_db
-def test_retest_custom_statement_check_results():
-    """Test Retest.custom_statement_check_results"""
-    retest: Retest = create_retest_and_statement_check_results()
-    retest_custom_statement_check_results: QuerySet[RetestStatementCheckResult] = (
-        RetestStatementCheckResult.objects.filter(
-            retest=retest, type=StatementCheck.Type.CUSTOM
-        )
-    )
-
-    assertQuerySetEqual(
-        retest.custom_statement_check_results,
-        retest_custom_statement_check_results,
-    )
-
-
-@pytest.mark.django_db
-def test_retest_statement_check_results_str():
-    """Test RetestStatementCheckResult.__str__()"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case
-    )
-    retest_statement_check_result: RetestStatementCheckResult = (
-        RetestStatementCheckResult.objects.create(
-            retest=retest, statement_audit=statement_audit
-        )
-    )
-
-    assert (
-        retest_statement_check_result.__str__()
-        == f"{statement_audit} | Custom [{retest_statement_check_result.issue_identifier}]"
-    )
-
-    statement_check: StatementCheck = StatementCheck.objects.get(
-        id=ACCESSIBILITY_PAGE_STATEMENT_CHECK_ID
-    )
-    retest_statement_check_result.statement_check = statement_check
-    retest_statement_check_result.save()
-
-    assert (
-        retest_statement_check_result.__str__()
-        == f"{statement_audit} | {statement_check} [{retest_statement_check_result.issue_identifier}]"
+        twelve_week_wcag_page_retest.all_wcag_page_retests,
+        all_wcag_page_retests_for_page,
     )
 
 
@@ -1548,20 +1232,22 @@ def test_retest_statement_check_results_str():
 def test_retest_statement_check_results_label():
     """Test RetestStatementCheckResult.label"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
-    retest_statement_check_result: RetestStatementCheckResult = (
-        RetestStatementCheckResult.objects.create(retest=retest)
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+    statement_check_result_round: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.create(statement_audit=statement_audit)
     )
 
-    assert retest_statement_check_result.label == "Custom"
+    assert statement_check_result_round.label == "Custom"
 
     statement_check: StatementCheck = StatementCheck.objects.get(
         id=ACCESSIBILITY_PAGE_STATEMENT_CHECK_ID
     )
-    retest_statement_check_result.statement_check = statement_check
-    retest_statement_check_result.save()
+    statement_check_result_round.statement_check = statement_check
+    statement_check_result_round.save()
 
-    assert retest_statement_check_result.label == "Is there an accessibility page?"
+    assert statement_check_result_round.label == "Is there an accessibility page?"
 
 
 @pytest.mark.django_db
@@ -1625,79 +1311,33 @@ def test_retest_check_result_matching_wcag_retest_check_results():
     retest check results on the other pages with the same WCAG definition
     and with retest notes
     """
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
     )
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    home_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.HOME)
-    contact_page: Page = Page.objects.create(audit=audit, page_type=Page.Type.CONTACT)
-    coronavirus_page: Page = Page.objects.create(
-        audit=audit, page_type=Page.Type.CORONAVIRUS
+    wcag_audit_initial: WcagAudit = simplified_case.audit_overview.wcag_audit_initial
+    first_wcag_check_result_retest: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.all().first()
     )
-    first_check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=home_page,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        first_wcag_check_result_retest.wcag_check_result_initial
     )
-    second_check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=contact_page,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
-        retest_notes="Sample note",
+    create_retest_wcag_audit(
+        initial_wcag_audit=wcag_audit_initial,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
     )
-    third_check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=coronavirus_page,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
-        retest_notes="Another note",
-    )
-    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
-    retest_home_page: RetestPage = RetestPage.objects.create(
-        retest=retest, page=home_page
-    )
-    retest_contact_page: RetestPage = RetestPage.objects.create(
-        retest=retest, page=contact_page
-    )
-    retest_coronavirus_page: RetestPage = RetestPage.objects.create(
-        retest=retest, page=coronavirus_page
-    )
-    first_retest_check_result: RetestCheckResult = RetestCheckResult.objects.create(
-        retest=retest,
-        retest_page=retest_home_page,
-        check_result=first_check_result,
-        retest_notes="Retest retest note one",
-    )
-    second_retest_check_result: RetestCheckResult = RetestCheckResult.objects.create(
-        retest=retest,
-        retest_page=retest_contact_page,
-        check_result=second_check_result,
-        retest_notes="Retest retest note two",
-    )
-    third_retest_check_result: RetestCheckResult = RetestCheckResult.objects.create(
-        retest=retest,
-        retest_page=retest_coronavirus_page,
-        check_result=third_check_result,
-        retest_notes="Retest retest note three",
+    create_retest_wcag_audit(
+        initial_wcag_audit=wcag_audit_initial,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
     )
 
-    assert first_retest_check_result.matching_wcag_retest_check_results.count() == 2
-    assert (
-        first_retest_check_result.matching_wcag_retest_check_results.first()
-        == second_retest_check_result
-    )
-    assert (
-        first_retest_check_result.matching_wcag_retest_check_results.last()
-        == third_retest_check_result
+    assert first_wcag_check_result_retest.other_wcag_check_result_retests.count() == 2
+    assertQuerySetEqual(
+        first_wcag_check_result_retest.other_wcag_check_result_retests.order_by("id"),
+        WcagCheckResultRetest.objects.filter(
+            wcag_check_result_initial=wcag_check_result_initial
+        )
+        .exclude(id=first_wcag_check_result_retest.id)
+        .order_by("id"),
     )
 
 
@@ -1712,7 +1352,7 @@ def test_check_result_issue_identifier():
         simplified_case=simplified_case_1
     )
     wcag_page_initial_1: WcagPageInitial = WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit_1, page_type=Page.Type.HOME
+        wcag_audit=wcag_audit_1, page_type=WcagPageInitial.Type.HOME
     )
     wcag_check_result_initial_1a: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.create(
@@ -1772,7 +1412,7 @@ def test_issue_identifier():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit, page_type=Page.Type.HOME
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.create(
@@ -1835,7 +1475,7 @@ def test_build_issue_identifier():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit, page_type=Page.Type.HOME
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.create(
