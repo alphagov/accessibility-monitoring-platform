@@ -721,20 +721,13 @@ class SimplifiedCase(BaseCase):
             updated_times.append(contact.created)
             updated_times.append(contact.updated)
 
-        if self.audit is not None:
-            updated_times.append(
-                datetime(
-                    self.audit.date_of_test.year,
-                    self.audit.date_of_test.month,
-                    self.audit.date_of_test.day,
-                    tzinfo=datetime_timezone.utc,
+        if self.audit_overview is not None and self.audit_overview.updated is not None:
+            if self.audit_overview.wcag_audits.last() is not None:
+                updated_times.append(self.audit_overview.wcag_audits.last().updated)
+            if self.audit_overview.statement_audits.last() is not None:
+                updated_times.append(
+                    self.audit_overview.statement_audits.last().updated
                 )
-            )
-            updated_times.append(self.audit.updated)
-            for page in self.audit.page_audit.all():
-                updated_times.append(page.updated)
-            for check_result in self.audit.checkresult_audit.all():
-                updated_times.append(check_result.updated)
 
         for comment in self.comment_basecase.all():
             updated_times.append(comment.created_date)
@@ -882,7 +875,7 @@ class SimplifiedCase(BaseCase):
 
     @property
     def incomplete_retests(self):
-        return self.retests.filter(retest_compliance_state="not-known")
+        return self.wcag_audits.filter(compliance_state="unknown")
 
     @property
     def equality_body_correspondences(self):

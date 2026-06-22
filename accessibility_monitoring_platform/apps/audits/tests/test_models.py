@@ -929,39 +929,38 @@ def test_fixed_statement_checks_are_returned():
     retest.
     """
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    create_retest_statement_audit(initial_statement_audit=initial_statement_audit)
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
+        initial_statement_audit=initial_statement_audit
+    )
 
-    passed_statement_check_result: StatementCheckResultRound = (
-        initial_statement_audit.statement_check_results.first()
+    initial_statement_check_result: StatementCheckResultRound = (
+        initial_statement_audit.website_statement_check_results.first()
     )
-    passed_statement_check_result.check_result_state = (
-        StatementCheckResultRound.Result.YES
-    )
-    passed_statement_check_result.save()
-
-    fixed_statement_check_result: StatementCheckResultRound = (
-        initial_statement_audit.statement_check_results.last()
-    )
-    fixed_statement_check_result.check_result_state = (
+    initial_statement_check_result.check_result_state = (
         StatementCheckResultRound.Result.NO
     )
-    fixed_statement_check_result.save()
-    statement_check_result_retest: StatementCheckResultRound = (
-        fixed_statement_check_result.twelve_week_retest
+    initial_statement_check_result.save()
+
+    twelve_week_statement_check_result: StatementCheckResultRound = (
+        initial_statement_check_result.twelve_week_retest
     )
-    statement_check_result_retest.check_result_state = (
+    twelve_week_statement_check_result.check_result_state = (
         StatementCheckResultRound.Result.YES
     )
-    statement_check_result_retest.save()
+    twelve_week_statement_check_result.save()
 
-    assert passed_statement_check_result != fixed_statement_check_result
+    assert initial_statement_check_result != twelve_week_statement_check_result
     assert (
-        initial_statement_audit.passed_statement_check_results.first()
-        == passed_statement_check_result
+        initial_statement_audit.failed_statement_check_results.last()
+        == initial_statement_check_result
     )
     assert (
-        initial_statement_audit.fixed_statement_check_results.first()
-        == fixed_statement_check_result
+        twelve_week_statement_audit.passed_statement_check_results.first()
+        == twelve_week_statement_check_result
+    )
+    assert (
+        twelve_week_statement_audit.fixed_statement_check_results.first()
+        == twelve_week_statement_check_result
     )
 
 

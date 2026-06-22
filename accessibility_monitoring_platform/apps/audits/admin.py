@@ -431,21 +431,21 @@ class RetestStatementCheckResultAdmin(admin.ModelAdmin):
 
     search_fields = [
         "issue_identifier",
-        "statement_audit__simplified_case__case_identifier",
-        "statement_audit__simplified_case__organisation_name",
+        "retest__simplified_case__case_identifier",
+        "retest__simplified_case__organisation_name",
         "statement_check__label",
         "comment",
     ]
     list_display = [
         "issue_identifier",
-        "statement_audit",
+        "retest",
         "type",
         "check_result_state",
         "is_deleted",
         "statement_check",
     ]
     list_filter = ["check_result_state", "is_deleted"]
-    readonly_fields = ["retest", "statement_audit", "statement_check"]
+    readonly_fields = ["retest", "statement_check"]
     show_facets = admin.ShowFacets.ALWAYS
 
 

@@ -1606,6 +1606,7 @@ class StatementCheckResultRound(models.Model):
         NOT_TESTED = "not-tested", "Not tested"
 
     statement_audit = models.ForeignKey(StatementAudit, on_delete=models.PROTECT)
+    issue_identifier = models.CharField(max_length=20, default="")
     statement_check = models.ForeignKey(
         StatementCheck, on_delete=models.PROTECT, null=True, blank=True
     )
@@ -1617,7 +1618,6 @@ class StatementCheckResultRound(models.Model):
         choices=StatementCheck.Type.choices,
         default=StatementCheck.Type.CUSTOM,
     )
-    issue_identifier = models.CharField(max_length=20, default="")
     check_result_state = models.CharField(
         max_length=10,
         choices=Result.choices,
@@ -1832,9 +1832,6 @@ class RetestStatementCheckResult(models.Model):
         NOT_TESTED = "not-tested", "Not tested"
 
     retest = models.ForeignKey(Retest, on_delete=models.PROTECT)
-    statement_audit = models.ForeignKey(
-        StatementAudit, on_delete=models.PROTECT, null=True
-    )
     id_within_case = models.IntegerField(default=0, blank=True)
     issue_identifier = models.CharField(max_length=20, default="")
     statement_check = models.ForeignKey(

@@ -12,7 +12,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
-from ...audits.models import Audit, StatementPage
+from ...audits.models import AuditOverview, StatementAudit, StatementPage, WcagAudit
 from ...detailed.models import DetailedCase
 from ...notifications.models import Task
 from ...reports.models import ReportVisitsMetrics
@@ -526,17 +526,27 @@ def test_policy_progress_metric_website_compliance(mock_timezone, admin_client):
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         case_completed="complete-no-send"
     )
-    Audit.objects.create(
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    WcagAudit.objects.create(
         simplified_case=simplified_case,
-        retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
     )
     fixed_case: SimplifiedCase = SimplifiedCase.objects.create(
         case_completed="complete-no-send",
         recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
     )
-    Audit.objects.create(
+    AuditOverview.objects.create(simplified_case=fixed_case)
+    WcagAudit.objects.create(
         simplified_case=fixed_case,
-        retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
+    )
+    WcagAudit.objects.create(
+        simplified_case=fixed_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
     )
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
@@ -1303,6 +1313,9 @@ def test_latest_statement_frequently_used_link(admin_client):
     is displayed only when one has been entered.
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("simplified:case-detail", kwargs={"pk": simplified_case.id})
@@ -1313,8 +1326,14 @@ def test_latest_statement_frequently_used_link(admin_client):
     assertContains(response, "No accessibility statement URL")
     assertNotContains(response, "Latest accessibility statement")
 
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    StatementPage.objects.create(audit=audit, url="https://example.com/statement")
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+    StatementPage.objects.create(
+        simplified_case=simplified_case,
+        audit_overview=audit_overview,
+        url="https://example.com/statement",
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("simplified:case-detail", kwargs={"pk": simplified_case.id})
