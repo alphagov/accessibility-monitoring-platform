@@ -47,6 +47,11 @@ def populate_audit_rounds(apps, schema_editor):
             published_report_data_updated_time=audit.published_report_data_updated_time,
             updated=audit.updated,
         )
+        notes: str = (
+            f"Exemptions note:\n\n{audit.exemptions_notes.strip()}"
+            if audit.exemptions_notes
+            else ""
+        )
         wcag_audit_initial = WcagAudit.objects.create(
             simplified_case=audit.simplified_case,
             audit_round_type=INITIAL_ROUND_TYPE,
@@ -55,6 +60,7 @@ def populate_audit_rounds(apps, schema_editor):
             date_of_test=audit.date_of_test,
             screen_size=audit.screen_size,
             exemptions_state=audit.exemptions_state,
+            notes=notes,
             metadata_complete_date=audit.audit_metadata_complete_date,
             pages_complete_date=audit.audit_pages_complete_date,
             compliance_state=audit.simplified_case.compliance.website_compliance_state_initial,
@@ -383,7 +389,6 @@ def reverse_code(apps, schema_editor):
         "audits", "WcagCheckResultRetestNotesHistory"
     )
     WcagCheckResultRetest = apps.get_model("audits", "WcagCheckResultRetest")
-    RetestStatementCheckResult = apps.get_model("audits", "RetestStatementCheckResult")
     WcagCheckResultInitialNotesHistory.objects.all().delete()
     WcagCheckResultRetestNotesHistory.objects.all().delete()
     WcagCheckResultRetest.objects.all().delete()
@@ -391,7 +396,6 @@ def reverse_code(apps, schema_editor):
     WcagPageRetest.objects.all().delete()
     WcagPageInitial.objects.all().delete()
     WcagAudit.objects.all().delete()
-    RetestStatementCheckResult.objects.all().update(statement_audit=None)
     StatementCheckResultRound.objects.all().update(statement_check_result_initial=None)
     StatementCheckResultRound.objects.all().delete()
     StatementPage.objects.all().update(audit_overview=None)

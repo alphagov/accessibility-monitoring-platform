@@ -72,17 +72,17 @@ class Audit(VersionModel):
 
     # metadata page
     date_of_test = models.DateField(default=date.today)
-    screen_size = models.CharField(  # KEEP
+    screen_size = models.CharField(
         max_length=20,
         choices=ScreenSize.choices,
         default=ScreenSize.SIZE_13,
     )
-    exemptions_state = models.CharField(  # KEEP
+    exemptions_state = models.CharField(
         max_length=20,
         choices=Exemptions.choices,
         default=Exemptions.UNKNOWN,
     )
-    exemptions_notes = models.TextField(default="", blank=True)  # KEEP
+    exemptions_notes = models.TextField(default="", blank=True)
     audit_metadata_complete_date = models.DateField(null=True, blank=True)
 
     # Pages page
@@ -109,7 +109,7 @@ class Audit(VersionModel):
     )
 
     # Statement checking overview
-    statement_extra_report_text = models.TextField(default="", blank=True)  # KEEP
+    statement_extra_report_text = models.TextField(default="", blank=True)
     audit_statement_overview_complete_date = models.DateField(null=True, blank=True)
 
     # Statement checking website
@@ -500,7 +500,7 @@ class AuditRound(VersionModel):
 
 
 class WcagAudit(AuditRound):
-    """Model for testing WCAG"""
+    """Round of WCAG tests"""
 
     class ScreenSize(models.TextChoices):
         SIZE_13 = "13in", "13 inch"
@@ -773,7 +773,7 @@ class StatementAudit(AuditRound):
     backup_complete_date = models.DateField(null=True, blank=True)
 
     # Statement checking overview
-    statement_extra_report_text = models.TextField(default="", blank=True)  # KEEP
+    statement_extra_report_text = models.TextField(default="", blank=True)
     statement_overview_complete_date = models.DateField(null=True, blank=True)
 
     # Statement checking website
