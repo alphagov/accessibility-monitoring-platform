@@ -721,13 +721,8 @@ class SimplifiedCase(BaseCase):
             updated_times.append(contact.created)
             updated_times.append(contact.updated)
 
-        if self.audit_overview is not None and self.audit_overview.updated is not None:
-            if self.audit_overview.wcag_audits.last() is not None:
-                updated_times.append(self.audit_overview.wcag_audits.last().updated)
-            if self.audit_overview.statement_audits.last() is not None:
-                updated_times.append(
-                    self.audit_overview.statement_audits.last().updated
-                )
+        if self.audit_overview is not None:
+            updated_times.append(self.audit_overview.last_edited)
 
         for comment in self.comment_basecase.all():
             updated_times.append(comment.created_date)
@@ -761,19 +756,34 @@ class SimplifiedCase(BaseCase):
 
     @property
     def total_website_issues(self) -> int:
-        if self.audit is None:
+        if (
+            self.audit_overview is None
+            or self.audit_overview.wcag_audit_initial is None
+        ):
             return 0
-        return self.audit.failed_check_results.count()
+        return (
+            self.audit_overview.wcag_audit_initial.wcag_failed_check_result_initials.count()
+        )
 
     @property
     def total_website_issues_fixed(self) -> int:
-        if self.audit is None:
+        if (
+            self.audit_overview is None
+            or self.audit_overview.wcag_audit_initial is None
+            or self.audit_overview.first_wcag_audit_12_week_retest is None
+        ):
             return 0
-        return self.audit.fixed_check_results.count()
+        return (
+            self.audit_overview.first_wcag_audit_12_week_retest.wcag_fixed_check_result_retests.count()
+        )
 
     @property
     def total_website_issues_unfixed(self) -> int:
-        if self.audit is None or self.total_website_issues == 0:
+        if (
+            self.audit_overview is None
+            or self.audit_overview.wcag_audit_initial is None
+            or self.audit_overview.first_wcag_audit_12_week_retest is None
+        ):
             return 0
         return self.total_website_issues - self.total_website_issues_fixed
 
@@ -832,13 +842,21 @@ class SimplifiedCase(BaseCase):
 
     @property
     def overview_issues_statement(self) -> str:
-        if self.audit is None:
+        if (
+            self.audit_overview is None
+            or self.audit_overview.statement_audit_initial is None
+        ):
             return "No test exists"
+        if self.audit_overview.first_statement_audit_12_week_retest is None:
+            return format_statement_check_overview(
+                tests_passed=self.audit_overview.statement_audit_initial.passed_statement_check_results.count(),
+                tests_failed=self.audit_overview.statement_audit_initial.failed_statement_check_results.count(),
+            )
         return format_statement_check_overview(
-            tests_passed=self.audit.passed_statement_check_results.count(),
-            tests_failed=self.audit.failed_statement_check_results.count(),
-            retests_passed=self.audit.passed_retest_statement_check_results.count(),
-            retests_failed=self.audit.failed_retest_statement_check_results.count(),
+            tests_passed=self.audit_overview.statement_audit_initial.passed_statement_check_results.count(),
+            tests_failed=self.audit_overview.statement_audit_initial.failed_statement_check_results.count(),
+            retests_passed=self.audit_overview.first_statement_audit_12_week_retest.passed_statement_check_results.count(),
+            retests_failed=self.audit_overview.first_statement_audit_12_week_retest.failed_statement_check_results.count(),
         )
 
     @property
@@ -860,18 +878,6 @@ class SimplifiedCase(BaseCase):
         else:
             return None
         return archive["sections"] if "sections" in archive else None
-
-    @property
-    def retests(self):
-        return self.retest_simplifiedcase.filter(is_deleted=False)
-
-    @property
-    def actual_retests(self):
-        return self.retests.filter(id_within_case__gt=0)
-
-    @property
-    def number_retests(self):
-        return self.actual_retests.count()
 
     @property
     def incomplete_retests(self):
@@ -945,12 +951,15 @@ class SimplifiedCase(BaseCase):
         Count how many links have been entered where the user can look for contacts
         """
         links_count: int = 0
-        if self.audit is not None:
-            if self.audit.contact_page is not None and self.audit.contact_page.url:
+        if self.audit_overview is not None:
+            if (
+                self.audit_overview.contact_page is not None
+                and self.audit_overview.contact_page.url
+            ):
                 links_count += 1
             if (
-                self.audit.accessibility_statement_page is not None
-                and self.audit.accessibility_statement_page.url
+                self.audit_overview.latest_statement_link is not None
+                and self.audit_overview.latest_statement_link
             ):
                 links_count += 1
         return links_count

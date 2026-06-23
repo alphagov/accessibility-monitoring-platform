@@ -1577,9 +1577,12 @@ def test_link_to_accessibility_statement_displayed(admin_client):
     Test that the link to the accessibility statement is displayed.
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    Page.objects.create(
-        audit=audit, page_type=Page.Type.STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit,
+        page_type=Page.Type.STATEMENT,
+        url=ACCESSIBILITY_STATEMENT_URL,
     )
 
     response: HttpResponse = admin_client.get(
@@ -1602,9 +1605,10 @@ def test_statement_page_location_displayed(admin_client):
     Test that the accessibility statement location is displayed.
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    Page.objects.create(
-        audit=audit,
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit,
         page_type=Page.Type.STATEMENT,
         url=ACCESSIBILITY_STATEMENT_URL,
         location=PAGE_LOCATION,
@@ -1624,10 +1628,11 @@ def test_contact_page_location_displayed(admin_client):
     Test that the contact page location is displayed.
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    Page.objects.create(
-        audit=audit,
-        page_type=Page.Type.CONTACT,
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit,
+        page_type=Page.Type.STATEMENT,
         url="https://example.com/contact",
         location=PAGE_LOCATION,
     )

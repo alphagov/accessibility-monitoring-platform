@@ -15,8 +15,9 @@ from django.db.models import QuerySet
 from django.http import HttpRequest, StreamingHttpResponse
 from django.urls import reverse
 
-from ...audits.models import Audit, AuditOverview, Retest, WcagAudit
+from ...audits.models import Audit, AuditOverview, StatementAudit, WcagAudit
 from ...audits.tests.create_test_data import (
+    create_equality_body_audits,
     create_initial_statement_audit,
     create_initial_wcag_audit,
     create_simplified_case_with_initial_and_12_week_audits,
@@ -485,7 +486,10 @@ def test_get_email_template_context_new_case():
 
     assert "12_weeks_from_today" in email_template_context
     assert email_template_context["case"] == simplified_case
-    assert email_template_context["retest"] is None
+    assert email_template_context["initial_wcag_audit"] is None
+    assert email_template_context["initial_statement_audit"] is None
+    assert email_template_context["last_equality_body_wcag_audit"] is None
+    assert email_template_context["last_equality_body_statement_audit"] is None
 
 
 @pytest.mark.django_db
@@ -510,13 +514,18 @@ def test_get_email_template_context_with_audit():
     """Test get_email_template_context for Case with test"""
     wcag_audit_initial: WcagAudit = create_initial_wcag_audit()
     simplified_case: SimplifiedCase = wcag_audit_initial.simplified_case
-    create_initial_statement_audit(simplified_case=simplified_case)
+    statement_audit_initial: StatementAudit = create_initial_statement_audit(
+        simplified_case=simplified_case
+    )
     email_template_context: dict[str, Any] = get_email_template_context(
         simplified_case=simplified_case
     )
 
     assert email_template_context["case"] == simplified_case
-    assert email_template_context["retest"] is None
+    assert email_template_context["initial_wcag_audit"] == wcag_audit_initial
+    assert email_template_context["initial_statement_audit"] == statement_audit_initial
+    assert email_template_context["last_equality_body_wcag_audit"] is None
+    assert email_template_context["last_equality_body_statement_audit"] is None
 
     assert "issues_tables" in email_template_context
     assert "retest_issues_tables" not in email_template_context
@@ -528,13 +537,31 @@ def test_get_email_template_context_with_retest():
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
+    wcag_audit_equality_body: WcagAudit = create_equality_body_audits(
+        simplified_case=simplified_case
+    )
     email_template_context: dict[str, Any] = get_email_template_context(
         simplified_case=simplified_case
     )
 
     assert email_template_context["case"] == simplified_case
-    assert email_template_context["retest"] == retest
+    assert email_template_context["case"] == simplified_case
+    assert (
+        email_template_context["initial_wcag_audit"]
+        == simplified_case.audit_overview.wcag_audit_initial
+    )
+    assert (
+        email_template_context["initial_statement_audit"]
+        == simplified_case.audit_overview.statement_audit_initial
+    )
+    assert (
+        email_template_context["last_equality_body_wcag_audit"]
+        == wcag_audit_equality_body
+    )
+    assert (
+        email_template_context["last_equality_body_statement_audit"]
+        == simplified_case.audit_overview.last_equality_body_statement_audit
+    )
 
     assert "issues_tables" in email_template_context
     assert "retest_issues_tables" in email_template_context

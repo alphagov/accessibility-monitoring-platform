@@ -19,9 +19,13 @@ from ...audits.models import (
     StatementCheck,
     StatementCheckResult,
     StatementCheckResultRound,
+    StatementPage,
     WcagAudit,
+    WcagCheckResultInitial,
+    WcagCheckResultRetest,
     WcagDefinition,
     WcagPageInitial,
+    WcagPageRetest,
 )
 from ...audits.tests.create_test_data import (
     create_initial_statement_audit,
@@ -551,12 +555,12 @@ def test_case_last_edited_from_wcag_audit(
 
 @pytest.mark.django_db
 def test_case_last_edited_from_wcag_page_initial(
-    last_edited_case: SimplifiedCase, last_edited_audit: WcagAudit
+    last_edited_case: SimplifiedCase, last_edited_wcag_audit: WcagAudit
 ):
     """Test the case last edited date found on WcagPageInitial"""
     with patch("django.utils.timezone.now", Mock(return_value=DATETIME_PAGE_CREATED)):
         wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
-            audit=last_edited_audit
+            wcag_audit=last_edited_wcag_audit
         )
 
     assert last_edited_case.last_edited == DATETIME_PAGE_CREATED
@@ -569,11 +573,13 @@ def test_case_last_edited_from_wcag_page_initial(
 
 @pytest.mark.django_db
 def test_case_last_edited_from_check_result(
-    last_edited_case: SimplifiedCase, last_edited_audit: WcagAudit
+    last_edited_case: SimplifiedCase, last_edited_wcag_audit: WcagAudit
 ):
     """Test the case last edited date found on CheckResult"""
     with patch("django.utils.timezone.now", Mock(return_value=DATETIME_PAGE_CREATED)):
-        page: WcagPageInitial = WcagPageInitial.objects.create(audit=last_edited_audit)
+        wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+            wcag_audit=last_edited_wcag_audit
+        )
 
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE
@@ -581,11 +587,13 @@ def test_case_last_edited_from_check_result(
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_CHECK_RESULT_CREATED)
     ):
-        check_result: CheckResult = CheckResult.objects.create(
-            audit=last_edited_audit,
-            page=page,
-            type=WcagDefinition.Type.AXE,
-            wcag_definition=wcag_definition,
+        wcag_check_result_initial: WcagCheckResultInitial = (
+            WcagCheckResultInitial.objects.create(
+                wcag_audit=last_edited_wcag_audit,
+                wcag_page_initial=wcag_page_initial,
+                type=WcagDefinition.Type.AXE,
+                wcag_definition=wcag_definition,
+            )
         )
 
     assert last_edited_case.last_edited == DATETIME_CHECK_RESULT_CREATED
@@ -593,7 +601,7 @@ def test_case_last_edited_from_check_result(
     with patch(
         "django.utils.timezone.now", Mock(return_value=DATETIME_CHECK_RESULT_UPDATED)
     ):
-        check_result.save()
+        wcag_check_result_initial.save()
 
     assert last_edited_case.last_edited == DATETIME_CHECK_RESULT_UPDATED
 
@@ -755,23 +763,42 @@ def test_overview_issues_website_with_audit_no_issues():
 def test_percentage_website_issues_fixed_with_audit_and_issues():
     """Test that case with audit and issues returns percentage"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
-    page: WcagPageInitial = WcagPageInitial.objects.create(audit=audit)
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    wcag_audit_initial: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case
+    )
+    wcag_audit_retest: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit_initial
+    )
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+        wcag_audit=wcag_audit_retest, wcag_page_initial=wcag_page_initial
+    )
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE
     )
-    check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        type=WcagDefinition.Type.AXE,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit_initial,
+            wcag_page_initial=wcag_page_initial,
+            type=WcagDefinition.Type.AXE,
+            wcag_definition=wcag_definition,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+        )
     )
 
     assert simplified_case.percentage_website_issues_fixed == 0
 
-    check_result.retest_state = CheckResult.RetestResult.FIXED
-    check_result.save()
+    WcagCheckResultRetest.objects.create(
+        wcag_audit=wcag_audit_retest,
+        wcag_page_retest=wcag_page_retest,
+        wcag_definition=wcag_definition,
+        wcag_check_result_initial=wcag_check_result_initial,
+        retest_state=WcagCheckResultRetest.RetestResult.FIXED,
+    )
 
     assert simplified_case.percentage_website_issues_fixed == 100
 
@@ -794,37 +821,68 @@ def test_overview_issues_statement_no_audit():
 
 @pytest.mark.django_db
 def test_overview_issues_website_with_audit():
-    """Test that case with audit returns overview"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
 
-    assert simplified_case.overview_issues_website == "0 of 0 fixed"
+    assert simplified_case.overview_issues_website == "No test exists"
 
-    page: WcagPageInitial = WcagPageInitial.objects.create(audit=audit)
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    wcag_audit_initial: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert simplified_case.overview_issues_website == "No retest exists"
+
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit_initial
+    )
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE
     )
-    check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        type=WcagDefinition.Type.AXE,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit_initial,
+            wcag_page_initial=wcag_page_initial,
+            type=WcagDefinition.Type.AXE,
+            wcag_definition=wcag_definition,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+        )
+    )
+    wcag_audit_retest: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+        wcag_audit=wcag_audit_retest,
+        wcag_page_initial=wcag_page_initial,
     )
 
     assert simplified_case.overview_issues_website == "0 of 1 fixed (0%)"
 
-    check_result.retest_state = CheckResult.RetestResult.FIXED
-    check_result.save()
+    WcagCheckResultRetest.objects.create(
+        wcag_audit=wcag_audit_retest,
+        wcag_page_retest=wcag_page_retest,
+        wcag_definition=wcag_definition,
+        wcag_check_result_initial=wcag_check_result_initial,
+        retest_state=WcagCheckResultRetest.RetestResult.FIXED,
+    )
 
     assert simplified_case.overview_issues_website == "1 of 1 fixed (100%)"
 
 
 @pytest.mark.django_db
 def test_overview_issues_statement_with_statement_checks():
-    """Test that case with audit returns overview"""
+    """Test that case with statement audit returns overview"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+
+    assert simplified_case.overview_issues_statement == "No test exists"
+
+    AuditOverview.objects.create(simplified_case=simplified_case)
+
+    assert simplified_case.overview_issues_statement == "No test exists"
+
+    statement_audit_initial: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
     for count, statement_check in enumerate(
         StatementCheck.objects.filter(date_end=None)
     ):
@@ -835,8 +893,8 @@ def test_overview_issues_statement_with_statement_checks():
             if count % 2 == 0
             else StatementCheckResult.Result.YES
         )
-        StatementCheckResult.objects.create(
-            audit=audit,
+        StatementCheckResultRound.objects.create(
+            statement_audit=statement_audit_initial,
             type=statement_check.type,
             statement_check=statement_check,
             check_result_state=check_result_state,
@@ -844,14 +902,32 @@ def test_overview_issues_statement_with_statement_checks():
 
     assert simplified_case.overview_issues_statement == "10 checks failed on test"
 
-    for count, statement_check_result in enumerate(
-        audit.failed_statement_check_results
-    ):
-        if count % 2 == 0:
-            statement_check_result.check_result_state = StatementCheckResult.Result.YES
-            statement_check_result.save()
+    statement_audit_retest: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+    )
 
-    assert simplified_case.overview_issues_statement == "5 checks failed on test"
+    for count, statement_check in enumerate(
+        StatementCheck.objects.filter(date_end=None)
+    ):
+        if count == 10:
+            break
+        check_result_state: str = (
+            StatementCheckResult.Result.NO
+            if count % 2 == 0
+            else StatementCheckResult.Result.YES
+        )
+        StatementCheckResultRound.objects.create(
+            statement_audit=statement_audit_retest,
+            type=statement_check.type,
+            statement_check=statement_check,
+            check_result_state=check_result_state,
+        )
+
+    assert (
+        simplified_case.overview_issues_statement
+        == "10 checks failed on test (5 on 12-week retest)"
+    )
 
 
 def test_archived_sections():
@@ -882,42 +958,6 @@ def test_equality_body_correspondence_sets_id_within_case():
     )
 
     assert second_equality_body_correspondence.id_within_case == 2
-
-
-@pytest.mark.django_db
-def test_case_retests_returns_undeleted_retests():
-    """Test SimplifiedCase.retests returns undeleted retests"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    wcag_audit_retest: WcagAudit = WcagAudit.objects.create(
-        simplified_case=simplified_case,
-        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
-    )
-
-    assert len(simplified_case.retests) == 1
-    assert simplified_case.retests[0] == wcag_audit_retest
-
-    wcag_audit_retest.is_deleted = True
-    wcag_audit_retest.save()
-
-    assert len(simplified_case.retests) == 0
-
-
-@pytest.mark.django_db
-def test_case_incomplete_retests_returns_incomplete_retests():
-    """Test SimplifiedCase.incomplete_retests returns retests with the default state"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    incomplete_retest: WcagAudit = WcagAudit.objects.create(
-        simplified_case=simplified_case,
-        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
-    )
-
-    assert len(simplified_case.incomplete_retests) == 1
-    assert simplified_case.incomplete_retests[0] == incomplete_retest
-
-    incomplete_retest.compliance_state = WcagAudit.WebsiteCompliance.COMPLIANT
-    incomplete_retest.save()
-
-    assert len(simplified_case.incomplete_retests) == 0
 
 
 @pytest.mark.django_db
@@ -1066,34 +1106,63 @@ def test_calulate_qa_status_approved():
 
 @pytest.mark.django_db
 def test_total_website_issues():
-    """Test Case total_website_issues returns number found or n/a if none"""
+    """Test Case total_website_issues returns number found"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     assert simplified_case.total_website_issues == 0
 
-    audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    AuditOverview.objects.create(simplified_case=simplified_case)
 
     assert simplified_case.total_website_issues == 0
 
-    home_page: WcagPageInitial = WcagPageInitial.objects.create(
-        audit=audit, page_type=WcagPageInitial.Type.HOME
+    wcag_audit_initial: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case
+    )
+    wcag_audit_retest: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
+
+    assert simplified_case.total_website_issues == 0
+
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit_initial, page_type=WcagPageInitial.Type.HOME
+    )
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+        wcag_audit=wcag_audit_retest, wcag_page_initial=wcag_page_initial
     )
     wcag_definition: WcagDefinition = WcagDefinition.objects.create()
-    CheckResult.objects.create(
-        audit=audit,
-        page=home_page,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit_initial,
+            wcag_page_initial=wcag_page_initial,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+        )
     )
-    CheckResult.objects.create(
-        audit=audit,
-        page=home_page,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.FIXED,
-        type=wcag_definition.type,
+    WcagCheckResultRetest.objects.create(
+        wcag_audit=wcag_audit_retest,
+        wcag_page_retest=wcag_page_retest,
+        wcag_check_result_initial=wcag_check_result_initial,
         wcag_definition=wcag_definition,
+        retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED,
+    )
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit_initial,
+            wcag_page_initial=wcag_page_initial,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+        )
+    )
+    WcagCheckResultRetest.objects.create(
+        wcag_audit=wcag_audit_retest,
+        wcag_page_retest=wcag_page_retest,
+        wcag_check_result_initial=wcag_check_result_initial,
+        wcag_definition=wcag_definition,
+        retest_state=WcagCheckResultRetest.RetestResult.FIXED,
     )
 
     assert simplified_case.total_website_issues == 2
@@ -1106,29 +1175,58 @@ def test_total_website_issues_fixed():
 
     assert simplified_case.total_website_issues_fixed == 0
 
-    audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    AuditOverview.objects.create(simplified_case=simplified_case)
 
     assert simplified_case.total_website_issues_fixed == 0
 
-    home_page: WcagPageInitial = WcagPageInitial.objects.create(
-        audit=audit, page_type=WcagPageInitial.Type.HOME
+    wcag_audit_initial: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case
+    )
+    wcag_audit_retest: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
+
+    assert simplified_case.total_website_issues_fixed == 0
+
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit_initial, page_type=WcagPageInitial.Type.HOME
+    )
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+        wcag_audit=wcag_audit_retest, wcag_page_initial=wcag_page_initial
     )
     wcag_definition: WcagDefinition = WcagDefinition.objects.create()
-    CheckResult.objects.create(
-        audit=audit,
-        page=home_page,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit_initial,
+            wcag_page_initial=wcag_page_initial,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+        )
     )
-    CheckResult.objects.create(
-        audit=audit,
-        page=home_page,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.FIXED,
-        type=wcag_definition.type,
+    WcagCheckResultRetest.objects.create(
+        wcag_audit=wcag_audit_retest,
+        wcag_page_retest=wcag_page_retest,
+        wcag_check_result_initial=wcag_check_result_initial,
         wcag_definition=wcag_definition,
+        retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED,
+    )
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit_initial,
+            wcag_page_initial=wcag_page_initial,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+        )
+    )
+    WcagCheckResultRetest.objects.create(
+        wcag_audit=wcag_audit_retest,
+        wcag_page_retest=wcag_page_retest,
+        wcag_check_result_initial=wcag_check_result_initial,
+        wcag_definition=wcag_definition,
+        retest_state=WcagCheckResultRetest.RetestResult.FIXED,
     )
 
     assert simplified_case.total_website_issues_fixed == 1
@@ -1141,29 +1239,58 @@ def test_total_website_issues_unfixed():
 
     assert simplified_case.total_website_issues_unfixed == 0
 
-    audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    AuditOverview.objects.create(simplified_case=simplified_case)
 
     assert simplified_case.total_website_issues_unfixed == 0
 
-    home_page: WcagPageInitial = WcagPageInitial.objects.create(
-        audit=audit, page_type=WcagPageInitial.Type.HOME
+    wcag_audit_initial: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case
+    )
+    wcag_audit_retest: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
+
+    assert simplified_case.total_website_issues_unfixed == 0
+
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit_initial, page_type=WcagPageInitial.Type.HOME
+    )
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+        wcag_audit=wcag_audit_retest, wcag_page_initial=wcag_page_initial
     )
     wcag_definition: WcagDefinition = WcagDefinition.objects.create()
-    CheckResult.objects.create(
-        audit=audit,
-        page=home_page,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit_initial,
+            wcag_page_initial=wcag_page_initial,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+        )
     )
-    CheckResult.objects.create(
-        audit=audit,
-        page=home_page,
-        check_result_state=CheckResult.Result.ERROR,
-        retest_state=CheckResult.RetestResult.FIXED,
-        type=wcag_definition.type,
+    WcagCheckResultRetest.objects.create(
+        wcag_audit=wcag_audit_retest,
+        wcag_page_retest=wcag_page_retest,
+        wcag_check_result_initial=wcag_check_result_initial,
         wcag_definition=wcag_definition,
+        retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED,
+    )
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit_initial,
+            wcag_page_initial=wcag_page_initial,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+        )
+    )
+    WcagCheckResultRetest.objects.create(
+        wcag_audit=wcag_audit_retest,
+        wcag_page_retest=wcag_page_retest,
+        wcag_check_result_initial=wcag_check_result_initial,
+        wcag_definition=wcag_definition,
+        retest_state=WcagCheckResultRetest.RetestResult.FIXED,
     )
 
     assert simplified_case.total_website_issues_unfixed == 1
@@ -1322,18 +1449,24 @@ def test_case_website_contact_links_count():
 
     assert simplified_case.website_contact_links_count == 0
 
-    audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert simplified_case.website_contact_links_count == 0
+
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
 
     assert simplified_case.website_contact_links_count == 0
 
     WcagPageInitial.objects.create(
-        audit=audit, page_type=WcagPageInitial.Type.CONTACT, url="url"
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.CONTACT, url="url"
     )
 
     assert simplified_case.website_contact_links_count == 1
 
-    WcagPageInitial.objects.create(
-        audit=audit, page_type=WcagPageInitial.Type.STATEMENT, url="url"
+    StatementPage.objects.create(
+        simplified_case=simplified_case, audit_overview=audit_overview, url="url"
     )
 
     assert simplified_case.website_contact_links_count == 2

@@ -4,7 +4,7 @@ Models - audits (called tests by the users)
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -308,11 +308,31 @@ class AuditOverview(models.Model):
         return self.wcag_audit_initial.get_compliance_state_display()
 
     @property
+    def contact_page(self) -> WcagPageInitial | None:
+        if self.wcag_audit_initial is not None:
+            return self.wcag_audit_initial.every_wcag_page_initials.filter(
+                page_type=WcagPageInitial.Type.CONTACT
+            ).first()
+
+    @property
+    def statement_page(self) -> WcagPageInitial | None:
+        if self.wcag_audit_initial is not None:
+            return self.wcag_audit_initial.every_wcag_page_initials.filter(
+                page_type=WcagPageInitial.Type.STATEMENT
+            ).first()
+
+    @property
     def statement_pages(self) -> QuerySet[StatementPage]:
         return self.statementpage_set.filter(is_deleted=False)
 
     @property
     def latest_statement_link(self) -> str | None:
+        for statement_page in self.statement_pages.order_by("-id"):
+            if statement_page.url:
+                return statement_page.url
+
+    @property
+    def latest_statement_location(self) -> str | None:
         for statement_page in self.statement_pages.order_by("-id"):
             if statement_page.url:
                 return statement_page.url
@@ -399,6 +419,29 @@ class AuditOverview(models.Model):
             ).count()
             == 0
         )
+
+    @property
+    def last_edited(self) -> datetime:
+        """Return when case or related data was last changed"""
+        updated_times: list[datetime] = [self.updated]
+
+        if self.wcag_audits.last() is not None:
+            wcag_audit: WcagAudit = self.wcag_audits.last()
+            updated_times.append(wcag_audit.updated)
+            for wcag_page_initial in wcag_audit.every_wcag_page_initials:
+                updated_times.append(wcag_page_initial.updated)
+                for (
+                    wcag_check_result_initial
+                ) in wcag_page_initial.all_wcag_check_result_initials:
+                    updated_times.append(wcag_check_result_initial.updated)
+            for wcag_page_retest in wcag_audit.wcag_page_retests:
+                updated_times.append(wcag_page_retest.updated)
+                for (
+                    wcag_check_result_retest
+                ) in wcag_page_retest.all_wcag_check_result_retests:
+                    updated_times.append(wcag_check_result_retest.updated)
+
+        return max([updated for updated in updated_times if updated is not None])
 
 
 class AuditRound(VersionModel):
@@ -975,12 +1018,6 @@ class StatementAudit(AuditRound):
             overview_statement_yes_count
             == self.overview_statement_check_results.count()
         )
-
-    @property
-    def latest_statement_link(self) -> str | None:
-        for statement_page in self.simplified_case.statement_pages.order_by("-id"):
-            if statement_page.url:
-                return statement_page.url
 
 
 class Page(models.Model):
