@@ -644,14 +644,15 @@ class InitialAuditStatementLinksPlatformPage(InitialStatementAuditPlatformPage):
                             platform_page=self, instance=statement_audit
                         )
                     )
-                    for (
-                        statement_page
-                    ) in (
-                        statement_audit.simplified_case.audit_overview.unique_statement_page_urls
-                    ):
-                        bound_subpages += populate_subpages_with_instance(
-                            platform_page=self, instance=statement_page
-                        )
+                    if statement_audit.simplified_case.audit_overview is not None:
+                        for (
+                            statement_page
+                        ) in (
+                            statement_audit.simplified_case.audit_overview.unique_statement_page_urls
+                        ):
+                            bound_subpages += populate_subpages_with_instance(
+                                platform_page=self, instance=statement_page
+                            )
                     self.subpages = bound_subpages
 
 
@@ -776,7 +777,7 @@ class EqualityBodyRetestStatementLinksPlatformPage(EqualityBodyRetestWcagPlatfor
     def populate_subpage_instances(self):
         if self.subpages is not None and self.instance is not None:
             bound_subpages: list[PlatformPage] = []
-            if self.instance.simplified_case.audit is not None:
+            if self.instance.simplified_case.audit_overview is not None:
                 for (
                     statement_page
                 ) in (
