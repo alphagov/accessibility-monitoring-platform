@@ -14,7 +14,6 @@ from pytest_django.asserts import assertQuerySetEqual
 
 from ...audits.models import (
     AuditOverview,
-    CheckResult,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,

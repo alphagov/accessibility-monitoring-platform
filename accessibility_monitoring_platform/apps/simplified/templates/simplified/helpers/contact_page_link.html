@@ -1,7 +1,7 @@
 <p class="govuk-body-m">
-    {% if case.audit_overview.contact_page.url %}
+    {% if case.audit_overview.contact_wcag_page_initial.url %}
         <a
-            href="{{ case.audit_overview.contact_page.url }}"
+            href="{{ case.audit_overview.contact_wcag_page_initial.url }}"
             class="govuk-link" target="_blank"
         >
             Open contact page in new tab
@@ -9,5 +9,5 @@
     {% else %}
         No contact page
     {% endif %}
-    {{ case.audit_overview.contact_page.location }}
+    {{ case.audit_overview.contact_wcag_page_initial.location }}
 </p>

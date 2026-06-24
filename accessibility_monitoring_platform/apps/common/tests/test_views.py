@@ -12,7 +12,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
-from ...audits.models import AuditOverview, StatementAudit, StatementPage, WcagAudit
+from ...audits.models import AuditOverview, StatementPage, WcagAudit
 from ...detailed.models import DetailedCase
 from ...notifications.models import Task
 from ...reports.models import ReportVisitsMetrics
@@ -1326,9 +1326,6 @@ def test_latest_statement_frequently_used_link(admin_client):
     assertContains(response, "No accessibility statement URL")
     assertNotContains(response, "Latest accessibility statement")
 
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case
-    )
     StatementPage.objects.create(
         simplified_case=simplified_case,
         audit_overview=audit_overview,

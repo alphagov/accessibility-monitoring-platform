@@ -52,6 +52,8 @@ ACCESSIBILITY_PAGE_STATEMENT_CHECK_ID: int = 1
 REPORT_COMMENT: str = "Report comment"
 GOOGLE_DRIVE_LINK: str = "https://drive.google.com/link1"
 NON_GOOGLE_DRIVE_LINK: str = "https://example.com/link2"
+STATEMENT_PAGE_URL: str = "https://example.com/statement"
+STATEMENT_PAGE_LOCATION: str = "Statement location"
 
 
 @pytest.mark.django_db
@@ -67,7 +69,7 @@ def test_wcag_audit_updated_updated():
 
 
 @pytest.mark.django_db
-def test_wcag_overview_wcag_audits():
+def test_audit_overview_wcag_audits():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit_overview: AuditOverview = AuditOverview.objects.create(
         simplified_case=simplified_case
@@ -75,13 +77,18 @@ def test_wcag_overview_wcag_audits():
 
     assert audit_overview.wcag_audits.count() == 0
 
-    WcagAudit.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
 
     assert audit_overview.wcag_audits.count() == 1
 
+    wcag_audit.is_deleted = True
+    wcag_audit.save()
+
+    assert audit_overview.wcag_audits.count() == 0
+
 
 @pytest.mark.django_db
-def test_wcag_overview_wcag_audit_initial():
+def test_audit_overview_wcag_audit_initial():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit_overview: AuditOverview = AuditOverview.objects.create(
         simplified_case=simplified_case
@@ -95,7 +102,7 @@ def test_wcag_overview_wcag_audit_initial():
 
 
 @pytest.mark.django_db
-def test_wcag_overview_first_twelve_week_wcag_audit():
+def test_audit_overview_first_twelve_week_wcag_audit():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit_overview: AuditOverview = AuditOverview.objects.create(
         simplified_case=simplified_case
@@ -112,7 +119,7 @@ def test_wcag_overview_first_twelve_week_wcag_audit():
 
 
 @pytest.mark.django_db
-def test_wcag_overview_equality_body_wcag_audits():
+def test_audit_overview_equality_body_wcag_audits():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit_overview: AuditOverview = AuditOverview.objects.create(
         simplified_case=simplified_case
@@ -129,7 +136,7 @@ def test_wcag_overview_equality_body_wcag_audits():
 
 
 @pytest.mark.django_db
-def test_wcag_overview_first_equality_body_wcag_audit():
+def test_audit_overview_first_equality_body_wcag_audit():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit_overview: AuditOverview = AuditOverview.objects.create(
         simplified_case=simplified_case
@@ -150,7 +157,7 @@ def test_wcag_overview_first_equality_body_wcag_audit():
 
 
 @pytest.mark.django_db
-def test_wcag_overview_last_equality_body_wcag_audit():
+def test_audit_overview_last_equality_body_wcag_audit():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit_overview: AuditOverview = AuditOverview.objects.create(
         simplified_case=simplified_case
@@ -171,11 +178,211 @@ def test_wcag_overview_last_equality_body_wcag_audit():
 
 
 @pytest.mark.django_db
+def test_website_compliance_display():
+    """Test website compliance is derived correctly"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+    wcag_audit_initial: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.website_compliance_display == "Not known"
+
+    wcag_audit_initial.compliance_state = WcagAudit.WebsiteCompliance.PARTIALLY
+    wcag_audit_initial.save()
+
+    assert audit_overview.website_compliance_display == "Partially compliant"
+
+    wcag_audit_twelve_week: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
+
+    assert audit_overview.website_compliance_display == "Partially compliant"
+
+    wcag_audit_twelve_week.compliance_state = WcagAudit.WebsiteCompliance.COMPLIANT
+    wcag_audit_twelve_week.save()
+
+    assert audit_overview.website_compliance_display == "Fully compliant"
+
+
+@pytest.mark.django_db
+def test_audit_overview_statement_pages():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.statement_pages.count() == 0
+
+    statement_page: StatementPage = StatementPage.objects.create(
+        simplified_case=simplified_case, audit_overview=audit_overview
+    )
+
+    assert audit_overview.statement_pages.count() == 1
+
+    statement_page.is_deleted = True
+    statement_page.save()
+
+    assert audit_overview.statement_pages.count() == 0
+
+
+@pytest.mark.django_db
+def test_audit_overview_latest_statement_link():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.latest_statement_link is None
+
+    StatementPage.objects.create(
+        simplified_case=simplified_case,
+        audit_overview=audit_overview,
+        url=STATEMENT_PAGE_URL,
+    )
+
+    assert audit_overview.latest_statement_link == STATEMENT_PAGE_URL
+
+    StatementPage.objects.create(
+        simplified_case=simplified_case,
+        audit_overview=audit_overview,
+    )
+
+    assert audit_overview.latest_statement_link == STATEMENT_PAGE_URL
+
+
+@pytest.mark.django_db
 def test_wcag_audit_every_wcag_page_initials_returns_all_pages():
     """Deleted and pages which were not found are also excluded"""
     wcag_audit: WcagAudit = create_initial_wcag_audit()
 
     assert wcag_audit.every_wcag_page_initials.count() == 6
+
+
+@pytest.mark.django_db
+def test_audit_overview_contact_wcag_page_initial():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+    wcag_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+    )
+
+    assert audit_overview.contact_wcag_page_initial is None
+
+    contact_wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.CONTACT
+    )
+
+    assert audit_overview.contact_wcag_page_initial == contact_wcag_page_initial
+
+
+@pytest.mark.django_db
+def test_audit_overview_statement_wcag_page_initial():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+    wcag_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+    )
+
+    assert audit_overview.statement_wcag_page_initial is None
+
+    statement_wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.STATEMENT
+    )
+
+    assert audit_overview.statement_wcag_page_initial == statement_wcag_page_initial
+
+
+@pytest.mark.django_db
+def test_audit_overview_archived_google_drive_links():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+    StatementPage.objects.create(
+        audit_overview=audit_overview,
+        backup_url=GOOGLE_DRIVE_LINK,
+    )
+    StatementPage.objects.create(
+        audit_overview=audit_overview,
+        backup_url=NON_GOOGLE_DRIVE_LINK,
+    )
+
+    assert audit_overview.archived_google_drive_links.count() == 1
+    assert (
+        audit_overview.archived_google_drive_links.first().backup_url
+        == GOOGLE_DRIVE_LINK
+    )
+
+
+@pytest.mark.django_db
+def test_audit_unique_statement_page_urls():
+    """Test unique statement page urls returns only first with matching URL"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+    first_new_statement_page: StatementPage = StatementPage.objects.create(
+        audit_overview=audit_overview,
+        url=STATEMENT_LINK,
+    )
+    StatementPage.objects.create(
+        audit_overview=audit_overview,
+        url=STATEMENT_LINK,
+    )
+
+    assert len(audit_overview.unique_statement_page_urls) == 1
+    assert audit_overview.unique_statement_page_urls[0] == first_new_statement_page
+
+
+@pytest.mark.django_db
+def test_audit_overview_accessibility_statement_found():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.accessibility_statement_found is False
+
+    statement_page: StatementPage = StatementPage.objects.create(
+        simplified_case=simplified_case,
+        audit_overview=audit_overview,
+    )
+
+    assert audit_overview.accessibility_statement_found is False
+
+    statement_page.url = STATEMENT_PAGE_URL
+    statement_page.save()
+
+    assert audit_overview.accessibility_statement_found is True
+
+
+@pytest.mark.django_db
+def test_audit_overview_statement_audits():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.statement_audits.count() == 0
+
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.statement_audits.count() == 1
+
+    statement_audit.is_deleted = True
+    statement_audit.save()
+
+    assert audit_overview.statement_audits.count() == 0
 
 
 @pytest.mark.django_db
@@ -1574,47 +1781,4 @@ def test_statement_audit_new_12_week_custom_statement_check_results():
     assert (
         statement_audit.new_12_week_custom_statement_check_results.first()
         == new_12_week_custom_check_result
-    )
-
-
-@pytest.mark.django_db
-def test_audit_unique_statement_page_urls():
-    """Test unique statement page urls returns only first with matching URL"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit_overview: AuditOverview = AuditOverview.objects.create(
-        simplified_case=simplified_case
-    )
-    first_new_statement_page: StatementPage = StatementPage.objects.create(
-        audit_overview=audit_overview,
-        url=STATEMENT_LINK,
-    )
-    StatementPage.objects.create(
-        audit_overview=audit_overview,
-        url=STATEMENT_LINK,
-    )
-
-    assert len(audit_overview.unique_statement_page_urls) == 1
-    assert audit_overview.unique_statement_page_urls[0] == first_new_statement_page
-
-
-@pytest.mark.django_db
-def test_audit_archived_google_drive_links():
-    """Test archived google drive lines returned"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit_overview: AuditOverview = AuditOverview.objects.create(
-        simplified_case=simplified_case
-    )
-    StatementPage.objects.create(
-        audit_overview=audit_overview,
-        backup_url=GOOGLE_DRIVE_LINK,
-    )
-    StatementPage.objects.create(
-        audit_overview=audit_overview,
-        backup_url=NON_GOOGLE_DRIVE_LINK,
-    )
-
-    assert audit_overview.archived_google_drive_links.count() == 1
-    assert (
-        audit_overview.archived_google_drive_links.first().backup_url
-        == GOOGLE_DRIVE_LINK
     )

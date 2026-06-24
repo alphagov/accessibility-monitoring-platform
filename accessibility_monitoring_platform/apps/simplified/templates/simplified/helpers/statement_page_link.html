@@ -1,7 +1,7 @@
 <p class="govuk-body-m">
-    {% if case.audit_overview.statement_page.url %}
+    {% if case.audit_overview.statement_wcag_page_initial.url %}
         <a
-            href="{{ case.audit_overview.statement_page.url }}"
+            href="{{ case.audit_overview.statement_wcag_page_initial.url }}"
             class="govuk-link" target="_blank"
         >
             Open accessibility statement page in new tab
@@ -9,5 +9,5 @@
     {% else %}
         No accessibility statement page
     {% endif %}
-    {{ case.audit_overview.statement_page.location }}
+    {{ case.audit_overview.statement_wcag_page_initial.location }}
 </p>

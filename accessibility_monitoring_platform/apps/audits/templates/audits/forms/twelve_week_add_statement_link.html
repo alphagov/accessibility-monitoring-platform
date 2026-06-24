@@ -3,8 +3,8 @@
 {% block preform %}
 <div class="govuk-grid-row amp-margin-bottom-30">
     <div class="govuk-grid-column-full">
-        {% if case.unique_statement_page_urls %}
-            {% for statement_page in case.unique_statement_page_urls %}
+        {% if case.audit_overview.unique_statement_page_urls %}
+            {% for statement_page in case.audit_overview.unique_statement_page_urls %}
                 <p class="govuk-body-m amp-margin-bottom-0">
                     <b>Statement link #{{ forloop.counter }}</b>
                 </p>

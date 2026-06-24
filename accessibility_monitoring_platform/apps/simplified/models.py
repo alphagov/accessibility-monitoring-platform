@@ -5,7 +5,6 @@ Models - cases
 import json
 import re
 from datetime import date, datetime, timedelta
-from datetime import timezone as datetime_timezone
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -953,8 +952,8 @@ class SimplifiedCase(BaseCase):
         links_count: int = 0
         if self.audit_overview is not None:
             if (
-                self.audit_overview.contact_page is not None
-                and self.audit_overview.contact_page.url
+                self.audit_overview.contact_wcag_page_initial is not None
+                and self.audit_overview.contact_wcag_page_initial.url
             ):
                 links_count += 1
             if (
@@ -1187,22 +1186,6 @@ class SimplifiedCase(BaseCase):
     @property
     def statement_pages(self):
         return self.statementpage_set.filter(is_deleted=False).order_by("id")
-
-    @property
-    def unique_statement_page_urls(self):
-        """Return the first statement page for each URL"""
-        statement_urls: list[str] = []
-        unique_url_statement_pages = []
-        for statement_page in self.statement_pages.exclude(url=""):
-            if statement_page.url not in statement_urls:
-                statement_urls.append(statement_page.url)
-                unique_url_statement_pages.append(statement_page)
-        return unique_url_statement_pages
-
-    @property
-    def archived_google_drive_links(self):
-        """Return statement pages with google drive backup urls"""
-        return self.statement_pages.filter(backup_url__contains="drive.google.com")
 
 
 class CaseStatus(models.Model):

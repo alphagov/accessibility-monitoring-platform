@@ -291,14 +291,14 @@ class AuditOverview(models.Model):
         return self.wcag_audit_initial.get_compliance_state_display()
 
     @property
-    def contact_page(self) -> WcagPageInitial | None:
+    def contact_wcag_page_initial(self) -> WcagPageInitial | None:
         if self.wcag_audit_initial is not None:
             return self.wcag_audit_initial.every_wcag_page_initials.filter(
                 page_type=WcagPageInitial.Type.CONTACT
             ).first()
 
     @property
-    def statement_page(self) -> WcagPageInitial | None:
+    def statement_wcag_page_initial(self) -> WcagPageInitial | None:
         if self.wcag_audit_initial is not None:
             return self.wcag_audit_initial.every_wcag_page_initials.filter(
                 page_type=WcagPageInitial.Type.STATEMENT
@@ -310,12 +310,6 @@ class AuditOverview(models.Model):
 
     @property
     def latest_statement_link(self) -> str | None:
-        for statement_page in self.statement_pages.order_by("-id"):
-            if statement_page.url:
-                return statement_page.url
-
-    @property
-    def latest_statement_location(self) -> str | None:
         for statement_page in self.statement_pages.order_by("-id"):
             if statement_page.url:
                 return statement_page.url
@@ -338,7 +332,9 @@ class AuditOverview(models.Model):
 
     @property
     def accessibility_statement_found(self) -> bool:
-        return self.statement_pages.count() > 0 and self.latest_statement_link != ""
+        return (
+            self.statement_pages.count() > 0 and self.latest_statement_link is not None
+        )
 
     @property
     def statement_audits(self) -> QuerySet[StatementAudit]:

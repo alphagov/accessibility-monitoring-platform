@@ -10,7 +10,6 @@ from django.db.models.query import QuerySet
 from django.utils import timezone
 
 from ..audits.models import (
-    AuditOverview,
     StatementAudit,
     WcagAudit,
     WcagCheckResultInitial,
@@ -18,7 +17,7 @@ from ..audits.models import (
 )
 from ..reports.models import ReportVisitsMetrics
 from ..s3_read_write.models import S3Report
-from ..simplified.models import CaseCompliance, CaseStatus, SimplifiedCase
+from ..simplified.models import CaseStatus, SimplifiedCase
 from .chart import LineChart, Timeseries, TimeseriesDatapoint, build_yearly_metric_chart
 from .utils import get_days_ago_timestamp, get_first_of_this_month_last_year
 
