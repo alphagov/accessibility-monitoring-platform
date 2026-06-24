@@ -24,7 +24,6 @@ from ..models import (
     WcagDefinition,
     WcagPageInitial,
     WcagPageRetest,
-    build_issue_identifier,
 )
 from .create_test_data import (
     WCAG_TYPE_AXE_NAME,
@@ -53,6 +52,122 @@ ACCESSIBILITY_PAGE_STATEMENT_CHECK_ID: int = 1
 REPORT_COMMENT: str = "Report comment"
 GOOGLE_DRIVE_LINK: str = "https://drive.google.com/link1"
 NON_GOOGLE_DRIVE_LINK: str = "https://example.com/link2"
+
+
+@pytest.mark.django_db
+def test_wcag_audit_updated_updated():
+    """Test the wcag audit updated field is updated"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_UPDATED)):
+        wcag_audit.save()
+
+    assert wcag_audit.updated == DATETIME_AUDIT_UPDATED
+
+
+@pytest.mark.django_db
+def test_wcag_overview_wcag_audits():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.wcag_audits.count() == 0
+
+    WcagAudit.objects.create(simplified_case=simplified_case)
+
+    assert audit_overview.wcag_audits.count() == 1
+
+
+@pytest.mark.django_db
+def test_wcag_overview_wcag_audit_initial():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.wcag_audit_initial is None
+
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+
+    assert audit_overview.wcag_audit_initial == wcag_audit
+
+
+@pytest.mark.django_db
+def test_wcag_overview_first_twelve_week_wcag_audit():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.first_twelve_week_wcag_audit is None
+
+    wcag_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
+
+    assert audit_overview.first_twelve_week_wcag_audit == wcag_audit
+
+
+@pytest.mark.django_db
+def test_wcag_overview_equality_body_wcag_audits():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.equality_body_wcag_audits.count() == 0
+
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
+
+    assert audit_overview.equality_body_wcag_audits.count() == 1
+
+
+@pytest.mark.django_db
+def test_wcag_overview_first_equality_body_wcag_audit():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.first_equality_body_wcag_audit is None
+
+    first_wcag_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
+
+    assert audit_overview.first_equality_body_wcag_audit == first_wcag_audit
+
+
+@pytest.mark.django_db
+def test_wcag_overview_last_equality_body_wcag_audit():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.last_equality_body_wcag_audit is None
+
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
+    last_wcag_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
+
+    assert audit_overview.last_equality_body_wcag_audit == last_wcag_audit
 
 
 @pytest.mark.django_db
@@ -454,18 +569,6 @@ def test_accessibility_statement_found():
     assert (
         wcag_audit.simplified_case.audit_overview.accessibility_statement_found is True
     )
-
-
-@pytest.mark.django_db
-def test_wcag_audit_updated_updated():
-    """Test the wcag audit updated field is updated"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
-
-    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_UPDATED)):
-        wcag_audit.save()
-
-    assert wcag_audit.updated == DATETIME_AUDIT_UPDATED
 
 
 @pytest.mark.django_db
@@ -1398,12 +1501,8 @@ def test_check_result_issue_identifier():
 
 
 @pytest.mark.django_db
-def test_issue_identifier():
-    """
-    Test issue_identifier property is populated on WcagCheckResultInitial,
-    StatementCheckResultRound,
-    RetestCheckResult and RetestStatementCheckResult creation.
-    """
+def test_wcag_issue_identifier():
+    """Test populating issue identifier for WCAG check result"""
 
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
@@ -1425,76 +1524,12 @@ def test_issue_identifier():
 
     assert wcag_check_result_initial.issue_identifier == "1-A-1"
 
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case
-    )
-    statement_check: StatementCheck = StatementCheck.objects.all().first()
-    statement_check_result_initial: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.create(
-            statement_audit=statement_audit,
-            type=statement_check.type,
-            statement_check=statement_check,
-        )
-    )
-
-    assert statement_check_result_initial.issue_identifier == "1-S-1"
-
-    statement_audit_retest: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case,
-        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-    )
-    statement_check_result_retest: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.create(
-            statement_audit=statement_audit_retest,
-            statement_check_result_initial=statement_check_result_initial,
-            type=statement_check.type,
-            statement_check=statement_check,
-        )
-    )
-
-    assert statement_check_result_retest.issue_identifier == "1-S-1"
-
-    custom_statement_check_result_initial: StatementCheck = (
-        StatementCheckResultRound.objects.create(
-            statement_audit=statement_audit,
-            public_comment="Custom statement issue",
-        )
-    )
-
-    assert custom_statement_check_result_initial.issue_identifier == "1-SC-1"
-
 
 @pytest.mark.django_db
-def test_build_issue_identifier():
-    """Test building issue identifiers"""
+def test_statement_issue_identifier():
+    """Test populating issue identifier for statement check results"""
 
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
-    )
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
-    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
-    )
-    wcag_check_result_initial: WcagCheckResultInitial = (
-        WcagCheckResultInitial.objects.create(
-            wcag_audit=wcag_audit,
-            wcag_page_initial=wcag_page_initial,
-            check_result_state=WcagCheckResultInitial.Result.ERROR,
-            type=wcag_definition.type,
-            wcag_definition=wcag_definition,
-        )
-    )
-
-    assert (
-        build_issue_identifier(
-            simplified_case=simplified_case,
-            issue=wcag_check_result_initial,
-            id_within_case=1,
-        )
-        == "1-A-1"
-    )
-
     statement_audit: StatementAudit = StatementAudit.objects.create(
         simplified_case=simplified_case
     )
@@ -1507,14 +1542,7 @@ def test_build_issue_identifier():
         )
     )
 
-    assert (
-        build_issue_identifier(
-            simplified_case=simplified_case,
-            issue=statement_check_result_round,
-            id_within_case=1,
-        )
-        == "1-S-1"
-    )
+    assert statement_check_result_round.issue_identifier == "1-S-1"
 
     custom_statement_check_result_round: StatementCheckResultRound = (
         StatementCheckResultRound.objects.create(
@@ -1523,15 +1551,7 @@ def test_build_issue_identifier():
         )
     )
 
-    assert (
-        build_issue_identifier(
-            simplified_case=simplified_case,
-            issue=custom_statement_check_result_round,
-            custom_issue=True,
-            id_within_case=2,
-        )
-        == "1-SC-2"
-    )
+    assert custom_statement_check_result_round.issue_identifier == "1-SC-2"
 
 
 @pytest.mark.django_db

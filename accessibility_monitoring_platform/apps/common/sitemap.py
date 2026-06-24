@@ -718,7 +718,7 @@ class WcagAuditRetestPagesPlatformPage(WcagAuditPlatformPage):
     def populate_from_case(self, case: AnyCaseType):
         if hasattr(case, "audit_overview") and case.audit_overview is not None:
             wcag_audit: WcagAudit | None = (
-                case.audit_overview.first_wcag_audit_12_week_retest
+                case.audit_overview.first_twelve_week_wcag_audit
             )
             if wcag_audit is not None:
                 self.set_instance(instance=wcag_audit)

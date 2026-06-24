@@ -31,8 +31,8 @@
                                 {% if wcag_audit.previous_equality_body_retest %}
                                     <a href="{% url 'audits:retest-metadata-update' wcag_audit.previous_equality_body_retest.id %}" class="govuk-link govuk-link--no-visited-state">
                                         {{ wcag_audit.previous_equality_body_retest.equality_body_retest_name }}</a>.
-                                {% elif wcag_audit.simplified_case.audit_overview.first_wcag_audit_12_week_retest %}
-                                    <a href="{% url 'audits:edit-audit-retest-metadata' wcag_audit.simplified_case.audit_overview.first_wcag_audit_12_week_retest.id %}" class="govuk-link govuk-link--no-visited-state">
+                                {% elif wcag_audit.simplified_case.audit_overview.first_twelve_week_wcag_audit %}
+                                    <a href="{% url 'audits:edit-audit-retest-metadata' wcag_audit.simplified_case.audit_overview.first_twelve_week_wcag_audit.id %}" class="govuk-link govuk-link--no-visited-state">
                                         12-week retest</a>.
                                 {% else %}
                                     <a href="{% url 'audits:edit-audit-metadata' wcag_audit.simplified_case.audit_overview.wcag_audit_initial.id %}" class="govuk-link govuk-link--no-visited-state">
@@ -65,7 +65,7 @@
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Date of retest (12-week retest)</b></label>
-                                <div class="govuk-hint">{{ first_wcag_audit_12_week_retest.date_of_test|amp_date }}</div>
+                                <div class="govuk-hint">{{ first_twelve_week_wcag_audit.date_of_test|amp_date }}</div>
                             </div>
                             {% include 'common/amp_field.html' with field=form.metadata_complete_date %}
                         </div>

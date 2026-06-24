@@ -154,7 +154,7 @@ def test_body_html_with_issue_identifier_links_matching_custom_statement_check_r
 
     assert (
         comment.body_html_with_issue_identifier_links
-        == '<p>1-A-2 1-S-2 <a href="/audits/1/edit-statement-custom/#1-SC-2" class="govuk-link govuk-link--no-visited-state" target="_blank">1-SC-2</a></p>'
+        == '<p>1-A-2 1-S-2 <a href="/audits/1/edit-statement-custom/#1-SC-44" class="govuk-link govuk-link--no-visited-state" target="_blank">1-SC-44</a></p>'
     )
 
 

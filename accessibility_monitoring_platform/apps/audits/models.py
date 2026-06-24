@@ -23,23 +23,6 @@ ISSUE_IDENTIFIER_WCAG: str = "A"
 ISSUE_IDENTIFIER_STATEMENT: str = "S"
 
 
-def build_issue_identifier(
-    simplified_case: SimplifiedCase,
-    issue: WcagCheckResultInitial | StatementCheckResultRound,
-    custom_issue: bool = False,
-    id_within_case: int = 1,
-) -> str:
-    """Format and return issue identifier"""
-    issue_type: str = (
-        ISSUE_IDENTIFIER_WCAG
-        if isinstance(issue, WcagCheckResultInitial)
-        else ISSUE_IDENTIFIER_STATEMENT
-    )
-    if custom_issue:
-        issue_type += "C"
-    return f"{simplified_case.case_number}-{issue_type}-{id_within_case}"
-
-
 class Audit(VersionModel):
     """Model for test"""
 
@@ -278,7 +261,7 @@ class AuditOverview(models.Model):
         ).first()
 
     @property
-    def first_wcag_audit_12_week_retest(self) -> WcagAudit | None:
+    def first_twelve_week_wcag_audit(self) -> WcagAudit | None:
         return self.wcag_audits.filter(
             audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK
         ).first()
@@ -290,7 +273,7 @@ class AuditOverview(models.Model):
         )
 
     @property
-    def first_wcag_audit_equality_body_retest(self) -> WcagAudit | None:
+    def first_equality_body_wcag_audit(self) -> WcagAudit | None:
         return self.equality_body_wcag_audits.first()
 
     @property
@@ -300,11 +283,11 @@ class AuditOverview(models.Model):
     @property
     def website_compliance_display(self) -> str:
         if (
-            self.first_wcag_audit_12_week_retest is not None
-            and self.first_wcag_audit_12_week_retest.compliance_state
+            self.first_twelve_week_wcag_audit is not None
+            and self.first_twelve_week_wcag_audit.compliance_state
             != WcagAudit.WebsiteCompliance.UNKNOWN
         ):
-            return self.first_wcag_audit_12_week_retest.get_compliance_state_display()
+            return self.first_twelve_week_wcag_audit.get_compliance_state_display()
         return self.wcag_audit_initial.get_compliance_state_display()
 
     @property
@@ -1371,11 +1354,12 @@ class WcagCheckResultInitial(models.Model):
 
     def save(self, *args, **kwargs) -> None:
         if not self.id and not self.issue_identifier:
-            self.issue_identifier = build_issue_identifier(
-                simplified_case=self.wcag_audit.simplified_case,
-                issue=self,
-                id_within_case=self.wcag_audit.wcagcheckresultinitial_set.all().count()
-                + 1,
+            case_number: int = self.wcag_audit.simplified_case.case_number
+            issue_number: int = (
+                self.wcag_audit.wcagcheckresultinitial_set.all().count() + 1
+            )
+            self.issue_identifier = (
+                f"{case_number}-{ISSUE_IDENTIFIER_WCAG}-{issue_number}"
             )
         self.updated = timezone.now()
         super().save(*args, **kwargs)
@@ -1445,11 +1429,11 @@ class WcagCheckResultRetest(models.Model):
         """Other check results for matching WcagDefinition"""
         if (
             self.wcag_audit
-            == self.wcag_audit.simplified_case.audit_overview.first_wcag_audit_equality_body_retest
+            == self.wcag_audit.simplified_case.audit_overview.first_equality_body_wcag_audit
         ):
             return WcagCheckResultRetest.objects.filter(
                 wcag_check_result_initial=self.wcag_check_result_initial,
-                wcag_audit=self.wcag_audit.simplified_case.audit_overview.first_wcag_audit_12_week_retest,
+                wcag_audit=self.wcag_audit.simplified_case.audit_overview.first_twelve_week_wcag_audit,
             ).first()
         return WcagCheckResultRetest.objects.filter(
             wcag_check_result_initial=self.wcag_check_result_initial,
@@ -1684,20 +1668,15 @@ class StatementCheckResultRound(models.Model):
     def save(self, *args, **kwargs) -> None:
         if not self.id and not self.issue_identifier:
             if self.statement_check:
-                id_within_case: int = self.statement_check.issue_number
+                custom_suffix: str = ""
+                issue_number: int = self.statement_check.issue_number
             else:
-                id_within_case: int = (
-                    self.statement_audit.statementcheckresultround_set.filter(
-                        statement_check=None
-                    ).count()
-                    + 1
+                custom_suffix: str = "C"
+                issue_number: int = (
+                    self.statement_audit.statementcheckresultround_set.all().count() + 1
                 )
-            self.issue_identifier = build_issue_identifier(
-                simplified_case=self.statement_audit.simplified_case,
-                issue=self,
-                custom_issue=self.statement_check is None,
-                id_within_case=id_within_case,
-            )
+            case_number: int = self.statement_audit.simplified_case.case_number
+            self.issue_identifier = f"{case_number}-{ISSUE_IDENTIFIER_STATEMENT}{custom_suffix}-{issue_number}"
         if not self.id and self.statement_check is None:
             self.check_result_state = StatementCheckResultRound.Result.NO
         super().save(*args, **kwargs)

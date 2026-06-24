@@ -1375,7 +1375,7 @@ def test_platform_case_with_audit_edit_redirects_based_on_button_pressed(
     assert response.status_code == 302
     if expected_redirect_path.startswith("audits"):
         wcag_audit: WcagAudit = (
-            simplified_case.audit_overview.first_wcag_audit_12_week_retest
+            simplified_case.audit_overview.first_twelve_week_wcag_audit
         )
         assert (
             response.url

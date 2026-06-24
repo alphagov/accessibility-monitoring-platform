@@ -170,8 +170,8 @@ class EqualityBodyRetestPageChecksFormView(NextPlatformPageMixin, UpdateView):
         audit_overview: AuditOverview = wcag_audit.simplified_case.audit_overview
 
         context["wcag_audit_initial"] = audit_overview.wcag_audit_initial
-        context["first_wcag_audit_12_week_retest"] = (
-            audit_overview.first_wcag_audit_12_week_retest
+        context["first_twelve_week_wcag_audit"] = (
+            audit_overview.first_twelve_week_wcag_audit
         )
         context["wcag_audit"] = wcag_audit
         context["statement_audit"] = (

@@ -754,7 +754,7 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
                 )
             else:
                 wcag_audit_12_week: WcagAudit = (
-                    simplified_case.audit_overview.first_wcag_audit_12_week_retest
+                    simplified_case.audit_overview.first_twelve_week_wcag_audit
                 )
                 return get_platform_page_by_url_name(
                     url_name="audits:edit-audit-retest-metadata",

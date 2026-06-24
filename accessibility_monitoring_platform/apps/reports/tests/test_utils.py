@@ -75,9 +75,7 @@ def test_twelve_week_build_issue_table_rows():
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    wcag_audit: WcagAudit = (
-        simplified_case.audit_overview.first_wcag_audit_12_week_retest
-    )
+    wcag_audit: WcagAudit = simplified_case.audit_overview.first_twelve_week_wcag_audit
     wcag_check_result_retest: WcagCheckResultRetest = (
         WcagCheckResultRetest.objects.filter(wcag_audit=wcag_audit).first()
     )

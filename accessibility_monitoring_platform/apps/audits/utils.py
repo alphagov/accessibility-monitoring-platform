@@ -507,9 +507,7 @@ def get_audit_summary_context(
     """Return the context for test summary pages"""
     audit_overview: AuditOverview = simplified_case.audit_overview
     wcag_audit_initial: WcagAudit | None = audit_overview.wcag_audit_initial
-    wcag_audit_12_week: WcagAudit | None = (
-        audit_overview.first_wcag_audit_12_week_retest
-    )
+    wcag_audit_12_week: WcagAudit | None = audit_overview.first_twelve_week_wcag_audit
     statement_audit_initial: StatementAudit | None = (
         audit_overview.statement_audit_initial
     )
@@ -716,8 +714,8 @@ def build_equality_body_retest_context_data(
     audit_overview: AuditOverview = statement_audit.simplified_case.audit_overview
 
     context["wcag_audit_initial"] = audit_overview.wcag_audit_initial
-    context["first_wcag_audit_12_week_retest"] = (
-        audit_overview.first_wcag_audit_12_week_retest
+    context["first_twelve_week_wcag_audit"] = (
+        audit_overview.first_twelve_week_wcag_audit
     )
     context["statement_audit"] = statement_audit
     context["wcag_audit"] = wcag_audit

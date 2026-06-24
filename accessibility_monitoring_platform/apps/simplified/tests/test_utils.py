@@ -232,7 +232,7 @@ def test_create_case_and_compliance():
 
     assert simplified_case.organisation_name == ORGANISATION_NAME
     assert (
-        simplified_case.audit_overview.first_wcag_audit_12_week_retest.compliance_state
+        simplified_case.audit_overview.first_twelve_week_wcag_audit.compliance_state
         == WcagAudit.WebsiteCompliance.COMPLIANT
     )
 
