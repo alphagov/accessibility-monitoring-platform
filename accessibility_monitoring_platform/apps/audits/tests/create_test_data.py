@@ -202,12 +202,12 @@ def create_equality_body_audits(simplified_case: SimplifiedCase = None) -> WcagA
     """Create initial and equality body wcag and statement audits"""
     if (
         simplified_case is None
-        or simplified_case.audit_overview.wcag_audit_initial is None
+        or simplified_case.audit_overview.initial_wcag_audit is None
     ):
         initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
     else:
         initial_wcag_audit: WcagAudit = (
-            simplified_case.audit_overview.wcag_audit_initial
+            simplified_case.audit_overview.initial_wcag_audit
         )
     if (
         simplified_case is None

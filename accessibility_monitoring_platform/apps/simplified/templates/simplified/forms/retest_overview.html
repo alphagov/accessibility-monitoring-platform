@@ -35,7 +35,7 @@
             <p class="govuk-body-m amp-margin-bottom-5"><b>Statement outcome</b></p>
             <p class="govuk-body-m">{{ equality_body_retest.equivalent_equality_body_statement_retest.get_compliance_state_display }}</p>
             <p class="govuk-body-m amp-margin-bottom-5"><b>WCAG issues</b></p>
-            <p class="govuk-body-m">{{ equality_body_retest.wcag_fixed_check_result_retests.count }} of {{ equality_body_retest.simplified_case.audit_overview.wcag_audit_initial.wcag_failed_check_result_retests.count }} issues fixed</p>
+            <p class="govuk-body-m">{{ equality_body_retest.wcag_fixed_check_result_retests.count }} of {{ equality_body_retest.simplified_case.audit_overview.initial_wcag_audit.wcag_failed_check_result_retests.count }} issues fixed</p>
             <p class="govuk-body-m amp-margin-bottom-5"><b>Retest notes</b></p>
             <div class="amp-report-wrapper">
                 {% if equality_body_retest.notes %}

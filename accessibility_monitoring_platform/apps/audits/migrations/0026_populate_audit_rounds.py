@@ -52,7 +52,7 @@ def populate_audit_rounds(apps, schema_editor):
             if audit.exemptions_notes
             else ""
         )
-        wcag_audit_initial = WcagAudit.objects.create(
+        initial_wcag_audit = WcagAudit.objects.create(
             simplified_case=audit.simplified_case,
             audit_round_type=INITIAL_ROUND_TYPE,
             round_number=INITIAL_ROUND_NUMBER,
@@ -138,7 +138,7 @@ def populate_audit_rounds(apps, schema_editor):
         wcag_check_result_initials_by_page_and_wcag = {}
         for page in Page.objects.filter(audit=audit):
             wcag_page_initial = WcagPageInitial.objects.create(
-                wcag_audit=wcag_audit_initial,
+                wcag_audit=initial_wcag_audit,
                 is_deleted=page.is_deleted,
                 page_type=page.page_type,
                 name=page.name,
@@ -173,7 +173,7 @@ def populate_audit_rounds(apps, schema_editor):
                     )
             for check_result in CheckResult.objects.filter(page=page):
                 wcag_check_result_initial = WcagCheckResultInitial.objects.create(
-                    wcag_audit=wcag_audit_initial,
+                    wcag_audit=initial_wcag_audit,
                     wcag_page_initial=wcag_page_initial,
                     issue_identifier=check_result.issue_identifier,
                     is_deleted=check_result.is_deleted,

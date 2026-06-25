@@ -328,7 +328,7 @@ class CaseMetadataUpdateView(CaseUpdateView):
                 or "organisation_name" in form.changed_data
             ):
                 update_published_report_data_updated_time(
-                    wcag_audit=simplified_case.audit_overview.wcag_audit_initial
+                    wcag_audit=simplified_case.audit_overview.initial_wcag_audit
                 )
         return super().form_valid(form=form)
 
@@ -621,7 +621,7 @@ class CaseNoPSBResponseUpdateView(
         if (
             simplified_case.no_psb_contact == Boolean.YES
             and simplified_case.audit_overview is not None
-            and simplified_case.audit_overview.wcag_audit_initial is not None
+            and simplified_case.audit_overview.initial_wcag_audit is not None
         ):
             if simplified_case.show_start_12_week_retest is True:
                 return reverse(
@@ -745,7 +745,7 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
         simplified_case: SimplifiedCase = self.object
         if (
             simplified_case.audit_overview
-            and simplified_case.audit_overview.wcag_audit_initial
+            and simplified_case.audit_overview.initial_wcag_audit
         ):
             if simplified_case.show_start_12_week_retest:
                 return get_platform_page_by_url_name(

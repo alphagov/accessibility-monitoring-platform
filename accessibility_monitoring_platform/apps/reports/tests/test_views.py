@@ -211,7 +211,7 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    wcag_audit: WcagAudit = simplified_case.audit_overview.wcag_audit_initial
+    wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
     statement_audit: StatementAudit = (
         simplified_case.audit_overview.statement_audit_initial
     )

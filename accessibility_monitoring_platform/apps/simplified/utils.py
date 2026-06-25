@@ -335,7 +335,7 @@ def get_email_template_context(simplified_case: SimplifiedCase) -> dict[str, Any
     context: dict[str, Any] = {}
     context["12_weeks_from_today"] = date.today() + timedelta(days=TWELVE_WEEKS_IN_DAYS)
     context["case"] = simplified_case
-    context["initial_wcag_audit"] = simplified_case.audit_overview.wcag_audit_initial
+    context["initial_wcag_audit"] = simplified_case.audit_overview.initial_wcag_audit
     context["initial_statement_audit"] = (
         simplified_case.audit_overview.statement_audit_initial
     )
@@ -346,9 +346,9 @@ def get_email_template_context(simplified_case: SimplifiedCase) -> dict[str, Any
         simplified_case.audit_overview.last_equality_body_statement_audit
     )
     if simplified_case.audit_overview is not None:
-        if simplified_case.audit_overview.wcag_audit_initial is not None:
+        if simplified_case.audit_overview.initial_wcag_audit is not None:
             context["issues_tables"] = build_issues_tables(
-                pages=simplified_case.audit_overview.wcag_audit_initial.testable_wcag_page_initials,
+                pages=simplified_case.audit_overview.initial_wcag_audit.testable_wcag_page_initials,
                 check_results_attr="unfixed_wcag_check_result_initials",
             )
         if simplified_case.audit_overview.first_twelve_week_wcag_audit is not None:

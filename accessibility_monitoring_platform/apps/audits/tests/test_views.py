@@ -902,7 +902,7 @@ def test_add_statement_backup(url_name, admin_client):
         ),
     ],
 )
-def test_initial_audit_statement_edit_redirects_based_on_button_pressed(
+def test_initial_wcag_audit_statement_edit_redirects_based_on_button_pressed(
     path_name,
     button_name,
     expected_redirect_path_name,
@@ -1174,7 +1174,7 @@ def test_audit_edit_statement_overview_updates_case_status(
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    wcag_audit: WcagAudit = simplified_case.audit_overview.wcag_audit_initial
+    wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
     wcag_audit.compliance_state = WcagAudit.WebsiteCompliance.COMPLIANT
     wcag_audit.save()
     statement_audit: StatementAudit = (
@@ -3172,7 +3172,7 @@ def test_summary_page_context(rf):
     assert "show_failures_by_page" in context
     assert "show_all" in context
     assert "enable_12_week_ui" in context
-    assert "wcag_audit_initial" in context
+    assert "initial_wcag_audit" in context
     assert "wcag_audit_12_week" in context
     assert "statement_audit_initial" in context
     assert "statement_audit_12_week" in context
@@ -3186,8 +3186,8 @@ def test_summary_page_context(rf):
     assert "number_of_statement_issues" in context
 
     assert (
-        context["wcag_audit_initial"]
-        == simplified_case.audit_overview.wcag_audit_initial
+        context["initial_wcag_audit"]
+        == simplified_case.audit_overview.initial_wcag_audit
     )
     assert (
         context["wcag_audit_12_week"]
@@ -3210,7 +3210,7 @@ def test_summary_page_context(rf):
 @pytest.mark.parametrize(
     "url_name, audit_overview_attr",
     [
-        ("audits:edit-audit-wcag-summary", "wcag_audit_initial"),
+        ("audits:edit-audit-wcag-summary", "initial_wcag_audit"),
         ("audits:edit-audit-retest-wcag-summary", "first_twelve_week_wcag_audit"),
     ],
 )
@@ -3243,7 +3243,7 @@ def test_summary_page_view(url_name, audit_overview_attr, admin_client):
 @pytest.mark.parametrize(
     "url_name, audit_overview_attr",
     [
-        ("audits:edit-audit-wcag-summary", "wcag_audit_initial"),
+        ("audits:edit-audit-wcag-summary", "initial_wcag_audit"),
         ("audits:edit-audit-retest-wcag-summary", "first_twelve_week_wcag_audit"),
     ],
 )
@@ -3275,7 +3275,7 @@ def test_summary_wcag_view(url_name, audit_overview_attr, admin_client):
 @pytest.mark.parametrize(
     "url_name, audit_overview_attr",
     [
-        ("audits:edit-audit-wcag-summary", "wcag_audit_initial"),
+        ("audits:edit-audit-wcag-summary", "initial_wcag_audit"),
         ("audits:edit-audit-retest-wcag-summary", "first_twelve_week_wcag_audit"),
     ],
 )
@@ -3334,7 +3334,7 @@ def test_summary_page_view_unfixed(url_name, audit_overview_attr, admin_client):
 @pytest.mark.parametrize(
     "url_name, audit_overview_attr",
     [
-        ("audits:edit-audit-wcag-summary", "wcag_audit_initial"),
+        ("audits:edit-audit-wcag-summary", "initial_wcag_audit"),
         ("audits:edit-audit-retest-wcag-summary", "first_twelve_week_wcag_audit"),
     ],
 )
@@ -3531,8 +3531,8 @@ def test_test_statement_summary_page_summary(
 
 def test_create_equality_body_retest_redirects(admin_client):
     """Test that equality body retest create redirects to retest metadata"""
-    wcag_audit_initial: WcagAudit = create_initial_wcag_audit()
-    simplified_case: SimplifiedCase = wcag_audit_initial.simplified_case
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
     path_kwargs: dict[str, int] = {"case_id": simplified_case.id}
 
     response: HttpResponse = admin_client.get(
@@ -4275,7 +4275,7 @@ def test_tall_results_page_has_back_to_top_link(path_name, admin_client):
         create_simplified_case_with_initial_and_12_week_audits()
     )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
-        wcag_audit=simplified_case.audit_overview.wcag_audit_initial,
+        wcag_audit=simplified_case.audit_overview.initial_wcag_audit,
         page_type=WcagPageInitial.Type.HOME,
     )
     if path_name == "audits:edit-audit-page-checks":

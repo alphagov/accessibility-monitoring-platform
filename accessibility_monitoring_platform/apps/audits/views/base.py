@@ -100,7 +100,7 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
         return redirect(
             reverse(
                 "audits:edit-audit-metadata",
-                kwargs={"pk": simplified_case.audit_overview.wcag_audit_initial.id},
+                kwargs={"pk": simplified_case.audit_overview.initial_wcag_audit.id},
             )
         )
     audit_overview: AuditOverview = AuditOverview.objects.create(

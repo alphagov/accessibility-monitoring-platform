@@ -205,8 +205,8 @@ class CheckResultRetestNotesHistoryAdmin(admin.ModelAdmin):
 class WcagCheckResultInitialNotesHistoryAdmin(admin.ModelAdmin):
     search_fields = [
         "wcag_check_result_initial__issue_identifier",
-        "wcag_check_result_initial__wcag_audit_initial__simplified_case__organisation_name",
-        "wcag_check_result_initial__wcag_audit_initial__simplified_case__case_identifier",
+        "wcag_check_result_initial__initial_wcag_audit__simplified_case__organisation_name",
+        "wcag_check_result_initial__initial_wcag_audit__simplified_case__case_identifier",
         "wcag_check_result_initial__wcag_definition__name",
         "wcag_check_result_initial__wcag_page_initial__name",
         "wcag_check_result_initial__wcag_page_initial__page_type",

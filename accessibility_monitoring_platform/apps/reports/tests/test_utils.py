@@ -171,7 +171,7 @@ def test_generate_report_content_issues_tables():
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    wcag_audit: WcagAudit = simplified_case.audit_overview.wcag_audit_initial
+    wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
     home_page: WcagPageInitial = WcagPageInitial.objects.get(
         wcag_audit=wcag_audit,
         page_type=WcagPageInitial.Type.HOME,
@@ -214,7 +214,7 @@ def test_build_report_context():
     assert report_context == {
         "simplified_case": simplified_case,
         "audit_overview": simplified_case.audit_overview,
-        "wcag_audit": simplified_case.audit_overview.wcag_audit_initial,
+        "wcag_audit": simplified_case.audit_overview.initial_wcag_audit,
         "statement_audit": simplified_case.audit_overview.statement_audit_initial,
         "issues_tables": [],
         "report": report,

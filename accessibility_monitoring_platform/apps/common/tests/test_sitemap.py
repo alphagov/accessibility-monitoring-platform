@@ -466,7 +466,7 @@ def test_case_contacts_platform_page():
 
 
 @pytest.mark.django_db
-def test_wcag_audit_initial_platform_page():
+def test_initial_wcag_audit_platform_page():
     """Test WcagAuditInitialPlatformPage"""
     audit_platform_page: WcagAuditInitialPlatformPage = WcagAuditInitialPlatformPage(
         name=PLATFORM_PAGE_NAME
@@ -476,7 +476,7 @@ def test_wcag_audit_initial_platform_page():
     assert audit_platform_page.url_kwarg_key == "pk"
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    wcag_audit_initial: WcagAudit = WcagAudit.objects.create(
+    initial_wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=simplified_case
     )
     WcagAudit.objects.create(
@@ -486,7 +486,7 @@ def test_wcag_audit_initial_platform_page():
 
     audit_platform_page.populate_from_case(case=simplified_case)
 
-    assert audit_platform_page.instance == wcag_audit_initial
+    assert audit_platform_page.instance == initial_wcag_audit
 
 
 @pytest.mark.django_db

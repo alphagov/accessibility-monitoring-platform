@@ -250,7 +250,7 @@ def create_retest_wcag_audit_and_check_results(
         simplified_case=audit_overview.simplified_case,
         round_number=new_wcag_audit.round_number - 1,
     )
-    if previous_wcag_audit == audit_overview.wcag_audit_initial:
+    if previous_wcag_audit == audit_overview.initial_wcag_audit:
         for wcag_page_initial in previous_wcag_audit.testable_wcag_page_initials:
             wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
                 wcag_audit=new_wcag_audit,
@@ -506,7 +506,7 @@ def get_audit_summary_context(
 ) -> dict[str, Any]:
     """Return the context for test summary pages"""
     audit_overview: AuditOverview = simplified_case.audit_overview
-    wcag_audit_initial: WcagAudit | None = audit_overview.wcag_audit_initial
+    initial_wcag_audit: WcagAudit | None = audit_overview.initial_wcag_audit
     wcag_audit_12_week: WcagAudit | None = audit_overview.first_twelve_week_wcag_audit
     statement_audit_initial: StatementAudit | None = (
         audit_overview.statement_audit_initial
@@ -520,7 +520,7 @@ def get_audit_summary_context(
     context["show_failures_by_page"] = show_failures_by_page
     context["show_all"] = show_all
     context["enable_12_week_ui"] = wcag_audit_12_week is not None
-    context["wcag_audit_initial"] = wcag_audit_initial
+    context["initial_wcag_audit"] = initial_wcag_audit
     context["wcag_audit_12_week"] = wcag_audit_12_week
     context["statement_audit_initial"] = statement_audit_initial
     context["statement_audit_12_week"] = statement_audit_12_week
@@ -531,10 +531,10 @@ def get_audit_summary_context(
 
     summary_wcag_check_results: list[SummaryWcagCheckResult] = []
 
-    if wcag_audit_initial is not None:
+    if initial_wcag_audit is not None:
         for (
             wcag_failed_check_result_initial
-        ) in wcag_audit_initial.wcag_failed_check_result_initials:
+        ) in initial_wcag_audit.wcag_failed_check_result_initials:
             summary_wcag_check_result: SummaryWcagCheckResult = SummaryWcagCheckResult(
                 wcag_definition=wcag_failed_check_result_initial.wcag_definition,
                 wcag_page_initial=wcag_failed_check_result_initial.wcag_page_initial,
@@ -713,7 +713,7 @@ def build_equality_body_retest_context_data(
 
     audit_overview: AuditOverview = statement_audit.simplified_case.audit_overview
 
-    context["wcag_audit_initial"] = audit_overview.wcag_audit_initial
+    context["initial_wcag_audit"] = audit_overview.initial_wcag_audit
     context["first_twelve_week_wcag_audit"] = (
         audit_overview.first_twelve_week_wcag_audit
     )

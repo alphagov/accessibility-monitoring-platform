@@ -176,10 +176,10 @@ def build_report_context(
     """Return context used to render report"""
     issues_tables: list[IssueTable] = (
         build_issues_tables(
-            pages=report.base_case.simplifiedcase.audit_overview.wcag_audit_initial.testable_wcag_page_initials
+            pages=report.base_case.simplifiedcase.audit_overview.initial_wcag_audit.testable_wcag_page_initials
         )
         if report.base_case.simplifiedcase.audit_overview is not None
-        and report.base_case.simplifiedcase.audit_overview.wcag_audit_initial
+        and report.base_case.simplifiedcase.audit_overview.initial_wcag_audit
         is not None
         else []
     )
@@ -188,7 +188,7 @@ def build_report_context(
         "issues_tables": issues_tables,
         "simplified_case": report.base_case.simplifiedcase,
         "audit_overview": report.base_case.simplifiedcase.audit_overview,
-        "wcag_audit": report.base_case.simplifiedcase.audit_overview.wcag_audit_initial,
+        "wcag_audit": report.base_case.simplifiedcase.audit_overview.initial_wcag_audit,
         "statement_audit": report.base_case.simplifiedcase.audit_overview.statement_audit_initial,
     }
 

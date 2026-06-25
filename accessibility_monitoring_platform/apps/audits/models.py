@@ -255,7 +255,7 @@ class AuditOverview(models.Model):
         return self.simplified_case.wcagaudit_set.filter(is_deleted=False)
 
     @property
-    def wcag_audit_initial(self) -> WcagAudit | None:
+    def initial_wcag_audit(self) -> WcagAudit | None:
         return self.wcag_audits.filter(
             audit_round_type=WcagAudit.AuditRoundType.INITIAL
         ).first()
@@ -288,19 +288,19 @@ class AuditOverview(models.Model):
             != WcagAudit.WebsiteCompliance.UNKNOWN
         ):
             return self.first_twelve_week_wcag_audit.get_compliance_state_display()
-        return self.wcag_audit_initial.get_compliance_state_display()
+        return self.initial_wcag_audit.get_compliance_state_display()
 
     @property
     def contact_wcag_page_initial(self) -> WcagPageInitial | None:
-        if self.wcag_audit_initial is not None:
-            return self.wcag_audit_initial.every_wcag_page_initials.filter(
+        if self.initial_wcag_audit is not None:
+            return self.initial_wcag_audit.every_wcag_page_initials.filter(
                 page_type=WcagPageInitial.Type.CONTACT
             ).first()
 
     @property
     def statement_wcag_page_initial(self) -> WcagPageInitial | None:
-        if self.wcag_audit_initial is not None:
-            return self.wcag_audit_initial.every_wcag_page_initials.filter(
+        if self.initial_wcag_audit is not None:
+            return self.initial_wcag_audit.every_wcag_page_initials.filter(
                 page_type=WcagPageInitial.Type.STATEMENT
             ).first()
 
@@ -712,7 +712,7 @@ class WcagAudit(AuditRound):
     @property
     def percentage_wcag_issues_fixed(self) -> int:
         return calculate_percentage(
-            total=self.simplified_case.audit_overview.wcag_audit_initial.wcag_failed_check_result_initials.count(),
+            total=self.simplified_case.audit_overview.initial_wcag_audit.wcag_failed_check_result_initials.count(),
             partial=self.wcag_fixed_check_result_retests.count(),
         )
 

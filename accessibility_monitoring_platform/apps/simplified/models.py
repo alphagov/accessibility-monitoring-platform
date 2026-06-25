@@ -757,18 +757,18 @@ class SimplifiedCase(BaseCase):
     def total_website_issues(self) -> int:
         if (
             self.audit_overview is None
-            or self.audit_overview.wcag_audit_initial is None
+            or self.audit_overview.initial_wcag_audit is None
         ):
             return 0
         return (
-            self.audit_overview.wcag_audit_initial.wcag_failed_check_result_initials.count()
+            self.audit_overview.initial_wcag_audit.wcag_failed_check_result_initials.count()
         )
 
     @property
     def total_website_issues_fixed(self) -> int:
         if (
             self.audit_overview is None
-            or self.audit_overview.wcag_audit_initial is None
+            or self.audit_overview.initial_wcag_audit is None
             or self.audit_overview.first_twelve_week_wcag_audit is None
         ):
             return 0
@@ -780,7 +780,7 @@ class SimplifiedCase(BaseCase):
     def total_website_issues_unfixed(self) -> int:
         if (
             self.audit_overview is None
-            or self.audit_overview.wcag_audit_initial is None
+            or self.audit_overview.initial_wcag_audit is None
             or self.audit_overview.first_twelve_week_wcag_audit is None
         ):
             return 0
@@ -794,7 +794,7 @@ class SimplifiedCase(BaseCase):
         ):
             return "n/a"
         failed_checks_count: int = (
-            self.audit_overview.wcag_audit_initial.wcag_failed_check_result_initials.count()
+            self.audit_overview.initial_wcag_audit.wcag_failed_check_result_initials.count()
         )
         if failed_checks_count == 0:
             return "n/a"
@@ -829,13 +829,13 @@ class SimplifiedCase(BaseCase):
     def overview_issues_website(self) -> str:
         if (
             self.audit_overview is None
-            or self.audit_overview.wcag_audit_initial is None
+            or self.audit_overview.initial_wcag_audit is None
         ):
             return "No test exists"
         if self.audit_overview.first_twelve_week_wcag_audit is None:
             return "No retest exists"
         return format_outstanding_issues(
-            failed_checks_count=self.audit_overview.wcag_audit_initial.wcag_failed_check_result_initials.count(),
+            failed_checks_count=self.audit_overview.initial_wcag_audit.wcag_failed_check_result_initials.count(),
             fixed_checks_count=self.audit_overview.first_twelve_week_wcag_audit.wcag_fixed_check_result_retests.count(),
         )
 

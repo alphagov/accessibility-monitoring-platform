@@ -1,10 +1,10 @@
 """Utility functions for CSV exports"""
 
 from ..common.csv_export import (
-    STATEMENT_AUDIT_INITIAL,
-    STATEMENT_AUDIT_TWELVE_WEEK,
-    WCAG_AUDIT_INITIAL,
-    WCAG_AUDIT_TWELVE_WEEK,
+    INITIAL_STATEMENT_AUDIT,
+    INITIAL_WCAG_AUDIT,
+    TWELVE_WEEK_STATEMENT_AUDIT,
+    TWELVE_WEEK_WCAG_AUDIT,
     CSVColumn,
     EqualityBodyCSVColumn,
 )
@@ -215,7 +215,7 @@ SIMPLIFIED_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: list[
         column_header="Number of issues fixed",
         source_classkey=SimplifiedCase,
         source_attr="total_website_issues_fixed",
-        edit_url_classkey=WCAG_AUDIT_TWELVE_WEEK,
+        edit_url_classkey=TWELVE_WEEK_WCAG_AUDIT,
         edit_url_name="audits:edit-audit-retest-metadata",
         edit_url_label="Go to view 12-week test",
     ),
@@ -223,7 +223,7 @@ SIMPLIFIED_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: list[
         column_header="Number of issues unfixed",
         source_classkey=SimplifiedCase,
         source_attr="total_website_issues_unfixed",
-        edit_url_classkey=WCAG_AUDIT_TWELVE_WEEK,
+        edit_url_classkey=TWELVE_WEEK_WCAG_AUDIT,
         edit_url_name="audits:edit-audit-retest-metadata",
         edit_url_label="Go to view 12-week test",
     ),
@@ -239,31 +239,31 @@ SIMPLIFIED_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT: list[
         column_header="Was an accessibility statement found during the 12-week assessment",
         source_classkey=SimplifiedCase,
         source_attr="csv_export_statement_found_at_12_week_retest",
-        edit_url_classkey=STATEMENT_AUDIT_TWELVE_WEEK,
+        edit_url_classkey=TWELVE_WEEK_STATEMENT_AUDIT,
         edit_url_name="audits:edit-retest-statement-overview",
     ),
     EqualityBodyCSVColumn(
         column_header="Retest Accessibility Statement Decision",
-        source_classkey=STATEMENT_AUDIT_TWELVE_WEEK,
+        source_classkey=TWELVE_WEEK_STATEMENT_AUDIT,
         source_attr="compliance_state",
-        edit_url_classkey=STATEMENT_AUDIT_TWELVE_WEEK,
+        edit_url_classkey=TWELVE_WEEK_STATEMENT_AUDIT,
         edit_url_name="audits:edit-audit-retest-statement-decision",
         edit_url_anchor="id_case-compliance-statement_compliance_state_12_week-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Retest disproportionate burden claimed?",
-        source_classkey=STATEMENT_AUDIT_TWELVE_WEEK,
+        source_classkey=TWELVE_WEEK_STATEMENT_AUDIT,
         source_attr="disproportionate_burden_claim",
-        edit_url_classkey=STATEMENT_AUDIT_TWELVE_WEEK,
+        edit_url_classkey=TWELVE_WEEK_STATEMENT_AUDIT,
         edit_url_name="audits:edit-twelve-week-disproportionate-burden",
         edit_url_anchor="id_twelve_week_disproportionate_burden_claim-label",
     ),
     EqualityBodyCSVColumn(
         column_header="Retest disproportionate burden details",
-        source_classkey=STATEMENT_AUDIT_TWELVE_WEEK,
+        source_classkey=TWELVE_WEEK_STATEMENT_AUDIT,
         source_attr="disproportionate_burden_notes",
         data_type="markdown",
-        edit_url_classkey=STATEMENT_AUDIT_TWELVE_WEEK,
+        edit_url_classkey=TWELVE_WEEK_STATEMENT_AUDIT,
         edit_url_name="audits:edit-twelve-week-disproportionate-burden",
         edit_url_anchor="id_twelve_week_disproportionate_burden_notes-label",
     ),
@@ -360,12 +360,12 @@ SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     ),
     CSVColumn(
         column_header="Initial accessibility statement compliance decision",
-        source_classkey=STATEMENT_AUDIT_INITIAL,
+        source_classkey=INITIAL_STATEMENT_AUDIT,
         source_attr="compliance_state",
     ),
     CSVColumn(
         column_header="Initial website compliance decision",
-        source_classkey=WCAG_AUDIT_INITIAL,
+        source_classkey=INITIAL_WCAG_AUDIT,
         source_attr="compliance_state",
     ),
     CSVColumn(
@@ -530,7 +530,7 @@ SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     ),
     CSVColumn(
         column_header="12-week website compliance decision",
-        source_classkey=WCAG_AUDIT_TWELVE_WEEK,
+        source_classkey=TWELVE_WEEK_WCAG_AUDIT,
         source_attr="compliance_state",
     ),
     CSVColumn(
@@ -555,7 +555,7 @@ SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     ),
     CSVColumn(
         column_header="12-week accessibility statement compliance decision",
-        source_classkey=STATEMENT_AUDIT_TWELVE_WEEK,
+        source_classkey=TWELVE_WEEK_STATEMENT_AUDIT,
         source_attr="compliance_state",
     ),
     CSVColumn(
@@ -718,7 +718,7 @@ SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT: list[CSVColumn] = [
     ),
     CSVColumn(
         column_header="Final statement decision",
-        source_classkey=STATEMENT_AUDIT_TWELVE_WEEK,
+        source_classkey=TWELVE_WEEK_STATEMENT_AUDIT,
         source_attr="compliance_state",
     ),
     CSVColumn(

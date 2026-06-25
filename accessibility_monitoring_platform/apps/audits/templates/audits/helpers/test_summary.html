@@ -12,11 +12,11 @@
             <table class="govuk-body">
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Initial WCAG compliance decision</b></td>
-                    <td class="amp-padding-bottom-10">{{ wcag_audit_initial.get_compliance_state_display }}</td>
+                    <td class="amp-padding-bottom-10">{{ initial_wcag_audit.get_compliance_state_display }}</td>
                 </tr>
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Initial issues</b></td>
-                    <td class="amp-padding-bottom-10">{{ wcag_audit_initial.wcag_failed_check_result_initials.count }}</td>
+                    <td class="amp-padding-bottom-10">{{ initial_wcag_audit.wcag_failed_check_result_initials.count }}</td>
                 </tr>
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>12-week WCAG compliance decision</b></td>

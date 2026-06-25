@@ -30,8 +30,8 @@
 
 <h2 class="govuk-heading-s amp-margin-bottom-5">
     Test in progress
-    {% if case.audit_overview.wcag_audit_initial and case.audit_overview.statement_audit_initial %}
-        {% if case.audit_overview.wcag_audit_initial.compliance_state != 'not-known' and not case.statement_checks_still_initial and case.cudit_overview.statement_audit_initial.compliance_state != 'unknown'  %}
+    {% if case.audit_overview.initial_wcag_audit and case.audit_overview.statement_audit_initial %}
+        {% if case.audit_overview.initial_wcag_audit.compliance_state != 'not-known' and not case.statement_checks_still_initial and case.cudit_overview.statement_audit_initial.compliance_state != 'unknown'  %}
             [COMPLETE]
         {% endif %}
     {% endif %}

@@ -9,10 +9,10 @@ from django.urls import reverse
 
 from ..audits.models import StatementAudit, WcagAudit
 from ..common.csv_export import (
-    STATEMENT_AUDIT_INITIAL,
-    STATEMENT_AUDIT_TWELVE_WEEK,
-    WCAG_AUDIT_INITIAL,
-    WCAG_AUDIT_TWELVE_WEEK,
+    INITIAL_STATEMENT_AUDIT,
+    INITIAL_WCAG_AUDIT,
+    TWELVE_WEEK_STATEMENT_AUDIT,
+    TWELVE_WEEK_WCAG_AUDIT,
     CSVColumn,
     EqualityBodyCSVColumn,
     ExportableClassKeys,
@@ -57,16 +57,16 @@ def populate_equality_body_columns(
     elif isinstance(case, SimplifiedCase):
         source_instances[SimplifiedCase] = case
         if hasattr(case, "audit_overview") and case.audit_overview is not None:
-            source_instances[WCAG_AUDIT_INITIAL] = (
-                case.audit_overview.wcag_audit_initial
+            source_instances[INITIAL_WCAG_AUDIT] = (
+                case.audit_overview.initial_wcag_audit
             )
-            source_instances[WCAG_AUDIT_TWELVE_WEEK] = (
+            source_instances[TWELVE_WEEK_WCAG_AUDIT] = (
                 case.audit_overview.first_twelve_week_wcag_audit
             )
-            source_instances[STATEMENT_AUDIT_INITIAL] = (
+            source_instances[INITIAL_STATEMENT_AUDIT] = (
                 case.audit_overview.statement_audit_initial
             )
-            source_instances[STATEMENT_AUDIT_TWELVE_WEEK] = (
+            source_instances[TWELVE_WEEK_STATEMENT_AUDIT] = (
                 case.audit_overview.first_statement_audit_12_week_retest
             )
         if hasattr(case, "report"):
@@ -118,16 +118,16 @@ def populate_csv_columns(
             is_deleted=False
         ).first()
         if hasattr(case, "audit_overview") and case.audit_overview is not None:
-            source_instances[WCAG_AUDIT_INITIAL] = (
-                case.audit_overview.wcag_audit_initial
+            source_instances[INITIAL_WCAG_AUDIT] = (
+                case.audit_overview.initial_wcag_audit
             )
-            source_instances[WCAG_AUDIT_TWELVE_WEEK] = (
+            source_instances[TWELVE_WEEK_WCAG_AUDIT] = (
                 case.audit_overview.first_twelve_week_wcag_audit
             )
-            source_instances[STATEMENT_AUDIT_INITIAL] = (
+            source_instances[INITIAL_STATEMENT_AUDIT] = (
                 case.audit_overview.statement_audit_initial
             )
-            source_instances[STATEMENT_AUDIT_TWELVE_WEEK] = (
+            source_instances[TWELVE_WEEK_STATEMENT_AUDIT] = (
                 case.audit_overview.first_statement_audit_12_week_retest
             )
 

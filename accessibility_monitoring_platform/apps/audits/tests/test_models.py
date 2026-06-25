@@ -88,17 +88,17 @@ def test_audit_overview_wcag_audits():
 
 
 @pytest.mark.django_db
-def test_audit_overview_wcag_audit_initial():
+def test_audit_overview_initial_wcag_audit():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit_overview: AuditOverview = AuditOverview.objects.create(
         simplified_case=simplified_case
     )
 
-    assert audit_overview.wcag_audit_initial is None
+    assert audit_overview.initial_wcag_audit is None
 
     wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
 
-    assert audit_overview.wcag_audit_initial == wcag_audit
+    assert audit_overview.initial_wcag_audit == wcag_audit
 
 
 @pytest.mark.django_db
@@ -184,14 +184,14 @@ def test_website_compliance_display():
     audit_overview: AuditOverview = AuditOverview.objects.create(
         simplified_case=simplified_case
     )
-    wcag_audit_initial: WcagAudit = WcagAudit.objects.create(
+    initial_wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=simplified_case
     )
 
     assert audit_overview.website_compliance_display == "Not known"
 
-    wcag_audit_initial.compliance_state = WcagAudit.WebsiteCompliance.PARTIALLY
-    wcag_audit_initial.save()
+    initial_wcag_audit.compliance_state = WcagAudit.WebsiteCompliance.PARTIALLY
+    initial_wcag_audit.save()
 
     assert audit_overview.website_compliance_display == "Partially compliant"
 
@@ -1623,7 +1623,7 @@ def test_retest_check_result_matching_wcag_retest_check_results():
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    wcag_audit_initial: WcagAudit = simplified_case.audit_overview.wcag_audit_initial
+    initial_wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
     first_wcag_check_result_retest: WcagCheckResultRetest = (
         WcagCheckResultRetest.objects.all().first()
     )
@@ -1631,11 +1631,11 @@ def test_retest_check_result_matching_wcag_retest_check_results():
         first_wcag_check_result_retest.wcag_check_result_initial
     )
     create_retest_wcag_audit(
-        initial_wcag_audit=wcag_audit_initial,
+        initial_wcag_audit=initial_wcag_audit,
         audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
     )
     create_retest_wcag_audit(
-        initial_wcag_audit=wcag_audit_initial,
+        initial_wcag_audit=initial_wcag_audit,
         audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
     )
 

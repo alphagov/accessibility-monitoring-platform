@@ -1417,8 +1417,8 @@ def test_update_request_ack_redirects_when_audit_but_no_retest_date(admin_client
     Test that 12-week update request acknowledged redirects to review changes
     on save and continue when the case has an audit but retest date is not set
     """
-    wcag_audit_initial: WcagAudit = create_initial_wcag_audit()
-    simplified_case: SimplifiedCase = wcag_audit_initial.simplified_case
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
 
     response: HttpResponse = admin_client.post(
         reverse(
@@ -1921,8 +1921,8 @@ def test_no_psb_response_redirects_to_case_detail(admin_client):
 
 def test_no_psb_response_redirects_to_start_12_week_retest(admin_client):
     """Test no PSB response redirects to start 12-week retest if there is no retest"""
-    wcag_audit_initial: WcagAudit = create_initial_wcag_audit()
-    simplified_case: SimplifiedCase = wcag_audit_initial.simplified_case
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
     simplified_case.no_psb_contact = Boolean.NO
     simplified_case.save()
 
@@ -2708,8 +2708,8 @@ def test_publish_report_first_time(admin_client):
 @mock_aws
 def test_publish_report(admin_client):
     """Test publishing a report"""
-    wcag_audit_initial: WcagAudit = create_initial_wcag_audit()
-    simplified_case: SimplifiedCase = wcag_audit_initial.simplified_case
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
     simplified_case.report_review_status = Boolean.YES
     simplified_case.report_approved_status = (
         SimplifiedCase.ReportApprovedStatus.APPROVED
@@ -4235,7 +4235,7 @@ def test_bulk_copy_issue_ids_to_clipboard(admin_client):
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    wcag_audit: WcagAudit = simplified_case.audit_overview.wcag_audit_initial
+    wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.filter(
         wcag_audit=wcag_audit
     ).first()

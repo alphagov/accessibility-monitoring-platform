@@ -717,14 +717,14 @@ def test_website_compliance_display():
     assert simplified_case.website_compliance_display == "Test not yet started"
 
     AuditOverview.objects.create(simplified_case=simplified_case)
-    wcag_audit_initial: WcagAudit = WcagAudit.objects.create(
+    initial_wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=simplified_case
     )
 
     assert simplified_case.website_compliance_display == "Not known"
 
-    wcag_audit_initial.compliance_state = WcagAudit.WebsiteCompliance.PARTIALLY
-    wcag_audit_initial.save()
+    initial_wcag_audit.compliance_state = WcagAudit.WebsiteCompliance.PARTIALLY
+    initial_wcag_audit.save()
 
     assert simplified_case.website_compliance_display == "Partially compliant"
 
@@ -763,7 +763,7 @@ def test_percentage_website_issues_fixed_with_audit_and_issues():
     """Test that case with audit and issues returns percentage"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     AuditOverview.objects.create(simplified_case=simplified_case)
-    wcag_audit_initial: WcagAudit = WcagAudit.objects.create(
+    initial_wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=simplified_case
     )
     wcag_audit_retest: WcagAudit = WcagAudit.objects.create(
@@ -771,7 +771,7 @@ def test_percentage_website_issues_fixed_with_audit_and_issues():
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
     )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit_initial
+        wcag_audit=initial_wcag_audit
     )
     wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
         wcag_audit=wcag_audit_retest, wcag_page_initial=wcag_page_initial
@@ -781,7 +781,7 @@ def test_percentage_website_issues_fixed_with_audit_and_issues():
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.create(
-            wcag_audit=wcag_audit_initial,
+            wcag_audit=initial_wcag_audit,
             wcag_page_initial=wcag_page_initial,
             type=WcagDefinition.Type.AXE,
             wcag_definition=wcag_definition,
@@ -825,21 +825,21 @@ def test_overview_issues_website_with_audit():
     assert simplified_case.overview_issues_website == "No test exists"
 
     AuditOverview.objects.create(simplified_case=simplified_case)
-    wcag_audit_initial: WcagAudit = WcagAudit.objects.create(
+    initial_wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=simplified_case
     )
 
     assert simplified_case.overview_issues_website == "No retest exists"
 
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit_initial
+        wcag_audit=initial_wcag_audit
     )
     wcag_definition: WcagDefinition = WcagDefinition.objects.create(
         type=WcagDefinition.Type.AXE
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.create(
-            wcag_audit=wcag_audit_initial,
+            wcag_audit=initial_wcag_audit,
             wcag_page_initial=wcag_page_initial,
             type=WcagDefinition.Type.AXE,
             wcag_definition=wcag_definition,
@@ -1114,7 +1114,7 @@ def test_total_website_issues():
 
     assert simplified_case.total_website_issues == 0
 
-    wcag_audit_initial: WcagAudit = WcagAudit.objects.create(
+    initial_wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=simplified_case
     )
     wcag_audit_retest: WcagAudit = WcagAudit.objects.create(
@@ -1125,7 +1125,7 @@ def test_total_website_issues():
     assert simplified_case.total_website_issues == 0
 
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit_initial, page_type=WcagPageInitial.Type.HOME
+        wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.HOME
     )
     wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
         wcag_audit=wcag_audit_retest, wcag_page_initial=wcag_page_initial
@@ -1133,7 +1133,7 @@ def test_total_website_issues():
     wcag_definition: WcagDefinition = WcagDefinition.objects.create()
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.create(
-            wcag_audit=wcag_audit_initial,
+            wcag_audit=initial_wcag_audit,
             wcag_page_initial=wcag_page_initial,
             type=wcag_definition.type,
             wcag_definition=wcag_definition,
@@ -1149,7 +1149,7 @@ def test_total_website_issues():
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.create(
-            wcag_audit=wcag_audit_initial,
+            wcag_audit=initial_wcag_audit,
             wcag_page_initial=wcag_page_initial,
             type=wcag_definition.type,
             wcag_definition=wcag_definition,
@@ -1178,7 +1178,7 @@ def test_total_website_issues_fixed():
 
     assert simplified_case.total_website_issues_fixed == 0
 
-    wcag_audit_initial: WcagAudit = WcagAudit.objects.create(
+    initial_wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=simplified_case
     )
     wcag_audit_retest: WcagAudit = WcagAudit.objects.create(
@@ -1189,7 +1189,7 @@ def test_total_website_issues_fixed():
     assert simplified_case.total_website_issues_fixed == 0
 
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit_initial, page_type=WcagPageInitial.Type.HOME
+        wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.HOME
     )
     wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
         wcag_audit=wcag_audit_retest, wcag_page_initial=wcag_page_initial
@@ -1197,7 +1197,7 @@ def test_total_website_issues_fixed():
     wcag_definition: WcagDefinition = WcagDefinition.objects.create()
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.create(
-            wcag_audit=wcag_audit_initial,
+            wcag_audit=initial_wcag_audit,
             wcag_page_initial=wcag_page_initial,
             type=wcag_definition.type,
             wcag_definition=wcag_definition,
@@ -1213,7 +1213,7 @@ def test_total_website_issues_fixed():
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.create(
-            wcag_audit=wcag_audit_initial,
+            wcag_audit=initial_wcag_audit,
             wcag_page_initial=wcag_page_initial,
             type=wcag_definition.type,
             wcag_definition=wcag_definition,
@@ -1242,7 +1242,7 @@ def test_total_website_issues_unfixed():
 
     assert simplified_case.total_website_issues_unfixed == 0
 
-    wcag_audit_initial: WcagAudit = WcagAudit.objects.create(
+    initial_wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=simplified_case
     )
     wcag_audit_retest: WcagAudit = WcagAudit.objects.create(
@@ -1253,7 +1253,7 @@ def test_total_website_issues_unfixed():
     assert simplified_case.total_website_issues_unfixed == 0
 
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit_initial, page_type=WcagPageInitial.Type.HOME
+        wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.HOME
     )
     wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
         wcag_audit=wcag_audit_retest, wcag_page_initial=wcag_page_initial
@@ -1261,7 +1261,7 @@ def test_total_website_issues_unfixed():
     wcag_definition: WcagDefinition = WcagDefinition.objects.create()
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.create(
-            wcag_audit=wcag_audit_initial,
+            wcag_audit=initial_wcag_audit,
             wcag_page_initial=wcag_page_initial,
             type=wcag_definition.type,
             wcag_definition=wcag_definition,
@@ -1277,7 +1277,7 @@ def test_total_website_issues_unfixed():
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.create(
-            wcag_audit=wcag_audit_initial,
+            wcag_audit=initial_wcag_audit,
             wcag_page_initial=wcag_page_initial,
             type=wcag_definition.type,
             wcag_definition=wcag_definition,

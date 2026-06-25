@@ -783,7 +783,7 @@ def test_get_audit_summary_context(rf):
     assert "show_failures_by_page" in context
     assert "show_all" in context
     assert "enable_12_week_ui" in context
-    assert "wcag_audit_initial" in context
+    assert "initial_wcag_audit" in context
     assert "wcag_audit_12_week" in context
     assert "statement_audit_initial" in context
     assert "statement_audit_12_week" in context

@@ -529,7 +529,7 @@ def test_get_policy_total_metrics():
     )
     simplified_case_2.update_case_status()
     AuditOverview.objects.create(simplified_case=simplified_case)
-    wcag_audit_initial: WcagAudit = WcagAudit.objects.create(
+    initial_wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=simplified_case
     )
     wcag_audit_retest: WcagAudit = WcagAudit.objects.create(
@@ -537,7 +537,7 @@ def test_get_policy_total_metrics():
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
     )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit_initial
+        wcag_audit=initial_wcag_audit
     )
     wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
         wcag_page_initial=wcag_page_initial, wcag_audit=wcag_audit_retest
@@ -546,14 +546,14 @@ def test_get_policy_total_metrics():
         type=WcagDefinition.Type.AXE
     )
     WcagCheckResultInitial.objects.create(
-        wcag_audit=wcag_audit_initial,
+        wcag_audit=initial_wcag_audit,
         wcag_page_initial=wcag_page_initial,
         wcag_definition=wcag_definition,
         check_result_state=WcagCheckResultInitial.Result.ERROR,
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.create(
-            wcag_audit=wcag_audit_initial,
+            wcag_audit=initial_wcag_audit,
             wcag_page_initial=wcag_page_initial,
             wcag_definition=wcag_definition,
             check_result_state=WcagCheckResultInitial.Result.ERROR,
@@ -607,7 +607,7 @@ def test_get_policy_progress_metrics(mock_datetime):
         recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION
     )
     AuditOverview.objects.create(simplified_case=simplified_case)
-    wcag_audit_initial: WcagAudit = WcagAudit.objects.create(
+    initial_wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=simplified_case,
     )
     wcag_audit_retest: WcagAudit = WcagAudit.objects.create(
@@ -616,7 +616,7 @@ def test_get_policy_progress_metrics(mock_datetime):
         date_of_test=datetime(2022, 1, 20, tzinfo=timezone.utc),
     )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit_initial
+        wcag_audit=initial_wcag_audit
     )
     wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
         wcag_page_initial=wcag_page_initial, wcag_audit=wcag_audit_retest
@@ -626,7 +626,7 @@ def test_get_policy_progress_metrics(mock_datetime):
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.create(
-            wcag_audit=wcag_audit_initial,
+            wcag_audit=initial_wcag_audit,
             wcag_page_initial=wcag_page_initial,
             wcag_definition=wcag_definition,
             check_result_state=WcagCheckResultInitial.Result.ERROR,
@@ -641,7 +641,7 @@ def test_get_policy_progress_metrics(mock_datetime):
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.create(
-            wcag_audit=wcag_audit_initial,
+            wcag_audit=initial_wcag_audit,
             wcag_page_initial=wcag_page_initial,
             wcag_definition=wcag_definition,
             check_result_state=WcagCheckResultInitial.Result.ERROR,
@@ -713,7 +713,7 @@ def test_get_policy_progress_metrics_excludes_missing_pages(mock_datetime):
         recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION
     )
     AuditOverview.objects.create(simplified_case=simplified_case)
-    wcag_audit_initial: WcagAudit = WcagAudit.objects.create(
+    initial_wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=simplified_case,
     )
     wcag_audit_retest: WcagAudit = WcagAudit.objects.create(
@@ -722,7 +722,7 @@ def test_get_policy_progress_metrics_excludes_missing_pages(mock_datetime):
         date_of_test=datetime(2022, 1, 20, tzinfo=timezone.utc),
     )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit_initial
+        wcag_audit=initial_wcag_audit
     )
     wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
         wcag_page_initial=wcag_page_initial,
@@ -734,7 +734,7 @@ def test_get_policy_progress_metrics_excludes_missing_pages(mock_datetime):
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.create(
-            wcag_audit=wcag_audit_initial,
+            wcag_audit=initial_wcag_audit,
             wcag_page_initial=wcag_page_initial,
             wcag_definition=wcag_definition,
             check_result_state=WcagCheckResultInitial.Result.ERROR,
@@ -749,7 +749,7 @@ def test_get_policy_progress_metrics_excludes_missing_pages(mock_datetime):
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.create(
-            wcag_audit=wcag_audit_initial,
+            wcag_audit=initial_wcag_audit,
             wcag_page_initial=wcag_page_initial,
             wcag_definition=wcag_definition,
             check_result_state=WcagCheckResultInitial.Result.ERROR,

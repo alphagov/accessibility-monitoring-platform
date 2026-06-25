@@ -11,17 +11,17 @@ from ..simplified.models import CaseStatus
 from ..simplified.models import Contact as SimplifiedContact
 from ..simplified.models import SimplifiedCase
 
-WCAG_AUDIT_INITIAL: str = "WcagAudit Initial"
-WCAG_AUDIT_TWELVE_WEEK: str = "WcagAudit TwelveWeek"
-STATEMENT_AUDIT_INITIAL: str = "StatementAudit Initial"
-STATEMENT_AUDIT_TWELVE_WEEK: str = "StatementAudit TwelveWeek"
+INITIAL_WCAG_AUDIT: str = "WcagAudit Initial"
+TWELVE_WEEK_WCAG_AUDIT: str = "WcagAudit TwelveWeek"
+INITIAL_STATEMENT_AUDIT: str = "StatementAudit Initial"
+TWELVE_WEEK_STATEMENT_AUDIT: str = "StatementAudit TwelveWeek"
 
 
 ExportableClassKeys = Literal[
-    WCAG_AUDIT_INITIAL,
-    WCAG_AUDIT_TWELVE_WEEK,
-    STATEMENT_AUDIT_INITIAL,
-    STATEMENT_AUDIT_TWELVE_WEEK,
+    INITIAL_WCAG_AUDIT,
+    TWELVE_WEEK_WCAG_AUDIT,
+    INITIAL_STATEMENT_AUDIT,
+    TWELVE_WEEK_STATEMENT_AUDIT,
     DetailedCase,
     DetailedContact,
     CaseStatus,

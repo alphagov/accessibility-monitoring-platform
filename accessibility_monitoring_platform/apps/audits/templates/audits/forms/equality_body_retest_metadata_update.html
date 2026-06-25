@@ -35,7 +35,7 @@
                                     <a href="{% url 'audits:edit-audit-retest-metadata' wcag_audit.simplified_case.audit_overview.first_twelve_week_wcag_audit.id %}" class="govuk-link govuk-link--no-visited-state">
                                         12-week retest</a>.
                                 {% else %}
-                                    <a href="{% url 'audits:edit-audit-metadata' wcag_audit.simplified_case.audit_overview.wcag_audit_initial.id %}" class="govuk-link govuk-link--no-visited-state">
+                                    <a href="{% url 'audits:edit-audit-metadata' wcag_audit.simplified_case.audit_overview.initial_wcag_audit.id %}" class="govuk-link govuk-link--no-visited-state">
                                         12-week retest</a>.
                                 {% endif %}
                             </p>
@@ -53,15 +53,15 @@
                             {% include 'common/amp_field.html' with field=form.notes %}
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Date of test (initial test)</b></label>
-                                <div class="govuk-hint">{{ wcag_audit_initial.date_of_test|amp_date }}</div>
+                                <div class="govuk-hint">{{ initial_wcag_audit.date_of_test|amp_date }}</div>
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Screen size (initial test)</b></label>
-                                <div class="govuk-hint">{{ wcag_audit_initial.get_screen_size_display }}</div>
+                                <div class="govuk-hint">{{ initial_wcag_audit.get_screen_size_display }}</div>
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Exemptions (initial test)</b></label>
-                                <div class="govuk-hint">{{ wcag_audit_initial.get_exemptions_state_display }}</div>
+                                <div class="govuk-hint">{{ initial_wcag_audit.get_exemptions_state_display }}</div>
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Date of retest (12-week retest)</b></label>
