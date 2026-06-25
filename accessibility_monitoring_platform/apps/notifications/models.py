@@ -42,11 +42,7 @@ class Task(models.Model):
     def options(self) -> list[Link]:
         options: list[Link] = []
         if self.type == Task.Type.QA_COMMENT:
-            url_name: str = (
-                "simplified:edit-qa-comments"
-                if self.base_case.test_type == TestType.SIMPLIFIED
-                else "detailed:edit-qa-comments"
-            )
+            url_name: str = f"{self.base_case.test_type}:edit-qa-comments"
             options.append(
                 Link(
                     label="Go to QA comment",
@@ -57,11 +53,7 @@ class Task(models.Model):
                 ),
             )
         elif self.type == Task.Type.REPORT_APPROVED:
-            url_name: str = (
-                "simplified:edit-qa-approval"
-                if self.base_case.test_type == TestType.SIMPLIFIED
-                else "detailed:edit-qa-approval"
-            )
+            url_name: str = f"{self.base_case.test_type}:edit-qa-approval"
             options.append(
                 Link(
                     label="Go to Report approved",
