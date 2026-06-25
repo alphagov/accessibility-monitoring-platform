@@ -26,23 +26,44 @@ def test_notifications_settings_returns_str():
 
 
 @pytest.mark.django_db
-def test_options_qa_comment_simplified():
+@pytest.mark.parametrize(
+    "case_class,case_test_type",
+    [
+        (DetailedCase, "detailed"),
+        (MobileCase, "mobile"),
+        (SimplifiedCase, "simplified"),
+    ],
+)
+@pytest.mark.parametrize(
+    "task_type,expected_url,expected_label",
+    [
+        (Task.Type.QA_COMMENT, "edit-qa-comments", "Go to QA comment"),
+        (Task.Type.REPORT_APPROVED, "edit-qa-approval", "Go to Report approved"),
+    ],
+)
+def test_task_options(
+    case_class: DetailedCase | MobileCase | SimplifiedCase,
+    case_test_type: str,
+    task_type: Task.Type,
+    expected_url: str,
+    expected_label: str,
+):
     """Task options for QA comment in simplified case"""
     user: User = User.objects.create()
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
+    case: case_class = case_class.objects.create(auditor=user)
     task: Task = Task.objects.create(
-        type=Task.Type.QA_COMMENT,
+        type=task_type,
         date=date.today(),
-        base_case=simplified_case,
+        base_case=case,
         user=user,
     )
 
     assert task.options() == [
         Link(
-            label="Go to QA comment",
+            label=expected_label,
             url=reverse(
-                "simplified:edit-qa-comments",
-                kwargs={"pk": simplified_case.id},
+                f"{case_test_type}:{expected_url}",
+                kwargs={"pk": case.id},
             ),
         ),
         Link(
@@ -56,81 +77,7 @@ def test_options_qa_comment_simplified():
             label="Mark case tasks as seen",
             url=reverse(
                 "notifications:mark-case-comments-read",
-                kwargs={"case_id": simplified_case.id},
-            ),
-        ),
-    ]
-
-
-@pytest.mark.django_db
-def test_options_qa_comment_detailed():
-    """Task options for QA comment in detailed case"""
-    user: User = User.objects.create()
-    detailed_case: DetailedCase = DetailedCase.objects.create(auditor=user)
-    task: Task = Task.objects.create(
-        type=Task.Type.QA_COMMENT,
-        date=date.today(),
-        base_case=detailed_case,
-        user=user,
-    )
-
-    assert task.options() == [
-        Link(
-            label="Go to QA comment",
-            url=reverse(
-                "detailed:edit-qa-comments",
-                kwargs={"pk": detailed_case.id},
-            ),
-        ),
-        Link(
-            label="Mark as seen",
-            url=reverse(
-                "notifications:mark-task-read",
-                kwargs={"pk": task.id},
-            ),
-        ),
-        Link(
-            label="Mark case tasks as seen",
-            url=reverse(
-                "notifications:mark-case-comments-read",
-                kwargs={"case_id": detailed_case.id},
-            ),
-        ),
-    ]
-
-
-@pytest.mark.django_db
-def test_options_qa_comment_mobile():
-    """Task options for QA comment in mobile case"""
-    user: User = User.objects.create()
-    mobile_case: MobileCase = MobileCase.objects.create(auditor=user)
-    task: Task = Task.objects.create(
-        type=Task.Type.QA_COMMENT,
-        date=date.today(),
-        base_case=mobile_case,
-        user=user,
-    )
-
-    assert task.options() == [
-        Link(
-            label="Go to QA comment",
-            url=reverse(
-                "mobile:edit-qa-comments",
-                kwargs={"pk": mobile_case.id},
-            ),
-        ),
-        Link(
-            label="Mark as seen",
-            url=reverse(
-                "notifications:mark-task-read",
-                kwargs={"pk": task.id},
-            ),
-        ),
-        Link(
-            label="Mark case tasks as seen",
-            url=reverse(
-                "notifications:mark-case-comments-read",
-                kwargs={"case_id": mobile_case.id},
+                kwargs={"case_id": case.id},
             ),
         ),
     ]
