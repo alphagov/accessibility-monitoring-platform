@@ -48,7 +48,7 @@ def test_task_options(
     expected_url: str,
     expected_label: str,
 ):
-    """Task options for QA comment in simplified case"""
+    """Task options for all case test types and both QA comment and Report approved"""
     user: User = User.objects.create()
     case: case_class = case_class.objects.create(auditor=user)
     task: Task = Task.objects.create(
