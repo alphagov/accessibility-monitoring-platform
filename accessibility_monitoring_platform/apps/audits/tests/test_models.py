@@ -2,7 +2,7 @@
 Tests for cases models
 """
 
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from unittest.mock import Mock, patch
 
 import pytest
@@ -473,6 +473,157 @@ def test_audit_overview_first_twelve_week_statement_audit():
     )
 
     assert audit_overview.first_twelve_week_statement_audit == statement_audit
+
+
+@pytest.mark.django_db
+def test_audit_overview_last_equality_body_statement_audit():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.last_equality_body_statement_audit is None
+
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY,
+    )
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY,
+    )
+
+    assert audit_overview.last_equality_body_statement_audit == statement_audit
+
+
+@pytest.mark.django_db
+def test_audit_overview_all_overview_statement_checks_have_passed():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.all_overview_statement_checks_have_passed is False
+
+    initial_statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case,
+    )
+    overview_statement_check: StatementCheck = StatementCheck.objects.filter(
+        type=StatementCheck.Type.OVERVIEW
+    ).last()
+    initial_statement_check_result: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.create(
+            statement_audit=initial_statement_audit,
+            statement_check=overview_statement_check,
+            type=StatementCheck.Type.OVERVIEW,
+        )
+    )
+
+    assert audit_overview.all_overview_statement_checks_have_passed is False
+
+    initial_statement_check_result.check_result_state = (
+        StatementCheckResultRound.Result.YES
+    )
+    initial_statement_check_result.save()
+
+    assert audit_overview.all_overview_statement_checks_have_passed is True
+
+    twelve_week_statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+    )
+    twelve_week_statement_check_result: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.create(
+            statement_audit=twelve_week_statement_audit,
+            statement_check=overview_statement_check,
+            type=StatementCheck.Type.OVERVIEW,
+        )
+    )
+
+    assert audit_overview.all_overview_statement_checks_have_passed is False
+
+    twelve_week_statement_check_result.check_result_state = (
+        StatementCheckResultRound.Result.YES
+    )
+    twelve_week_statement_check_result.save()
+
+    assert audit_overview.all_overview_statement_checks_have_passed is True
+
+
+@pytest.mark.django_db
+def test_audit_overview_last_edited():
+    """
+    Create the AuditOverview and related data with known advancing datetimes and
+    check that the last edited datetime advances also.
+    """
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_PAGE_UPDATED)):
+        audit_overview: AuditOverview = AuditOverview.objects.create(
+            simplified_case=simplified_case
+        )
+
+    assert audit_overview.last_edited == DATETIME_PAGE_UPDATED
+
+    with patch(
+        "django.utils.timezone.now",
+        Mock(return_value=DATETIME_PAGE_UPDATED + timedelta(days=1)),
+    ):
+        wcag_audit: WcagAudit = WcagAudit.objects.create(
+            simplified_case=simplified_case
+        )
+
+    assert audit_overview.last_edited == DATETIME_PAGE_UPDATED + timedelta(days=1)
+
+    with patch(
+        "django.utils.timezone.now",
+        Mock(return_value=DATETIME_PAGE_UPDATED + timedelta(days=2)),
+    ):
+        wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+            wcag_audit=wcag_audit,
+            url="https://example.com",
+        )
+
+    assert audit_overview.last_edited == DATETIME_PAGE_UPDATED + timedelta(days=2)
+
+    with patch(
+        "django.utils.timezone.now",
+        Mock(return_value=DATETIME_PAGE_UPDATED + timedelta(days=3)),
+    ):
+        wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
+        wcag_check_result_initial: WcagCheckResultInitial = (
+            WcagCheckResultInitial.objects.create(
+                wcag_audit=wcag_audit,
+                wcag_page_initial=wcag_page_initial,
+                type=wcag_definition.type,
+                wcag_definition=wcag_definition,
+            )
+        )
+
+    assert audit_overview.last_edited == DATETIME_PAGE_UPDATED + timedelta(days=3)
+
+    with patch(
+        "django.utils.timezone.now",
+        Mock(return_value=DATETIME_PAGE_UPDATED + timedelta(days=4)),
+    ):
+        wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+            wcag_audit=wcag_audit,
+            wcag_page_initial=wcag_page_initial,
+        )
+
+    assert audit_overview.last_edited == DATETIME_PAGE_UPDATED + timedelta(days=4)
+
+    with patch(
+        "django.utils.timezone.now",
+        Mock(return_value=DATETIME_PAGE_UPDATED + timedelta(days=5)),
+    ):
+        WcagCheckResultRetest.objects.create(
+            wcag_audit=wcag_audit,
+            wcag_page_retest=wcag_page_retest,
+            wcag_definition=wcag_definition,
+            wcag_check_result_initial=wcag_check_result_initial,
+        )
+
+    assert audit_overview.last_edited == DATETIME_PAGE_UPDATED + timedelta(days=5)
 
 
 @pytest.mark.django_db

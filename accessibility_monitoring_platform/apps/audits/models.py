@@ -374,7 +374,7 @@ class AuditOverview(models.Model):
 
     @property
     def all_overview_statement_checks_have_passed(self) -> bool:
-        """Check all overview statement checks have passed test or retest"""
+        """Check all overview statement checks have passed"""
         if (
             self.initial_statement_audit is None
             or self.initial_statement_audit.overview_statement_check_results.count()
@@ -393,8 +393,8 @@ class AuditOverview(models.Model):
                 check_result_state=StatementCheckResultRound.Result.YES
             ).count()
             == 0
-            or self.first_twelve_week_statement_audit.overview_statement_check_results.exclude(
-                check_result_state=StatementCheckResult.ResultRetest.YES
+            and self.first_twelve_week_statement_audit.overview_statement_check_results.exclude(
+                check_result_state=StatementCheckResultRound.Result.YES
             ).count()
             == 0
         )
