@@ -88,7 +88,7 @@ class WcagAuditRetestMetadataUpdateView(WcagAuditUpdateView):
         wcag_audit: WcagAudit = self.object
         if not wcag_audit.simplified_case.psb_response:
             twelve_week_statement_audit: StatementAudit = (
-                wcag_audit.simplified_case.audit_overview.first_statement_audit_12_week_retest
+                wcag_audit.simplified_case.audit_overview.first_twelve_week_statement_audit
             )
             return get_platform_page_by_url_name(
                 url_name="audits:edit-audit-retest-statement-pages",
@@ -300,7 +300,7 @@ class TwelveWeekDeleteStatementPageUpdateView(DeleteStatementPageUpdateView):
         return reverse(
             "audits:edit-audit-retest-statement-pages",
             kwargs={
-                "pk": statement_page.audit_overview.first_statement_audit_12_week_retest.id
+                "pk": statement_page.audit_overview.first_twelve_week_statement_audit.id
             },
         )
 

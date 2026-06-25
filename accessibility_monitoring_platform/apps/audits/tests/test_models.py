@@ -386,6 +386,96 @@ def test_audit_overview_statement_audits():
 
 
 @pytest.mark.django_db
+def test_audit_overview_initial_statement_audit():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.initial_statement_audit is None
+
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.initial_statement_audit == statement_audit
+
+
+@pytest.mark.django_db
+def test_audit_overview_twelve_week_statement_audits():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.twelve_week_statement_audits.count() == 0
+
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+    )
+
+    assert audit_overview.twelve_week_statement_audits.count() == 1
+
+
+@pytest.mark.django_db
+def test_audit_overview_equality_body_statement_audits():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.equality_body_statement_audits.count() == 0
+
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY,
+    )
+
+    assert audit_overview.equality_body_statement_audits.count() == 1
+
+
+@pytest.mark.django_db
+def test_audit_overview_last_statement_audit():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.last_statement_audit is None
+
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+    )
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case,
+    )
+
+    assert audit_overview.last_statement_audit == statement_audit
+
+
+@pytest.mark.django_db
+def test_audit_overview_first_twelve_week_statement_audit():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.first_twelve_week_statement_audit is None
+
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+    )
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+    )
+
+    assert audit_overview.first_twelve_week_statement_audit == statement_audit
+
+
+@pytest.mark.django_db
 def test_wcag_audit_every_wcag_page_initials_returns_pdf_and_statement_last():
     """Statement page returned last. PDF page second-last"""
     wcag_audit: WcagAudit = create_initial_wcag_audit()

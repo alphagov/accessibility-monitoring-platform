@@ -269,7 +269,7 @@ def test_twelve_week_statement_audit_specific_page_loads(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
-        "pk": simplified_case.audit_overview.first_statement_audit_12_week_retest.id
+        "pk": simplified_case.audit_overview.first_twelve_week_statement_audit.id
     }
 
     response: HttpResponse = admin_client.get(
@@ -322,7 +322,7 @@ def test_twelve_week_audit_statement_check_specific_page_loads(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
-        "pk": simplified_case.audit_overview.first_statement_audit_12_week_retest.id
+        "pk": simplified_case.audit_overview.first_twelve_week_statement_audit.id
     }
 
     response: HttpResponse = admin_client.get(
@@ -518,7 +518,7 @@ def test_twelve_week_wcag_audit_edit_redirects_based_on_button_pressed(
 
     if expected_redirect_path_name == "audits:edit-audit-retest-statement-pages":
         twelve_week_statement_audit: StatementAudit = (
-            simplified_case.audit_overview.first_statement_audit_12_week_retest
+            simplified_case.audit_overview.first_twelve_week_statement_audit
         )
         twelve_week_statement_audit_pk: dict[str, int] = {
             "pk": twelve_week_statement_audit.id
@@ -572,7 +572,7 @@ def test_twelve_week_statement_audit_edit_redirects_based_on_button_pressed(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.first_statement_audit_12_week_retest
+        simplified_case.audit_overview.first_twelve_week_statement_audit
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": twelve_week_statement_audit.id
@@ -613,7 +613,7 @@ def test_audit_statement_summary_page_redirect_when_report_exists(admin_client):
     )
     case_pk: dict[str, int] = {"pk": simplified_case.id}
     twelve_week_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.first_statement_audit_12_week_retest
+        simplified_case.audit_overview.first_twelve_week_statement_audit
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": twelve_week_statement_audit.id
@@ -687,7 +687,7 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.first_statement_audit_12_week_retest
+        simplified_case.audit_overview.first_twelve_week_statement_audit
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": twelve_week_statement_audit.id
@@ -1074,7 +1074,7 @@ def test_twelve_week_audit_statement_edit_redirects_based_on_button_pressed(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.first_statement_audit_12_week_retest
+        simplified_case.audit_overview.first_twelve_week_statement_audit
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": twelve_week_statement_audit.id
@@ -1311,7 +1311,7 @@ def test_audit_retest_statement_overview_updates_statement_checkresult(
     simplified_case.auditor = user
     simplified_case.save()
     twelve_week_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.first_statement_audit_12_week_retest
+        simplified_case.audit_overview.first_twelve_week_statement_audit
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": twelve_week_statement_audit.id
@@ -1382,7 +1382,7 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
     simplified_case.auditor = user
     simplified_case.save()
     twelve_week_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.first_statement_audit_12_week_retest
+        simplified_case.audit_overview.first_twelve_week_statement_audit
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": twelve_week_statement_audit.id
@@ -1483,7 +1483,7 @@ def test_retest_metadata_skips_to_statement_when_no_psb_response(admin_client):
         simplified_case.audit_overview.first_twelve_week_wcag_audit
     )
     twelve_week_statement_audit: WcagAudit = (
-        simplified_case.audit_overview.first_statement_audit_12_week_retest
+        simplified_case.audit_overview.first_twelve_week_statement_audit
     )
 
     response: HttpResponse = admin_client.post(
@@ -3199,11 +3199,11 @@ def test_summary_page_context(rf):
     )
     assert (
         context["statement_audit_12_week"]
-        == simplified_case.audit_overview.first_statement_audit_12_week_retest
+        == simplified_case.audit_overview.first_twelve_week_statement_audit
     )
     assert (
         context["statement_audit"]
-        == simplified_case.audit_overview.first_statement_audit_12_week_retest
+        == simplified_case.audit_overview.first_twelve_week_statement_audit
     )
 
 
@@ -3396,7 +3396,7 @@ def test_summary_page_view_show_all(url_name, audit_overview_attr, admin_client)
         ("audits:edit-audit-statement-summary", "initial_statement_audit"),
         (
             "audits:edit-audit-retest-statement-summary",
-            "first_statement_audit_12_week_retest",
+            "first_twelve_week_statement_audit",
         ),
     ],
 )
@@ -3409,7 +3409,7 @@ def test_test_statement_summary_page_view(url_name, audit_overview_attr, admin_c
         simplified_case.audit_overview.initial_statement_audit
     )
     statement_audit_12_week: StatementAudit = (
-        simplified_case.audit_overview.first_statement_audit_12_week_retest
+        simplified_case.audit_overview.first_twelve_week_statement_audit
     )
     statement_audit_for_url: StatementAudit = getattr(
         simplified_case.audit_overview, audit_overview_attr
@@ -3482,7 +3482,7 @@ def test_test_statement_summary_page_view(url_name, audit_overview_attr, admin_c
         ("audits:edit-audit-statement-summary", "initial_statement_audit"),
         (
             "audits:edit-audit-retest-statement-summary",
-            "first_statement_audit_12_week_retest",
+            "first_twelve_week_statement_audit",
         ),
     ],
 )
@@ -3497,7 +3497,7 @@ def test_test_statement_summary_page_summary(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     statement_audit_12_week: StatementAudit = (
-        simplified_case.audit_overview.first_statement_audit_12_week_retest
+        simplified_case.audit_overview.first_twelve_week_statement_audit
     )
     statement_audit_for_url: StatementAudit = getattr(
         simplified_case.audit_overview, audit_overview_attr

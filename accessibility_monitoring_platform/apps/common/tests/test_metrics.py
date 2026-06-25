@@ -137,11 +137,11 @@ def test_count_statement_issues(
     ).delete()
     StatementCheckResultRound.objects.filter(type=StatementCheck.Type.CUSTOM).delete()
     StatementCheckResultRound.objects.filter(type=StatementCheck.Type.RETEST).delete()
-    final_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.final_statement_audit
+    last_statement_audit: StatementAudit = (
+        simplified_case.audit_overview.last_statement_audit
     )
     final_statement_check_result_round: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.filter(statement_audit=final_statement_audit)
+        StatementCheckResultRound.objects.filter(statement_audit=last_statement_audit)
     ).last()
     initial_statement_check_result_round: StatementCheckResultRound = (
         final_statement_check_result_round.statement_check_result_initial
@@ -153,7 +153,7 @@ def test_count_statement_issues(
     final_statement_check_result_round.check_result_state = final_statement_check_result
     final_statement_check_result_round.save()
 
-    assert count_statement_issues(statement_audits=[final_statement_audit]) == (
+    assert count_statement_issues(statement_audits=[last_statement_audit]) == (
         expected_fixed,
         expected_total,
     )

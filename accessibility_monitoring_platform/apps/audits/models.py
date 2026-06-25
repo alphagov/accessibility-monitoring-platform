@@ -359,11 +359,11 @@ class AuditOverview(models.Model):
         )
 
     @property
-    def final_statement_audit(self) -> StatementAudit | None:
+    def last_statement_audit(self) -> StatementAudit | None:
         return self.statement_audits.last()
 
     @property
-    def first_statement_audit_12_week_retest(self) -> StatementAudit | None:
+    def first_twelve_week_statement_audit(self) -> StatementAudit | None:
         if self.twelve_week_statement_audits is not None:
             return self.twelve_week_statement_audits.first()
 
@@ -381,7 +381,7 @@ class AuditOverview(models.Model):
             == 0
         ):
             return False
-        if self.first_statement_audit_12_week_retest is None:
+        if self.first_twelve_week_statement_audit is None:
             return (
                 self.initial_statement_audit.overview_statement_check_results.exclude(
                     check_result_state=StatementCheckResultRound.Result.YES
@@ -393,7 +393,7 @@ class AuditOverview(models.Model):
                 check_result_state=StatementCheckResultRound.Result.YES
             ).count()
             == 0
-            or self.first_statement_audit_12_week_retest.overview_statement_check_results.exclude(
+            or self.first_twelve_week_statement_audit.overview_statement_check_results.exclude(
                 check_result_state=StatementCheckResult.ResultRetest.YES
             ).count()
             == 0

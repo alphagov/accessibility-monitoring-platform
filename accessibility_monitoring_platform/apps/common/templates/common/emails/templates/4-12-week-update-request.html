@@ -84,7 +84,7 @@ You do not need to provide information from your own audit.
     <br>
     <br>
 {% endif %}
-{% if case.audit_overview.first_statement_audit_12_week_retest.failed_statement_check_results %}
+{% if case.audit_overview.first_twelve_week_statement_audit.failed_statement_check_results %}
     We found the following issues.
     <br>
     <br>
@@ -96,7 +96,7 @@ You do not need to provide information from your own audit.
             </tr>
         </thead>
         <tbody>
-            {% for statement_check_result in case.audit_overview.first_statement_audit_12_week_retest.failed_statement_check_results %}
+            {% for statement_check_result in case.audit_overview.first_twelve_week_statement_audit.failed_statement_check_results %}
                 <tr valign="top">
                     <td headers="statement-issue" width=50%>
                         <b>Issue {{ statement_check_result.issue_identifier }}</b>

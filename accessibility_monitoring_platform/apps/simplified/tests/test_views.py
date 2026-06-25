@@ -1962,7 +1962,7 @@ def test_no_psb_response_redirects_to_12_week_retest_statement_links(admin_clien
     assert response.status_code == 302
     assert (
         response.url
-        == f'{reverse("audits:edit-audit-retest-statement-pages", kwargs={"pk": simplified_case.audit_overview.first_statement_audit_12_week_retest.id})}'
+        == f'{reverse("audits:edit-audit-retest-statement-pages", kwargs={"pk": simplified_case.audit_overview.first_twelve_week_statement_audit.id})}'
     )
 
 

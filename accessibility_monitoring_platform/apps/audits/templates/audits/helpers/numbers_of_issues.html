@@ -20,8 +20,8 @@
 </p>
 <p class="govuk-body-m amp-margin-bottom-10 {% if fontsize == 'm' %} govuk-!-font-size-19 {% else %} govuk-!-font-size-16 {% endif %}">
     Retest test:
-    {% if case.audit_overview.first_statement_audit_12_week_retest.statement_found_check.check_result_state == 'yes' %}
-        {{ case.audit_overview.first_statement_audit_12_week_retest.failed_statement_check_results.count }}
+    {% if case.audit_overview.first_twelve_week_statement_audit.statement_found_check.check_result_state == 'yes' %}
+        {{ case.audit_overview.first_twelve_week_statement_audit.failed_statement_check_results.count }}
     {% else %}
         No statement found
     {% endif %}
