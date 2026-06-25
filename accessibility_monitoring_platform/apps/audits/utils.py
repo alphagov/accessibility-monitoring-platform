@@ -288,21 +288,21 @@ def create_statement_audit_and_check_results(
     audit_round_type: StatementAudit.AuditRoundType = StatementAudit.AuditRoundType.INITIAL,
 ) -> StatementAudit:
 
-    if audit_overview.statement_audit_initial is None:
-        statement_audit_initial: StatementAudit = StatementAudit.objects.create(
+    if audit_overview.initial_statement_audit is None:
+        initial_statement_audit: StatementAudit = StatementAudit.objects.create(
             simplified_case=audit_overview.simplified_case,
         )
-        create_statement_checks_for_new_audit(statement_audit=statement_audit_initial)
-        return statement_audit_initial
+        create_statement_checks_for_new_audit(statement_audit=initial_statement_audit)
+        return initial_statement_audit
     else:
-        statement_audit_initial: StatementAudit = audit_overview.statement_audit_initial
+        initial_statement_audit: StatementAudit = audit_overview.initial_statement_audit
     statement_audit: StatementAudit = StatementAudit.objects.create(
         simplified_case=audit_overview.simplified_case,
         audit_round_type=audit_round_type,
     )
     for (
         statement_check_result_initial
-    ) in statement_audit_initial.statement_check_results.exclude(type=None):
+    ) in initial_statement_audit.statement_check_results.exclude(type=None):
         StatementCheckResultRound.objects.create(
             statement_audit=statement_audit,
             statement_check_result_initial=statement_check_result_initial,
@@ -508,8 +508,8 @@ def get_audit_summary_context(
     audit_overview: AuditOverview = simplified_case.audit_overview
     initial_wcag_audit: WcagAudit | None = audit_overview.initial_wcag_audit
     wcag_audit_12_week: WcagAudit | None = audit_overview.first_twelve_week_wcag_audit
-    statement_audit_initial: StatementAudit | None = (
-        audit_overview.statement_audit_initial
+    initial_statement_audit: StatementAudit | None = (
+        audit_overview.initial_statement_audit
     )
     statement_audit_12_week: StatementAudit | None = (
         audit_overview.first_statement_audit_12_week_retest
@@ -522,12 +522,12 @@ def get_audit_summary_context(
     context["enable_12_week_ui"] = wcag_audit_12_week is not None
     context["initial_wcag_audit"] = initial_wcag_audit
     context["wcag_audit_12_week"] = wcag_audit_12_week
-    context["statement_audit_initial"] = statement_audit_initial
+    context["initial_statement_audit"] = initial_statement_audit
     context["statement_audit_12_week"] = statement_audit_12_week
     if statement_audit_12_week is not None:
         context["statement_audit"] = statement_audit_12_week
     else:
-        context["statement_audit"] = statement_audit_initial
+        context["statement_audit"] = initial_statement_audit
 
     summary_wcag_check_results: list[SummaryWcagCheckResult] = []
 
@@ -579,7 +579,7 @@ def get_audit_summary_context(
     ) = (
         statement_audit_12_week.statement_check_results
         if statement_audit_12_week is not None
-        else statement_audit_initial.statement_check_results
+        else initial_statement_audit.statement_check_results
     )
 
     for statement_check_result in statement_check_results:
@@ -621,7 +621,7 @@ def get_audit_summary_context(
         ):
             summary_statement_check_results.append(summary_statement_check_result)
 
-    if statement_audit_initial.all_overview_statement_checks_have_passed or (
+    if initial_statement_audit.all_overview_statement_checks_have_passed or (
         statement_audit_12_week is not None
         and statement_audit_12_week.all_overview_statement_checks_have_passed
     ):

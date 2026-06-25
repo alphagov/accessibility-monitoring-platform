@@ -68,7 +68,7 @@ def populate_audit_rounds(apps, schema_editor):
             compliance_decision_complete_date=audit.audit_website_decision_complete_date,
             summary_complete_date=audit.audit_wcag_summary_complete_date,
         )
-        statement_audit_initial = StatementAudit.objects.create(
+        initial_statement_audit = StatementAudit.objects.create(
             simplified_case=audit.simplified_case,
             audit_round_type=INITIAL_ROUND_TYPE,
             round_number=INITIAL_ROUND_NUMBER,
@@ -230,10 +230,10 @@ def populate_audit_rounds(apps, schema_editor):
 
         statement_check_results_initial_by_statement_check = {}
         for statement_check_result in StatementCheckResult.objects.filter(audit=audit):
-            statement_check_result.statement_audit = statement_audit_initial
+            statement_check_result.statement_audit = initial_statement_audit
             statement_check_result.save()
             statement_check_result_initial = StatementCheckResultRound.objects.create(
-                statement_audit=statement_audit_initial,
+                statement_audit=initial_statement_audit,
                 statement_check=statement_check_result.statement_check,
                 issue_identifier=statement_check_result.issue_identifier,
                 type=statement_check_result.type,
@@ -368,7 +368,7 @@ def populate_audit_rounds(apps, schema_editor):
                 )
 
         for statement_page in StatementPage.objects.filter(audit=audit):
-            statement_page.simplified_case = statement_audit_initial.simplified_case
+            statement_page.simplified_case = initial_statement_audit.simplified_case
             statement_page.audit_overview = audit_overview
             statement_page.save()
 

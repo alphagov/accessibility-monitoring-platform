@@ -879,7 +879,7 @@ def test_overview_issues_statement_with_statement_checks():
 
     assert simplified_case.overview_issues_statement == "No test exists"
 
-    statement_audit_initial: StatementAudit = StatementAudit.objects.create(
+    initial_statement_audit: StatementAudit = StatementAudit.objects.create(
         simplified_case=simplified_case
     )
     for count, statement_check in enumerate(
@@ -893,7 +893,7 @@ def test_overview_issues_statement_with_statement_checks():
             else StatementCheckResult.Result.YES
         )
         StatementCheckResultRound.objects.create(
-            statement_audit=statement_audit_initial,
+            statement_audit=initial_statement_audit,
             type=statement_check.type,
             statement_check=statement_check,
             check_result_state=check_result_state,

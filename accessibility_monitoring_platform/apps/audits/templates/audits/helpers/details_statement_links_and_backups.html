@@ -24,10 +24,10 @@
                     rel="noreferrer noopener">
                     statement links</a>.
             </p>
-        {% elif case.audit_overview.statement_audit_initial %}
+        {% elif case.audit_overview.initial_statement_audit %}
             <p class="govuk-body">
                 No statement added. Add a statement in
-                <a href="{% url 'audits:edit-statement-pages' case.audit_overview.statement_audit_initial.id %}"
+                <a href="{% url 'audits:edit-statement-pages' case.audit_overview.initial_statement_audit.id %}"
                     class="govuk-link govuk-link--no-visited-state"
                     rel="noreferrer noopener">
                     statement links</a>.

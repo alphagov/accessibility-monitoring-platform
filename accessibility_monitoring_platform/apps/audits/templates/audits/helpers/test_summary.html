@@ -97,13 +97,13 @@
                 {% if not statement_audit_12_week or statement_audit_12_week.compliance_state == 'unknown' %}
                     <tr>
                         <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Initial statement compliance</b></td>
-                        <td class="amp-padding-bottom-10">{{ statement_audit_initial.get_compliance_state_display }}</td>
+                        <td class="amp-padding-bottom-10">{{ initial_statement_audit.get_compliance_state_display }}</td>
                     </tr>
                 {% endif %}
                 {% if not statement_audit_12_week or statement_audit_12_week.disproportionate_burden_claim == 'not-checked' %}
                     <tr>
                         <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Initial disproportionate burden</b></td>
-                        <td class="amp-padding-bottom-10">{{ statement_audit_initial.get_disproportionate_burden_claim_display }}</td>
+                        <td class="amp-padding-bottom-10">{{ initial_statement_audit.get_disproportionate_burden_claim_display }}</td>
                     </tr>
                 {% endif %}
                 {% if statement_audit_12_week and statement_audit_12_week.compliance_state != 'unknown' %}

@@ -211,14 +211,14 @@ def create_equality_body_audits(simplified_case: SimplifiedCase = None) -> WcagA
         )
     if (
         simplified_case is None
-        or simplified_case.audit_overview.statement_audit_initial is None
+        or simplified_case.audit_overview.initial_statement_audit is None
     ):
         initial_statement_audit: StatementAudit = create_initial_statement_audit(
             simplified_case=initial_wcag_audit.simplified_case
         )
     else:
         initial_statement_audit: StatementAudit = (
-            simplified_case.audit_overview.statement_audit_initial
+            simplified_case.audit_overview.initial_statement_audit
         )
 
     equality_body_wcag_audit: WcagAudit = create_retest_wcag_audit(

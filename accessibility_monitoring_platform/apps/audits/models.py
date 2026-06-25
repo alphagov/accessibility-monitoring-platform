@@ -341,7 +341,7 @@ class AuditOverview(models.Model):
         return self.simplified_case.statementaudit_set.filter(is_deleted=False)
 
     @property
-    def statement_audit_initial(self) -> StatementAudit | None:
+    def initial_statement_audit(self) -> StatementAudit | None:
         return self.statement_audits.filter(
             audit_round_type=StatementAudit.AuditRoundType.INITIAL
         ).first()
@@ -376,20 +376,20 @@ class AuditOverview(models.Model):
     def all_overview_statement_checks_have_passed(self) -> bool:
         """Check all overview statement checks have passed test or retest"""
         if (
-            self.statement_audit_initial is None
-            or self.statement_audit_initial.overview_statement_check_results.count()
+            self.initial_statement_audit is None
+            or self.initial_statement_audit.overview_statement_check_results.count()
             == 0
         ):
             return False
         if self.first_statement_audit_12_week_retest is None:
             return (
-                self.statement_audit_initial.overview_statement_check_results.exclude(
+                self.initial_statement_audit.overview_statement_check_results.exclude(
                     check_result_state=StatementCheckResultRound.Result.YES
                 ).count()
                 == 0
             )
         return (
-            self.statement_audit_initial.overview_statement_check_results.exclude(
+            self.initial_statement_audit.overview_statement_check_results.exclude(
                 check_result_state=StatementCheckResultRound.Result.YES
             ).count()
             == 0

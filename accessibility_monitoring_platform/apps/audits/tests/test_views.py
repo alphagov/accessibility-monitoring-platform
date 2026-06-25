@@ -916,7 +916,7 @@ def test_initial_wcag_audit_statement_edit_redirects_based_on_button_pressed(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     initial_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.statement_audit_initial
+        simplified_case.audit_overview.initial_statement_audit
     )
     initial_statement_audit_pk: dict[str, int] = {"pk": initial_statement_audit.id}
 
@@ -1178,7 +1178,7 @@ def test_audit_edit_statement_overview_updates_case_status(
     wcag_audit.compliance_state = WcagAudit.WebsiteCompliance.COMPLIANT
     wcag_audit.save()
     statement_audit: StatementAudit = (
-        simplified_case.audit_overview.statement_audit_initial
+        simplified_case.audit_overview.initial_statement_audit
     )
     statement_audit_pk: dict[str, int] = {"pk": statement_audit.id}
     # statement_audit.compliance_state = StatementAudit.StatementCompliance.COMPLIANT
@@ -3174,7 +3174,7 @@ def test_summary_page_context(rf):
     assert "enable_12_week_ui" in context
     assert "initial_wcag_audit" in context
     assert "wcag_audit_12_week" in context
-    assert "statement_audit_initial" in context
+    assert "initial_statement_audit" in context
     assert "statement_audit_12_week" in context
     assert "statement_audit" in context
     assert "summary_wcag_check_results_by_page" in context
@@ -3194,8 +3194,8 @@ def test_summary_page_context(rf):
         == simplified_case.audit_overview.first_twelve_week_wcag_audit
     )
     assert (
-        context["statement_audit_initial"]
-        == simplified_case.audit_overview.statement_audit_initial
+        context["initial_statement_audit"]
+        == simplified_case.audit_overview.initial_statement_audit
     )
     assert (
         context["statement_audit_12_week"]
@@ -3393,7 +3393,7 @@ def test_summary_page_view_show_all(url_name, audit_overview_attr, admin_client)
 @pytest.mark.parametrize(
     "url_name, audit_overview_attr",
     [
-        ("audits:edit-audit-statement-summary", "statement_audit_initial"),
+        ("audits:edit-audit-statement-summary", "initial_statement_audit"),
         (
             "audits:edit-audit-retest-statement-summary",
             "first_statement_audit_12_week_retest",
@@ -3405,8 +3405,8 @@ def test_test_statement_summary_page_view(url_name, audit_overview_attr, admin_c
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    statement_audit_initial: StatementAudit = (
-        simplified_case.audit_overview.statement_audit_initial
+    initial_statement_audit: StatementAudit = (
+        simplified_case.audit_overview.initial_statement_audit
     )
     statement_audit_12_week: StatementAudit = (
         simplified_case.audit_overview.first_statement_audit_12_week_retest
@@ -3422,7 +3422,7 @@ def test_test_statement_summary_page_view(url_name, audit_overview_attr, admin_c
     overview_statement_check_result: StatementCheckResultRound = (
         StatementCheckResultRound.objects.get(
             statement_check=overview_statement_check,
-            statement_audit=statement_audit_initial,
+            statement_audit=initial_statement_audit,
         )
     )
     overview_statement_check_result.type = StatementCheck.Type.OVERVIEW
@@ -3438,7 +3438,7 @@ def test_test_statement_summary_page_view(url_name, audit_overview_attr, admin_c
     website_statement_check_result: StatementCheckResultRound = (
         StatementCheckResultRound.objects.get(
             statement_check=website_statement_check,
-            statement_audit=statement_audit_initial,
+            statement_audit=initial_statement_audit,
         )
     )
     website_statement_check_result.check_result_state = (
@@ -3449,7 +3449,7 @@ def test_test_statement_summary_page_view(url_name, audit_overview_attr, admin_c
     custom_statement_check_result: StatementCheckResultRound = (
         StatementCheckResultRound.objects.get(
             type=StatementCheck.Type.CUSTOM,
-            statement_audit=statement_audit_initial,
+            statement_audit=initial_statement_audit,
         )
     )
     custom_statement_check_result.public_comment = STATEMENT_CHECK_CUSTOM_COMMENT
@@ -3479,7 +3479,7 @@ def test_test_statement_summary_page_view(url_name, audit_overview_attr, admin_c
 @pytest.mark.parametrize(
     "url_name, audit_overview_attr",
     [
-        ("audits:edit-audit-statement-summary", "statement_audit_initial"),
+        ("audits:edit-audit-statement-summary", "initial_statement_audit"),
         (
             "audits:edit-audit-retest-statement-summary",
             "first_statement_audit_12_week_retest",

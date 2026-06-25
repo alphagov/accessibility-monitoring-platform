@@ -3921,7 +3921,7 @@ def test_case_overview(admin_client):
     wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
     wcag_check_result_initial.save()
     statement_found_check_result: StatementCheckResultRound = (
-        simplified_case.audit_overview.statement_audit_initial.statement_found_check
+        simplified_case.audit_overview.initial_statement_audit.statement_found_check
     )
     statement_found_check_result.check_result_state = (
         StatementCheckResultRound.Result.YES

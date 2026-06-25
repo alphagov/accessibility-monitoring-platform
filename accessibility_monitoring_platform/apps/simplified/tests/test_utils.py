@@ -514,7 +514,7 @@ def test_get_email_template_context_with_audit():
     """Test get_email_template_context for Case with test"""
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
     simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
-    statement_audit_initial: StatementAudit = create_initial_statement_audit(
+    initial_statement_audit: StatementAudit = create_initial_statement_audit(
         simplified_case=simplified_case
     )
     email_template_context: dict[str, Any] = get_email_template_context(
@@ -523,7 +523,7 @@ def test_get_email_template_context_with_audit():
 
     assert email_template_context["case"] == simplified_case
     assert email_template_context["initial_wcag_audit"] == initial_wcag_audit
-    assert email_template_context["initial_statement_audit"] == statement_audit_initial
+    assert email_template_context["initial_statement_audit"] == initial_statement_audit
     assert email_template_context["last_equality_body_wcag_audit"] is None
     assert email_template_context["last_equality_body_statement_audit"] is None
 
@@ -552,7 +552,7 @@ def test_get_email_template_context_with_retest():
     )
     assert (
         email_template_context["initial_statement_audit"]
-        == simplified_case.audit_overview.statement_audit_initial
+        == simplified_case.audit_overview.initial_statement_audit
     )
     assert (
         email_template_context["last_equality_body_wcag_audit"]

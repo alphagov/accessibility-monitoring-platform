@@ -213,7 +213,7 @@ def test_report_details_page_shows_report_awaiting_approval(admin_client):
     )
     wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
     statement_audit: StatementAudit = (
-        simplified_case.audit_overview.statement_audit_initial
+        simplified_case.audit_overview.initial_statement_audit
     )
     report: Report = Report.objects.create(base_case=simplified_case)
     simplified_case: SimplifiedCase = report.base_case.get_case()
@@ -354,7 +354,7 @@ def test_report_includes_statement_custom_issue(admin_client):
         create_simplified_case_with_initial_and_12_week_audits()
     )
     statement_audit: StatementAudit = (
-        simplified_case.audit_overview.statement_audit_initial
+        simplified_case.audit_overview.initial_statement_audit
     )
     report: Report = Report.objects.create(base_case=simplified_case)
     StatementPage.objects.create(

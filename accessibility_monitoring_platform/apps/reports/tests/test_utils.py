@@ -215,7 +215,7 @@ def test_build_report_context():
         "simplified_case": simplified_case,
         "audit_overview": simplified_case.audit_overview,
         "wcag_audit": simplified_case.audit_overview.initial_wcag_audit,
-        "statement_audit": simplified_case.audit_overview.statement_audit_initial,
+        "statement_audit": simplified_case.audit_overview.initial_statement_audit,
         "issues_tables": [],
         "report": report,
     }

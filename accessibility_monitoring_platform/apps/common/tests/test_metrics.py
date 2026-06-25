@@ -654,7 +654,7 @@ def test_get_policy_progress_metrics(mock_datetime):
         wcag_definition=wcag_definition,
         retest_state=WcagCheckResultRetest.RetestResult.FIXED,
     )
-    statement_audit_initial: StatementAudit = StatementAudit.objects.create(
+    initial_statement_audit: StatementAudit = StatementAudit.objects.create(
         simplified_case=simplified_case,
     )
     statement_audit_retest: StatementAudit = StatementAudit.objects.create(
@@ -665,7 +665,7 @@ def test_get_policy_progress_metrics(mock_datetime):
     statement_check: StatementCheck = StatementCheck.objects.all().first()
     statement_check_result_initial: StatementCheckResultRound = (
         StatementCheckResultRound.objects.create(
-            statement_audit=statement_audit_initial,
+            statement_audit=initial_statement_audit,
             type=statement_check.type,
             statement_check=statement_check,
             check_result_state=StatementCheckResult.Result.NO,
@@ -762,7 +762,7 @@ def test_get_policy_progress_metrics_excludes_missing_pages(mock_datetime):
         wcag_definition=wcag_definition,
         retest_state=WcagCheckResultRetest.RetestResult.FIXED,
     )
-    statement_audit_initial: StatementAudit = StatementAudit.objects.create(
+    initial_statement_audit: StatementAudit = StatementAudit.objects.create(
         simplified_case=simplified_case,
     )
     statement_audit_retest: StatementAudit = StatementAudit.objects.create(
@@ -773,7 +773,7 @@ def test_get_policy_progress_metrics_excludes_missing_pages(mock_datetime):
     statement_check: StatementCheck = StatementCheck.objects.all().first()
     statement_check_result_initial: StatementCheckResultRound = (
         StatementCheckResultRound.objects.create(
-            statement_audit=statement_audit_initial,
+            statement_audit=initial_statement_audit,
             type=statement_check.type,
             statement_check=statement_check,
             check_result_state=StatementCheckResult.Result.NO,

@@ -101,7 +101,7 @@ def count_statement_issues(
             statement_audit.fixed_statement_check_results.count()
         )
         statement_issues_count += (
-            statement_audit.simplified_case.audit_overview.statement_audit_initial.failed_statement_check_results.count()
+            statement_audit.simplified_case.audit_overview.initial_statement_audit.failed_statement_check_results.count()
         )
     return (fixed_statement_issues_count, statement_issues_count)
 

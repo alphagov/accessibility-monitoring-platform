@@ -189,7 +189,7 @@ def build_report_context(
         "simplified_case": report.base_case.simplifiedcase,
         "audit_overview": report.base_case.simplifiedcase.audit_overview,
         "wcag_audit": report.base_case.simplifiedcase.audit_overview.initial_wcag_audit,
-        "statement_audit": report.base_case.simplifiedcase.audit_overview.statement_audit_initial,
+        "statement_audit": report.base_case.simplifiedcase.audit_overview.initial_statement_audit,
     }
 
 

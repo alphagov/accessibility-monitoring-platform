@@ -64,7 +64,7 @@ def populate_equality_body_columns(
                 case.audit_overview.first_twelve_week_wcag_audit
             )
             source_instances[INITIAL_STATEMENT_AUDIT] = (
-                case.audit_overview.statement_audit_initial
+                case.audit_overview.initial_statement_audit
             )
             source_instances[TWELVE_WEEK_STATEMENT_AUDIT] = (
                 case.audit_overview.first_statement_audit_12_week_retest
@@ -125,7 +125,7 @@ def populate_csv_columns(
                 case.audit_overview.first_twelve_week_wcag_audit
             )
             source_instances[INITIAL_STATEMENT_AUDIT] = (
-                case.audit_overview.statement_audit_initial
+                case.audit_overview.initial_statement_audit
             )
             source_instances[TWELVE_WEEK_STATEMENT_AUDIT] = (
                 case.audit_overview.first_statement_audit_12_week_retest

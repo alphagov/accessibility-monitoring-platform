@@ -337,7 +337,7 @@ def get_email_template_context(simplified_case: SimplifiedCase) -> dict[str, Any
     context["case"] = simplified_case
     context["initial_wcag_audit"] = simplified_case.audit_overview.initial_wcag_audit
     context["initial_statement_audit"] = (
-        simplified_case.audit_overview.statement_audit_initial
+        simplified_case.audit_overview.initial_statement_audit
     )
     context["last_equality_body_wcag_audit"] = (
         simplified_case.audit_overview.last_equality_body_wcag_audit
