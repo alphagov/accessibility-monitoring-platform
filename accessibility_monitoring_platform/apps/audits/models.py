@@ -293,14 +293,14 @@ class AuditOverview(models.Model):
     @property
     def contact_wcag_page_initial(self) -> WcagPageInitial | None:
         if self.initial_wcag_audit is not None:
-            return self.initial_wcag_audit.every_wcag_page_initials.filter(
+            return self.initial_wcag_audit.wcag_page_initials.filter(
                 page_type=WcagPageInitial.Type.CONTACT
             ).first()
 
     @property
     def statement_wcag_page_initial(self) -> WcagPageInitial | None:
         if self.initial_wcag_audit is not None:
-            return self.initial_wcag_audit.every_wcag_page_initials.filter(
+            return self.initial_wcag_audit.wcag_page_initials.filter(
                 page_type=WcagPageInitial.Type.STATEMENT
             ).first()
 
@@ -407,7 +407,7 @@ class AuditOverview(models.Model):
         if self.wcag_audits.last() is not None:
             wcag_audit: WcagAudit = self.wcag_audits.last()
             updated_times.append(wcag_audit.updated)
-            for wcag_page_initial in wcag_audit.every_wcag_page_initials:
+            for wcag_page_initial in wcag_audit.wcag_page_initials:
                 updated_times.append(wcag_page_initial.updated)
                 for (
                     wcag_check_result_initial
@@ -566,7 +566,7 @@ class WcagAudit(AuditRound):
         return f"Retest #{retest_number}"
 
     @property
-    def every_wcag_page_initials(self) -> QuerySet[WcagPageInitial]:
+    def wcag_page_initials(self) -> QuerySet[WcagPageInitial]:
         """Sort page of type PDF to be last apart from the accessibility statement"""
         return (
             self.wcagpageinitial_set.filter(is_deleted=False)
@@ -581,16 +581,24 @@ class WcagAudit(AuditRound):
         )
 
     @property
-    def accessibility_statement_wcag_page_initial(self) -> WcagPageInitial | None:
-        return self.every_wcag_page_initials.filter(
-            page_type=Page.Type.STATEMENT
-        ).first()
+    def testable_wcag_page_initials(self) -> QuerySet[WcagPageInitial]:
+        return self.wcag_page_initials.exclude(not_found=Boolean.YES).exclude(url="")
 
     @property
-    def testable_wcag_page_initials(self) -> QuerySet[WcagPageInitial]:
-        return self.every_wcag_page_initials.exclude(not_found=Boolean.YES).exclude(
-            url=""
-        )
+    def standard_wcag_page_initials(self) -> QuerySet[WcagPageInitial]:
+        return self.wcag_page_initials.exclude(page_type=WcagPageInitial.Type.EXTRA)
+
+    @property
+    def html_wcag_page_initials(self) -> QuerySet[WcagPageInitial]:
+        return self.wcag_page_initials.exclude(page_type=WcagPageInitial.Type.PDF)
+
+    @property
+    def extra_wcag_page_initials(self) -> QuerySet[WcagPageInitial]:
+        return self.html_wcag_page_initials.filter(page_type=WcagPageInitial.Type.EXTRA)
+
+    @property
+    def accessibility_statement_wcag_page_initial(self) -> WcagPageInitial | None:
+        return self.wcag_page_initials.filter(page_type=Page.Type.STATEMENT).first()
 
     @property
     def wcag_page_retests(self) -> QuerySet[WcagPageRetest]:
@@ -605,20 +613,6 @@ class WcagAudit(AuditRound):
     @property
     def wcag_page_retests_missing_at_retest(self):
         return self.wcag_page_retests.exclude(page_missing_date=None)
-
-    @property
-    def standard_wcag_page_initials(self) -> QuerySet[WcagPageInitial]:
-        return self.every_wcag_page_initials.exclude(
-            page_type=WcagPageInitial.Type.EXTRA
-        )
-
-    @property
-    def html_wcag_page_initials(self) -> QuerySet[WcagPageInitial]:
-        return self.every_wcag_page_initials.exclude(page_type=WcagPageInitial.Type.PDF)
-
-    @property
-    def extra_wcag_page_initials(self) -> QuerySet[WcagPageInitial]:
-        return self.html_wcag_page_initials.filter(page_type=WcagPageInitial.Type.EXTRA)
 
     @property
     def wcag_failed_check_result_initials(self) -> QuerySet[WcagCheckResultInitial]:

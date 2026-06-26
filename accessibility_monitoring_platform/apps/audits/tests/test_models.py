@@ -258,14 +258,6 @@ def test_audit_overview_latest_statement_link():
 
 
 @pytest.mark.django_db
-def test_wcag_audit_every_wcag_page_initials_returns_all_pages():
-    """Deleted and pages which were not found are also excluded"""
-    wcag_audit: WcagAudit = create_initial_wcag_audit()
-
-    assert wcag_audit.every_wcag_page_initials.count() == 6
-
-
-@pytest.mark.django_db
 def test_audit_overview_contact_wcag_page_initial():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit_overview: AuditOverview = AuditOverview.objects.create(
@@ -770,22 +762,175 @@ def test_wcag_audit_equality_body_retest_name():
     assert wcag_audit.equality_body_retest_name == "Retest #1"
 
 
-# ***
+@pytest.mark.django_db
+def test_wcag_audit_wcag_page_initials_returns_all_pages():
+    """Deleted pages excluded"""
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    WcagPageInitial.objects.create(wcag_audit=wcag_audit, is_deleted=True)
+
+    assert wcag_audit.wcag_page_initials.count() == 6
 
 
 @pytest.mark.django_db
-def test_wcag_audit_every_wcag_page_initials_returns_pdf_and_statement_last():
+def test_wcag_audit_wcag_page_initials_returns_pdf_and_statement_last():
     """Statement page returned last. PDF page second-last"""
     wcag_audit: WcagAudit = create_initial_wcag_audit()
 
     assert (
-        wcag_audit.every_wcag_page_initials.last().page_type
+        wcag_audit.wcag_page_initials.last().page_type == WcagPageInitial.Type.STATEMENT
+    )
+    assert list(wcag_audit.wcag_page_initials)[-2].page_type == WcagPageInitial.Type.PDF
+
+
+@pytest.mark.django_db
+def test_wcag_audit_testable_wcag_page_initials():
+    """Deleted, not found and pages without URLs excluded"""
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    testable_page: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit,
+        page_type=WcagPageInitial.Type.HOME,
+    )
+    for wcag_page_initial in WcagPageInitial.objects.filter(
+        wcag_audit=wcag_audit
+    ).exclude(page_type=WcagPageInitial.Type.HOME):
+        if wcag_page_initial.page_type == WcagPageInitial.Type.PDF:
+            wcag_page_initial.not_found = Boolean.YES
+        else:
+            wcag_page_initial.url = ""
+        wcag_page_initial.save()
+
+    assert len(wcag_audit.testable_wcag_page_initials) == 1
+    assert wcag_audit.testable_wcag_page_initials[0].id == testable_page.id
+
+
+@pytest.mark.django_db
+def test_wcag_audit_standard_wcag_page_initials():
+    """Extra pages excluded"""
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+
+    assert wcag_audit.standard_wcag_page_initials.count() == 5
+
+    assert (
+        wcag_audit.standard_wcag_page_initials.filter(
+            page_type=WcagPageInitial.Type.EXTRA
+        ).count()
+        == 0
+    )
+
+
+@pytest.mark.django_db
+def test_wcag_audit_html_wcag_page_initials():
+    """PDF pages excluded"""
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+
+    assert wcag_audit.html_wcag_page_initials.count() == 5
+
+    assert (
+        wcag_audit.html_wcag_page_initials.filter(
+            page_type=WcagPageInitial.Type.PDF
+        ).count()
+        == 0
+    )
+
+
+@pytest.mark.django_db
+def test_wcag_audit_extra_wcag_page_initials():
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+
+    assert wcag_audit.extra_wcag_page_initials.count() == 1
+    assert (
+        wcag_audit.extra_wcag_page_initials.first().page_type
+        == WcagPageInitial.Type.EXTRA
+    )
+
+
+@pytest.mark.django_db
+def test_wcag_audit_accessibility_statement_wcag_page_initial():
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+
+    assert wcag_audit.accessibility_statement_wcag_page_initial is not None
+    assert (
+        wcag_audit.accessibility_statement_wcag_page_initial.page_type
         == WcagPageInitial.Type.STATEMENT
     )
-    assert (
-        list(wcag_audit.every_wcag_page_initials)[-2].page_type
-        == WcagPageInitial.Type.PDF
+
+
+@pytest.mark.django_db
+def test_wcag_audit_wcag_page_retests():
+    """Deleted pages and those with no initial URL are excluded"""
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
     )
+    initial_wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
+    first_twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.first_twelve_week_wcag_audit
+    )
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=initial_wcag_audit, url="https://example.com"
+    )
+    WcagPageRetest.objects.create(
+        wcag_audit=first_twelve_week_wcag_audit,
+        wcag_page_initial=wcag_page_initial,
+        is_deleted=True,
+    )
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=initial_wcag_audit
+    )
+    WcagPageRetest.objects.create(
+        wcag_audit=first_twelve_week_wcag_audit,
+        wcag_page_initial=wcag_page_initial,
+    )
+
+    assert initial_wcag_audit.wcag_page_retests.count() == 0
+    assert first_twelve_week_wcag_audit.wcag_page_retests.count() == 6
+
+
+@pytest.mark.django_db
+def test_wcag_audit_retestable_wcag_page_retests():
+    """Missing pages excluded"""
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    initial_wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
+    first_twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.first_twelve_week_wcag_audit
+    )
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=initial_wcag_audit, url="https://example.com"
+    )
+    WcagPageRetest.objects.create(
+        wcag_audit=first_twelve_week_wcag_audit,
+        wcag_page_initial=wcag_page_initial,
+        page_missing_date=date.today(),
+    )
+
+    assert initial_wcag_audit.retestable_wcag_page_retests.count() == 0
+    assert first_twelve_week_wcag_audit.retestable_wcag_page_retests.count() == 6
+
+
+@pytest.mark.django_db
+def test_wcag_audit_missing_at_retest_pages():
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit
+    )
+
+    assert len(twelve_week_wcag_audit.wcag_page_retests_missing_at_retest) == 0
+
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.filter(
+        wcag_audit=twelve_week_wcag_audit,
+    ).first()
+    wcag_page_retest.page_missing_date = TODAY
+    wcag_page_retest.save()
+
+    assert len(twelve_week_wcag_audit.wcag_page_retests_missing_at_retest) == 1
+    assert (
+        twelve_week_wcag_audit.wcag_page_retests_missing_at_retest[0]
+        == wcag_page_retest
+    )
+
+
+# Older tests below
 
 
 @pytest.mark.django_db
@@ -807,7 +952,7 @@ def test_wcag_page_initial_get_absolute_url():
 @pytest.mark.django_db
 def test_page_str():
     wcag_audit: WcagAudit = create_initial_wcag_audit()
-    wcag_page_initial: WcagPageInitial = wcag_audit.every_wcag_page_initials.filter(
+    wcag_page_initial: WcagPageInitial = wcag_audit.wcag_page_initials.filter(
         page_type=WcagPageInitial.Type.STATEMENT
     ).first()
 
@@ -817,7 +962,7 @@ def test_page_str():
 @pytest.mark.django_db
 def test_html_page_page_title():
     wcag_audit: WcagAudit = create_initial_wcag_audit()
-    wcag_page_initial: WcagPageInitial = wcag_audit.every_wcag_page_initials.filter(
+    wcag_page_initial: WcagPageInitial = wcag_audit.wcag_page_initials.filter(
         page_type=WcagPageInitial.Type.STATEMENT
     ).first()
 
@@ -827,88 +972,13 @@ def test_html_page_page_title():
 @pytest.mark.django_db
 def test_pdf_page_page_title():
     wcag_audit: WcagAudit = create_initial_wcag_audit()
-    wcag_page_initial: WcagPageInitial = wcag_audit.every_wcag_page_initials.filter(
+    wcag_page_initial: WcagPageInitial = wcag_audit.wcag_page_initials.filter(
         page_type=WcagPageInitial.Type.PDF
     ).first()
     wcag_page_initial.name = "File"
     wcag_page_initial.save()
 
     assert wcag_page_initial.page_title == "File"
-
-
-@pytest.mark.django_db
-def test_audit_testable_pages_returns_expected_page():
-    """Deleted, not found and pages without URLs excluded"""
-    wcag_audit: WcagAudit = create_initial_wcag_audit()
-    testable_page: WcagPageInitial = WcagPageInitial.objects.get(
-        wcag_audit=wcag_audit,
-        page_type=WcagPageInitial.Type.HOME,
-    )
-    for wcag_page_initial in WcagPageInitial.objects.filter(
-        wcag_audit=wcag_audit
-    ).exclude(page_type=WcagPageInitial.Type.HOME):
-        if wcag_page_initial.page_type == WcagPageInitial.Type.PDF:
-            wcag_page_initial.not_found = Boolean.YES
-        else:
-            wcag_page_initial.url = ""
-        wcag_page_initial.save()
-
-    assert len(wcag_audit.testable_wcag_page_initials) == 1
-    assert wcag_audit.testable_wcag_page_initials[0].id == testable_page.id
-
-
-@pytest.mark.django_db
-def test_audit_retestable_pages_returns_expected_page():
-    """Deleted, not found, pages without URLs and missing pages excluded"""
-    wcag_audit: WcagAudit = create_initial_wcag_audit()
-    retestable_wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit,
-        page_type=WcagPageInitial.Type.HOME,
-        url="https://example.com",
-    )
-    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
-        wcag_audit=wcag_audit,
-        wcag_page_initial=retestable_wcag_page_initial,
-        url=retestable_wcag_page_initial.url,
-    )
-    unretestable_wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit,
-        page_type=WcagPageInitial.Type.HOME,
-        url="https://example.com",
-        not_found="yes",
-    )
-    WcagPageRetest.objects.create(
-        wcag_audit=wcag_audit,
-        wcag_page_initial=unretestable_wcag_page_initial,
-        url=unretestable_wcag_page_initial.url,
-        page_missing_date=date.today(),
-    )
-
-    assert len(wcag_audit.retestable_wcag_page_retests) == 1
-    assert wcag_audit.retestable_wcag_page_retests[0].id == wcag_page_retest.id
-
-
-@pytest.mark.django_db
-def test_audit_missing_at_retest_pages():
-    """Test missing at retest pages."""
-    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
-        initial_wcag_audit=initial_wcag_audit
-    )
-
-    assert len(twelve_week_wcag_audit.wcag_page_retests_missing_at_retest) == 0
-
-    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.filter(
-        wcag_audit=twelve_week_wcag_audit,
-    ).first()
-    wcag_page_retest.page_missing_date = TODAY
-    wcag_page_retest.save()
-
-    assert len(twelve_week_wcag_audit.wcag_page_retests_missing_at_retest) == 1
-    assert (
-        twelve_week_wcag_audit.wcag_page_retests_missing_at_retest[0]
-        == wcag_page_retest
-    )
 
 
 @pytest.mark.django_db
@@ -937,7 +1007,7 @@ def test_audit_missing_at_retest_check_results():
 @pytest.mark.django_db
 def test_wcag_page_initial_string():
     wcag_audit: WcagAudit = create_initial_wcag_audit()
-    wcag_page_initial: WcagPageInitial = wcag_audit.every_wcag_page_initials[0]
+    wcag_page_initial: WcagPageInitial = wcag_audit.wcag_page_initials[0]
 
     assert str(wcag_page_initial) == "Home"
 
@@ -949,7 +1019,7 @@ def test_wcag_page_initial_string():
 @pytest.mark.django_db
 def test_wcag_page_initial_anchor():
     wcag_audit: WcagAudit = create_initial_wcag_audit()
-    wcag_page_initial: WcagPageInitial = wcag_audit.every_wcag_page_initials[0]
+    wcag_page_initial: WcagPageInitial = wcag_audit.wcag_page_initials[0]
 
     assert wcag_page_initial.anchor == f"test-page-{wcag_page_initial.id}"
 

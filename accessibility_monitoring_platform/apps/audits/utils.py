@@ -440,7 +440,7 @@ def create_checkresults_for_wcag_audit_retest(wcag_audit: WcagAudit) -> None:
                     wcag_definition=previous_wcag_check_result_retest.wcag_definition,
                 )
     else:
-        for wcag_page_initial in previous_wcag_audit.every_wcag_page_initials:
+        for wcag_page_initial in previous_wcag_audit.wcag_page_initials:
             wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
                 wcag_audit=wcag_audit,
                 wcag_page_initial=wcag_page_initial,

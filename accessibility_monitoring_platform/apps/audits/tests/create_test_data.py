@@ -102,7 +102,7 @@ def create_retest_wcag_audit(
         audit_round_type=audit_round_type,
     )
     if initial_wcag_audit is not None:
-        for wcag_page_initial in initial_wcag_audit.every_wcag_page_initials:
+        for wcag_page_initial in initial_wcag_audit.wcag_page_initials:
             wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
                 wcag_audit=retest_wcag_audit,
                 wcag_page_initial=wcag_page_initial,
