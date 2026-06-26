@@ -174,9 +174,7 @@ class EqualityBodyRetestPageChecksFormView(NextPlatformPageMixin, UpdateView):
             audit_overview.first_twelve_week_wcag_audit
         )
         context["wcag_audit"] = wcag_audit
-        context["statement_audit"] = (
-            wcag_audit.equivalent_equality_body_statement_retest
-        )
+        context["statement_audit"] = wcag_audit.equivalent_statement_audit
 
         if self.request.POST:
             retest_check_results_formset: WcagCheckResultRetestFormset = (

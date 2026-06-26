@@ -676,7 +676,7 @@ class EqualityBodyAuditStatementLinksPlatformPage(
             isinstance(instance, WcagAudit)
             and instance.audit_round_type == WcagAudit.AuditRoundType.EQUALITY_BODY
         ):
-            self.instance = instance.equivalent_equality_body_statement_retest
+            self.instance = instance.equivalent_statement_audit
         else:
             super().set_instance(instance=instance)
 

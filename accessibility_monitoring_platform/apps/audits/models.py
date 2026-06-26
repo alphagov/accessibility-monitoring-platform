@@ -549,22 +549,15 @@ class WcagAudit(AuditRound):
         )
 
     @property
-    def previous_equality_body_retest(self) -> WcagAudit | None:
-        """Return previous equality body or 12-week retest"""
+    def equality_body_previous_wcag_audit(self) -> WcagAudit | None:
+        """
+        Return previous equality body or 12-week retest for an equality body retest
+        """
         if self.audit_round_type != WcagAudit.AuditRoundType.EQUALITY_BODY:
             return None
         return WcagAudit.objects.filter(
             simplified_case=self.simplified_case,
             round_number=self.round_number - 1,
-        ).first()
-
-    @property
-    def equivalent_equality_body_statement_retest(self) -> StatementAudit | None:
-        """Return matching equality body statement retest"""
-        return StatementAudit.objects.filter(
-            simplified_case=self.simplified_case,
-            audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY,
-            round_number=self.round_number,
         ).first()
 
     @property
@@ -812,15 +805,6 @@ class StatementAudit(AuditRound):
         else:
             round_suffix: str = f" #{self.round_number}"
         return f"{self.simplified_case} {self.get_audit_round_type_display()}{round_suffix} ({amp_format_date(self.date_of_test)})"
-
-    @property
-    def previous_equality_body_retest(self):
-        """Return previous equality body retest"""
-        return StatementAudit.objects.filter(
-            simplified_case=self.simplified_case,
-            audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
-            round_number=self.round_number - 1,
-        ).first()
 
     @property
     def equivalent_equality_body_wcag_retest(self) -> WcagAudit | None:
@@ -1437,7 +1421,7 @@ class WcagCheckResultRetest(models.Model):
             ).first()
         return WcagCheckResultRetest.objects.filter(
             wcag_check_result_initial=self.wcag_check_result_initial,
-            wcag_audit=self.wcag_audit.previous_equality_body_retest,
+            wcag_audit=self.wcag_audit.equality_body_previous_wcag_audit,
         ).first()
 
 

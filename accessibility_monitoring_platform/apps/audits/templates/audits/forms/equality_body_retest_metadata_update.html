@@ -28,9 +28,9 @@
                         <b>
                             <p class="govuk-body-m">
                                 Retest continued from
-                                {% if wcag_audit.previous_equality_body_retest %}
-                                    <a href="{% url 'audits:retest-metadata-update' wcag_audit.previous_equality_body_retest.id %}" class="govuk-link govuk-link--no-visited-state">
-                                        {{ wcag_audit.previous_equality_body_retest.equality_body_retest_name }}</a>.
+                                {% if wcag_audit.equality_body_previous_wcag_audit %}
+                                    <a href="{% url 'audits:retest-metadata-update' wcag_audit.equality_body_previous_wcag_audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                                        {{ wcag_audit.equality_body_previous_wcag_audit.equality_body_retest_name }}</a>.
                                 {% elif wcag_audit.simplified_case.audit_overview.first_twelve_week_wcag_audit %}
                                     <a href="{% url 'audits:edit-audit-retest-metadata' wcag_audit.simplified_case.audit_overview.first_twelve_week_wcag_audit.id %}" class="govuk-link govuk-link--no-visited-state">
                                         12-week retest</a>.
