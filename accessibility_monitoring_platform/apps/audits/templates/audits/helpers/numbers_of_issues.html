@@ -1,7 +1,7 @@
 <h2 class="govuk-heading-s amp-margin-bottom-5 {% if fontsize == 'm' %} govuk-!-font-size-19 {% else %} govuk-!-font-size-16 {% endif %}">WCAG issues</h2>
-<p class="govuk-body-s amp-margin-bottom-10 {% if fontsize == 'm' %} govuk-!-font-size-19 {% else %} govuk-!-font-size-16 {% endif %}">Initial test: {{ case.audit_overview.initial_wcag_audit.wcag_failed_check_result_initials.count }}</p>
+<p class="govuk-body-s amp-margin-bottom-10 {% if fontsize == 'm' %} govuk-!-font-size-19 {% else %} govuk-!-font-size-16 {% endif %}">Initial test: {{ case.audit_overview.initial_wcag_audit.failed_wcag_check_result_initials.count }}</p>
 <p class="govuk-body-s amp-margin-bottom-10 {% if fontsize == 'm' %} govuk-!-font-size-19 {% else %} govuk-!-font-size-16 {% endif %}">
-    Retest: {{ case.audit_overview.first_twelve_week_wcag_audit.wcag_unfixed_check_result_retests.count }}
+    Retest: {{ case.audit_overview.first_twelve_week_wcag_audit.unfixed_wcag_check_result_retests.count }}
     {% if case.audit_overview %}
         ({{ case.audit_overview.first_twelve_week_wcag_audit.percentage_wcag_issues_fixed }}% fixed)
     {% endif %}

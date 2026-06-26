@@ -6,9 +6,9 @@ Please review the issues listed below and provide an update.
 <br>
 <br>
 WcagAudit 12-week: {{case.audit_overview.first_twelve_week_wcag_audit}}<br>
-wcag_unfixed_check_result_retests: {{case.audit_overview.first_twelve_week_wcag_audit.wcag_unfixed_check_result_retests}}<br>
+unfixed_wcag_check_result_retests: {{case.audit_overview.first_twelve_week_wcag_audit.unfixed_wcag_check_result_retests}}<br>
 retestable_wcag_page_retests: {{case.audit_overview.first_twelve_week_wcag_audit.retestable_wcag_page_retests }}<br>
-{% if case.audit_overview.first_twelve_week_wcag_audit.wcag_unfixed_check_result_retests %}
+{% if case.audit_overview.first_twelve_week_wcag_audit.unfixed_wcag_check_result_retests %}
     {% for page in case.audit_overview.first_twelve_week_wcag_audit.retestable_wcag_page_retests %}
     {% if page.unfixed_wcag_check_result_retests %}
     <h2>{{ page }}{% if page.page_type != 'pdf' %} page{% endif %} issues</h2>

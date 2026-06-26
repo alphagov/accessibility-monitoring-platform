@@ -391,7 +391,7 @@ def other_page_failed_check_results(
     )
     for (
         check_result
-    ) in wcag_page_initial.wcag_audit.wcag_failed_check_result_initials.exclude(
+    ) in wcag_page_initial.wcag_audit.failed_wcag_check_result_initials.exclude(
         wcag_page_initial=wcag_page_initial
     ):
         if check_result.wcag_definition in failed_check_results_by_wcag_definition:
@@ -534,7 +534,7 @@ def get_audit_summary_context(
     if initial_wcag_audit is not None:
         for (
             wcag_failed_check_result_initial
-        ) in initial_wcag_audit.wcag_failed_check_result_initials:
+        ) in initial_wcag_audit.failed_wcag_check_result_initials:
             summary_wcag_check_result: SummaryWcagCheckResult = SummaryWcagCheckResult(
                 wcag_definition=wcag_failed_check_result_initial.wcag_definition,
                 wcag_page_initial=wcag_failed_check_result_initial.wcag_page_initial,

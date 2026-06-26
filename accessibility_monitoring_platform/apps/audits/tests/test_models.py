@@ -909,7 +909,7 @@ def test_wcag_audit_retestable_wcag_page_retests():
 
 
 @pytest.mark.django_db
-def test_wcag_audit_missing_at_retest_pages():
+def test_wcag_audit_wcag_page_retests_missing_at_retest():
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
     twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
@@ -928,6 +928,179 @@ def test_wcag_audit_missing_at_retest_pages():
         twelve_week_wcag_audit.wcag_page_retests_missing_at_retest[0]
         == wcag_page_retest
     )
+
+
+@pytest.mark.django_db
+def test_wcag_audit_failed_wcag_check_result_initials_returns_only_failed_checks():
+    """
+    Test failed_wcag_check_result_initials attribute of WcagAudit returns only check
+    results where failed is "yes".
+    """
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+
+    assert len(wcag_audit.failed_wcag_check_result_initials) == 0
+
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        wcag_audit.wcagcheckresultinitial_set.all().first()
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+
+    assert len(wcag_audit.failed_wcag_check_result_initials) == 1
+
+
+@pytest.mark.django_db
+def test_wcag_audit_failed_check_result_initials_for_deleted_page_not_returned():
+    """
+    Test failed_wcag_check_result_initials attribute of audit returns only check
+    results where failed is "yes" and associated page has not been deleted.
+    """
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        wcag_audit.wcagcheckresultinitial_set.all().first()
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+
+    assert len(wcag_audit.failed_wcag_check_result_initials) == 1
+
+    wcag_page_initial: WcagPageInitial = wcag_check_result_initial.wcag_page_initial
+    wcag_page_initial.is_deleted = True
+    wcag_page_initial.save()
+
+    assert len(wcag_audit.failed_wcag_check_result_initials) == 0
+
+
+@pytest.mark.django_db
+def test_wcag_audit_wcag_failed_check_result_initials_for_is_contact_page_page_not_returned():
+    """
+    Test failed_wcag_check_result_initials attribute of audit returns only check
+    results where failed is "yes" and associated page has not got is_contact_page
+    (used for form pages) is not set.
+    """
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        wcag_audit.wcagcheckresultinitial_set.all().first()
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+
+    assert len(wcag_audit.failed_wcag_check_result_initials) == 1
+
+    wcag_page_initial: WcagPageInitial = wcag_check_result_initial.wcag_page_initial
+    wcag_page_initial.is_contact_page = Boolean.YES
+    wcag_page_initial.save()
+
+    assert len(wcag_audit.failed_wcag_check_result_initials) == 0
+
+
+@pytest.mark.django_db
+def test_wcag_audit_wcag_check_result_retests():
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.first_twelve_week_wcag_audit
+    )
+
+    assert twelve_week_wcag_audit.wcag_check_result_retests.count() == 11
+
+    first_wcag_check_result_retest: WcagCheckResultRetest = (
+        twelve_week_wcag_audit.wcag_check_result_retests.first()
+    )
+    first_wcag_check_result_retest.is_deleted = True
+    first_wcag_check_result_retest.save()
+
+    assert twelve_week_wcag_audit.wcag_check_result_retests.count() == 10
+    last_wcag_check_result_retest: WcagCheckResultRetest = (
+        twelve_week_wcag_audit.wcag_check_result_retests.last()
+    )
+    last_wcag_check_result_retest.is_deleted = True
+    last_wcag_check_result_retest.save()
+    wcag_page_initial: WcagPageInitial = (
+        last_wcag_check_result_retest.wcag_check_result_initial.wcag_page_initial
+    )
+    wcag_page_initial.not_found = Boolean.YES
+    wcag_page_initial.save()
+
+    assert twelve_week_wcag_audit.wcag_check_result_retests.count() == 8
+
+
+@pytest.mark.django_db
+def test_wcag_audit_fixed_wcag_check_result_retests():
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit
+    )
+
+    assert twelve_week_wcag_audit.fixed_wcag_check_result_retests.count() == 0
+
+    wcag_check_result_retest: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.filter(wcag_audit=twelve_week_wcag_audit).first()
+    )
+    wcag_check_result_retest.retest_state = WcagCheckResultRetest.RetestResult.FIXED
+    wcag_check_result_retest.save()
+
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        wcag_check_result_retest.wcag_check_result_initial
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+
+    assert twelve_week_wcag_audit.fixed_wcag_check_result_retests.count() == 1
+    assert (
+        twelve_week_wcag_audit.fixed_wcag_check_result_retests[0].id
+        == wcag_check_result_retest.id
+    )
+
+
+@pytest.mark.django_db
+def test_wcag_audit_unfixed_wcag_check_result_retests():
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit
+    )
+    for counter, wcag_check_result_initial in enumerate(
+        WcagCheckResultInitial.objects.filter(wcag_audit=initial_wcag_audit)
+    ):
+        wcag_check_result_initial.check_result_state = (
+            WcagCheckResultInitial.Result.ERROR
+        )
+        wcag_check_result_initial.save()
+        if counter > 2:
+            break
+
+    assert twelve_week_wcag_audit.unfixed_wcag_check_result_retests.count() == 4
+
+    wcag_check_result_retest: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.filter(wcag_audit=twelve_week_wcag_audit).first()
+    )
+    wcag_check_result_retest.retest_state = WcagCheckResultRetest.RetestResult.FIXED
+    wcag_check_result_retest.save()
+
+    assert twelve_week_wcag_audit.unfixed_wcag_check_result_retests.count() == 3
+
+
+@pytest.mark.django_db
+def test_wcag_audit_failed_wcag_check_result_retests_for_missing_page_not_returned():
+    """
+    Test failed_wcag_check_result_retests attribute of audit returns only check
+    results where retest page missing is not set.
+    """
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        wcag_audit.wcagcheckresultinitial_set.all().first()
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+
+    assert len(wcag_audit.failed_wcag_check_result_initials) == 1
+
+    wcag_page_initial: WcagPageInitial = wcag_check_result_initial.wcag_page_initial
+    wcag_page_initial.page_missing_date = TODAY
+    wcag_page_initial.save()
+
+    assert len(wcag_audit.failed_wcag_check_result_retests) == 0
 
 
 # Older tests below
@@ -1025,92 +1198,6 @@ def test_wcag_page_initial_anchor():
 
 
 @pytest.mark.django_db
-def test_wcag_audit_wcag_failed_check_result_initials_returns_only_failed_checks():
-    """
-    Test wcag_failed_check_result_initials attribute of WcagAudit returns only check
-    results where failed is "yes".
-    """
-    wcag_audit: WcagAudit = create_initial_wcag_audit()
-
-    assert len(wcag_audit.wcag_failed_check_result_initials) == 0
-
-    wcag_check_result_initial: WcagCheckResultInitial = (
-        wcag_audit.wcagcheckresultinitial_set.all().first()
-    )
-    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
-    wcag_check_result_initial.save()
-
-    assert len(wcag_audit.wcag_failed_check_result_initials) == 1
-
-
-@pytest.mark.django_db
-def test_audit_wcag_failed_check_result_initials_for_deleted_page_not_returned():
-    """
-    Test wcag_failed_check_result_initials attribute of audit returns only check
-    results where failed is "yes" and associated page has not been deleted.
-    """
-    wcag_audit: WcagAudit = create_initial_wcag_audit()
-    wcag_check_result_initial: WcagCheckResultInitial = (
-        wcag_audit.wcagcheckresultinitial_set.all().first()
-    )
-    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
-    wcag_check_result_initial.save()
-
-    assert len(wcag_audit.wcag_failed_check_result_initials) == 1
-
-    wcag_page_initial: WcagPageInitial = wcag_check_result_initial.wcag_page_initial
-    wcag_page_initial.is_deleted = True
-    wcag_page_initial.save()
-
-    assert len(wcag_audit.wcag_failed_check_result_initials) == 0
-
-
-@pytest.mark.django_db
-def test_wcag_audit_wcag_failed_check_result_retests_for_missing_page_not_returned():
-    """
-    Test wcag_failed_check_result_retests attribute of audit returns only check
-    results where retest page missing is not set.
-    """
-    wcag_audit: WcagAudit = create_initial_wcag_audit()
-    wcag_check_result_initial: WcagCheckResultInitial = (
-        wcag_audit.wcagcheckresultinitial_set.all().first()
-    )
-    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
-    wcag_check_result_initial.save()
-
-    assert len(wcag_audit.wcag_failed_check_result_initials) == 1
-
-    wcag_page_initial: WcagPageInitial = wcag_check_result_initial.wcag_page_initial
-    wcag_page_initial.page_missing_date = TODAY
-    wcag_page_initial.save()
-
-    assert len(wcag_audit.wcag_failed_check_result_retests) == 0
-
-
-@pytest.mark.django_db
-def test_wcag_audit_failed_check_results_for_is_contact_page_page_not_returned():
-    """
-    Test failed_check_results attribute of audit returns only check results where
-    failed is "yes" and associated page has not got is_contact_page (used for form
-    pages) is not set.
-    """
-    wcag_audit: WcagAudit = create_initial_wcag_audit()
-    wcag_check_result_initial: WcagCheckResultInitial = (
-        wcag_audit.wcagcheckresultinitial_set.all().first()
-    )
-    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
-    wcag_check_result_initial.save()
-
-    assert len(wcag_audit.wcag_failed_check_result_initials) == 1
-
-    wcag_page_initial: WcagPageInitial = wcag_check_result_initial.wcag_page_initial
-    wcag_page_initial.is_contact_page = Boolean.YES
-    wcag_page_initial.save()
-
-    assert len(wcag_audit.wcag_failed_check_result_initials) == 0
-
-
-@pytest.mark.django_db
 def test_wcag_audit_accessibility_statement_wcag_page_initial_returns_page():
     wcag_audit: WcagAudit = create_initial_wcag_audit()
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
@@ -1139,9 +1226,9 @@ def test_wcag_page_initial_all_wcag_check_result_initials_returns_check_results(
 
 
 @pytest.mark.django_db
-def test_wcag_audit_wcag_failed_check_result_initials_returns_statement_check_results_last():
+def test_wcag_audit_failed_wcag_check_result_initials_returns_statement_check_results_last():
     """
-    Test wcag_failed_check_result_initials attribute of page returns Statement page
+    Test failed_wcag_check_result_initials attribute of page returns Statement page
     check results last.
     """
     wcag_audit: WcagAudit = create_initial_wcag_audit()
@@ -1153,9 +1240,9 @@ def test_wcag_audit_wcag_failed_check_result_initials_returns_statement_check_re
         )
         wcag_check_result_initial.save()
 
-    assert len(wcag_audit.wcag_failed_check_result_initials) > 3
+    assert len(wcag_audit.failed_wcag_check_result_initials) > 3
     assert (
-        wcag_audit.wcag_failed_check_result_initials.last().wcag_page_initial.page_type
+        wcag_audit.failed_wcag_check_result_initials.last().wcag_page_initial.page_type
         == WcagPageInitial.Type.STATEMENT
     )
 
@@ -1268,14 +1355,13 @@ def test_wcag_check_result_initial_updated_updated():
 
 
 @pytest.mark.django_db
-def test_audit_fixed_check_results():
-    """Test that wcag_fixed_check_result_retests returns the expected values"""
+def test_wcag_audit_fixed_check_results():
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
     twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
 
-    assert twelve_week_wcag_audit.wcag_fixed_check_result_retests.count() == 0
+    assert twelve_week_wcag_audit.fixed_wcag_check_result_retests.count() == 0
 
     wcag_check_result_retest: WcagCheckResultRetest = (
         WcagCheckResultRetest.objects.filter(wcag_audit=twelve_week_wcag_audit).first()
@@ -1289,39 +1375,11 @@ def test_audit_fixed_check_results():
     wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
     wcag_check_result_initial.save()
 
-    assert twelve_week_wcag_audit.wcag_fixed_check_result_retests.count() == 1
+    assert twelve_week_wcag_audit.fixed_wcag_check_result_retests.count() == 1
     assert (
-        twelve_week_wcag_audit.wcag_fixed_check_result_retests[0].id
+        twelve_week_wcag_audit.fixed_wcag_check_result_retests[0].id
         == wcag_check_result_retest.id
     )
-
-
-@pytest.mark.django_db
-def test_audit_wcag_unfixed_check_result_retests():
-    """Test that wcag_unfixed_check_result_retests returns the expected values"""
-    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
-        initial_wcag_audit=initial_wcag_audit
-    )
-    for counter, wcag_check_result_initial in enumerate(
-        WcagCheckResultInitial.objects.filter(wcag_audit=initial_wcag_audit)
-    ):
-        wcag_check_result_initial.check_result_state = (
-            WcagCheckResultInitial.Result.ERROR
-        )
-        wcag_check_result_initial.save()
-        if counter > 2:
-            break
-
-    assert twelve_week_wcag_audit.wcag_unfixed_check_result_retests.count() == 4
-
-    wcag_check_result_retest: WcagCheckResultRetest = (
-        WcagCheckResultRetest.objects.filter(wcag_audit=twelve_week_wcag_audit).first()
-    )
-    wcag_check_result_retest.retest_state = WcagCheckResultRetest.RetestResult.FIXED
-    wcag_check_result_retest.save()
-
-    assert twelve_week_wcag_audit.wcag_unfixed_check_result_retests.count() == 3
 
 
 def test_statement_check_str():
@@ -1760,7 +1818,7 @@ def test_fixed_checks_count_at_12_week():
         initial_wcag_audit=initial_wcag_audit
     )
 
-    assert twelve_week_wcag_audit.wcag_fixed_check_result_retests.count() == 0
+    assert twelve_week_wcag_audit.fixed_wcag_check_result_retests.count() == 0
 
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
         wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.HOME
@@ -1774,12 +1832,12 @@ def test_fixed_checks_count_at_12_week():
     wcag_check_result_retest.retest_state = WcagCheckResultRetest.RetestResult.FIXED
     wcag_check_result_retest.save()
 
-    assert twelve_week_wcag_audit.wcag_fixed_check_result_retests.count() == 1
+    assert twelve_week_wcag_audit.fixed_wcag_check_result_retests.count() == 1
 
     wcag_page_initial.not_found = Boolean.YES
     wcag_page_initial.save()
 
-    assert twelve_week_wcag_audit.wcag_fixed_check_result_retests.count() == 0
+    assert twelve_week_wcag_audit.fixed_wcag_check_result_retests.count() == 0
 
 
 @pytest.mark.django_db
@@ -1793,7 +1851,7 @@ def test_fixed_checks_count_in_equality_body_retests():
         initial_wcag_audit=initial_wcag_audit
     )
 
-    assert twelve_week_wcag_audit.wcag_fixed_check_result_retests.count() == 0
+    assert twelve_week_wcag_audit.fixed_wcag_check_result_retests.count() == 0
 
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
         wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.HOME
@@ -1807,12 +1865,12 @@ def test_fixed_checks_count_in_equality_body_retests():
     wcag_check_result_retest.retest_state = WcagCheckResultRetest.RetestResult.FIXED
     wcag_check_result_retest.save()
 
-    assert twelve_week_wcag_audit.wcag_fixed_check_result_retests.count() == 1
+    assert twelve_week_wcag_audit.fixed_wcag_check_result_retests.count() == 1
 
     wcag_page_initial.not_found = Boolean.YES
     wcag_page_initial.save()
 
-    assert twelve_week_wcag_audit.wcag_fixed_check_result_retests.count() == 0
+    assert twelve_week_wcag_audit.fixed_wcag_check_result_retests.count() == 0
 
 
 @pytest.mark.django_db

@@ -250,7 +250,7 @@ class RetestComparisonUpdateView(EqualityBodyRetestWcagAuditUpdateView):
         context["hide_fixed"] = hide_fixed
 
         retest_check_results: QuerySet[WcagCheckResultRetest] = (
-            wcag_audit.wcag_unfixed_check_result_retests
+            wcag_audit.unfixed_wcag_check_result_retests
             if hide_fixed
             else wcag_audit.wcag_check_result_retests
         )

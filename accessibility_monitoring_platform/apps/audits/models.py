@@ -615,7 +615,7 @@ class WcagAudit(AuditRound):
         return self.wcag_page_retests.exclude(page_missing_date=None)
 
     @property
-    def wcag_failed_check_result_initials(self) -> QuerySet[WcagCheckResultInitial]:
+    def failed_wcag_check_result_initials(self) -> QuerySet[WcagCheckResultInitial]:
         return (
             self.wcagcheckresultinitial_set.filter(
                 is_deleted=False,
@@ -644,13 +644,32 @@ class WcagAudit(AuditRound):
         )
 
     @property
-    def wcag_failed_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
+    def wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
+        return self.wcagcheckresultretest_set.filter(
+            is_deleted=False,
+            wcag_check_result_initial__wcag_page_initial__not_found=Boolean.NO,
+        )
+
+    @property
+    def fixed_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
+        return self.wcag_check_result_retests.filter(
+            retest_state=WcagCheckResultRetest.RetestResult.FIXED,
+        )
+
+    @property
+    def unfixed_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
+        return self.wcag_check_result_retests.filter(
+            wcag_check_result_initial__check_result_state=WcagCheckResultInitial.Result.ERROR
+        ).exclude(
+            retest_state=WcagCheckResultRetest.RetestResult.FIXED,
+        )
+
+    @property
+    def failed_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
         return (
-            self.wcagcheckresultretest_set.filter(
-                is_deleted=False,
+            self.wcag_check_result_retests.filter(
                 wcag_check_result_initial__check_result_state=WcagCheckResultInitial.Result.ERROR,
                 wcag_check_result_initial__wcag_page_initial__is_deleted=False,
-                wcag_check_result_initial__wcag_page_initial__not_found=Boolean.NO,
                 wcag_check_result_initial__wcag_page_initial__is_contact_page=Boolean.NO,
                 wcag_page_retest__page_missing_date=None,
             )
@@ -680,31 +699,10 @@ class WcagAudit(AuditRound):
         )
 
     @property
-    def wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
-        return self.wcagcheckresultretest_set.filter(
-            is_deleted=False,
-            wcag_check_result_initial__wcag_page_initial__not_found=Boolean.NO,
-        )
-
-    @property
-    def wcag_fixed_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
-        return self.wcag_check_result_retests.filter(
-            retest_state=WcagCheckResultRetest.RetestResult.FIXED,
-        )
-
-    @property
-    def wcag_unfixed_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
-        return self.wcag_check_result_retests.filter(
-            wcag_check_result_initial__check_result_state=WcagCheckResultInitial.Result.ERROR
-        ).exclude(
-            retest_state=WcagCheckResultRetest.RetestResult.FIXED,
-        )
-
-    @property
     def percentage_wcag_issues_fixed(self) -> int:
         return calculate_percentage(
-            total=self.simplified_case.audit_overview.initial_wcag_audit.wcag_failed_check_result_initials.count(),
-            partial=self.wcag_fixed_check_result_retests.count(),
+            total=self.simplified_case.audit_overview.initial_wcag_audit.failed_wcag_check_result_initials.count(),
+            partial=self.fixed_wcag_check_result_retests.count(),
         )
 
     @property
@@ -1355,7 +1353,7 @@ class WcagCheckResultInitial(models.Model):
     def matching_wcag_with_notes_check_results(self) -> dict[str, str]:
         """Other check results with notes for matching WcagDefinition"""
         return (
-            self.wcag_audit.wcag_failed_check_result_initials.filter(
+            self.wcag_audit.failed_wcag_check_result_initials.filter(
                 wcag_definition=self.wcag_definition
             )
             .exclude(wcag_page_initial=self.wcag_page_initial)

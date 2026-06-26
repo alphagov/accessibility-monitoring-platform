@@ -16,7 +16,7 @@
                 </tr>
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Initial issues</b></td>
-                    <td class="amp-padding-bottom-10">{{ initial_wcag_audit.wcag_failed_check_result_initials.count }}</td>
+                    <td class="amp-padding-bottom-10">{{ initial_wcag_audit.failed_wcag_check_result_initials.count }}</td>
                 </tr>
                 <tr>
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>12-week WCAG compliance decision</b></td>
@@ -32,7 +32,7 @@
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Issues remaining at 12-weeks</b></td>
                     <td class="amp-padding-bottom-10">
                         {% if wcag_audit_12_week %}
-                            {{ wcag_audit_12_week.wcag_unfixed_check_result_retests.count }} issues
+                            {{ wcag_audit_12_week.unfixed_wcag_check_result_retests.count }} issues
                             ({{ wcag_audit_12_week.percentage_wcag_issues_fixed }}% fixed)
                         {% else %}
                             0 issues (0% fixed)
@@ -132,7 +132,7 @@
                     <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top"><b>Issues remaining at 12-weeks</b></td>
                     <td class="amp-padding-bottom-10">
                         {% if wcag_audit_12_week %}
-                            {{ wcag_audit_12_week.wcag_unfixed_check_result_retests.count }} issues
+                            {{ wcag_audit_12_week.unfixed_wcag_check_result_retests.count }} issues
                             ({{ wcag_audit_12_week.percentage_wcag_issues_fixed }}% fixed)
                         {% else %}
                             0 issues (0% fixed)
