@@ -444,7 +444,7 @@ class AuditRound(VersionModel):
     )
     round_number = models.IntegerField(default=0, blank=True)
     updated = models.DateTimeField(null=True, blank=True)
-    date_of_test = models.DateField(default=date.today)
+    date_of_test = models.DateField()
     notes = models.TextField(default="", blank=True)
     is_deleted = models.BooleanField(default=False)
 
@@ -454,10 +454,12 @@ class AuditRound(VersionModel):
 
     def save(self, *args, **kwargs) -> None:
         self.updated = timezone.now()
+        if not self.date_of_test:
+            self.date_of_test = timezone.now().date()
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:
-        return f"{self.simplified_case} {self.get_audit_round_type_display()}{self.round_suffix} ({amp_format_date(self.date_of_test)})"
+        return f"{self.simplified_case} {type(self).__name__} {self.short_name_with_date_of_test}"
 
     @property
     def round_suffix(self) -> str:
@@ -471,11 +473,13 @@ class AuditRound(VersionModel):
             round_suffix: str = f" #{round_number}"
         return round_suffix
 
+    @property
     def short_name(self) -> str:
         return f"{self.get_audit_round_type_display()}{self.round_suffix}"
 
+    @property
     def short_name_with_date_of_test(self) -> str:
-        return f"{self.get_audit_round_type_display()}{self.round_suffix} ({amp_format_date(self.date_of_test)})"
+        return self.short_name + f" ({amp_format_date(self.date_of_test)})"
 
 
 class WcagAudit(AuditRound):

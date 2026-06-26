@@ -3,6 +3,7 @@ Tests for cases models
 """
 
 from datetime import date, datetime, timedelta, timezone
+from typing import Type
 from unittest.mock import Mock, patch
 
 import pytest
@@ -13,6 +14,7 @@ from ...common.models import Boolean
 from ...simplified.models import SimplifiedCase
 from ..models import (
     AuditOverview,
+    AuditRound,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
@@ -54,6 +56,7 @@ GOOGLE_DRIVE_LINK: str = "https://drive.google.com/link1"
 NON_GOOGLE_DRIVE_LINK: str = "https://example.com/link2"
 STATEMENT_PAGE_URL: str = "https://example.com/statement"
 STATEMENT_PAGE_LOCATION: str = "Statement location"
+DATETIME_AUDIT_CREATED: datetime = datetime(2021, 4, 1, tzinfo=timezone.utc)
 
 
 @pytest.mark.django_db
@@ -624,6 +627,57 @@ def test_audit_overview_last_edited():
         )
 
     assert audit_overview.last_edited == DATETIME_PAGE_UPDATED + timedelta(days=5)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("audit_class", [StatementAudit, WcagAudit])
+@pytest.mark.parametrize(
+    "audit_round_type,attr_name,expected_result",
+    [
+        (AuditRound.AuditRoundType.INITIAL, "round_suffix", ""),
+        (AuditRound.AuditRoundType.TWELVE_WEEK, "round_suffix", ""),
+        (AuditRound.AuditRoundType.EQUALITY_BODY, "round_suffix", " #-1"),
+        (AuditRound.AuditRoundType.INITIAL, "short_name", "Initial test"),
+        (AuditRound.AuditRoundType.TWELVE_WEEK, "short_name", "12-week retest"),
+        (
+            AuditRound.AuditRoundType.EQUALITY_BODY,
+            "short_name",
+            "Equality body retest #-1",
+        ),
+        (
+            AuditRound.AuditRoundType.INITIAL,
+            "short_name_with_date_of_test",
+            "Initial test (1 April 2021)",
+        ),
+        (
+            AuditRound.AuditRoundType.TWELVE_WEEK,
+            "short_name_with_date_of_test",
+            "12-week retest (1 April 2021)",
+        ),
+        (
+            AuditRound.AuditRoundType.EQUALITY_BODY,
+            "short_name_with_date_of_test",
+            "Equality body retest #-1 (1 April 2021)",
+        ),
+    ],
+)
+def test_audit_round_attrs(
+    audit_class: Type[StatementAudit] | Type[WcagAudit],
+    audit_round_type: AuditRound.AuditRoundType,
+    attr_name: str,
+    expected_result: str,
+):
+    """Test attributes of subclasses of AuditRound"""
+    with patch(
+        "django.utils.timezone.now",
+        Mock(return_value=DATETIME_AUDIT_CREATED),
+    ):
+        simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+        audit: StatementAudit | WcagAudit = audit_class.objects.create(
+            simplified_case=simplified_case, audit_round_type=audit_round_type
+        )
+
+    assert getattr(audit, attr_name) == expected_result
 
 
 @pytest.mark.django_db
