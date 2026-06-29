@@ -464,8 +464,8 @@ class AuditRound(VersionModel):
     @property
     def round_suffix(self) -> str:
         if (
-            self.audit_round_type == WcagAudit.AuditRoundType.INITIAL
-            or self.audit_round_type == WcagAudit.AuditRoundType.TWELVE_WEEK
+            self.audit_round_type == AuditRound.AuditRoundType.INITIAL
+            or self.audit_round_type == AuditRound.AuditRoundType.TWELVE_WEEK
         ):
             round_suffix: str = ""
         else:
@@ -790,13 +790,6 @@ class StatementAudit(AuditRound):
         if self.id is None:
             self.round_number = self.simplified_case.statementaudit_set.all().count()
         super().save(*args, **kwargs)
-
-    def __str__(self) -> str:
-        if self.audit_round_type == WcagAudit.AuditRoundType.INITIAL:
-            round_suffix: str = ""
-        else:
-            round_suffix: str = f" #{self.round_number}"
-        return f"{self.simplified_case} {self.get_audit_round_type_display()}{round_suffix} ({amp_format_date(self.date_of_test)})"
 
     @property
     def equivalent_equality_body_wcag_retest(self) -> WcagAudit | None:

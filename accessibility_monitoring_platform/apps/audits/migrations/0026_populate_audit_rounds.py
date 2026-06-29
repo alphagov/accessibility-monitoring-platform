@@ -261,6 +261,8 @@ def populate_audit_rounds(apps, schema_editor):
         for retest in Retest.objects.filter(
             simplified_case=audit.simplified_case
         ).order_by("id"):
+            if retest.id_within_case == 0:
+                continue  # Don't copy copies of 12-week test reaults.
             round_number: int = WcagAudit.objects.filter(
                 simplified_case=retest.simplified_case
             ).count()

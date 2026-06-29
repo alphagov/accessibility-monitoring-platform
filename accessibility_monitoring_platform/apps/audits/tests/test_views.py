@@ -3967,6 +3967,127 @@ def test_equality_body_retest_metadata_update_redirects_to_retest_page_checks(
     assert response.url == expected_path
 
 
+def test_equality_body_retest_metadata_continued_from_initial(
+    admin_client,
+):
+    """
+    Test that a equality body retest metadata page contains a link to the previous
+    round of testing.
+    """
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    initial_wcag_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case
+    )
+    StatementAudit.objects.create(simplified_case=simplified_case)
+    equality_body_wcag_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
+    StatementAudit.objects.create(simplified_case=simplified_case)
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:retest-metadata-update", kwargs={"pk": equality_body_wcag_audit.id}
+        ),
+    )
+
+    assert response.status_code == 200
+
+    initial_edit_url: str = reverse(
+        "audits:edit-audit-metadata", kwargs={"pk": initial_wcag_audit.id}
+    )
+    assertContains(
+        response,
+        f"""<a href="{initial_edit_url}" class="govuk-link govuk-link--no-visited-state>Initial test</a>""",
+        html=True,
+    )
+
+
+def test_equality_body_retest_metadata_continued_from_twelve_week(
+    admin_client,
+):
+    """
+    Test that a equality body retest metadata page contains a link to the previous
+    round of testing.
+    """
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    WcagAudit.objects.create(simplified_case=simplified_case)
+    StatementAudit.objects.create(simplified_case=simplified_case)
+    twelve_week_wcag_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
+    StatementAudit.objects.create(simplified_case=simplified_case)
+    equality_body_wcag_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
+    StatementAudit.objects.create(simplified_case=simplified_case)
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:retest-metadata-update", kwargs={"pk": equality_body_wcag_audit.id}
+        ),
+    )
+
+    assert response.status_code == 200
+
+    twelve_week_edit_url: str = reverse(
+        "audits:edit-audit-retest-metadata", kwargs={"pk": twelve_week_wcag_audit.id}
+    )
+    assertContains(
+        response,
+        f"""<a href="{twelve_week_edit_url}" class="govuk-link govuk-link--no-visited-state>12-week retest</a>""",
+        html=True,
+    )
+
+
+def test_equality_body_retest_metadata_continued_from_previous_retest(
+    admin_client,
+):
+    """
+    Test that a equality body retest metadata page contains a link to the previous
+    round of testing.
+    """
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    WcagAudit.objects.create(simplified_case=simplified_case)
+    StatementAudit.objects.create(simplified_case=simplified_case)
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
+    StatementAudit.objects.create(simplified_case=simplified_case)
+    previous_equality_body_wcag_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
+    StatementAudit.objects.create(simplified_case=simplified_case)
+    equality_body_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
+    StatementAudit.objects.create(simplified_case=simplified_case)
+
+    response: HttpResponse = admin_client.get(
+        reverse("audits:retest-metadata-update", kwargs={"pk": equality_body_audit.id}),
+    )
+
+    assert response.status_code == 200
+
+    previous_retest_url: str = reverse(
+        "audits:retest-metadata-update",
+        kwargs={"pk": previous_equality_body_wcag_audit.id},
+    )
+    assertContains(
+        response,
+        f"""<a href="{previous_retest_url}" class="govuk-link govuk-link--no-visited-state>{previous_equality_body_wcag_audit.equality_body_retest_name}</a>""",
+        html=True,
+    )
+
+
 def test_equality_body_page_checks_save(
     admin_client,
 ):
