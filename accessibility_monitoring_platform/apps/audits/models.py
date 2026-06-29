@@ -712,7 +712,7 @@ class WcagAudit(AuditRound):
         )
 
     @property
-    def missing_at_retest_check_results(self):
+    def missing_at_retest_check_results(self) -> QuerySet[WcagCheckResultRetest]:
         return self.wcagcheckresultretest_set.filter(
             is_deleted=False,
             wcag_page_retest__in=self.missing_wcag_page_retests,

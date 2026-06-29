@@ -1103,6 +1103,76 @@ def test_wcag_audit_failed_wcag_check_result_retests_for_missing_page_not_return
     assert len(wcag_audit.failed_wcag_check_result_retests) == 0
 
 
+@pytest.mark.django_db
+def test_wcag_audit_percentage_wcag_issues_fixed():
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    initial_wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
+    first_twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.first_twelve_week_wcag_audit
+    )
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.filter(wcag_audit=initial_wcag_audit).first()
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+    wcag_check_result_retest: WcagCheckResultRetest = WcagCheckResultRetest.objects.get(
+        wcag_check_result_initial=wcag_check_result_initial
+    )
+
+    assert first_twelve_week_wcag_audit.percentage_wcag_issues_fixed == 0
+
+    wcag_check_result_retest.retest_state = WcagCheckResultRetest.RetestResult.FIXED
+    wcag_check_result_retest.save()
+
+    assert first_twelve_week_wcag_audit.percentage_wcag_issues_fixed == 100
+
+
+@pytest.mark.django_db
+def test_wcag_audit_missing_wcag_page_retests():
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    first_twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.first_twelve_week_wcag_audit
+    )
+
+    assert first_twelve_week_wcag_audit.missing_wcag_page_retests.count() == 0
+
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_page_initial__page_type=WcagPageInitial.Type.HOME
+    )
+    wcag_page_retest.page_missing_date = date.today()
+    wcag_page_retest.save()
+
+    assert first_twelve_week_wcag_audit.missing_wcag_page_retests.count() == 1
+    assert (
+        first_twelve_week_wcag_audit.missing_wcag_page_retests.first()
+        == wcag_page_retest
+    )
+
+
+@pytest.mark.django_db
+def test_wcag_audit_missing_at_retest_check_results():
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    first_twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.first_twelve_week_wcag_audit
+    )
+
+    assert first_twelve_week_wcag_audit.missing_at_retest_check_results.count() == 0
+
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_page_initial__page_type=WcagPageInitial.Type.HOME
+    )
+    wcag_page_retest.page_missing_date = date.today()
+    wcag_page_retest.save()
+
+    assert first_twelve_week_wcag_audit.missing_at_retest_check_results.count() == 2
+
+
 # Older tests below
 
 
