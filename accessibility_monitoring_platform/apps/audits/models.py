@@ -792,7 +792,7 @@ class StatementAudit(AuditRound):
         super().save(*args, **kwargs)
 
     @property
-    def equivalent_equality_body_wcag_retest(self) -> WcagAudit | None:
+    def equivalent_equality_body_wcag_audit(self) -> WcagAudit | None:
         """Return matching equality body wcag retest"""
         return WcagAudit.objects.filter(
             simplified_case=self.simplified_case,
@@ -809,15 +809,6 @@ class StatementAudit(AuditRound):
     @property
     def overview_statement_check_results(self) -> QuerySet[StatementCheckResultRound]:
         return self.statement_check_results.filter(type=StatementCheck.Type.OVERVIEW)
-
-    @property
-    def statement_found_check(self) -> StatementCheckResultRound | None:
-        return self.overview_statement_check_results.first()
-
-    @property
-    def statement_structure_check(self):
-        """Only worked prior to 30 July 2025 when there was a second overview check"""
-        return self.overview_statement_check_results.last()
 
     @property
     def website_statement_check_results(self) -> QuerySet[StatementCheckResultRound]:
@@ -848,6 +839,15 @@ class StatementAudit(AuditRound):
     @property
     def custom_statement_check_results(self) -> QuerySet[StatementCheckResultRound]:
         return self.statement_check_results.filter(type=StatementCheck.Type.CUSTOM)
+
+    @property
+    def statement_found_check(self) -> StatementCheckResultRound | None:
+        return self.overview_statement_check_results.first()
+
+    @property
+    def statement_structure_check(self):
+        """Only worked prior to 30 July 2025 when there was a second overview check"""
+        return self.overview_statement_check_results.last()
 
     @property
     def new_12_week_custom_statement_check_results(
@@ -1500,9 +1500,9 @@ class StatementCheck(models.Model):
         NON_ACCESSIBLE = "non-accessible", "Non-accessible content"
         PREPARATION = "preparation", "Statement preparation"
         FEEDBACK = "feedback", "Feedback and enforcement procedure"
+        DISPROPORTIONATE = "disproportionate", "Disproportionate burden"
         CUSTOM = "custom", "Custom statement issues"
         RETEST = "retest-custom", "Retest custom statement issues"
-        DISPROPORTIONATE = "disproportionate", "Disproportionate burden"
 
     type = models.CharField(
         max_length=20,

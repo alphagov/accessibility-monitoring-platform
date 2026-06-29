@@ -1173,6 +1173,216 @@ def test_wcag_audit_missing_at_retest_check_results():
     assert first_twelve_week_wcag_audit.missing_at_retest_check_results.count() == 2
 
 
+@pytest.mark.django_db
+def test_statement_audit_save_populates_round_number():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert statement_audit.round_number == 0
+
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert statement_audit.round_number == 1
+
+    statement_audit.save()
+
+    assert statement_audit.round_number == 1
+
+
+@pytest.mark.django_db
+def test_statement_audit_equivalent_equality_body_wcag_audit():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    WcagAudit.objects.create(simplified_case=simplified_case)
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert statement_audit.equivalent_equality_body_wcag_audit is None
+
+    equality_body_wcag_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert (
+        statement_audit.equivalent_equality_body_wcag_audit == equality_body_wcag_audit
+    )
+
+
+@pytest.mark.django_db
+def test_statement_audit_statement_check_results():
+    initial_statement_audit: StatementAudit = create_initial_statement_audit()
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
+        initial_statement_audit=initial_statement_audit
+    )
+
+    assert initial_statement_audit.statement_check_results.count() > 0
+    assertQuerySetEqual(
+        initial_statement_audit.statementcheckresultround_set.all(),
+        initial_statement_audit.statement_check_results,
+    )
+    assertQuerySetEqual(
+        twelve_week_statement_audit.statementcheckresultround_set.all(),
+        twelve_week_statement_audit.statement_check_results,
+    )
+
+
+@pytest.mark.parametrize(
+    "type, attr",
+    [
+        ("overview", "overview"),
+        ("website", "website"),
+        ("compliance", "compliance"),
+        ("non-accessible", "non_accessible"),
+        ("preparation", "preparation"),
+        ("feedback", "feedback"),
+        ("custom", "custom"),
+    ],
+)
+@pytest.mark.django_db
+def test_statement_audit_specific_statement_check_results(type, attr):
+    """
+    Tests specific statement audit statement_check_results property contains the
+    matching statement check results.
+    """
+    initial_statement_audit: StatementAudit = create_initial_statement_audit()
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
+        initial_statement_audit=initial_statement_audit
+    )
+    statement_check_results_initial: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.filter(
+            statement_audit=initial_statement_audit,
+            type=type,
+        )
+    )
+    statement_check_results_retest: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.filter(
+            statement_audit=twelve_week_statement_audit,
+            type=type,
+        )
+    )
+
+    assertQuerySetEqual(
+        getattr(initial_statement_audit, f"{attr}_statement_check_results"),
+        statement_check_results_initial,
+    )
+    assertQuerySetEqual(
+        getattr(twelve_week_statement_audit, f"{attr}_statement_check_results"),
+        statement_check_results_retest,
+    )
+
+
+@pytest.mark.django_db
+def test_statement_audit_statement_found_check():
+    """
+    Test StatementAudit.statement_found_check returns the first overview check result.
+    """
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=PREVIOUS_STATEMENT_CHECKS_TIME)
+    ):
+        initial_statement_audit: StatementAudit = create_initial_statement_audit()
+    first_overview_statement_check_result: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.filter(
+            statement_audit=initial_statement_audit,
+            type=StatementCheck.Type.OVERVIEW,
+        ).first()
+    )
+
+    assert (
+        initial_statement_audit.statement_found_check
+        == first_overview_statement_check_result
+    )
+
+
+@pytest.mark.django_db
+def test_audit_statement_structure_check():
+    """
+    Tests audit statement_structure_check property.
+    Only worked prior to 30 July 2025 when there was a second overview check.
+    """
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=PREVIOUS_STATEMENT_CHECKS_TIME)
+    ):
+        initial_statement_audit: StatementAudit = create_initial_statement_audit()
+    statement_structure_check_result: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.filter(
+            statement_audit=initial_statement_audit,
+            type=StatementCheck.Type.OVERVIEW,
+        ).last()
+    )
+
+    assert (
+        initial_statement_audit.statement_structure_check
+        == statement_structure_check_result
+    )
+
+
+@pytest.mark.django_db
+def test_statement_audit_new_12_week_custom_statement_check_results():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+    )
+    new_12_week_custom_check_result: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.create(
+            statement_audit=statement_audit,
+            type=StatementCheck.Type.RETEST,
+            public_comment="12-week custom statement issue",
+        )
+    )
+
+    assert statement_audit.new_12_week_custom_statement_check_results.count() == 1
+    assert (
+        statement_audit.new_12_week_custom_statement_check_results.first()
+        == new_12_week_custom_check_result
+    )
+
+
+@pytest.mark.django_db
+def test_statement_audit_failed_statement_check_results():
+    statement_audit: StatementAudit = create_initial_statement_audit()
+    failed_statement_check_results: QuerySet[StatementCheckResultRound] = (
+        StatementCheckResultRound.objects.filter(
+            statement_audit=statement_audit,
+            check_result_state=StatementCheckResultRound.Result.NO,
+        )
+    )
+
+    assert failed_statement_check_results.count() == 1  # Custom issue
+    assertQuerySetEqual(
+        statement_audit.failed_statement_check_results, failed_statement_check_results
+    )
+
+    for statement_check_result_initial in StatementCheckResultRound.objects.filter(
+        statement_audit=statement_audit
+    ):
+        statement_check_result_initial.check_result_state = (
+            StatementCheckResultRound.Result.NO
+        )
+        statement_check_result_initial.save()
+    failed_statement_check_results: QuerySet[StatementCheckResultRound] = (
+        StatementCheckResultRound.objects.filter(
+            statement_audit=statement_audit,
+            check_result_state=StatementCheckResultRound.Result.NO,
+        )
+    )
+
+    assert failed_statement_check_results.count() > 1
+    assertQuerySetEqual(
+        statement_audit.failed_statement_check_results, failed_statement_check_results
+    )
+
+
 # Older tests below
 
 
@@ -1523,118 +1733,6 @@ def test_statement_check_result_initial_str():
 
 
 @pytest.mark.django_db
-def test_statement_audit_statement_check_results():
-    """
-    Tests statement audit statement_check_results contains the matching initial or
-    retest statement check results.
-    """
-    initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
-        initial_statement_audit=initial_statement_audit
-    )
-
-    assertQuerySetEqual(
-        initial_statement_audit.statementcheckresultround_set.all(),
-        initial_statement_audit.statement_check_results,
-    )
-    assertQuerySetEqual(
-        twelve_week_statement_audit.statementcheckresultround_set.all(),
-        twelve_week_statement_audit.statement_check_results,
-    )
-
-
-@pytest.mark.parametrize(
-    "type, attr",
-    [
-        ("overview", "overview"),
-        ("website", "website"),
-        ("compliance", "compliance"),
-        ("non-accessible", "non_accessible"),
-        ("preparation", "preparation"),
-        ("feedback", "feedback"),
-        ("custom", "custom"),
-    ],
-)
-@pytest.mark.django_db
-def test_statement_audit_specific_statement_check_results(type, attr):
-    """
-    Tests specific statement audit statement_check_results property contains the
-    matching statement check results.
-    """
-    initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
-        initial_statement_audit=initial_statement_audit
-    )
-    statement_check_results_initial: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.filter(
-            statement_audit=initial_statement_audit,
-            type=type,
-        )
-    )
-    statement_check_results_retest: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.filter(
-            statement_audit=twelve_week_statement_audit,
-            type=type,
-        )
-    )
-
-    assertQuerySetEqual(
-        getattr(initial_statement_audit, f"{attr}_statement_check_results"),
-        statement_check_results_initial,
-    )
-    assertQuerySetEqual(
-        getattr(twelve_week_statement_audit, f"{attr}_statement_check_results"),
-        statement_check_results_retest,
-    )
-
-
-@pytest.mark.django_db
-def test_statement_audit_statement_check_result_initial():
-    """
-    Test StatementAudit.statement_cound_check returns the first overview check result.
-    Only worked prior to 30 July 2025 when there was a second overview check.
-    """
-    with patch(
-        "django.utils.timezone.now", Mock(return_value=PREVIOUS_STATEMENT_CHECKS_TIME)
-    ):
-        initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    statement_found_check_result_initial: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.filter(
-            statement_audit=initial_statement_audit,
-            type=StatementCheck.Type.OVERVIEW,
-        ).first()
-    )
-
-    assert (
-        initial_statement_audit.statement_found_check
-        == statement_found_check_result_initial
-    )
-
-
-@pytest.mark.django_db
-def test_audit_statement_structure_check():
-    """
-    Tests audit statement_structure_check property.
-    Only worked prior to 30 July 2025 when there was a second overview check.
-    """
-    with patch(
-        "django.utils.timezone.now", Mock(return_value=PREVIOUS_STATEMENT_CHECKS_TIME)
-    ):
-        initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    statement_structure_check_result: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.filter(
-            statement_audit=initial_statement_audit,
-            type=StatementCheck.Type.OVERVIEW,
-        ).last()
-    )
-
-    assert (
-        initial_statement_audit.statement_structure_check
-        == statement_structure_check_result
-    )
-
-
-@pytest.mark.django_db
 def test_statement_audit_overview_statement_checks_complete():
     """Tests statement_audit overview_statement_checks_complete property"""
     statement_audit: StatementAudit = create_initial_statement_audit()
@@ -1653,45 +1751,6 @@ def test_statement_audit_overview_statement_checks_complete():
         break
 
     assert statement_audit.overview_statement_checks_complete is False
-
-
-@pytest.mark.django_db
-def test_statement_audit_failed_statement_check_results():
-    """
-    Tests a statement_audit.failed_statement_check_results contains the failed
-    statement check results.
-    """
-    statement_audit: StatementAudit = create_initial_statement_audit()
-    failed_statement_check_results: QuerySet[StatementCheckResultRound] = (
-        StatementCheckResultRound.objects.filter(
-            statement_audit=statement_audit,
-            check_result_state=StatementCheckResultRound.Result.NO,
-        )
-    )
-
-    assert failed_statement_check_results.count() == 1  # Custom issue
-    assertQuerySetEqual(
-        statement_audit.failed_statement_check_results, failed_statement_check_results
-    )
-
-    for statement_check_result_initial in StatementCheckResultRound.objects.filter(
-        statement_audit=statement_audit
-    ):
-        statement_check_result_initial.check_result_state = (
-            StatementCheckResultRound.Result.NO
-        )
-        statement_check_result_initial.save()
-    failed_statement_check_results: QuerySet[StatementCheckResultRound] = (
-        StatementCheckResultRound.objects.filter(
-            statement_audit=statement_audit,
-            check_result_state=StatementCheckResultRound.Result.NO,
-        )
-    )
-
-    assert failed_statement_check_results.count() > 1
-    assertQuerySetEqual(
-        statement_audit.failed_statement_check_results, failed_statement_check_results
-    )
 
 
 @pytest.mark.parametrize(
@@ -2311,26 +2370,3 @@ def test_statement_issue_identifier():
     )
 
     assert custom_statement_check_result_round.issue_identifier == "1-SC-2"
-
-
-@pytest.mark.django_db
-def test_statement_audit_new_12_week_custom_statement_check_results():
-    """Test statement custom check result found"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case,
-        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-    )
-    new_12_week_custom_check_result: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.create(
-            statement_audit=statement_audit,
-            type=StatementCheck.Type.RETEST,
-            public_comment="12-week custom statement issue",
-        )
-    )
-
-    assert statement_audit.new_12_week_custom_statement_check_results.count() == 1
-    assert (
-        statement_audit.new_12_week_custom_statement_check_results.first()
-        == new_12_week_custom_check_result
-    )
