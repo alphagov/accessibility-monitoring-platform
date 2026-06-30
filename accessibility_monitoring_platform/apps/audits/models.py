@@ -891,54 +891,6 @@ class StatementAudit(AuditRound):
         )
 
     @property
-    def website_outstanding_statement_check_results(
-        self,
-    ) -> QuerySet[StatementCheckResultRound]:
-        return self.outstanding_statement_check_results.filter(
-            type=StatementCheck.Type.WEBSITE
-        )
-
-    @property
-    def compliance_outstanding_statement_check_results(
-        self,
-    ) -> QuerySet[StatementCheckResultRound]:
-        return self.outstanding_statement_check_results.filter(
-            type=StatementCheck.Type.COMPLIANCE
-        )
-
-    @property
-    def non_accessible_outstanding_statement_check_results(
-        self,
-    ) -> QuerySet[StatementCheckResultRound]:
-        return self.outstanding_statement_check_results.filter(
-            type=StatementCheck.Type.NON_ACCESSIBLE
-        )
-
-    @property
-    def preparation_outstanding_statement_check_results(
-        self,
-    ) -> QuerySet[StatementCheckResultRound]:
-        return self.outstanding_statement_check_results.filter(
-            type=StatementCheck.Type.PREPARATION
-        )
-
-    @property
-    def feedback_outstanding_statement_check_results(
-        self,
-    ) -> QuerySet[StatementCheckResultRound]:
-        return self.outstanding_statement_check_results.filter(
-            type=StatementCheck.Type.FEEDBACK
-        )
-
-    @property
-    def disproportionate_outstanding_statement_check_results(
-        self,
-    ) -> QuerySet[StatementCheckResultRound]:
-        return self.outstanding_statement_check_results.filter(
-            type=StatementCheck.Type.DISPROPORTIONATE
-        )
-
-    @property
     def overview_statement_checks_complete(self) -> bool:
         return (
             self.overview_statement_check_results.filter(
@@ -957,18 +909,6 @@ class StatementAudit(AuditRound):
                 check_result_state=StatementCheckResult.Result.YES
             ).count()
             == 0
-        )
-
-    @property
-    def statement_check_result_statement_found(self) -> bool:
-        overview_statement_yes_count: CheckResult = (
-            self.overview_statement_check_results.filter(
-                check_result_state=StatementCheckResult.Result.YES
-            ).count()
-        )
-        return (
-            overview_statement_yes_count
-            == self.overview_statement_check_results.count()
         )
 
 
