@@ -59,7 +59,7 @@
                                     {% else %}
                                         <p>None</p>
                                     {% endif %}
-                                    {% for retest_page in wcag_page_retest.all_wcag_page_retests %}
+                                    {% for retest_page in wcag_page_retest.wcag_page_retests %}
                                         {% if retest_page != form.instance %}
                                             <label class="govuk-label amp-margin-bottom-15"><b>{{ retest_page.wcag_audit }} additional issues</b></label>
                                             {% if retest_page.notes %}

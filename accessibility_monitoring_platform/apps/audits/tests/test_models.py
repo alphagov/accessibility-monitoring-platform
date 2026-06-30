@@ -181,7 +181,7 @@ def test_audit_overview_last_equality_body_wcag_audit():
 
 
 @pytest.mark.django_db
-def test_website_compliance_display():
+def test_audit_overview_website_compliance_display():
     """Test website compliance is derived correctly"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit_overview: AuditOverview = AuditOverview.objects.create(
@@ -318,8 +318,8 @@ def test_audit_overview_archived_google_drive_links():
 
 
 @pytest.mark.django_db
-def test_audit_unique_statement_page_urls():
-    """Test unique statement page urls returns only first with matching URL"""
+def test_audit_overview_unique_statement_page_urls():
+    """Test unique statement page urls returns only first with matching URLs"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit_overview: AuditOverview = AuditOverview.objects.create(
         simplified_case=simplified_case
@@ -1512,6 +1512,19 @@ def test_statement_audit_overview_statement_checks_complete():
 
 
 @pytest.mark.django_db
+def test_wcag_page_initial_updated_updated():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_UPDATED)):
+        wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+            wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
+        )
+
+    assert wcag_page_initial.updated == DATETIME_AUDIT_UPDATED
+
+
+@pytest.mark.django_db
 def test_wcag_page_initial_string():
     wcag_audit: WcagAudit = create_initial_wcag_audit()
     wcag_page_initial: WcagPageInitial = wcag_audit.wcag_page_initials[0]
@@ -1662,6 +1675,201 @@ def test_wcag_page_initial_wcag_check_result_initials_by_wcag_definition():
         manual_wcag_check_result_initial.wcag_definition.type
         == WcagDefinition.Type.MANUAL
     )
+
+
+@pytest.mark.django_db
+def test_wcag_page_retest_updated_updated():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
+
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_UPDATED)):
+        wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+            wcag_audit=wcag_audit,
+            wcag_page_initial=wcag_page_initial,
+        )
+
+    assert wcag_page_retest.updated == DATETIME_AUDIT_UPDATED
+
+
+@pytest.mark.django_db
+def test_wcag_page_retest_string():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+        wcag_audit=wcag_audit,
+        wcag_page_initial=wcag_page_initial,
+    )
+
+    assert str(wcag_page_retest) == "Home"
+
+
+@pytest.mark.django_db
+def test_wcag_page_retest_page_title():
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+        wcag_audit=wcag_audit,
+        wcag_page_initial=wcag_page_initial,
+    )
+
+    assert wcag_page_retest.page_title == "Home page"
+
+    wcag_page_initial.name = "Homepage"
+    wcag_page_initial.save()
+
+    assert wcag_page_retest.page_title == "Homepage page"
+
+
+@pytest.mark.django_db
+def test_wcag_page_retest_wcag_check_result_retests():
+    create_simplified_case_with_initial_and_12_week_audits()
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_page_initial__page_type=WcagPageInitial.Type.HOME
+    )
+
+    assertQuerySetEqual(
+        wcag_page_retest.wcag_check_result_retests,
+        WcagCheckResultRetest.objects.filter(wcag_page_retest=wcag_page_retest),
+    )
+
+
+@pytest.mark.django_db
+def test_wcag_page_retest_failed_wcag_check_result_retests():
+    create_simplified_case_with_initial_and_12_week_audits()
+    home_wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_page_initial__page_type=WcagPageInitial.Type.HOME
+    )
+    statement_wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_page_initial__page_type=WcagPageInitial.Type.STATEMENT
+    )
+    wcag_check_result_retest: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.filter(
+            wcag_page_retest=home_wcag_page_retest
+        ).first()
+    )
+    wcag_check_result_retest.retest_state = WcagCheckResultRetest.RetestResult.NOT_FIXED
+    wcag_check_result_retest.save()
+
+    assert home_wcag_page_retest.failed_wcag_check_result_retests.count() == 1
+    assert statement_wcag_page_retest.failed_wcag_check_result_retests.count() == 0
+
+
+@pytest.mark.django_db
+def test_wcag_page_retest_unfixed_wcag_check_result_initials():
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    first_twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.initial_wcag_audit
+    )
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=first_twelve_week_wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        wcag_page_initial.wcag_check_result_initials.first()
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_page_initial=wcag_page_initial
+    )
+    wcag_check_result_retest: WcagCheckResultRetest = WcagCheckResultRetest.objects.get(
+        wcag_check_result_initial=wcag_check_result_initial
+    )
+
+    assert wcag_page_retest.unfixed_wcag_check_result_retests.count() == 2
+
+    wcag_check_result_retest.retest_state = WcagCheckResultRetest.RetestResult.FIXED
+    wcag_check_result_retest.save()
+
+    assert wcag_page_retest.unfixed_wcag_check_result_retests.count() == 1
+
+
+@pytest.mark.django_db
+def test_wcag_page_retest_wcag_page_retests():
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    create_retest_wcag_audit(initial_wcag_audit=initial_wcag_audit)
+    twelve_week_wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_page_initial__page_type=WcagPageInitial.Type.HOME
+    )
+    create_retest_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
+    wcag_page_retests: QuerySet[WcagPageRetest] = WcagPageRetest.objects.filter(
+        wcag_page_initial=twelve_week_wcag_page_retest.wcag_page_initial
+    )
+
+    assertQuerySetEqual(
+        twelve_week_wcag_page_retest.wcag_page_retests,
+        wcag_page_retests,
+    )
+
+
+@pytest.mark.django_db
+def test_wcag_page_retest_latest_page_url():
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
+    wcag_page_initial.url = "https://example.com/first"
+    wcag_page_initial.save()
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+        wcag_audit=wcag_audit,
+        wcag_page_initial=wcag_page_initial,
+    )
+
+    assert wcag_page_retest.latest_page_url == "https://example.com/first"
+
+    wcag_page_retest.url = "https://example.com/second"
+    wcag_page_retest.save()
+
+    assert wcag_page_retest.latest_page_url == "https://example.com/second"
+
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+        wcag_audit=wcag_audit,
+        wcag_page_initial=wcag_page_initial,
+        url="https://example.com/third",
+    )
+
+    assert wcag_page_retest.latest_page_url == "https://example.com/third"
+
+
+@pytest.mark.django_db
+def test_wcag_page_retest_latest_page_location():
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
+    wcag_page_initial.location = "Location the first"
+    wcag_page_initial.save()
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+        wcag_audit=wcag_audit,
+        wcag_page_initial=wcag_page_initial,
+    )
+
+    assert wcag_page_retest.latest_page_location == "Location the first"
+
+    wcag_page_retest.location = "Location the second"
+    wcag_page_retest.save()
+
+    assert wcag_page_retest.latest_page_location == "Location the second"
+
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+        wcag_audit=wcag_audit,
+        wcag_page_initial=wcag_page_initial,
+        location="Location the third",
+    )
+
+    assert wcag_page_retest.latest_page_location == "Location the third"
 
 
 # Older tests below
@@ -2025,40 +2233,6 @@ def test_fixed_checks_count_in_equality_body_retests():
 
 
 @pytest.mark.django_db
-def test_wcag_page_retest_all_wcag_check_result_retests():
-    create_simplified_case_with_initial_and_12_week_audits()
-    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
-        wcag_page_initial__page_type=WcagPageInitial.Type.HOME
-    )
-
-    assertQuerySetEqual(
-        wcag_page_retest.all_wcag_check_result_retests,
-        WcagCheckResultRetest.objects.filter(wcag_page_retest=wcag_page_retest),
-    )
-
-
-@pytest.mark.django_db
-def test_wcag_page_retest_failed_wcag_check_result_retests():
-    create_simplified_case_with_initial_and_12_week_audits()
-    home_wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
-        wcag_page_initial__page_type=WcagPageInitial.Type.HOME
-    )
-    statement_wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
-        wcag_page_initial__page_type=WcagPageInitial.Type.STATEMENT
-    )
-    wcag_check_result_retest: WcagCheckResultRetest = (
-        WcagCheckResultRetest.objects.filter(
-            wcag_page_retest=home_wcag_page_retest
-        ).first()
-    )
-    wcag_check_result_retest.retest_state = WcagCheckResultRetest.RetestResult.NOT_FIXED
-    wcag_check_result_retest.save()
-
-    assert home_wcag_page_retest.failed_wcag_check_result_retests.count() == 1
-    assert statement_wcag_page_retest.failed_wcag_check_result_retests.count() == 0
-
-
-@pytest.mark.django_db
 def test_audit_statement_pages():
     """Test audit statement pages"""
     wcag_audit: WcagAudit = create_initial_wcag_audit()
@@ -2145,29 +2319,6 @@ def test_latest_statement_link_found():
     early_statement_page.save()
 
     assert audit_overview.latest_statement_link == STATEMENT_LINK
-
-
-@pytest.mark.django_db
-def test_wcag_page_retest_all_wcag_page_retests():
-    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    create_retest_wcag_audit(initial_wcag_audit=initial_wcag_audit)
-    twelve_week_wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
-        wcag_page_initial__page_type=WcagPageInitial.Type.HOME
-    )
-    create_retest_wcag_audit(
-        initial_wcag_audit=initial_wcag_audit,
-        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
-    )
-    all_wcag_page_retests_for_page: QuerySet[WcagPageRetest] = (
-        WcagPageRetest.objects.filter(
-            wcag_page_initial=twelve_week_wcag_page_retest.wcag_page_initial
-        )
-    )
-
-    assertQuerySetEqual(
-        twelve_week_wcag_page_retest.all_wcag_page_retests,
-        all_wcag_page_retests_for_page,
-    )
 
 
 @pytest.mark.django_db

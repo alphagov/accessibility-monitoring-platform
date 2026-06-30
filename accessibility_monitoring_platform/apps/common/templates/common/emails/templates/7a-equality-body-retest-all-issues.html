@@ -116,7 +116,7 @@ Most recent retest: {{ last_equality_body_wcag_audit.date_of_test|amp_date }}
     </tr>
     </thead>
     <tbody>
-    {% for wcag_check_result_retest in wcag_page_retest.all_wcag_check_result_retests %}
+    {% for wcag_check_result_retest in wcag_page_retest.wcag_check_result_retests %}
     <tr valign="top">
     <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>
     <b>Issue {{ wcag_check_result_retest.issue_identifier }}</b>

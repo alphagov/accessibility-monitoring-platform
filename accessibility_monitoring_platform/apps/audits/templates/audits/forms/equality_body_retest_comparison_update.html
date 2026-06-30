@@ -160,7 +160,7 @@
                                     </p>
                                 </div>
                             </div>
-                        {% elif wcag_page_retest.all_wcag_check_result_retests %}
+                        {% elif wcag_page_retest.wcag_check_result_retests %}
                             <div class="govuk-grid-row">
                                 <div class="govuk-grid-column-full amp-markdown">
                                     {% if hide_fixed %}
@@ -173,7 +173,7 @@
                                         {% endif %}
                                     {% else %}
                                         <table class="govuk-table">
-                                            {% include 'audits/helpers/equality_body_wcag_page_retest_comparison_table.html' with wcag_check_result_retests=wcag_page_retest.all_wcag_check_result_retests %}
+                                            {% include 'audits/helpers/equality_body_wcag_page_retest_comparison_table.html' with wcag_check_result_retests=wcag_page_retest.wcag_check_result_retests %}
                                         </table>
                                     {% endif %}
                                     <label class="govuk-label amp-margin-bottom-15"><b>Additional issues found</b></label>

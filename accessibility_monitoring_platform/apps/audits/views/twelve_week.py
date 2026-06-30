@@ -178,7 +178,7 @@ class WcagPageRetestCheckResultsUpdateView(NextPlatformPageMixin, UpdateView):
         else:
             check_results_formset: WcagCheckResultRetestFormset = (
                 WcagCheckResultRetestFormset(
-                    queryset=wcag_page_retest.all_wcag_check_result_retests
+                    queryset=wcag_page_retest.wcag_check_result_retests
                 )
             )
 

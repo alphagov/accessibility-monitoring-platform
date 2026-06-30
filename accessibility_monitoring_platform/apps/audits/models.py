@@ -417,7 +417,7 @@ class AuditOverview(models.Model):
                 updated_times.append(wcag_page_retest.updated)
                 for (
                     wcag_check_result_retest
-                ) in wcag_page_retest.all_wcag_check_result_retests:
+                ) in wcag_page_retest.wcag_check_result_retests:
                     updated_times.append(wcag_check_result_retest.updated)
 
         return max([updated for updated in updated_times if updated is not None])
@@ -1083,7 +1083,7 @@ class WcagPageRetest(models.Model):
         return self.wcag_page_initial.page_title
 
     @property
-    def all_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
+    def wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
         return (
             self.wcagcheckresultretest_set.filter(
                 is_deleted=False, wcag_audit=self.wcag_audit
@@ -1095,25 +1095,18 @@ class WcagPageRetest(models.Model):
 
     @property
     def failed_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
-        return self.all_wcag_check_result_retests.filter(
+        return self.wcag_check_result_retests.filter(
             retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED
         )
 
     @property
     def unfixed_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
-        return self.all_wcag_check_result_retests.exclude(
+        return self.wcag_check_result_retests.exclude(
             retest_state=WcagCheckResultRetest.RetestResult.FIXED
         )
 
     @property
-    def check_results_by_wcag_definition(self):
-        check_results: QuerySet[CheckResult] = self.all_wcag_check_result_retests
-        return {
-            check_result.wcag_definition: check_result for check_result in check_results
-        }
-
-    @property
-    def all_wcag_page_retests(self):
+    def wcag_page_retests(self):
         """Return all wcag page retests for this page"""
         return WcagPageRetest.objects.filter(wcag_page_initial=self.wcag_page_initial)
 
@@ -1121,7 +1114,7 @@ class WcagPageRetest(models.Model):
     def latest_page_url(self):
         """Return most recent URL entered for this page"""
         url: str = self.wcag_page_initial.url
-        for wcag_page_retest in self.all_wcag_page_retests:
+        for wcag_page_retest in self.wcag_page_retests:
             if wcag_page_retest.url:
                 url = wcag_page_retest.url
         return url
@@ -1130,7 +1123,7 @@ class WcagPageRetest(models.Model):
     def latest_page_location(self):
         """Return most recent location entered for this page"""
         location: str = self.wcag_page_initial.location
-        for wcag_page_retest in self.all_wcag_page_retests:
+        for wcag_page_retest in self.wcag_page_retests:
             if wcag_page_retest.location:
                 location = wcag_page_retest.location
         return location
