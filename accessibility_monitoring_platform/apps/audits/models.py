@@ -411,7 +411,7 @@ class AuditOverview(models.Model):
                 updated_times.append(wcag_page_initial.updated)
                 for (
                     wcag_check_result_initial
-                ) in wcag_page_initial.all_wcag_check_result_initials:
+                ) in wcag_page_initial.wcag_check_result_initials:
                     updated_times.append(wcag_check_result_initial.updated)
             for wcag_page_retest in wcag_audit.wcag_page_retests:
                 updated_times.append(wcag_page_retest.updated)
@@ -1012,6 +1012,10 @@ class WcagPageInitial(models.Model):
         return reverse("audits:edit-audit-page-checks", kwargs={"pk": self.pk})
 
     @property
+    def anchor(self) -> str:
+        return f"test-page-{self.id}"
+
+    @property
     def page_title(self) -> str:
         title: str = str(self)
         if self.page_type != WcagPageInitial.Type.PDF:
@@ -1019,7 +1023,7 @@ class WcagPageInitial(models.Model):
         return title
 
     @property
-    def all_wcag_check_result_initials(self) -> QuerySet[WcagCheckResultInitial]:
+    def wcag_check_result_initials(self) -> QuerySet[WcagCheckResultInitial]:
         return (
             self.wcagcheckresultinitial_set.filter(is_deleted=False)
             .order_by("wcag_definition__id")
@@ -1029,13 +1033,9 @@ class WcagPageInitial(models.Model):
 
     @property
     def failed_wcag_check_result_initials(self) -> QuerySet[WcagCheckResultInitial]:
-        return self.all_wcag_check_result_initials.filter(
+        return self.wcag_check_result_initials.filter(
             check_result_state=WcagCheckResultInitial.Result.ERROR
         )
-
-    @property
-    def count_failed_wcag_check_result_initials(self) -> int:
-        return self.failed_wcag_check_result_initials.count()
 
     @property
     def unfixed_wcag_check_result_initials(self) -> QuerySet[WcagCheckResultInitial]:
@@ -1048,16 +1048,12 @@ class WcagPageInitial(models.Model):
         self,
     ) -> dict[WcagDefinition, WcagCheckResultInitial]:
         wcag_check_result_initials: QuerySet[WcagCheckResultInitial] = (
-            self.all_wcag_check_result_initials
+            self.wcag_check_result_initials
         )
         return {
             wcag_check_result_initial.wcag_definition: wcag_check_result_initial
             for wcag_check_result_initial in wcag_check_result_initials
         }
-
-    @property
-    def anchor(self) -> str:
-        return f"test-page-{self.id}"
 
 
 class WcagPageRetest(models.Model):

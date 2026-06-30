@@ -466,9 +466,7 @@ def test_get_next_platform_page_twelve_week_wcag_audit_with_pages():
     assert twelve_week_wcag_audit.retestable_wcag_page_retests.count() == 2
 
     for wcag_page_initial in initial_wcag_audit.testable_wcag_page_initials:
-        for (
-            wcag_check_result_initial
-        ) in wcag_page_initial.all_wcag_check_result_initials:
+        for wcag_check_result_initial in wcag_page_initial.wcag_check_result_initials:
             wcag_check_result_initial.check_result_state = CheckResult.Result.ERROR
             wcag_check_result_initial.save()
 

@@ -1511,7 +1511,16 @@ def test_statement_audit_overview_statement_checks_complete():
     assert statement_audit.overview_statement_checks_complete is False
 
 
-# Older tests below
+@pytest.mark.django_db
+def test_wcag_page_initial_string():
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_page_initial: WcagPageInitial = wcag_audit.wcag_page_initials[0]
+
+    assert str(wcag_page_initial) == "Home"
+
+    wcag_page_initial.name = PAGE_NAME
+
+    assert str(wcag_page_initial) == PAGE_NAME
 
 
 @pytest.mark.django_db
@@ -1531,17 +1540,15 @@ def test_wcag_page_initial_get_absolute_url():
 
 
 @pytest.mark.django_db
-def test_page_str():
+def test_wcag_page_initial_anchor():
     wcag_audit: WcagAudit = create_initial_wcag_audit()
-    wcag_page_initial: WcagPageInitial = wcag_audit.wcag_page_initials.filter(
-        page_type=WcagPageInitial.Type.STATEMENT
-    ).first()
+    wcag_page_initial: WcagPageInitial = wcag_audit.wcag_page_initials[0]
 
-    assert wcag_page_initial.__str__() == "Accessibility statement"
+    assert wcag_page_initial.anchor == f"test-page-{wcag_page_initial.id}"
 
 
 @pytest.mark.django_db
-def test_html_page_page_title():
+def test_wcag_page_initial_page_title_html():
     wcag_audit: WcagAudit = create_initial_wcag_audit()
     wcag_page_initial: WcagPageInitial = wcag_audit.wcag_page_initials.filter(
         page_type=WcagPageInitial.Type.STATEMENT
@@ -1551,7 +1558,7 @@ def test_html_page_page_title():
 
 
 @pytest.mark.django_db
-def test_pdf_page_page_title():
+def test_wcag_page_initial_page_title_pdf():
     wcag_audit: WcagAudit = create_initial_wcag_audit()
     wcag_page_initial: WcagPageInitial = wcag_audit.wcag_page_initials.filter(
         page_type=WcagPageInitial.Type.PDF
@@ -1560,6 +1567,104 @@ def test_pdf_page_page_title():
     wcag_page_initial.save()
 
     assert wcag_page_initial.page_title == "File"
+
+
+@pytest.mark.django_db
+def test_wcag_page_initial_wcag_check_result_initials():
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
+
+    assert len(wcag_page_initial.wcag_check_result_initials) == 2
+    assert (
+        wcag_page_initial.wcag_check_result_initials[0].type == WcagDefinition.Type.AXE
+    )
+    assert (
+        wcag_page_initial.wcag_check_result_initials[1].type
+        == WcagDefinition.Type.MANUAL
+    )
+
+
+@pytest.mark.django_db
+def test_wcag_page_initial_failed_wcag_check_result_initials():
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
+
+    assert wcag_page_initial.failed_wcag_check_result_initials.count() == 0
+
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        wcag_page_initial.wcag_check_result_initials.first()
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+
+    assert wcag_page_initial.failed_wcag_check_result_initials.count() == 1
+    assert (
+        wcag_page_initial.failed_wcag_check_result_initials.first()
+        == wcag_check_result_initial
+    )
+
+
+@pytest.mark.django_db
+def test_wcag_page_initial_unfixed_wcag_check_result_initials():
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    first_twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.initial_wcag_audit
+    )
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=first_twelve_week_wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        wcag_page_initial.wcag_check_result_initials.first()
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+
+    assert wcag_page_initial.unfixed_wcag_check_result_initials.count() == 1
+    assert (
+        wcag_page_initial.unfixed_wcag_check_result_initials.first()
+        == wcag_check_result_initial
+    )
+
+    wcag_check_result_retest: WcagCheckResultRetest = WcagCheckResultRetest.objects.get(
+        wcag_check_result_initial=wcag_check_result_initial
+    )
+    wcag_check_result_retest.retest_state = WcagCheckResultRetest.RetestResult.FIXED
+    wcag_check_result_retest.save()
+
+    assert wcag_page_initial.unfixed_wcag_check_result_initials.count() == 0
+
+
+@pytest.mark.django_db
+def test_wcag_page_initial_wcag_check_result_initials_by_wcag_definition():
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
+    axe_wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.get(issue_identifier="1-A-1")
+    )
+    manual_wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.get(issue_identifier="1-A-2")
+    )
+
+    assert wcag_page_initial.wcag_check_result_initials_by_wcag_definition == {
+        axe_wcag_check_result_initial.wcag_definition: axe_wcag_check_result_initial,
+        manual_wcag_check_result_initial.wcag_definition: manual_wcag_check_result_initial,
+    }
+    assert axe_wcag_check_result_initial.wcag_definition.type == WcagDefinition.Type.AXE
+    assert (
+        manual_wcag_check_result_initial.wcag_definition.type
+        == WcagDefinition.Type.MANUAL
+    )
+
+
+# Older tests below
 
 
 @pytest.mark.django_db
@@ -1586,26 +1691,6 @@ def test_audit_missing_at_retest_check_results():
 
 
 @pytest.mark.django_db
-def test_wcag_page_initial_string():
-    wcag_audit: WcagAudit = create_initial_wcag_audit()
-    wcag_page_initial: WcagPageInitial = wcag_audit.wcag_page_initials[0]
-
-    assert str(wcag_page_initial) == "Home"
-
-    wcag_page_initial.name = PAGE_NAME
-
-    assert str(wcag_page_initial) == PAGE_NAME
-
-
-@pytest.mark.django_db
-def test_wcag_page_initial_anchor():
-    wcag_audit: WcagAudit = create_initial_wcag_audit()
-    wcag_page_initial: WcagPageInitial = wcag_audit.wcag_page_initials[0]
-
-    assert wcag_page_initial.anchor == f"test-page-{wcag_page_initial.id}"
-
-
-@pytest.mark.django_db
 def test_wcag_audit_accessibility_statement_wcag_page_initial_returns_page():
     wcag_audit: WcagAudit = create_initial_wcag_audit()
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
@@ -1613,24 +1698,6 @@ def test_wcag_audit_accessibility_statement_wcag_page_initial_returns_page():
     )
 
     assert wcag_audit.accessibility_statement_wcag_page_initial == wcag_page_initial
-
-
-@pytest.mark.django_db
-def test_wcag_page_initial_all_wcag_check_result_initials_returns_check_results():
-    """
-    Test all_wcag_check_result_initials attribute of WcagPageInitial returns
-    expected check results.
-    """
-    wcag_audit: WcagAudit = create_initial_wcag_audit()
-    home_page: WcagPageInitial = WcagPageInitial.objects.get(
-        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
-    )
-
-    assert len(home_page.all_wcag_check_result_initials) == 2
-    assert home_page.all_wcag_check_result_initials[0].type == WcagDefinition.Type.AXE
-    assert (
-        home_page.all_wcag_check_result_initials[1].type == WcagDefinition.Type.MANUAL
-    )
 
 
 @pytest.mark.django_db

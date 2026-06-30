@@ -109,7 +109,7 @@ def create_retest_wcag_audit(
             )
             for (
                 wcag_check_result_initial
-            ) in wcag_page_initial.all_wcag_check_result_initials:
+            ) in wcag_page_initial.wcag_check_result_initials:
                 WcagCheckResultRetest.objects.create(
                     wcag_audit=retest_wcag_audit,
                     wcag_page_retest=wcag_page_retest,

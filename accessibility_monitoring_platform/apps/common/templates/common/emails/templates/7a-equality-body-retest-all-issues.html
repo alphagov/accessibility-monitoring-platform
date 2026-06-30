@@ -19,8 +19,8 @@ Most recent retest: {{ last_equality_body_wcag_audit.date_of_test|amp_date }}
     {% for wcag_page_retest in last_equality_body_wcag_audit.wcag_page_retests %}
     <li>
     {{ wcag_page_retest.wcag_page_initial }}{% if wcag_page_retest.wcag_page_initial.page_type != 'pdf' %} page{% endif %}
-    ({{ wcag_page_retest.unfixed_wcag_check_result_retests.count }} of {{ wcag_page_retest.wcag_page_initial.all_wcag_check_result_initials.count }}
-    issue{% if wcag_page_retest.wcag_page_initial.all_wcag_check_result_initials.count != 1 %}s{% endif %} remaining)
+    ({{ wcag_page_retest.unfixed_wcag_check_result_retests.count }} of {{ wcag_page_retest.wcag_page_initial.wcag_check_result_initials.count }}
+    issue{% if wcag_page_retest.wcag_page_initial.wcag_check_result_initials.count != 1 %}s{% endif %} remaining)
     </li>
     {% endfor %}
     </ul>
