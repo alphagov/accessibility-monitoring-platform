@@ -1303,38 +1303,36 @@ class WcagCheckResultRetest(models.Model):
 
     @property
     def other_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
-        """Other check results for matching WcagDefinition"""
+        """Other retest check results for same initial check result"""
         return WcagCheckResultRetest.objects.filter(
             wcag_check_result_initial=self.wcag_check_result_initial
         ).exclude(wcag_page_retest=self.wcag_page_retest)
 
     @property
-    def matching_wcag_with_retest_notes_check_results(
+    def matching_wcag_check_result_retests_with_notes(
         self,
     ) -> QuerySet[WcagCheckResultInitial]:
-        """Other WcagCheckResultInitials with notes for matching WcagDefinition"""
+        """Other retest check results with notes for same WCAG definition"""
         return (
-            self.wcag_audit.failed_wcag_check_result_initials.filter(
+            self.wcag_audit.wcag_check_result_retests.filter(
                 wcag_definition=self.wcag_definition
             )
-            .exclude(wcag_page_initial=self.wcag_page_initial)
+            .exclude(wcag_page_retest=self.wcag_page_retest)
             .exclude(notes="")
         )
 
     @property
     def previous_wcag_check_result_retest(self) -> WcagCheckResultRetest | None:
-        """Other check results for matching WcagDefinition"""
-        if (
-            self.wcag_audit
-            == self.wcag_audit.simplified_case.audit_overview.first_equality_body_wcag_audit
-        ):
-            return WcagCheckResultRetest.objects.filter(
-                wcag_check_result_initial=self.wcag_check_result_initial,
-                wcag_audit=self.wcag_audit.simplified_case.audit_overview.first_twelve_week_wcag_audit,
-            ).first()
+        """Previous retest check result for matching initial check result"""
+        previous_wcag_audit: WcagAudit = WcagAudit.objects.get(
+            simplified_case=self.wcag_audit.simplified_case,
+            round_number=self.wcag_audit.round_number - 1,
+        )
+        if previous_wcag_audit.audit_round_type == WcagAudit.AuditRoundType.INITIAL:
+            return None
         return WcagCheckResultRetest.objects.filter(
+            wcag_audit=previous_wcag_audit,
             wcag_check_result_initial=self.wcag_check_result_initial,
-            wcag_audit=self.wcag_audit.equality_body_previous_wcag_audit,
         ).first()
 
 

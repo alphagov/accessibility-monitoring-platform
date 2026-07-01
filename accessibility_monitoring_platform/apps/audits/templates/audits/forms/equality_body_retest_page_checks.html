@@ -131,13 +131,13 @@
                                             {% endfor %}
                                         </div>
                                     </details>
-                                    {% if form.instance.matching_wcag_retest_check_results %}
+                                    {% if form.instance.matching_wcag_check_result_retests_with_notes %}
                                         <details class="govuk-details" data-module="govuk-details">
                                             <summary class="govuk-details__summary">
-                                                <span class="govuk-details__summary-text">Matching errors ({{ form.instance.matching_wcag_retest_check_results.count }})</span>
+                                                <span class="govuk-details__summary-text">Matching errors ({{ form.instance.matching_wcag_check_result_retests_with_notes.count }})</span>
                                             </summary>
                                             <div class="govuk-details__text">
-                                                {% for retest_check_result in form.instance.matching_wcag_retest_check_results %}
+                                                {% for retest_check_result in form.instance.matching_wcag_check_result_retests_with_notes %}
                                                     <label class="govuk-label"><b>{{ retest_check_result.retest_page.page }}</b></label>
                                                     <textarea id="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}" hidden>{{ retest_check_result.retest_notes }}</textarea>
                                                     <span tabIndex="0"
@@ -145,7 +145,7 @@
                                                         sourceId="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}"
                                                         targetId="{{ form.retest_notes.auto_id }}">
                                                         Click to populate additional issues</span>
-                                                    {{ retest_check_result.retest_notes|markdown_to_html }}
+                                                    {{ retest_check_result.notes|markdown_to_html }}
                                                 {% endfor %}
                                             </div>
                                         </details>

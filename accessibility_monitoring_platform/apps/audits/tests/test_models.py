@@ -1988,62 +1988,240 @@ def test_wcag_check_result_initial_twelve_week_wcag_check_result_retest():
     )
 
 
-# Older tests below
+@pytest.mark.django_db
+def test_wcag_check_result_retest_updated_updated():
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
+    wcag_check_result_retest: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.filter(
+            wcag_audit=twelve_week_wcag_audit,
+        ).first()
+    )
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_CHECK_RESULT_UPDATED)
+    ):
+        wcag_check_result_retest.save()
+
+    assert wcag_check_result_retest.updated == DATETIME_CHECK_RESULT_UPDATED
 
 
 @pytest.mark.django_db
-def test_wcag_check_result_initial_matching_wcag_with_retest_notes_check_results():
+def test_wcag_check_result_retest_string():
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
+    wcag_check_result_retest: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.filter(
+            wcag_audit=twelve_week_wcag_audit,
+        ).first()
+    )
+
+    assert str(wcag_check_result_retest) == "1-A-1"
+
+
+@pytest.mark.django_db
+def test_wcag_check_result_retest_other_wcag_check_result_retests():
     """
-    Test WcagCheckResultInitial.matching_wcag_with_retest_notes_check_results returns
-    WcagCheckResultInitials on the other pages with the same WCAG definition and
-    with notes.
+    Test WcagCheckResultRetest.other_wcag_check_result_retests returns
+    WcagCheckResultRetests on the other pages with the same WCAG definition.
+    """
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    initial_wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
+    first_wcag_check_result_retest: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.all().first()
+    )
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        first_wcag_check_result_retest.wcag_check_result_initial
+    )
+    create_retest_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
+    create_retest_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
+
+    assert first_wcag_check_result_retest.other_wcag_check_result_retests.count() == 2
+    assertQuerySetEqual(
+        first_wcag_check_result_retest.other_wcag_check_result_retests.order_by("id"),
+        WcagCheckResultRetest.objects.filter(
+            wcag_check_result_initial=wcag_check_result_initial
+        )
+        .exclude(id=first_wcag_check_result_retest.id)
+        .order_by("id"),
+    )
+
+
+@pytest.mark.django_db
+def test_wcag_check_result_retest_matching_wcag_check_result_retests_with_notes():
+    """
+    Test WcagCheckResultRetest.matching_wcag_check_result_retests_with_notes returns
+    WcagCheckResultRetests with notes and the same WCAG definition on the other pages.
     """
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
     wcag_definition: WcagDefinition = WcagDefinition.objects.get(
         type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
     )
-    home_page: WcagPageInitial = WcagPageInitial.objects.get(
+    home_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
         wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.HOME
     )
-    contact_page: WcagPageInitial = WcagPageInitial.objects.get(
+    home_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_page_initial=home_page_initial
+    )
+    contact_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
         wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.CONTACT
     )
-    form_page: WcagPageInitial = WcagPageInitial.objects.get(
+    contact_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_page_initial=contact_page_initial
+    )
+    form_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
         wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.FORM
     )
-    first_check_result: WcagCheckResultInitial = WcagCheckResultInitial.objects.create(
-        wcag_audit=initial_wcag_audit,
-        wcag_page_initial=home_page,
-        check_result_state=WcagCheckResultInitial.Result.ERROR,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
+    form_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_page_initial=form_page_initial
     )
-    second_check_result: WcagCheckResultInitial = WcagCheckResultInitial.objects.create(
-        wcag_audit=initial_wcag_audit,
-        wcag_page_initial=contact_page,
-        check_result_state=WcagCheckResultInitial.Result.ERROR,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
-        notes="Sample note",
+    first_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=initial_wcag_audit,
+            wcag_page_initial=home_page_initial,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+        )
     )
-    third_check_result: WcagCheckResultInitial = WcagCheckResultInitial.objects.create(
-        wcag_audit=initial_wcag_audit,
-        wcag_page_initial=form_page,
-        check_result_state=WcagCheckResultInitial.Result.ERROR,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
-        notes="Another note",
+    first_check_result_retest: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.create(
+            wcag_audit=twelve_week_wcag_audit,
+            wcag_page_retest=home_page_retest,
+            wcag_check_result_initial=first_check_result_initial,
+            wcag_definition=wcag_definition,
+            retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED,
+        )
+    )
+    second_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=initial_wcag_audit,
+            wcag_page_initial=contact_page_initial,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+            notes="Sample note",
+        )
+    )
+    second_check_result_retest: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.create(
+            wcag_audit=twelve_week_wcag_audit,
+            wcag_page_retest=contact_page_retest,
+            wcag_check_result_initial=second_check_result_initial,
+            wcag_definition=wcag_definition,
+            retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED,
+            notes="Retest note one",
+        )
+    )
+    third_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=initial_wcag_audit,
+            wcag_page_initial=form_page_initial,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+            notes="Another note",
+        )
+    )
+    third_check_result_retest: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.create(
+            wcag_audit=twelve_week_wcag_audit,
+            wcag_page_retest=form_page_retest,
+            wcag_check_result_initial=third_check_result_initial,
+            wcag_definition=wcag_definition,
+            retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED,
+            notes="Retest note two",
+        )
     )
 
-    assert first_check_result.matching_wcag_with_notes_check_results.count() == 2
     assert (
-        first_check_result.matching_wcag_with_notes_check_results.first()
-        == second_check_result
+        first_check_result_retest.matching_wcag_check_result_retests_with_notes.count()
+        == 2
     )
     assert (
-        first_check_result.matching_wcag_with_notes_check_results.last()
-        == third_check_result
+        first_check_result_retest.matching_wcag_check_result_retests_with_notes.first()
+        == second_check_result_retest
     )
+    assert (
+        first_check_result_retest.matching_wcag_check_result_retests_with_notes.last()
+        == third_check_result_retest
+    )
+
+
+@pytest.mark.django_db
+def test_wcag_check_result_retest_previous_wcag_check_result_retest():
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.filter(wcag_audit=initial_wcag_audit).first()
+    )
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
+    twelve_week_wcag_check_result_retest: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.get(
+            wcag_audit=twelve_week_wcag_audit,
+            wcag_check_result_initial=wcag_check_result_initial,
+        )
+    )
+
+    assert (
+        twelve_week_wcag_check_result_retest.previous_wcag_check_result_retest is None
+    )
+
+    first_equality_body_wcag_audit: WcagAudit = create_retest_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
+
+    first_equality_body_wcag_check_result_retest: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.get(
+            wcag_audit=first_equality_body_wcag_audit,
+            wcag_check_result_initial=wcag_check_result_initial,
+        )
+    )
+
+    assert (
+        first_equality_body_wcag_check_result_retest.previous_wcag_check_result_retest
+        == twelve_week_wcag_check_result_retest
+    )
+
+    second_equality_body_wcag_audit: WcagAudit = create_retest_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
+
+    second_equality_body_wcag_check_result_retest: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.get(
+            wcag_audit=second_equality_body_wcag_audit,
+            wcag_check_result_initial=wcag_check_result_initial,
+        )
+    )
+
+    assert (
+        second_equality_body_wcag_check_result_retest.previous_wcag_check_result_retest
+        == first_equality_body_wcag_check_result_retest
+    )
+
+
+# Older tests below
 
 
 @pytest.mark.django_db
@@ -2495,43 +2673,6 @@ def test_retest_statement_check_results_label():
     statement_check_result_round.save()
 
     assert statement_check_result_round.label == "Is there an accessibility page?"
-
-
-@pytest.mark.django_db
-def test_retest_check_result_matching_wcag_retest_check_results():
-    """
-    Test RetestCheckResult.matching_wcag_retest_check_results returns
-    retest check results on the other pages with the same WCAG definition
-    and with retest notes
-    """
-    simplified_case: SimplifiedCase = (
-        create_simplified_case_with_initial_and_12_week_audits()
-    )
-    initial_wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
-    first_wcag_check_result_retest: WcagCheckResultRetest = (
-        WcagCheckResultRetest.objects.all().first()
-    )
-    wcag_check_result_initial: WcagCheckResultInitial = (
-        first_wcag_check_result_retest.wcag_check_result_initial
-    )
-    create_retest_wcag_audit(
-        initial_wcag_audit=initial_wcag_audit,
-        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
-    )
-    create_retest_wcag_audit(
-        initial_wcag_audit=initial_wcag_audit,
-        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
-    )
-
-    assert first_wcag_check_result_retest.other_wcag_check_result_retests.count() == 2
-    assertQuerySetEqual(
-        first_wcag_check_result_retest.other_wcag_check_result_retests.order_by("id"),
-        WcagCheckResultRetest.objects.filter(
-            wcag_check_result_initial=wcag_check_result_initial
-        )
-        .exclude(id=first_wcag_check_result_retest.id)
-        .order_by("id"),
-    )
 
 
 @pytest.mark.django_db
