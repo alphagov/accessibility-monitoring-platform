@@ -31,7 +31,7 @@ WCAG_DEFINITION_BOILERPLATE_TEMPLATE: str = """**Issue {{ check_result.issue_ide
 {% endif %}"""
 CHECK_RESULTS_NOTES_TEMPLATE: str = """{{ check_result.notes|safe }}"""
 CHECK_RESULTS_RETEST_NOTES_TEMPLATE: str = (
-    """{{ check_result.twelve_week_retest.notes|safe }}"""
+    """{{ check_result.twelve_week_wcag_check_result_retest.notes|safe }}"""
 )
 DELETE_ROW_BUTTON_PREFIX: str = "delete_table_row_"
 UNDELETE_ROW_BUTTON_PREFIX: str = "undelete_table_row_"

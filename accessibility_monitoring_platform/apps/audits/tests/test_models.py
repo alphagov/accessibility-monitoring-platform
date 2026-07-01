@@ -1872,7 +1872,178 @@ def test_wcag_page_retest_latest_page_location():
     assert wcag_page_retest.latest_page_location == "Location the third"
 
 
+@pytest.mark.django_db
+def test_wcag_check_result_initial_updated_updated():
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.filter(
+            wcag_audit=wcag_audit,
+        ).first()
+    )
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_CHECK_RESULT_UPDATED)
+    ):
+        wcag_check_result_initial.save()
+
+    assert wcag_check_result_initial.updated == DATETIME_CHECK_RESULT_UPDATED
+
+
+@pytest.mark.django_db
+def test_wcag_check_result_initial_issue_identifier():
+    """Test new WcagCheckResultInitial gets unique identifier"""
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
+        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    simplified_case_1: SimplifiedCase = SimplifiedCase.objects.create()
+    wcag_audit_1: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case_1
+    )
+    wcag_page_initial_1: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit_1, page_type=WcagPageInitial.Type.HOME
+    )
+    wcag_check_result_initial_1a: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit_1,
+            wcag_page_initial=wcag_page_initial_1,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+        )
+    )
+
+    assert wcag_check_result_initial_1a.issue_identifier == "1-A-1"
+
+    wcag_check_result_initial_1b: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit_1,
+            wcag_page_initial=wcag_page_initial_1,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+        )
+    )
+
+    assert wcag_check_result_initial_1b.issue_identifier == "1-A-2"
+
+    simplified_case_2: SimplifiedCase = SimplifiedCase.objects.create()
+    wcag_audit_2: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case_2
+    )
+    wcag_page_initial_2: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit_2, page_type=WcagPageInitial.Type.HOME
+    )
+    wcag_check_result_initial_2a: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=wcag_audit_2,
+            wcag_page_initial=wcag_page_initial_2,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+        )
+    )
+
+    assert wcag_check_result_initial_2a.issue_identifier == "2-A-1"
+
+
+@pytest.mark.django_db
+def test_wcag_check_result_initial_string():
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.filter(
+            wcag_page_initial=wcag_page_initial
+        ).first()
+    )
+
+    assert str(wcag_check_result_initial) == "1-A-1 (Home)"
+
+
+@pytest.mark.django_db
+def test_wcag_check_result_initial_twelve_week_wcag_check_result_retest():
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    initial_wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.filter(
+            wcag_page_initial=wcag_page_initial
+        ).first()
+    )
+    wcag_check_result_retest: WcagCheckResultRetest = WcagCheckResultRetest.objects.get(
+        wcag_check_result_initial=wcag_check_result_initial
+    )
+    create_retest_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
+
+    assert (
+        wcag_check_result_initial.twelve_week_wcag_check_result_retest
+        == wcag_check_result_retest
+    )
+
+
 # Older tests below
+
+
+@pytest.mark.django_db
+def test_wcag_check_result_initial_matching_wcag_with_retest_notes_check_results():
+    """
+    Test WcagCheckResultInitial.matching_wcag_with_retest_notes_check_results returns
+    WcagCheckResultInitials on the other pages with the same WCAG definition and
+    with notes.
+    """
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    home_page: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
+    contact_page: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.CONTACT
+    )
+    form_page: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.FORM
+    )
+    first_check_result: WcagCheckResultInitial = WcagCheckResultInitial.objects.create(
+        wcag_audit=initial_wcag_audit,
+        wcag_page_initial=home_page,
+        check_result_state=WcagCheckResultInitial.Result.ERROR,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+    )
+    second_check_result: WcagCheckResultInitial = WcagCheckResultInitial.objects.create(
+        wcag_audit=initial_wcag_audit,
+        wcag_page_initial=contact_page,
+        check_result_state=WcagCheckResultInitial.Result.ERROR,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+        notes="Sample note",
+    )
+    third_check_result: WcagCheckResultInitial = WcagCheckResultInitial.objects.create(
+        wcag_audit=initial_wcag_audit,
+        wcag_page_initial=form_page,
+        check_result_state=WcagCheckResultInitial.Result.ERROR,
+        type=wcag_definition.type,
+        wcag_definition=wcag_definition,
+        notes="Another note",
+    )
+
+    assert first_check_result.matching_wcag_with_notes_check_results.count() == 2
+    assert (
+        first_check_result.matching_wcag_with_notes_check_results.first()
+        == second_check_result
+    )
+    assert (
+        first_check_result.matching_wcag_with_notes_check_results.last()
+        == third_check_result
+    )
 
 
 @pytest.mark.django_db
@@ -2018,23 +2189,6 @@ def test_page_updated_updated():
         wcag_page_initial.save()
 
     assert wcag_page_initial.updated == DATETIME_PAGE_UPDATED
-
-
-@pytest.mark.django_db
-def test_wcag_check_result_initial_updated_updated():
-    """Test the WCAG check result initial updated field is updated"""
-    wcag_audit: WcagAudit = create_initial_wcag_audit()
-    wcag_check_result_initial: WcagCheckResultInitial = (
-        WcagCheckResultInitial.objects.filter(
-            wcag_audit=wcag_audit,
-        ).first()
-    )
-    with patch(
-        "django.utils.timezone.now", Mock(return_value=DATETIME_CHECK_RESULT_UPDATED)
-    ):
-        wcag_check_result_initial.save()
-
-    assert wcag_check_result_initial.updated == DATETIME_CHECK_RESULT_UPDATED
 
 
 @pytest.mark.django_db
@@ -2344,60 +2498,6 @@ def test_retest_statement_check_results_label():
 
 
 @pytest.mark.django_db
-def test_wcag_check_result_initial_matching_wcag_with_notes_check_results():
-    """
-    Test CheckResult.matching_wcag_with_retest_notes_check_results returns other
-    check results on the other pages with the same WCAG definition and retest notes
-    """
-    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
-    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
-        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
-    )
-    home_page: WcagPageInitial = WcagPageInitial.objects.get(
-        wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.HOME
-    )
-    contact_page: WcagPageInitial = WcagPageInitial.objects.get(
-        wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.CONTACT
-    )
-    form_page: WcagPageInitial = WcagPageInitial.objects.get(
-        wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.FORM
-    )
-    first_check_result: WcagCheckResultInitial = WcagCheckResultInitial.objects.create(
-        wcag_audit=initial_wcag_audit,
-        wcag_page_initial=home_page,
-        check_result_state=WcagCheckResultInitial.Result.ERROR,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
-    )
-    second_check_result: WcagCheckResultInitial = WcagCheckResultInitial.objects.create(
-        wcag_audit=initial_wcag_audit,
-        wcag_page_initial=contact_page,
-        check_result_state=WcagCheckResultInitial.Result.ERROR,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
-        notes="Sample note",
-    )
-    third_check_result: WcagCheckResultInitial = WcagCheckResultInitial.objects.create(
-        wcag_audit=initial_wcag_audit,
-        wcag_page_initial=form_page,
-        check_result_state=WcagCheckResultInitial.Result.ERROR,
-        type=wcag_definition.type,
-        wcag_definition=wcag_definition,
-        notes="Another note",
-    )
-
-    assert first_check_result.matching_wcag_with_notes_check_results.count() == 2
-    assert (
-        first_check_result.matching_wcag_with_notes_check_results.first()
-        == second_check_result
-    )
-    assert (
-        first_check_result.matching_wcag_with_notes_check_results.last()
-        == third_check_result
-    )
-
-
-@pytest.mark.django_db
 def test_retest_check_result_matching_wcag_retest_check_results():
     """
     Test RetestCheckResult.matching_wcag_retest_check_results returns
@@ -2432,63 +2532,6 @@ def test_retest_check_result_matching_wcag_retest_check_results():
         .exclude(id=first_wcag_check_result_retest.id)
         .order_by("id"),
     )
-
-
-@pytest.mark.django_db
-def test_check_result_issue_identifier():
-    """Test check result gets unique identifier"""
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
-    )
-    simplified_case_1: SimplifiedCase = SimplifiedCase.objects.create()
-    wcag_audit_1: WcagAudit = WcagAudit.objects.create(
-        simplified_case=simplified_case_1
-    )
-    wcag_page_initial_1: WcagPageInitial = WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit_1, page_type=WcagPageInitial.Type.HOME
-    )
-    wcag_check_result_initial_1a: WcagCheckResultInitial = (
-        WcagCheckResultInitial.objects.create(
-            wcag_audit=wcag_audit_1,
-            wcag_page_initial=wcag_page_initial_1,
-            check_result_state=WcagCheckResultInitial.Result.ERROR,
-            type=wcag_definition.type,
-            wcag_definition=wcag_definition,
-        )
-    )
-
-    assert wcag_check_result_initial_1a.issue_identifier == "1-A-1"
-
-    wcag_check_result_initial_1b: WcagCheckResultInitial = (
-        WcagCheckResultInitial.objects.create(
-            wcag_audit=wcag_audit_1,
-            wcag_page_initial=wcag_page_initial_1,
-            check_result_state=WcagCheckResultInitial.Result.ERROR,
-            type=wcag_definition.type,
-            wcag_definition=wcag_definition,
-        )
-    )
-
-    assert wcag_check_result_initial_1b.issue_identifier == "1-A-2"
-
-    simplified_case_2: SimplifiedCase = SimplifiedCase.objects.create()
-    wcag_audit_2: WcagAudit = WcagAudit.objects.create(
-        simplified_case=simplified_case_2
-    )
-    wcag_page_initial_2: WcagPageInitial = WcagPageInitial.objects.create(
-        wcag_audit=wcag_audit_2, page_type=WcagPageInitial.Type.HOME
-    )
-    wcag_check_result_initial_2a: WcagCheckResultInitial = (
-        WcagCheckResultInitial.objects.create(
-            wcag_audit=wcag_audit_2,
-            wcag_page_initial=wcag_page_initial_2,
-            check_result_state=WcagCheckResultInitial.Result.ERROR,
-            type=wcag_definition.type,
-            wcag_definition=wcag_definition,
-        )
-    )
-
-    assert wcag_check_result_initial_2a.issue_identifier == "2-A-1"
 
 
 @pytest.mark.django_db

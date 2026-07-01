@@ -540,7 +540,7 @@ def get_audit_summary_context(
                 wcag_page_initial=wcag_failed_check_result_initial.wcag_page_initial,
                 issue_identifier=wcag_failed_check_result_initial.issue_identifier,
                 initial_result=wcag_failed_check_result_initial,
-                retest_result=wcag_failed_check_result_initial.twelve_week_retest,
+                retest_result=wcag_failed_check_result_initial.twelve_week_wcag_check_result_retest,
             )
             if (
                 show_all

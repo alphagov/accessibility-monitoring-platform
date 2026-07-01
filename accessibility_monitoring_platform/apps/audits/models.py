@@ -1107,7 +1107,6 @@ class WcagPageRetest(models.Model):
 
     @property
     def wcag_page_retests(self):
-        """Return all wcag page retests for this page"""
         return WcagPageRetest.objects.filter(wcag_page_initial=self.wcag_page_initial)
 
     @property
@@ -1130,9 +1129,7 @@ class WcagPageRetest(models.Model):
 
 
 class WcagDefinition(models.Model):
-    """
-    Model for WCAG tests captured by the platform
-    """
+    """Model for WCAG tests recorded by the platform"""
 
     class Type(models.TextChoices):
         MANUAL = "manual", "Manual"
@@ -1266,21 +1263,10 @@ class WcagCheckResultInitial(models.Model):
         return f"{self.issue_identifier} ({self.wcag_page_initial})"
 
     @property
-    def twelve_week_retest(self) -> WcagCheckResultRetest | None:
+    def twelve_week_wcag_check_result_retest(self) -> WcagCheckResultRetest | None:
         return WcagCheckResultRetest.objects.filter(
             wcag_check_result_initial=self
         ).first()
-
-    @property
-    def matching_wcag_with_notes_check_results(self) -> dict[str, str]:
-        """Other check results with notes for matching WcagDefinition"""
-        return (
-            self.wcag_audit.failed_wcag_check_result_initials.filter(
-                wcag_definition=self.wcag_definition
-            )
-            .exclude(wcag_page_initial=self.wcag_page_initial)
-            .exclude(notes="")
-        )
 
 
 class WcagCheckResultRetest(models.Model):
@@ -1321,6 +1307,19 @@ class WcagCheckResultRetest(models.Model):
         return WcagCheckResultRetest.objects.filter(
             wcag_check_result_initial=self.wcag_check_result_initial
         ).exclude(wcag_page_retest=self.wcag_page_retest)
+
+    @property
+    def matching_wcag_with_retest_notes_check_results(
+        self,
+    ) -> QuerySet[WcagCheckResultInitial]:
+        """Other WcagCheckResultInitials with notes for matching WcagDefinition"""
+        return (
+            self.wcag_audit.failed_wcag_check_result_initials.filter(
+                wcag_definition=self.wcag_definition
+            )
+            .exclude(wcag_page_initial=self.wcag_page_initial)
+            .exclude(notes="")
+        )
 
     @property
     def previous_wcag_check_result_retest(self) -> WcagCheckResultRetest | None:
