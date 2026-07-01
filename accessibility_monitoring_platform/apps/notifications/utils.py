@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.urls import reverse
 
-from ..audits.models import Retest
+from ..audits.models import WcagAudit
 from ..detailed.utils import (
     record_detailed_model_create_event,
     record_detailed_model_update_event,
@@ -303,17 +303,17 @@ def get_post_case_tasks(user: User) -> list[Task]:
             ]
             tasks.append(task)
 
-    retests: QuerySet[Retest] = Retest.objects.filter(
+    wcag_audit_retests: QuerySet[WcagAudit] = WcagAudit.objects.filter(
         is_deleted=False,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
         simplified_case__auditor=user,
-        retest_compliance_state=Retest.Compliance.NOT_KNOWN,
-        id_within_case__gt=0,
+        compliance_state=WcagAudit.WebsiteCompliance.UNKNOWN,
     )
 
-    for retest in retests:
+    for wcag_audit in wcag_audit_retests:
         if (
             Task.objects.filter(
-                base_case=retest.simplified_case,
+                base_case=wcag_audit.simplified_case,
                 type=Task.Type.REMINDER,
                 date__gte=today,
             ).first()
@@ -321,15 +321,15 @@ def get_post_case_tasks(user: User) -> list[Task]:
         ):
             task: Task = Task(
                 type=Task.Type.POSTCASE,
-                date=retest.date_of_retest,
-                base_case=retest.simplified_case,
+                date=wcag_audit.date_of_test,
+                base_case=wcag_audit.simplified_case,
                 description="Incomplete retest",
                 action="View retest",
             )
             task.options: list[Link] = [
                 Link(
                     label="View retest",
-                    url=retest.get_absolute_url(),
+                    url=wcag_audit.get_absolute_url(),
                 )
             ]
             tasks.append(task)

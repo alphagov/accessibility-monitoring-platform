@@ -9,12 +9,17 @@ from django.urls import reverse
 from pytest_django.asserts import assertContains
 
 from ...audits.models import (
-    Audit,
-    CheckResult,
-    Page,
     Retest,
     RetestPage,
-    WcagDefinition,
+    WcagAudit,
+    WcagPageInitial,
+    WcagPageRetest,
+)
+from ...audits.tests.create_test_data import (
+    create_equality_body_audits,
+    create_initial_wcag_audit,
+    create_retest_wcag_audit,
+    create_simplified_case_with_initial_and_12_week_audits,
 )
 from ...cases.models import BaseCase
 from ...comments.models import Comment
@@ -34,25 +39,26 @@ from ...simplified.models import (
 from ..sitemap import (
     SITE_MAP,
     SITEMAP_BY_URL_NAME,
-    AuditPagesPlatformPage,
     AuditPlatformPage,
-    AuditRetestPagesPlatformPage,
     BaseCaseCommentsPlatformPage,
     CaseContactsPlatformPage,
     DetailedCasePlatformPage,
     DetailedCasePlatformPageGroup,
     EqualityBodyRetestPagesPlatformPage,
-    EqualityBodyRetestPlatformPage,
+    EqualityBodyRetestWcagPlatformPage,
     ExportPlatformPage,
     MobileCasePlatformPage,
     MobileCasePlatformPageGroup,
     PlatformPage,
     PlatformPageGroup,
     ReportPlatformPage,
-    RetestOverviewPlatformPage,
     SimplifiedCasePlatformPage,
     SimplifiedCasePlatformPageGroup,
     Sitemap,
+    WcagAuditInitialPagesPlatformPage,
+    WcagAuditInitialPlatformPage,
+    WcagAuditRetestPagesPlatformPage,
+    WcagAuditTwelveWeekPlatformPage,
     build_sitemap_by_url_name,
     build_sitemap_for_current_page,
     get_platform_page_by_url_name,
@@ -199,7 +205,7 @@ def test_platform_page_populate_subpage_instances():
         subpages=[
             PlatformPage(name=PLATFORM_PAGE_NAME, instance_class=SimplifiedCase),
             PlatformPage(name=PLATFORM_PAGE_NAME, instance_class=SimplifiedCase),
-            PlatformPage(name=PLATFORM_PAGE_NAME, instance_class=Audit),
+            PlatformPage(name=PLATFORM_PAGE_NAME, instance_class=WcagAudit),
         ],
     )
 
@@ -299,13 +305,14 @@ def test_platform_page_get_case():
         == simplified_case
     )
 
-    audit: Audit = Audit(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit(simplified_case=simplified_case)
 
     assert (
-        PlatformPage(name=PLATFORM_PAGE_NAME, instance=audit).get_case()
+        PlatformPage(name=PLATFORM_PAGE_NAME, instance=wcag_audit).get_case()
         == simplified_case
     )
-    page: Page = Page(audit=audit)
+
+    page: WcagPageInitial = WcagPageInitial(wcag_audit=wcag_audit)
 
     assert (
         PlatformPage(name=PLATFORM_PAGE_NAME, instance=page).get_case()
@@ -459,19 +466,51 @@ def test_case_contacts_platform_page():
 
 
 @pytest.mark.django_db
-def test_audit_platform_page():
-    """Test AuditPlatformPage"""
-    audit_platform_page: AuditPlatformPage = AuditPlatformPage(name=PLATFORM_PAGE_NAME)
+def test_initial_wcag_audit_platform_page():
+    """Test WcagAuditInitialPlatformPage"""
+    audit_platform_page: WcagAuditInitialPlatformPage = WcagAuditInitialPlatformPage(
+        name=PLATFORM_PAGE_NAME
+    )
 
-    assert audit_platform_page.instance_class == Audit
+    assert audit_platform_page.instance_class == WcagAudit
     assert audit_platform_page.url_kwarg_key == "pk"
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    initial_wcag_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
 
     audit_platform_page.populate_from_case(case=simplified_case)
 
-    assert audit_platform_page.instance == audit
+    assert audit_platform_page.instance == initial_wcag_audit
+
+
+@pytest.mark.django_db
+def test_wcag_audit_twelve_week_platform_page():
+    """Test WcagAuditTwelveWeekPlatformPage"""
+    audit_platform_page: WcagAuditTwelveWeekPlatformPage = (
+        WcagAuditTwelveWeekPlatformPage(name=PLATFORM_PAGE_NAME)
+    )
+
+    assert audit_platform_page.instance_class == WcagAudit
+    assert audit_platform_page.url_kwarg_key == "pk"
+
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+    )
+    wcag_audit_twelve_week: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
+
+    audit_platform_page.populate_from_case(case=simplified_case)
+
+    assert audit_platform_page.instance == wcag_audit_twelve_week
 
 
 @pytest.mark.django_db
@@ -481,22 +520,28 @@ def test_audit_pages_platform_page():
         url_name="audits:edit-audit-pages",
     )
 
-    assert isinstance(audit_pages_platform_page, AuditPagesPlatformPage)
-    assert audit_pages_platform_page.instance_class == Audit
+    assert isinstance(audit_pages_platform_page, WcagAuditInitialPagesPlatformPage)
+    assert audit_pages_platform_page.instance_class == WcagAudit
     assert audit_pages_platform_page.url_kwarg_key == "pk"
 
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    Page.objects.create(audit=audit, name="Page one", url="url")
-    Page.objects.create(audit=audit, name="Page two", url="url")
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
 
-    audit_pages_platform_page.populate_from_case(case=simplified_case)
+    audit_pages_platform_page.populate_from_case(
+        case=initial_wcag_audit.simplified_case
+    )
 
-    assert audit_pages_platform_page.instance == audit
+    assert audit_pages_platform_page.instance == initial_wcag_audit
     assert audit_pages_platform_page.subpages is not None
-    assert len(audit_pages_platform_page.subpages) == 2
-    assert audit_pages_platform_page.subpages[0].get_name() == "Page one page test"
-    assert audit_pages_platform_page.subpages[1].get_name() == "Page two page test"
+    assert len(audit_pages_platform_page.subpages) == 6
+    assert audit_pages_platform_page.subpages[0].get_name() == "Home page test"
+    assert audit_pages_platform_page.subpages[1].get_name() == "Contact page test"
+    assert audit_pages_platform_page.subpages[2].get_name() == "Form page test"
+    assert audit_pages_platform_page.subpages[3].get_name() == "Additional page test"
+    assert audit_pages_platform_page.subpages[4].get_name() == "PDF test"
+    assert (
+        audit_pages_platform_page.subpages[5].get_name()
+        == "Accessibility statement page test"
+    )
 
 
 @pytest.mark.django_db
@@ -524,78 +569,48 @@ def test_audit_retest_pages_platform_page():
         url_name="audits:edit-audit-retest-pages",
     )
 
-    assert isinstance(audit_retest_pages_platform_page, AuditRetestPagesPlatformPage)
-    assert audit_retest_pages_platform_page.instance_class == Audit
+    assert isinstance(
+        audit_retest_pages_platform_page, WcagAuditRetestPagesPlatformPage
+    )
+    assert audit_retest_pages_platform_page.instance_class == WcagAudit
     assert audit_retest_pages_platform_page.url_kwarg_key == "pk"
 
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    page_1: Page = Page.objects.create(audit=audit, name="Page one", url="url")
-    page_2: Page = Page.objects.create(audit=audit, name="Page two", url="url")
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create(
-        type=WcagDefinition.Type.AXE
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page_1,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
-    )
-    CheckResult.objects.create(
-        audit=audit,
-        page=page_2,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit
     )
 
-    audit_retest_pages_platform_page.populate_from_case(case=simplified_case)
+    audit_retest_pages_platform_page.populate_from_case(
+        case=initial_wcag_audit.simplified_case
+    )
 
-    assert audit_retest_pages_platform_page.instance == audit
+    assert audit_retest_pages_platform_page.instance == twelve_week_wcag_audit
     assert audit_retest_pages_platform_page.subpages is not None
-    assert len(audit_retest_pages_platform_page.subpages) == 2
+    assert len(audit_retest_pages_platform_page.subpages) == 6
+    assert audit_retest_pages_platform_page.subpages[0].get_name() == "Home page retest"
     assert (
-        audit_retest_pages_platform_page.subpages[0].get_name()
-        == "Page one page retest"
+        audit_retest_pages_platform_page.subpages[1].get_name() == "Contact page retest"
     )
+    assert audit_retest_pages_platform_page.subpages[2].get_name() == "Form page retest"
     assert (
-        audit_retest_pages_platform_page.subpages[1].get_name()
-        == "Page two page retest"
+        audit_retest_pages_platform_page.subpages[3].get_name()
+        == "Additional page retest"
+    )
+    assert audit_retest_pages_platform_page.subpages[4].get_name() == "PDF retest"
+    assert (
+        audit_retest_pages_platform_page.subpages[5].get_name()
+        == "Accessibility statement page retest"
     )
 
 
 def test_equality_body_retest_platform_page():
     """Test EqualityBodyRetestPlatformPage"""
-    equality_body_retest_platform_page: EqualityBodyRetestPlatformPage = (
-        EqualityBodyRetestPlatformPage(name=PLATFORM_PAGE_NAME)
+    equality_body_retest_platform_page: EqualityBodyRetestWcagPlatformPage = (
+        EqualityBodyRetestWcagPlatformPage(name=PLATFORM_PAGE_NAME)
     )
 
-    assert equality_body_retest_platform_page.instance_class == Retest
+    assert equality_body_retest_platform_page.instance_class == WcagAudit
     assert equality_body_retest_platform_page.url_kwarg_key == "pk"
-
-
-@pytest.mark.django_db
-def test_retest_overview_platform_page():
-    """Test RetestOverviewPlatformPage"""
-    retest_overview_platform_page: PlatformPage = get_platform_page_by_url_name(
-        url_name="simplified:edit-retest-overview",
-    )
-
-    assert isinstance(retest_overview_platform_page, RetestOverviewPlatformPage)
-    assert retest_overview_platform_page.instance_class == SimplifiedCase
-    assert retest_overview_platform_page.url_kwarg_key == "pk"
-
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Retest.objects.create(simplified_case=simplified_case, id_within_case=0)
-    Retest.objects.create(simplified_case=simplified_case, id_within_case=1)
-    Retest.objects.create(simplified_case=simplified_case, id_within_case=2)
-
-    retest_overview_platform_page.populate_from_case(case=simplified_case)
-
-    assert retest_overview_platform_page.instance == simplified_case
-    assert retest_overview_platform_page.subpages is not None
-    assert len(retest_overview_platform_page.subpages) == 2
-    assert retest_overview_platform_page.subpages[0].get_name() == "Retest #2"
-    assert retest_overview_platform_page.subpages[1].get_name() == "Retest #1"
 
 
 @pytest.mark.django_db
@@ -606,80 +621,34 @@ def test_equality_body_retest_pages_platform_page():
             name="Pages",
             subpages=[
                 PlatformPage(
-                    name="{instance.retest} | {instance}",
+                    name="{instance.wcag_audit} | {instance}",
                     url_name="audits:edit-retest-page-checks",
-                    instance_class=RetestPage,
+                    instance_class=WcagPageRetest,
                     complete_flag_name="complete_date",
                 )
             ],
         )
     )
 
-    assert equality_body_retest_pages_platform_page.instance_class == Retest
+    assert equality_body_retest_pages_platform_page.instance_class == WcagAudit
     assert equality_body_retest_pages_platform_page.url_kwarg_key == "pk"
 
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    page: Page = Page.objects.create(audit=audit, name="Test Page")
-    retest: Retest = Retest.objects.create(
-        simplified_case=simplified_case, id_within_case=1
-    )
-    RetestPage.objects.create(retest=retest, page=page)
-    RetestPage.objects.create(retest=retest, page=page)
+    wcag_audit: WcagAudit = create_equality_body_audits()
 
-    equality_body_retest_pages_platform_page.instance = retest
+    equality_body_retest_pages_platform_page.instance = wcag_audit
     equality_body_retest_pages_platform_page.populate_subpage_instances()
 
     assert equality_body_retest_pages_platform_page.subpages is not None
-    assert len(equality_body_retest_pages_platform_page.subpages) == 2
+
+    assert len(equality_body_retest_pages_platform_page.subpages) == 6
     assert (
         equality_body_retest_pages_platform_page.subpages[0].get_name()
-        == f"{retest} | {page}"
+        == f"{wcag_audit} | Home"
     )
     assert (
         equality_body_retest_pages_platform_page.subpages[1].get_name()
-        == f"{retest} | {page}"
+        == f"{wcag_audit} | Contact"
     )
-
-
-@pytest.mark.django_db
-def test_retest_overview_platform_page_populates_subpages():
-    """Test RetestOverviewPlatformPage populates subpages from case"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    page_1: Page = Page.objects.create(audit=audit, name="Test page one")
-    page_2: Page = Page.objects.create(audit=audit, name="Test page two")
-    retest: Retest = Retest.objects.create(
-        simplified_case=simplified_case, id_within_case=1
-    )
-    RetestPage.objects.create(retest=retest, page=page_1)
-    RetestPage.objects.create(retest=retest, page=page_2)
-
-    retest_overview_platform_page: PlatformPage = get_platform_page_by_url_name(
-        url_name="simplified:edit-retest-overview",
-    )
-    retest_overview_platform_page.populate_from_case(case=simplified_case)
-
-    assert isinstance(retest_overview_platform_page, RetestOverviewPlatformPage)
-    assert retest_overview_platform_page.instance == simplified_case
-    assert retest_overview_platform_page.subpages is not None
-    assert len(retest_overview_platform_page.subpages) == 1
-    assert retest_overview_platform_page.subpages[0].get_name() == "Retest #1"
-
-    retest_1: PlatformPage = retest_overview_platform_page.subpages[0]
-
-    assert retest_1 is not None
-    assert retest_1.subpages is not None
-    assert len(retest_1.subpages) > 2
-    assert retest_1.subpages[1].get_name() == "Pages"
-
-    retest_1_pages: PlatformPage = retest_1.subpages[1]
-
-    assert retest_1_pages is not None
-    assert retest_1_pages.subpages is not None
-    assert len(retest_1_pages.subpages) == 2
-    assert retest_1_pages.subpages[0].get_name() == f"{retest} | {page_1}"
-    assert retest_1_pages.subpages[1].get_name() == f"{retest} | {page_2}"
 
 
 @pytest.mark.django_db
@@ -704,44 +673,47 @@ def test_get_requested_platform_page_for_case(rf):
 @pytest.mark.django_db
 def test_get_requested_platform_page_for_page(rf):
     """Test get_requested_platform_page returns expected Page-specific page"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    page: Page = Page.objects.create(audit=audit)
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
 
     request_user: User = User.objects.create(
-        username="johnsmith", first_name="John", last_name="Smith"
+        username="requestuser", first_name="Request", last_name="User"
     )
     request = rf.get(
-        reverse("audits:edit-audit-page-checks", kwargs={"pk": page.id}),
+        reverse("audits:edit-audit-page-checks", kwargs={"pk": wcag_page_initial.id}),
     )
     request.user = request_user
 
     current_platform_page: PlatformPage = get_requested_platform_page(request)
 
-    assert current_platform_page.get_name() == "Additional page test"
+    assert current_platform_page.get_name() == "Home page test"
     assert current_platform_page.url_name == "audits:edit-audit-page-checks"
 
 
 @pytest.mark.django_db
 def test_get_requested_platform_page_for_retest_page(rf):
     """Test get_requested_platform_page returns expected RetestPage-specific page"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    page: Page = Page.objects.create(audit=audit)
-    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
-    retest_page: RetestPage = RetestPage.objects.create(retest=retest, page=page)
+    wcag_audit: WcagAudit = create_equality_body_audits()
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        page_type=WcagPageInitial.Type.HOME,
+    )
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_audit=wcag_audit, wcag_page_initial=wcag_page_initial
+    )
 
     request_user: User = User.objects.create(
-        username="johnsmith", first_name="John", last_name="Smith"
+        username="johnsmith2", first_name="John", last_name="Smith 2"
     )
     request = rf.get(
-        reverse("audits:edit-retest-page-checks", kwargs={"pk": retest_page.id}),
+        reverse("audits:edit-retest-page-checks", kwargs={"pk": wcag_page_retest.id}),
     )
     request.user = request_user
 
     current_platform_page: PlatformPage = get_requested_platform_page(request)
 
-    assert current_platform_page.get_name() == "Retest #1 | Additional"
+    assert current_platform_page.get_name() == "Retest #0 | Home"
     assert current_platform_page.url_name == "audits:edit-retest-page-checks"
 
 
@@ -898,13 +870,13 @@ def test_case_sitemap(rf):
         ("/", "Dashboard"),
         ("/simplified/1/edit-case-metadata/", "Case metadata"),
         ("/audits/1/edit-audit-metadata/", "Initial test metadata"),
-        ("/audits/pages/1/edit-audit-page-checks/", "Pagename page test"),
+        ("/audits/pages/1/edit-audit-page-checks/", "Additional page test"),
         (
             "/simplified/contacts/1/edit-contact-update/",
             "Edit contact SimplifiedContact Name a.b@example.com",
         ),
-        ("/audits/retests/1/retest-metadata-update/", "Retest #1 | Retest metadata"),
-        ("/audits/retest-pages/1/retest-page-checks/", "Retest #1 | Pagename"),
+        ("/audits/retests/3/retest-metadata-update/", "Retest #1 | Retest metadata"),
+        ("/audits/retest-pages/7/retest-page-checks/", "Retest #1 | Home"),
         ("/notifications/cases/1/reminder-task-create/", "Reminder"),
         ("/notifications/1/edit-reminder-task/", "Reminder"),
         ("/simplified/1/edit-equality-body-correspondence/", "Edit Zendesk ticket"),
@@ -924,17 +896,15 @@ def test_page_name(url, expected_page_name, admin_client):
     """
     Test that the page renders and its name is as expected.
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    page: Page = Page.objects.create(audit=audit, name="Pagename")
-    Report.objects.create(base_case=simplified_case)
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    create_equality_body_audits(simplified_case=simplified_case)
     SimplifiedContact.objects.create(
         simplified_case=simplified_case,
         name="SimplifiedContact Name",
         email="a.b@example.com",
     )
-    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
-    RetestPage.objects.create(retest=retest, page=page)
     user: User = User.objects.create()
     Task.objects.create(base_case=simplified_case, date=FIRST_SEPTEMBER_2024, user=user)
     EqualityBodyCorrespondence.objects.create(simplified_case=simplified_case)

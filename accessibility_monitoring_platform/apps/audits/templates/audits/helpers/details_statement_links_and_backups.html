@@ -5,12 +5,32 @@
         </span>
     </summary>
     <div class="govuk-details__text">
-        {% if audit.statement_pages %}
+        {% if case.audit_overview.statement_pages %}
             {% include "audits/helpers/statement_links.html" %}
             {% include "audits/helpers/statement_backups.html" %}
             <p class="govuk-body-m">
                 <a href="{% url 'cases:case-file-list' case.id %}" class="govuk-link govuk-link--no-visited-state">
                     View case files manager</a>
+            </p>
+        {% elif statement_audit %}
+            <p class="govuk-body">
+                No statement added. Add a statement in
+                {% if statement_audit.audit_round_type == 'initial' %}
+                    <a href="{% url 'audits:edit-statement-pages' statement_audit.id %}"
+                {% else %}
+                    <a href="{% url 'audits:edit-audit-retest-statement-pages' statement_audit.id %}"
+                {% endif %}
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    statement links</a>.
+            </p>
+        {% elif case.audit_overview.initial_statement_audit %}
+            <p class="govuk-body">
+                No statement added. Add a statement in
+                <a href="{% url 'audits:edit-statement-pages' case.audit_overview.initial_statement_audit.id %}"
+                    class="govuk-link govuk-link--no-visited-state"
+                    rel="noreferrer noopener">
+                    statement links</a>.
             </p>
         {% else %}
             <p class="govuk-body">

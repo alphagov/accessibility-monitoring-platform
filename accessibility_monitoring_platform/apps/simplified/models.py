@@ -5,7 +5,6 @@ Models - cases
 import json
 import re
 from datetime import date, datetime, timedelta
-from datetime import timezone as datetime_timezone
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -34,13 +33,6 @@ from ..common.utils import (
 ONE_WEEK_IN_DAYS: int = 7
 MAX_LENGTH_OF_FORMATTED_URL: int = 25
 PSB_APPEAL_WINDOW_IN_DAYS: int = 28
-
-COMPLIANCE_FIELDS: list[str] = [
-    "website_compliance_state_initial",
-    "statement_compliance_state_initial",
-    "website_compliance_state_12_week",
-    "statement_compliance_state_12_week",
-]
 
 UPDATE_SEPARATOR: str = " -> "
 
@@ -655,16 +647,23 @@ class SimplifiedCase(BaseCase):
             return None
 
     @property
+    def audit_overview(self):
+        try:
+            return self.auditoverview_simplifiedcase
+        except ObjectDoesNotExist:
+            return None
+
+    @property
     def not_archived(self) -> bool:
         return self.archive == ""
 
     @property
     def show_start_test(self) -> bool:
-        return self.not_archived and self.audit is None
+        return self.not_archived and self.audit_overview is None
 
     @property
     def not_archived_has_audit(self) -> bool:
-        return self.not_archived and self.audit is not None
+        return self.not_archived and self.audit_overview is not None
 
     @property
     def report_acknowledged_yes_no(self) -> str:
@@ -674,16 +673,16 @@ class SimplifiedCase(BaseCase):
     def show_start_12_week_retest(self) -> bool:
         return (
             self.not_archived
-            and self.audit is not None
-            and self.audit.retest_date is None
+            and self.audit_overview is not None
+            and self.audit_overview.first_twelve_week_wcag_audit is None
         )
 
     @property
     def show_12_week_retest(self) -> bool:
         return (
             self.not_archived
-            and self.audit is not None
-            and self.audit.retest_date is not None
+            and self.audit_overview is not None
+            and self.audit_overview.first_twelve_week_wcag_audit is not None
         )
 
     @property
@@ -721,20 +720,8 @@ class SimplifiedCase(BaseCase):
             updated_times.append(contact.created)
             updated_times.append(contact.updated)
 
-        if self.audit is not None:
-            updated_times.append(
-                datetime(
-                    self.audit.date_of_test.year,
-                    self.audit.date_of_test.month,
-                    self.audit.date_of_test.day,
-                    tzinfo=datetime_timezone.utc,
-                )
-            )
-            updated_times.append(self.audit.updated)
-            for page in self.audit.page_audit.all():
-                updated_times.append(page.updated)
-            for check_result in self.audit.checkresult_audit.all():
-                updated_times.append(check_result.updated)
+        if self.audit_overview is not None:
+            updated_times.append(self.audit_overview.last_edited)
 
         for comment in self.comment_basecase.all():
             updated_times.append(comment.created_date)
@@ -753,12 +740,9 @@ class SimplifiedCase(BaseCase):
 
     @property
     def website_compliance_display(self):
-        if (
-            self.compliance.website_compliance_state_12_week
-            == CaseCompliance.WebsiteCompliance.UNKNOWN
-        ):
-            return self.compliance.get_website_compliance_state_initial_display()
-        return self.compliance.get_website_compliance_state_12_week_display()
+        if self.audit_overview is None:
+            return "Test not yet started"
+        return self.audit_overview.website_compliance_display
 
     @property
     def accessibility_statement_compliance_display(self):
@@ -771,76 +755,120 @@ class SimplifiedCase(BaseCase):
 
     @property
     def total_website_issues(self) -> int:
-        if self.audit is None:
+        if (
+            self.audit_overview is None
+            or self.audit_overview.initial_wcag_audit is None
+        ):
             return 0
-        return self.audit.failed_check_results.count()
+        return (
+            self.audit_overview.initial_wcag_audit.failed_wcag_check_result_initials.count()
+        )
 
     @property
     def total_website_issues_fixed(self) -> int:
-        if self.audit is None:
+        if (
+            self.audit_overview is None
+            or self.audit_overview.initial_wcag_audit is None
+            or self.audit_overview.first_twelve_week_wcag_audit is None
+        ):
             return 0
-        return self.audit.fixed_check_results.count()
+        return (
+            self.audit_overview.first_twelve_week_wcag_audit.fixed_wcag_check_result_retests.count()
+        )
 
     @property
     def total_website_issues_unfixed(self) -> int:
-        if self.audit is None or self.total_website_issues == 0:
+        if (
+            self.audit_overview is None
+            or self.audit_overview.initial_wcag_audit is None
+            or self.audit_overview.first_twelve_week_wcag_audit is None
+        ):
             return 0
         return self.total_website_issues - self.total_website_issues_fixed
 
     @property
     def percentage_website_issues_fixed(self) -> int | str:
-        if self.audit is None:
+        if (
+            self.audit_overview is None
+            or self.audit_overview.first_twelve_week_wcag_audit is None
+        ):
             return "n/a"
-        failed_checks_count: int = self.audit.failed_check_results.count()
+        failed_checks_count: int = (
+            self.audit_overview.initial_wcag_audit.failed_wcag_check_result_initials.count()
+        )
         if failed_checks_count == 0:
             return "n/a"
-        fixed_checks_count: int = self.audit.fixed_check_results.count()
+        fixed_checks_count: int = (
+            self.audit_overview.first_twelve_week_wcag_audit.fixed_wcag_check_result_retests.count()
+        )
         return int(fixed_checks_count * 100 / failed_checks_count)
 
     @property
     def csv_export_statement_initially_found(self) -> str:
-        if self.audit is None:
+        if self.audit_overview is None:
             return "unknown"
-        if self.audit.statement_initially_found:
+        if (
+            self.audit_overview.initial_statement_audit is not None
+            and self.audit_overview.initial_statement_audit.all_overview_statement_checks_have_passed
+        ):
             return "Yes"
         return "No"
 
     @property
     def csv_export_statement_found_at_12_week_retest(self) -> str:
-        if self.audit is None:
+        if self.audit_overview is None:
             return "unknown"
-        if self.audit.statement_found_at_12_week_retest:
+        if (
+            self.audit_overview.first_twelve_week_statement_audit is not None
+            and self.audit_overview.first_twelve_week_statement_audit.all_overview_statement_checks_have_passed
+        ):
             return "Yes"
         return "No"
 
     @property
     def overview_issues_website(self) -> str:
-        if self.audit is None:
+        if (
+            self.audit_overview is None
+            or self.audit_overview.initial_wcag_audit is None
+        ):
             return "No test exists"
+        if self.audit_overview.first_twelve_week_wcag_audit is None:
+            return "No retest exists"
         return format_outstanding_issues(
-            failed_checks_count=self.audit.failed_check_results.count(),
-            fixed_checks_count=self.audit.fixed_check_results.count(),
+            failed_checks_count=self.audit_overview.initial_wcag_audit.failed_wcag_check_result_initials.count(),
+            fixed_checks_count=self.audit_overview.first_twelve_week_wcag_audit.fixed_wcag_check_result_retests.count(),
         )
 
     @property
     def overview_issues_statement(self) -> str:
-        if self.audit is None:
+        if (
+            self.audit_overview is None
+            or self.audit_overview.initial_statement_audit is None
+        ):
             return "No test exists"
+        if self.audit_overview.first_twelve_week_statement_audit is None:
+            return format_statement_check_overview(
+                tests_passed=self.audit_overview.initial_statement_audit.passed_statement_check_results.count(),
+                tests_failed=self.audit_overview.initial_statement_audit.failed_statement_check_results.count(),
+            )
         return format_statement_check_overview(
-            tests_passed=self.audit.passed_statement_check_results.count(),
-            tests_failed=self.audit.failed_statement_check_results.count(),
-            retests_passed=self.audit.passed_retest_statement_check_results.count(),
-            retests_failed=self.audit.failed_retest_statement_check_results.count(),
+            tests_passed=self.audit_overview.initial_statement_audit.passed_statement_check_results.count(),
+            tests_failed=self.audit_overview.initial_statement_audit.failed_statement_check_results.count(),
+            retests_passed=self.audit_overview.first_twelve_week_statement_audit.passed_statement_check_results.count(),
+            retests_failed=self.audit_overview.first_twelve_week_statement_audit.failed_statement_check_results.count(),
         )
 
     @property
-    def statement_checks_still_initial(self):
-        if self.audit:
-            return not self.audit.overview_statement_checks_complete
-        return (
-            self.compliance.statement_compliance_state_initial
-            == CaseCompliance.StatementCompliance.UNKNOWN
-        )
+    def statement_checks_still_initial(self) -> bool:
+        if (
+            self.audit_overview is None
+            or self.audit_overview.initial_statement_audit is None
+        ):
+            return True
+        if self.audit_overview and self.audit_overview.initial_statement_audit:
+            return (
+                not self.audit_overview.initial_statement_audit.overview_statement_checks_complete
+            )
 
     @property
     def archived_sections(self):
@@ -851,24 +879,8 @@ class SimplifiedCase(BaseCase):
         return archive["sections"] if "sections" in archive else None
 
     @property
-    def retests(self):
-        return self.retest_simplifiedcase.filter(is_deleted=False)
-
-    @property
-    def actual_retests(self):
-        return self.retests.filter(id_within_case__gt=0)
-
-    @property
-    def number_retests(self):
-        return self.actual_retests.count()
-
-    @property
     def incomplete_retests(self):
-        return self.retests.filter(retest_compliance_state="not-known")
-
-    @property
-    def latest_retest(self):
-        return self.retests.first()
+        return self.wcag_audits.filter(compliance_state="unknown")
 
     @property
     def equality_body_correspondences(self):
@@ -938,12 +950,15 @@ class SimplifiedCase(BaseCase):
         Count how many links have been entered where the user can look for contacts
         """
         links_count: int = 0
-        if self.audit is not None:
-            if self.audit.contact_page is not None and self.audit.contact_page.url:
+        if self.audit_overview is not None:
+            if (
+                self.audit_overview.contact_wcag_page_initial is not None
+                and self.audit_overview.contact_wcag_page_initial.url
+            ):
                 links_count += 1
             if (
-                self.audit.accessibility_statement_page is not None
-                and self.audit.accessibility_statement_page.url
+                self.audit_overview.latest_statement_link is not None
+                and self.audit_overview.latest_statement_link
             ):
                 links_count += 1
         return links_count
@@ -1156,6 +1171,22 @@ class SimplifiedCase(BaseCase):
             event_type=SimplifiedCaseHistory.EventType.NOTE
         )
 
+    @property
+    def wcag_audits(self):
+        return self.wcagaudit_set.filter(is_deleted=False)
+
+    @property
+    def first_wcag_audit(self):
+        return self.wcag_audits.first()
+
+    @property
+    def last_wcag_audit(self):
+        return self.wcag_audits.last()
+
+    @property
+    def statement_pages(self):
+        return self.statementpage_set.filter(is_deleted=False).order_by("id")
+
 
 class CaseStatus(models.Model):
     """
@@ -1184,10 +1215,14 @@ class CaseStatus(models.Model):
         return self.status
 
     def calculate_status(self) -> str:  # noqa: C901
-        try:
-            compliance: CaseCompliance | None = self.simplified_case.compliance
-        except CaseCompliance.DoesNotExist:
-            compliance = None
+        from ..audits.models import StatementAudit, WcagAudit
+
+        initial_wcag_audit: WcagAudit | None = (
+            self.simplified_case.wcagaudit_set.all().first()
+        )
+        initial_statement_audit: StatementAudit | None = (
+            self.simplified_case.statementaudit_set.all().first()
+        )
 
         if self.simplified_case.is_deactivated:
             return CaseStatus.Status.DEACTIVATED
@@ -1219,23 +1254,23 @@ class CaseStatus(models.Model):
         elif self.simplified_case.auditor is None:
             return CaseStatus.Status.UNASSIGNED
         elif (
-            compliance is None
-            or compliance.website_compliance_state_initial
-            == CaseCompliance.WebsiteCompliance.UNKNOWN
+            initial_wcag_audit is None
+            or initial_wcag_audit.compliance_state
+            == WcagAudit.WebsiteCompliance.UNKNOWN
+            or initial_statement_audit is None
             or bool(
                 self.simplified_case.statement_checks_still_initial
-                and self.simplified_case.compliance.statement_compliance_state_initial
-                == CaseCompliance.StatementCompliance.UNKNOWN
+                and initial_statement_audit.compliance_state
+                == StatementAudit.StatementCompliance.UNKNOWN
             )
         ):
             return CaseStatus.Status.TEST_IN_PROGRESS
         elif (
-            self.simplified_case.compliance.website_compliance_state_initial
-            != CaseCompliance.WebsiteCompliance.UNKNOWN
+            initial_wcag_audit.compliance_state != WcagAudit.WebsiteCompliance.UNKNOWN
             and (
                 not self.simplified_case.statement_checks_still_initial
-                or self.simplified_case.compliance.statement_compliance_state_initial
-                != CaseCompliance.StatementCompliance.UNKNOWN
+                or initial_statement_audit.compliance_state
+                != StatementAudit.StatementCompliance.UNKNOWN
             )
             and self.simplified_case.report_review_status != Boolean.YES
         ):

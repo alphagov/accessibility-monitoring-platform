@@ -17,7 +17,11 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from ..audits.utils import get_audit_summary_context, report_data_updated
+from ..audits.models import WcagAudit
+from ..audits.utils import (
+    get_audit_summary_context,
+    update_published_report_data_updated_time,
+)
 from ..cases.csv_export import populate_equality_body_columns
 from ..cases.forms import CaseSearchForm
 from ..cases.models import TestType
@@ -323,7 +327,9 @@ class CaseMetadataUpdateView(CaseUpdateView):
                 or "home_page_url" in form.changed_data
                 or "organisation_name" in form.changed_data
             ):
-                report_data_updated(audit=simplified_case.audit)
+                update_published_report_data_updated_time(
+                    wcag_audit=simplified_case.audit_overview.initial_wcag_audit
+                )
         return super().form_valid(form=form)
 
 
@@ -614,7 +620,8 @@ class CaseNoPSBResponseUpdateView(
         simplified_case: SimplifiedCase = self.object
         if (
             simplified_case.no_psb_contact == Boolean.YES
-            and simplified_case.audit is not None
+            and simplified_case.audit_overview is not None
+            and simplified_case.audit_overview.initial_wcag_audit is not None
         ):
             if simplified_case.show_start_12_week_retest is True:
                 return reverse(
@@ -623,7 +630,9 @@ class CaseNoPSBResponseUpdateView(
                 )
             return reverse(
                 "audits:edit-audit-retest-statement-pages",
-                kwargs={"pk": simplified_case.audit.id},
+                kwargs={
+                    "pk": simplified_case.audit_overview.first_twelve_week_statement_audit.id
+                },
             )
         return super().get_success_url()
 
@@ -734,16 +743,22 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
 
     def get_next_platform_page(self) -> PlatformPage:
         simplified_case: SimplifiedCase = self.object
-        if simplified_case.audit:
+        if (
+            simplified_case.audit_overview
+            and simplified_case.audit_overview.initial_wcag_audit
+        ):
             if simplified_case.show_start_12_week_retest:
                 return get_platform_page_by_url_name(
                     url_name="simplified:edit-twelve-week-retest",
                     instance=simplified_case,
                 )
             else:
+                wcag_audit_12_week: WcagAudit = (
+                    simplified_case.audit_overview.first_twelve_week_wcag_audit
+                )
                 return get_platform_page_by_url_name(
                     url_name="audits:edit-audit-retest-metadata",
-                    instance=simplified_case.audit,
+                    instance=wcag_audit_12_week,
                 )
         return get_platform_page_by_url_name(
             url_name="simplified:edit-review-changes", instance=simplified_case
@@ -903,11 +918,12 @@ class CaseOutstandingIssuesDetailView(
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
         simplified_case: SimplifiedCase = self.object
-        if simplified_case.audit is not None:
+        if simplified_case.audit_overview is not None:
             return {
                 **context,
                 **get_audit_summary_context(
-                    request=self.request, audit=simplified_case.audit
+                    request=self.request,
+                    simplified_case=simplified_case,
                 ),
             }
         return context
@@ -1111,9 +1127,10 @@ class CaseRetestOverviewTemplateView(CaseUpdateView):
         """Add platform settings to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
         simplified_case: SimplifiedCase = self.object
-        context["equality_body_retests"] = simplified_case.retests.filter(
-            id_within_case__gt=0
-        )
+        context["equality_body_retests"] = WcagAudit.objects.filter(
+            simplified_case=simplified_case,
+            audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+        ).order_by("-id")
         return context
 
 

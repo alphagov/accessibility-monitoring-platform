@@ -9,10 +9,15 @@ from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db.models.query import QuerySet
 from django.utils import timezone
 
-from ..audits.models import Audit, CheckResult
+from ..audits.models import (
+    StatementAudit,
+    WcagAudit,
+    WcagCheckResultInitial,
+    WcagCheckResultRetest,
+)
 from ..reports.models import ReportVisitsMetrics
 from ..s3_read_write.models import S3Report
-from ..simplified.models import CaseCompliance, CaseStatus, SimplifiedCase
+from ..simplified.models import CaseStatus, SimplifiedCase
 from .chart import LineChart, Timeseries, TimeseriesDatapoint, build_yearly_metric_chart
 from .utils import get_days_ago_timestamp, get_first_of_this_month_last_year
 
@@ -85,13 +90,19 @@ class EqualityBodyCasesMetric:
     in_progress_count: int
 
 
-def count_statement_issues(audits: QuerySet[Audit]) -> tuple[int, int]:
+def count_statement_issues(
+    statement_audits: QuerySet[StatementAudit],
+) -> tuple[int, int]:
     """Count numbers of statement errors and how many were fixed"""
     statement_issues_count: int = 0
     fixed_statement_issues_count: int = 0
-    for audit in audits:
-        statement_issues_count += audit.failed_statement_check_results.count()
-        fixed_statement_issues_count += audit.fixed_statement_check_results.count()
+    for statement_audit in statement_audits:
+        fixed_statement_issues_count += (
+            statement_audit.fixed_statement_check_results.count()
+        )
+        statement_issues_count += (
+            statement_audit.simplified_case.audit_overview.initial_statement_audit.failed_statement_check_results.count()
+        )
     return (fixed_statement_issues_count, statement_issues_count)
 
 
@@ -299,14 +310,14 @@ def get_policy_total_metrics() -> list[TotalMetric]:
         ),
         TotalMetric(
             label="Total number of accessibility issues found",
-            total=CheckResult.objects.filter(
-                check_result_state=CheckResult.Result.ERROR
+            total=WcagCheckResultInitial.objects.filter(
+                check_result_state=WcagCheckResultInitial.Result.ERROR
             ).count(),
         ),
         TotalMetric(
             label="Total number of accessibility issues fixed",
-            total=CheckResult.objects.filter(
-                retest_state=CheckResult.RetestResult.FIXED
+            total=WcagCheckResultRetest.objects.filter(
+                retest_state=WcagCheckResultRetest.RetestResult.FIXED
             ).count(),
         ),
     ]
@@ -316,51 +327,62 @@ def get_policy_progress_metrics() -> list[ProgressMetric]:
     """Return policy progress metrics"""
     now: datetime = timezone.now()
     start_date: datetime = now - timedelta(days=90)
-    retested_audits: QuerySet[Audit] = Audit.objects.filter(retest_date__gte=start_date)
-    retested_audits_count: int = retested_audits.count()
-    fixed_audits: QuerySet[Audit] = retested_audits.filter(
+    retested_wcag_audits: QuerySet[WcagAudit] = WcagAudit.objects.filter(
+        date_of_test__gte=start_date
+    ).exclude(audit_round_type=WcagAudit.AuditRoundType.INITIAL)
+    retested_wcag_audits_count: int = retested_wcag_audits.count()
+    fixed_wcag_audits: QuerySet[WcagAudit] = retested_wcag_audits.filter(
         simplified_case__recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION
     )
-    fixed_audits_count: int = fixed_audits.count()
-    compliant_audits: QuerySet[Audit] = retested_audits.filter(
-        simplified_case__compliance__statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT
+    fixed_wcag_audits_count: int = fixed_wcag_audits.count()
+    compliant_wcag_audits: QuerySet[WcagAudit] = retested_wcag_audits.filter(
+        compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT
     )
-    compliant_audits_count: int = compliant_audits.count()
-    check_results_of_last_90_days: QuerySet[CheckResult] = CheckResult.objects.filter(
-        audit__retest_date__gte=start_date,
-        page__retest_page_missing_date=None,
-        page__is_deleted=False,
+    compliant_wcag_audits_count: int = compliant_wcag_audits.count()
+    wcag_check_result_retests_of_last_90_days: QuerySet[WcagCheckResultRetest] = (
+        WcagCheckResultRetest.objects.filter(
+            wcag_audit__date_of_test__gte=start_date,
+            wcag_page_retest__page_missing_date=None,
+            wcag_page_retest__is_deleted=False,
+        )
     )
-    fixed_check_results_count: int = (
-        check_results_of_last_90_days.filter(check_result_state="error")
-        .filter(retest_state="fixed")
+    fixed_wcag_check_result_retests_count: int = (
+        wcag_check_result_retests_of_last_90_days.filter(
+            wcag_check_result_initial__check_result_state=WcagCheckResultInitial.Result.ERROR
+        )
+        .filter(retest_state=WcagCheckResultRetest.RetestResult.FIXED)
         .count()
     )
-    total_check_results_count: int = (
-        check_results_of_last_90_days.filter(check_result_state="error")
-        .exclude(retest_state="not-retested")
+    total_wcag_check_result_retests_count: int = (
+        wcag_check_result_retests_of_last_90_days.filter(
+            wcag_check_result_initial__check_result_state=WcagCheckResultInitial.Result.ERROR
+        )
+        .exclude(retest_state=WcagCheckResultRetest.RetestResult.NOT_RETESTED)
         .count()
     )
 
+    retested_statement_audits: QuerySet[StatementAudit] = StatementAudit.objects.filter(
+        date_of_test__gte=start_date
+    ).exclude(audit_round_type=StatementAudit.AuditRoundType.INITIAL)
     fixed_statement_issues_count, statement_issues_count = count_statement_issues(
-        retested_audits
+        statement_audits=retested_statement_audits
     )
 
     return [
         ProgressMetric(
             label="Websites compliant after retest in the last 90 days",
-            partial_count=fixed_audits_count,
-            total_count=retested_audits_count,
+            partial_count=fixed_wcag_audits_count,
+            total_count=retested_wcag_audits_count,
         ),
         ProgressMetric(
             label="Statements compliant after retest in the last 90 days",
-            partial_count=compliant_audits_count,
-            total_count=retested_audits_count,
+            partial_count=compliant_wcag_audits_count,
+            total_count=retested_wcag_audits_count,
         ),
         ProgressMetric(
             label="Website accessibility issues fixed in the last 90 days",
-            partial_count=fixed_check_results_count,
-            total_count=total_check_results_count,
+            partial_count=fixed_wcag_check_result_retests_count,
+            total_count=total_wcag_check_result_retests_count,
         ),
         ProgressMetric(
             label="Statement issues fixed in the last 90 days",
@@ -391,35 +413,41 @@ def get_policy_yearly_metrics() -> list[YearlyMetric]:
     """Return policy yearly metrics"""
     thirteen_month_start_date: datetime = get_first_of_this_month_last_year()
 
-    thirteen_month_retested_audits: QuerySet[Audit] = Audit.objects.filter(
-        retest_date__gte=thirteen_month_start_date
-    )
-    thirteen_month_website_initial_compliant: QuerySet[Audit] = (
+    thirteen_month_retested_audits: QuerySet[WcagAudit] = WcagAudit.objects.filter(
+        date_of_test__gte=thirteen_month_start_date
+    ).exclude(audit_round_type=WcagAudit.AuditRoundType.INITIAL)
+    thirteen_month_website_initial_compliant: QuerySet[WcagAudit] = (
         thirteen_month_retested_audits.filter(
-            simplified_case__compliance__website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT
+            audit_round_type=WcagAudit.AuditRoundType.INITIAL,
+            compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
         )
     )
-    thirteen_month_statement_initial_compliant: QuerySet[Audit] = (
-        thirteen_month_retested_audits.filter(
-            simplified_case__compliance__statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT
+    thirteen_month_statement_initial_compliant: QuerySet[StatementAudit] = (
+        StatementAudit.objects.filter(
+            date_of_test__gte=thirteen_month_start_date,
+            audit_round_type=StatementAudit.AuditRoundType.INITIAL,
+            compliance_state=StatementAudit.StatementCompliance.COMPLIANT,
         )
     )
-    thirteen_month_final_no_action: QuerySet[Audit] = (
+    thirteen_month_final_no_action: QuerySet[WcagAudit] = (
         thirteen_month_retested_audits.filter(
             simplified_case__recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION
         )
     )
-    thirteen_month_statement_final_compliant: QuerySet[Audit] = (
-        thirteen_month_retested_audits.filter(
-            simplified_case__compliance__statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT
-        )
+    thirteen_month_statement_final_compliant: QuerySet[
+        StatementAudit
+    ] = StatementAudit.objects.filter(
+        date_of_test__gte=thirteen_month_start_date,
+        compliance_state=StatementAudit.StatementCompliance.COMPLIANT,
+    ).exclude(
+        audit_round_type=StatementAudit.AuditRoundType.INITIAL,
     )
 
     retested_by_month: Timeseries = Timeseries(
         label="Cases",
         datapoints=group_timeseries_data_by_month(
             queryset=thirteen_month_retested_audits,
-            date_column_name="retest_date",
+            date_column_name="date_of_test",
             start_date=thirteen_month_start_date,
         ),
     )
@@ -427,7 +455,7 @@ def get_policy_yearly_metrics() -> list[YearlyMetric]:
         label="Initially acceptable",
         datapoints=group_timeseries_data_by_month(
             queryset=thirteen_month_website_initial_compliant,
-            date_column_name="retest_date",
+            date_column_name="date_of_test",
             start_date=thirteen_month_start_date,
         ),
     )
@@ -435,7 +463,7 @@ def get_policy_yearly_metrics() -> list[YearlyMetric]:
         label="Initially compliant",
         datapoints=group_timeseries_data_by_month(
             queryset=thirteen_month_statement_initial_compliant,
-            date_column_name="retest_date",
+            date_column_name="date_of_test",
             start_date=thirteen_month_start_date,
         ),
     )
@@ -443,7 +471,7 @@ def get_policy_yearly_metrics() -> list[YearlyMetric]:
         label="Finally acceptable",
         datapoints=group_timeseries_data_by_month(
             queryset=thirteen_month_final_no_action,
-            date_column_name="retest_date",
+            date_column_name="date_of_test",
             start_date=thirteen_month_start_date,
         ),
     )
@@ -451,7 +479,7 @@ def get_policy_yearly_metrics() -> list[YearlyMetric]:
         label="Finally compliant",
         datapoints=group_timeseries_data_by_month(
             queryset=thirteen_month_statement_final_compliant,
-            date_column_name="retest_date",
+            date_column_name="date_of_test",
             start_date=thirteen_month_start_date,
         ),
     )

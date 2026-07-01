@@ -17,14 +17,25 @@ from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import (
     Audit,
-    CheckResult,
+    AuditOverview,
     Page,
+    StatementAudit,
     StatementCheck,
-    StatementCheckResult,
+    StatementCheckResultRound,
     StatementPage,
+    WcagAudit,
+    WcagCheckResultInitial,
+    WcagCheckResultRetest,
     WcagDefinition,
+    WcagPageInitial,
+    WcagPageRetest,
 )
-from ...audits.tests.test_models import ERROR_NOTES, create_audit_and_check_results
+from ...audits.tests.create_test_data import (
+    create_initial_statement_audit,
+    create_initial_wcag_audit,
+    create_simplified_case_with_initial_and_12_week_audits,
+)
+from ...audits.tests.test_models import ERROR_NOTES
 from ...comments.models import Comment
 from ...common.models import (
     AUDITOR_GROUP_NAME,
@@ -349,8 +360,9 @@ def test_view_case_includes_tests(admin_client):
     """
     Test that the Case overview displays test and 12-week retest.
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(simplified_case=simplified_case, retest_date=TODAY)
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("simplified:case-detail", kwargs={"pk": simplified_case.id}),
@@ -1342,8 +1354,9 @@ def test_platform_case_with_audit_edit_redirects_based_on_button_pressed(
     """
     Test that a successful case with audit update redirects based on the button pressed
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(simplified_case=simplified_case, retest_date=TODAY)
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
 
     response: HttpResponse = admin_client.post(
         reverse(case_edit_path, kwargs={"pk": simplified_case.id}),
@@ -1360,10 +1373,19 @@ def test_platform_case_with_audit_edit_redirects_based_on_button_pressed(
         },
     )
     assert response.status_code == 302
-    assert (
-        response.url
-        == f'{reverse(expected_redirect_path, kwargs={"pk": simplified_case.id})}'
-    )
+    if expected_redirect_path.startswith("audits"):
+        wcag_audit: WcagAudit = (
+            simplified_case.audit_overview.first_twelve_week_wcag_audit
+        )
+        assert (
+            response.url
+            == f'{reverse(expected_redirect_path, kwargs={"pk": wcag_audit.id})}'
+        )
+    else:
+        assert (
+            response.url
+            == f'{reverse(expected_redirect_path, kwargs={"pk": simplified_case.id})}'
+        )
 
 
 def test_update_request_ack_redirects_when_no_audit(admin_client):
@@ -1395,8 +1417,8 @@ def test_update_request_ack_redirects_when_audit_but_no_retest_date(admin_client
     Test that 12-week update request acknowledged redirects to review changes
     on save and continue when the case has an audit but retest date is not set
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(simplified_case=simplified_case)
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
 
     response: HttpResponse = admin_client.post(
         reverse(
@@ -1555,9 +1577,12 @@ def test_link_to_accessibility_statement_displayed(admin_client):
     Test that the link to the accessibility statement is displayed.
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    Page.objects.create(
-        audit=audit, page_type=Page.Type.STATEMENT, url=ACCESSIBILITY_STATEMENT_URL
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit,
+        page_type=Page.Type.STATEMENT,
+        url=ACCESSIBILITY_STATEMENT_URL,
     )
 
     response: HttpResponse = admin_client.get(
@@ -1580,9 +1605,10 @@ def test_statement_page_location_displayed(admin_client):
     Test that the accessibility statement location is displayed.
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    Page.objects.create(
-        audit=audit,
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit,
         page_type=Page.Type.STATEMENT,
         url=ACCESSIBILITY_STATEMENT_URL,
         location=PAGE_LOCATION,
@@ -1602,10 +1628,11 @@ def test_contact_page_location_displayed(admin_client):
     Test that the contact page location is displayed.
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    Page.objects.create(
-        audit=audit,
-        page_type=Page.Type.CONTACT,
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit,
+        page_type=Page.Type.STATEMENT,
         url="https://example.com/contact",
         location=PAGE_LOCATION,
     )
@@ -1894,10 +1921,10 @@ def test_no_psb_response_redirects_to_case_detail(admin_client):
 
 def test_no_psb_response_redirects_to_start_12_week_retest(admin_client):
     """Test no PSB response redirects to start 12-week retest if there is no retest"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        no_psb_contact=Boolean.NO,
-    )
-    Audit.objects.create(simplified_case=simplified_case)
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
+    simplified_case.no_psb_contact = Boolean.NO
+    simplified_case.save()
 
     response: HttpResponse = admin_client.post(
         reverse("simplified:edit-no-psb-response", kwargs={"pk": simplified_case.id}),
@@ -1917,12 +1944,11 @@ def test_no_psb_response_redirects_to_start_12_week_retest(admin_client):
 
 def test_no_psb_response_redirects_to_12_week_retest_statement_links(admin_client):
     """Test no PSB response redirects to 12-week retest statement links"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        no_psb_contact=Boolean.NO,
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
     )
-    audit: Audit = Audit.objects.create(
-        simplified_case=simplified_case, retest_date=date.today()
-    )
+    simplified_case.no_psb_contact = Boolean.NO
+    simplified_case.save()
 
     response: HttpResponse = admin_client.post(
         reverse("simplified:edit-no-psb-response", kwargs={"pk": simplified_case.id}),
@@ -1936,7 +1962,7 @@ def test_no_psb_response_redirects_to_12_week_retest_statement_links(admin_clien
     assert response.status_code == 302
     assert (
         response.url
-        == f'{reverse("audits:edit-audit-retest-statement-pages", kwargs={"pk": audit.id})}'
+        == f'{reverse("audits:edit-audit-retest-statement-pages", kwargs={"pk": simplified_case.audit_overview.first_twelve_week_statement_audit.id})}'
     )
 
 
@@ -2352,8 +2378,8 @@ def test_twelve_week_retest_page_shows_start_retest_button_if_no_retest_exists(
     Test that the twelve week retest page shows start retest button when a
     test exists with no retest.
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    simplified_case: SimplifiedCase = wcag_audit.simplified_case
 
     response: HttpResponse = admin_client.get(
         reverse(
@@ -2367,7 +2393,7 @@ def test_twelve_week_retest_page_shows_start_retest_button_if_no_retest_exists(
     assertContains(response, "Click Start retest to move to the testing environment.")
 
     start_retest_url: str = reverse(
-        "audits:audit-retest-start", kwargs={"pk": audit.id}
+        "audits:audit-retest-start", kwargs={"pk": simplified_case.audit_overview.id}
     )
     assertContains(
         response,
@@ -2386,9 +2412,8 @@ def test_twelve_week_retest_page_shows_if_statement_exists(
     """
     Test that the twelve week retest page shows if statement exists.
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(
-        simplified_case=simplified_case, retest_date=date.today()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
     )
 
     response: HttpResponse = admin_client.get(
@@ -2409,7 +2434,10 @@ def test_twelve_week_retest_page_shows_if_statement_exists(
     )
 
     StatementPage.objects.create(
-        audit=audit, added_stage=StatementPage.AddedStage.TWELVE_WEEK
+        simplified_case=simplified_case,
+        audit_overview=simplified_case.audit_overview,
+        added_stage=StatementPage.AddedStage.TWELVE_WEEK,
+        url="https://example.com",
     )
 
     response: HttpResponse = admin_client.get(
@@ -2680,10 +2708,14 @@ def test_publish_report_first_time(admin_client):
 @mock_aws
 def test_publish_report(admin_client):
     """Test publishing a report"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        report_review_status=Boolean.YES,
-        report_approved_status=SimplifiedCase.ReportApprovedStatus.APPROVED,
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
+    simplified_case.report_review_status = Boolean.YES
+    simplified_case.report_approved_status = (
+        SimplifiedCase.ReportApprovedStatus.APPROVED
     )
+    simplified_case.save()
+    create_initial_statement_audit(simplified_case=simplified_case)
     Report.objects.create(base_case=simplified_case)
 
     response: HttpResponse = admin_client.post(
@@ -2993,17 +3025,12 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
     page when the case test uses statement checks. Checkmark set when overview
     statement checks have been entered.
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    simplified_case: SimplifiedCase = wcag_audit.simplified_case
+    statement_audit: StatementAudit = create_initial_statement_audit(
+        simplified_case=simplified_case
+    )
     case_pk_kwargs: dict[str, int] = {"pk": simplified_case.id}
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    audit_pk_kwargs: dict[str, int] = {"pk": audit.id}
-
-    for statement_check in StatementCheck.objects.all():
-        StatementCheckResult.objects.create(
-            audit=audit,
-            type=statement_check.type,
-            statement_check=statement_check,
-        )
 
     response: HttpResponse = admin_client.get(
         reverse("simplified:status-workflow", kwargs=case_pk_kwargs),
@@ -3012,7 +3039,7 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
     assert response.status_code == 200
 
     overview_url: str = reverse(
-        "audits:edit-statement-overview", kwargs=audit_pk_kwargs
+        "audits:edit-statement-overview", kwargs={"pk": wcag_audit.id}
     )
     assertContains(
         response,
@@ -3023,8 +3050,8 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
         html=True,
     )
 
-    for statement_check_result in audit.overview_statement_check_results:
-        statement_check_result.check_result_state = StatementCheckResult.Result.YES
+    for statement_check_result in statement_audit.overview_statement_check_results:
+        statement_check_result.check_result_state = StatementCheckResultRound.Result.YES
         statement_check_result.save()
 
     response: HttpResponse = admin_client.get(
@@ -3174,9 +3201,19 @@ def test_outstanding_issues(admin_client):
     """
     Test out standing issues page renders according to URL parameters.
     """
-    audit: Audit = create_audit_and_check_results()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    for wcag_check_result in WcagCheckResultInitial.objects.all():
+        wcag_check_result.check_result_state = WcagCheckResultInitial.Result.ERROR
+        wcag_check_result.save()
+    for statement_check_result in StatementCheckResultRound.objects.filter(
+        type=StatementCheck.Type.OVERVIEW
+    ):
+        statement_check_result.check_result_state = StatementCheckResultRound.Result.NO
+        statement_check_result.save()
     url: str = reverse(
-        "simplified:outstanding-issues", kwargs={"pk": audit.simplified_case.id}
+        "simplified:outstanding-issues", kwargs={"pk": simplified_case.id}
     )
 
     response: HttpResponse = admin_client.get(url)
@@ -3268,20 +3305,22 @@ def test_frequently_used_links_displayed(url_name, admin_client):
 
 
 def test_twelve_week_email_template_contains_issues(admin_client):
-    """
-    Test twelve week email template contains issues.
-    """
-    audit: Audit = create_audit_and_check_results()
-    page: Page = Page.objects.get(audit=audit, page_type=Page.Type.HOME)
-    page.url = "https://example.com"
-    page.save()
-    Report.objects.create(base_case=audit.simplified_case)
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.all().first()
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.notes = ERROR_NOTES
+    wcag_check_result_initial.save()
+    Report.objects.create(base_case=simplified_case)
     email_template: EmailTemplate = EmailTemplate.objects.create(
         template_name="4-12-week-update-request"
     )
     url: str = reverse(
         "simplified:email-template-preview",
-        kwargs={"case_id": audit.simplified_case.id, "pk": email_template.id},
+        kwargs={"case_id": simplified_case.id, "pk": email_template.id},
     )
 
     response: HttpResponse = admin_client.get(url)
@@ -3295,14 +3334,15 @@ def test_twelve_week_email_template_contains_no_issues(admin_client):
     """
     Test twelve week email template with no issues contains placeholder text.
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     email_template: EmailTemplate = EmailTemplate.objects.create(
         template_name="4-12-week-update-request"
     )
     url: str = reverse(
         "simplified:email-template-preview",
-        kwargs={"case_id": audit.simplified_case.id, "pk": email_template.id},
+        kwargs={"case_id": simplified_case.id, "pk": email_template.id},
     )
 
     response: HttpResponse = admin_client.get(url)
@@ -3316,24 +3356,22 @@ def test_outstanding_issues_are_unfixed_in_email_template_context(admin_client):
     """
     Test outstanding issues (issues_table) contains only unfixed issues
     """
-    wcag_definition: WcagDefinition = WcagDefinition.objects.create()
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    page: Page = Page.objects.create(audit=audit, url="https://example.com")
-    check_result: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
-        notes=OUTSTANDING_ISSUE_NOTES,
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
     )
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.all().first()
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.notes = OUTSTANDING_ISSUE_NOTES
+    wcag_check_result_initial.save()
 
     email_template: EmailTemplate = EmailTemplate.objects.create(
         template_name="5a-outstanding-issues-initial-test-notes"
     )
     url: str = reverse(
         "simplified:email-template-preview",
-        kwargs={"case_id": audit.simplified_case.id, "pk": email_template.id},
+        kwargs={"case_id": simplified_case.id, "pk": email_template.id},
     )
 
     response: HttpResponse = admin_client.get(url)
@@ -3342,8 +3380,11 @@ def test_outstanding_issues_are_unfixed_in_email_template_context(admin_client):
 
     assertContains(response, OUTSTANDING_ISSUE_NOTES)
 
-    check_result.retest_state = CheckResult.RetestResult.FIXED
-    check_result.save()
+    wcag_check_result_retest: WcagCheckResultRetest = WcagCheckResultRetest.objects.get(
+        wcag_check_result_initial=wcag_check_result_initial
+    )
+    wcag_check_result_retest.retest_state = WcagCheckResultRetest.RetestResult.FIXED
+    wcag_check_result_retest.save()
 
     response: HttpResponse = admin_client.get(url)
 
@@ -3607,14 +3648,15 @@ def test_updating_equality_body_updates_published_report_data_updated_time(
     Test that updating the equality body updates the published report data updated
     time (so a notification banner to republish the report is shown).
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        home_page_url="https://example.com"
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
     )
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    simplified_case.home_page_url = "https://example.com"
+    simplified_case.save()
     Report.objects.create(base_case=simplified_case)
     S3Report.objects.create(base_case=simplified_case, version=0, latest_published=True)
 
-    assert audit.published_report_data_updated_time is None
+    assert simplified_case.audit_overview.published_report_data_updated_time is None
 
     response: HttpResponse = admin_client.post(
         reverse("simplified:edit-case-metadata", kwargs={"pk": simplified_case.id}),
@@ -3627,9 +3669,11 @@ def test_updating_equality_body_updates_published_report_data_updated_time(
     )
     assert response.status_code == 302
 
-    audit_from_db: Audit = Audit.objects.get(id=audit.id)
+    audit_overview: AuditOverview = AuditOverview.objects.get(
+        id=simplified_case.audit_overview.id
+    )
 
-    assert audit_from_db.published_report_data_updated_time is not None
+    assert audit_overview.published_report_data_updated_time is not None
 
 
 def test_updating_home_page_url_updates_published_report_data_updated_time(
@@ -3639,14 +3683,16 @@ def test_updating_home_page_url_updates_published_report_data_updated_time(
     Test that updating the home page URL updates the published report data updated
     time (so a notification banner to republish the report is shown).
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        home_page_url="https://example.com"
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
     )
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    simplified_case.home_page_url = "https://example.com"
+    simplified_case.save()
+    audit_overview: AuditOverview = simplified_case.audit_overview
     Report.objects.create(base_case=simplified_case)
     S3Report.objects.create(base_case=simplified_case, version=0, latest_published=True)
 
-    assert audit.published_report_data_updated_time is None
+    assert audit_overview.published_report_data_updated_time is None
 
     response: HttpResponse = admin_client.post(
         reverse("simplified:edit-case-metadata", kwargs={"pk": simplified_case.id}),
@@ -3659,9 +3705,9 @@ def test_updating_home_page_url_updates_published_report_data_updated_time(
     )
     assert response.status_code == 302
 
-    audit_from_db: Audit = Audit.objects.get(id=audit.id)
+    audit_overview: AuditOverview = AuditOverview.objects.get(id=audit_overview.id)
 
-    assert audit_from_db.published_report_data_updated_time is not None
+    assert audit_overview.published_report_data_updated_time is not None
 
 
 def test_updating_organisation_name_updates_published_report_data_updated_time(
@@ -3671,14 +3717,16 @@ def test_updating_organisation_name_updates_published_report_data_updated_time(
     Test that updating the organisation name updates the published report data updated
     time (so a notification banner to republish the report is shown).
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        home_page_url="https://example.com"
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
     )
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    simplified_case.home_page_url = "https://example.com"
+    simplified_case.save()
+    audit_overview: AuditOverview = simplified_case.audit_overview
     Report.objects.create(base_case=simplified_case)
     S3Report.objects.create(base_case=simplified_case, version=0, latest_published=True)
 
-    assert audit.published_report_data_updated_time is None
+    assert audit_overview.published_report_data_updated_time is None
 
     response: HttpResponse = admin_client.post(
         reverse("simplified:edit-case-metadata", kwargs={"pk": simplified_case.id}),
@@ -3693,9 +3741,9 @@ def test_updating_organisation_name_updates_published_report_data_updated_time(
 
     assert response.status_code == 302
 
-    audit_from_db: Audit = Audit.objects.get(id=audit.id)
+    audit_overview: AuditOverview = AuditOverview.objects.get(id=audit_overview.id)
 
-    assert audit_from_db.published_report_data_updated_time is not None
+    assert audit_overview.published_report_data_updated_time is not None
 
 
 def test_case_close(admin_client):
@@ -3853,39 +3901,61 @@ def test_case_close_no_missing_data(admin_client):
 
 
 def test_case_overview(admin_client):
-    """Test case overview."""
-    audit: Audit = create_audit_and_check_results()
-    accessibility_statement_page: Page = audit.accessibility_statement_page
-    accessibility_statement_page.url = "https://example.com"
-    accessibility_statement_page.retest_page_missing_date = TODAY
-    accessibility_statement_page.save()
-    statement_check: StatementCheck = StatementCheck.objects.all().first()
-    StatementCheckResult.objects.create(
-        audit=audit,
-        type=statement_check.type,
-        statement_check=statement_check,
-        check_result_state=StatementCheckResult.Result.NO,
+    """Test overview section on Simplified case overview page"""
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
     )
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        page_type=WcagPageInitial.Type.STATEMENT
+    )
+    wcag_page_initial.url = "https://example.com/statement"
+    wcag_page_initial.save()
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_page_initial=wcag_page_initial
+    )
+    wcag_page_retest.page_missing_date = TODAY
+    wcag_page_retest.save()
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.all().first()
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+    statement_found_check_result: StatementCheckResultRound = (
+        simplified_case.audit_overview.initial_statement_audit.statement_found_check
+    )
+    statement_found_check_result.check_result_state = (
+        StatementCheckResultRound.Result.YES
+    )
+    statement_found_check_result.save()
+    for statement_check_type in [
+        StatementCheck.Type.WEBSITE,
+        StatementCheck.Type.PREPARATION,
+    ]:
+        statement_check_result: StatementCheckResultRound = (
+            StatementCheckResultRound.objects.filter(type=statement_check_type).first()
+        )
+        statement_check_result.check_result_state = StatementCheckResultRound.Result.NO
+        statement_check_result.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("simplified:case-detail", kwargs={"pk": audit.simplified_case.id})
+        reverse("simplified:case-detail", kwargs={"pk": simplified_case.id})
     )
 
     assert response.status_code == 200
 
     assertContains(
         response,
-        """<p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">Initial test: 3</p>""",
-        html=True,
-    )
-    assertContains(
-        response,
-        """<p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">Retest: 3 (0% fixed) (1 deleted page)</p>""",
-        html=True,
-    )
-    assertContains(
-        response,
         """<p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">Initial test: 1</p>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">Retest: 1 (0% fixed) (1 deleted page)</p>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        """<p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">Initial test: 3</p>""",
         html=True,
     )
     assertContains(
@@ -3946,7 +4016,9 @@ def test_case_email_template_list_view_hides_deleted(admin_client):
 
 def test_case_email_template_preview_view(admin_client):
     """Test case email template list page is rendered"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     email_template: EmailTemplate = EmailTemplate.objects.create(
         template_name="4-12-week-update-request"
     )
@@ -4143,7 +4215,9 @@ def test_next_page_name_with_audit(path_name, expected_next_page, admin_client):
     """
     Test next page shown for when Save and continue button pressed on Case with Audit
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
     Audit.objects.create(simplified_case=simplified_case, retest_date=TODAY)
     url: str = reverse(f"simplified:{path_name}", kwargs={"pk": simplified_case.id})
 
@@ -4158,23 +4232,28 @@ def test_bulk_copy_issue_ids_to_clipboard(admin_client):
     """
     Test summary pages include option to bulk copy all issue ids for a single WCAG
     """
-    audit: Audit = create_audit_and_check_results()
-    page: Page = Page.objects.filter(audit=audit).first()
-    wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
-    check_result_1: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
-        wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
     )
-    check_result_2: CheckResult = CheckResult.objects.create(
-        audit=audit,
-        page=page,
+    wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.filter(
+        wcag_audit=wcag_audit
+    ).first()
+    wcag_definition: WcagDefinition = WcagDefinition.objects.all().first()
+    wcag_check_result_1: WcagCheckResultInitial = WcagCheckResultInitial.objects.create(
+        wcag_audit=wcag_audit,
+        wcag_page_initial=wcag_page_initial,
         wcag_definition=wcag_definition,
-        check_result_state=CheckResult.Result.ERROR,
+        check_result_state=WcagCheckResultInitial.Result.ERROR,
+    )
+    wcag_check_result_2: WcagCheckResultInitial = WcagCheckResultInitial.objects.create(
+        wcag_audit=wcag_audit,
+        wcag_page_initial=wcag_page_initial,
+        wcag_definition=wcag_definition,
+        check_result_state=WcagCheckResultInitial.Result.ERROR,
     )
     url: str = reverse(
-        "simplified:outstanding-issues", kwargs={"pk": audit.simplified_case.id}
+        "simplified:outstanding-issues", kwargs={"pk": simplified_case.id}
     )
 
     response: HttpResponse = admin_client.get(url)
@@ -4183,11 +4262,11 @@ def test_bulk_copy_issue_ids_to_clipboard(admin_client):
 
     assertContains(
         response,
-        f"[{check_result_1.issue_identifier} {check_result_2.issue_identifier}]",
+        f"[{wcag_check_result_1.issue_identifier} {wcag_check_result_2.issue_identifier}]",
     )
     assertContains(
         response,
-        f'data-text-to-copy="{check_result_1.issue_identifier} {check_result_2.issue_identifier}"',
+        f'data-text-to-copy="{wcag_check_result_1.issue_identifier} {wcag_check_result_2.issue_identifier}"',
     )
 
 

@@ -15,7 +15,13 @@ from django.db.models import QuerySet
 from django.http import HttpRequest, StreamingHttpResponse
 from django.urls import reverse
 
-from ...audits.models import Audit, Retest
+from ...audits.models import Audit, AuditOverview, StatementAudit, WcagAudit
+from ...audits.tests.create_test_data import (
+    create_equality_body_audits,
+    create_initial_statement_audit,
+    create_initial_wcag_audit,
+    create_simplified_case_with_initial_and_12_week_audits,
+)
 from ...cases.utils import CaseDetailSection
 from ...common.models import Boolean
 from ...common.sitemap import Sitemap
@@ -24,13 +30,7 @@ from ..csv_export import (
     SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
     SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
 )
-from ..models import (
-    CaseCompliance,
-    CaseEvent,
-    Contact,
-    SimplifiedCase,
-    SimplifiedEventHistory,
-)
+from ..models import CaseEvent, Contact, SimplifiedCase, SimplifiedEventHistory
 from ..utils import (
     build_edit_link_html,
     create_case_and_compliance,
@@ -219,7 +219,7 @@ def test_create_case_and_compliance_no_args():
     simplified_case: SimplifiedCase = create_case_and_compliance()
 
     assert isinstance(simplified_case, SimplifiedCase)
-    assert isinstance(simplified_case.compliance, CaseCompliance)
+    assert isinstance(simplified_case.audit_overview, AuditOverview)
 
 
 @pytest.mark.django_db
@@ -227,11 +227,14 @@ def test_create_case_and_compliance():
     """Test cretaion of case and compliance with mix of arguments"""
     simplified_case: SimplifiedCase = create_case_and_compliance(
         organisation_name=ORGANISATION_NAME,
-        website_compliance_state_12_week="compliant",
+        website_compliance_state_12_week=WcagAudit.WebsiteCompliance.COMPLIANT,
     )
 
     assert simplified_case.organisation_name == ORGANISATION_NAME
-    assert simplified_case.compliance.website_compliance_state_12_week == "compliant"
+    assert (
+        simplified_case.audit_overview.first_twelve_week_wcag_audit.compliance_state
+        == WcagAudit.WebsiteCompliance.COMPLIANT
+    )
 
 
 @pytest.mark.django_db
@@ -282,13 +285,12 @@ def test_record_model_update_event():
 @pytest.mark.django_db
 def test_download_cases_simplified():
     """Test creation of CSV download of simplified cases"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        contact_notes="Contact for CSV export",
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
     )
+    simplified_case.contact_notes = "Contact for CSV export"
     simplified_case.created = datetime(2022, 12, 16, tzinfo=timezone.utc)
     simplified_case.save()
-    CaseCompliance.objects.create(simplified_case=simplified_case)
-    simplified_case.update_case_status()
     simplified_cases: list[SimplifiedCase] = [simplified_case]
     Contact.objects.create(simplified_case=simplified_case, email="test@example.com")
 
@@ -315,7 +317,7 @@ def test_download_cases_simplified():
         "",
         "16/12/2022",
         "Unassigned case",
-        "",
+        "johnsmith",
         "Simplified",
         "",
         "",
@@ -406,11 +408,14 @@ def test_download_cases_simplified():
 @pytest.mark.django_db
 def test_download_feedback_survey_cases():
     """Test creation of CSV for feedback survey"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        compliance_email_sent_date=datetime(2022, 12, 16, tzinfo=timezone.utc),
-        contact_notes=SIMPLIFIED_CONTACT_NOTES,
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
     )
-    CaseCompliance.objects.create(simplified_case=simplified_case)
+    simplified_case.compliance_email_sent_date = datetime(
+        2022, 12, 16, tzinfo=timezone.utc
+    )
+    simplified_case.contact_notes = SIMPLIFIED_CONTACT_NOTES
+    simplified_case.save()
     simplified_cases: list[SimplifiedCase] = [simplified_case]
 
     response: StreamingHttpResponse = download_simplified_feedback_survey_cases(
@@ -474,13 +479,17 @@ def test_get_simplified_case_detail_sections(rf):
 def test_get_email_template_context_new_case():
     """Test get_email_template_context for new Case"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    AuditOverview.objects.create(simplified_case=simplified_case)
     email_template_context: dict[str, Any] = get_email_template_context(
         simplified_case=simplified_case
     )
 
     assert "12_weeks_from_today" in email_template_context
     assert email_template_context["case"] == simplified_case
-    assert email_template_context["retest"] is None
+    assert email_template_context["initial_wcag_audit"] is None
+    assert email_template_context["initial_statement_audit"] is None
+    assert email_template_context["last_equality_body_wcag_audit"] is None
+    assert email_template_context["last_equality_body_statement_audit"] is None
 
 
 @pytest.mark.django_db
@@ -491,6 +500,7 @@ def test_get_email_template_context_12_weeks_from_today():
     ) as mock_date:
         mock_date.today.return_value = date(2023, 2, 1)
         simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+        AuditOverview.objects.create(simplified_case=simplified_case)
         email_template_context: dict[str, Any] = get_email_template_context(
             simplified_case=simplified_case
         )
@@ -502,27 +512,56 @@ def test_get_email_template_context_12_weeks_from_today():
 @pytest.mark.django_db
 def test_get_email_template_context_with_audit():
     """Test get_email_template_context for Case with test"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(simplified_case=simplified_case)
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
+    initial_statement_audit: StatementAudit = create_initial_statement_audit(
+        simplified_case=simplified_case
+    )
     email_template_context: dict[str, Any] = get_email_template_context(
         simplified_case=simplified_case
     )
 
     assert email_template_context["case"] == simplified_case
-    assert email_template_context["retest"] is None
+    assert email_template_context["initial_wcag_audit"] == initial_wcag_audit
+    assert email_template_context["initial_statement_audit"] == initial_statement_audit
+    assert email_template_context["last_equality_body_wcag_audit"] is None
+    assert email_template_context["last_equality_body_statement_audit"] is None
 
     assert "issues_tables" in email_template_context
-    assert "retest_issues_tables" in email_template_context
+    assert "retest_issues_tables" not in email_template_context
 
 
 @pytest.mark.django_db
 def test_get_email_template_context_with_retest():
     """Test get_email_template_context for Case with equality body retest"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    wcag_audit_equality_body: WcagAudit = create_equality_body_audits(
+        simplified_case=simplified_case
+    )
     email_template_context: dict[str, Any] = get_email_template_context(
         simplified_case=simplified_case
     )
 
     assert email_template_context["case"] == simplified_case
-    assert email_template_context["retest"] == retest
+    assert email_template_context["case"] == simplified_case
+    assert (
+        email_template_context["initial_wcag_audit"]
+        == simplified_case.audit_overview.initial_wcag_audit
+    )
+    assert (
+        email_template_context["initial_statement_audit"]
+        == simplified_case.audit_overview.initial_statement_audit
+    )
+    assert (
+        email_template_context["last_equality_body_wcag_audit"]
+        == wcag_audit_equality_body
+    )
+    assert (
+        email_template_context["last_equality_body_statement_audit"]
+        == simplified_case.audit_overview.last_equality_body_statement_audit
+    )
+
+    assert "issues_tables" in email_template_context
+    assert "retest_issues_tables" in email_template_context

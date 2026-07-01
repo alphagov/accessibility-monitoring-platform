@@ -7,8 +7,8 @@
                 <a class="govuk-breadcrumbs__link" href="{% url 'simplified:edit-retest-overview' case.id %}">Retest overview</a>
             </li>
         {% endif %}
-        {% if retest %}
-            <li class="govuk-breadcrumbs__list-item">{{ retest }}</li>
+        {% if wcag_audit.equality_body_retest_name %}
+            <li class="govuk-breadcrumbs__list-item">{{ wcag_audit.equality_body_retest_name }}</li>
         {% endif %}
         {% include 'common/breadcrumb_page.html' %}
     </ol>

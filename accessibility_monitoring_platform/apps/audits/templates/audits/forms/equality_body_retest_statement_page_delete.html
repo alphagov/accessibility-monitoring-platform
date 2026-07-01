@@ -31,7 +31,7 @@
                     </div>
                 </div>
                 {% include "common/messages.html" %}
-                <form method="post" action="{% url sitemap.current_platform_page.url_name retest.id statement_page.id %}">
+                <form method="post" action="{% url sitemap.current_platform_page.url_name statement_audit.id statement_page.id %}">
                     {% csrf_token %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     <div class="govuk-grid-row">
@@ -44,7 +44,7 @@
                                 data-module="govuk-button"
                             />
                             <a
-                                href="{% url 'audits:edit-equality-body-statement-pages' statement_page.audit.id %}"
+                                href="{% url 'audits:edit-equality-body-statement-pages' statement_audit.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
                                 Cancel and return

@@ -15,7 +15,7 @@ from django.db.models import QuerySet
 from django.http import StreamingHttpResponse
 from django.urls import reverse
 
-from ..audits.models import Audit
+from ..audits.models import Audit, AuditOverview, StatementAudit, WcagAudit
 from ..cases.csv_export import csv_output_generator
 from ..cases.utils import CaseDetailPage, CaseDetailSection
 from ..common.form_extract_utils import (
@@ -29,13 +29,7 @@ from .csv_export import (
     SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
     SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
 )
-from .models import (
-    COMPLIANCE_FIELDS,
-    CaseCompliance,
-    CaseEvent,
-    SimplifiedCase,
-    SimplifiedEventHistory,
-)
+from .models import CaseEvent, SimplifiedCase, SimplifiedEventHistory
 
 CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
     ("auditor", "auditor_id"),
@@ -44,7 +38,10 @@ CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
     ("sector", "sector_id"),
     ("subcategory", "subcategory_id"),
 ]
-
+WCAG_COMPLIANCE_STATE_INITIAL: str = "website_compliance_state_initial"
+STATEMENT_COMPLIANCE_STATE_INITIAL: str = "statement_compliance_state_initial"
+WCAG_COMPLIANCE_STATE_12_WEEK: str = "website_compliance_state_12_week"
+STATEMENT_COMPLIANCE_STATE_12_WEEK: str = "statement_compliance_state_12_week"
 
 ONE_WEEK_IN_DAYS: int = 7
 TWELVE_WEEKS_IN_DAYS: int = 12 * ONE_WEEK_IN_DAYS
@@ -59,6 +56,9 @@ def get_simplified_case_detail_sections(
     )
     get_audit_rows: Callable = partial(
         extract_form_labels_and_values, instance=simplified_case.audit
+    )
+    get_wcag_audit_rows: Callable = partial(
+        extract_form_labels_and_values, instance=simplified_case.first_wcag_audit
     )
     view_sections: list[CaseDetailSection] = []
     for page_group in sitemap.platform_page_groups:
@@ -81,6 +81,10 @@ def get_simplified_case_detail_sections(
                                 )
                             elif page.case_details_form_class._meta.model == Audit:
                                 display_fields = get_audit_rows(
+                                    form=page.case_details_form_class()
+                                )
+                            elif page.case_details_form_class._meta.model == WcagAudit:
+                                display_fields = get_wcag_audit_rows(
                                     form=page.case_details_form_class()
                                 )
                         if page.case_details_template_name:
@@ -203,21 +207,52 @@ def build_edit_link_html(simplified_case: SimplifiedCase, url_name: str) -> str:
 
 def create_case_and_compliance(**kwargs) -> SimplifiedCase:
     """Create case and populate compliance fields from arbitrary arguments"""
-    compliance_kwargs: dict[str, Any] = {
-        key: value for key, value in kwargs.items() if key in COMPLIANCE_FIELDS
-    }
+    wcag_compliance_state_initial: str = kwargs.get(
+        WCAG_COMPLIANCE_STATE_INITIAL, WcagAudit.WebsiteCompliance.UNKNOWN
+    )
+    statement_compliance_state_initial: str = kwargs.get(
+        STATEMENT_COMPLIANCE_STATE_INITIAL, StatementAudit.StatementCompliance.UNKNOWN
+    )
+    wcag_compliance_state_12_week: str = kwargs.get(
+        WCAG_COMPLIANCE_STATE_12_WEEK, WcagAudit.WebsiteCompliance.UNKNOWN
+    )
+    statement_compliance_state_12_week: str = kwargs.get(
+        STATEMENT_COMPLIANCE_STATE_12_WEEK, StatementAudit.StatementCompliance.UNKNOWN
+    )
     non_compliance_args: dict[str, Any] = {
-        key: value for key, value in kwargs.items() if key not in COMPLIANCE_FIELDS
+        key: value
+        for key, value in kwargs.items()
+        if key
+        not in [
+            WCAG_COMPLIANCE_STATE_INITIAL,
+            STATEMENT_COMPLIANCE_STATE_INITIAL,
+            WCAG_COMPLIANCE_STATE_12_WEEK,
+            STATEMENT_COMPLIANCE_STATE_12_WEEK,
+        ]
     }
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         **non_compliance_args
     )
-    CaseCompliance.objects.create(simplified_case=simplified_case)
-    if compliance_kwargs:
-        for key, value in compliance_kwargs.items():
-            setattr(simplified_case.compliance, key, value)
-        simplified_case.compliance.save()
-        simplified_case.save()
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    WcagAudit.objects.create(
+        simplified_case=simplified_case, compliance_state=wcag_compliance_state_initial
+    )
+    if wcag_compliance_state_12_week != WcagAudit.WebsiteCompliance.UNKNOWN:
+        WcagAudit.objects.create(
+            simplified_case=simplified_case,
+            audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+            compliance_state=wcag_compliance_state_12_week,
+        )
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        compliance_state=statement_compliance_state_initial,
+    )
+    if statement_compliance_state_12_week != StatementAudit.StatementCompliance.UNKNOWN:
+        StatementAudit.objects.create(
+            simplified_case=simplified_case,
+            audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+            compliance_state=statement_compliance_state_12_week,
+        )
     return simplified_case
 
 
@@ -300,15 +335,26 @@ def get_email_template_context(simplified_case: SimplifiedCase) -> dict[str, Any
     context: dict[str, Any] = {}
     context["12_weeks_from_today"] = date.today() + timedelta(days=TWELVE_WEEKS_IN_DAYS)
     context["case"] = simplified_case
-    context["retest"] = simplified_case.retests.first()
-    if simplified_case.audit is not None:
-        context["issues_tables"] = build_issues_tables(
-            pages=simplified_case.audit.testable_pages,
-            check_results_attr="unfixed_check_results",
-        )
-        context["retest_issues_tables"] = build_issues_tables(
-            pages=simplified_case.audit.retestable_pages,
-            use_retest_notes=True,
-            check_results_attr="unfixed_check_results",
-        )
+    context["initial_wcag_audit"] = simplified_case.audit_overview.initial_wcag_audit
+    context["initial_statement_audit"] = (
+        simplified_case.audit_overview.initial_statement_audit
+    )
+    context["last_equality_body_wcag_audit"] = (
+        simplified_case.audit_overview.last_equality_body_wcag_audit
+    )
+    context["last_equality_body_statement_audit"] = (
+        simplified_case.audit_overview.last_equality_body_statement_audit
+    )
+    if simplified_case.audit_overview is not None:
+        if simplified_case.audit_overview.initial_wcag_audit is not None:
+            context["issues_tables"] = build_issues_tables(
+                pages=simplified_case.audit_overview.initial_wcag_audit.testable_wcag_page_initials,
+                check_results_attr="unfixed_wcag_check_result_initials",
+            )
+        if simplified_case.audit_overview.first_twelve_week_wcag_audit is not None:
+            context["retest_issues_tables"] = build_issues_tables(
+                pages=simplified_case.audit_overview.first_twelve_week_wcag_audit.retestable_wcag_page_retests,
+                use_retest_notes=True,
+                check_results_attr="unfixed_wcag_check_result_retests",
+            )
     return context

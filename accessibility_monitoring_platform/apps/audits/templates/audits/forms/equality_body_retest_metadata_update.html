@@ -2,13 +2,13 @@
 
 {% load l10n %}
 
-{% block title %}{{ retest }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
+{% block title %}{{ wcag_audit.equality_body_retest_name }} | {{ sitemap.current_platform_page.get_name }}{% endblock %}
 
 {% block content %}
 <div class="govuk-width-container">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include 'cases/helpers/case_banner.html' with case=retest.simplified_case %}
+            {% include 'cases/helpers/case_banner.html' with case=wcag_audit.simplified_case %}
         </div>
     </div>
     {% include 'audits/helpers/retest_breadcrumbs.html' %}
@@ -28,43 +28,46 @@
                         <b>
                             <p class="govuk-body-m">
                                 Retest continued from
-                                {% if retest.previous_retest %}
-                                    <a href="{% url 'audits:retest-metadata-update' retest.previous_retest.id %}" class="govuk-link govuk-link--no-visited-state">
-                                        {{ retest.previous_retest }}</a>.
-                                {% else %}
-                                    <a href="{% url 'audits:edit-audit-retest-metadata' retest.simplified_case.audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                                {% if wcag_audit.equality_body_previous_wcag_audit.audit_round_type == 'equality_body' %}
+                                    <a href="{% url 'audits:retest-metadata-update' wcag_audit.equality_body_previous_wcag_audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                                        {{ wcag_audit.equality_body_previous_wcag_audit.equality_body_retest_name }}</a>.
+                                {% elif wcag_audit.equality_body_previous_wcag_audit.audit_round_type == '12-week' %}
+                                    <a href="{% url 'audits:edit-audit-retest-metadata' wcag_audit.simplified_case.audit_overview.first_twelve_week_wcag_audit.id %}" class="govuk-link govuk-link--no-visited-state">
                                         12-week retest</a>.
+                                {% else %}
+                                    <a href="{% url 'audits:edit-audit-metadata' wcag_audit.simplified_case.audit_overview.initial_wcag_audit.id %}" class="govuk-link govuk-link--no-visited-state">
+                                        Initial test</a>.
                                 {% endif %}
                             </p>
                         </b>
                     </div>
                 </div>
                 {% include 'common/error_summary.html' %}
-                <form method="post" action="{% url 'audits:retest-metadata-update' retest.id %}">
+                <form method="post" action="{% url 'audits:retest-metadata-update' wcag_audit.id %}">
                     {% csrf_token %}
                     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
-                            {% include 'common/amp_field.html' with field=form.date_of_retest %}
-                            {% include 'common/amp_field.html' with field=form.retest_notes %}
+                            {% include 'common/amp_field.html' with field=form.date_of_test %}
+                            {% include 'common/amp_field.html' with field=form.notes %}
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Date of test (initial test)</b></label>
-                                <div class="govuk-hint">{{ retest.simplified_case.audit.date_of_test|amp_date }}</div>
+                                <div class="govuk-hint">{{ initial_wcag_audit.date_of_test|amp_date }}</div>
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Screen size (initial test)</b></label>
-                                <div class="govuk-hint">{{ retest.simplified_case.audit.get_screen_size_display }}</div>
+                                <div class="govuk-hint">{{ initial_wcag_audit.get_screen_size_display }}</div>
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Exemptions (initial test)</b></label>
-                                <div class="govuk-hint">{{ retest.simplified_case.audit.get_exemptions_state_display }}</div>
+                                <div class="govuk-hint">{{ initial_wcag_audit.get_exemptions_state_display }}</div>
                             </div>
                             <div class="govuk-form-group">
                                 <label class="govuk-label"><b>Date of retest (12-week retest)</b></label>
-                                <div class="govuk-hint">{{ retest.simplified_case.audit.date_of_test|amp_date }}</div>
+                                <div class="govuk-hint">{{ first_twelve_week_wcag_audit.date_of_test|amp_date }}</div>
                             </div>
-                            {% include 'common/amp_field.html' with field=form.complete_date %}
+                            {% include 'common/amp_field.html' with field=form.metadata_complete_date %}
                         </div>
                         <div class="govuk-grid-column-full govuk-button-group">
                             <input
@@ -82,7 +85,7 @@
                                 data-module="govuk-button"
                             />
                             <a
-                                href="{% url 'simplified:edit-retest-overview' retest.simplified_case.id %}"
+                                href="{% url 'simplified:edit-retest-overview' case.id %}"
                                 class="govuk-link govuk-link--no-visited-state"
                             >
                                 Cancel and return to retest overview

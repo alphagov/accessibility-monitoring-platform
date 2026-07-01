@@ -4,25 +4,32 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Any, Literal
 
-from ..audits.models import Audit
 from ..detailed.models import Contact as DetailedContact
 from ..detailed.models import DetailedCase
 from ..reports.models import Report
-from ..simplified.models import CaseCompliance, CaseStatus
+from ..simplified.models import CaseStatus
 from ..simplified.models import Contact as SimplifiedContact
 from ..simplified.models import SimplifiedCase
 
-ExportableClasses = (
-    Audit
-    | DetailedCase
-    | DetailedContact
-    | CaseCompliance
-    | CaseStatus
-    | Report
-    | SimplifiedCase
-    | SimplifiedContact
-    | None
-)
+INITIAL_WCAG_AUDIT: str = "WcagAudit Initial"
+TWELVE_WEEK_WCAG_AUDIT: str = "WcagAudit TwelveWeek"
+INITIAL_STATEMENT_AUDIT: str = "StatementAudit Initial"
+TWELVE_WEEK_STATEMENT_AUDIT: str = "StatementAudit TwelveWeek"
+
+
+ExportableClassKeys = Literal[
+    INITIAL_WCAG_AUDIT,
+    TWELVE_WEEK_WCAG_AUDIT,
+    INITIAL_STATEMENT_AUDIT,
+    TWELVE_WEEK_STATEMENT_AUDIT,
+    DetailedCase,
+    DetailedContact,
+    CaseStatus,
+    Report,
+    SimplifiedCase,
+    SimplifiedContact,
+    None,
+]
 
 
 @dataclass
@@ -30,7 +37,7 @@ class CSVColumn:
     """Data to use when building export CSV"""
 
     column_header: str
-    source_class: ExportableClasses
+    source_classkey: ExportableClassKeys
     source_attr: str
     formatted_data: str = ""
 
@@ -44,7 +51,7 @@ class EqualityBodyCSVColumn(CSVColumn):
     formatted_data: str = ""
     default_data: str = ""
     ui_suffix: str = ""
-    edit_url_class: ExportableClasses = None
+    edit_url_classkey: ExportableClassKeys = None
     edit_url_name: str | None = None
     edit_url_label: str = "Edit"
     edit_url_anchor: str = ""
@@ -58,7 +65,7 @@ class EqualityBodyCSVColumn(CSVColumn):
 
 
 def format_model_field(
-    source_instance: ExportableClasses,
+    source_instance: ExportableClassKeys,
     column: CSVColumn,
 ) -> str:
     """

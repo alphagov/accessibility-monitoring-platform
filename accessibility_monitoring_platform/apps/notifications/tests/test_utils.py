@@ -8,7 +8,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest
 from django.urls import reverse
 
-from ...audits.models import Retest
+from ...audits.models import WcagAudit
+from ...audits.tests.create_test_data import (
+    create_equality_body_audits,
+    create_simplified_case_with_initial_and_12_week_audits,
+)
 from ...cases.models import BaseCase
 from ...common.models import Boolean, Link
 from ...detailed.models import DetailedCase, DetailedEventHistory
@@ -264,7 +268,11 @@ def test_get_post_case_tasks():
 
     assert len(get_post_case_tasks(user=user)) == 0
 
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    simplified_case.auditor = user
+    simplified_case.save()
     equality_body_correspondence: EqualityBodyCorrespondence = (
         EqualityBodyCorrespondence.objects.create(simplified_case=simplified_case)
     )
@@ -294,7 +302,9 @@ def test_get_post_case_tasks():
 
     assert len(get_post_case_tasks(user=user)) == 0
 
-    retest: Retest = Retest.objects.create(simplified_case=simplified_case)
+    wcag_audit_retest: WcagAudit = create_equality_body_audits(
+        simplified_case=simplified_case
+    )
 
     post_case_tasks: list[Task] = get_post_case_tasks(user=user)
 
@@ -303,17 +313,17 @@ def test_get_post_case_tasks():
     post_case_task: Task = post_case_tasks[0]
 
     assert post_case_task.type == Task.Type.POSTCASE
-    assert post_case_task.date == retest.date_of_retest
+    assert post_case_task.date == wcag_audit_retest.date_of_test
     assert post_case_task.base_case == simplified_case
     assert post_case_task.description == "Incomplete retest"
 
     option: Link = post_case_task.options[0]
 
-    assert option.url == retest.get_absolute_url()
+    assert option.url == wcag_audit_retest.get_absolute_url()
     assert option.label == "View retest"
 
-    retest.retest_compliance_state = Retest.Compliance.COMPLIANT
-    retest.save()
+    wcag_audit_retest.compliance_state = WcagAudit.WebsiteCompliance.COMPLIANT
+    wcag_audit_retest.save()
 
     assert len(get_post_case_tasks(user=user)) == 0
 
@@ -848,10 +858,9 @@ def test_pending_reminder_removes_postcase():
     user: User = User.objects.create()
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(auditor=user)
     EqualityBodyCorrespondence.objects.create(simplified_case=simplified_case)
-    Retest.objects.create(
+    WcagAudit.objects.create(
         simplified_case=simplified_case,
-        retest_compliance_state=Retest.Compliance.NOT_KNOWN,
-        id_within_case=1,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
     )
 
     tasks: list[Task] = build_task_list(user=user)

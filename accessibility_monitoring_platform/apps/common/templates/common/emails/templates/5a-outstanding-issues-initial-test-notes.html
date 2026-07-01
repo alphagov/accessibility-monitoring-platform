@@ -5,9 +5,12 @@ We have completed the retest and some issues are still outstanding.
 Please review the issues listed below and provide an update.
 <br>
 <br>
-{% if case.audit.unfixed_check_results %}
-    {% for page in case.audit.testable_pages %}
-    {% if page.unfixed_check_results %}
+WcagAudit 12-week: {{case.audit_overview.first_twelve_week_wcag_audit}}<br>
+unfixed_wcag_check_result_retests: {{case.audit_overview.first_twelve_week_wcag_audit.unfixed_wcag_check_result_retests}}<br>
+retestable_wcag_page_retests: {{case.audit_overview.first_twelve_week_wcag_audit.retestable_wcag_page_retests }}<br>
+{% if case.audit_overview.first_twelve_week_wcag_audit.unfixed_wcag_check_result_retests %}
+    {% for page in case.audit_overview.first_twelve_week_wcag_audit.retestable_wcag_page_retests %}
+    {% if page.unfixed_wcag_check_result_retests %}
     <h2>{{ page }}{% if page.page_type != 'pdf' %} page{% endif %} issues</h2>
     <br>
     <a href="{{ page.url }}">{{ page.url }}</a>
@@ -22,13 +25,13 @@ Please review the issues listed below and provide an update.
     </tr>
     </thead>
     <tbody>
-    {% for check_result in page.unfixed_check_results %}
+    {% for check_result in page.unfixed_wcag_check_result_retests %}
     <tr valign="top">
     <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>
         <p><b>Issue {{ check_result.issue_identifier }}</b></p>
         <p><a href="{{ check_result.wcag_definition.url_on_w3 }}">{{ check_result.wcag_definition.name }}</a></p>
     </td>
-    <td headers="where-found-{{ forloop.parentloop.counter }}" width=33%>{{ check_result.notes|markdown_to_html }}</td>
+    <td headers="where-found-{{ forloop.parentloop.counter }}" width=33%>{{ check_result.wcag_check_result_initial.notes|markdown_to_html }}</td>
     <td headers="12-week-update-{{ forloop.parentloop.counter }}" width=33%></td>
     </tr>
     {% endfor %}
@@ -57,10 +60,10 @@ Please review the issues listed below and provide an update.
 <td headers="statement-issue" width=50%>
 <p><b>Issue {{ statement_check_result.issue_identifier }}</b></p>
 <p>{{ statement_check_result.statement_check.report_text }}</p>
-{{ statement_check_result.report_comment|markdown_to_html }}
+{{ statement_check_result.public_comment|markdown_to_html }}
 </td>
 <td headers="statement-12-week-update" width=50%>
-{{ statement_check_result.retest_comment|markdown_to_html }}
+{{ statement_check_result.retest_email_comment|markdown_to_html }}
 </td>
 </tr>
 {% endfor %}

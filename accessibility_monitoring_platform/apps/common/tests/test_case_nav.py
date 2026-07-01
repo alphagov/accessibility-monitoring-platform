@@ -1,13 +1,18 @@
 """Test sitemap case navigation"""
 
-from datetime import date
-
 import pytest
 from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
-from ...audits.models import Audit, Page, StatementCheck, StatementCheckResult
+from ...audits.models import (
+    AuditOverview,
+    StatementAudit,
+    StatementCheck,
+    StatementCheckResultRound,
+    WcagAudit,
+    WcagPageInitial,
+)
 from ...common.models import FrequentlyUsedLink
 from ...detailed.models import DetailedCase
 from ...mobile.models import MobileCase
@@ -140,7 +145,9 @@ def test_start_initial_test_page_shown(admin_client):
 def test_start_initial_test_page_hidden(admin_client):
     """Test page to start initial test hidden and initial test pages shown"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(simplified_case=simplified_case)
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    WcagAudit.objects.create(simplified_case=simplified_case)
+    StatementAudit.objects.create(simplified_case=simplified_case)
 
     response: HttpResponse = admin_client.get(
         reverse("simplified:edit-case-metadata", kwargs={"pk": simplified_case.id}),
@@ -168,10 +175,11 @@ def test_start_initial_test_page_hidden(admin_client):
 def test_dynamic_wcag_pages_hidden(admin_client):
     """Test WCAG-specific pages are hidden in case nav on other pages"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
 
     response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-pages", kwargs={"pk": audit.id}),
+        reverse("audits:edit-audit-pages", kwargs={"pk": wcag_audit.id}),
     )
 
     assert response.status_code == 200
@@ -191,13 +199,14 @@ def test_dynamic_wcag_pages_hidden(admin_client):
 def test_dynamic_wcag_pages_shown(admin_client):
     """Test WCAG-specific pages are shown in case nav on that page"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
-    page: Page = Page.objects.create(
-        audit=audit, name=WCAG_PAGE_NAME, url="https:example.com"
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit, name=WCAG_PAGE_NAME, url="https:example.com"
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-page-checks", kwargs={"pk": page.id}),
+        reverse("audits:edit-audit-page-checks", kwargs={"pk": wcag_page_initial.id}),
     )
 
     assert response.status_code == 200
@@ -212,7 +221,7 @@ def test_dynamic_wcag_pages_shown(admin_client):
         OTHER_PAGE_SUBPAGE.format(
             name="Add or remove pages",
             url="/audits/1/edit-audit-pages/",
-            subpage_name=f"{page.page_title} test",
+            subpage_name=f"{wcag_page_initial.page_title} test",
         ),
         html=True,
     )
@@ -221,10 +230,13 @@ def test_dynamic_wcag_pages_shown(admin_client):
 def test_dynamic_statement_pages_hidden(admin_client):
     """Test statement subpages are hidden in case nav on other pages"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
 
     response: HttpResponse = admin_client.get(
-        reverse("audits:edit-statement-overview", kwargs={"pk": audit.id}),
+        reverse("audits:edit-statement-overview", kwargs={"pk": statement_audit.id}),
     )
 
     assert response.status_code == 200
@@ -244,19 +256,22 @@ def test_dynamic_statement_pages_hidden(admin_client):
 def test_dynamic_statement_pages_shown(admin_client):
     """Test statement-specific pages are shown in case nav"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
     statement_check: StatementCheck | None = StatementCheck.objects.filter(
         type=StatementCheck.Type.OVERVIEW
     ).first()
-    StatementCheckResult.objects.create(
+    StatementCheckResultRound.objects.create(
         statement_check=statement_check,
-        audit=audit,
+        statement_audit=statement_audit,
         type=StatementCheck.Type.OVERVIEW,
-        check_result_state=StatementCheckResult.Result.YES,
+        check_result_state=StatementCheckResultRound.Result.YES,
     )
 
     response: HttpResponse = admin_client.get(
-        reverse("audits:edit-statement-overview", kwargs={"pk": audit.id}),
+        reverse("audits:edit-statement-overview", kwargs={"pk": statement_audit.id}),
     )
 
     assert response.status_code == 200
@@ -459,7 +474,7 @@ def test_dynamic_contact_correspondence_pages_shown(admin_client):
 def test_start_12_week_retest_page_shown(admin_client):
     """Test page to start 12-week retest shown and 12-week retest pages not shown"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(simplified_case=simplified_case)
+    AuditOverview.objects.create(simplified_case=simplified_case)
 
     response: HttpResponse = admin_client.get(
         reverse("simplified:edit-case-metadata", kwargs={"pk": simplified_case.id}),
@@ -487,7 +502,15 @@ def test_start_12_week_retest_page_shown(admin_client):
 def test_start_12_week_retest_page_hidden(admin_client):
     """Test page to start 12-week retest hidden and 12-week retest pages shown"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(simplified_case=simplified_case, retest_date=date.today())
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+    )
 
     response: HttpResponse = admin_client.get(
         reverse("simplified:edit-case-metadata", kwargs={"pk": simplified_case.id}),
