@@ -2221,6 +2221,159 @@ def test_wcag_check_result_retest_previous_wcag_check_result_retest():
     )
 
 
+@pytest.mark.django_db
+def test_statement_check_result_round_string():
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_CREATED)):
+        create_initial_statement_audit()
+    custom_statement_check_result_round: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.get(statement_check=None)
+    )
+
+    assert (
+        str(custom_statement_check_result_round)
+        == "#S-1 StatementAudit Initial test (1 April 2021) | Custom [1-SC-43]"
+    )
+
+    statement_check: StatementCheck = StatementCheck.objects.all().first()
+    statement_check_result_round: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.get(statement_check=statement_check)
+    )
+
+    assert (
+        str(statement_check_result_round)
+        == "#S-1 StatementAudit Initial test (1 April 2021) | Is there an accessibility page?: An accessibility page is found on the website (Statement overview) [1-S-1]"
+    )
+
+
+@pytest.mark.django_db
+def test_statement_check_result_round_issue_identifier():
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_CREATED)):
+        create_initial_statement_audit()
+    custom_statement_check_result_round: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.get(statement_check=None)
+    )
+
+    assert custom_statement_check_result_round.issue_identifier == "1-SC-43"
+
+    statement_check: StatementCheck = StatementCheck.objects.all().first()
+    statement_check_result_round: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.get(statement_check=statement_check)
+    )
+
+    assert (
+        statement_check_result_round.issue_identifier
+        == f"1-S-{statement_check.issue_number}"
+    )
+
+
+@pytest.mark.django_db
+def test_statement_check_result_round_custom_state_default():
+    """Test that custom statement check results default to check result state of NO"""
+    create_initial_statement_audit()
+    custom_statement_check_result_round: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.get(statement_check=None)
+    )
+
+    assert (
+        custom_statement_check_result_round.check_result_state
+        == StatementCheckResultRound.Result.NO
+    )
+
+
+@pytest.mark.django_db
+def test_statement_check_result_round_updated_updated():
+    create_initial_statement_audit()
+    statement_check_result_round: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.all().first()
+    )
+    with patch(
+        "django.utils.timezone.now", Mock(return_value=DATETIME_CHECK_RESULT_UPDATED)
+    ):
+        statement_check_result_round.save()
+
+    assert statement_check_result_round.updated == DATETIME_CHECK_RESULT_UPDATED
+
+
+@pytest.mark.django_db
+def test_statement_check_result_round_label():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+    statement_check_result_round: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.create(statement_audit=statement_audit)
+    )
+
+    assert statement_check_result_round.label == "Custom"
+
+    statement_check: StatementCheck = StatementCheck.objects.get(
+        id=ACCESSIBILITY_PAGE_STATEMENT_CHECK_ID
+    )
+    statement_check_result_round.statement_check = statement_check
+    statement_check_result_round.save()
+
+    assert statement_check_result_round.label == "Is there an accessibility page?"
+
+
+@pytest.mark.django_db
+def test_statement_check_result_round_edit_initial_url_name():
+    statement_audit: StatementAudit = create_initial_statement_audit()
+    statement_check_result_round: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.filter(
+            statement_audit=statement_audit,
+            statement_check__type=StatementCheck.Type.COMPLIANCE,
+        ).first()
+    )
+
+    assert (
+        statement_check_result_round.edit_initial_url_name
+        == "audits:edit-statement-compliance"
+    )
+
+
+@pytest.mark.django_db
+def test_statement_check_result_round_edit_12_week_url_name():
+    initial_statement_audit: StatementAudit = create_initial_statement_audit()
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
+        initial_statement_audit=initial_statement_audit
+    )
+    statement_check_result_round: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.filter(
+            statement_audit=twelve_week_statement_audit,
+            statement_check__type=StatementCheck.Type.COMPLIANCE,
+        ).first()
+    )
+
+    assert (
+        statement_check_result_round.edit_12_week_url_name
+        == "audits:edit-retest-statement-compliance"
+    )
+
+
+@pytest.mark.django_db
+def test_statement_check_result_round_twelve_week_retest():
+    with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_CREATED)):
+        initial_statement_audit: StatementAudit = create_initial_statement_audit()
+        statement_check: StatementCheck = StatementCheck.objects.all().first()
+        initial_statement_check_result_round: StatementCheckResultRound = (
+            StatementCheckResultRound.objects.get(statement_check=statement_check)
+        )
+        twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
+            initial_statement_audit=initial_statement_audit
+        )
+        twelve_week_statement_check_result_round: StatementCheckResultRound = (
+            StatementCheckResultRound.objects.get(
+                statement_audit=twelve_week_statement_audit,
+                statement_check_result_initial=initial_statement_check_result_round,
+            )
+        )
+
+    assert (
+        initial_statement_check_result_round.twelve_week_retest
+        == twelve_week_statement_check_result_round
+    )
+
+
 # Older tests below
 
 
@@ -2407,41 +2560,6 @@ def test_statement_check_str():
 
     assert (
         statement_check.__str__() == "Label: Success criteria (Custom statement issues)"
-    )
-
-
-@pytest.mark.django_db
-def test_statement_check_result_initial_edit_initial_url_name():
-    statement_audit: StatementAudit = create_initial_statement_audit()
-    statement_check_result_initial: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.filter(
-            statement_audit=statement_audit,
-            statement_check__type=StatementCheck.Type.COMPLIANCE,
-        ).first()
-    )
-
-    assert (
-        statement_check_result_initial.edit_initial_url_name
-        == "audits:edit-statement-compliance"
-    )
-
-
-@pytest.mark.django_db
-def test_statement_check_result_retest_edit_12_week_url_name():
-    initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
-        initial_statement_audit=initial_statement_audit
-    )
-    statement_check_result_retest: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.filter(
-            statement_audit=twelve_week_statement_audit,
-            statement_check__type=StatementCheck.Type.COMPLIANCE,
-        ).first()
-    )
-
-    assert (
-        statement_check_result_retest.edit_12_week_url_name
-        == "audits:edit-retest-statement-compliance"
     )
 
 
@@ -2651,28 +2769,6 @@ def test_latest_statement_link_found():
     early_statement_page.save()
 
     assert audit_overview.latest_statement_link == STATEMENT_LINK
-
-
-@pytest.mark.django_db
-def test_retest_statement_check_results_label():
-    """Test RetestStatementCheckResult.label"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case
-    )
-    statement_check_result_round: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.create(statement_audit=statement_audit)
-    )
-
-    assert statement_check_result_round.label == "Custom"
-
-    statement_check: StatementCheck = StatementCheck.objects.get(
-        id=ACCESSIBILITY_PAGE_STATEMENT_CHECK_ID
-    )
-    statement_check_result_round.statement_check = statement_check
-    statement_check_result_round.save()
-
-    assert statement_check_result_round.label == "Is there an accessibility page?"
 
 
 @pytest.mark.django_db

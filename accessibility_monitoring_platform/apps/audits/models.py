@@ -1542,6 +1542,7 @@ class StatementCheckResultRound(models.Model):
     public_comment = models.TextField(default="", blank=True)
     auditor_information = models.TextField(default="", blank=True)
     is_deleted = models.BooleanField(default=False)
+    updated = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["statement_check__position", "id"]
@@ -1574,18 +1575,12 @@ class StatementCheckResultRound(models.Model):
             self.issue_identifier = f"{case_number}-{ISSUE_IDENTIFIER_STATEMENT}{custom_suffix}-{issue_number}"
         if not self.id and self.statement_check is None:
             self.check_result_state = StatementCheckResultRound.Result.NO
+        self.updated = timezone.now()
         super().save(*args, **kwargs)
 
     @property
     def label(self):
         return self.statement_check.label if self.statement_check else "Custom"
-
-    @property
-    def display_value(self):
-        value_str: str = self.get_check_result_state_display()
-        if self.public_comment:
-            value_str += f"<br><br>Auditor's comment: {self.public_comment}"
-        return mark_safe(value_str)
 
     @property
     def edit_initial_url_name(self) -> str:
@@ -1600,7 +1595,7 @@ class StatementCheckResultRound(models.Model):
         return f"audits:edit-retest-statement-{self.type}"
 
     @property
-    def twelve_week_retest(self) -> StatementCheckResult | None:
+    def twelve_week_retest(self) -> StatementCheckResultRound | None:
         return (
             StatementCheckResultRound.objects.filter(
                 is_deleted=False,
