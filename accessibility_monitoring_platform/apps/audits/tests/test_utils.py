@@ -243,29 +243,17 @@ EXPECTED_AUDIT_REPORT_OPTIONS_ROWS: list[FieldLabelAndValue] = [
 ]
 
 
-@pytest.mark.django_db
-def test_create_mandatory_pages_for_new_audit():
-    """Test that the mandatory pages are created for a new audit"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        home_page_url=HOME_PAGE_URL
-    )
-    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
-    create_mandatory_pages_for_new_audit(wcag_audit=wcag_audit)
+def test_index_or_404():
+    items: str = ["a", "b", "c"]
 
-    assert wcag_audit.wcagpageinitial_set.all().count() == len(
-        WcagPageInitial.MANDATORY_PAGE_TYPES
-    )
+    assert index_or_404(items=items, item="b") == 1
 
-    home_page: WcagPageInitial = wcag_audit.wcagpageinitial_set.get(
-        page_type=WcagPageInitial.Type.HOME
-    )
-
-    assert home_page.url == HOME_PAGE_URL
+    with pytest.raises(Http404):
+        index_or_404(items=items, item="d")
 
 
 @pytest.mark.django_db
-def test_update_check_results_for_page():
-    """Test update and adding wcag check result initials for a page"""
+def test_create_or_update_wcag_check_result_initials_for_page():
     wcag_audit: WcagAudit = create_initial_wcag_audit()
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
         wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
@@ -374,6 +362,54 @@ def test_get_all_possible_check_results_for_page():
             "issue_identifier": "",
         },
     ]
+
+
+@pytest.mark.django_db
+def test_create_mandatory_pages_for_new_audit():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        home_page_url=HOME_PAGE_URL
+    )
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    create_mandatory_pages_for_new_audit(wcag_audit=wcag_audit)
+
+    assert wcag_audit.wcagpageinitial_set.all().count() == len(
+        WcagPageInitial.MANDATORY_PAGE_TYPES
+    )
+
+    home_page: WcagPageInitial = wcag_audit.wcagpageinitial_set.get(
+        page_type=WcagPageInitial.Type.HOME
+    )
+
+    assert home_page.url == HOME_PAGE_URL
+
+
+@pytest.mark.django_db
+def test_create_statement_checks_for_new_audit():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert (
+        StatementCheckResultRound.objects.filter(
+            statement_audit=statement_audit
+        ).count()
+        == 0
+    )
+
+    create_statement_checks_for_new_audit(statement_audit=statement_audit)
+
+    number_of_statement_checks: int = StatementCheck.objects.on_date(TODAY).count()
+
+    assert (
+        StatementCheckResultRound.objects.filter(
+            statement_audit=statement_audit
+        ).count()
+        == number_of_statement_checks
+    )
+
+
+#  Older below
 
 
 @pytest.mark.django_db
@@ -581,33 +617,6 @@ def test_report_data_updated():
     update_published_report_data_updated_time(wcag_audit=wcag_audit)
 
     assert audit_overview.published_report_data_updated_time is not None
-
-
-@pytest.mark.django_db
-def test_create_statement_checks_for_new_audit():
-    """Test creation of statement check results for audit"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case
-    )
-
-    assert (
-        StatementCheckResultRound.objects.filter(
-            statement_audit=statement_audit
-        ).count()
-        == 0
-    )
-
-    create_statement_checks_for_new_audit(statement_audit=statement_audit)
-
-    number_of_statement_checks: int = StatementCheck.objects.on_date(TODAY).count()
-
-    assert (
-        StatementCheckResultRound.objects.filter(
-            statement_audit=statement_audit
-        ).count()
-        == number_of_statement_checks
-    )
 
 
 @pytest.mark.django_db
@@ -1212,16 +1221,6 @@ def test_get_audit_summary_statement_check_results_by_type(rf):
 
     assert "overview" in summary_statement_check_results_by_type
     assert len(summary_statement_check_results_by_type["overview"]) == 1
-
-
-def test_index_or_404():
-    """Text index or 404 returns index or raises 404"""
-    items: str = ["a", "b", "c"]
-
-    assert index_or_404(items=items, item="b") == 1
-
-    with pytest.raises(Http404):
-        index_or_404(items=items, item="d")
 
 
 @pytest.mark.django_db

@@ -67,15 +67,6 @@ STATEMENT_CONTENT_SUBSECTIONS: list[StatementContentSubsection] = [
 P = TypeVar("P", bound=Page | RetestPage)
 
 
-def index_or_404(items: list[P], item: P) -> int:
-    """Return index of item in list or raise 404 if not found"""
-    try:
-        position: int = items.index(item)
-    except ValueError:
-        raise Http404
-    return position
-
-
 @dataclass
 class SummaryWcagCheckResult:
     wcag_definition: WcagDefinition
@@ -91,6 +82,15 @@ class SummaryStatementCheckResult:
     issue_identifier: str
     initial_result: StatementCheckResult
     retest_result: StatementCheckResult | None = None
+
+
+def index_or_404(items: list[P], item: P) -> int:
+    """Return index of item in list or raise 404 if not found"""
+    try:
+        position: int = items.index(item)
+    except ValueError:
+        raise Http404
+    return position
 
 
 def create_or_update_wcag_check_result_initials_for_page(
@@ -174,9 +174,8 @@ def get_page_check_results_formset_initial(
     wcag_page_initial: WcagPageInitial, wcag_definitions: list[WcagDefinition]
 ) -> list[dict[str, str | WcagDefinition | CheckResult]]:
     """
-    Combine existing check result with all the WCAG definitions
-    to create a list of dictionaries for use in populating the
-    CheckResultFormset with all possible results.
+    Combine existing check result with all the WCAG definitions to create a list of
+    dictionaries for use in populating the CheckResultFormset with all possible results
     """
     check_results_by_wcag_definition: dict[WcagDefinition, WcagCheckResultInitial] = (
         wcag_page_initial.wcag_check_result_initials_by_wcag_definition
@@ -211,10 +210,6 @@ def get_page_check_results_formset_initial(
 
 
 def create_mandatory_pages_for_new_audit(wcag_audit: WcagAudit) -> None:
-    """
-    Create mandatory pages for new audit.
-    """
-
     for page_type in WcagPageInitial.MANDATORY_PAGE_TYPES:
         if page_type == WcagPageInitial.Type.HOME:
             WcagPageInitial.objects.create(
@@ -227,9 +222,6 @@ def create_mandatory_pages_for_new_audit(wcag_audit: WcagAudit) -> None:
 
 
 def create_statement_checks_for_new_audit(statement_audit: StatementAudit) -> None:
-    """
-    Create statement check results for new audit.
-    """
     for statement_check in StatementCheck.objects.on_date(statement_audit.date_of_test):
         StatementCheckResultRound.objects.create(
             statement_audit=statement_audit,
