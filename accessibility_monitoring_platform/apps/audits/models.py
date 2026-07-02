@@ -13,7 +13,6 @@ from django.db.models import Q, When
 from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 
 from ..common.models import Boolean, StartEndDateManager, VersionModel
 from ..common.utils import amp_format_date, calculate_percentage
