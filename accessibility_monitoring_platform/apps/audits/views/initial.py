@@ -58,7 +58,6 @@ from ..models import (
     WcagAudit,
     WcagDefinition,
     WcagPageInitial,
-    WcagPageRetest,
 )
 from ..utils import (
     create_or_update_wcag_check_result_initials_for_page,
@@ -110,6 +109,13 @@ class WcagAuditMetadataUpdateView(WcagAuditUpdateView):
 
     form_class: type[WcagAuditMetadataUpdateForm] = WcagAuditMetadataUpdateForm
     template_name: str = "common/case_form.html"
+
+    def form_valid(self, form: ModelForm):
+        if form.changed_data and "date_of_test" in form.changed_data:
+            audit_overview: AuditOverview = self.object.simplified_case.audit_overview
+            audit_overview.initial_date_of_test = form.cleaned_data["date_of_test"]
+            audit_overview.save()
+        return super().form_valid(form)
 
 
 class WcagAuditPagesUpdateView(WcagAuditUpdateView):
@@ -178,7 +184,7 @@ class WcagAuditPagesUpdateView(WcagAuditUpdateView):
 
         if standard_pages_formset.is_valid():
             audit_overview: AuditOverview = wcag_audit.simplified_case.audit_overview
-            wcag_page_initial_wcag_audits: list[WcagPageRetest] = (
+            wcag_page_initial_wcag_audits: list[WcagPageInitial] = (
                 standard_pages_formset.save(commit=False)
             )
             for wcag_page_initial_wcag_audit in wcag_page_initial_wcag_audits:
@@ -263,7 +269,7 @@ class WcagPageChecksFormView(NextPlatformPageMixin, FormView):
         self.wcag_page_initial = WcagPageInitial.objects.get(pk=kwargs["pk"])
 
     def get_next_platform_page(self):
-        wcag_page_initial_wcag_audit: WcagPageRetest = self.wcag_page_initial
+        wcag_page_initial_wcag_audit: WcagPageInitial = self.wcag_page_initial
         return get_next_platform_page_wcag_page_initial(
             wcag_audit=wcag_page_initial_wcag_audit.wcag_audit,
             current_wcag_page_initial=wcag_page_initial_wcag_audit,
@@ -338,7 +344,7 @@ class WcagPageChecksFormView(NextPlatformPageMixin, FormView):
 
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
-        wcag_page_initial: WcagPageRetest = self.wcag_page_initial
+        wcag_page_initial: WcagPageInitial = self.wcag_page_initial
         if form.changed_data:
             wcag_page_initial.complete_date = form.cleaned_data["complete_date"]
             wcag_page_initial.no_errors_date = form.cleaned_data["no_errors_date"]

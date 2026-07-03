@@ -241,12 +241,15 @@ class AuditOverview(models.Model):
         blank=True,
         null=True,
     )
+    initial_date_of_test = models.DateField(null=True, blank=True)
     published_report_data_updated_time = models.DateTimeField(null=True, blank=True)
     updated = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs) -> None:
         if self.id is None:
             self.updated = timezone.now()
+        if not self.initial_date_of_test:
+            self.initial_date_of_test = timezone.now().date()
         super().save(*args, **kwargs)
 
     @property

@@ -44,6 +44,7 @@ def populate_audit_rounds(apps, schema_editor):
     for audit in Audit.objects.all().order_by("id"):
         audit_overview = AuditOverview.objects.create(
             simplified_case=audit.simplified_case,
+            initial_date_of_test=audit.date_of_test,
             published_report_data_updated_time=audit.published_report_data_updated_time,
             updated=audit.updated,
         )

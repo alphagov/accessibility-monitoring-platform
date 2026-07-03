@@ -170,6 +170,33 @@ def test_create_audit_creates_case_event(admin_client):
     assert case_event.message == "Started test"
 
 
+def test_initial_test_of_date_change_stored_in_audit_overview(admin_client):
+    """Test that changing the initial test of date is stored on audit overview"""
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    audit_overview: AuditOverview = initial_wcag_audit.simplified_case.audit_overview
+
+    assert audit_overview.initial_date_of_test == TODAY
+
+    response: HttpResponse = admin_client.post(
+        reverse("audits:edit-audit-metadata", kwargs={"pk": initial_wcag_audit.id}),
+        {
+            "date_of_test_0": 30,
+            "date_of_test_1": 11,
+            "date_of_test_2": 2022,
+            "save": "Save",
+            "version": initial_wcag_audit.version,
+        },
+    )
+
+    assert response.status_code == 302
+
+    audit_overview: AuditOverview = AuditOverview.objects.get(
+        id=initial_wcag_audit.simplified_case.audit_overview.id
+    )
+
+    assert audit_overview.initial_date_of_test == date(2022, 11, 30)
+
+
 @pytest.mark.parametrize(
     "path_name, expected_content",
     [
