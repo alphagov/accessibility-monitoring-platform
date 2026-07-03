@@ -713,17 +713,17 @@ def test_wcag_audit_equivalent_statement_audit():
 
 
 @pytest.mark.django_db
-def test_wcag_audit_equality_body_previous_wcag_audit():
+def test_wcag_audit_equality_body_previous_retest_wcag_audit():
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
 
-    assert initial_wcag_audit.equality_body_previous_wcag_audit is None
+    assert initial_wcag_audit.equality_body_previous_retest_wcag_audit is None
 
     twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
     )
 
-    assert twelve_week_wcag_audit.equality_body_previous_wcag_audit is None
+    assert twelve_week_wcag_audit.equality_body_previous_retest_wcag_audit is None
 
     first_equality_body_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit,
@@ -731,7 +731,7 @@ def test_wcag_audit_equality_body_previous_wcag_audit():
     )
 
     assert (
-        first_equality_body_wcag_audit.equality_body_previous_wcag_audit
+        first_equality_body_wcag_audit.equality_body_previous_retest_wcag_audit
         == twelve_week_wcag_audit
     )
 
@@ -741,7 +741,7 @@ def test_wcag_audit_equality_body_previous_wcag_audit():
     )
 
     assert (
-        second_equality_body_wcag_audit.equality_body_previous_wcag_audit
+        second_equality_body_wcag_audit.equality_body_previous_retest_wcag_audit
         == first_equality_body_wcag_audit
     )
 

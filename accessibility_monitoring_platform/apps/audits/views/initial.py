@@ -66,7 +66,7 @@ from ..utils import (
     create_or_update_wcag_check_result_initials_for_page,
     get_next_platform_page_wcag_page_initial,
     get_page_check_results_formset_initial,
-    other_page_failed_check_results,
+    other_wcag_page_initial_failed_wcag_check_result_initials,
 )
 from .base import (
     AddStatementLinkUpdateView,
@@ -293,7 +293,9 @@ class WcagPageChecksFormView(NextPlatformPageMixin, FormView):
             initial={"manual": False, "axe": False, "pdf": False, "not_tested": False}
         )
         other_pages_failed_check_results: dict[WcagDefinition, list[CheckResult]] = (
-            other_page_failed_check_results(wcag_page_initial=self.wcag_page_initial)
+            other_wcag_page_initial_failed_wcag_check_result_initials(
+                wcag_page_initial=self.wcag_page_initial
+            )
         )
         wcag_definitions: list[WcagDefinition] = list(
             WcagDefinition.objects.on_date(

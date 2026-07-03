@@ -60,10 +60,10 @@ from ..models import (
     WcagPageRetest,
 )
 from ..utils import (
-    add_to_check_result_restest_notes_history,
+    add_to_wcag_check_result_restest_notes_history,
     build_equality_body_retest_context_data,
-    create_checkresults_for_wcag_audit_retest,
     create_statement_audit_and_check_results,
+    create_wcag_check_result_retests_for_wcag_audit,
     get_next_platform_page_equality_body,
 )
 from .base import (
@@ -93,7 +93,7 @@ def create_equality_body_retest(request: HttpRequest, case_id: int) -> HttpRespo
     record_simplified_model_create_event(
         user=request.user, model_object=wcag_audit, simplified_case=simplified_case
     )
-    create_checkresults_for_wcag_audit_retest(wcag_audit=wcag_audit)
+    create_wcag_check_result_retests_for_wcag_audit(wcag_audit=wcag_audit)
     statement_audit: StatementAudit = create_statement_audit_and_check_results(
         audit_overview=simplified_case.audit_overview,
         audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY,
@@ -220,7 +220,7 @@ class EqualityBodyRetestPageChecksFormView(NextPlatformPageMixin, UpdateView):
                     wcag_check_result_retest: WcagCheckResultRetest = (
                         retest_check_result_form.save(commit=False)
                     )
-                    add_to_check_result_restest_notes_history(
+                    add_to_wcag_check_result_restest_notes_history(
                         wcag_check_result_retest=wcag_check_result_retest,
                         user=self.request.user,
                     )

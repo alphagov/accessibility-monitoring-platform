@@ -548,7 +548,7 @@ class WcagAudit(AuditRound):
         )
 
     @property
-    def equality_body_previous_wcag_audit(self) -> WcagAudit | None:
+    def equality_body_previous_retest_wcag_audit(self) -> WcagAudit | None:
         """
         Return previous equality body or 12-week retest for an equality body retest
         """

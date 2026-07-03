@@ -134,7 +134,7 @@ def create_or_update_wcag_check_result_initials_for_page(
                     model_object=wcag_check_result_initial,
                     simplified_case=wcag_check_result_initial.wcag_audit.simplified_case,
                 )
-                add_to_check_result_notes_history(
+                add_to_wcag_check_result_initial_notes_history(
                     wcag_check_result_initial=wcag_check_result_initial, user=user
                 )
                 update_published_report_data_updated_time(
@@ -160,7 +160,7 @@ def create_or_update_wcag_check_result_initials_for_page(
                 model_object=wcag_check_result_initial,
                 simplified_case=wcag_check_result_initial.wcag_audit.simplified_case,
             )
-            add_to_check_result_notes_history(
+            add_to_wcag_check_result_initial_notes_history(
                 wcag_check_result_initial=wcag_check_result_initial,
                 user=user,
                 new_check_result=True,
@@ -233,7 +233,6 @@ def create_statement_checks_for_new_audit(statement_audit: StatementAudit) -> No
 def create_retest_wcag_audit_and_check_results(
     audit_overview: AuditOverview, audit_round_type: WcagAudit.AuditRoundType
 ) -> WcagAudit:
-
     new_wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=audit_overview.simplified_case,
         audit_round_type=audit_round_type,
@@ -257,21 +256,21 @@ def create_retest_wcag_audit_and_check_results(
                     wcag_check_result_initial=wcag_check_result_initial,
                     wcag_definition=wcag_check_result_initial.wcag_definition,
                 )
-        else:
-            for wcag_page_retest in previous_wcag_audit.retestable_wcag_page_retests:
-                wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+    else:
+        for wcag_page_retest in previous_wcag_audit.retestable_wcag_page_retests:
+            new_wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+                wcag_audit=new_wcag_audit,
+                wcag_page_initial=wcag_page_retest.wcag_page_initial,
+            )
+            for (
+                wcag_check_result_retest
+            ) in wcag_page_retest.unfixed_wcag_check_result_retests:
+                WcagCheckResultRetest.objects.create(
                     wcag_audit=new_wcag_audit,
-                    wcag_page_initial=wcag_page_retest.wcag_page_initial,
+                    wcag_page_retest=new_wcag_page_retest,
+                    wcag_check_result_initial=wcag_check_result_retest.wcag_check_result_initial,
+                    wcag_definition=wcag_check_result_retest.wcag_definition,
                 )
-                for (
-                    wcag_check_result_retest
-                ) in wcag_page_retest.failed_wcag_check_result_retests:
-                    WcagCheckResultRetest.objects.create(
-                        wcag_audit=new_wcag_audit,
-                        wcag_page_retest=wcag_page_retest,
-                        wcag_check_result_initial=wcag_check_result_retest.wcag_check_result_initial,
-                        wcag_definition=wcag_check_result_retest.wcag_definition,
-                    )
     return new_wcag_audit
 
 
@@ -279,7 +278,6 @@ def create_statement_audit_and_check_results(
     audit_overview: AuditOverview,
     audit_round_type: StatementAudit.AuditRoundType = StatementAudit.AuditRoundType.INITIAL,
 ) -> StatementAudit:
-
     if audit_overview.initial_statement_audit is None:
         initial_statement_audit: StatementAudit = StatementAudit.objects.create(
             simplified_case=audit_overview.simplified_case,
@@ -343,7 +341,7 @@ def get_next_platform_page_twelve_week(
 ) -> PlatformPage:
     """
     Return the platform page page to go to when a save and continue button is
-    pressed on the page where pages or page check results are retested.
+    pressed on the page where pages or check results are retested.
     """
     if wcag_audit.wcag_page_retests.count() == 0:
         return get_platform_page_by_url_name(
@@ -371,7 +369,7 @@ def get_next_platform_page_twelve_week(
     )
 
 
-def other_page_failed_check_results(
+def other_wcag_page_initial_failed_wcag_check_result_initials(
     wcag_page_initial: WcagPageInitial,
 ) -> dict[WcagDefinition, list[CheckResult]]:
     """
@@ -398,16 +396,16 @@ def other_page_failed_check_results(
 
 
 def update_published_report_data_updated_time(wcag_audit: WcagAudit) -> None:
-    """Record when an update changing report content as occurred."""
     now: datetime = timezone.now()
     audit_overview: AuditOverview = wcag_audit.simplified_case.audit_overview
     audit_overview.published_report_data_updated_time = now
     audit_overview.save()
 
 
-def create_checkresults_for_wcag_audit_retest(wcag_audit: WcagAudit) -> None:
+def create_wcag_check_result_retests_for_wcag_audit(wcag_audit: WcagAudit) -> None:
     """
-    Create pages and checkresults for restest from outstanding issues of previous test.
+    Create wcag page retests and wcag check result retests from outstanding issues of
+    previous WCAG audit.
     """
 
     previous_wcag_audit: WcagAudit = WcagAudit.objects.get(
@@ -452,8 +450,8 @@ def get_next_platform_page_equality_body(
     wcag_audit: WcagAudit, current_page: WcagPageRetest | None = None
 ) -> PlatformPage:
     """
-    Return the next retest platform page to go to when a save and continue button is
-    pressed.
+    Return the next equality body retest platform page to go to when a save and
+    continue button is pressed.
     """
     wcag_page_retests: list[WcagPageRetest] = list(wcag_audit.wcag_page_retests)
     if not wcag_page_retests:
@@ -483,7 +481,7 @@ def get_next_platform_page_equality_body(
 def get_other_pages_with_retest_notes(
     wcag_page_retest: WcagPageRetest,
 ) -> list[WcagPageRetest]:
-    """Check other pages of this case for retest notes and return them"""
+    """Check other WCAG page retests of this case for retest notes and return them"""
     wcag_audit: WcagAudit = wcag_page_retest.wcag_audit
     return [
         other_page
@@ -636,12 +634,11 @@ def get_audit_summary_context(
     return context
 
 
-def add_to_check_result_notes_history(
+def add_to_wcag_check_result_initial_notes_history(
     wcag_check_result_initial: WcagCheckResultInitial,
     user: User,
     new_check_result: bool = False,
 ) -> None:
-    """Add latest change to CheckResult.notes history"""
     if new_check_result is True:
         previous_wcag_check_result_initial: None = None
     else:
@@ -663,12 +660,11 @@ def add_to_check_result_notes_history(
         )
 
 
-def add_to_check_result_restest_notes_history(
+def add_to_wcag_check_result_restest_notes_history(
     wcag_check_result_retest: WcagCheckResultRetest,
     user: User,
     new_check_result_retest: bool = False,
 ) -> None:
-    """Add latest change to WcagCheckResultRetest.notes history"""
     if new_check_result_retest is True:
         previous_wcag_check_result_retest: None = None
     else:

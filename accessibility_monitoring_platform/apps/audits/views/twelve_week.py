@@ -59,7 +59,7 @@ from ..models import (
     WcagPageRetest,
 )
 from ..utils import (
-    add_to_check_result_restest_notes_history,
+    add_to_wcag_check_result_restest_notes_history,
     create_retest_wcag_audit_and_check_results,
     create_statement_audit_and_check_results,
     get_audit_summary_context,
@@ -210,7 +210,7 @@ class WcagPageRetestCheckResultsUpdateView(NextPlatformPageMixin, UpdateView):
                     wcag_check_result_retest: WcagCheckResultRetest = (
                         check_result_form.save(commit=False)
                     )
-                    add_to_check_result_restest_notes_history(
+                    add_to_wcag_check_result_restest_notes_history(
                         wcag_check_result_retest=wcag_check_result_retest,
                         user=self.request.user,
                     )
