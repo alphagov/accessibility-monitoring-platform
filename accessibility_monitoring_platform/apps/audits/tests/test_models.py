@@ -2423,7 +2423,7 @@ def test_statement_check_result_round_edit_12_week_url_name():
     twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
-    statement_check_result_round: StatementCheckResultRound = (
+    compliance_statement_check_result_round: StatementCheckResultRound = (
         StatementCheckResultRound.objects.filter(
             statement_audit=twelve_week_statement_audit,
             statement_check__type=StatementCheck.Type.COMPLIANCE,
@@ -2431,8 +2431,19 @@ def test_statement_check_result_round_edit_12_week_url_name():
     )
 
     assert (
-        statement_check_result_round.edit_12_week_url_name
+        compliance_statement_check_result_round.edit_12_week_url_name
         == "audits:edit-retest-statement-compliance"
+    )
+    retest_custom_statement_check_result_round: StatementCheckResultRound = (
+        StatementCheckResultRound.objects.filter(
+            statement_audit=twelve_week_statement_audit,
+            type=StatementCheck.Type.RETEST,
+        ).first()
+    )
+
+    assert (
+        retest_custom_statement_check_result_round.edit_12_week_url_name
+        == "audits:edit-retest-statement-custom"
     )
 
 

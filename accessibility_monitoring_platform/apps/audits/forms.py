@@ -23,9 +23,7 @@ from ..common.models import Boolean
 from ..common.utils import validate_file_size
 from ..simplified.models import CaseCompliance
 from .models import (
-    Audit,
     CheckResult,
-    Page,
     Retest,
     RetestCheckResult,
     RetestPage,
@@ -217,7 +215,6 @@ class CheckResultFilterForm(forms.Form):
     )
 
     class Meta:
-        model = Page
         fields: list[str] = [
             "name",
             "type_filter",
@@ -525,7 +522,7 @@ class StatementAuditInitialDisproportionateBurdenUpdateForm(VersionForm):
 
     disproportionate_burden_claim = AMPChoiceRadioField(
         label="Initial disproportionate burden claim",
-        choices=Audit.DisproportionateBurden.choices,
+        choices=StatementAudit.DisproportionateBurden.choices,
     )
     disproportionate_burden_notes = AMPTextField(
         label="Initial disproportionate burden claim details"
@@ -671,7 +668,6 @@ class AuditRetestCheckResultFilterForm(forms.Form):
     )
 
     class Meta:
-        model = Page
         fields: list[str] = [
             "name",
             "type_filter",
@@ -734,51 +730,6 @@ WcagCheckResultRetestFormset: forms.formsets.BaseFormSet = forms.modelformset_fa
 )
 
 
-class AuditRetestWcagSummaryUpdateForm(VersionForm):
-    """
-    Form for editing 12-week WCAG test audit summary
-    """
-
-    audit_retest_wcag_summary_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: list[str] = [
-            "version",
-            "audit_retest_wcag_summary_complete_date",
-        ]
-
-
-class AuditRetestStatementSummaryUpdateForm(VersionForm):
-    """
-    Form for editing 12-week statement audit summary
-    """
-
-    audit_retest_statement_summary_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: list[str] = [
-            "version",
-            "audit_retest_statement_summary_complete_date",
-        ]
-
-
-class AuditRetestStatementFeedbackUpdateForm(VersionForm):
-    """
-    Form for editing statement feedback
-    """
-
-    audit_retest_statement_feedback_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: list[str] = [
-            "version",
-            "audit_retest_statement_feedback_complete_date",
-        ]
-
-
 class StatementCheckResultRetestCustomUpdateForm(forms.ModelForm):
     """
     Form for updating an initial statement custom issue
@@ -799,21 +750,6 @@ class StatementCheckResultRetestCustomUpdateForm(forms.ModelForm):
         ]
 
 
-class AuditRetestStatementDecisionUpdateForm(VersionForm):
-    """
-    Form for retesting statement decision
-    """
-
-    audit_retest_statement_decision_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: list[str] = [
-            "version",
-            "audit_retest_statement_decision_complete_date",
-        ]
-
-
 class AuditTwelveWeekDisproportionateBurdenUpdateForm(VersionForm):
     """
     Form for editing twelve_week disproportional burden claim
@@ -821,7 +757,7 @@ class AuditTwelveWeekDisproportionateBurdenUpdateForm(VersionForm):
 
     disproportionate_burden_claim = AMPChoiceRadioField(
         label="12-week disproportionate burden claim · Included in export",
-        choices=Audit.DisproportionateBurden.choices,
+        choices=StatementAudit.DisproportionateBurden.choices,
     )
     disproportionate_burden_notes = AMPTextField(
         label="12-week disproportionate burden claim details · Included in export"
@@ -1127,21 +1063,6 @@ class StatementAuditStatementBackupUpdateForm(VersionForm):
         ]
 
 
-class TwelveWeekStatementPagesUpdateForm(VersionForm):
-    """
-    Form for statement pages update at 12-week retest
-    """
-
-    pages_complete_date = AMPDatePageCompleteField()
-
-    class Meta:
-        model = Audit
-        fields: list[str] = [
-            "version",
-            "pages_complete_date",
-        ]
-
-
 class RetestAddStatementPageUpdateForm(VersionForm):
     """
     Form for statement pages update at equality body-requested retest
@@ -1371,7 +1292,7 @@ class RetestDisproportionateBurdenUpdateForm(VersionForm):
 
     disproportionate_burden_claim = AMPChoiceRadioField(
         label="Disproportionate burden claim",
-        choices=Audit.DisproportionateBurden.choices,
+        choices=StatementAudit.DisproportionateBurden.choices,
     )
     disproportionate_burden_notes = AMPTextField(
         label="Disproportionate burden claim details"

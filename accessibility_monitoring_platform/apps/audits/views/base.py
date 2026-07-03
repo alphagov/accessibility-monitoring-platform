@@ -1,6 +1,4 @@
-"""
-Views for audits app (called tests by users)
-"""
+"""Common views for audits app (called tests by users)"""
 
 from typing import Any
 
@@ -39,7 +37,6 @@ from ..forms import (
     WcagDefinitionSearchForm,
 )
 from ..models import (
-    Audit,
     AuditOverview,
     StatementAudit,
     StatementCheck,
@@ -85,16 +82,7 @@ class StatementBackupMixin(CaseFileUploadMixin):
 
 
 def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
-    """
-    Create audit. If one already exists use that instead.
-
-    Args:
-        request (HttpRequest): Django HttpRequest
-        case_id (int): Id of parent case
-
-    Returns:
-        HttpResponse: Django HttpResponse
-    """
+    """Create audit. If one already exists use that instead"""
     simplified_case: SimplifiedCase = get_object_or_404(SimplifiedCase, id=case_id)
     if simplified_case.audit_overview:
         return redirect(
@@ -154,35 +142,6 @@ def restore_page(request: HttpRequest, pk: int) -> HttpResponse:
             "audits:edit-audit-pages", kwargs={"pk": wcag_page_initial.wcag_audit.id}
         )
     )
-
-
-class AuditUpdateView(NextPlatformPageMixin, UpdateView):
-    """
-    View to update audit
-    """
-
-    model: type[Audit] = Audit
-    context_object_name: str = "audit"
-
-    def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
-        """Add event on change of audit"""
-        if form.changed_data:
-            self.object: Audit = form.save(commit=False)
-            record_simplified_model_update_event(
-                user=self.request.user,
-                model_object=self.object,
-                simplified_case=self.object.simplified_case,
-            )
-            old_audit: Audit = Audit.objects.get(id=self.object.id)
-            if old_audit.retest_date != self.object.retest_date:
-                CaseEvent.objects.create(
-                    simplified_case=self.object.simplified_case,
-                    done_by=self.request.user,
-                    event_type=CaseEvent.EventType.START_RETEST,
-                    message=f"Started retest (date set to {amp_format_date(self.object.retest_date)})",
-                )
-            self.object.save()
-        return HttpResponseRedirect(self.get_success_url())
 
 
 class WcagAuditUpdateView(NextPlatformPageMixin, UpdateView):
@@ -518,7 +477,7 @@ class StatementBackupUpdateView(StatementBackupMixin, StatementAuditUpdateView):
             self.request.POST, self.request.FILES
         )
         if statement_backup_form.is_valid():
-            audit: Audit = self.object
+            statement_audit: StatementAudit = self.object
             uploaded_file: InMemoryUploadedFile | None = (
                 statement_backup_form.cleaned_data.get("file_to_upload")
             )
@@ -526,7 +485,7 @@ class StatementBackupUpdateView(StatementBackupMixin, StatementAuditUpdateView):
                 self.case_file_upload(
                     uploaded_file=uploaded_file,
                     user=self.request.user,
-                    base_case=audit.simplified_case,
+                    base_case=statement_audit.simplified_case,
                     file_type=CaseFile.Type.STATEMENT,
                 )
         return super().form_valid(form)

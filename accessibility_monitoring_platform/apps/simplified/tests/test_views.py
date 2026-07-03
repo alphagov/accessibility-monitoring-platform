@@ -18,7 +18,6 @@ from pytest_django.asserts import assertContains, assertNotContains
 from ...audits.models import (
     Audit,
     AuditOverview,
-    Page,
     StatementAudit,
     StatementCheck,
     StatementCheckResultRound,
@@ -1581,7 +1580,7 @@ def test_link_to_accessibility_statement_displayed(admin_client):
     wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
     WcagPageInitial.objects.create(
         wcag_audit=wcag_audit,
-        page_type=Page.Type.STATEMENT,
+        page_type=WcagPageInitial.Type.STATEMENT,
         url=ACCESSIBILITY_STATEMENT_URL,
     )
 
@@ -1609,7 +1608,7 @@ def test_statement_page_location_displayed(admin_client):
     wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
     WcagPageInitial.objects.create(
         wcag_audit=wcag_audit,
-        page_type=Page.Type.STATEMENT,
+        page_type=WcagPageInitial.Type.STATEMENT,
         url=ACCESSIBILITY_STATEMENT_URL,
         location=PAGE_LOCATION,
     )
@@ -1632,7 +1631,7 @@ def test_contact_page_location_displayed(admin_client):
     wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
     WcagPageInitial.objects.create(
         wcag_audit=wcag_audit,
-        page_type=Page.Type.STATEMENT,
+        page_type=WcagPageInitial.Type.STATEMENT,
         url="https://example.com/contact",
         location=PAGE_LOCATION,
     )

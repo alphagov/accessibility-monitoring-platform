@@ -148,7 +148,7 @@ def test_report_boilerplate_shown_only_once():
     )
 
     issues_tables: list[IssueTable] = build_issues_tables(
-        pages=wcag_audit.testable_wcag_page_initials
+        wcag_page_initials=wcag_audit.testable_wcag_page_initials
     )
 
     table_rows: list[TableRow] = []
@@ -189,7 +189,7 @@ def test_generate_report_content_issues_tables():
     Report.objects.create(base_case=simplified_case)
 
     issues_tables: list[IssueTable] = build_issues_tables(
-        pages=wcag_audit.testable_wcag_page_initials
+        wcag_page_initials=wcag_audit.testable_wcag_page_initials
     )
 
     assert len(issues_tables) == 6

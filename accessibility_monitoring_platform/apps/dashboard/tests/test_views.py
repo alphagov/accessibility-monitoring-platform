@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
-from ...audits.models import Audit
+from ...audits.models import AuditOverview, WcagAudit
 from ...common.models import Boolean, ChangeToPlatform
 from ...detailed.models import DetailedCase
 from ...notifications.models import Task
@@ -337,6 +337,7 @@ def test_dashboard_shows_link_to_testing_details_only_when_no_test_exists(
         auditor=admin_user,
         status=SimplifiedCase.Status.TEST_IN_PROGRESS,
     )
+    AuditOverview.objects.create(simplified_case=simplified_case)
 
     response: HttpResponse = admin_client.get(reverse("dashboard:home"))
 
@@ -347,7 +348,7 @@ def test_dashboard_shows_link_to_testing_details_only_when_no_test_exists(
         reverse("simplified:edit-test-results", kwargs={"pk": simplified_case.id}),
     )
 
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
 
     response: HttpResponse = admin_client.get(reverse("dashboard:home"))
 
@@ -359,7 +360,7 @@ def test_dashboard_shows_link_to_testing_details_only_when_no_test_exists(
     )
     assertContains(
         response,
-        reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}),
+        reverse("audits:edit-audit-metadata", kwargs={"pk": wcag_audit.id}),
     )
 
 

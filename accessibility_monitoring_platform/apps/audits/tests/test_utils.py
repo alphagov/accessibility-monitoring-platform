@@ -1211,7 +1211,7 @@ def test_get_audit_summary_context_unfixed_audit_failures(rf):
     wcag_check_result_retest: WcagCheckResultRetest = WcagCheckResultRetest.objects.get(
         wcag_check_result_initial=wcag_check_result_initial
     )
-    wcag_check_result_retest.retest_state = WcagCheckResultInitial.RetestResult.FIXED
+    wcag_check_result_retest.retest_state = WcagCheckResultRetest.RetestResult.FIXED
     wcag_check_result_retest.save()
 
     context: dict[str, Any] = get_audit_summary_context(
@@ -1249,7 +1249,7 @@ def test_get_audit_summary_context_issue_counts(rf):
     wcag_check_result_retest: WcagCheckResultRetest = WcagCheckResultRetest.objects.get(
         wcag_check_result_initial=wcag_check_result_initial
     )
-    wcag_check_result_retest.retest_state = WcagCheckResultInitial.RetestResult.FIXED
+    wcag_check_result_retest.retest_state = WcagCheckResultRetest.RetestResult.FIXED
     wcag_check_result_retest.save()
 
     context: dict[str, Any] = get_audit_summary_context(

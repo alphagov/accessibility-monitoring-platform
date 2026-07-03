@@ -23,8 +23,6 @@ from .forms import WcagCheckResultInitialForm
 from .models import (
     AuditOverview,
     CheckResult,
-    Page,
-    RetestPage,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
@@ -64,7 +62,7 @@ STATEMENT_CONTENT_SUBSECTIONS: list[StatementContentSubsection] = [
     StatementContentSubsection("Custom statement issues", "custom", "custom"),
 ]
 
-P = TypeVar("P", bound=Page | RetestPage)
+P = TypeVar("P", bound=WcagPageInitial | WcagPageRetest)
 
 
 @dataclass

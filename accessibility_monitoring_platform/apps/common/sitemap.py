@@ -20,7 +20,6 @@ from ..audits.forms import (
     WcagAuditRetestMetadataUpdateForm,
 )
 from ..audits.models import (
-    Audit,
     StatementAudit,
     StatementCheckResultRound,
     StatementPage,
@@ -421,30 +420,6 @@ class BaseCaseCommentsPlatformPage(BaseCasePlatformPage):
                 self.subpages = bound_subpages
 
 
-class AuditPlatformPage(PlatformPage):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.instance_class: type[Audit] = Audit
-        if self.url_kwarg_key is None:
-            self.url_kwarg_key: str = "pk"
-
-    def get_case(self) -> SimplifiedCase | None:
-        if self.instance is not None:
-            return self.instance.simplified_case
-
-    def set_instance(self, instance: models.Model | None):
-        if isinstance(instance, SimplifiedCase):
-            if instance.audit is not None:
-                self.instance = instance.audit
-        else:
-            super().set_instance(instance=instance)
-
-    def populate_from_case(self, case: AnyCaseType):
-        if hasattr(case, "audit") and isinstance(case.audit, Audit):
-            self.set_instance(instance=case.audit)
-        super().populate_from_case(case=case)
-
-
 class WcagAuditPlatformPage(PlatformPage):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -540,19 +515,6 @@ class EqualityBodyStatementAuditPlatformPage(InitialStatementAuditPlatformPage):
     audit_round_type: StatementAudit.AuditRoundType = (
         StatementAudit.AuditRoundType.EQUALITY_BODY
     )
-
-
-class AuditPagesPlatformPage(AuditPlatformPage):
-    def populate_from_case(self, case: AnyCaseType):
-        if hasattr(case, "audit") and isinstance(case.audit, Audit):
-            self.set_instance(instance=case.audit)
-            if self.subpages is not None:
-                bound_subpages: list[PlatformPage] = []
-                for page in case.audit.testable_pages:
-                    bound_subpages += populate_subpages_with_instance(
-                        platform_page=self, instance=page
-                    )
-                self.subpages = bound_subpages
 
 
 class WcagAuditInitialPagesPlatformPage(WcagAuditInitialPlatformPage):

@@ -39,7 +39,6 @@ from ...simplified.models import (
 from ..sitemap import (
     SITE_MAP,
     SITEMAP_BY_URL_NAME,
-    AuditPlatformPage,
     BaseCaseCommentsPlatformPage,
     CaseContactsPlatformPage,
     DetailedCasePlatformPage,
@@ -57,6 +56,7 @@ from ..sitemap import (
     Sitemap,
     WcagAuditInitialPagesPlatformPage,
     WcagAuditInitialPlatformPage,
+    WcagAuditPlatformPage,
     WcagAuditRetestPagesPlatformPage,
     WcagAuditTwelveWeekPlatformPage,
     build_sitemap_by_url_name,
@@ -231,7 +231,7 @@ def test_platform_page_populate_from_case():
         subpages=[
             SimplifiedCasePlatformPage(name=PLATFORM_PAGE_NAME),
             SimplifiedCasePlatformPage(name=PLATFORM_PAGE_NAME),
-            AuditPlatformPage(name=PLATFORM_PAGE_NAME),
+            WcagAuditPlatformPage(name=PLATFORM_PAGE_NAME),
         ],
     )
 

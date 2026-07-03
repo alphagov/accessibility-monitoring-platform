@@ -20,7 +20,6 @@ from ...simplified.utils import (
 )
 from ..forms import (
     AuditRetestCheckResultFilterForm,
-    AuditRetestWcagSummaryUpdateForm,
     AuditStatementSummaryUpdateForm,
     AuditTwelveWeekDisproportionateBurdenUpdateForm,
     StatementAuditComplianceUpdateForm,
@@ -48,7 +47,6 @@ from ..forms import (
 )
 from ..models import (
     AuditOverview,
-    Page,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
@@ -62,14 +60,12 @@ from ..utils import (
     add_to_wcag_check_result_restest_notes_history,
     create_retest_wcag_audit_and_check_results,
     create_statement_audit_and_check_results,
-    get_audit_summary_context,
     get_next_platform_page_twelve_week,
     get_other_pages_with_retest_notes,
 )
 from .base import (
     AddStatementLinkUpdateView,
     AuditSummaryFirstMixin,
-    AuditUpdateView,
     DeleteStatementPageUpdateView,
     StatementAuditUpdateView,
     StatementBackupUpdateView,
@@ -131,7 +127,9 @@ class WcagAuditRetestPagesView(WcagAuditUpdateView):
         ]
 
         if wcag_page_retests_formset.is_valid():
-            wcag_page_retests: list[Page] = wcag_page_retests_formset.save(commit=False)
+            wcag_page_retests: list[WcagPageRetest] = wcag_page_retests_formset.save(
+                commit=False
+            )
             for wcag_page_retest in wcag_page_retests:
                 record_simplified_model_update_event(
                     user=self.request.user,
@@ -253,31 +251,6 @@ class TwelveWeekWcagAuditSummaryFirstUpdateView(
             url_name="audits:edit-audit-retest-statement-pages",
             instance=wcag_audit.equivalent_statement_audit,
         )
-
-
-class AuditRetestSummaryUpdateView(AuditUpdateView):
-    """
-    View to update audit 12-week retest summary page
-    """
-
-    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """Get context data for template rendering"""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        return {
-            **context,
-            **get_audit_summary_context(request=self.request, audit=self.object),
-        }
-
-
-class AuditRetestWcagSummaryUpdateView(AuditRetestSummaryUpdateView):
-    """
-    View to update audit summary for 12-week WCAG test
-    """
-
-    form_class: type[AuditRetestWcagSummaryUpdateForm] = (
-        AuditRetestWcagSummaryUpdateForm
-    )
-    template_name: str = "audits/forms/test_summary_wcag.html"
 
 
 class TwelveWeekAddStatementPageUpdateView(AddStatementLinkUpdateView):

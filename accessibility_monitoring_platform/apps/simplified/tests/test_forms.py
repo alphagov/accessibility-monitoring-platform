@@ -7,7 +7,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from ...audits.models import Audit
 from ...common.models import Boolean
 from ...reports.models import Report
 from ...s3_read_write.models import S3Report
@@ -214,7 +213,6 @@ def test_publish_report_form_hides_fields_unless_report_has_been_published():
     hidden_fields: list[str] = [field.name for field in form.hidden_fields()]
     assert hidden_fields == ["version", "publish_report_complete_date"]
 
-    Audit.objects.create(simplified_case=simplified_case)
     Report.objects.create(base_case=simplified_case)
     S3Report.objects.create(base_case=simplified_case, version=0, latest_published=True)
     hidden_fields: list[str] = [field.name for field in form.hidden_fields()]

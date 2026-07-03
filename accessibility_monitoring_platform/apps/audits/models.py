@@ -597,7 +597,9 @@ class WcagAudit(AuditRound):
 
     @property
     def accessibility_statement_wcag_page_initial(self) -> WcagPageInitial | None:
-        return self.wcag_page_initials.filter(page_type=Page.Type.STATEMENT).first()
+        return self.wcag_page_initials.filter(
+            page_type=WcagPageInitial.Type.STATEMENT
+        ).first()
 
     @property
     def wcag_page_retests(self) -> QuerySet[WcagPageRetest]:
@@ -1589,7 +1591,7 @@ class StatementCheckResultRound(models.Model):
 
     @property
     def edit_12_week_url_name(self) -> str:
-        if self.statement_check is None:
+        if self.statement_check is None or self.type == StatementCheck.Type.RETEST:
             return "audits:edit-retest-statement-custom"
         return f"audits:edit-retest-statement-{self.type}"
 

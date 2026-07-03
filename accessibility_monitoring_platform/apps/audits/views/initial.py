@@ -49,10 +49,8 @@ from ..forms import (
     WcagPageInitialStandardFormset,
 )
 from ..models import (
-    Audit,
     AuditOverview,
     CheckResult,
-    Page,
     StatementAudit,
     StatementCheck,
     StatementCheckResultRound,
@@ -160,7 +158,7 @@ class WcagAuditPagesUpdateView(WcagAuditUpdateView):
                         )
                     )
         for form in standard_pages_formset:
-            if form.instance.page_type == Page.Type.FORM:
+            if form.instance.page_type == WcagPageInitial.Type.FORM:
                 form.fields["is_contact_page"].label = "Form is on contact page"
                 form.fields["is_contact_page"].widget = AMPChoiceCheckboxWidget(
                     attrs={"label": "Mark as on contact page"}
@@ -484,33 +482,33 @@ class AuditStatementOverviewFormView(StatementCheckResultRoundFormsetView):
     statement_check_type: str = StatementCheck.Type.OVERVIEW
 
     def get_next_platform_page(self) -> PlatformPage:
-        audit: Audit = self.object
-        if audit.all_overview_statement_checks_have_passed:
+        statement_audit: StatementAudit = self.object
+        if statement_audit.all_overview_statement_checks_have_passed:
             return get_platform_page_by_url_name(
-                url_name="audits:edit-statement-website", instance=audit
+                url_name="audits:edit-statement-website", instance=statement_audit
             )
         return get_platform_page_by_url_name(
-            url_name="audits:edit-statement-custom", instance=audit
+            url_name="audits:edit-statement-custom", instance=statement_audit
         )
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        audit: Audit = self.object
+        statement_audit: StatementAudit = self.object
         context["next_platform_pages"] = [
             get_platform_page_by_url_name(
-                url_name="audits:edit-statement-website", instance=audit
+                url_name="audits:edit-statement-website", instance=statement_audit
             ),
             get_platform_page_by_url_name(
-                url_name="audits:edit-statement-custom", instance=audit
+                url_name="audits:edit-statement-custom", instance=statement_audit
             ),
         ]
         return context
 
     def get_success_url(self) -> str:
         """Recalculate Case status"""
-        audit: Audit = self.object
-        audit.simplified_case.update_case_status()
+        statement_audit: StatementAudit = self.object
+        statement_audit.simplified_case.update_case_status()
         return super().get_success_url()
 
 
