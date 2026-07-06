@@ -14,23 +14,23 @@ from accessibility_monitoring_platform.apps.common.models import (
 )
 
 from ....audits.models import (
-    Audit,
-    CheckResult,
-    CheckResultNotesHistory,
-    CheckResultRetestNotesHistory,
-    Page,
-    Retest,
-    RetestCheckResult,
-    RetestPage,
-    RetestStatementCheckResult,
+    AuditOverview,
+    StatementAudit,
     StatementCheck,
-    StatementCheckResult,
+    StatementCheckResultRound,
     StatementPage,
+    WcagAudit,
+    WcagCheckResultInitial,
+    WcagCheckResultInitialNotesHistory,
+    WcagCheckResultRetest,
+    WcagCheckResultRetestNotesHistory,
     WcagDefinition,
+    WcagPageInitial,
+    WcagPageRetest,
 )
 from ....cases.models import BaseCase, CaseFile
 from ....comments.models import Comment
-from ....common.models import EmailTemplate
+from ....common.models import EmailTemplate, EventHistory
 from ....detailed.models import Contact as DetailedContact
 from ....detailed.models import DetailedCase, DetailedCaseHistory, DetailedEventHistory
 from ....detailed.models import ZendeskTicket as DetailedZendeskTicket
@@ -90,27 +90,30 @@ class Command(BaseCommand):
     def handle(self, *args, **options):  # pylint: disable=unused-argument
         """Reset database for integration tests"""
 
+        StatementCheckResultRound.objects.all().update(
+            statement_check_result_initial=None
+        )
         delete_from_models(
             [
+                WcagCheckResultRetestNotesHistory,
+                WcagCheckResultInitialNotesHistory,
+                WcagCheckResultRetest,
+                WcagCheckResultInitial,
+                WcagPageRetest,
+                WcagPageInitial,
+                WcagAudit,
+                StatementPage,
+                StatementCheckResultRound,
+                StatementAudit,
+                AuditOverview,
                 Task,
                 DetailedZendeskTicket,
                 EmailTemplate,
                 ExportCase,
                 Export,
                 ZendeskTicket,
-                StatementPage,
                 FrequentlyUsedLink,
                 EqualityBodyCorrespondence,
-                RetestStatementCheckResult,
-                RetestCheckResult,
-                RetestPage,
-                Retest,
-                StatementCheckResult,
-                CheckResultRetestNotesHistory,
-                CheckResultNotesHistory,
-                CheckResult,
-                Page,
-                Audit,
                 StatementCheck,
                 WcagDefinition,
                 UserCacheUniqueHash,
@@ -156,7 +159,7 @@ class Command(BaseCommand):
                 MobileCase,
             ]
         )
-        delete_from_models([BaseCase])
+        delete_from_models([EventHistory, BaseCase])
         delete_from_models([ChangeToPlatform, IssueReport, Platform, Sector])  # Common
         delete_from_models([Group, User])
         delete_from_models([AllowedEmail])
@@ -173,7 +176,6 @@ class Command(BaseCommand):
         load_fixture("cases")
         load_fixture("simplified")
         load_fixture("contact")
-        load_fixture("audits")  # Test results
-        load_fixture("statementcheckresult")
+        load_fixture("audit_overview")  # Test results
         load_fixture("reports")  # Reports
         load_fixture("s3_report")  # Published report

@@ -15,7 +15,7 @@ from django.db.models import QuerySet
 from django.http import StreamingHttpResponse
 from django.urls import reverse
 
-from ..audits.models import Audit, AuditOverview, StatementAudit, WcagAudit
+from ..audits.models import AuditOverview, StatementAudit, WcagAudit
 from ..cases.csv_export import csv_output_generator
 from ..cases.utils import CaseDetailPage, CaseDetailSection
 from ..common.form_extract_utils import (
@@ -79,10 +79,6 @@ def get_simplified_case_detail_sections(
                                 display_fields = get_case_rows(
                                     form=page.case_details_form_class()
                                 )
-                            elif page.case_details_form_class._meta.model == Audit:
-                                display_fields = get_audit_rows(
-                                    form=page.case_details_form_class()
-                                )
                             elif page.case_details_form_class._meta.model == WcagAudit:
                                 display_fields = get_wcag_audit_rows(
                                     form=page.case_details_form_class()
@@ -134,7 +130,7 @@ def record_case_event(
             event_type=CaseEvent.EventType.AUDITOR,
             message=f"Auditor changed from {old_user_name} to {new_user_name}",
         )
-    if old_case.audit is None and new_case.audit is not None:
+    if old_case.audit_overview is None and new_case.audit_overview is not None:
         CaseEvent.objects.create(
             simplified_case=old_case,
             done_by=user,

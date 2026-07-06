@@ -16,7 +16,6 @@ from moto import mock_aws
 from pytest_django.asserts import assertContains, assertNotContains
 
 from ...audits.models import (
-    Audit,
     AuditOverview,
     StatementAudit,
     StatementCheck,
@@ -1967,15 +1966,13 @@ def test_no_psb_response_redirects_to_12_week_retest_statement_links(admin_clien
 
 def test_no_psb_response_redirects_to_case_detail_on_response(admin_client):
     """Test no PSB response redirects to case detail when the PSB has responded"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        no_psb_contact=Boolean.YES,
-    )
-    Audit.objects.create(simplified_case=simplified_case, retest_date=date.today())
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     response: HttpResponse = admin_client.post(
         reverse("simplified:edit-no-psb-response", kwargs={"pk": simplified_case.id}),
         {
             "version": simplified_case.version,
+            "no_psb_contact": "on",
             "save_continue": "Button value",
         },
     )
@@ -2740,7 +2737,6 @@ def test_publish_report_already_published(admin_client):
         report_review_status=Boolean.YES,
         report_approved_status=SimplifiedCase.ReportApprovedStatus.APPROVED,
     )
-    Audit.objects.create(simplified_case=simplified_case)
     Report.objects.create(base_case=simplified_case)
     S3Report.objects.create(base_case=simplified_case, version=0, latest_published=True)
 
@@ -4210,14 +4206,15 @@ def test_next_page_name(path_name, expected_next_page, admin_client):
         ),
     ],
 )
-def test_next_page_name_with_audit(path_name, expected_next_page, admin_client):
+def test_next_page_name_with_audit_overview(
+    path_name, expected_next_page, admin_client
+):
     """
     Test next page shown for when Save and continue button pressed on Case with Audit
     """
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    Audit.objects.create(simplified_case=simplified_case, retest_date=TODAY)
     url: str = reverse(f"simplified:{path_name}", kwargs={"pk": simplified_case.id})
 
     response: HttpResponse = admin_client.get(url)

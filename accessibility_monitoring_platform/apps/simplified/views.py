@@ -311,7 +311,7 @@ class CaseMetadataUpdateView(CaseUpdateView):
         simplified_case: SimplifiedCase = self.object
         next_page_url_name: str = (
             "audits:edit-audit-metadata"
-            if simplified_case.audit is not None
+            if simplified_case.audit_overview is not None
             else "simplified:edit-test-results"
         )
         return get_platform_page_by_url_name(

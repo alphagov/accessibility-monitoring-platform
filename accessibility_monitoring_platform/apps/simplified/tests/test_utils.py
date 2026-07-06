@@ -15,7 +15,7 @@ from django.db.models import QuerySet
 from django.http import HttpRequest, StreamingHttpResponse
 from django.urls import reverse
 
-from ...audits.models import Audit, AuditOverview, StatementAudit, WcagAudit
+from ...audits.models import AuditOverview, StatementAudit, WcagAudit
 from ...audits.tests.create_test_data import (
     create_equality_body_audits,
     create_initial_statement_audit,
@@ -165,7 +165,7 @@ def test_record_case_event_audit_create():
     user: User = User.objects.create()
     new_case: SimplifiedCase = SimplifiedCase.objects.create()
     old_case: SimplifiedCase = SimplifiedCase.objects.create()
-    Audit.objects.create(simplified_case=new_case)
+    AuditOverview.objects.create(simplified_case=new_case)
 
     record_case_event(user=user, new_case=new_case, old_case=old_case)
 
