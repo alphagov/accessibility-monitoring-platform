@@ -52,7 +52,7 @@ describe('Create simplified case, tests and report', () => {
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Compliance decision`)
-    cy.get('[name="case-compliance-website_compliance_state_initial"]').check('partially-compliant')
+    cy.get('[name="compliance_state"]').check('partially-compliant')
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | WCAG summary`)
@@ -171,6 +171,9 @@ describe('Create simplified case, tests and report', () => {
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Home page retest`)
     cy.contains('Save and continue').click()
 
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Accessibility statement page retest`)
+    cy.contains('Save and continue').click()
+
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Compliance decision`)
     cy.contains('Save and continue').click()
 
@@ -184,6 +187,8 @@ describe('Create simplified case, tests and report', () => {
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement overview`)
+    cy.get('[name="form-0-check_result_state"]').check('yes')
+    cy.get('[name="form-1-check_result_state"]').check('yes')
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement information`)

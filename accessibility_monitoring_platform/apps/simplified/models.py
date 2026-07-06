@@ -879,10 +879,6 @@ class SimplifiedCase(BaseCase):
         return archive["sections"] if "sections" in archive else None
 
     @property
-    def incomplete_retests(self):
-        return self.wcag_audits.filter(compliance_state="unknown")
-
-    @property
     def equality_body_correspondences(self):
         return self.equalitybodycorrespondence_set.filter(is_deleted=False)
 
@@ -1170,18 +1166,6 @@ class SimplifiedCase(BaseCase):
         return self.case_history().filter(
             event_type=SimplifiedCaseHistory.EventType.NOTE
         )
-
-    @property
-    def wcag_audits(self):
-        return self.wcagaudit_set.filter(is_deleted=False)
-
-    @property
-    def first_wcag_audit(self):
-        return self.wcag_audits.first()
-
-    @property
-    def last_wcag_audit(self):
-        return self.wcag_audits.last()
 
     @property
     def statement_pages(self):

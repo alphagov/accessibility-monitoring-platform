@@ -14,9 +14,19 @@ from accessibility_monitoring_platform.apps.common.models import (
 )
 
 from ....audits.models import (
+    Audit,
     AuditOverview,
+    CheckResult,
+    CheckResultNotesHistory,
+    CheckResultRetestNotesHistory,
+    Page,
+    Retest,
+    RetestCheckResult,
+    RetestPage,
+    RetestStatementCheckResult,
     StatementAudit,
     StatementCheck,
+    StatementCheckResult,
     StatementCheckResultRound,
     StatementPage,
     WcagAudit,
@@ -95,6 +105,17 @@ class Command(BaseCommand):
         )
         delete_from_models(
             [
+                CheckResultRetestNotesHistory,  # Old model to be deleted
+                CheckResultNotesHistory,  # Old model to be deleted
+                RetestCheckResult,  # Old model to be deleted
+                CheckResult,  # Old model to be deleted
+                RetestPage,  # Old model to be deleted
+                Page,  # Old model to be deleted
+                StatementCheckResult,  # Old model to be deleted
+                RetestStatementCheckResult,  # Old model to be deleted
+                Retest,  # Old model to be deleted
+                StatementPage,
+                Audit,  # Old model to be deleted
                 WcagCheckResultRetestNotesHistory,
                 WcagCheckResultInitialNotesHistory,
                 WcagCheckResultRetest,
@@ -102,7 +123,6 @@ class Command(BaseCommand):
                 WcagPageRetest,
                 WcagPageInitial,
                 WcagAudit,
-                StatementPage,
                 StatementCheckResultRound,
                 StatementAudit,
                 AuditOverview,

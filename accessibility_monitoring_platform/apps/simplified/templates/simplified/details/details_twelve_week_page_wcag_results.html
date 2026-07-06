@@ -1,7 +1,8 @@
 {% extends 'cases/details/details.html' %}
 
 {% block table %}
-    {% if case_detail_page.page.instance.failed_check_results %}
+{{case_detail_page.page.instance}}
+    {% if case_detail_page.page.instance.wcag_check_result_retests %}
         <table class="govuk-table" data-search-target-page-name="{{ case_detail_page.page.platform_page_group.name }}" data-search-target-label="{{ case_detail_page.page.get_name }}" data-search-target-url="{{ case_detail_page.page.url }}">
             <tbody class="govuk-table__body">
                 <tr class="govuk-table__row">
@@ -9,19 +10,19 @@
                     <th scope="row" class="govuk-table__header amp-width-one-third">Initial</th>
                     <th scope="row" class="govuk-table__header amp-width-one-third">12-week</th>
                 </tr>
-                {% for check_result in case_detail_page.page.instance.failed_check_results %}
+                {% for wcag_check_result_retest in case_detail_page.page.instance.wcag_check_result_retests %}
                     <tr class="govuk-table__row">
                         <td class="govuk-table__cell amp-width-one-third">
-                            <label class="govuk-label">{{ check_result.wcag_definition }}</label>
-                            {% include 'audits/helpers/issue_identifier.html' with issue=check_result %}
+                            <label class="govuk-label">{{ wcag_check_result_retest.wcag_definition }}</label>
+                            {% include 'audits/helpers/issue_identifier.html' with issue=wcag_check_result_retest.wcag_check_result_initial %}
                         </td>
                         <td class="govuk-table__cell amp-width-one-third">
-                            <label class="govuk-label">{{ check_result.get_check_result_state_display }}</label>
-                            <div class="govuk-hint">{{ check_result.notes|markdown_to_html }}</div>
+                            <label class="govuk-label">{{ wcag_check_result_retest.wcag_check_result_initial.get_check_result_state_display }}</label>
+                            <div class="govuk-hint">{{ wcag_check_result_retest.notes|markdown_to_html }}</div>
                         </td>
                         <td class="govuk-table__cell amp-width-one-third">
-                            <label class="govuk-label">{{ check_result.get_retest_state_display }}</label>
-                            <div class="govuk-hint">{{ check_result.retest_notes|markdown_to_html }}</div>
+                            <label class="govuk-label">{{ wcag_check_result_retest.get_retest_state_display }}</label>
+                            <div class="govuk-hint">{{ wcag_check_result_retest.notes|markdown_to_html }}</div>
                         </td>
                     </tr>
                 {% endfor %}

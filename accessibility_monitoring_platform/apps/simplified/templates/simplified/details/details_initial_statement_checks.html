@@ -12,11 +12,11 @@
                         </th>
                         <td class="govuk-table__cell amp-width-one-half amp-notes">
                             <p>{{ statement_check_result.get_check_result_state_display }}</p>
-                            {% if statement_check_result.check_result_state == 'no' %}
-                                {{ statement_check_result.statement_check.report_text|markdown_to_html }}
-                            {% endif %}
-                            {% if statement_check_result.public_comment  %}
+                            {% if statement_check_result.public_comment %}
                                 {{ statement_check_result.public_comment|markdown_to_html }}
+                            {% endif %}
+                            {% if statement_check_result.auditor_information  %}
+                                {{ statement_check_result.auditor_information|markdown_to_html }}
                             {% endif %}
                         </td>
                     </tr>

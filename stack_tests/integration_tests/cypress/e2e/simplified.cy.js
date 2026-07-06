@@ -45,7 +45,7 @@ describe('Case overview', () => {
   it('can edit test metadata', () => {
     cy.contains('Initial WCAG test').click()
     cy.contains(/^Initial test metadata$/).click()
-    cy.get('[name="audit_metadata_complete_date"]').click()
+    cy.get('[name="metadata_complete_date"]').click()
     cy.contains('Save').click()
   })
 
@@ -96,7 +96,7 @@ describe('Case overview', () => {
   it('can edit 12-week retest metadata', () => {
     cy.contains('12-week WCAG test').click()
     cy.contains(/^12-week retest metadata$/).click()
-    cy.get('[name="audit_retest_metadata_complete_date"]').click()
+    cy.get('[name="metadata_complete_date"]').click()
     cy.contains('Save').click()
   })
 
