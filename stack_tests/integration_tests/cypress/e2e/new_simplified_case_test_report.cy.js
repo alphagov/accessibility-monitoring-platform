@@ -242,6 +242,9 @@ describe('Create simplified case, tests and report', () => {
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Retest #1 | Home`)
     cy.contains('Save and next page').click()
 
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Retest #1 | Accessibility statement`)
+    cy.contains('Save and next page').click()
+
     cy.title().should('eq', 'Retest #1 | Comparison')
     cy.contains('Save and continue').click()
 
