@@ -7,7 +7,7 @@
     {% include 'cases/helpers/complaint_warning.html' %}
     {% include 'simplified/helpers/zendesk_tickets.html' %}
 
-    {% if case.audit %}
+    {% if case.audit_overview %}
         <details class="govuk-details amp-margin-bottom-10" data-module="govuk-details">
             <summary class="govuk-details__summary">
                 <span class="govuk-details__summary-text">View compliance decisions</span>
@@ -15,49 +15,66 @@
             <div class="govuk-details__text">
                 <div class="govuk-form-group">
                     <label class="govuk-label"><b>Disproportionate burden claimed?</b></label>
-                    <div class="govuk-hint">{{ case.get_is_disproportionate_claimed_display }}</div>
-                    <label class="govuk-label"><b>Disproportionate burden notes</b></label>
-                    <div class="govuk-hint">
-                        {% if case.disproportionate_notes %}{{ case.disproportionate_notes|markdown_to_html }}{% else %}None{% endif %}
+                    {% if case.audit_overview.first_twelve_week_statement_audit %}
+                        <div class="govuk-hint">{{ case.audit_overview.first_twelve_week_statement_audit.get_disproportionate_burden_claim_display }}</div>
+                        <label class="govuk-label"><b>Disproportionate burden notes</b></label>
+                        <div class="govuk-hint">
+                            {% if case.audit_overview.first_twelve_week_statement_audit.disproportionate_burden_notes %}{{ case.audit_overview.first_twelve_week_statement_audit.disproportionate_burden_notes|markdown_to_html }}{% else %}None{% endif %}
+                        </div>
+                    {% else %}
+                        <div class="govuk-hint">{{ case.audit_overview.initial_statement_audit.get_disproportionate_burden_claim_display }}</div>
+                        <label class="govuk-label"><b>Disproportionate burden notes</b></label>
+                        <div class="govuk-hint">
+                            {% if case.audit_overview.initial_statement_audit.disproportionate_burden_notes %}{{ case.audit_overview.initial_statement_audit.disproportionate_burden_notes|markdown_to_html }}{% else %}None{% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                {% if case.audit_overview.initial_statement_audit %}
+                    <div class="govuk-form-group">
+                        <label class="govuk-label"><b>Initial accessibility statement decision (found in
+                            <a href="{% url 'audits:edit-statement-decision' case.audit_overview.initial_statement_audit.id %}" class="govuk-link govuk-link--no-visited-state">Initial test</a>)</b></label>
+                        <div class="govuk-hint">{{ case.audit_overview.initial_statement_audit.get_compliance_state_display }}</div>
                     </div>
-                </div>
-                <div class="govuk-form-group">
-                    <label class="govuk-label"><b>Initial accessibility statement decision (found in
-                        <a href="{% url 'audits:edit-audit-metadata' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">Initial test</a>)</b></label>
-                    <div class="govuk-hint">{{ case.compliance.get_statement_compliance_state_initial_display }}</div>
-                </div>
-                <div class="govuk-form-group">
-                    <label class="govuk-label"><b>Final accessibility statement decision (found in
-                        <a href="{% url 'audits:edit-retest-statement-compliance' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
-                    <div class="govuk-hint">{{ case.compliance.get_statement_compliance_state_12_week_display }}</div>
-                </div>
+                {% endif %}
+                {% if case.audit_overview.first_twelve_week_statement_audit %}
+                    <div class="govuk-form-group">
+                        <label class="govuk-label"><b>Final accessibility statement decision (found in
+                            <a href="{% url 'audits:edit-audit-retest-statement-decision' case.audit_overview.first_twelve_week_statement_audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
+                        <div class="govuk-hint">{{ case.audit_overview.first_twelve_week_statement_audit.get_compliance_state_display }}</div>
+                    </div>
+                {% endif %}
                 <div class="govuk-form-group">
                     <label class="govuk-label"><b>Link to screenshot of accessibility statement</b></label>
                     <div class="govuk-hint">
                         {% if case.accessibility_statement_screenshot_url %}
                             <a href="{{ audit.accessibility_statement_screenshot_url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                            {{ case.accessibility_statement_screenshot_url }}</a></div>
+                            {{ case.accessibility_statement_screenshot_url }}</a>
                         {% else %}
                             <p>None</p>
                         {% endif %}
+                    </div>
                 </div>
-                <div class="govuk-form-group">
-                    <label class="govuk-label"><b>Initial compliance decision (found in
-                        <a href="{% url 'audits:edit-audit-metadata' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">Initial test</a>)</b></label>
-                    <div class="govuk-hint">{{ case.compliance.get_website_compliance_state_initial_display }}</div>
-                </div>
-                <div class="govuk-form-group">
-                    <label class="govuk-label"><b>Final compliance decision (found in
-                        <a href="{% url 'audits:edit-audit-retest-website-decision' case.audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
-                    <div class="govuk-hint">{{ case.compliance.get_website_compliance_state_12_week_display }}</div>
-                </div>
+                {% if case.audit_overview.initial_wcag_audit %}
+                    <div class="govuk-form-group">
+                        <label class="govuk-label"><b>Initial compliance decision (found in
+                            <a href="{% url 'audits:edit-website-decision' case.audit_overview.initial_wcag_audit.id %}" class="govuk-link govuk-link--no-visited-state">Initial test</a>)</b></label>
+                        <div class="govuk-hint">{{ case.audit_overview.initial_wcag_audit.get_compliance_state_display }}</div>
+                    </div>
+                {% endif %}
+                {% if case.audit_overview.first_twelve_week_wcag_audit %}
+                    <div class="govuk-form-group">
+                        <label class="govuk-label"><b>Final compliance decision (found in
+                            <a href="{% url 'audits:edit-audit-retest-website-decision' case.audit_overview.first_twelve_week_wcag_audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
+                        <div class="govuk-hint">{{ case.audit_overview.first_twelve_week_wcag_audit.get_compliance_state_display }}</div>
+                    </div>
+                {% endif %}
             </div>
         </details>
     {% endif %}
     {% include 'simplified/helpers/email_templates.html' %}
 </div>
 <div class="amp-margin-bottom-30">
-    {% include 'audits/helpers/numbers_of_issues.html' with audit=case.audit fontsize="m" %}
+    {% include 'audits/helpers/numbers_of_issues.html' with fontsize="m" %}
 </div>
 {% endblock %}
 

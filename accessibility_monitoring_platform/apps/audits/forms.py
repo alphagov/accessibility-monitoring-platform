@@ -23,9 +23,6 @@ from ..common.models import Boolean
 from ..common.utils import validate_file_size
 from ..simplified.models import CaseCompliance
 from .models import (
-    RetestCheckResult,
-    RetestPage,
-    RetestStatementCheckResult,
     StatementAudit,
     StatementCheck,
     StatementCheckResultRound,
@@ -896,61 +893,6 @@ class WcagAuditRetestUpdateForm(forms.ModelForm):
         ]
 
 
-class RetestPageChecksForm(forms.ModelForm):
-    """
-    Form for equality body retesting checks for a page
-    """
-
-    complete_date = AMPDatePageCompleteField(
-        label="", widget=AMPDateCheckboxWidget(attrs={"label": "Mark page as complete"})
-    )
-    missing_date = AMPDatePageCompleteField(
-        label="",
-        widget=AMPDateCheckboxWidget(attrs={"label": "Page missing"}),
-    )
-    additional_issues_notes = AMPTextField(label="Additional issues found on page")
-
-    class Meta:
-        model = RetestPage
-        fields: list[str] = [
-            "complete_date",
-            "missing_date",
-            "additional_issues_notes",
-        ]
-
-
-class RetestCheckResultForm(forms.ModelForm):
-    """
-    Form for updating a single check test on equality body requested retest
-    """
-
-    id = forms.IntegerField(widget=forms.HiddenInput())
-    retest_state = AMPChoiceRadioField(
-        label="Issue fixed?",
-        choices=WcagCheckResultRetest.RetestResult.choices,
-        widget=AMPRadioSelectWidget(
-            attrs={
-                "horizontal": True,
-                "small": True,
-            }
-        ),
-    )
-    retest_notes = AMPTextField(label="Notes")
-
-    class Meta:
-        model = RetestCheckResult
-        fields = [
-            "id",
-            "retest_state",
-            "retest_notes",
-        ]
-
-
-RetestCheckResultFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
-    RetestCheckResult, form=RetestCheckResultForm, extra=0
-)
-
-
 class RetestComparisonUpdateForm(forms.ModelForm):
     """
     Form for updating equality body retest comparison complete
@@ -1095,7 +1037,7 @@ class EqualityBodyRetestStatementCheckResultRoundForm(forms.ModelForm):
 
     check_result_state = AMPChoiceRadioField(
         label="Retest result",
-        choices=RetestStatementCheckResult.Result.choices,
+        choices=StatementCheckResultRound.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
     public_comment = AMPTextField(label="Comments for equality body email")
