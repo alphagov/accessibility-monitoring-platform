@@ -41,7 +41,7 @@
         <a href="{% url 'simplified:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">
             Initial website compliance decision is not filled in
         </a>
-        {% if case.compliance.website_compliance_state_initial != 'not-known' %}&check;{% endif %}
+        {% if case.audit_overview.initial_wcag_audit.compliance_state != 'not-known' %}&check;{% endif %}
     </li>
     <li>
         {% if case.audit_overview.initial_statement_audit %}
@@ -53,7 +53,7 @@
             <a href="{% url 'simplified:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">
                 Initial accessibility statement decision is not filled in
             </a>
-            {% if case.compliance.statement_compliance_state_initial != 'unknown' %}&check;{% endif %}
+            {% if case.audit_overview.initial_statement_audit.compliance_state != 'unknown' %}&check;{% endif %}
         {% endif %}
     </li>
 </ul>
