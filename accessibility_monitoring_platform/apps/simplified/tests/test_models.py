@@ -26,6 +26,7 @@ from ...audits.models import (
     WcagPageRetest,
 )
 from ...audits.tests.create_test_data import (
+    create_case_and_compliance,
     create_initial_statement_audit,
     create_retest_statement_audit,
 )
@@ -36,7 +37,6 @@ from ...notifications.models import Task
 from ...reports.models import Report, ReportVisitsMetrics
 from ...s3_read_write.models import S3Report
 from ..models import (
-    CaseCompliance,
     CaseStatus,
     Contact,
     EqualityBodyCorrespondence,
@@ -45,7 +45,6 @@ from ..models import (
     SimplifiedEventHistory,
     ZendeskTicket,
 )
-from ..utils import create_case_and_compliance
 
 DOMAIN: str = "example.com"
 HOME_PAGE_URL: str = f"https://{DOMAIN}/index.html"
@@ -84,8 +83,8 @@ def create_case_for_overdue_link() -> SimplifiedCase:
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
-        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
+        website_compliance_state_initial=WcagAudit.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=StatementAudit.StatementCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         reviewer=user,
         report_approved_status=SimplifiedCase.ReportApprovedStatus.APPROVED,

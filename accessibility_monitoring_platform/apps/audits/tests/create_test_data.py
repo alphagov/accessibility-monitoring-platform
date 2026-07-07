@@ -1,5 +1,7 @@
 """Create Wcag and Statement audit data for unit testing"""
 
+from typing import Any
+
 from django.contrib.auth.models import User
 from django.utils import timezone
 
@@ -20,6 +22,10 @@ from ..models import (
 WCAG_TYPE_AXE_NAME: str = "Axe WCAG"
 WCAG_TYPE_MANUAL_NAME: str = "Manual WCAG"
 WCAG_TYPE_PDF_NAME: str = "PDF WCAG"
+WCAG_COMPLIANCE_STATE_INITIAL: str = "website_compliance_state_initial"
+STATEMENT_COMPLIANCE_STATE_INITIAL: str = "statement_compliance_state_initial"
+WCAG_COMPLIANCE_STATE_12_WEEK: str = "website_compliance_state_12_week"
+STATEMENT_COMPLIANCE_STATE_12_WEEK: str = "statement_compliance_state_12_week"
 
 
 def create_initial_wcag_audit() -> WcagAudit:
@@ -230,3 +236,54 @@ def create_equality_body_audits(simplified_case: SimplifiedCase = None) -> WcagA
         audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY,
     )
     return equality_body_wcag_audit
+
+
+def create_case_and_compliance(**kwargs) -> SimplifiedCase:
+    """Create case and populate compliance fields from arbitrary arguments"""
+    wcag_compliance_state_initial: str = kwargs.get(
+        WCAG_COMPLIANCE_STATE_INITIAL, WcagAudit.WebsiteCompliance.UNKNOWN
+    )
+    statement_compliance_state_initial: str = kwargs.get(
+        STATEMENT_COMPLIANCE_STATE_INITIAL, StatementAudit.StatementCompliance.UNKNOWN
+    )
+    wcag_compliance_state_12_week: str = kwargs.get(
+        WCAG_COMPLIANCE_STATE_12_WEEK, WcagAudit.WebsiteCompliance.UNKNOWN
+    )
+    statement_compliance_state_12_week: str = kwargs.get(
+        STATEMENT_COMPLIANCE_STATE_12_WEEK, StatementAudit.StatementCompliance.UNKNOWN
+    )
+    non_compliance_args: dict[str, Any] = {
+        key: value
+        for key, value in kwargs.items()
+        if key
+        not in [
+            WCAG_COMPLIANCE_STATE_INITIAL,
+            STATEMENT_COMPLIANCE_STATE_INITIAL,
+            WCAG_COMPLIANCE_STATE_12_WEEK,
+            STATEMENT_COMPLIANCE_STATE_12_WEEK,
+        ]
+    }
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        **non_compliance_args
+    )
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    WcagAudit.objects.create(
+        simplified_case=simplified_case, compliance_state=wcag_compliance_state_initial
+    )
+    if wcag_compliance_state_12_week != WcagAudit.WebsiteCompliance.UNKNOWN:
+        WcagAudit.objects.create(
+            simplified_case=simplified_case,
+            audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+            compliance_state=wcag_compliance_state_12_week,
+        )
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        compliance_state=statement_compliance_state_initial,
+    )
+    if statement_compliance_state_12_week != StatementAudit.StatementCompliance.UNKNOWN:
+        StatementAudit.objects.create(
+            simplified_case=simplified_case,
+            audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+            compliance_state=statement_compliance_state_12_week,
+        )
+    return simplified_case

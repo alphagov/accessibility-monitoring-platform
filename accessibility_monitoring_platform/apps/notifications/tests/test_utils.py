@@ -8,8 +8,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest
 from django.urls import reverse
 
-from ...audits.models import WcagAudit
+from ...audits.models import StatementAudit, WcagAudit
 from ...audits.tests.create_test_data import (
+    create_case_and_compliance,
     create_equality_body_audits,
     create_simplified_case_with_initial_and_12_week_audits,
 )
@@ -17,12 +18,10 @@ from ...cases.models import BaseCase
 from ...common.models import Boolean, Link
 from ...detailed.models import DetailedCase, DetailedEventHistory
 from ...simplified.models import (
-    CaseCompliance,
     EqualityBodyCorrespondence,
     SimplifiedCase,
     SimplifiedEventHistory,
 )
-from ...simplified.utils import create_case_and_compliance
 from ...simplified.views import (
     calculate_report_followup_dates,
     calculate_twelve_week_chaser_dates,
@@ -62,8 +61,8 @@ def create_case(user: User) -> SimplifiedCase:
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
-        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
+        website_compliance_state_initial=WcagAudit.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=StatementAudit.StatementCompliance.COMPLIANT,
         report_draft_url="https://www.report-draft.com",
         report_review_status=Boolean.YES,
         reviewer=user,

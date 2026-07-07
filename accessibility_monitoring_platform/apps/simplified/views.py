@@ -91,7 +91,6 @@ from .forms import (
 )
 from .models import (
     ONE_WEEK_IN_DAYS,
-    CaseCompliance,
     CaseStatus,
     Contact,
     EqualityBodyCorrespondence,
@@ -238,7 +237,6 @@ class CaseCreateView(ShowGoBackJSWidgetMixin, CreateView):
         simplified_case: SimplifiedCase = self.object
         simplified_case.created_by = self.request.user
         simplified_case.test_type = SimplifiedCase.TestType.SIMPLIFIED
-        CaseCompliance.objects.create(simplified_case=simplified_case)
         case_status: CaseStatus = CaseStatus.objects.create(
             simplified_case=simplified_case
         )

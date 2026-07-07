@@ -29,6 +29,7 @@ from ...audits.models import (
     WcagPageRetest,
 )
 from ...audits.tests.create_test_data import (
+    create_case_and_compliance,
     create_initial_statement_audit,
     create_initial_wcag_audit,
     create_simplified_case_with_initial_and_12_week_audits,
@@ -50,7 +51,6 @@ from ...simplified.csv_export import (
     SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
 )
 from ..models import (
-    CaseCompliance,
     CaseEvent,
     CaseStatus,
     Contact,
@@ -60,7 +60,6 @@ from ..models import (
     SimplifiedEventHistory,
     ZendeskTicket,
 )
-from ..utils import create_case_and_compliance
 from ..views import (
     FOUR_WEEKS_IN_DAYS,
     ONE_WEEK_IN_DAYS,
@@ -2874,8 +2873,8 @@ def test_platform_shows_notification_if_fully_compliant(
     notification to that effect on report details page.
     """
     simplified_case: SimplifiedCase = create_case_and_compliance(
-        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
-        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
+        website_compliance_state_initial=WcagAudit.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=StatementAudit.StatementCompliance.COMPLIANT,
     )
 
     response: HttpResponse = admin_client.get(
@@ -3859,18 +3858,14 @@ def test_case_close_no_missing_data(admin_client):
     """
     Test that case close renders as expected when no data is missing
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+    simplified_case: SimplifiedCase = create_case_and_compliance(
         organisation_name=ORGANISATION_NAME,
         home_page_url=HOME_PAGE_URL,
         recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
         recommendation_notes=RECOMMENDATION_NOTE,
         compliance_email_sent_date=date.today(),
+        statement_compliance_state_initial=StatementAudit.StatementCompliance.COMPLIANT,
     )
-    CaseCompliance.objects.create(simplified_case=simplified_case)
-    simplified_case.compliance.statement_compliance_state_initial = (
-        CaseCompliance.StatementCompliance.COMPLIANT
-    )
-    simplified_case.compliance.save()
 
     Report.objects.create(base_case=simplified_case)
     S3Report.objects.create(base_case=simplified_case, version=0, latest_published=True)

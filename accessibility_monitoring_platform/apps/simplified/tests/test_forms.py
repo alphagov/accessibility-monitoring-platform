@@ -18,7 +18,7 @@ from ..forms import (
     SimplifiedCaseReportFourWeekFollowupUpdateForm,
     SimplifiedCaseReportOneWeekFollowupUpdateForm,
 )
-from ..models import CaseCompliance, SimplifiedCase
+from ..models import SimplifiedCase
 
 USER_CHOICES: list[tuple[str, str]] = [("", "-----"), ("none", "Unassigned")]
 FIRST_NAME: str = "Mock"
