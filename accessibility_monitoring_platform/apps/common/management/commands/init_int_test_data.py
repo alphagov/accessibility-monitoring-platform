@@ -137,7 +137,7 @@ class Command(BaseCommand):
                 StatementCheck,
                 WcagDefinition,
                 UserCacheUniqueHash,
-                CaseCompliance,
+                CaseCompliance,  # Old model to be deleted
                 CaseStatus,
                 SimplifiedCaseHistory,
                 CaseFile,

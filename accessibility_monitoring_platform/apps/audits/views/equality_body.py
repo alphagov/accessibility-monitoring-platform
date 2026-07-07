@@ -143,7 +143,7 @@ class EqualityBodyRetestMetadataUpdateView(EqualityBodyRetestWcagAuditUpdateView
         return get_next_platform_page_equality_body(wcag_audit=self.object)
 
 
-class EqualityBodyRetestPageChecksFormView(NextPlatformPageMixin, UpdateView):
+class EqualityBodyWcagPageRetestChecksFormView(NextPlatformPageMixin, UpdateView):
     """
     View to update check results for a page in a retest requested by an equality body
     """

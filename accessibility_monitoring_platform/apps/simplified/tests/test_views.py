@@ -451,7 +451,6 @@ def test_case_export_view_filters_by_search(export_view_name, admin_client):
         organisation_name="Included",
         enforcement_body=SimplifiedCase.EnforcementBody.ECNI,
     )
-    CaseCompliance.objects.create(simplified_case=included_case)
     SimplifiedCase.objects.create(organisation_name="Excluded")
 
     response: HttpResponse = admin_client.get(
@@ -467,10 +466,7 @@ def test_case_export_list_view_respects_filters(admin_client):
     """Test that the case export list view includes only filtered data"""
     user: User = User.objects.create()
     add_user_to_auditor_groups(user)
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        organisation_name="Included", auditor=user
-    )
-    CaseCompliance.objects.create(simplified_case=simplified_case)
+    SimplifiedCase.objects.create(organisation_name="Included", auditor=user)
     SimplifiedCase.objects.create(organisation_name="Excluded")
 
     response: HttpResponse = admin_client.get(
@@ -2023,7 +2019,6 @@ def test_case_navigation_shown_on_case_pages(case_page_url, admin_client):
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         enable_correspondence_process=True
     )
-    CaseCompliance.objects.create(simplified_case=simplified_case)
 
     case_key: str = (
         "case_id"
@@ -2183,7 +2178,6 @@ def test_section_complete_check_displayed_in_nav_details(
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         enable_correspondence_process=True
     )
-    CaseCompliance.objects.create(simplified_case=simplified_case)
     setattr(simplified_case, flag_name, TODAY)
     simplified_case.save()
 
@@ -3748,7 +3742,6 @@ def test_case_close(admin_client):
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         home_page_url=HOME_PAGE_URL, recommendation_notes=f"* {RECOMMENDATION_NOTE}"
     )
-    CaseCompliance.objects.create(simplified_case=simplified_case)
 
     response: HttpResponse = admin_client.get(
         reverse("simplified:edit-case-close", kwargs={"pk": simplified_case.id}),
@@ -3796,7 +3789,6 @@ def test_case_close_missing_data(admin_client):
     Test that case close renders as expected when data is missing
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    CaseCompliance.objects.create(simplified_case=simplified_case)
 
     response: HttpResponse = admin_client.get(
         reverse("simplified:edit-case-close", kwargs={"pk": simplified_case.id}),
@@ -4186,7 +4178,6 @@ def test_next_page_name(path_name, expected_next_page, admin_client):
     Test next page shown for when Save and continue button pressed
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    CaseCompliance.objects.create(simplified_case=simplified_case)
     url: str = reverse(f"simplified:{path_name}", kwargs={"pk": simplified_case.id})
 
     response: HttpResponse = admin_client.get(url)

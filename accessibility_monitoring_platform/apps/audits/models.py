@@ -16,7 +16,7 @@ from django.utils import timezone
 
 from ..common.models import Boolean, StartEndDateManager, VersionModel
 from ..common.utils import amp_format_date, calculate_percentage
-from ..simplified.models import CaseCompliance, SimplifiedCase
+from ..simplified.models import SimplifiedCase
 
 ISSUE_IDENTIFIER_WCAG: str = "A"
 ISSUE_IDENTIFIER_STATEMENT: str = "S"
@@ -1665,8 +1665,8 @@ class Retest(VersionModel):
 
     statement_compliance_state = models.CharField(
         max_length=200,
-        choices=CaseCompliance.StatementCompliance.choices,
-        default=CaseCompliance.StatementCompliance.UNKNOWN,
+        choices=StatementAudit.StatementCompliance.choices,
+        default=StatementAudit.StatementCompliance.UNKNOWN,
     )
     statement_compliance_notes = models.TextField(default="", blank=True)
     statement_decision_complete_date = models.DateField(null=True, blank=True)

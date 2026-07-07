@@ -21,7 +21,6 @@ from ..common.forms import (
 )
 from ..common.models import Boolean
 from ..common.utils import validate_file_size
-from ..simplified.models import CaseCompliance
 from .models import (
     StatementAudit,
     StatementCheck,
@@ -255,7 +254,7 @@ class WcagAuditComplianceUpdateForm(VersionForm):
     compliance_state = AMPChoiceRadioField(
         label="Initial website compliance decision",
         help_text="This field effects the case status",
-        choices=CaseCompliance.WebsiteCompliance.choices,
+        choices=WcagAudit.WebsiteCompliance.choices,
     )
     compliance_decision_complete_date = AMPDatePageCompleteField()
 
@@ -768,24 +767,6 @@ class AuditTwelveWeekDisproportionateBurdenUpdateForm(VersionForm):
         ]
 
 
-class CaseComplianceStatement12WeekUpdateForm(VersionForm):
-    """
-    Form to record final accessibility statement compliance decision
-    """
-
-    statement_compliance_state_12_week = AMPChoiceRadioField(
-        label="12-week statement compliance decision · Included in export",
-        choices=CaseCompliance.StatementCompliance.choices,
-    )
-
-    class Meta:
-        model = CaseCompliance
-        fields = [
-            "version",
-            "statement_compliance_state_12_week",
-        ]
-
-
 class WcagDefinitionSearchForm(forms.Form):
     """
     Form for searching for WCAG definitions
@@ -1255,7 +1236,7 @@ class RetestStatementDecisionUpdateForm(VersionForm):
 
     compliance_state = AMPChoiceRadioField(
         label="Statement compliance decision",
-        choices=CaseCompliance.StatementCompliance.choices,
+        choices=StatementAudit.StatementCompliance.choices,
     )
     compliance_notes = AMPTextField(label="Notes")
     compliance_complete_date = AMPDatePageCompleteField()

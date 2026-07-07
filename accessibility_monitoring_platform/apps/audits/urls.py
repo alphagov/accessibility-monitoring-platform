@@ -18,7 +18,7 @@ from .views.base import (
 )
 from .views.equality_body import (
     EqualityBodyRetestMetadataUpdateView,
-    EqualityBodyRetestPageChecksFormView,
+    EqualityBodyWcagPageRetestChecksFormView,
     RetestAddStatementPageUpdateView,
     RetestComparisonUpdateView,
     RetestComplianceUpdateView,
@@ -390,7 +390,7 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "retest-pages/<int:pk>/retest-page-checks/",
-        login_required(EqualityBodyRetestPageChecksFormView.as_view()),
+        login_required(EqualityBodyWcagPageRetestChecksFormView.as_view()),
         name="edit-retest-page-checks",
     ),
     path(

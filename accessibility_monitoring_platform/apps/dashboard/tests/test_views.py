@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
-from ...audits.models import AuditOverview, WcagAudit
+from ...audits.models import AuditOverview, StatementAudit, WcagAudit
 from ...common.models import Boolean, ChangeToPlatform
 from ...detailed.models import DetailedCase
 from ...notifications.models import Task
@@ -80,8 +80,8 @@ def test_dashboard_shows_link_to_closed_and_sent_cases(admin_client, admin_user)
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
-        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
-        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
+        website_compliance_state_initial=WcagAudit.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=StatementAudit.StatementCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=SimplifiedCase.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
@@ -111,8 +111,8 @@ def test_dashboard_shows_link_to_no_contact_email_sent(admin_client, admin_user)
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
-        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
-        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
+        website_compliance_state_initial=WcagAudit.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=StatementAudit.StatementCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=SimplifiedCase.ReportApprovedStatus.APPROVED,
         status=SimplifiedCase.Status.REPORT_READY_TO_SEND,
@@ -162,8 +162,8 @@ def test_dashboard_shows_link_to_completed_cases(admin_client, admin_user):
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
-        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
-        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
+        website_compliance_state_initial=WcagAudit.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=StatementAudit.StatementCompliance.COMPLIANT,
         case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND,
     )
 

@@ -184,7 +184,6 @@ def test_clean_case_close_form(case_completed, expected_error_message):
     """Tests case checked for missing data only when being sent to equality body"""
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    CaseCompliance.objects.create(simplified_case=simplified_case)
     form: SimplifiedCaseCloseUpdateForm = SimplifiedCaseCloseUpdateForm(
         data={
             "version": simplified_case.version,

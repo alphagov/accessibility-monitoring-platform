@@ -745,15 +745,6 @@ class SimplifiedCase(BaseCase):
         return self.audit_overview.website_compliance_display
 
     @property
-    def accessibility_statement_compliance_display(self):
-        if (
-            self.compliance.statement_compliance_state_12_week
-            == CaseCompliance.StatementCompliance.UNKNOWN
-        ):
-            return self.compliance.get_statement_compliance_state_initial_display()
-        return self.compliance.get_statement_compliance_state_12_week_display()
-
-    @property
     def total_website_issues(self) -> int:
         if (
             self.audit_overview is None
