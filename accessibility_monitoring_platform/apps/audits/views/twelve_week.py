@@ -49,7 +49,6 @@ from ..models import (
     AuditOverview,
     StatementAudit,
     StatementCheck,
-    StatementCheckResult,
     StatementCheckResultRound,
     StatementPage,
     WcagAudit,
@@ -471,7 +470,7 @@ class StatementCheckResultRetestCustomUpdateView(UpdateView):
 
     def form_valid(self, form: StatementCheckResultRetestCustomUpdateForm):
         """Populate custom issue"""
-        custom_issue: StatementCheckResult = form.save(commit=False)
+        custom_issue: StatementCheckResultRound = form.save(commit=False)
         record_simplified_model_update_event(
             user=self.request.user,
             model_object=custom_issue,
@@ -481,7 +480,7 @@ class StatementCheckResultRetestCustomUpdateView(UpdateView):
 
     def get_success_url(self) -> str:
         """Return to the list of custom issues"""
-        custom_issue: StatementCheckResult = self.object
+        custom_issue: StatementCheckResultRound = self.object
         url: str = reverse(
             "audits:edit-retest-statement-custom",
             kwargs={"pk": custom_issue.statement_audit.id},

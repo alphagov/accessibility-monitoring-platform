@@ -25,10 +25,8 @@ from ...reports.models import Report
 from ...simplified.models import CaseEvent, SimplifiedCase, SimplifiedEventHistory
 from ..models import (
     AuditOverview,
-    CheckResult,
     StatementAudit,
     StatementCheck,
-    StatementCheckResult,
     StatementCheckResultRound,
     StatementPage,
     WcagAudit,
@@ -1139,7 +1137,7 @@ def test_audit_edit_statement_overview_redirects_to_statement_website(
     for statement_check_result in StatementCheckResultRound.objects.filter(
         statement_audit=statement_audit, type=StatementCheck.Type.OVERVIEW
     ):
-        statement_check_result.check_result_state = StatementCheckResult.Result.YES
+        statement_check_result.check_result_state = StatementCheckResultRound.Result.YES
         statement_check_result.save()
 
     response: HttpResponse = admin_client.post(
@@ -2197,10 +2195,10 @@ def test_page_checks_edit_saves_results(admin_client):
             "form-MIN_NUM_FORMS": "0",
             "form-MAX_NUM_FORMS": "1000",
             "form-0-wcag_definition": wcag_definition_axe.id,
-            "form-0-check_result_state": CheckResult.Result.ERROR,
+            "form-0-check_result_state": WcagCheckResultInitial.Result.ERROR,
             "form-0-notes": CHECK_RESULT_NOTES,
             "form-1-wcag_definition": wcag_definition_pdf.id,
-            "form-1-check_result_state": CheckResult.Result.ERROR,
+            "form-1-check_result_state": WcagCheckResultInitial.Result.ERROR,
             "form-1-notes": CHECK_RESULT_NOTES,
             "complete_date": "on",
             "no_errors_date": "on",
@@ -2261,10 +2259,10 @@ def test_page_checks_edit_stays_on_page(admin_client):
             "form-MIN_NUM_FORMS": "0",
             "form-MAX_NUM_FORMS": "1000",
             "form-0-wcag_definition": 1,
-            "form-0-check_result_state": CheckResult.Result.NOT_TESTED,
+            "form-0-check_result_state": WcagCheckResultInitial.Result.NOT_TESTED,
             "form-0-notes": "",
             "form-1-wcag_definition": 2,
-            "form-1-check_result_state": CheckResult.Result.NOT_TESTED,
+            "form-1-check_result_state": WcagCheckResultInitial.Result.NOT_TESTED,
             "form-1-notes": "",
         },
     )
@@ -2754,7 +2752,7 @@ def test_retest_page_checks_edit_adds_to_retest_notes_history(admin_client):
     assert check_result_retest_notes_history.notes == CHECK_RESULT_NOTES
     assert (
         check_result_retest_notes_history.retest_state
-        == CheckResult.RetestResult.NOT_FIXED
+        == WcagCheckResultRetest.RetestResult.NOT_FIXED
     )
 
 
@@ -2785,13 +2783,13 @@ def test_retest_page_checks_shows_retest_notes_history(admin_client):
 
     WcagCheckResultRetestNotesHistory.objects.create(
         wcag_check_result_retest=wcag_check_result_retest,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED,
         notes=HISTORIC_RETEST_NOTES,
         created_by=user,
     )
     WcagCheckResultRetestNotesHistory.objects.create(
         wcag_check_result_retest=wcag_check_result_retest,
-        retest_state=CheckResult.RetestResult.NOT_FIXED,
+        retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED,
         created_by=user,
     )
 

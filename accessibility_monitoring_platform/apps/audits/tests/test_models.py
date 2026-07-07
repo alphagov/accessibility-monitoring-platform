@@ -17,7 +17,6 @@ from ..models import (
     AuditRound,
     StatementAudit,
     StatementCheck,
-    StatementCheckResult,
     StatementCheckResultRound,
     StatementPage,
     WcagAudit,
@@ -1491,7 +1490,7 @@ def test_statement_audit_all_overview_statement_checks_have_passed():
         )
     )
     for statement_check_result in overview_statement_check_result_initials:
-        statement_check_result.check_result_state = StatementCheckResult.Result.YES
+        statement_check_result.check_result_state = StatementCheckResultRound.Result.YES
         statement_check_result.save()
 
     assert initial_statement_audit.all_overview_statement_checks_have_passed is True
@@ -1507,7 +1506,7 @@ def test_statement_audit_all_overview_statement_checks_have_passed():
         )
     )
     for statement_check_result in overview_statement_check_result_retests:
-        statement_check_result.check_result_state = StatementCheckResult.Result.YES
+        statement_check_result.check_result_state = StatementCheckResultRound.Result.YES
         statement_check_result.save()
 
     assert twelve_week_statement_audit.all_overview_statement_checks_have_passed is True
@@ -1518,14 +1517,14 @@ def test_statement_audit_overview_statement_checks_complete():
     statement_audit: StatementAudit = create_initial_statement_audit()
 
     for statement_check_result in statement_audit.overview_statement_check_results:
-        statement_check_result.check_result_state = StatementCheckResult.Result.YES
+        statement_check_result.check_result_state = StatementCheckResultRound.Result.YES
         statement_check_result.save()
 
     assert statement_audit.overview_statement_checks_complete is True
 
     for statement_check_result in statement_audit.overview_statement_check_results:
         statement_check_result.check_result_state = (
-            StatementCheckResult.Result.NOT_TESTED
+            StatementCheckResultRound.Result.NOT_TESTED
         )
         statement_check_result.save()
         break

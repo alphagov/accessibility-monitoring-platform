@@ -23,14 +23,11 @@ from ..common.models import Boolean
 from ..common.utils import validate_file_size
 from ..simplified.models import CaseCompliance
 from .models import (
-    CheckResult,
-    Retest,
     RetestCheckResult,
     RetestPage,
     RetestStatementCheckResult,
     StatementAudit,
     StatementCheck,
-    StatementCheckResult,
     StatementCheckResultRound,
     StatementPage,
     WcagAudit,
@@ -48,10 +45,10 @@ CHECK_RESULT_TYPE_FILTER_CHOICES: list[tuple[str, str]] = (
     ]
 )
 TEST_CHECK_RESULT_STATE_FILTER_CHOICES: list[tuple[str, str]] = (
-    CheckResult.Result.choices + [("", "All")]
+    WcagCheckResultInitial.Result.choices + [("", "All")]
 )
 RETEST_CHECK_RESULT_STATE_FILTER_CHOICES: list[tuple[str, str]] = (
-    CheckResult.RetestResult.choices + [("", "All")]
+    WcagCheckResultRetest.RetestResult.choices + [("", "All")]
 )
 COPY_TICK_HELP_TEXT: str = """
 <span class="amp-control amp-copy-text-to-clipboard" data-text-to-copy="✓" tabindex="0">Copy</span>
@@ -229,7 +226,7 @@ class WcagCheckResultInitialForm(forms.ModelForm):
     )
     check_result_state = AMPChoiceRadioField(
         label="",
-        choices=CheckResult.Result.choices,
+        choices=WcagCheckResultInitial.Result.choices,
         widget=AMPRadioSelectWidget(
             attrs={
                 "horizontal": True,
@@ -302,7 +299,7 @@ class StatementCheckResultRoundForm(forms.ModelForm):
 
     check_result_state = AMPChoiceRadioField(
         label="",
-        choices=StatementCheckResult.Result.choices,
+        choices=StatementCheckResultRound.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
     public_comment = AMPTextField(label="Comments for report")
@@ -329,7 +326,7 @@ class StatementCheckResultRetestForm(forms.ModelForm):
 
     check_result_state = AMPChoiceRadioField(
         label="",
-        choices=StatementCheckResult.Result.choices,
+        choices=StatementCheckResultRound.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
     auditor_information = AMPTextField(label="Retest information")
@@ -506,7 +503,7 @@ class StatementCheckResultRetestUpdateForm(forms.ModelForm):
     auditor_information = AMPTextField(label="12-week retest information")
     check_result_state = AMPChoiceRadioField(
         label="Mark this statement as resolved",
-        choices=StatementCheckResult.Result.choices,
+        choices=StatementCheckResultRound.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
 
@@ -737,7 +734,7 @@ class StatementCheckResultRetestCustomUpdateForm(forms.ModelForm):
 
     check_result_state = AMPChoiceRadioField(
         label="Mark this statement issue as resolved",
-        choices=StatementCheckResult.Result.choices,
+        choices=StatementCheckResultRound.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
     public_comment = AMPTextField(label="Comments for email")
@@ -930,7 +927,7 @@ class RetestCheckResultForm(forms.ModelForm):
     id = forms.IntegerField(widget=forms.HiddenInput())
     retest_state = AMPChoiceRadioField(
         label="Issue fixed?",
-        choices=CheckResult.RetestResult.choices,
+        choices=WcagCheckResultRetest.RetestResult.choices,
         widget=AMPRadioSelectWidget(
             attrs={
                 "horizontal": True,
@@ -962,7 +959,7 @@ class RetestComparisonUpdateForm(forms.ModelForm):
     comparison_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Retest
+        model = WcagAudit
         fields: list[str] = [
             "comparison_complete_date",
         ]
@@ -975,7 +972,7 @@ class RetestComplianceUpdateForm(forms.ModelForm):
 
     compliance_state = AMPChoiceRadioField(
         label="Website compliance decision",
-        choices=Retest.Compliance.choices,
+        choices=WcagAudit.WebsiteCompliance.choices,
     )
     compliance_notes = AMPTextField(label="Notes")
     compliance_decision_complete_date = AMPDatePageCompleteField()
@@ -1063,7 +1060,7 @@ class StatementAuditStatementBackupUpdateForm(VersionForm):
         ]
 
 
-class RetestAddStatementPageUpdateForm(VersionForm):
+class RetestStatementAuditAddStatementPageUpdateForm(VersionForm):
     """
     Form for statement pages update at equality body-requested retest
     """
@@ -1071,7 +1068,7 @@ class RetestAddStatementPageUpdateForm(VersionForm):
     pages_complete_date = AMPDatePageCompleteField()
 
     class Meta:
-        model = Retest
+        model = StatementAudit
         fields: list[str] = [
             "version",
             "pages_complete_date",

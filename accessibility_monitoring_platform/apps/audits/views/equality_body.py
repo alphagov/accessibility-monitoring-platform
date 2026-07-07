@@ -30,10 +30,10 @@ from ..forms import (
     EqualityBodyRetestStatementCheckResultRoundFormset,
     EqualityBodyRetestStatementOverviewUpdateForm,
     EqualityBodyWcagPageRetestUpdateForm,
-    RetestAddStatementPageUpdateForm,
     RetestComparisonUpdateForm,
     RetestComplianceUpdateForm,
     RetestDisproportionateBurdenUpdateForm,
+    RetestStatementAuditAddStatementPageUpdateForm,
     RetestStatementBackupUpdateForm,
     RetestStatementComplianceUpdateForm,
     RetestStatementCustomUpdateForm,
@@ -50,7 +50,6 @@ from ..forms import (
 )
 from ..models import (
     AuditOverview,
-    Retest,
     StatementAudit,
     StatementCheck,
     StatementCheckResultRound,
@@ -271,7 +270,7 @@ class RetestComparisonUpdateView(EqualityBodyRetestWcagAuditUpdateView):
     def form_valid(self, form: ModelForm) -> HttpResponseRedirect:
         """Add record event on change"""
         if form.changed_data:
-            self.object: Retest = form.save(commit=False)
+            self.object: WcagAudit = form.save(commit=False)
 
             record_simplified_model_update_event(
                 user=self.request.user,
@@ -316,8 +315,8 @@ class RetestAddStatementPageUpdateView(
     View to add statement link in equality body-requested retest
     """
 
-    form_class: type[RetestAddStatementPageUpdateForm] = (
-        RetestAddStatementPageUpdateForm
+    form_class: type[RetestStatementAuditAddStatementPageUpdateForm] = (
+        RetestStatementAuditAddStatementPageUpdateForm
     )
     template_name: str = "audits/forms/equality_body_retest_add_statement_link.html"
 
@@ -361,14 +360,14 @@ class RetestStatementBackupUpdateView(
         self, request: HttpRequest, *args: tuple[str], **kwargs: dict[str, Any]
     ) -> HttpResponseRedirect | HttpResponse:
         """Populate two forms from post request"""
-        self.object: Retest = self.get_object()
+        self.object: StatementAudit = self.get_object()
         form: Form = self.form_class(request.POST, instance=self.object)
         statement_backup_form: StatementBackupForm = StatementBackupForm(
             self.request.POST, self.request.FILES
         )
         if form.is_valid() and statement_backup_form.is_valid():
             form.save()
-            retest: Retest = self.object
+            retest: StatementAudit = self.object
             uploaded_file: InMemoryUploadedFile | None = (
                 statement_backup_form.cleaned_data.get("file_to_upload")
             )

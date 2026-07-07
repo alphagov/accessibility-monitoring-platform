@@ -8,13 +8,7 @@ from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains
 
-from ...audits.models import (
-    Retest,
-    RetestPage,
-    WcagAudit,
-    WcagPageInitial,
-    WcagPageRetest,
-)
+from ...audits.models import WcagAudit, WcagPageInitial, WcagPageRetest
 from ...audits.tests.create_test_data import (
     create_equality_body_audits,
     create_initial_wcag_audit,
@@ -316,14 +310,6 @@ def test_platform_page_get_case():
 
     assert (
         PlatformPage(name=PLATFORM_PAGE_NAME, instance=page).get_case()
-        == simplified_case
-    )
-
-    retest: Retest = Retest(simplified_case=simplified_case)
-    retest_page: RetestPage = RetestPage(retest=retest)
-
-    assert (
-        PlatformPage(name=PLATFORM_PAGE_NAME, instance=retest_page).get_case()
         == simplified_case
     )
 

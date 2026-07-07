@@ -16,7 +16,6 @@ from ...audits.models import (
     AuditOverview,
     StatementAudit,
     StatementCheck,
-    StatementCheckResult,
     StatementCheckResultRound,
     StatementPage,
     WcagAudit,
@@ -888,9 +887,9 @@ def test_overview_issues_statement_with_statement_checks():
         if count == 20:
             break
         check_result_state: str = (
-            StatementCheckResult.Result.NO
+            StatementCheckResultRound.Result.NO
             if count % 2 == 0
-            else StatementCheckResult.Result.YES
+            else StatementCheckResultRound.Result.YES
         )
         StatementCheckResultRound.objects.create(
             statement_audit=initial_statement_audit,
@@ -912,9 +911,9 @@ def test_overview_issues_statement_with_statement_checks():
         if count == 10:
             break
         check_result_state: str = (
-            StatementCheckResult.Result.NO
+            StatementCheckResultRound.Result.NO
             if count % 2 == 0
-            else StatementCheckResult.Result.YES
+            else StatementCheckResultRound.Result.YES
         )
         StatementCheckResultRound.objects.create(
             statement_audit=statement_audit_retest,

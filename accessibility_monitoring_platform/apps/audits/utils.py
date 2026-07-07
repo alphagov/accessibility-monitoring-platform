@@ -22,10 +22,8 @@ from ..simplified.utils import (
 from .forms import WcagCheckResultInitialForm
 from .models import (
     AuditOverview,
-    CheckResult,
     StatementAudit,
     StatementCheck,
-    StatementCheckResult,
     StatementCheckResultRound,
     WcagAudit,
     WcagCheckResultInitial,
@@ -78,8 +76,8 @@ class SummaryWcagCheckResult:
 class SummaryStatementCheckResult:
     type: StatementCheck.Type | None
     issue_identifier: str
-    initial_result: StatementCheckResult
-    retest_result: StatementCheckResult | None = None
+    initial_result: StatementCheckResultRound
+    retest_result: StatementCheckResultRound | None = None
 
 
 def index_or_404(items: list[P], item: P) -> int:
@@ -170,7 +168,7 @@ def create_or_update_wcag_check_result_initials_for_page(
 
 def get_page_check_results_formset_initial(
     wcag_page_initial: WcagPageInitial, wcag_definitions: list[WcagDefinition]
-) -> list[dict[str, str | WcagDefinition | CheckResult]]:
+) -> list[dict[str, str | WcagDefinition | WcagCheckResultInitial]]:
     """
     Combine existing check result with all the WCAG definitions to create a list of
     dictionaries for use in populating the CheckResultFormset with all possible results
@@ -179,12 +177,12 @@ def get_page_check_results_formset_initial(
         wcag_page_initial.wcag_check_result_initials_by_wcag_definition
     )
     check_results_formset_initial: list[
-        dict[str, str | WcagDefinition | CheckResult]
+        dict[str, str | WcagDefinition | WcagCheckResultInitial]
     ] = []
 
     for wcag_definition in wcag_definitions:
         if wcag_definition in check_results_by_wcag_definition:
-            check_result: CheckResult = check_results_by_wcag_definition[
+            check_result: WcagCheckResultInitial = check_results_by_wcag_definition[
                 wcag_definition
             ]
             check_result_state: str = check_result.check_result_state
@@ -192,7 +190,7 @@ def get_page_check_results_formset_initial(
             issue_identifier: str = check_result.issue_identifier
         else:
             check_result: None = None
-            check_result_state: str = CheckResult.Result.NOT_TESTED
+            check_result_state: str = WcagCheckResultInitial.Result.NOT_TESTED
             notes: str = ""
             issue_identifier: str = ""
         check_results_formset_initial.append(
@@ -369,14 +367,14 @@ def get_next_platform_page_twelve_week(
 
 def other_wcag_page_initial_failed_wcag_check_result_initials(
     wcag_page_initial: WcagPageInitial,
-) -> dict[WcagDefinition, list[CheckResult]]:
+) -> dict[WcagDefinition, list[WcagCheckResultInitial]]:
     """
     Find all failed check results for other pages.
     Return them in a dictionary keyed by their WcagDefinitions.
     """
-    failed_check_results_by_wcag_definition: dict[WcagDefinition, list[CheckResult]] = (
-        {}
-    )
+    failed_check_results_by_wcag_definition: dict[
+        WcagDefinition, list[WcagCheckResultInitial]
+    ] = {}
     for (
         check_result
     ) in wcag_page_initial.wcag_audit.failed_wcag_check_result_initials.exclude(
@@ -547,10 +545,10 @@ def get_audit_summary_context(
                 wcag_audit=wcag_audit_12_week
             ).exclude(notes="")
 
-        summary_wcag_check_results_by_wcag: dict[WcagDefinition, list[CheckResult]] = (
-            list_to_dictionary_of_lists(
-                items=summary_wcag_check_results, group_by_attr="wcag_definition"
-            )
+        summary_wcag_check_results_by_wcag: dict[
+            WcagDefinition, list[WcagCheckResultInitial]
+        ] = list_to_dictionary_of_lists(
+            items=summary_wcag_check_results, group_by_attr="wcag_definition"
         )
         for wcag_definition, failures in summary_wcag_check_results_by_wcag.items():
             wcag_definition.issue_identifiers = " ".join(
@@ -582,7 +580,7 @@ def get_audit_summary_context(
                 statement_check_result.twelve_week_retest
             )
 
-        type: CheckResult.Type = (
+        type: WcagCheckResultInitial.Type = (
             initial_result.type if initial_result is not None else retest_result.type
         )
 
@@ -599,12 +597,12 @@ def get_audit_summary_context(
             or (
                 summary_statement_check_result.initial_result is not None
                 and summary_statement_check_result.initial_result.check_result_state
-                == StatementCheckResult.Result.NO
+                == StatementCheckResultRound.Result.NO
             )
             or (
                 summary_statement_check_result.retest_result is not None
                 and summary_statement_check_result.retest_result.check_result_state
-                == StatementCheckResult.Result.NO
+                == StatementCheckResultRound.Result.NO
             )
         ):
             summary_statement_check_results.append(summary_statement_check_result)

@@ -50,12 +50,12 @@ from ..forms import (
 )
 from ..models import (
     AuditOverview,
-    CheckResult,
     StatementAudit,
     StatementCheck,
     StatementCheckResultRound,
     StatementPage,
     WcagAudit,
+    WcagCheckResultInitial,
     WcagDefinition,
     WcagPageInitial,
 )
@@ -296,10 +296,10 @@ class WcagPageChecksFormView(NextPlatformPageMixin, FormView):
         context["filter_form"] = CheckResultFilterForm(
             initial={"manual": False, "axe": False, "pdf": False, "not_tested": False}
         )
-        other_pages_failed_check_results: dict[WcagDefinition, list[CheckResult]] = (
-            other_wcag_page_initial_failed_wcag_check_result_initials(
-                wcag_page_initial=self.wcag_page_initial
-            )
+        other_pages_failed_check_results: dict[
+            WcagDefinition, list[WcagCheckResultInitial]
+        ] = other_wcag_page_initial_failed_wcag_check_result_initials(
+            wcag_page_initial=self.wcag_page_initial
         )
         wcag_definitions: list[WcagDefinition] = list(
             WcagDefinition.objects.on_date(

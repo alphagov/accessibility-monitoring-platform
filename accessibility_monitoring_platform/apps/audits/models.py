@@ -862,7 +862,7 @@ class StatementAudit(AuditRound):
     @property
     def failed_statement_check_results(self) -> QuerySet[StatementCheckResultRound]:
         return self.statement_check_results.filter(
-            check_result_state=StatementCheckResult.Result.NO
+            check_result_state=StatementCheckResultRound.Result.NO
         )
 
     @property
@@ -874,7 +874,7 @@ class StatementAudit(AuditRound):
     @property
     def fixed_statement_check_results(self) -> QuerySet[StatementCheckResultRound]:
         return self.passed_statement_check_results.filter(
-            statement_check_result_initial__check_result_state=StatementCheckResult.Result.NO
+            statement_check_result_initial__check_result_state=StatementCheckResultRound.Result.NO
         )
 
     @property
@@ -882,8 +882,8 @@ class StatementAudit(AuditRound):
         self,
     ) -> QuerySet[StatementCheckResultRound]:
         return self.statement_check_results.filter(
-            Q(check_result_state=StatementCheckResult.Result.NO)
-            | Q(check_result_state=StatementCheckResult.Result.NOT_TESTED)
+            Q(check_result_state=StatementCheckResultRound.Result.NO)
+            | Q(check_result_state=StatementCheckResultRound.Result.NOT_TESTED)
         )
 
     @property
@@ -898,7 +898,7 @@ class StatementAudit(AuditRound):
     def overview_statement_checks_complete(self) -> bool:
         return (
             self.overview_statement_check_results.filter(
-                check_result_state=StatementCheckResult.Result.NOT_TESTED
+                check_result_state=StatementCheckResultRound.Result.NOT_TESTED
             ).count()
             == 0
         )
@@ -910,7 +910,7 @@ class StatementAudit(AuditRound):
             return False
         return (
             self.overview_statement_check_results.exclude(
-                check_result_state=StatementCheckResult.Result.YES
+                check_result_state=StatementCheckResultRound.Result.YES
             ).count()
             == 0
         )
