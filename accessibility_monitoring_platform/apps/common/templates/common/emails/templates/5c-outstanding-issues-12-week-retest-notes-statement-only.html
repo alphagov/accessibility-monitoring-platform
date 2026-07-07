@@ -7,7 +7,7 @@ Please review the issues listed below and provide an update.
 <br>
 <h2>Your statement</h2>
 <br>
-{% if case.audit.outstanding_statement_check_results %}
+{% if case.audit_overview.last_statement_audit.outstanding_statement_check_results %}
     <table id="email-statement-issues-table">
         <thead>
         <tr>
@@ -17,7 +17,7 @@ Please review the issues listed below and provide an update.
         </tr>
         </thead>
         <tbody>
-            {% for statement_check_result in case.audit.outstanding_statement_check_results %}
+            {% for statement_check_result in case.audit_overview.last_statement_audit.outstanding_statement_check_results %}
                 <tr valign="top">
                     <td headers="statement-issue" width=33%>
                         <p><b>Issue {{ statement_check_result.issue_identifier }}</b></p>

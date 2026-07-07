@@ -5,18 +5,18 @@ We have completed the retest and some issues are still outstanding.
 Please review the issues listed below and provide an update.
 <br>
 <br>
-{% if case.audit.unfixed_check_results %}
-    {% for page in case.audit.testable_pages %}
-        {% if not page.retest_page_missing_date %}
-            {% if page.unfixed_check_results or page.retest_notes %}
-                <h2>{{ page }}{% if page.page_type != 'pdf' %} page{% endif %} issues</h2>
+{% if case.audit_overview.first_twelve_week_wcag_audit.unfixed_wcag_check_result_retests %}
+    {% for wcag_page_retest in case.audit_overview.initial_wcag_audit.retestable_wcag_page_retests %}
+        {% if not wcag_page_retest.page_missing_date %}
+            {% if wcag_page_retest.unfixed_wcag_check_result_retests or wcag_page_retest.notes %}
+                <h2>{{ wcag_page_retest }}{% if wcag_page_retest.page_type != 'pdf' %} page{% endif %} issues</h2>
                 <br>
-                <a href="{{ page.url }}">{{ page.url }}</a>
-                {{ page.location }}
+                <a href="{{ wcag_page_retest.latest_page_url }}">{{ wcag_page_retest.latest_page_url }}</a>
+                {{ wcag_page_retest.latest_page_location }}
                 <br>
                 <br>
             {% endif %}
-            {% if page.unfixed_check_results %}
+            {% if wcag_page_retest.unfixed_wcag_check_result_retests %}
                 <table id="email-issues-table-{{ forloop.counter }}">
                     <thead>
                         <tr>
@@ -26,25 +26,25 @@ Please review the issues listed below and provide an update.
                         </tr>
                     </thead>
                     <tbody>
-                        {% for check_result in page.unfixed_check_results %}
+                        {% for wcag_check_result_retest in wcag_page_retest.unfixed_wcag_check_result_retests %}
                             <tr valign="top">
                                 <td headers="issue-{{ forloop.parentloop.counter }}" width=33%>
-                                    <p><b>Issue {{ check_result.issue_identifier }}</b></p>
-                                    <p><a href="{{ check_result.wcag_definition.url_on_w3 }}">{{ check_result.wcag_definition.name }}</a></p>
-                                    {{ check_result.notes|markdown_to_html }}
+                                    <p><b>Issue {{ wcag_check_result_retest.wcag_check_result_initial.issue_identifier }}</b></p>
+                                    <p><a href="{{ wcag_check_result_retest.wcag_definition.url_on_w3 }}">{{ wcag_check_result_retest.wcag_definition.name }}</a></p>
+                                    {{ wcag_check_result_retest.notes|markdown_to_html }}
                                 </td>
-                                <td headers="retest-notes-{{ forloop.parentloop.counter }}" width=33%>{{ check_result.retest_notes|markdown_to_html }}</td>
+                                <td headers="retest-notes-{{ forloop.parentloop.counter }}" width=33%>{{ wcag_check_result_retest.notes|markdown_to_html }}</td>
                                 <td headers="12-week-update-{{ forloop.parentloop.counter }}" width=33%></td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             {% endif %}
-            {% if page.retest_notes %}
-                <b>Additional issues found on page</b>
+            {% if wcag_page_retest.notes %}
+                <b>Additional issues found on wcag_page_retest</b>
                 <br>
                 <br>
-                {{ page.retest_notes|markdown_to_html}}
+                {{ wcag_page_retest.notes|markdown_to_html}}
             {% endif %}
         {% endif %}
     {% endfor %}
@@ -55,7 +55,7 @@ Please review the issues listed below and provide an update.
 <br>
 <h2>Your statement</h2>
 <br>
-{% if case.audit.outstanding_statement_check_results %}
+{% if case.audit_overview.last_statement_audit.outstanding_statement_check_results %}
     <table id="email-statement-issues-table">
         <thead>
             <tr>
@@ -65,7 +65,7 @@ Please review the issues listed below and provide an update.
             </tr>
         </thead>
         <tbody>
-            {% for statement_check_result in case.audit.outstanding_statement_check_results %}
+            {% for statement_check_result in case.audit_overview.last_statement_audit.outstanding_statement_check_results %}
                 <tr valign="top">
                     <td headers="statement-issue" width=33%>
                         <p><b>Issue {{ statement_check_result.issue_identifier }}</b></p>

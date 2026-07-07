@@ -1,7 +1,7 @@
 {% extends 'cases/details/details.html' %}
 
 {% block table %}
-    {% for statement_page in case.audit.statement_pages %}
+    {% for statement_page in case.audit_overview.statement_pages %}
         <p class="govuk-body-m"><b>Statement {{ forloop.counter }}</b></p>
         <table class="govuk-table" data-search-target-page-name="{{ case_detail_page.page.platform_page_group.name }}" data-search-target-label="{{ case_detail_page.page.get_name }}" data-search-target-url="{{ case_detail_page.page.url }}">
             <tbody class="govuk-table__body">

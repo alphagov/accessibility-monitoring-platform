@@ -197,7 +197,6 @@ class WcagAuditPagesUpdateView(WcagAuditUpdateView):
                         # Create first statement link
                         statement_page: StatementPage = StatementPage.objects.create(
                             simplified_case=wcag_audit.simplified_case,
-                            audit=wcag_audit.simplified_case.audit,
                             audit_overview=audit_overview,
                             url=wcag_page_initial_wcag_audit.url,
                         )
@@ -629,7 +628,6 @@ class CustomIssueCreateView(CreateView):
             commit=False
         )
         statement_check_result_initial.statement_audit = statement_audit
-        statement_check_result_initial.audit = statement_audit.simplified_case.audit
         return super().form_valid(form)
 
     def get_success_url(self) -> str:

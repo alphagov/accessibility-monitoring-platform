@@ -427,7 +427,6 @@ class AddStatementLinkUpdateView(StatementAuditUpdateView):
                 is None
             ):
                 statement_page: StatementPage = StatementPage.objects.create(
-                    audit=simplified_case.audit,
                     simplified_case=simplified_case,
                     audit_overview=simplified_case.audit_overview,
                     url=statement_url,
