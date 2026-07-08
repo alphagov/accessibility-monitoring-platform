@@ -349,21 +349,21 @@ def test_get_all_possible_check_results_for_page():
     assert all_check_results[:3] == [
         {
             "wcag_definition": pdf_wcag_definitions[0],
-            "check_result": None,
+            "wcag_check_result_initial": None,
             "check_result_state": WcagCheckResultInitial.Result.NOT_TESTED,
             "notes": "",
             "issue_identifier": "",
         },
         {
             "wcag_definition": pdf_wcag_definitions[1],
-            "check_result": None,
+            "wcag_check_result_initial": None,
             "check_result_state": WcagCheckResultInitial.Result.NOT_TESTED,
             "notes": "",
             "issue_identifier": "",
         },
         {
             "wcag_definition": pdf_wcag_definitions[2],
-            "check_result": None,
+            "wcag_check_result_initial": None,
             "check_result_state": WcagCheckResultInitial.Result.NOT_TESTED,
             "notes": "",
             "issue_identifier": "",
