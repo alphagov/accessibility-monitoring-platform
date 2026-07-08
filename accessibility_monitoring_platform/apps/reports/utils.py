@@ -106,7 +106,7 @@ class IssueTable:
 
 
 def build_issues_tables(
-    wcag_page_initials: list[WcagPageInitial] | list[WcagPageRetest],
+    wcag_pages: list[WcagPageInitial] | list[WcagPageRetest],
     check_results_attr: str = "failed_wcag_check_result_initials",
     use_retest_notes: bool = False,
 ) -> list[IssueTable]:
@@ -115,12 +115,12 @@ def build_issues_tables(
     """
     issues_tables: list[IssueTable] = []
     used_wcag_definitions: set[WcagDefinition] = set()
-    for wcag_page_initial in wcag_page_initials:
+    for wcag_page in wcag_pages:
         issues_tables.append(
             IssueTable(
-                page=wcag_page_initial,
+                page=wcag_page,
                 rows=build_issue_table_rows(
-                    check_results=getattr(wcag_page_initial, check_results_attr),
+                    check_results=getattr(wcag_page, check_results_attr),
                     used_wcag_definitions=used_wcag_definitions,
                     use_retest_notes=use_retest_notes,
                 ),
@@ -176,7 +176,7 @@ def build_report_context(
     """Return context used to render report"""
     issues_tables: list[IssueTable] = (
         build_issues_tables(
-            wcag_page_initials=report.base_case.simplifiedcase.audit_overview.initial_wcag_audit.testable_wcag_page_initials
+            wcag_pages=report.base_case.simplifiedcase.audit_overview.initial_wcag_audit.testable_wcag_page_initials
         )
         if report.base_case.simplifiedcase.audit_overview is not None
         and report.base_case.simplifiedcase.audit_overview.initial_wcag_audit

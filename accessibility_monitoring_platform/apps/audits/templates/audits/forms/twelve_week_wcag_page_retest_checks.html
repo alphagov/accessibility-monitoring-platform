@@ -92,7 +92,7 @@
                     </div>
                     {% include 'common/form_hidden_fields.html' with hidden_fields=check_result_form.hidden_fields %}
                     {% include 'common/amp_field.html' with field=check_result_form.retest_state %}
-                    {% include 'audits/helpers/check_result_matching_retest_errors.html' with check_result=check_result_form.instance %}
+                    {% include 'audits/helpers/check_result_matching_retest_errors.html' with form=check_result_form check_result=check_result_form.instance %}
                     {% include 'common/amp_field.html' with field=check_result_form.notes %}
                     {% include 'common/preview_markdown.html' with field_id=check_result_form.notes.auto_id %}
                     {% include 'audits/helpers/check_result_retest_notes_history.html' with check_result=check_result_form.instance %}

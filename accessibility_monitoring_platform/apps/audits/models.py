@@ -1315,8 +1315,8 @@ class WcagCheckResultRetest(models.Model):
     @property
     def matching_wcag_check_result_retests_with_notes(
         self,
-    ) -> QuerySet[WcagCheckResultInitial]:
-        """Other retest check results with notes for same WCAG definition"""
+    ) -> QuerySet[WcagCheckResultRetest]:
+        """Other pages' retest check results with notes for same WCAG definition"""
         return (
             self.wcag_audit.wcag_check_result_retests.filter(
                 wcag_definition=self.wcag_definition

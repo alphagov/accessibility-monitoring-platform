@@ -84,7 +84,7 @@ def get_simplified_case_detail_sections(
                         if page.case_details_template_name:
                             case_detail_pages.append(
                                 CaseDetailPage(
-                                    page=page,
+                                    platform_page=page,
                                     display_fields=display_fields,
                                 )
                             )
@@ -93,7 +93,7 @@ def get_simplified_case_detail_sections(
                                 if subpage.case_details_template_name:
                                     case_detail_pages.append(
                                         CaseDetailPage(
-                                            page=subpage,
+                                            platform_page=subpage,
                                         )
                                     )
             view_sections.append(
@@ -291,12 +291,12 @@ def get_email_template_context(simplified_case: SimplifiedCase) -> dict[str, Any
     if simplified_case.audit_overview is not None:
         if simplified_case.audit_overview.initial_wcag_audit is not None:
             context["issues_tables"] = build_issues_tables(
-                wcag_page_initials=simplified_case.audit_overview.initial_wcag_audit.testable_wcag_page_initials,
+                wcag_pages=simplified_case.audit_overview.initial_wcag_audit.testable_wcag_page_initials,
                 check_results_attr="unfixed_wcag_check_result_initials",
             )
         if simplified_case.audit_overview.first_twelve_week_wcag_audit is not None:
             context["retest_issues_tables"] = build_issues_tables(
-                wcag_page_initials=simplified_case.audit_overview.first_twelve_week_wcag_audit.retestable_wcag_page_retests,
+                wcag_pages=simplified_case.audit_overview.first_twelve_week_wcag_audit.retestable_wcag_page_retests,
                 use_retest_notes=True,
                 check_results_attr="unfixed_wcag_check_result_retests",
             )

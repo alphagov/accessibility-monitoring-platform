@@ -137,15 +137,15 @@
                                                 <span class="govuk-details__summary-text">Matching errors ({{ form.instance.matching_wcag_check_result_retests_with_notes.count }})</span>
                                             </summary>
                                             <div class="govuk-details__text">
-                                                {% for retest_check_result in form.instance.matching_wcag_check_result_retests_with_notes %}
-                                                    <label class="govuk-label"><b>{{ retest_check_result.retest_page.page }}</b></label>
-                                                    <textarea id="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}" hidden>{{ retest_check_result.retest_notes }}</textarea>
+                                                {% for wcag_check_result_retest in form.instance.matching_wcag_check_result_retests_with_notes %}
+                                                    <label class="govuk-label"><b>{{ wcag_check_result_retest.wcag_page_retest }}</b></label>
+                                                    <textarea id="{{ form.notes.auto_id }}-{{ forloop.counter }}" hidden>{{ wcag_check_result_retest.notes }}</textarea>
                                                     <span tabIndex="0"
                                                         class="amp-control amp-copy-error"
-                                                        sourceId="{{ form.retest_notes.auto_id }}-{{ forloop.counter }}"
-                                                        targetId="{{ form.retest_notes.auto_id }}">
+                                                        sourceId="{{ form.notes.auto_id }}-{{ forloop.counter }}"
+                                                        targetId="{{ form.notes.auto_id }}">
                                                         Click to populate additional issues</span>
-                                                    {{ retest_check_result.notes|markdown_to_html }}
+                                                    {{ wcag_check_result_retest.notes|markdown_to_html }}
                                                 {% endfor %}
                                             </div>
                                         </details>

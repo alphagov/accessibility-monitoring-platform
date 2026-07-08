@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class CaseDetailPage:
-    page: PlatformPage
+    platform_page: PlatformPage
     display_fields: list[FieldLabelAndValue] | None = None
 
 

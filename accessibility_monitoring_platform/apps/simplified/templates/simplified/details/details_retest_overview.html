@@ -4,7 +4,7 @@
     {% if case.audit_overview.equality_body_wcag_audits %}
         {% for equality_body_wcag_audit in case.audit_overview.equality_body_wcag_audits %}
             <p class="govuk-body-m"><b>{{ equality_body_wcag_audit.short_name }}</b></p>
-            <table class="govuk-table" data-search-target-page-name="{{ case_detail_page.page.platform_page_group.name }}" data-search-target-label="{{ case_detail_page.page.get_name }}" data-search-target-url="{{ case_detail_page.page.get_url }}">
+            <table class="govuk-table" data-search-target-page-name="{{ case_detail_page.platform_page.platform_page_group.name }}" data-search-target-label="{{ case_detail_page.platform_page.get_name }}" data-search-target-url="{{ case_detail_page.platform_page.get_url }}">
                 <tbody class="govuk-table__body">
                     <tr class="govuk-table__row ">
                         <th scope="row" class="govuk-table__header amp-font-weight-normal amp-width-one-half">Date of retest</th>
