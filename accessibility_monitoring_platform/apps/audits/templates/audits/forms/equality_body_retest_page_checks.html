@@ -22,7 +22,7 @@
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
-                {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:edit-retest-page-checks' page_id=retest_page.id retest=retest_page.retest %}
+                {% include 'audits/helpers/equality_body_retest_nav_steps.html' with current_page='audits:edit-retest-page-checks' %}
             </div>
             <div class="govuk-grid-column-two-thirds">
                 {% if not retest_check_results_formset.forms %}
@@ -59,11 +59,11 @@
                                     {% else %}
                                         <p>None</p>
                                     {% endif %}
-                                    {% for retest_page in wcag_page_retest.wcag_page_retests %}
-                                        {% if retest_page != form.instance %}
-                                            <label class="govuk-label amp-margin-bottom-15"><b>{{ retest_page.wcag_audit }} additional issues</b></label>
-                                            {% if retest_page.notes %}
-                                                {{ retest_page.notes|markdown_to_html }}
+                                    {% for wcag_page_retest in wcag_page_retest.wcag_page_retests %}
+                                        {% if wcag_page_retest != form.instance %}
+                                            <label class="govuk-label amp-margin-bottom-15"><b>{{ wcag_page_retest.wcag_audit }} additional issues</b></label>
+                                            {% if wcag_page_retest.notes %}
+                                                {{ wcag_page_retest.notes|markdown_to_html }}
                                             {% else %}
                                                 <p>None</p>
                                             {% endif %}

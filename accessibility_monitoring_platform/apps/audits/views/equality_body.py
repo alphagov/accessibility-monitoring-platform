@@ -432,15 +432,15 @@ class EqualityBodyRetestStatementCheckingView(StatementAuditUpdateView):
             for (
                 retest_statement_check_results_form
             ) in retest_statement_check_results_formset.forms:
-                retest_statement_check_result: StatementCheckResultRound = (
+                statement_check_result_round: StatementCheckResultRound = (
                     retest_statement_check_results_form.save(commit=False)
                 )
                 record_simplified_model_update_event(
                     user=self.request.user,
-                    model_object=retest_statement_check_result,
+                    model_object=statement_check_result_round,
                     simplified_case=statement_audit.simplified_case,
                 )
-                retest_statement_check_result.save()
+                statement_check_result_round.save()
         else:
             return super().form_invalid(form)
 
