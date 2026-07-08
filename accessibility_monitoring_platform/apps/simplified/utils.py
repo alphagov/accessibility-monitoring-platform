@@ -66,30 +66,33 @@ def get_simplified_case_detail_sections(
         ):
             case_detail_pages: list[CaseDetailPage] = []
             if page_group.pages is not None:
-                for page in page_group.pages:
-                    if page.show:
+                for platform_page in page_group.pages:
+                    if platform_page.show:
                         display_fields: list[FieldLabelAndValue] = []
-                        if page.case_details_form_class:
+                        if platform_page.case_details_form_class:
                             if (
-                                page.case_details_form_class._meta.model
+                                platform_page.case_details_form_class._meta.model
                                 == SimplifiedCase
                             ):
                                 display_fields = get_case_rows(
-                                    form=page.case_details_form_class()
+                                    form=platform_page.case_details_form_class()
                                 )
-                            elif page.case_details_form_class._meta.model == WcagAudit:
+                            elif (
+                                platform_page.case_details_form_class._meta.model
+                                == WcagAudit
+                            ):
                                 display_fields = get_wcag_audit_rows(
-                                    form=page.case_details_form_class()
+                                    form=platform_page.case_details_form_class()
                                 )
-                        if page.case_details_template_name:
+                        if platform_page.case_details_template_name:
                             case_detail_pages.append(
                                 CaseDetailPage(
-                                    platform_page=page,
+                                    platform_page=platform_page,
                                     display_fields=display_fields,
                                 )
                             )
-                        if page.subpages is not None:
-                            for subpage in page.subpages:
+                        if platform_page.subpages is not None:
+                            for subpage in platform_page.subpages:
                                 if subpage.case_details_template_name:
                                     case_detail_pages.append(
                                         CaseDetailPage(
