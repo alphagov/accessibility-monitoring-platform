@@ -166,7 +166,7 @@ def create_or_update_wcag_check_result_initials_for_page(
             )
 
 
-def get_page_check_results_formset_initial(
+def get_wcag_page_initial_wcag_check_result_initials_formset(
     wcag_page_initial: WcagPageInitial, wcag_definitions: list[WcagDefinition]
 ) -> list[dict[str, str | WcagDefinition | WcagCheckResultInitial]]:
     """
@@ -182,21 +182,21 @@ def get_page_check_results_formset_initial(
 
     for wcag_definition in wcag_definitions:
         if wcag_definition in check_results_by_wcag_definition:
-            check_result: WcagCheckResultInitial = check_results_by_wcag_definition[
-                wcag_definition
-            ]
-            check_result_state: str = check_result.check_result_state
-            notes: str = check_result.notes
-            issue_identifier: str = check_result.issue_identifier
+            wcag_check_result_initial: WcagCheckResultInitial = (
+                check_results_by_wcag_definition[wcag_definition]
+            )
+            check_result_state: str = wcag_check_result_initial.check_result_state
+            notes: str = wcag_check_result_initial.notes
+            issue_identifier: str = wcag_check_result_initial.issue_identifier
         else:
-            check_result: None = None
+            wcag_check_result_initial: None = None
             check_result_state: str = WcagCheckResultInitial.Result.NOT_TESTED
             notes: str = ""
             issue_identifier: str = ""
         check_results_formset_initial.append(
             {
                 "wcag_definition": wcag_definition,
-                "check_result": check_result,
+                "wcag_check_result_initial": wcag_check_result_initial,
                 "check_result_state": check_result_state,
                 "notes": notes,
                 "issue_identifier": issue_identifier,

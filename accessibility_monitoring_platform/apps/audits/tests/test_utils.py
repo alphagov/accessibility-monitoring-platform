@@ -44,7 +44,7 @@ from ..utils import (
     get_next_platform_page_twelve_week,
     get_next_platform_page_wcag_page_initial,
     get_other_pages_with_retest_notes,
-    get_page_check_results_formset_initial,
+    get_wcag_page_initial_wcag_check_result_initials_formset,
     index_or_404,
     other_wcag_page_initial_failed_wcag_check_result_initials,
     update_published_report_data_updated_time,
@@ -335,7 +335,7 @@ def test_get_all_possible_check_results_for_page():
 
     all_check_results: list[
         dict[str, str | WcagDefinition | WcagCheckResultInitial]
-    ] = get_page_check_results_formset_initial(
+    ] = get_wcag_page_initial_wcag_check_result_initials_formset(
         wcag_page_initial=wcag_page_initial, wcag_definitions=wcag_definitions
     )
 

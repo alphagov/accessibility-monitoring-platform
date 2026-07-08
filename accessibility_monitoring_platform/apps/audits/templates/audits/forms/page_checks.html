@@ -61,7 +61,7 @@
                     </div>
                 </div>
                 {% include 'common/preview_markdown.html' with field_id=form.notes.auto_id %}
-                {% include 'audits/helpers/check_result_initial_notes_history.html' with check_result=form.initial.check_result %}
+                {% include 'audits/helpers/check_result_initial_notes_history.html' with check_result=form.initial.wcag_check_result_initial %}
                 <div class="govuk-grid-row amp-margin-bottom-0 amp-margin-top-20">
                     <div class="govuk-grid-column-full govuk-button-group">
                         ▼ &nbsp; <a href="#save-and-continue-buttons" class="govuk-link govuk-link--no-visited-state">Go to save and continue</a>

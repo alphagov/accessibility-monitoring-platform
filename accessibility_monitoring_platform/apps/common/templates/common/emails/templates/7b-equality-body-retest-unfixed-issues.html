@@ -130,7 +130,7 @@ Most recent retest: {{ last_equality_body_wcag_audit.date_of_test|amp_date }}
                                 <br>
                                 <br>
                                 {% if wcag_check_result_retest.wcag_definition.url_on_w3 %}
-                                    <a href="{{ wcag_check_result_retest.check_result.wcag_definition.url_on_w3 }}">
+                                    <a href="{{ wcag_check_result_retest.wcag_definition.url_on_w3 }}">
                                     {{ wcag_check_result_retest.wcag_definition.name }}</a>
                                 {% else %}
                                     {{ wcag_check_result_retest.wcag_definition.name }}

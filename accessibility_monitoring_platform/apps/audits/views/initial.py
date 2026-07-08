@@ -62,7 +62,7 @@ from ..models import (
 from ..utils import (
     create_or_update_wcag_check_result_initials_for_page,
     get_next_platform_page_wcag_page_initial,
-    get_page_check_results_formset_initial,
+    get_wcag_page_initial_wcag_check_result_initials_formset,
     other_wcag_page_initial_failed_wcag_check_result_initials,
 )
 from .base import (
@@ -310,7 +310,7 @@ class WcagPageChecksFormView(NextPlatformPageMixin, FormView):
             check_results_formset: WcagCheckResultInitialFormset = (
                 WcagCheckResultInitialFormset(
                     self.request.POST,
-                    initial=get_page_check_results_formset_initial(
+                    initial=get_wcag_page_initial_wcag_check_result_initials_formset(
                         wcag_page_initial=self.wcag_page_initial,
                         wcag_definitions=wcag_definitions,
                     ),
@@ -319,7 +319,7 @@ class WcagPageChecksFormView(NextPlatformPageMixin, FormView):
         else:
             check_results_formset: WcagCheckResultInitialFormset = (
                 WcagCheckResultInitialFormset(
-                    initial=get_page_check_results_formset_initial(
+                    initial=get_wcag_page_initial_wcag_check_result_initials_formset(
                         wcag_page_initial=self.wcag_page_initial,
                         wcag_definitions=wcag_definitions,
                     )
