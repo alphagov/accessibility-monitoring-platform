@@ -1935,13 +1935,13 @@ def test_page_checks_edit_adds_to_notes_history(admin_client):
         == 1
     )
 
-    check_result_notes_history: WcagCheckResultInitialNotesHistory = (
+    wcag_check_result_initial_notes_history: WcagCheckResultInitialNotesHistory = (
         WcagCheckResultInitialNotesHistory.objects.get(
             wcag_check_result_initial=check_result_pdf
         )
     )
 
-    assert check_result_notes_history.notes == CHECK_RESULT_NOTES
+    assert wcag_check_result_initial_notes_history.notes == CHECK_RESULT_NOTES
 
 
 def test_page_checks_shows_notes_history(admin_client):
@@ -2743,15 +2743,15 @@ def test_retest_page_checks_edit_adds_to_retest_notes_history(admin_client):
         == 1
     )
 
-    check_result_retest_notes_history: WcagCheckResultRetestNotesHistory = (
+    wcag_check_result_retest_notes_history: WcagCheckResultRetestNotesHistory = (
         WcagCheckResultRetestNotesHistory.objects.get(
             wcag_check_result_retest=wcag_check_result_retest_last
         )
     )
 
-    assert check_result_retest_notes_history.notes == CHECK_RESULT_NOTES
+    assert wcag_check_result_retest_notes_history.notes == CHECK_RESULT_NOTES
     assert (
-        check_result_retest_notes_history.retest_state
+        wcag_check_result_retest_notes_history.retest_state
         == WcagCheckResultRetest.RetestResult.NOT_FIXED
     )
 

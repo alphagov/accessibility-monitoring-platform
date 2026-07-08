@@ -95,7 +95,7 @@
                     {% include 'audits/helpers/check_result_matching_retest_errors.html' with form=check_result_form check_result=check_result_form.instance %}
                     {% include 'common/amp_field.html' with field=check_result_form.notes %}
                     {% include 'common/preview_markdown.html' with field_id=check_result_form.notes.auto_id %}
-                    {% include 'audits/helpers/check_result_retest_notes_history.html' with check_result=check_result_form.instance %}
+                    {% include 'audits/helpers/wcag_check_result_retest_notes_history.html' with check_result=check_result_form.instance %}
                     <div class="govuk-grid-row amp-margin-bottom-20 amp-margin-top-20">
                         <div class="govuk-grid-column-full govuk-button-group">
                             ▼ &nbsp; <a href="#save-and-continue-buttons" class="govuk-link govuk-link--no-visited-state">Go to save and continue</a>
