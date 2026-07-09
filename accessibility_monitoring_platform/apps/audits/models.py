@@ -1,6 +1,4 @@
-"""
-Models - audits (called tests by the users)
-"""
+"""Models - audits (called tests by the users)"""
 
 from __future__ import annotations
 
