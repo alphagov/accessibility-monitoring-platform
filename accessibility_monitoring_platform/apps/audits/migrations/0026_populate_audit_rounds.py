@@ -95,6 +95,7 @@ def populate_audit_rounds(apps, schema_editor):
             summary_complete_date=audit.audit_statement_summary_complete_date,
         )
         wcag_audit_12_week = None
+        statement_audit_12_week = None
         if audit.retest_date:
             wcag_audit_12_week = WcagAudit.objects.create(
                 simplified_case=audit.simplified_case,
@@ -231,8 +232,6 @@ def populate_audit_rounds(apps, schema_editor):
 
         statement_check_results_initial_by_statement_check = {}
         for statement_check_result in StatementCheckResult.objects.filter(audit=audit):
-            statement_check_result.statement_audit = initial_statement_audit
-            statement_check_result.save()
             statement_check_result_initial = StatementCheckResultRound.objects.create(
                 statement_audit=initial_statement_audit,
                 statement_check=statement_check_result.statement_check,
@@ -247,11 +246,16 @@ def populate_audit_rounds(apps, schema_editor):
                 statement_check_result.statement_check
             ] = statement_check_result_initial
             if statement_audit_12_week is not None:
+                type: str = (
+                    "retest-custom"
+                    if statement_check_result.statement_check is None
+                    else statement_check_result.type
+                )
                 StatementCheckResultRound.objects.create(
                     statement_audit=statement_audit_12_week,
                     statement_check_result_initial=statement_check_result_initial,
                     statement_check=statement_check_result.statement_check,
-                    type="retest-custom",
+                    type=type,
                     issue_identifier=statement_check_result.issue_identifier,
                     check_result_state=statement_check_result.retest_state,
                     public_comment=statement_check_result.retest_comment,
@@ -357,13 +361,18 @@ def populate_audit_rounds(apps, schema_editor):
             ) in RetestStatementCheckResult.objects.filter(retest=retest).order_by(
                 "id"
             ):
+                type: str = (
+                    "retest-custom"
+                    if retest_statement_check_result.statement_check is None
+                    else retest_statement_check_result.type
+                )
                 StatementCheckResultRound.objects.create(
                     statement_audit=statement_audit_retest,
                     statement_check_result_initial=statement_check_results_initial_by_statement_check.get(
                         retest_statement_check_result.statement_check
                     ),
                     statement_check=retest_statement_check_result.statement_check,
-                    type="retest-custom",
+                    type=type,
                     issue_identifier=retest_statement_check_result.issue_identifier,
                     check_result_state=retest_statement_check_result.check_result_state,
                     public_comment=retest_statement_check_result.comment,
