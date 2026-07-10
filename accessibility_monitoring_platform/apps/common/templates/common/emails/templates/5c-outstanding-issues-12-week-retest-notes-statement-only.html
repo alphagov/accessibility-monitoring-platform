@@ -7,27 +7,28 @@ Please review the issues listed below and provide an update.
 <br>
 <h2>Your statement</h2>
 <br>
-{% if case.audit_overview.last_statement_audit.outstanding_statement_check_results %}
+{% if case.audit_overview.first_twelve_week_statement_audit.outstanding_statement_check_results %}
     <table id="email-statement-issues-table">
         <thead>
-        <tr>
-        <th id="statement-issue" width=33%>Issue</th>
-        <th id="statement-notes" width=33%>Notes</th>
-        <th id="statement-12-week-update" width=33%>Organisation update</th>
-        </tr>
+            <tr>
+                <th id="statement-issue" width=33%>Issue</th>
+                <th id="statement-notes" width=33%>Notes</th>
+                <th id="statement-12-week-update" width=33%>Organisation update</th>
+            </tr>
         </thead>
         <tbody>
-            {% for statement_check_result in case.audit_overview.last_statement_audit.outstanding_statement_check_results %}
+            {% for statement_check_result in case.audit_overview.first_twelve_week_statement_audit.outstanding_statement_check_results %}
                 <tr valign="top">
                     <td headers="statement-issue" width=33%>
                         <p><b>Issue {{ statement_check_result.issue_identifier }}</b></p>
                         <p>{{ statement_check_result.statement_check.report_text }}</p>
                     </td>
                     <td headers="statement-issue" width=33%>
-                        {{ statement_check_result.public_comment|markdown_to_html }}
-                        {{ statement_check_result.retest_email_comment|markdown_to_html }}
+                        {{ statement_check_result.statement_check_result_initial.public_comment|markdown_to_html }}
+                        {{ statement_check_result.auditor_information|markdown_to_html }}
                     </td>
-                    <td headers="statement-12-week-update" width=33%></td>
+                    <td headers="statement-12-week-update" width=33%>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
