@@ -156,8 +156,8 @@ Most recent retest: {{ last_equality_body_wcag_audit.date_of_test|amp_date }}
             </table>
         {% endif %}
         <b>Additional issues found</b>
-        {% if wcag_page_retest.additional_issues_notes %}
-            {{ wcag_page_retest.additional_issues_notes|markdown_to_html }}
+        {% if wcag_page_retest.notes %}
+            {{ wcag_page_retest.notes|markdown_to_html }}
         {% else %}
             <br>
             <br>

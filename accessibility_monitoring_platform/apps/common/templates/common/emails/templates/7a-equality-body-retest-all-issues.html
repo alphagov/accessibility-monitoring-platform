@@ -142,7 +142,7 @@ Most recent retest: {{ last_equality_body_wcag_audit.date_of_test|amp_date }}
     {{ first_wcag_check_result_retest.get_retest_state_display }}
     <br>
     <br>
-    {{ first_wcag_check_result_retest.retest_notes|markdown_to_html }}
+    {{ first_wcag_check_result_retest.notes|markdown_to_html }}
     {% else %}
     Fixed in a previous retest
     {% endif %}
