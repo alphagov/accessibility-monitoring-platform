@@ -1814,6 +1814,75 @@ def test_wcag_page_retest_unfixed_wcag_check_result_initials():
     assert wcag_page_retest.unfixed_wcag_check_result_retests.count() == 1
 
 
+@pytest.mark.django_db
+def test_wcag_page_retest_first_equality_body_wcag_check_result_retests():
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    initial_wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
+    first_twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.initial_wcag_audit
+    )
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=first_twelve_week_wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        wcag_page_initial.wcag_check_result_initials.first()
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_page_initial=wcag_page_initial
+    )
+
+    assertQuerySetEqual(
+        wcag_page_retest.first_equality_body_wcag_check_result_retests,
+        WcagCheckResultRetest.objects.none(),
+    )
+
+    first_equality_body_wcag_audit: WcagAudit = create_retest_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
+    first_equality_body_wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_audit=first_equality_body_wcag_audit, wcag_page_initial=wcag_page_initial
+    )
+
+    assert (
+        first_equality_body_wcag_page_retest.first_equality_body_wcag_check_result_retests.count()
+        == 2
+    )
+
+    first_equality_body_wcag_check_result_retest_1: WcagCheckResultRetest = (
+        first_equality_body_wcag_page_retest.first_equality_body_wcag_check_result_retests.first()
+    )
+    first_equality_body_wcag_check_result_retest_2: WcagCheckResultRetest = (
+        first_equality_body_wcag_page_retest.first_equality_body_wcag_check_result_retests.last()
+    )
+
+    second_equality_body_wcag_audit: WcagAudit = create_retest_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit,
+        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+    )
+    second_equality_body_wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_audit=second_equality_body_wcag_audit, wcag_page_initial=wcag_page_initial
+    )
+
+    assert (
+        second_equality_body_wcag_page_retest.first_equality_body_wcag_check_result_retests.count()
+        == 2
+    )
+
+    assert (
+        second_equality_body_wcag_page_retest.first_equality_body_wcag_check_result_retests.first()
+        == first_equality_body_wcag_check_result_retest_1
+    )
+    assert (
+        second_equality_body_wcag_page_retest.first_equality_body_wcag_check_result_retests.last()
+        == first_equality_body_wcag_check_result_retest_2
+    )
+
+
 def test_wcag_definition_string():
     wcag_definition: WcagDefinition = WcagDefinition(
         type=WcagDefinition.Type.PDF, name=WCAG_TYPE_PDF_NAME
@@ -2217,6 +2286,66 @@ def test_wcag_check_result_retest_matching_wcag_check_result_retests_with_notes(
     assert (
         first_check_result_retest.matching_wcag_check_result_retests_with_notes.last()
         == third_check_result_retest
+    )
+
+
+@pytest.mark.django_db
+def test_wcag_check_result_retest_latest_wcag_check_result_retest():
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
+        initial_wcag_audit=initial_wcag_audit,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
+    wcag_definition: WcagDefinition = WcagDefinition.objects.get(
+        type=WcagDefinition.Type.AXE, name=WCAG_TYPE_AXE_NAME
+    )
+    home_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
+        wcag_audit=initial_wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
+    home_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_page_initial=home_page_initial
+    )
+    first_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=initial_wcag_audit,
+            wcag_page_initial=home_page_initial,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+            type=wcag_definition.type,
+            wcag_definition=wcag_definition,
+        )
+    )
+    first_check_result_retest: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.create(
+            wcag_audit=twelve_week_wcag_audit,
+            wcag_page_retest=home_page_retest,
+            wcag_check_result_initial=first_check_result_initial,
+            wcag_definition=wcag_definition,
+            retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED,
+        )
+    )
+
+    assert (
+        first_check_result_retest.latest_wcag_check_result_retest
+        == first_check_result_retest
+    )
+
+    second_check_result_retest: WcagCheckResultRetest = (
+        WcagCheckResultRetest.objects.create(
+            wcag_audit=twelve_week_wcag_audit,
+            wcag_page_retest=home_page_retest,
+            wcag_check_result_initial=first_check_result_initial,
+            wcag_definition=wcag_definition,
+            retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED,
+        )
+    )
+
+    assert (
+        first_check_result_retest.latest_wcag_check_result_retest
+        == second_check_result_retest
+    )
+    assert (
+        second_check_result_retest.latest_wcag_check_result_retest
+        == second_check_result_retest
     )
 
 

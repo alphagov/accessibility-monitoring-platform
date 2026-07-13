@@ -1112,6 +1112,19 @@ class WcagPageRetest(models.Model):
         return WcagPageRetest.objects.filter(wcag_page_initial=self.wcag_page_initial)
 
     @property
+    def first_equality_body_wcag_check_result_retests(
+        self,
+    ) -> QuerySet[WcagCheckResultRetest]:
+        first_equality_body_wcag_page_retest: WcagPageRetest | None = (
+            self.wcag_page_retests.filter(
+                wcag_audit__audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
+            ).first()
+        )
+        if first_equality_body_wcag_page_retest is None:
+            return WcagCheckResultRetest.objects.none()
+        return first_equality_body_wcag_page_retest.wcag_check_result_retests
+
+    @property
     def latest_page_url(self):
         """Return most recent URL entered for this page"""
         url: str = self.wcag_page_initial.url
@@ -1336,6 +1349,13 @@ class WcagCheckResultRetest(models.Model):
             wcag_audit=previous_wcag_audit,
             wcag_check_result_initial=self.wcag_check_result_initial,
         ).first()
+
+    @property
+    def latest_wcag_check_result_retest(self) -> WcagCheckResultRetest:
+        """Lastest retest check result for same initial check result"""
+        return WcagCheckResultRetest.objects.filter(
+            wcag_check_result_initial=self.wcag_check_result_initial
+        ).last()
 
 
 class CheckResultNotesHistory(models.Model):

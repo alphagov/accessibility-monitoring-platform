@@ -277,7 +277,7 @@ def download_simplified_feedback_survey_cases(
 
 
 def get_email_template_context(simplified_case: SimplifiedCase) -> dict[str, Any]:
-    """Collect data to add to context of email template previews"""
+    """Collect data to add to context of email templates"""
     context: dict[str, Any] = {}
     context["12_weeks_from_today"] = date.today() + timedelta(days=TWELVE_WEEKS_IN_DAYS)
     context["case"] = simplified_case
