@@ -27,7 +27,7 @@ from ..models import (
     AuditOverview,
     StatementAudit,
     StatementCheck,
-    StatementCheckResultRound,
+    StatementCheckResult,
     StatementPage,
     WcagAudit,
     WcagCheckResultInitial,
@@ -1134,10 +1134,10 @@ def test_audit_edit_statement_overview_redirects_to_statement_website(
     """
     statement_audit: StatementAudit = create_initial_statement_audit()
     statement_audit_pk: dict[str, int] = {"pk": statement_audit.id}
-    for statement_check_result in StatementCheckResultRound.objects.filter(
+    for statement_check_result in StatementCheckResult.objects.filter(
         statement_audit=statement_audit, type=StatementCheck.Type.OVERVIEW
     ):
-        statement_check_result.check_result_state = StatementCheckResultRound.Result.YES
+        statement_check_result.check_result_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
     response: HttpResponse = admin_client.post(
@@ -1245,14 +1245,14 @@ def test_audit_edit_statement_overview_updates_case_status(
         == SimplifiedCase.Status.REPORT_IN_PROGRESS
     )
 
-    statement_checkresult_1: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.get(id=1)
+    statement_checkresult_1: StatementCheckResult = StatementCheckResult.objects.get(
+        id=1
     )
 
     assert statement_checkresult_1.check_result_state == "yes"
 
-    statement_checkresult_2: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.get(id=2)
+    statement_checkresult_2: StatementCheckResult = StatementCheckResult.objects.get(
+        id=2
     )
 
     assert statement_checkresult_2.check_result_state == "no"
@@ -1371,24 +1371,18 @@ def test_audit_retest_statement_overview_updates_statement_checkresult(
 
     assert response.status_code == 302
 
-    statement_checkresult_1: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.get(id=FIRST_STATEMENT_CHECK_RESULT_ID)
+    statement_checkresult_1: StatementCheckResult = StatementCheckResult.objects.get(
+        id=FIRST_STATEMENT_CHECK_RESULT_ID
     )
 
-    assert (
-        statement_checkresult_1.check_result_state
-        == StatementCheckResultRound.Result.YES
-    )
+    assert statement_checkresult_1.check_result_state == StatementCheckResult.Result.YES
     assert statement_checkresult_1.auditor_information == STATEMENT_CHECK_RESULT_COMMENT
 
-    statement_checkresult_2: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.get(id=SECOND_STATEMENT_CHECK_RESULT_ID)
+    statement_checkresult_2: StatementCheckResult = StatementCheckResult.objects.get(
+        id=SECOND_STATEMENT_CHECK_RESULT_ID
     )
 
-    assert (
-        statement_checkresult_2.check_result_state
-        == StatementCheckResultRound.Result.NO
-    )
+    assert statement_checkresult_2.check_result_state == StatementCheckResult.Result.NO
 
 
 def test_audit_retest_statement_overview_updates_statement_checkresult_no_initial_statement(
@@ -1443,24 +1437,18 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
 
     assert response.status_code == 302
 
-    statement_checkresult_1: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.get(id=FIRST_STATEMENT_CHECK_RESULT_ID)
+    statement_checkresult_1: StatementCheckResult = StatementCheckResult.objects.get(
+        id=FIRST_STATEMENT_CHECK_RESULT_ID
     )
 
-    assert (
-        statement_checkresult_1.check_result_state
-        == StatementCheckResultRound.Result.YES
-    )
+    assert statement_checkresult_1.check_result_state == StatementCheckResult.Result.YES
     assert statement_checkresult_1.auditor_information == STATEMENT_CHECK_RESULT_COMMENT
 
-    statement_checkresult_2: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.get(id=SECOND_STATEMENT_CHECK_RESULT_ID)
+    statement_checkresult_2: StatementCheckResult = StatementCheckResult.objects.get(
+        id=SECOND_STATEMENT_CHECK_RESULT_ID
     )
 
-    assert (
-        statement_checkresult_2.check_result_state
-        == StatementCheckResultRound.Result.NO
-    )
+    assert statement_checkresult_2.check_result_state == StatementCheckResult.Result.NO
 
 
 def test_retest_date_change_creates_case_event(admin_client):
@@ -2343,7 +2331,7 @@ def test_add_custom_statement_check_result_form_appears(admin_client):
     statement_audit_from_db: StatementAudit = StatementAudit.objects.get(
         id=statement_audit.id
     )
-    custom_statment_check_result: StatementCheckResultRound | None = (
+    custom_statment_check_result: StatementCheckResult | None = (
         statement_audit_from_db.custom_statement_check_results.first()
     )
 
@@ -2354,7 +2342,7 @@ def test_add_custom_statement_check_result_form_appears(admin_client):
 def test_add_custom_statement_check_result(admin_client):
     """Test adding a custom statement issue"""
     statement_audit: StatementAudit = create_initial_statement_audit()
-    StatementCheckResultRound.objects.filter(
+    StatementCheckResult.objects.filter(
         statement_audit=statement_audit, type=StatementCheck.Type.CUSTOM
     ).delete()
 
@@ -2372,8 +2360,8 @@ def test_add_custom_statement_check_result(admin_client):
     )
     assert response.status_code == 200
 
-    custom_statement_check_result: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.get(
+    custom_statement_check_result: StatementCheckResult = (
+        StatementCheckResult.objects.get(
             statement_audit=statement_audit, type=StatementCheck.Type.CUSTOM
         )
     )
@@ -2386,7 +2374,7 @@ def test_delete_custom_statement_check_result(admin_client):
     Test that pressing the remove issue button deletes the custom statement issue
     """
     statement_audit: StatementAudit = create_initial_statement_audit()
-    custom_issue: StatementCheckResultRound = StatementCheckResultRound.objects.get(
+    custom_issue: StatementCheckResult = StatementCheckResult.objects.get(
         statement_audit=statement_audit, type=StatementCheck.Type.CUSTOM
     )
 
@@ -2402,10 +2390,8 @@ def test_delete_custom_statement_check_result(admin_client):
 
     assertContains(response, "No custom statement issues have been entered")
 
-    result_on_database: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.get(
-            statement_audit=statement_audit, type=StatementCheck.Type.CUSTOM
-        )
+    result_on_database: StatementCheckResult = StatementCheckResult.objects.get(
+        statement_audit=statement_audit, type=StatementCheck.Type.CUSTOM
     )
     assert result_on_database.is_deleted is True
 
@@ -2418,8 +2404,8 @@ def test_delete_custom_retest_statement_check_result_on_retest(admin_client):
     statement_audit: StatementAudit = StatementAudit.objects.get(
         audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY
     )
-    custom_statement_check_result: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.filter(
+    custom_statement_check_result: StatementCheckResult = (
+        StatementCheckResult.objects.filter(
             statement_audit=statement_audit, statement_check=None
         ).first()
     )
@@ -2443,8 +2429,8 @@ def test_delete_custom_retest_statement_check_result_on_retest(admin_client):
     assert response.status_code == 200
     assertContains(response, "No custom statement issues have been entered")
 
-    result_on_database: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.get(id=custom_statement_check_result.id)
+    result_on_database: StatementCheckResult = StatementCheckResult.objects.get(
+        id=custom_statement_check_result.id
     )
 
     assert result_on_database.is_deleted is True
@@ -2838,10 +2824,10 @@ def test_retest_statement_custom_no_initial(admin_client):
     twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
-    StatementCheckResultRound.objects.filter(
+    StatementCheckResult.objects.filter(
         statement_audit=twelve_week_statement_audit, type=StatementCheck.Type.CUSTOM
     ).delete()
-    StatementCheckResultRound.objects.filter(
+    StatementCheckResult.objects.filter(
         statement_audit=initial_statement_audit, type=StatementCheck.Type.CUSTOM
     ).delete()
 
@@ -3444,43 +3430,39 @@ def test_test_statement_summary_page_view(url_name, audit_overview_attr, admin_c
         .filter(type=StatementCheck.Type.OVERVIEW)
         .first()
     )
-    overview_statement_check_result: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.get(
+    overview_statement_check_result: StatementCheckResult = (
+        StatementCheckResult.objects.get(
             statement_check=overview_statement_check,
             statement_audit=initial_statement_audit,
         )
     )
     overview_statement_check_result.type = StatementCheck.Type.OVERVIEW
-    overview_statement_check_result.check_result_state = (
-        StatementCheckResultRound.Result.YES
-    )
+    overview_statement_check_result.check_result_state = StatementCheckResult.Result.YES
     overview_statement_check_result.save()
     website_statement_check: StatementCheck = (
         StatementCheck.objects.on_date(timezone.now().date())
         .filter(type=StatementCheck.Type.WEBSITE)
         .first()
     )
-    website_statement_check_result: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.get(
+    website_statement_check_result: StatementCheckResult = (
+        StatementCheckResult.objects.get(
             statement_check=website_statement_check,
             statement_audit=initial_statement_audit,
         )
     )
-    website_statement_check_result.check_result_state = (
-        StatementCheckResultRound.Result.NO
-    )
+    website_statement_check_result.check_result_state = StatementCheckResult.Result.NO
     website_statement_check_result.public_comment = STATEMENT_CHECK_INITIAL_COMMENT
     website_statement_check_result.save()
-    custom_statement_check_result: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.get(
+    custom_statement_check_result: StatementCheckResult = (
+        StatementCheckResult.objects.get(
             type=StatementCheck.Type.CUSTOM,
             statement_audit=initial_statement_audit,
         )
     )
     custom_statement_check_result.public_comment = STATEMENT_CHECK_CUSTOM_COMMENT
     custom_statement_check_result.save()
-    twelve_week_statement_check_result: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.get(
+    twelve_week_statement_check_result: StatementCheckResult = (
+        StatementCheckResult.objects.get(
             type=StatementCheck.Type.RETEST,
             statement_audit=statement_audit_12_week,
         )
@@ -3825,7 +3807,7 @@ def test_equality_body_statement_audit_overview_redirects_to_website(
     )
     statement_audit_pk: dict[str, int] = {"pk": statement_audit.id}
     for statement_check_result in statement_audit.overview_statement_check_results:
-        statement_check_result.check_result_state = StatementCheckResultRound.Result.YES
+        statement_check_result.check_result_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
     response: HttpResponse = admin_client.post(
@@ -3940,7 +3922,7 @@ def test_equality_body_retest_statement_overview_redirects_when_no(admin_client)
     )
     statement_audit_pk: dict[str, int] = {"pk": statement_audit.id}
     for statement_check_result in statement_audit.overview_statement_check_results:
-        statement_check_result.check_result_state = StatementCheckResultRound.Result.NO
+        statement_check_result.check_result_state = StatementCheckResult.Result.NO
         statement_check_result.save()
 
     response: HttpResponse = admin_client.post(
@@ -4681,7 +4663,7 @@ def test_create_initial_custom_issue_redirects(admin_client):
 
     assert response.status_code == 302
 
-    custom_issue: StatementCheckResultRound = StatementCheckResultRound.objects.get(
+    custom_issue: StatementCheckResult = StatementCheckResult.objects.get(
         statement_audit=statement_audit
     )
     response_url: str = reverse(
@@ -4706,7 +4688,7 @@ def test_update_initial_custom_issue_redirects(admin_client):
     statement_audit: StatementAudit = StatementAudit.objects.create(
         simplified_case=simplified_case
     )
-    custom_issue: StatementCheckResultRound = StatementCheckResultRound.objects.create(
+    custom_issue: StatementCheckResult = StatementCheckResult.objects.create(
         statement_audit=statement_audit
     )
 
@@ -4742,7 +4724,7 @@ def test_delete_initial_custom_issue_redirects(admin_client):
     statement_audit: StatementAudit = StatementAudit.objects.create(
         simplified_case=simplified_case
     )
-    custom_issue: StatementCheckResultRound = StatementCheckResultRound.objects.create(
+    custom_issue: StatementCheckResult = StatementCheckResult.objects.create(
         statement_audit=statement_audit
     )
 
@@ -4774,14 +4756,12 @@ def test_update_at_12_week_initial_custom_issue_redirects(admin_client):
         simplified_case=simplified_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
     )
-    custom_issue_initial: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.create(statement_audit=statement_audit)
+    custom_issue_initial: StatementCheckResult = StatementCheckResult.objects.create(
+        statement_audit=statement_audit
     )
-    custom_issue_retest: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.create(
-            statement_audit=statement_audit,
-            statement_check_result_initial=custom_issue_initial,
-        )
+    custom_issue_retest: StatementCheckResult = StatementCheckResult.objects.create(
+        statement_audit=statement_audit,
+        statement_check_result_initial=custom_issue_initial,
     )
 
     response: HttpResponse = admin_client.post(
@@ -4834,7 +4814,7 @@ def test_create_new_12_week_custom_issue_redirects(admin_client):
 
     assert response.status_code == 302
 
-    custom_issue: StatementCheckResultRound = StatementCheckResultRound.objects.get(
+    custom_issue: StatementCheckResult = StatementCheckResult.objects.get(
         statement_audit=statement_audit
     )
     response_url: str = reverse(
@@ -4860,7 +4840,7 @@ def test_update_new_12_week_custom_issue_redirects(admin_client):
         simplified_case=simplified_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
     )
-    custom_issue: StatementCheckResultRound = StatementCheckResultRound.objects.create(
+    custom_issue: StatementCheckResult = StatementCheckResult.objects.create(
         statement_audit=statement_audit
     )
 
@@ -4900,7 +4880,7 @@ def test_delete_new_12_week_custom_issue_redirects(admin_client):
         simplified_case=simplified_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
     )
-    custom_issue: StatementCheckResultRound = StatementCheckResultRound.objects.create(
+    custom_issue: StatementCheckResult = StatementCheckResult.objects.create(
         statement_audit=statement_audit
     )
 

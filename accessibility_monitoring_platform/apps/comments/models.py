@@ -11,11 +11,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
-from ..audits.models import (
-    StatementCheck,
-    StatementCheckResultRound,
-    WcagCheckResultInitial,
-)
+from ..audits.models import StatementCheck, StatementCheckResult, WcagCheckResultInitial
 from ..cases.models import BaseCase
 from ..common.utils import replace_whole_words, undo_double_escapes
 
@@ -38,8 +34,8 @@ def get_initial_statement_check_result_url_from_issue_identifier(
     issue_identifier: str,
 ) -> str:
     try:
-        statement_check_result_initial: StatementCheckResultRound = (
-            StatementCheckResultRound.objects.get(issue_identifier=issue_identifier)
+        statement_check_result_initial: StatementCheckResult = (
+            StatementCheckResult.objects.get(issue_identifier=issue_identifier)
         )
         if statement_check_result_initial.type == StatementCheck.Type.RETEST:
             return ""
@@ -47,7 +43,7 @@ def get_initial_statement_check_result_url_from_issue_identifier(
             f"audits:edit-statement-{statement_check_result_initial.type}",
             kwargs={"pk": statement_check_result_initial.statement_audit.id},
         )
-    except StatementCheckResultRound.DoesNotExist:
+    except StatementCheckResult.DoesNotExist:
         url: str = ""
     return url
 

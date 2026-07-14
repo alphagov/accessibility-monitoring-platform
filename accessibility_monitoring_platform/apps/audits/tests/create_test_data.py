@@ -10,7 +10,7 @@ from ..models import (
     AuditOverview,
     StatementAudit,
     StatementCheck,
-    StatementCheckResultRound,
+    StatementCheckResult,
     WcagAudit,
     WcagCheckResultInitial,
     WcagCheckResultRetest,
@@ -138,12 +138,12 @@ def create_initial_statement_audit(
         simplified_case=simplified_case
     )
     for statement_check in StatementCheck.objects.on_date(timezone.now().date()):
-        StatementCheckResultRound.objects.create(
+        StatementCheckResult.objects.create(
             statement_audit=initial_statement_audit,
             type=statement_check.type,
             statement_check=statement_check,
         )
-    StatementCheckResultRound.objects.create(
+    StatementCheckResult.objects.create(
         statement_audit=initial_statement_audit,
         public_comment="Custom statement issue",
     )
@@ -171,19 +171,19 @@ def create_retest_statement_audit(
             statement_check_result_initial
         ) in initial_statement_audit.statement_check_results:
             if statement_check_result_initial.statement_check is None:
-                StatementCheckResultRound.objects.create(
+                StatementCheckResult.objects.create(
                     statement_audit=retest_statement_audit,
                     statement_check_result_initial=statement_check_result_initial,
                     public_comment="Custom statement issue",
                 )
             else:
-                StatementCheckResultRound.objects.create(
+                StatementCheckResult.objects.create(
                     statement_audit=retest_statement_audit,
                     statement_check_result_initial=statement_check_result_initial,
                     type=statement_check_result_initial.type,
                     statement_check=statement_check_result_initial.statement_check,
                 )
-        StatementCheckResultRound.objects.create(
+        StatementCheckResult.objects.create(
             statement_audit=retest_statement_audit,
             type=StatementCheck.Type.RETEST,
             public_comment="Custom statement issue in retest",

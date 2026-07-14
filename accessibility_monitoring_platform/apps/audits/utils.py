@@ -24,7 +24,7 @@ from .models import (
     AuditOverview,
     StatementAudit,
     StatementCheck,
-    StatementCheckResultRound,
+    StatementCheckResult,
     WcagAudit,
     WcagCheckResultInitial,
     WcagCheckResultInitialNotesHistory,
@@ -76,8 +76,8 @@ class SummaryWcagCheckResult:
 class SummaryStatementCheckResult:
     type: StatementCheck.Type | None
     issue_identifier: str
-    initial_result: StatementCheckResultRound
-    retest_result: StatementCheckResultRound | None = None
+    initial_result: StatementCheckResult
+    retest_result: StatementCheckResult | None = None
 
 
 def index_or_404(items: list[P], item: P) -> int:
@@ -219,7 +219,7 @@ def create_mandatory_pages_for_new_audit(wcag_audit: WcagAudit) -> None:
 
 def create_statement_checks_for_new_audit(statement_audit: StatementAudit) -> None:
     for statement_check in StatementCheck.objects.on_date(statement_audit.date_of_test):
-        StatementCheckResultRound.objects.create(
+        StatementCheckResult.objects.create(
             statement_audit=statement_audit,
             type=statement_check.type,
             statement_check=statement_check,
@@ -289,7 +289,7 @@ def create_statement_audit_and_check_results(
     for (
         statement_check_result_initial
     ) in initial_statement_audit.statement_check_results.exclude(type=None):
-        StatementCheckResultRound.objects.create(
+        StatementCheckResult.objects.create(
             statement_audit=statement_audit,
             statement_check_result_initial=statement_check_result_initial,
             issue_identifier=statement_check_result_initial.issue_identifier,
@@ -561,7 +561,7 @@ def get_audit_summary_context(
     summary_statement_check_results: list[SummaryStatementCheckResult] = []
 
     statement_check_results: (
-        QuerySet[StatementCheckResultRound] | QuerySet[StatementCheckResultRound]
+        QuerySet[StatementCheckResult] | QuerySet[StatementCheckResult]
     ) = (
         statement_audit_12_week.statement_check_results
         if statement_audit_12_week is not None
@@ -570,13 +570,13 @@ def get_audit_summary_context(
 
     for statement_check_result in statement_check_results:
         if statement_check_result.statement_check_result_initial is not None:
-            initial_result: StatementCheckResultRound = (
+            initial_result: StatementCheckResult = (
                 statement_check_result.statement_check_result_initial
             )
-            retest_result: StatementCheckResultRound = statement_check_result
+            retest_result: StatementCheckResult = statement_check_result
         else:
-            initial_result: StatementCheckResultRound = statement_check_result
-            retest_result: StatementCheckResultRound = (
+            initial_result: StatementCheckResult = statement_check_result
+            retest_result: StatementCheckResult = (
                 statement_check_result.twelve_week_retest
             )
 
@@ -597,12 +597,12 @@ def get_audit_summary_context(
             or (
                 summary_statement_check_result.initial_result is not None
                 and summary_statement_check_result.initial_result.check_result_state
-                == StatementCheckResultRound.Result.NO
+                == StatementCheckResult.Result.NO
             )
             or (
                 summary_statement_check_result.retest_result is not None
                 and summary_statement_check_result.retest_result.check_result_state
-                == StatementCheckResultRound.Result.NO
+                == StatementCheckResult.Result.NO
             )
         ):
             summary_statement_check_results.append(summary_statement_check_result)

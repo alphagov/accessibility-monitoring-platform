@@ -19,7 +19,7 @@ from ...audits.models import (
     AuditOverview,
     StatementAudit,
     StatementCheck,
-    StatementCheckResultRound,
+    StatementCheckResult,
     StatementPage,
     WcagAudit,
     WcagCheckResultInitial,
@@ -3039,7 +3039,7 @@ def test_status_workflow_links_to_statement_overview(admin_client, admin_user):
     )
 
     for statement_check_result in statement_audit.overview_statement_check_results:
-        statement_check_result.check_result_state = StatementCheckResultRound.Result.YES
+        statement_check_result.check_result_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
     response: HttpResponse = admin_client.get(
@@ -3195,10 +3195,10 @@ def test_outstanding_issues(admin_client):
     for wcag_check_result in WcagCheckResultInitial.objects.all():
         wcag_check_result.check_result_state = WcagCheckResultInitial.Result.ERROR
         wcag_check_result.save()
-    for statement_check_result in StatementCheckResultRound.objects.filter(
+    for statement_check_result in StatementCheckResult.objects.filter(
         type=StatementCheck.Type.OVERVIEW
     ):
-        statement_check_result.check_result_state = StatementCheckResultRound.Result.NO
+        statement_check_result.check_result_state = StatementCheckResult.Result.NO
         statement_check_result.save()
     url: str = reverse(
         "simplified:outstanding-issues", kwargs={"pk": simplified_case.id}
@@ -3902,21 +3902,19 @@ def test_case_overview(admin_client):
     )
     wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
     wcag_check_result_initial.save()
-    statement_found_check_result: StatementCheckResultRound = (
+    statement_found_check_result: StatementCheckResult = (
         simplified_case.audit_overview.initial_statement_audit.statement_found_check
     )
-    statement_found_check_result.check_result_state = (
-        StatementCheckResultRound.Result.YES
-    )
+    statement_found_check_result.check_result_state = StatementCheckResult.Result.YES
     statement_found_check_result.save()
     for statement_check_type in [
         StatementCheck.Type.WEBSITE,
         StatementCheck.Type.PREPARATION,
     ]:
-        statement_check_result: StatementCheckResultRound = (
-            StatementCheckResultRound.objects.filter(type=statement_check_type).first()
+        statement_check_result: StatementCheckResult = (
+            StatementCheckResult.objects.filter(type=statement_check_type).first()
         )
-        statement_check_result.check_result_state = StatementCheckResultRound.Result.NO
+        statement_check_result.check_result_state = StatementCheckResult.Result.NO
         statement_check_result.save()
 
     response: HttpResponse = admin_client.get(

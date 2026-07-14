@@ -10,7 +10,7 @@ import pytest
 from ...audits.models import (
     StatementAudit,
     StatementCheck,
-    StatementCheckResultRound,
+    StatementCheckResult,
     WcagAudit,
     WcagCheckResultInitial,
 )
@@ -116,12 +116,10 @@ def test_body_html_with_issue_identifier_links_matching_statement_check_result()
     statement_audit: StatementAudit = create_initial_statement_audit()
     simplified_case: SimplifiedCase = statement_audit.simplified_case
     statement_check: StatementCheck = StatementCheck.objects.all().first()
-    statement_check_result: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.create(
-            statement_audit=statement_audit,
-            type=statement_check.type,
-            statement_check=statement_check,
-        )
+    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
+        statement_audit=statement_audit,
+        type=statement_check.type,
+        statement_check=statement_check,
     )
     body: str = (
         f"{simplified_case.case_number}-A-2 {statement_check_result.issue_identifier} {simplified_case.case_number}-SC-2"
@@ -142,10 +140,8 @@ def test_body_html_with_issue_identifier_links_matching_custom_statement_check_r
     """
     statement_audit: StatementAudit = create_initial_statement_audit()
     simplified_case: SimplifiedCase = statement_audit.simplified_case
-    statement_check_result: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.create(
-            statement_audit=statement_audit,
-        )
+    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
+        statement_audit=statement_audit,
     )
     body: str = (
         f"{simplified_case.case_number}-A-2 {simplified_case.case_number}-S-2 {statement_check_result.issue_identifier}"
@@ -184,8 +180,8 @@ def test_get_initial_statement_check_result_url_from_issue_identifier():
         statement_check: StatementCheck = StatementCheck.objects.filter(
             type=statement_check_type
         ).first()
-        statement_check_result: StatementCheckResultRound = (
-            StatementCheckResultRound.objects.create(
+        statement_check_result: StatementCheckResult = (
+            StatementCheckResult.objects.create(
                 statement_audit=statement_audit,
                 type=statement_check_type,
                 statement_check=statement_check,

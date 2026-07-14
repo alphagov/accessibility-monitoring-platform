@@ -27,7 +27,6 @@ from ....audits.models import (
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
-    StatementCheckResultRound,
     StatementPage,
     WcagAudit,
     WcagCheckResultInitial,
@@ -100,9 +99,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):  # pylint: disable=unused-argument
         """Reset database for integration tests"""
 
-        StatementCheckResultRound.objects.all().update(
-            statement_check_result_initial=None
-        )
+        StatementCheckResult.objects.all().update(statement_check_result_initial=None)
         delete_from_models(
             [
                 CheckResultRetestNotesHistory,  # Old model to be deleted
@@ -123,7 +120,6 @@ class Command(BaseCommand):
                 WcagPageRetest,
                 WcagPageInitial,
                 WcagAudit,
-                StatementCheckResultRound,
                 StatementAudit,
                 AuditOverview,
                 Task,

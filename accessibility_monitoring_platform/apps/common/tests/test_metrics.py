@@ -11,7 +11,7 @@ from ...audits.models import (
     AuditOverview,
     StatementAudit,
     StatementCheck,
-    StatementCheckResultRound,
+    StatementCheckResult,
     WcagAudit,
     WcagCheckResultInitial,
     WcagCheckResultRetest,
@@ -106,46 +106,46 @@ def test_thirty_day_metric_progress_percentage(
     "initial_statement_check_result, final_statement_check_result, expected_fixed, expected_total",
     [
         (
-            StatementCheckResultRound.Result.NOT_TESTED,
-            StatementCheckResultRound.Result.NOT_TESTED,
+            StatementCheckResult.Result.NOT_TESTED,
+            StatementCheckResult.Result.NOT_TESTED,
             0,
             0,
         ),
         (
-            StatementCheckResultRound.Result.YES,
-            StatementCheckResultRound.Result.NOT_TESTED,
+            StatementCheckResult.Result.YES,
+            StatementCheckResult.Result.NOT_TESTED,
             0,
             0,
         ),
         (
-            StatementCheckResultRound.Result.NO,
-            StatementCheckResultRound.Result.NOT_TESTED,
+            StatementCheckResult.Result.NO,
+            StatementCheckResult.Result.NOT_TESTED,
             0,
             1,
         ),
         (
-            StatementCheckResultRound.Result.YES,
-            StatementCheckResultRound.Result.YES,
+            StatementCheckResult.Result.YES,
+            StatementCheckResult.Result.YES,
             0,
             0,
         ),
         (
-            StatementCheckResultRound.Result.NO,
-            StatementCheckResultRound.Result.YES,
+            StatementCheckResult.Result.NO,
+            StatementCheckResult.Result.YES,
             1,
             1,
         ),
         (
-            StatementCheckResultRound.Result.NO,
-            StatementCheckResultRound.Result.NO,
+            StatementCheckResult.Result.NO,
+            StatementCheckResult.Result.NO,
             0,
             1,
         ),
     ],
 )
 def test_count_statement_issues(
-    initial_statement_check_result: StatementCheckResultRound.Result,
-    final_statement_check_result: StatementCheckResultRound.Result,
+    initial_statement_check_result: StatementCheckResult.Result,
+    final_statement_check_result: StatementCheckResult.Result,
     expected_fixed: int,
     expected_total: int,
 ):
@@ -153,21 +153,21 @@ def test_count_statement_issues(
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    StatementCheckResultRound.objects.filter(type=StatementCheck.Type.CUSTOM).exclude(
+    StatementCheckResult.objects.filter(type=StatementCheck.Type.CUSTOM).exclude(
         statement_check_result_initial=None
     ).delete()
-    StatementCheckResultRound.objects.filter(type=StatementCheck.Type.RETEST).exclude(
+    StatementCheckResult.objects.filter(type=StatementCheck.Type.RETEST).exclude(
         statement_check_result_initial=None
     ).delete()
-    StatementCheckResultRound.objects.filter(type=StatementCheck.Type.CUSTOM).delete()
-    StatementCheckResultRound.objects.filter(type=StatementCheck.Type.RETEST).delete()
+    StatementCheckResult.objects.filter(type=StatementCheck.Type.CUSTOM).delete()
+    StatementCheckResult.objects.filter(type=StatementCheck.Type.RETEST).delete()
     last_statement_audit: StatementAudit = (
         simplified_case.audit_overview.last_statement_audit
     )
-    final_statement_check_result_round: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.filter(statement_audit=last_statement_audit)
+    final_statement_check_result_round: StatementCheckResult = (
+        StatementCheckResult.objects.filter(statement_audit=last_statement_audit)
     ).last()
-    initial_statement_check_result_round: StatementCheckResultRound = (
+    initial_statement_check_result_round: StatementCheckResult = (
         final_statement_check_result_round.statement_check_result_initial
     )
     initial_statement_check_result_round.check_result_state = (
@@ -687,20 +687,20 @@ def test_get_policy_progress_metrics(mock_datetime):
         date_of_test=datetime(2022, 1, 20, tzinfo=timezone.utc),
     )
     statement_check: StatementCheck = StatementCheck.objects.all().first()
-    statement_check_result_initial: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.create(
+    statement_check_result_initial: StatementCheckResult = (
+        StatementCheckResult.objects.create(
             statement_audit=initial_statement_audit,
             type=statement_check.type,
             statement_check=statement_check,
-            check_result_state=StatementCheckResultRound.Result.NO,
+            check_result_state=StatementCheckResult.Result.NO,
         )
     )
-    StatementCheckResultRound.objects.create(
+    StatementCheckResult.objects.create(
         statement_audit=statement_audit_retest,
         type=statement_check.type,
         statement_check=statement_check,
         statement_check_result_initial=statement_check_result_initial,
-        check_result_state=StatementCheckResultRound.Result.YES,
+        check_result_state=StatementCheckResult.Result.YES,
     )
 
     assert get_policy_progress_metrics() == [
@@ -795,20 +795,20 @@ def test_get_policy_progress_metrics_excludes_missing_pages(mock_datetime):
         date_of_test=datetime(2022, 1, 20, tzinfo=timezone.utc),
     )
     statement_check: StatementCheck = StatementCheck.objects.all().first()
-    statement_check_result_initial: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.create(
+    statement_check_result_initial: StatementCheckResult = (
+        StatementCheckResult.objects.create(
             statement_audit=initial_statement_audit,
             type=statement_check.type,
             statement_check=statement_check,
-            check_result_state=StatementCheckResultRound.Result.NO,
+            check_result_state=StatementCheckResult.Result.NO,
         )
     )
-    StatementCheckResultRound.objects.create(
+    StatementCheckResult.objects.create(
         statement_audit=statement_audit_retest,
         type=statement_check.type,
         statement_check=statement_check,
         statement_check_result_initial=statement_check_result_initial,
-        check_result_state=StatementCheckResultRound.Result.YES,
+        check_result_state=StatementCheckResult.Result.YES,
     )
 
     assert get_policy_progress_metrics() == [

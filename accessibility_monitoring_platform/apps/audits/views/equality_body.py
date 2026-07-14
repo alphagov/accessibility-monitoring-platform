@@ -27,7 +27,7 @@ from ...simplified.utils import (
 from ..forms import (
     EqualityBodyRetestCustomStatementCheckResultFormset,
     EqualityBodyRetestCustomStatementCheckResultFormsetOneExtra,
-    EqualityBodyRetestStatementCheckResultRoundFormset,
+    EqualityBodyRetestStatementCheckResultFormset,
     EqualityBodyRetestStatementOverviewUpdateForm,
     EqualityBodyWcagPageRetestUpdateForm,
     RetestComparisonUpdateForm,
@@ -52,7 +52,7 @@ from ..models import (
     AuditOverview,
     StatementAudit,
     StatementCheck,
-    StatementCheckResultRound,
+    StatementCheckResult,
     WcagAudit,
     WcagCheckResultRetest,
     WcagPageInitial,
@@ -400,13 +400,13 @@ class EqualityBodyRetestStatementCheckingView(StatementAuditUpdateView):
 
         if self.request.POST:
             retest_statement_check_results_formset: (
-                EqualityBodyRetestStatementCheckResultRoundFormset
-            ) = EqualityBodyRetestStatementCheckResultRoundFormset(self.request.POST)
+                EqualityBodyRetestStatementCheckResultFormset
+            ) = EqualityBodyRetestStatementCheckResultFormset(self.request.POST)
         else:
             retest_statement_check_results_formset: (
-                EqualityBodyRetestStatementCheckResultRoundFormset
-            ) = EqualityBodyRetestStatementCheckResultRoundFormset(
-                queryset=StatementCheckResultRound.objects.filter(
+                EqualityBodyRetestStatementCheckResultFormset
+            ) = EqualityBodyRetestStatementCheckResultFormset(
+                queryset=StatementCheckResult.objects.filter(
                     statement_audit=statement_audit, type=self.statement_check_type
                 )
             )
@@ -426,13 +426,13 @@ class EqualityBodyRetestStatementCheckingView(StatementAuditUpdateView):
         context: dict[str, Any] = self.get_context_data()
         statement_audit: StatementAudit = self.object
         retest_statement_check_results_formset: (
-            EqualityBodyRetestStatementCheckResultRoundFormset
+            EqualityBodyRetestStatementCheckResultFormset
         ) = context["retest_statement_check_results_formset"]
         if retest_statement_check_results_formset.is_valid():
             for (
                 retest_statement_check_results_form
             ) in retest_statement_check_results_formset.forms:
-                statement_check_result_round: StatementCheckResultRound = (
+                statement_check_result_round: StatementCheckResult = (
                     retest_statement_check_results_form.save(commit=False)
                 )
                 record_simplified_model_update_event(
@@ -593,7 +593,7 @@ class RetestStatementCustomFormView(StatementAuditUpdateView):
                 EqualityBodyRetestCustomStatementCheckResultFormset(self.request.POST)
             )
         else:
-            retest_statement_check_results: QuerySet[StatementCheckResultRound] = (
+            retest_statement_check_results: QuerySet[StatementCheckResult] = (
                 statement_audit.custom_statement_check_results
             )
             if "add_custom" in self.request.GET:
@@ -624,14 +624,14 @@ class RetestStatementCustomFormView(StatementAuditUpdateView):
         ]
         statement_audit: StatementAudit = form.save(commit=False)
         if statement_check_results_formset.is_valid():
-            statement_check_results: list[StatementCheckResultRound] = (
+            statement_check_results: list[StatementCheckResult] = (
                 statement_check_results_formset.save(commit=False)
             )
             for statement_check_result in statement_check_results:
                 if not statement_check_result.id:
                     statement_check_result.statement_audit = statement_audit
                     statement_check_result.check_result_state = (
-                        StatementCheckResultRound.Result.NO
+                        StatementCheckResult.Result.NO
                     )
                     statement_check_result.save()
                     record_simplified_model_create_event(
@@ -651,7 +651,7 @@ class RetestStatementCustomFormView(StatementAuditUpdateView):
         mark_object_as_deleted(
             request=self.request,
             delete_button_prefix="remove_custom_",
-            object_to_delete_model=StatementCheckResultRound,
+            object_to_delete_model=StatementCheckResult,
         )
         return super().form_valid(form)
 

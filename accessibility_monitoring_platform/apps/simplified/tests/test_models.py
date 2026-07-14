@@ -16,7 +16,7 @@ from ...audits.models import (
     AuditOverview,
     StatementAudit,
     StatementCheck,
-    StatementCheckResultRound,
+    StatementCheckResult,
     StatementPage,
     WcagAudit,
     WcagCheckResultInitial,
@@ -671,23 +671,19 @@ def test_case_statement_checks_still_initial():
 
     assert simplified_case.statement_checks_still_initial is True
 
-    statement_check_result_initial: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.get(
+    statement_check_result_initial: StatementCheckResult = (
+        StatementCheckResult.objects.get(
             statement_audit=statement_audit,
             type=StatementCheck.Type.OVERVIEW,
         )
     )
 
-    statement_check_result_initial.check_result_state = (
-        StatementCheckResultRound.Result.NO
-    )
+    statement_check_result_initial.check_result_state = StatementCheckResult.Result.NO
     statement_check_result_initial.save()
 
     assert simplified_case.statement_checks_still_initial is False
 
-    statement_check_result_initial.check_result_state = (
-        StatementCheckResultRound.Result.YES
-    )
+    statement_check_result_initial.check_result_state = StatementCheckResult.Result.YES
     statement_check_result_initial.save()
 
     assert simplified_case.statement_checks_still_initial is False
@@ -886,11 +882,11 @@ def test_overview_issues_statement_with_statement_checks():
         if count == 20:
             break
         check_result_state: str = (
-            StatementCheckResultRound.Result.NO
+            StatementCheckResult.Result.NO
             if count % 2 == 0
-            else StatementCheckResultRound.Result.YES
+            else StatementCheckResult.Result.YES
         )
-        StatementCheckResultRound.objects.create(
+        StatementCheckResult.objects.create(
             statement_audit=initial_statement_audit,
             type=statement_check.type,
             statement_check=statement_check,
@@ -910,11 +906,11 @@ def test_overview_issues_statement_with_statement_checks():
         if count == 10:
             break
         check_result_state: str = (
-            StatementCheckResultRound.Result.NO
+            StatementCheckResult.Result.NO
             if count % 2 == 0
-            else StatementCheckResultRound.Result.YES
+            else StatementCheckResult.Result.YES
         )
-        StatementCheckResultRound.objects.create(
+        StatementCheckResult.objects.create(
             statement_audit=statement_audit_retest,
             type=statement_check.type,
             statement_check=statement_check,
@@ -1307,10 +1303,10 @@ def test_csv_export_statement_initially_found():
 
     assert simplified_case_with_test.csv_export_statement_initially_found == "No"
 
-    for statement_check_result in StatementCheckResultRound.objects.filter(
+    for statement_check_result in StatementCheckResult.objects.filter(
         type=StatementCheck.Type.OVERVIEW
     ):
-        statement_check_result.check_result_state = StatementCheckResultRound.Result.YES
+        statement_check_result.check_result_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
     assert simplified_case_with_test.csv_export_statement_initially_found == "Yes"
@@ -1331,10 +1327,10 @@ def test_csv_export_statement_found_at_12_week_retest():
 
     assert simplified_case.csv_export_statement_found_at_12_week_retest == "No"
 
-    for statement_check_result in StatementCheckResultRound.objects.filter(
+    for statement_check_result in StatementCheckResult.objects.filter(
         statement_audit=twelve_week_statement_audit, type=StatementCheck.Type.OVERVIEW
     ):
-        statement_check_result.check_result_state = StatementCheckResultRound.Result.YES
+        statement_check_result.check_result_state = StatementCheckResult.Result.YES
         statement_check_result.save()
 
     assert simplified_case.csv_export_statement_found_at_12_week_retest == "Yes"

@@ -19,7 +19,6 @@ from .models import (
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
-    StatementCheckResultRound,
     StatementPage,
     WcagAudit,
     WcagCheckResultInitial,
@@ -323,7 +322,7 @@ class StatementCheckResultAdmin(admin.ModelAdmin):
     show_facets = admin.ShowFacets.ALWAYS
 
 
-class StatementCheckResultRoundAdmin(admin.ModelAdmin):
+class StatementCheckResultAdmin(admin.ModelAdmin):
 
     search_fields = [
         "issue_identifier",
@@ -476,7 +475,6 @@ admin.site.register(CheckResultRetestNotesHistory, CheckResultRetestNotesHistory
 admin.site.register(WcagDefinition, WcagDefinitionAdmin)
 admin.site.register(StatementCheck, StatementCheckAdmin)
 admin.site.register(StatementCheckResult, StatementCheckResultAdmin)
-admin.site.register(StatementCheckResultRound, StatementCheckResultRoundAdmin)
 admin.site.register(Retest, RetestAdmin)
 admin.site.register(RetestPage, RetestPageAdmin)
 admin.site.register(RetestCheckResult, RetestCheckResultAdmin)

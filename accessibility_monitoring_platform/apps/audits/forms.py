@@ -24,7 +24,7 @@ from ..common.utils import validate_file_size
 from .models import (
     StatementAudit,
     StatementCheck,
-    StatementCheckResultRound,
+    StatementCheckResult,
     StatementPage,
     WcagAudit,
     WcagCheckResultInitial,
@@ -288,30 +288,28 @@ class StatementAuditComplianceUpdateForm(VersionForm):
         ]
 
 
-class StatementCheckResultRoundForm(forms.ModelForm):
+class StatementCheckResultForm(forms.ModelForm):
     """
     Form for updating a single statement check
     """
 
     check_result_state = AMPChoiceRadioField(
         label="",
-        choices=StatementCheckResultRound.Result.choices,
+        choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
     public_comment = AMPTextField(label="Comments for report")
 
     class Meta:
-        model = StatementCheckResultRound
+        model = StatementCheckResult
         fields = [
             "check_result_state",
             "public_comment",
         ]
 
 
-StatementCheckResultRoundFormset: forms.formsets.BaseFormSet = (
-    forms.modelformset_factory(
-        StatementCheckResultRound, StatementCheckResultRoundForm, extra=0
-    )
+StatementCheckResultFormset: forms.formsets.BaseFormSet = forms.modelformset_factory(
+    StatementCheckResult, StatementCheckResultForm, extra=0
 )
 
 
@@ -322,13 +320,13 @@ class StatementCheckResultRetestForm(forms.ModelForm):
 
     check_result_state = AMPChoiceRadioField(
         label="",
-        choices=StatementCheckResultRound.Result.choices,
+        choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
     auditor_information = AMPTextField(label="Retest information")
 
     class Meta:
-        model = StatementCheckResultRound
+        model = StatementCheckResult
         fields = [
             "check_result_state",
             "auditor_information",
@@ -337,7 +335,7 @@ class StatementCheckResultRetestForm(forms.ModelForm):
 
 StatementCheckResultRetestFormset: forms.formsets.BaseFormSet = (
     forms.modelformset_factory(
-        StatementCheckResultRound, StatementCheckResultRetestForm, extra=0
+        StatementCheckResult, StatementCheckResultRetestForm, extra=0
     )
 )
 
@@ -464,7 +462,7 @@ class StatementAuditStatementCustomUpdateForm(VersionForm):
         ]
 
 
-class StatementCheckResultRoundCreateUpdateForm(forms.ModelForm):
+class StatementCheckResultCreateUpdateForm(forms.ModelForm):
     """
     Form for creating or updating a custom issue StatementCheckResult
     """
@@ -473,7 +471,7 @@ class StatementCheckResultRoundCreateUpdateForm(forms.ModelForm):
     auditor_information = AMPTextField(label="Notes for auditor")
 
     class Meta:
-        model = StatementCheckResultRound
+        model = StatementCheckResult
         fields = ["public_comment", "auditor_information"]
 
 
@@ -486,7 +484,7 @@ class StatementCheckResultRetestCreateForm(forms.ModelForm):
     auditor_information = AMPTextField(label="12-week retest information")
 
     class Meta:
-        model = StatementCheckResultRound
+        model = StatementCheckResult
         fields = ["public_comment", "auditor_information"]
 
 
@@ -499,12 +497,12 @@ class StatementCheckResultRetestUpdateForm(forms.ModelForm):
     auditor_information = AMPTextField(label="12-week retest information")
     check_result_state = AMPChoiceRadioField(
         label="Mark this statement as resolved",
-        choices=StatementCheckResultRound.Result.choices,
+        choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
 
     class Meta:
-        model = StatementCheckResultRound
+        model = StatementCheckResult
         fields = ["public_comment", "auditor_information", "check_result_state"]
 
 
@@ -730,13 +728,13 @@ class StatementCheckResultRetestCustomUpdateForm(forms.ModelForm):
 
     check_result_state = AMPChoiceRadioField(
         label="Mark this statement issue as resolved",
-        choices=StatementCheckResultRound.Result.choices,
+        choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
     public_comment = AMPTextField(label="Comments for email")
 
     class Meta:
-        model = StatementCheckResultRound
+        model = StatementCheckResult
         fields = [
             "check_result_state",
             "public_comment",
@@ -1011,30 +1009,30 @@ class RetestStatementBackupUpdateForm(VersionForm):
         ]
 
 
-class EqualityBodyRetestStatementCheckResultRoundForm(forms.ModelForm):
+class EqualityBodyRetestStatementCheckResultForm(forms.ModelForm):
     """
     Form for updating a single statement check retest
     """
 
     check_result_state = AMPChoiceRadioField(
         label="Retest result",
-        choices=StatementCheckResultRound.Result.choices,
+        choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
     public_comment = AMPTextField(label="Comments for equality body email")
 
     class Meta:
-        model = StatementCheckResultRound
+        model = StatementCheckResult
         fields = [
             "check_result_state",
             "public_comment",
         ]
 
 
-EqualityBodyRetestStatementCheckResultRoundFormset: forms.formsets.BaseFormSet = (
+EqualityBodyRetestStatementCheckResultFormset: forms.formsets.BaseFormSet = (
     forms.modelformset_factory(
-        StatementCheckResultRound,
-        EqualityBodyRetestStatementCheckResultRoundForm,
+        StatementCheckResult,
+        EqualityBodyRetestStatementCheckResultForm,
         extra=0,
     )
 )
@@ -1168,7 +1166,7 @@ class EqualityBodyRetestCustomStatementCheckResultForm(forms.ModelForm):
     public_comment = AMPTextField(label="Retest comments")
 
     class Meta:
-        model = StatementCheckResultRound
+        model = StatementCheckResult
         fields = [
             "public_comment",
         ]
@@ -1176,7 +1174,7 @@ class EqualityBodyRetestCustomStatementCheckResultForm(forms.ModelForm):
 
 EqualityBodyRetestCustomStatementCheckResultFormset: forms.formsets.BaseFormSet = (
     forms.modelformset_factory(
-        StatementCheckResultRound,
+        StatementCheckResult,
         EqualityBodyRetestCustomStatementCheckResultForm,
         extra=0,
     )
@@ -1184,7 +1182,7 @@ EqualityBodyRetestCustomStatementCheckResultFormset: forms.formsets.BaseFormSet 
 EqualityBodyRetestCustomStatementCheckResultFormsetOneExtra: (
     forms.formsets.BaseFormSet
 ) = forms.modelformset_factory(
-    StatementCheckResultRound,
+    StatementCheckResult,
     EqualityBodyRetestCustomStatementCheckResultForm,
     extra=1,
 )

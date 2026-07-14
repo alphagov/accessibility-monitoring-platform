@@ -19,7 +19,7 @@ from ..models import (
     AuditOverview,
     StatementAudit,
     StatementCheck,
-    StatementCheckResultRound,
+    StatementCheckResult,
     WcagAudit,
     WcagCheckResultInitial,
     WcagCheckResultInitialNotesHistory,
@@ -398,9 +398,7 @@ def test_create_statement_checks_for_new_audit():
     )
 
     assert (
-        StatementCheckResultRound.objects.filter(
-            statement_audit=statement_audit
-        ).count()
+        StatementCheckResult.objects.filter(statement_audit=statement_audit).count()
         == 0
     )
 
@@ -409,9 +407,7 @@ def test_create_statement_checks_for_new_audit():
     number_of_statement_checks: int = StatementCheck.objects.on_date(TODAY).count()
 
     assert (
-        StatementCheckResultRound.objects.filter(
-            statement_audit=statement_audit
-        ).count()
+        StatementCheckResult.objects.filter(statement_audit=statement_audit).count()
         == number_of_statement_checks
     )
 
@@ -435,9 +431,7 @@ def test_create_skips_future_statement_checks():
     number_of_statement_checks: int = StatementCheck.objects.on_date(TODAY).count()
 
     assert (
-        StatementCheckResultRound.objects.filter(
-            statement_audit=statement_audit
-        ).count()
+        StatementCheckResult.objects.filter(statement_audit=statement_audit).count()
         == number_of_statement_checks
     )
 
@@ -461,9 +455,7 @@ def test_create_skips_past_statement_checks():
     number_of_statement_checks: int = StatementCheck.objects.on_date(TODAY).count()
 
     assert (
-        StatementCheckResultRound.objects.filter(
-            statement_audit=statement_audit
-        ).count()
+        StatementCheckResult.objects.filter(statement_audit=statement_audit).count()
         == number_of_statement_checks
     )
 
@@ -1262,11 +1254,11 @@ def test_get_audit_summary_context_issue_counts(rf):
     assert "number_of_statement_issues" in context
     assert context["number_of_statement_issues"] == 1
 
-    for statement_check_result_initial in StatementCheckResultRound.objects.filter(
+    for statement_check_result_initial in StatementCheckResult.objects.filter(
         type=StatementCheck.Type.OVERVIEW
     ):
         statement_check_result_initial.check_result_state = (
-            StatementCheckResultRound.Result.YES
+            StatementCheckResult.Result.YES
         )
         statement_check_result_initial.save()
 
@@ -1297,14 +1289,14 @@ def test_get_audit_summary_context_statement_check_results_by_type(rf):
     assert "summary_statement_check_results_by_type" in context
 
     summary_statement_check_results_by_type: dict[
-        str, QuerySet[StatementCheckResultRound]
+        str, QuerySet[StatementCheckResult]
     ] = context["summary_statement_check_results_by_type"]
 
     assert "overview" in summary_statement_check_results_by_type
     assert len(summary_statement_check_results_by_type["overview"]) == 1
 
-    statement_check_result_initial_overview: StatementCheckResultRound = (
-        StatementCheckResultRound.objects.get(
+    statement_check_result_initial_overview: StatementCheckResult = (
+        StatementCheckResult.objects.get(
             statement_audit=initial_statement_audit, type=StatementCheck.Type.OVERVIEW
         )
     )
@@ -1319,7 +1311,7 @@ def test_get_audit_summary_context_statement_check_results_by_type(rf):
     assert context["summary_statement_check_results_by_type"] == {}
 
     statement_check_result_initial_overview.check_result_state = (
-        StatementCheckResultRound.Result.NO
+        StatementCheckResult.Result.NO
     )
     statement_check_result_initial_overview.save()
 
@@ -1331,7 +1323,7 @@ def test_get_audit_summary_context_statement_check_results_by_type(rf):
     assert "summary_statement_check_results_by_type" in context
 
     summary_statement_check_results_by_type: dict[
-        str, QuerySet[StatementCheckResultRound]
+        str, QuerySet[StatementCheckResult]
     ] = context["summary_statement_check_results_by_type"]
 
     assert "overview" in summary_statement_check_results_by_type
