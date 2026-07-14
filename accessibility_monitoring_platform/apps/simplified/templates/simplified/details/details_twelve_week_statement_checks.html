@@ -18,17 +18,25 @@
                             {% include 'audits/helpers/issue_identifier.html' with issue=statement_check_result %}
                         </td>
                         <td class="govuk-table__cell amp-width-one-third">
-                            {{ statement_check_result.get_check_result_state_display }}
-                            {% if statement_check_result.public_comment  %}
+                            {{ statement_check_result.statement_check_result_initial.get_check_result_state_display }}
+                            {% if statement_check_result.statement_check_result_initial.public_comment %}
                                 <br><br>
-                                {{ statement_check_result.public_comment }}
+                                {{ statement_check_result.statement_check_result_initial.public_comment }}
+                            {% endif %}
+                            {% if statement_check_result.statement_check_result_initial.auditor_information %}
+                                <br><br>
+                                {{ statement_check_result.statement_check_result_initial.auditor_information }}
                             {% endif %}
                         </td>
                         <td class="govuk-table__cell amp-width-one-third">
-                            {{ statement_check_result.twelve_week_retest.get_check_result_state_display }}
-                            {% if statement_check_result.twelve_week_retest.auditor_information %}
+                            {{ statement_check_result.get_check_result_state_display }}
+                            {% if statement_check_result.public_comment %}
                                 <br><br>
-                                {{ statement_check_result.twelve_week_retest.auditor_information }}
+                                {{ statement_check_result.public_comment }}
+                            {% endif %}
+                            {% if statement_check_result.auditor_information %}
+                                <br><br>
+                                {{ statement_check_result.auditor_information }}
                             {% endif %}
                         </td>
                     </tr>
@@ -36,6 +44,6 @@
             </tbody>
         </table>
     {% else %}
-        <p class="govuk-body-m">No custom statement issues found in initial test.</p>
+        <p class="govuk-body-m">No custom statement issues found in 12-week retest.</p>
     {% endif %}
 {% endblock %}

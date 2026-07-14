@@ -1266,6 +1266,7 @@ def test_statement_audit_statement_check_results():
         ("non-accessible", "non_accessible"),
         ("preparation", "preparation"),
         ("feedback", "feedback"),
+        ("disproportionate", "disproportionate"),
         ("custom", "custom"),
     ],
 )

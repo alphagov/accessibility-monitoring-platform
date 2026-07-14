@@ -1,37 +1,26 @@
 {% extends 'cases/details/details.html' %}
 
 {% block prefixrows %}
-    {% for page in case.wcagaudit_set.all.first.testable_pages %}
+    {% for wcag_page_initial in case.audit_overview.initial_wcag_audit.testable_wcag_page_initials %}
         <tr class="govuk-table__row">
-            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">{{ page.page_title }}</th>
+            <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">{{ wcag_page_initial.page_title }}</th>
             <td class="govuk-table__cell amp-width-one-half">
                 <p class="govuk-body-m amp-margin-bottom-0">
-                    Initial URL:
-                    {% if page.url %}
-                        <a href="{{ page.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
-                            {{ page.url }}</a>
+                    Initial page URL:
+                    {% if wcag_page_initial.url %}
+                        <a href="{{ wcag_page_initial.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                            {{ wcag_page_initial.url }}</a>
                     {% else %}
                         None
                     {% endif %}
                 </p>
-                <p class="govuk-body-m amp-margin-bottom-0">
-                    Initial page location:
-                    {% if page.location %}
-                        {{ page.location }}
-                    {% else %}
-                        N/A
-                    {% endif %}
-                </p>
+                {% if wcag_page_initial.location %}
+                    <p class="govuk-body-m amp-margin-bottom-0">
+                        Initial page location:
+                        {{ wcag_page_initial.location }}
+                    </p>
+                {% endif %}
             </td>
         </tr>
-        {% if page.location %}
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
-                    Page location description if single page app</th>
-                <td class="govuk-table__cell amp-width-one-half">
-                    {{ page.location }}
-                </td>
-            </tr>
-        {% endif %}
     {% endfor %}
 {% endblock %}

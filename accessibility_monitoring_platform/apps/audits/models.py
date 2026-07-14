@@ -839,6 +839,14 @@ class StatementAudit(AuditRound):
         return self.statement_check_results.filter(type=StatementCheck.Type.FEEDBACK)
 
     @property
+    def disproportionate_statement_check_results(
+        self,
+    ) -> QuerySet[StatementCheckResultRound]:
+        return self.statement_check_results.filter(
+            type=StatementCheck.Type.DISPROPORTIONATE
+        )
+
+    @property
     def custom_statement_check_results(self) -> QuerySet[StatementCheckResultRound]:
         return self.statement_check_results.filter(type=StatementCheck.Type.CUSTOM)
 

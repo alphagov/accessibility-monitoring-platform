@@ -15,7 +15,7 @@ from django.db.models import QuerySet
 from django.http import StreamingHttpResponse
 from django.urls import reverse
 
-from ..audits.models import WcagAudit
+from ..audits.models import StatementAudit, WcagAudit
 from ..cases.csv_export import csv_output_generator
 from ..cases.utils import CaseDetailPage, CaseDetailSection
 from ..common.form_extract_utils import (
@@ -58,6 +58,14 @@ def get_simplified_case_detail_sections(
             else None
         ),
     )
+    get_statement_audit_rows: Callable = partial(
+        extract_form_labels_and_values,
+        instance=(
+            simplified_case.audit_overview.initial_statement_audit
+            if simplified_case.audit_overview is not None
+            else None
+        ),
+    )
     view_sections: list[CaseDetailSection] = []
     for page_group in sitemap.platform_page_groups:
         if page_group.show and (
@@ -82,6 +90,13 @@ def get_simplified_case_detail_sections(
                                 == WcagAudit
                             ):
                                 display_fields = get_wcag_audit_rows(
+                                    form=platform_page.case_details_form_class()
+                                )
+                            elif (
+                                platform_page.case_details_form_class._meta.model
+                                == StatementAudit
+                            ):
+                                display_fields = get_statement_audit_rows(
                                     form=platform_page.case_details_form_class()
                                 )
                         if platform_page.case_details_template_name:

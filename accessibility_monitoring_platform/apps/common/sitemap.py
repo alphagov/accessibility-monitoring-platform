@@ -15,7 +15,9 @@ from django.urls import URLResolver, resolve, reverse
 
 from ..audits.forms import (
     AuditTwelveWeekDisproportionateBurdenUpdateForm,
+    StatementAuditComplianceUpdateForm,
     StatementAuditInitialDisproportionateBurdenUpdateForm,
+    WcagAuditComplianceUpdateForm,
     WcagAuditMetadataUpdateForm,
     WcagAuditRetestMetadataUpdateForm,
 )
@@ -951,6 +953,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 name="Compliance decision",
                 url_name="audits:edit-website-decision",
                 complete_flag_name="compliance_decision_complete_date",
+                case_details_form_class=WcagAuditComplianceUpdateForm,
                 case_details_template_name="cases/details/details.html",
                 next_page_url_name="audits:edit-audit-wcag-summary",
             ),
@@ -1086,7 +1089,8 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 name="Statement compliance",
                 url_name="audits:edit-statement-decision",
                 complete_flag_name="compliance_complete_date",
-                case_details_template_name="simplified/details/details_initial_statement_compliance.html",
+                case_details_form_class=StatementAuditComplianceUpdateForm,
+                case_details_template_name="cases/details/details.html",
                 next_page_url_name="audits:edit-audit-statement-summary",
             ),
             InitialStatementAuditPlatformPage(

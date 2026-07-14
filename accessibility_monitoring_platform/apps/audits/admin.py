@@ -351,6 +351,7 @@ class StatementCheckResultRoundAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     ("issue_identifier",),
+                    ("statement_check_result_initial",),
                     ("type", "is_deleted"),
                     ("statement_audit",),
                     ("statement_check",),
@@ -361,7 +362,12 @@ class StatementCheckResultRoundAdmin(admin.ModelAdmin):
             },
         ),
     )
-    readonly_fields = ["statement_audit", "issue_identifier", "statement_check"]
+    readonly_fields = [
+        "statement_audit",
+        "issue_identifier",
+        "statement_check",
+        "statement_check_result_initial",
+    ]
     show_facets = admin.ShowFacets.ALWAYS
 
 
