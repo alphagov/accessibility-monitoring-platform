@@ -20,6 +20,7 @@ from ...audits.models import (
     WcagPageRetest,
 )
 from ...audits.tests.create_test_data import (
+    create_case_and_compliance,
     create_simplified_case_with_initial_and_12_week_audits,
 )
 from ...reports.models import ReportVisitsMetrics
@@ -43,6 +44,7 @@ from ..metrics import (
     get_equality_body_cases_metric,
     get_policy_progress_metrics,
     get_policy_total_metrics,
+    get_policy_yearly_metrics,
     get_report_progress_metrics,
     get_report_yearly_metrics,
     group_timeseries_data_by_month,
@@ -851,98 +853,130 @@ def test_get_equality_body_cases_metric(mock_datetime):
     )
 
 
-# TODO: Change to use new models; Will also need to revisit the calculations/requirements
-# @pytest.mark.django_db
-# @patch("accessibility_monitoring_platform.apps.common.utils.timezone")
-# def test_get_policy_yearly_metrics(mock_datetime):
-#     """Test policy yearly metrics returned"""
-#     mock_datetime.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+@pytest.mark.django_db
+@patch("accessibility_monitoring_platform.apps.common.utils.timezone")
+def test_get_policy_yearly_metrics(mock_datetime):
+    """Test policy yearly metrics returned"""
+    mock_datetime.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-#     simplified_case: SimplifiedCase = create_case_and_compliance(
-#         created=datetime(2021, 11, 5, tzinfo=timezone.utc),
-#         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
-#         statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
-#     )
-#     Audit.objects.create(
-#         simplified_case=simplified_case,
-#         retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc),
-#     )
-#     simplified_case: SimplifiedCase = create_case_and_compliance(
-#         created=datetime(2021, 12, 5, tzinfo=timezone.utc),
-#         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
-#         recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
-#     )
-#     Audit.objects.create(
-#         simplified_case=simplified_case,
-#         retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc),
-#     )
-#     simplified_case: SimplifiedCase = create_case_and_compliance(
-#         created=datetime(2021, 12, 6, tzinfo=timezone.utc),
-#         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
-#         recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
-#     )
-#     Audit.objects.create(
-#         simplified_case=simplified_case,
-#         retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc),
-#     )
-#     simplified_case: SimplifiedCase = create_case_and_compliance(
-#         created=datetime(2022, 1, 1, tzinfo=timezone.utc),
-#         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
-#         statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT,
-#     )
-#     Audit.objects.create(
-#         simplified_case=simplified_case,
-#         retest_date=datetime(2022, 1, 20, tzinfo=timezone.utc),
-#     )
+    simplified_case: SimplifiedCase = create_case_and_compliance(
+        created=datetime(2021, 11, 5, tzinfo=timezone.utc),
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        date_of_test=datetime(2022, 1, 20, tzinfo=timezone.utc),
+        compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2022, 1, 20, tzinfo=timezone.utc),
+        compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
+    )
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        date_of_test=datetime(2022, 1, 20, tzinfo=timezone.utc),
+        compliance_state=StatementAudit.StatementCompliance.COMPLIANT,
+    )
+    simplified_case: SimplifiedCase = create_case_and_compliance(
+        created=datetime(2021, 11, 5, tzinfo=timezone.utc),
+        recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        date_of_test=datetime(2022, 1, 20, tzinfo=timezone.utc),
+        compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2022, 1, 20, tzinfo=timezone.utc),
+        compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
+    )
+    simplified_case: SimplifiedCase = create_case_and_compliance(
+        created=datetime(2021, 12, 6, tzinfo=timezone.utc),
+        recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        date_of_test=datetime(2022, 1, 20, tzinfo=timezone.utc),
+        compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2022, 1, 20, tzinfo=timezone.utc),
+        compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
+    )
+    simplified_case: SimplifiedCase = create_case_and_compliance(
+        created=datetime(2022, 1, 1, tzinfo=timezone.utc),
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        date_of_test=datetime(2022, 1, 20, tzinfo=timezone.utc),
+        compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2022, 1, 20, tzinfo=timezone.utc),
+        compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
+    )
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2022, 1, 20, tzinfo=timezone.utc),
+        compliance_state=StatementAudit.StatementCompliance.COMPLIANT,
+    )
 
-#     policy_yearly_metrics: list[YearlyMetric] = get_policy_yearly_metrics()
+    policy_yearly_metrics: list[YearlyMetric] = get_policy_yearly_metrics()
 
-#     assert len(policy_yearly_metrics) == 2
-#     assert (
-#         policy_yearly_metrics[0].label == "Proportion of websites which are acceptable"
-#     )
-#     assert policy_yearly_metrics[0].html_table == TimeseriesHtmlTable(
-#         column_names=["Month", "Cases", "Initially acceptable", "Finally acceptable"],
-#         rows=[
-#             ["January 2021", "0", "0", "0"],
-#             ["February 2021", "0", "0", "0"],
-#             ["March 2021", "0", "0", "0"],
-#             ["April 2021", "0", "0", "0"],
-#             ["May 2021", "0", "0", "0"],
-#             ["June 2021", "0", "0", "0"],
-#             ["July 2021", "0", "0", "0"],
-#             ["August 2021", "0", "0", "0"],
-#             ["September 2021", "0", "0", "0"],
-#             ["October 2021", "0", "0", "0"],
-#             ["November 2021", "0", "0", "0"],
-#             ["December 2021", "0", "0", "0"],
-#             ["January 2022", "4", "4", "2"],
-#             ["Totals", "4", "4", "2"],
-#         ],
-#     )
-#     assert (
-#         policy_yearly_metrics[1].label
-#         == "Proportion of accessibility statements which are compliant"
-#     )
-#     assert policy_yearly_metrics[1].html_table == TimeseriesHtmlTable(
-#         column_names=["Month", "Cases", "Initially compliant", "Finally compliant"],
-#         rows=[
-#             ["January 2021", "0", "0", "0"],
-#             ["February 2021", "0", "0", "0"],
-#             ["March 2021", "0", "0", "0"],
-#             ["April 2021", "0", "0", "0"],
-#             ["May 2021", "0", "0", "0"],
-#             ["June 2021", "0", "0", "0"],
-#             ["July 2021", "0", "0", "0"],
-#             ["August 2021", "0", "0", "0"],
-#             ["September 2021", "0", "0", "0"],
-#             ["October 2021", "0", "0", "0"],
-#             ["November 2021", "0", "0", "0"],
-#             ["December 2021", "0", "0", "0"],
-#             ["January 2022", "4", "1", "1"],
-#             ["Totals", "4", "1", "1"],
-#         ],
-#     )
+    assert len(policy_yearly_metrics) == 2
+    assert (
+        policy_yearly_metrics[0].label == "Proportion of websites which are acceptable"
+    )
+    assert policy_yearly_metrics[0].html_table == TimeseriesHtmlTable(
+        column_names=["Month", "Cases", "Initially acceptable", "Finally acceptable"],
+        rows=[
+            ["January 2021", "0", "0", "0"],
+            ["February 2021", "0", "0", "0"],
+            ["March 2021", "0", "0", "0"],
+            ["April 2021", "0", "0", "0"],
+            ["May 2021", "0", "0", "0"],
+            ["June 2021", "0", "0", "0"],
+            ["July 2021", "0", "0", "0"],
+            ["August 2021", "0", "0", "0"],
+            ["September 2021", "0", "0", "0"],
+            ["October 2021", "0", "0", "0"],
+            ["November 2021", "0", "0", "0"],
+            ["December 2021", "0", "0", "0"],
+            ["January 2022", "4", "4", "2"],
+            ["Totals", "4", "4", "2"],
+        ],
+    )
+    assert (
+        policy_yearly_metrics[1].label
+        == "Proportion of accessibility statements which are compliant"
+    )
+    assert policy_yearly_metrics[1].html_table == TimeseriesHtmlTable(
+        column_names=["Month", "Cases", "Initially compliant", "Finally compliant"],
+        rows=[
+            ["January 2021", "0", "0", "0"],
+            ["February 2021", "0", "0", "0"],
+            ["March 2021", "0", "0", "0"],
+            ["April 2021", "0", "0", "0"],
+            ["May 2021", "0", "0", "0"],
+            ["June 2021", "0", "0", "0"],
+            ["July 2021", "0", "0", "0"],
+            ["August 2021", "0", "0", "0"],
+            ["September 2021", "0", "0", "0"],
+            ["October 2021", "0", "0", "0"],
+            ["November 2021", "0", "0", "0"],
+            ["December 2021", "0", "0", "0"],
+            ["January 2022", "4", "1", "1"],
+            ["Totals", "4", "1", "1"],
+        ],
+    )
 
 
 @pytest.mark.django_db

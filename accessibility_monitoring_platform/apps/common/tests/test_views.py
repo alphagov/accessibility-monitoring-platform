@@ -12,7 +12,20 @@ from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
-from ...audits.models import AuditOverview, StatementPage, WcagAudit
+from ...audits.models import (
+    AuditOverview,
+    StatementAudit,
+    StatementCheck,
+    StatementCheckResult,
+    StatementPage,
+    WcagAudit,
+    WcagCheckResultInitial,
+    WcagCheckResultRetest,
+    WcagDefinition,
+    WcagPageInitial,
+    WcagPageRetest,
+)
+from ...audits.tests.create_test_data import create_case_and_compliance
 from ...detailed.models import DetailedCase
 from ...notifications.models import Task
 from ...reports.models import ReportVisitsMetrics
@@ -564,123 +577,182 @@ def test_policy_progress_metric_website_compliance(mock_timezone, admin_client):
     )
 
 
-# TODO: Change to use new models; Will also need to revisit the calculations/requirements
-# @patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
-# def test_policy_progress_metric_statement_compliance(mock_timezone, admin_client):
-#     """
-#     Test policy progress metric for website compliance is calculated correctly.
-#     """
-#     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+@patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
+def test_policy_progress_metric_statement_compliance(mock_timezone, admin_client):
+    """
+    Test policy progress metric for website compliance is calculated correctly.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-#     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-#         case_completed="complete-no-send"
-#     )
-#     Audit.objects.create(
-#         simplified_case=simplified_case,
-#         retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
-#     )
-#     fixed_case: SimplifiedCase = create_case_and_compliance(
-#         case_completed="complete-no-send",
-#         statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT,
-#     )
-#     Audit.objects.create(
-#         simplified_case=fixed_case,
-#         retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
-#     )
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND
+    )
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+    )
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+    )
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+    )
+    fixed_case: SimplifiedCase = create_case_and_compliance(
+        case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND,
+        recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
+    )
+    WcagAudit.objects.create(
+        simplified_case=fixed_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+    )
+    StatementAudit.objects.create(
+        simplified_case=fixed_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        compliance_state=StatementAudit.StatementCompliance.COMPLIANT,
+    )
 
-#     response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
+    response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
 
-#     assert response.status_code == 200
-#     assertContains(
-#         response,
-#         POLICY_PROGRESS_METRIC.format(
-#             id="statements-compliant-after-retest-in-the-last-90-days",
-#             percentage=50,
-#             partial_count=1,
-#             total_count=2,
-#         ),
-#         html=True,
-#     )
-
-
-# @patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
-# def test_policy_progress_metric_website_issues(mock_timezone, admin_client):
-#     """
-#     Test policy progress metric for website accessibility issues is calculated correctly.
-#     """
-#     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
-
-#     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-#     audit: Audit = Audit.objects.create(
-#         simplified_case=simplified_case,
-#         retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
-#     )
-#     page: Page = Page.objects.create(audit=audit)
-#     wcag_definition: WcagDefinition = WcagDefinition.objects.create()
-#     CheckResult.objects.create(
-#         audit=audit,
-#         page=page,
-#         wcag_definition=wcag_definition,
-#         check_result_state="error",
-#         retest_state="fixed",
-#     )
-#     CheckResult.objects.create(
-#         audit=audit,
-#         page=page,
-#         wcag_definition=wcag_definition,
-#         check_result_state="error",
-#         retest_state="not-fixed",
-#     )
-
-#     response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
-
-#     assert response.status_code == 200
-#     assertContains(
-#         response,
-#         POLICY_PROGRESS_METRIC.format(
-#             id="website-accessibility-issues-fixed-in-the-last-90-days",
-#             percentage=50,
-#             partial_count=1,
-#             total_count=2,
-#         ),
-#         html=True,
-#     )
+    assert response.status_code == 200
+    assertContains(
+        response,
+        POLICY_PROGRESS_METRIC.format(
+            id="statements-compliant-after-retest-in-the-last-90-days",
+            percentage=50,
+            partial_count=1,
+            total_count=2,
+        ),
+        html=True,
+    )
 
 
-# @patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
-# def test_policy_progress_metric_statement_issues(mock_timezone, admin_client):
-#     """
-#     Test policy progress metric for accessibility statement issues is calculated correctly.
-#     """
-#     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+@patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
+def test_policy_progress_metric_website_issues(mock_timezone, admin_client):
+    """
+    Test policy progress metric for website accessibility issues is calculated correctly.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-#     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-#     audit: Audit = Audit.objects.create(
-#         simplified_case=simplified_case,
-#         retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
-#     )
-#     statement_check: StatementCheck = StatementCheck.objects.all().first()
-#     StatementCheckResult.objects.create(
-#         audit=audit,
-#         type=statement_check.type,
-#         statement_check=statement_check,
-#         check_result_state=StatementCheckResult.Result.NO,
-#         retest_state=StatementCheckResult.Result.YES,
-#     )
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    initial_wcag_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+    )
+    first_twelve_week_wcag_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+    )
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=initial_wcag_audit
+    )
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+        wcag_audit=first_twelve_week_wcag_audit, wcag_page_initial=wcag_page_initial
+    )
+    wcag_definition: WcagDefinition = WcagDefinition.objects.create()
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=initial_wcag_audit,
+            wcag_page_initial=wcag_page_initial,
+            wcag_definition=wcag_definition,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+        )
+    )
+    WcagCheckResultRetest.objects.create(
+        wcag_audit=first_twelve_week_wcag_audit,
+        wcag_check_result_initial=wcag_check_result_initial,
+        wcag_page_retest=wcag_page_retest,
+        wcag_definition=wcag_definition,
+        retest_state=WcagCheckResultRetest.RetestResult.FIXED,
+    )
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.create(
+            wcag_audit=initial_wcag_audit,
+            wcag_page_initial=wcag_page_initial,
+            wcag_definition=wcag_definition,
+            check_result_state=WcagCheckResultInitial.Result.ERROR,
+        )
+    )
+    WcagCheckResultRetest.objects.create(
+        wcag_audit=first_twelve_week_wcag_audit,
+        wcag_check_result_initial=wcag_check_result_initial,
+        wcag_page_retest=wcag_page_retest,
+        wcag_definition=wcag_definition,
+        retest_state=WcagCheckResultRetest.RetestResult.NOT_FIXED,
+    )
 
-#     response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
+    response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
 
-#     assert response.status_code == 200
-#     assertContains(
-#         response,
-#         POLICY_PROGRESS_METRIC.format(
-#             id="statement-issues-fixed-in-the-last-90-days",
-#             percentage=100,
-#             partial_count=1,
-#             total_count=1,
-#         ),
-#         html=True,
-#     )
+    assert response.status_code == 200
+    assertContains(
+        response,
+        POLICY_PROGRESS_METRIC.format(
+            id="website-accessibility-issues-fixed-in-the-last-90-days",
+            percentage=50,
+            partial_count=1,
+            total_count=2,
+        ),
+        html=True,
+    )
+
+
+@patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
+def test_policy_progress_metric_statement_issues(mock_timezone, admin_client):
+    """
+    Test policy progress metric for accessibility statement issues is calculated correctly.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    initial_statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+    )
+    first_twelve_week_statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+    )
+    statement_check: StatementCheck = StatementCheck.objects.all().first()
+    statement_check_result_initial: StatementCheckResult = (
+        StatementCheckResult.objects.create(
+            statement_audit=initial_statement_audit,
+            type=statement_check.type,
+            statement_check=statement_check,
+            check_result_state=StatementCheckResult.Result.NO,
+        )
+    )
+    statement_check_result_initial: StatementCheckResult = (
+        StatementCheckResult.objects.create(
+            statement_audit=first_twelve_week_statement_audit,
+            statement_check_result_initial=statement_check_result_initial,
+            type=statement_check.type,
+            statement_check=statement_check,
+            check_result_state=StatementCheckResult.Result.YES,
+        )
+    )
+
+    response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        POLICY_PROGRESS_METRIC.format(
+            id="statement-issues-fixed-in-the-last-90-days",
+            percentage=100,
+            partial_count=1,
+            total_count=1,
+        ),
+        html=True,
+    )
 
 
 @patch("accessibility_monitoring_platform.apps.common.utils.timezone")
@@ -716,145 +788,262 @@ def test_policy_metric_completed_with_equalities_bodies(mock_timezone, admin_cli
     )
 
 
-# TODO: Use new models and adjust calculations
-# @patch("accessibility_monitoring_platform.apps.common.utils.timezone")
-# def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
-#     """
-#     Test policy yearly metric table values for website state.
-#     """
-#     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+@patch("accessibility_monitoring_platform.apps.common.utils.timezone")
+def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
+    """
+    Test policy yearly metric table values for website state.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-#     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-#         case_completed="complete-no-send"
-#     )
-#     Audit.objects.create(
-#         simplified_case=simplified_case,
-#         date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
-#         retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
-#     )
-#     initially_compliant_website_case: SimplifiedCase = create_case_and_compliance(
-#         case_completed="complete-no-send",
-#         website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
-#         recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
-#     )
-#     Audit.objects.create(
-#         simplified_case=initially_compliant_website_case,
-#         date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
-#         retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
-#     )
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+    )
+    initially_compliant_website_case: SimplifiedCase = create_case_and_compliance(
+        case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND,
+        recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
+    )
+    WcagAudit.objects.create(
+        simplified_case=initially_compliant_website_case,
+        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+        compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
+    )
+    WcagAudit.objects.create(
+        simplified_case=initially_compliant_website_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+    )
 
-#     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-#         case_completed="complete-no-send"
-#     )
-#     Audit.objects.create(
-#         simplified_case=simplified_case,
-#         retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
-#     )
-#     fixed_case: SimplifiedCase = SimplifiedCase.objects.create(
-#         case_completed="complete-no-send",
-#         recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
-#     )
-#     Audit.objects.create(
-#         simplified_case=fixed_case,
-#         retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
-#     )
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+    )
+    fixed_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND,
+        recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
+    )
+    WcagAudit.objects.create(
+        simplified_case=fixed_case,
+        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+    )
+    WcagAudit.objects.create(
+        simplified_case=fixed_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+    )
 
-#     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-#         case_completed="complete-no-send"
-#     )
-#     Audit.objects.create(
-#         simplified_case=simplified_case,
-#         retest_date=datetime(2021, 11, 15, tzinfo=timezone.utc),
-#     )
-#     fixed_case: SimplifiedCase = SimplifiedCase.objects.create(
-#         case_completed="complete-no-send",
-#         recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
-#     )
-#     Audit.objects.create(
-#         simplified_case=fixed_case,
-#         retest_date=datetime(2021, 11, 5, tzinfo=timezone.utc),
-#     )
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        date_of_test=datetime(2021, 11, 15, tzinfo=timezone.utc),
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 11, 15, tzinfo=timezone.utc),
+    )
+    fixed_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND,
+        recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
+    )
+    WcagAudit.objects.create(
+        simplified_case=fixed_case,
+        date_of_test=datetime(2021, 11, 5, tzinfo=timezone.utc),
+    )
+    WcagAudit.objects.create(
+        simplified_case=fixed_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 11, 5, tzinfo=timezone.utc),
+    )
 
-#     response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
+    response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
 
-#     assert response.status_code == 200
-#     assertContains(
-#         response,
-#         ACCEPTABLE_WEBSITES_ROW,
-#         html=True,
-#     )
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        ACCEPTABLE_WEBSITES_ROW,
+        html=True,
+    )
 
 
-# TODO: Use new models and adjust calculations
-# @patch("accessibility_monitoring_platform.apps.common.utils.timezone")
-# def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
-#     """
-#     Test policy yearly metric table values for accessibility statement state.
-#     """
-#     mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+@patch("accessibility_monitoring_platform.apps.common.utils.timezone")
+def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
+    """
+    Test policy yearly metric table values for accessibility statement state.
+    """
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
 
-#     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-#         case_completed="complete-no-send"
-#     )
-#     Audit.objects.create(
-#         simplified_case=simplified_case,
-#         date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
-#         retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
-#     )
-#     initally_compliant_statement_case: SimplifiedCase = create_case_and_compliance(
-#         case_completed="complete-no-send",
-#         statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
-#         recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
-#         statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT,
-#     )
-#     Audit.objects.create(
-#         simplified_case=initally_compliant_statement_case,
-#         date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
-#         retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
-#     )
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
+    )
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+    )
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+    )
+    initially_compliant_website_case: SimplifiedCase = create_case_and_compliance(
+        case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND,
+        recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
+    )
+    WcagAudit.objects.create(
+        simplified_case=initially_compliant_website_case,
+        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
+    )
+    StatementAudit.objects.create(
+        simplified_case=initially_compliant_website_case,
+        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        compliance_state=StatementAudit.StatementCompliance.COMPLIANT,
+    )
+    WcagAudit.objects.create(
+        simplified_case=initially_compliant_website_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
+    )
+    StatementAudit.objects.create(
+        simplified_case=initially_compliant_website_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        compliance_state=StatementAudit.StatementCompliance.COMPLIANT,
+    )
 
-#     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-#         case_completed="complete-no-send"
-#     )
-#     Audit.objects.create(
-#         simplified_case=simplified_case,
-#         retest_date=datetime(2021, 12, 15, tzinfo=timezone.utc),
-#     )
-#     fixed_case: SimplifiedCase = create_case_and_compliance(
-#         case_completed="complete-no-send",
-#         recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
-#         statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT,
-#     )
-#     Audit.objects.create(
-#         simplified_case=fixed_case,
-#         retest_date=datetime(2021, 12, 5, tzinfo=timezone.utc),
-#     )
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+    )
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+    )
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+    )
+    fixed_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND,
+        recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
+    )
+    WcagAudit.objects.create(
+        simplified_case=fixed_case,
+        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+    )
+    StatementAudit.objects.create(
+        simplified_case=fixed_case,
+        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+    )
+    WcagAudit.objects.create(
+        simplified_case=fixed_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
+    )
+    StatementAudit.objects.create(
+        simplified_case=fixed_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        compliance_state=StatementAudit.StatementCompliance.COMPLIANT,
+    )
 
-#     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-#         case_completed="complete-no-send"
-#     )
-#     Audit.objects.create(
-#         simplified_case=simplified_case,
-#         retest_date=datetime(2021, 11, 15, tzinfo=timezone.utc),
-#     )
-#     fixed_case: SimplifiedCase = create_case_and_compliance(
-#         case_completed="complete-no-send",
-#         recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
-#         statement_compliance_state_12_week=CaseCompliance.StatementCompliance.COMPLIANT,
-#     )
-#     Audit.objects.create(
-#         simplified_case=fixed_case,
-#         retest_date=datetime(2021, 11, 5, tzinfo=timezone.utc),
-#     )
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        date_of_test=datetime(2021, 11, 15, tzinfo=timezone.utc),
+    )
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        date_of_test=datetime(2021, 11, 15, tzinfo=timezone.utc),
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 11, 15, tzinfo=timezone.utc),
+    )
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 11, 15, tzinfo=timezone.utc),
+    )
+    fixed_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND,
+        recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
+    )
+    WcagAudit.objects.create(
+        simplified_case=fixed_case,
+        date_of_test=datetime(2021, 11, 5, tzinfo=timezone.utc),
+    )
+    StatementAudit.objects.create(
+        simplified_case=fixed_case,
+        date_of_test=datetime(2021, 11, 5, tzinfo=timezone.utc),
+    )
+    WcagAudit.objects.create(
+        simplified_case=fixed_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 11, 5, tzinfo=timezone.utc),
+        compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
+    )
+    StatementAudit.objects.create(
+        simplified_case=fixed_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 11, 5, tzinfo=timezone.utc),
+        compliance_state=StatementAudit.StatementCompliance.COMPLIANT,
+    )
 
-#     response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
+    response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
 
-#     assert response.status_code == 200
-#     assertContains(
-#         response,
-#         COMPLIANT_STATEMENTS_ROW,
-#         html=True,
-#     )
+    assert response.status_code == 200
+    f = open("t.html", "w")
+    f.write(str(response.content))
+    f.close()
+
+    assertContains(
+        response,
+        COMPLIANT_STATEMENTS_ROW,
+        html=True,
+    )
 
 
 @patch("accessibility_monitoring_platform.apps.common.metrics.timezone")
