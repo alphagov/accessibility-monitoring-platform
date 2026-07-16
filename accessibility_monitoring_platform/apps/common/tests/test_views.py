@@ -1035,9 +1035,6 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
 
     assert response.status_code == 200
-    f = open("t.html", "w")
-    f.write(str(response.content))
-    f.close()
 
     assertContains(
         response,
