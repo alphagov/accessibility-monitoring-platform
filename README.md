@@ -140,38 +140,40 @@ To trigger a build, simply use `make static_files_process`
 
 ## Deploying prototypes
 
-WARNING: THIS FEATURE IS NEW AND HIGHlY EXPERIMENTAL. YOU ARE LIKELY TO FACE ISSUES WHEN DEPLOYING PROTOTYPES.
-
-Deploying prototypes runs in AWS Copilot and you will need access to the AWS test account.
+Deploying prototypes uses [Terraform](https://developer.hashicorp.com/terraform/install) and you will need access to the AWS test account.
 
 To deploy a prototype, first set your temporary AWS credentials for the test account:
 
-`python aws_tools/aws_2fa.py [test-aws-account] [nnnnnn]`
-
-then enter
-
 ```
-make deploy_prototype
+python aws_tools/aws_2fa.py [test-aws-account] [nnnnnn]
 ```
 
-This will deploy your local branch to a brand new Copilot app in AWS with a backup of the production data.
-Users can then log in using their production environment login details or be given a burner account with new login details.
-
-Running `make deploy_prototype` updates an existing prototype.
-
-Once you are finished with the prototype, it can be broken down with,
+Then run:
 
 ```
-make breakdown_prototype
+make terraform_deploy_prototype
 ```
 
-The deployment process can take a while. A new app take upwards of an hour and an update can take around 30mins. Breaking down an app takes around 30 minutes.
+This deploys your local branch as a new Terraform environment in AWS, populated with a backup of production data.
 
-A new burner account can be made at any time using:
+Users can log in using their production environment credentials or create a temporary account with new login details.
+
+A temporary account can be created at any time using:
 
 ```
-make new_account_prototype
+make terraform_create_account_prototype
 ```
+
+Running `make terraform_deploy_prototype` again updates an existing prototype.
+
+Once you are finished with the prototype, it can be decommissioned with:
+
+```
+make terraform_breakdown_prototype
+```
+
+The deployment process takes around 30 minutes. Decommissioning takes up to 15 minutes.
+
 
 ## Root dir files explainer
 
@@ -199,3 +201,4 @@ make new_account_prototype
 - `requirements_for_test.txt` : Tracks developer dependencies for Python
 - `requirements.in` : Tracks production dependencies for Python
 - `requirements.txt` : Derived from requirements.in by pip-compile.
+
