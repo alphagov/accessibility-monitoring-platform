@@ -1,1 +1,16 @@
 .env
+.env.example
+.flake8
+.htmlhintrc
+.coveragerc
+.pre-commit-config.yaml
+README.md
+cypress.config.js
+pytest.ini
+pytest_report_viewer.ini
+
+data/
+stack_tests/
+venv/
+.github/
+.vscode/

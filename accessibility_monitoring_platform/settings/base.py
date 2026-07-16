@@ -44,7 +44,6 @@ SECRET_KEY = os.environ["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
 
 CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS]
@@ -91,6 +90,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 MIDDLEWARE = [
+    "accessibility_monitoring_platform.middleware.ALBHealthCheckMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django_browser_reload.middleware.BrowserReloadMiddleware",
     "accessibility_monitoring_platform.apps.common.middleware.healthcheck_middleware.HealthcheckMiddleware",
@@ -158,6 +158,26 @@ if UNDER_TEST or INTEGRATION_TEST:
         "aws_secret_access_key": "secret",
         "bucket_name": "bucketname",
         "deploy_env": "",
+    }
+elif os.environ.get("TERRAFORM") == "TRUE":
+    db_secrets: str = os.environ["DB_PASSWORD"]
+    json_acceptable_string: str = db_secrets.replace("'", '"')
+    db_username_password = json.loads(json_acceptable_string)
+    DATABASES["default"] = {
+        "NAME": os.environ["DB_NAME"],
+        "USER": db_username_password["username"],
+        "PASSWORD": db_username_password["password"],
+        "HOST": os.environ["DB_HOST"],
+        "PORT": 5432,
+        "CONN_MAX_AGE": 0,
+        "ENGINE": "django.db.backends.postgresql",
+    }
+    bucket_name: str = os.environ["BUCKET_NAME"]
+    DATABASES["aws-s3-bucket"] = {
+        "bucket_name": bucket_name,
+        "aws_access_key_id": None,
+        "aws_secret_access_key": None,
+        "aws_region": "eu-west-2",
     }
 elif os.getenv("DB_SECRET") and os.getenv("DB_NAME"):
     db_secrets: str = os.environ["DB_SECRET"]
@@ -310,6 +330,10 @@ if AWS_PROTOTYPE_FILE.exists() and UNDER_TEST is False:
     AMP_PROTOCOL: str = aws_prototype_data["amp_protocol"]
     AMP_VIEWER_DOMAIN: str = aws_prototype_data["viewer_domain"]
 elif DEBUG:
+    AMP_PROTOTYPE_NAME = os.getenv("AMP_PROTOTYPE_NAME", "")
+    AMP_PROTOCOL = os.getenv("AMP_PROTOCOL", "http://")
+    AMP_VIEWER_DOMAIN = os.getenv("AMP_VIEWER_DOMAIN", "127.0.0.1:8082")
+elif os.environ.get("TERRAFORM") == "TRUE":
     AMP_PROTOTYPE_NAME = os.getenv("AMP_PROTOTYPE_NAME", "")
     AMP_PROTOCOL = os.getenv("AMP_PROTOCOL", "http://")
     AMP_VIEWER_DOMAIN = os.getenv("AMP_VIEWER_DOMAIN", "127.0.0.1:8082")

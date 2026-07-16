@@ -25,6 +25,12 @@ AUTH_PASSWORD_VALIDATORS = [
 AWS_PROTOTYPE_FILE: Path = Path("aws_prototype.json")
 if AWS_PROTOTYPE_FILE.exists():
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+elif os.getenv("TERRAFORM"):
+    secret: str = os.getenv("NOTIFY_API_KEY", "")
+    data = json.loads(secret)
+    EMAIL_BACKEND: str = "accessibility_monitoring_platform.email.NotifyEmailBackend"
+    EMAIL_NOTIFY_API_KEY = data["EMAIL_NOTIFY_API_KEY"]
+    EMAIL_NOTIFY_BASIC_TEMPLATE = data["EMAIL_NOTIFY_BASIC_TEMPLATE"]
 elif os.getenv("NOTIFY_API_KEY"):
     EMAIL_BACKEND: str = "accessibility_monitoring_platform.email.NotifyEmailBackend"
     EMAIL_NOTIFY_API_KEY = os.getenv("NOTIFY_API_KEY")
