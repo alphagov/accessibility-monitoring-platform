@@ -24,9 +24,9 @@ variable "image_tag" {
   default     = "latest"
 }
 
-variable "worker_image_tag" {
+variable "viewer_image_tag" {
   type        = string
-  description = "Worker Docker image tag to deploy"
+  description = "Viewer Docker image tag to deploy"
   default     = "latest"
 }
 

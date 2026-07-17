@@ -10,7 +10,7 @@ resource "aws_route53_record" "app" {
   }
 }
 
-resource "aws_route53_record" "worker" {
+resource "aws_route53_record" "viewer" {
   zone_id = data.aws_route53_zone.main.zone_id
   name    = var.app_two_domain_name
   type    = "A"

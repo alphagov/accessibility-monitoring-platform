@@ -24,8 +24,8 @@ resource "aws_lb_target_group" "app" {
   }
 }
 
-resource "aws_lb_target_group" "worker" {
-  name        = "${local.app_name}-worker-tg"
+resource "aws_lb_target_group" "viewer" {
+  name        = "${local.app_name}-viewer-tg"
   port        = 8002
   protocol    = "HTTP"
   vpc_id      = module.vpc.vpc_id
@@ -72,7 +72,7 @@ resource "aws_lb_listener" "https" {
   }
 }
 
-resource "aws_lb_listener_rule" "worker" {
+resource "aws_lb_listener_rule" "viewer" {
   listener_arn = aws_lb_listener.https.arn
   priority     = 100
 
@@ -84,6 +84,6 @@ resource "aws_lb_listener_rule" "worker" {
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.worker.arn
+    target_group_arn = aws_lb_target_group.viewer.arn
   }
 }

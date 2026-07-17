@@ -2,12 +2,12 @@ output "alb_dns_name" {
   value = aws_lb.app.dns_name
 }
 
-output "app_url" {
+output "platform_url" {
   value = aws_acm_certificate.app.domain_name
 }
 
-output "app_two_url" {
-  value = aws_route53_record.worker.name
+output "viewer_url" {
+  value = aws_route53_record.viewer.name
 }
 
 output "rds_endpoint" {
@@ -18,8 +18,8 @@ output "web_ecr_repository_url" {
   value = aws_ecr_repository.app.repository_url
 }
 
-output "worker_ecr_repository_url" {
-  value = aws_ecr_repository.worker.repository_url
+output "viewer_ecr_repository_url" {
+  value = aws_ecr_repository.viewer.repository_url
 }
 
 output "target_group_arn" {

@@ -1,5 +1,5 @@
-resource "aws_ecs_task_definition" "worker" {
-  family                   = "${local.app_name}-worker"
+resource "aws_ecs_task_definition" "viewer" {
+  family                   = "${local.app_name}-viewer"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 512
@@ -9,8 +9,8 @@ resource "aws_ecs_task_definition" "worker" {
 
   container_definitions = jsonencode([
     {
-      name      = "${local.app_name}-worker"
-      image = "${aws_ecr_repository.worker.repository_url}:${var.worker_image_tag}"
+      name      = "${local.app_name}-viewer"
+      image = "${aws_ecr_repository.viewer.repository_url}:${var.viewer_image_tag}"
       essential = true
 
       portMappings = [
@@ -51,17 +51,17 @@ resource "aws_ecs_task_definition" "worker" {
         options = {
           awslogs-group         = aws_cloudwatch_log_group.app.name
           awslogs-region        = "eu-west-2"
-          awslogs-stream-prefix = "worker"
+          awslogs-stream-prefix = "viewer"
         }
       }
     }
   ])
 }
 
-resource "aws_ecs_service" "worker" {
-  name             = "${local.app_name}-worker"
+resource "aws_ecs_service" "viewer" {
+  name             = "${local.app_name}-viewer"
   cluster          = aws_ecs_cluster.main.id
-  task_definition  = aws_ecs_task_definition.worker.arn
+  task_definition  = aws_ecs_task_definition.viewer.arn
   desired_count    = 1
   launch_type      = "FARGATE"
   platform_version = "1.4.0"
@@ -77,8 +77,8 @@ resource "aws_ecs_service" "worker" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.worker.arn
-    container_name   = "${local.app_name}-worker"
+    target_group_arn = aws_lb_target_group.viewer.arn
+    container_name   = "${local.app_name}-viewer"
     container_port   = 8001
   }
 

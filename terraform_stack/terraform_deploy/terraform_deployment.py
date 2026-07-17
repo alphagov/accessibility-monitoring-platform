@@ -2,7 +2,7 @@
 
 import argparse
 from collections.abc import Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import StrEnum
 import json
 import os
@@ -344,7 +344,7 @@ def create_proto_env(proto_name: str) -> None:
             'proto.accessibility-monitoring.service.gov.uk"'
         ),
         'image_tag           = "latest"',
-        'worker_image_tag    = "latest"',
+        'viewer_image_tag    = "latest"',
     ]
 
     env_dir: Path = Path("envs")
@@ -750,11 +750,11 @@ def get_terraform_output(parameter: str) -> str:
 def log_info_for_prototype() -> None:
     """Log the URLs for the prototype application and viewer.
 
-    Retrieves the 'app_url' and 'app_two_url' from Terraform outputs
+    Retrieves the 'platform_url' and 'viewer_url' from Terraform outputs
     and prints them to the console.
     """
-    url_amp: str = get_terraform_output("app_url")
-    url_viewer: str = get_terraform_output("app_two_url")
+    url_amp: str = get_terraform_output("platform_url")
+    url_viewer: str = get_terraform_output("viewer_url")
     print(f">>> amp url: {url_amp}")
     print(f">>> viewer url: {url_viewer}")
 
@@ -809,7 +809,7 @@ def up() -> None:
             "terraform",
             "apply",
             "-target=aws_ecr_repository.app",
-            "-target=aws_ecr_repository.worker",
+            "-target=aws_ecr_repository.viewer",
             f"-var-file=envs/{environment_name}_env_vars.tfvars",
             "-auto-approve",
         ]
@@ -817,7 +817,7 @@ def up() -> None:
 
     # Read Terraform outputs
     web_repo = get_terraform_output("web_ecr_repository_url")
-    worker_repo = get_terraform_output("worker_ecr_repository_url")
+    viewer_repo = get_terraform_output("viewer_ecr_repository_url")
 
     # Generate image tag
     git_sha = run(
@@ -873,8 +873,8 @@ def up() -> None:
         ]
     )
 
-    # Build worker image
-    print(f"\nBuilding worker image: {worker_repo}:{image_tag}")
+    # Build viewer image
+    print(f"\nBuilding viewer image: {viewer_repo}:{image_tag}")
 
     run(
         [
@@ -884,7 +884,7 @@ def up() -> None:
             "--platform",
             "linux/amd64",
             "-t",
-            f"{worker_repo}:{image_tag}",
+            f"{viewer_repo}:{image_tag}",
             "-f",
             config.viewer_docker_path,
             "--load",
@@ -894,7 +894,7 @@ def up() -> None:
 
     # Push images
     run(["docker", "push", f"{web_repo}:{image_tag}"])
-    run(["docker", "push", f"{worker_repo}:{image_tag}"])
+    run(["docker", "push", f"{viewer_repo}:{image_tag}"])
 
     # Deploy full Terraform stack
     run(
@@ -903,7 +903,7 @@ def up() -> None:
             "apply",
             f"-var-file=envs/{environment_name}_env_vars.tfvars",
             f"-var=image_tag={image_tag}",
-            f"-var=worker_image_tag={image_tag}",
+            f"-var=viewer_image_tag={image_tag}",
             "-auto-approve",
         ]
     )
@@ -920,8 +920,8 @@ def up() -> None:
     if not should_flush_database:
         return
 
-    app_url: str = get_terraform_output(parameter="app_url")
-    service_url: str = f"https://{app_url}"
+    platform_url: str = get_terraform_output(parameter="platform_url")
+    service_url: str = f"https://{platform_url}"
 
     wait_for_service(
         url=service_url,

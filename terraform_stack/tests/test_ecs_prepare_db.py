@@ -356,7 +356,7 @@ class TestDownloadSqlFile:
         )
 
         captured = capsys.readouterr()
-        assert captured.out == f"- Downloaded backups/latest.sql\n"
+        assert captured.out == "- Downloaded backups/latest.sql\n"
 
 
     @patch("terraform_stack.ecs_tools.ecs_prepare_db.boto3.Session")
