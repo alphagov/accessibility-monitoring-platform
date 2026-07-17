@@ -6,6 +6,10 @@ output "app_url" {
   value = aws_acm_certificate.app.domain_name
 }
 
+output "app_two_url" {
+  value = aws_route53_record.worker.name
+}
+
 output "rds_endpoint" {
   value = aws_db_instance.postgres.address
 }

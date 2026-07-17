@@ -747,6 +747,18 @@ def get_terraform_output(parameter: str) -> str:
     )
 
 
+def log_info_for_prototype() -> None:
+    """Log the URLs for the prototype application and viewer.
+
+    Retrieves the 'app_url' and 'app_two_url' from Terraform outputs
+    and prints them to the console.
+    """
+    url_amp: str = get_terraform_output("app_url")
+    url_viewer: str = get_terraform_output("app_two_url")
+    print(f">>> amp url: {url_amp}")
+    print(f">>> viewer url: {url_viewer}")
+
+
 def up() -> None:
     """Build and deploy the requested environment.
 
@@ -897,6 +909,8 @@ def up() -> None:
     )
 
     print(f"\nDeployment complete.\nImage tag: {image_tag}")
+
+    log_info_for_prototype()
 
     if args.environment != Environment.PROTO:
         return
