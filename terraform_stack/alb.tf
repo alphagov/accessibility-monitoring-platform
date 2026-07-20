@@ -13,7 +13,7 @@ resource "aws_lb_target_group" "app" {
   target_type = "ip"
 
   health_check {
-    path                = "/alb-health/"
+    path                = "/healthcheck"
     matcher             = "200"
     interval            = 30
     timeout             = 5
@@ -32,7 +32,7 @@ resource "aws_lb_target_group" "viewer" {
   target_type = "ip"
 
   health_check {
-    path                = "/alb-health/"
+    path                = "/healthcheck"
     matcher             = "200"
     interval            = 30
     timeout             = 5
