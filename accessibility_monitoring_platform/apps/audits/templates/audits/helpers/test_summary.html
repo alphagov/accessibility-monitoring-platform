@@ -228,14 +228,14 @@
                                         {% include 'audits/helpers/issue_identifier.html' with issue=failure %}
                                     </td>
                                     <td class="govuk-table__cell amp-width-one-third">
-                                        <p>{{ failure.get_check_result_state_display }}</p>
+                                        <p class="amp-margin-top-0">{{ failure.get_check_result_state_display }}</p>
                                         <div class="amp-notes amp-margin-bottom-15">{{ failure.notes|markdown_to_html }}</div>
                                         <a href="{% url 'audits:edit-audit-page-checks' page.id %}" class="govuk-link govuk-link--no-visited-state">
                                             Edit initial test
                                         </a>
                                     </td>
                                     <td class="govuk-table__cell amp-width-one-third{% if not enable_12_week_ui %} amp-disabled{% endif %}">
-                                        <p>{{ failure.get_retest_state_display }}</p>
+                                        <p class="amp-margin-top-0">{{ failure.get_retest_state_display }}</p>
                                         <div class="amp-notes amp-margin-bottom-15">{{ failure.retest_notes|markdown_to_html }}</div>
                                         {% if enable_12_week_ui %}
                                             {% if page.failed_check_results %}
@@ -311,14 +311,14 @@
                                         </ul>
                                     </td>
                                     <td class="govuk-table__cell amp-width-one-third">
-                                        <p>{{ failure.get_check_result_state_display }}</p>
+                                        <p class="amp-margin-top-0">{{ failure.get_check_result_state_display }}</p>
                                         <div class="amp-notes amp-margin-bottom-15">{{ failure.notes|markdown_to_html }}</div>
                                         <a href="{% url 'audits:edit-audit-page-checks' failure.page.id %}" class="govuk-link govuk-link--no-visited-state">
                                             Edit initial test
                                         </a>
                                     </td>
                                     <td class="govuk-table__cell amp-width-one-third{% if not enable_12_week_ui %} amp-disabled{% endif %}">
-                                        <p>{{ failure.get_retest_state_display }}</p>
+                                        <p class="amp-margin-top-0">{{ failure.get_retest_state_display }}</p>
                                         <div class="amp-notes amp-margin-bottom-15">{{ failure.retest_notes|markdown_to_html }}</div>
                                         {% if enable_12_week_ui %}
                                             {% if failure.page.failed_check_results %}
@@ -350,9 +350,9 @@
                 </thead>
                 <tbody class="govuk-table__body">
                 {% for page in pages_with_retest_notes %}
-                    <tr class="govuk-table__row ">
+                    <tr class="govuk-table__row">
                         <td class="govuk-table__cell amp-width-one-third">
-                            <p>{{ page }}</p>
+                            <p class="amp-margin-top-0">{{ page }}</p>
                             <ul class="govuk-list">
                             {% if page.location %}
                                 <li>{{ page.location }}</li>
