@@ -4242,7 +4242,7 @@ def test_bulk_copy_issue_ids_to_clipboard(admin_client):
 
     assertContains(
         response,
-        f"[{wcag_check_result_1.issue_identifier} {wcag_check_result_2.issue_identifier}]",
+        f"({wcag_check_result_1.issue_identifier} {wcag_check_result_2.issue_identifier})",
     )
     assertContains(
         response,
