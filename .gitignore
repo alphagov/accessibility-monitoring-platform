@@ -253,3 +253,38 @@ stack_tests/smoke_tests_viewer/cypress/screenshots
 stack_tests/smoke_tests_viewer/cypress/videos
 
 .elasticbeanstalk
+
+# Terraform working directory
+**/.terraform/
+
+# Terraform state files
+*.tfstate
+*.tfstate.*
+
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Sensitive variable files
+proto_*.tfvars
+proto_*.hcl
+*.tfvars.json
+
+# Override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform plan files
+*.tfplan
+plan.out
+
+# CLI config files
+.terraformrc
+terraform.rc
+
+# Lock file (optional)
+# Usually KEEP this committed for teams:
+# .terraform.lock.hcl

@@ -149,6 +149,26 @@ if UNDER_TEST or INTEGRATION_TEST:
         "bucket_name": "bucketname",
         "deploy_env": "",
     }
+elif os.environ.get("TERRAFORM") == "TRUE":
+    db_secrets: str = os.environ["DB_PASSWORD"]
+    json_acceptable_string: str = db_secrets.replace("'", '"')
+    db_username_password = json.loads(json_acceptable_string)
+    DATABASES["default"] = {
+        "NAME": os.environ["DB_NAME"],
+        "USER": db_username_password["username"],
+        "PASSWORD": db_username_password["password"],
+        "HOST": os.environ["DB_HOST"],
+        "PORT": 5432,
+        "CONN_MAX_AGE": 0,
+        "ENGINE": "django.db.backends.postgresql",
+    }
+    bucket_name: str = os.environ["BUCKET_NAME"]
+    DATABASES["aws-s3-bucket"] = {
+        "bucket_name": bucket_name,
+        "aws_access_key_id": None,
+        "aws_secret_access_key": None,
+        "aws_region": "eu-west-2",
+    }
 elif os.getenv("DB_SECRET") and os.getenv("DB_NAME"):
     db_secrets: str = os.environ["DB_SECRET"]
     json_acceptable_string: str = db_secrets.replace("'", '"')
@@ -167,7 +187,7 @@ elif os.getenv("DB_SECRET") and os.getenv("DB_NAME"):
         "bucket_name": bucket_name,
         "aws_access_key_id": None,
         "aws_secret_access_key": None,
-        "aws_region": None,
+        "aws_region": "us-east-1",
     }
 
 LOGGING = {
