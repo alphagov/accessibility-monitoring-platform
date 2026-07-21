@@ -405,6 +405,7 @@ def reverse_code(apps, schema_editor):
     StatementCheckResult.objects.filter(
         statement_audit__audit_round_type=EQUALITY_BODY_ROUND_TYPE
     ).delete()
+    StatementCheckResult.objects.all().update(statement_audit=None)
     StatementCheckResult.objects.all().update(statement_check_result_initial=None)
     StatementPage.objects.all().update(audit_overview=None)
     StatementAudit.objects.all().delete()
