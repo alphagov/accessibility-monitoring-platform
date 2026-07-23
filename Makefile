@@ -56,6 +56,7 @@ test_report_viewer:
 test:
 	make test_accessibility_monitoring_platform
 	make test_report_viewer
+	pytest terraform_stack/tests
 	npm test
 
 int_test:
@@ -84,3 +85,18 @@ new_account_prototype:
 
 prototype_reload_database:
 	python aws_prototype/main.py -b reload_database
+
+terraform_deploy_prototype:
+	python terraform_stack/terraform_deploy/terraform_deployment.py --environment proto --function up
+
+terraform_breakdown_prototype:
+	python terraform_stack/terraform_deploy/terraform_deployment.py --environment proto --function down
+
+terraform_reset_prototype_db:
+	python terraform_stack/terraform_deploy/terraform_deployment.py --environment proto --function reset_db
+
+terraform_create_account_prototype:
+	python terraform_stack/terraform_deploy/terraform_deployment.py --environment proto --function create_dummy_account
+
+terraform_list_environments:
+	python terraform_stack/terraform_deploy/terraform_deployment.py --environment proto --function ls
