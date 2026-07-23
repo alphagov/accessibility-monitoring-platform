@@ -12,7 +12,6 @@ init:
 		&& echo "email: admin@email.com & password: secret"
 
 freeze_requirements: # Pin all requirements including sub dependencies into requirements.txt
-	# uv pip install --upgrade pip-tools
 	uv pip compile --upgrade requirements.in
 
 clean_local:
