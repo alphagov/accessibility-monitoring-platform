@@ -1,22 +1,20 @@
 #!/usr/bin/env python3
 
 import argparse
-from collections.abc import Sequence
-from dataclasses import dataclass
-from enum import StrEnum
 import json
 import os
-from pathlib import Path
 import random
+import ssl
 import string
 import subprocess
 import time
-from typing import Literal, overload
-import urllib.request
 import urllib.error
-import ssl
-
-from typing import ClassVar
+import urllib.request
+from collections.abc import Sequence
+from dataclasses import dataclass
+from enum import StrEnum
+from pathlib import Path
+from typing import ClassVar, Literal, overload
 
 import boto3
 from botocore.exceptions import ClientError
@@ -77,7 +75,7 @@ class Args:
     PROD: ClassVar[str] = "prod"
 
     @classmethod
-    def parse(cls) -> "Args":
+    def parse(cls, arg_vals=None) -> "Args":
         """Create and configure the command-line argument parser.
 
         Returns:
@@ -124,7 +122,7 @@ class Args:
             help="Will reset the database when updating a prototype.",
         )
 
-        namespace = parser.parse_args()
+        namespace = parser.parse_args(arg_vals)
 
         return cls(
             environment=namespace.environment,
