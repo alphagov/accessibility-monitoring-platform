@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements.in
 #
-asgiref==3.11.1
+asgiref==3.12.1
     # via
     #   django
     #   django-axes
@@ -13,11 +13,11 @@ attrs==26.1.0
     # via
     #   outcome
     #   trio
-boto3==1.43.36
+boto3==1.43.52
     # via
     #   -r requirements.in
     #   moto
-botocore==1.43.36
+botocore==1.43.52
     # via
     #   boto3
     #   moto
@@ -26,13 +26,13 @@ certifi==2026.6.17
     # via
     #   requests
     #   selenium
-cffi==2.0.0
+cffi==2.1.0
     # via cryptography
-charset-normalizer==3.4.7
+charset-normalizer==3.4.9
     # via requests
 cryptography==49.0.0
     # via moto
-django==6.0.6
+django==6.0.7
     # via
     #   -r requirements.in
     #   django-axes
@@ -45,7 +45,7 @@ django-axes==8.3.1
     # via -r requirements.in
 django-browser-reload==1.21.0
     # via -r requirements.in
-django-formtools==2.6.1
+django-formtools==2.7
     # via django-two-factor-auth
 django-otp==1.7.0
     # via django-two-factor-auth
@@ -83,7 +83,7 @@ packaging==26.2
     # via
     #   pytest
     #   webdriver-manager
-phonenumbers==9.0.33
+phonenumbers==9.0.34
     # via -r requirements.in
 pluggy==1.6.0
     # via pytest
@@ -117,11 +117,11 @@ requests==2.34.2
     #   notifications-python-client
     #   responses
     #   webdriver-manager
-responses==0.26.1
+responses==0.26.2
     # via moto
-s3transfer==0.19.0
+s3transfer==0.19.1
     # via boto3
-selenium==4.45.0
+selenium==4.46.0
     # via -r requirements.in
 six==1.17.0
     # via python-dateutil
@@ -137,7 +137,7 @@ trio==0.33.0
     #   trio-websocket
 trio-websocket==0.12.2
     # via selenium
-typing-extensions==4.15.0
+typing-extensions==4.16.0
     # via selenium
 urllib3[socks]==2.7.0
     # via

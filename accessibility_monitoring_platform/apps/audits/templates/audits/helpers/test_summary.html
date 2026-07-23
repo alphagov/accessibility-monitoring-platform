@@ -347,7 +347,7 @@
                                                 </a>
                                             {% endif %}
                                         {% else %}
-                                            <li><span class="govuk-body amp-disabled">Edit 12-week test</span></li>
+                                            <span class="govuk-body amp-disabled">Edit 12-week test</span>
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -370,9 +370,9 @@
                 </thead>
                 <tbody class="govuk-table__body">
                 {% for page in pages_with_retest_notes %}
-                    <tr class="govuk-table__row ">
+                    <tr class="govuk-table__row">
                         <td class="govuk-table__cell amp-width-one-third">
-                            <p>{{ page }}</p>
+                            <p class="amp-margin-top-0">{{ page }}</p>
                             <ul class="govuk-list">
                             {% if page.location %}
                                 <li>{{ page.location }}</li>
@@ -396,7 +396,7 @@
                                     </li>
                                 {% endif %}
                             {% else %}
-                                <li><span class="govuk-body amp-disabled">Edit 12-week test</span></li>
+                                <span class="govuk-body amp-disabled">Edit 12-week test</span>
                             {% endif %}
                         </td>
                         <td class="govuk-table__cell amp-width-one-third amp-notes"></td>

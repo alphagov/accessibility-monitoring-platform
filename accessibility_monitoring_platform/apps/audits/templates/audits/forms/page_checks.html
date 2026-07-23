@@ -52,6 +52,14 @@
                 <hr class="amp-width-100 amp-margin-bottom-40">
                 {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                 {% include 'audits/helpers/amp_wcag_state_field.html' with field=form.check_result_state %}
+                <details class="govuk-details" data-module="govuk-details">
+                    <summary class="govuk-details__summary">
+                        <span class="govuk-details__summary-text">Report boilerplate</span>
+                    </summary>
+                    <div class="govuk-details__text amp-notes">
+                        {{ form.initial.wcag_definition.report_boilerplate|markdown_to_html }}
+                    </div>
+                </details>
                 {% include 'audits/helpers/check_result_matching_initial_errors.html' %}
                 {% include 'common/amp_field.html' with field=form.notes %}
                 <div id="amp-content-guidance-container-{{ form.notes.auto_id }}" class="amp-content-guidance-container govuk-grid-row amp-margin-bottom-10">
