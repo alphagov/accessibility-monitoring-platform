@@ -168,7 +168,7 @@ def validate_permissions(
             ">>> You're currently signed into test and launching (or decommissioning) a prod, staging, or testing env"
         )
 
-    if account_id == config.aws_account_id_prod and args.function == "down":
+    if account_id == config.aws_account_id_prod and args.function == Function.DOWN:
         raise Exception(
             ">>> You're currently signed into prod and attempting to delete something"
         )
@@ -180,7 +180,7 @@ def validate_permissions(
 
     if (
         account_id == config.aws_account_id_prod
-        and args.function == "create_dummy_account"
+        and args.function == Function.CREATE_DUMMY_ACCOUNT
     ):
         raise Exception(
             ">>> You're currently signed into prod and attempting to create a dummy account"
@@ -190,7 +190,6 @@ def validate_permissions(
 @overload
 def run(
     command: Sequence[str],
-    *,
     capture_output: Literal[True],
     input_text: str | None = None,
 ) -> str: ...
@@ -199,7 +198,6 @@ def run(
 @overload
 def run(
     command: Sequence[str],
-    *,
     capture_output: Literal[False] = False,
     input_text: str | None = None,
 ) -> None: ...

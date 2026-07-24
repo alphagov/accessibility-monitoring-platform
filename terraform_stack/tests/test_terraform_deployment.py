@@ -7,7 +7,9 @@ from terraform_stack.terraform_deploy.terraform_deployment import (
     Config,
     Environment,
     Function,
+    create_proto_name,
     get_aws_account_id,
+    run,
     validate_permissions,
 )
 
@@ -90,6 +92,96 @@ def test_validate_permissions_wrong_environment_for_test_account(environment):
     )
 
 
+def test_validate_permissions_prod_drop():
+    mock_args: Args = Args.parse(
+        ["--environment", Environment.PROD, "--function", Function.DOWN]
+    )
+    config: Config = Config()
+    with pytest.raises(Exception) as exc_info:
+        validate_permissions(
+            args=mock_args, account_id=config.aws_account_id_prod, config=config
+        )
+
+    assert (
+        str(exc_info.value)
+        == ">>> You're currently signed into prod and attempting to delete something"
+    )
+
+
+def test_validate_permissions_prod_proto():
+    mock_args: Args = Args.parse(
+        ["--environment", Environment.PROTO, "--function", Function.LIST]
+    )
+    config: Config = Config()
+    with pytest.raises(Exception) as exc_info:
+        validate_permissions(
+            args=mock_args, account_id=config.aws_account_id_prod, config=config
+        )
+
+    assert (
+        str(exc_info.value)
+        == ">>> You're currently signed into prod and attempting to launch a prototype"
+    )
+
+
+def test_validate_permissions_prod_create_dummy_account():
+    mock_args: Args = Args.parse(
+        [
+            "--environment",
+            Environment.PROD,
+            "--function",
+            Function.CREATE_DUMMY_ACCOUNT,
+        ]
+    )
+    config: Config = Config()
+    with pytest.raises(Exception) as exc_info:
+        validate_permissions(
+            args=mock_args, account_id=config.aws_account_id_prod, config=config
+        )
+
+    assert (
+        str(exc_info.value)
+        == ">>> You're currently signed into prod and attempting to create a dummy account"
+    )
+
+
+@pytest.mark.parametrize(
+    "command,capture_output,input_text,expected_result",
+    [
+        (["echo", "foo"], False, None, None),
+        (["echo", "foo"], False, "bar", None),
+        (["echo", "foo"], True, None, "foo"),
+        (["echo", "foo"], True, "bar", "foo"),
+    ],
+)
+def test_run_command_capture_output(
+    command, capture_output, input_text, expected_result
+):
+    result: str | None = run(
+        command=command, capture_output=capture_output, input_text=input_text
+    )
+
+    assert result == expected_result
+
+
+def test_run_passes_input_to_subprocess_run():
+    with patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.subprocess.run"
+    ) as mock_run:
+        run(command=["echo", "foo"], capture_output=True, input_text="bar")
+
+        mock_run.assert_called_once_with(
+            [
+                "echo",
+                "foo",
+            ],
+            input="bar",
+            text=True,
+            check=True,
+            capture_output=True,
+        )
+
+
 def test_get_aws_account_id():
     expected_account_id = "144664177605"
 
@@ -111,3 +203,26 @@ def test_get_aws_account_id():
             capture_output=True,
         )
         assert result == expected_account_id
+
+
+@pytest.mark.parametrize(
+    "git_branch_name,expected_proto_name",
+    [("1234-branch", "proto_1234"), ("dev-branch", "proto_devb")],
+)
+def test_create_proto_name(git_branch_name, expected_proto_name):
+    with patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.subprocess.check_output"
+    ) as mock_check_output:
+        mock_check_output.return_value = git_branch_name
+
+        result = create_proto_name()
+
+        mock_check_output.assert_called_once_with(
+            [
+                "git",
+                "branch",
+                "--show-current",
+            ],
+            text=True,
+        )
+        assert result == expected_proto_name
