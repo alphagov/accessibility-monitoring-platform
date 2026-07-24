@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, call, patch
 
 import pytest
 
@@ -7,8 +7,11 @@ from terraform_stack.terraform_deploy.terraform_deployment import (
     Config,
     Environment,
     Function,
+    create_proto_backend,
+    create_proto_env,
     create_proto_name,
     get_aws_account_id,
+    prepare_environment,
     run,
     validate_permissions,
 )
@@ -226,3 +229,99 @@ def test_create_proto_name(git_branch_name, expected_proto_name):
             text=True,
         )
         assert result == expected_proto_name
+
+
+def test_create_proto_backend():
+    with patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.Path"
+    ) as mock_path:
+        mock_backend_file: MagicMock = MagicMock()
+        mock_backend_dir: MagicMock = MagicMock()
+        mock_backend_dir.__truediv__.return_value = mock_backend_file
+        mock_path.return_value = mock_backend_dir
+        config: Config = Config()
+        proto_name: str = "proto_name"
+
+        create_proto_backend(
+            proto_name=proto_name,
+            terraform_bucket_store=config.proto_terraform_bucket_store,
+        )
+
+        mock_path.assert_called_once_with("backends")
+        mock_backend_dir.mkdir.assert_called_once_with(parents=True, exist_ok=True)
+        mock_backend_dir.__truediv__.assert_called_once_with(f"{proto_name}_env.hcl")
+        mock_backend_file.write_text.assert_called_once_with(
+            f"""bucket       = "{config.proto_terraform_bucket_store}"
+key          = "{proto_name}/terraform.tfstate"
+region       = "eu-west-2"
+encrypt      = true
+use_lockfile = true""",
+            encoding="utf-8",
+        )
+
+
+def test_create_proto_env():
+    with patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.Path"
+    ) as mock_path:
+        mock_backend_file: MagicMock = MagicMock()
+        mock_backend_dir: MagicMock = MagicMock()
+        mock_backend_dir.__truediv__.return_value = mock_backend_file
+        mock_path.return_value = mock_backend_dir
+        proto_name: str = "proto_name"
+
+        create_proto_env(proto_name=proto_name)
+
+        mock_path.assert_called_once_with("envs")
+        mock_backend_dir.mkdir.assert_called_once_with(parents=True, exist_ok=True)
+        mock_backend_dir.__truediv__.assert_called_once_with(
+            f"{proto_name}_env_vars.tfvars"
+        )
+        mock_backend_file.write_text.assert_called_once_with(
+            '''environment         = "proto-name-env"
+domain_name         = "proto.accessibility-monitoring.service.gov.uk"
+app_domain_name     = "proto-name-amp.proto.accessibility-monitoring.service.gov.uk"
+app_two_domain_name = "proto-name-viewer.proto.accessibility-monitoring.service.gov.uk"
+image_tag           = "latest"
+viewer_image_tag    = "latest"''',
+            encoding="utf-8",
+        )
+
+
+@pytest.mark.parametrize(
+    "environment,expected_environment_name",
+    [
+        (Environment.PROD, "prod"),
+        (Environment.PROTO, "proto_1234"),
+        (Environment.STAGING, "staging"),
+        (Environment.TEST, "test"),
+    ],
+)
+@pytest.mark.parametrize(
+    "function",
+    [
+        Function.CREATE_DUMMY_ACCOUNT,
+        Function.DOWN,
+        Function.EXEC,
+        Function.LIST,
+        Function.RESET_DB,
+        Function.UP,
+    ],
+)
+def test_prepare_environment(function, environment, expected_environment_name):
+    with patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.subprocess.check_output"
+    ) as mock_check_output, patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.Path"
+    ) as mock_path:
+        mock_check_output.return_value = "1234-branch"
+        mock_backend_dir: MagicMock = MagicMock()
+        mock_path.return_value = mock_backend_dir
+        mock_args: Args = Args.parse(
+            ["--environment", environment, "--function", function]
+        )
+        config: Config = Config()
+
+        environment_name: str = prepare_environment(args=mock_args, config=config)
+
+        assert environment_name == expected_environment_name
