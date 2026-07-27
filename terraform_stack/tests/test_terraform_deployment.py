@@ -1,4 +1,5 @@
-from unittest.mock import MagicMock, call, patch
+import urllib.error
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -14,6 +15,7 @@ from terraform_stack.terraform_deploy.terraform_deployment import (
     prepare_environment,
     run,
     validate_permissions,
+    wait_for_service,
 )
 
 
@@ -325,3 +327,41 @@ def test_prepare_environment(function, environment, expected_environment_name):
         environment_name: str = prepare_environment(args=mock_args, config=config)
 
         assert environment_name == expected_environment_name
+
+
+def test_wait_for_service_immediate_success():
+    with patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.urllib.request.urlopen"
+    ) as mock_urlopen, patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.time.sleep"
+    ) as mock_sleep, patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.ssl._create_unverified_context"
+    ) as mock_create_unverified_context:
+        mock_create_unverified_context.return_value = {"ssl": "context"}
+        wait_for_service(url="https://example.com")
+
+        mock_urlopen.assert_called_once_with(
+            "https://example.com", context={"ssl": "context"}, timeout=5
+        )
+        mock_sleep.assert_not_called()
+
+
+def test_wait_for_service_timeout():
+    with patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.urllib.request.urlopen"
+    ) as mock_urlopen, patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.time.sleep"
+    ) as mock_sleep, patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.ssl._create_unverified_context"
+    ) as mock_create_unverified_context:
+        mock_urlopen.side_effect = urllib.error.URLError("Foo")
+        mock_create_unverified_context.return_value = {"ssl": "context"}
+        url: str = "https://example.com"
+        timeout: int = 0
+
+        with pytest.raises(TimeoutError) as exc_info:
+            wait_for_service(url=url, timeout=timeout)
+
+        assert str(exc_info.value) == f">>> {url} timed out after {timeout} seconds"
+        # mock_urlopen.assert_not_called()
+        # mock_sleep.assert_not_called()
