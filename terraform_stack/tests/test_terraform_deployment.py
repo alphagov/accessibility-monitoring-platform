@@ -2,6 +2,7 @@ import urllib.error
 from unittest.mock import MagicMock, patch
 
 import pytest
+from botocore.exceptions import ClientError
 
 from terraform_stack.terraform_deploy.terraform_deployment import (
     Args,
@@ -11,7 +12,9 @@ from terraform_stack.terraform_deploy.terraform_deployment import (
     create_proto_backend,
     create_proto_env,
     create_proto_name,
+    empty_s3_bucket,
     get_aws_account_id,
+    matches,
     prepare_environment,
     run,
     validate_permissions,
@@ -346,12 +349,12 @@ def test_wait_for_service_immediate_success():
         mock_sleep.assert_not_called()
 
 
-def test_wait_for_service_timeout():
+def test_wait_for_service_timeout_error_exception():
     with patch(
         "terraform_stack.terraform_deploy.terraform_deployment.urllib.request.urlopen"
     ) as mock_urlopen, patch(
         "terraform_stack.terraform_deploy.terraform_deployment.time.sleep"
-    ) as mock_sleep, patch(
+    ), patch(
         "terraform_stack.terraform_deploy.terraform_deployment.ssl._create_unverified_context"
     ) as mock_create_unverified_context:
         mock_urlopen.side_effect = urllib.error.URLError("Foo")
@@ -363,5 +366,111 @@ def test_wait_for_service_timeout():
             wait_for_service(url=url, timeout=timeout)
 
         assert str(exc_info.value) == f">>> {url} timed out after {timeout} seconds"
-        # mock_urlopen.assert_not_called()
-        # mock_sleep.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "name,prefixes,expected_result",
+    [
+        ("name", ["a", "b", "c"], False),
+        ("name", ["am", "me"], False),
+        ("name", [], False),
+        ("name", ["a", "na", "c"], True),
+    ],
+)
+def test_matches(name, prefixes, expected_result):
+    assert matches(name=name, prefixes=prefixes) == expected_result
+
+
+def test_matches_value_error_exception():
+    with pytest.raises(ValueError) as exc_info:
+        matches(name="", prefixes=[])
+
+    assert str(exc_info.value) == "'name' must not be empty."
+
+
+def test_empty_s3_bucket_client_error(capsys):
+    with patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.boto3"
+    ) as mock_boto3:
+        mock_s3_client: MagicMock = MagicMock()
+        mock_s3_client.list_buckets.side_effect = ClientError(
+            error_response={}, operation_name="foo"
+        )
+        mock_s3_resource: MagicMock = MagicMock()
+        mock_boto3.client.return_value = mock_s3_client
+        mock_boto3.resource.return_value = mock_s3_resource
+        region: str = "eu-west-2"
+        prefix: str = "prefix"
+        config: Config = Config()
+        empty_s3_bucket(
+            region=region,
+            prefix=prefix,
+            dry_run=False,
+            buckets_to_ignore=config.protected_s3_buckets,
+        )
+
+        captured = capsys.readouterr()
+
+        assert (
+            captured.out
+            == "[S3] Failed to list buckets: An error occurred (Unknown) when calling the foo operation: Unknown\n"
+        )
+
+
+def test_empty_s3_bucket_no_buckets(capsys):
+    with patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.boto3"
+    ) as mock_boto3:
+        mock_s3_client: MagicMock = MagicMock()
+        mock_s3_client.list_buckets.return_value = {"Buckets": []}
+        mock_s3_resource: MagicMock = MagicMock()
+        mock_boto3.client.return_value = mock_s3_client
+        mock_boto3.resource.return_value = mock_s3_resource
+        region: str = "eu-west-2"
+        prefix: str = "prefix"
+        config: Config = Config()
+        empty_s3_bucket(
+            region=region,
+            prefix=prefix,
+            dry_run=False,
+            buckets_to_ignore=config.protected_s3_buckets,
+        )
+
+        captured = capsys.readouterr()
+
+        assert captured.out == ""
+
+
+def test_empty_s3_bucket_protected_bucket(capsys):
+    with patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.boto3"
+    ) as mock_boto3:
+        mock_s3_client: MagicMock = MagicMock()
+        mock_s3_client.list_buckets.return_value = {
+            "Buckets": [
+                {
+                    "Name": "amp-stack-terraform-state",
+                    "CreationDate": "2026-04-23T22:58:21+00:00",
+                    "BucketArn": "arn:aws:s3:::amp-aurora-backup-test",
+                }
+            ]
+        }
+        mock_s3_resource: MagicMock = MagicMock()
+        mock_boto3.client.return_value = mock_s3_client
+        mock_boto3.resource.return_value = mock_s3_resource
+        region: str = "eu-west-2"
+        prefix: str = "prefix"
+        config: Config = Config()
+        empty_s3_bucket(
+            region=region,
+            prefix=prefix,
+            dry_run=False,
+            buckets_to_ignore=config.protected_s3_buckets,
+        )
+
+        captured = capsys.readouterr()
+
+        assert (
+            captured.out
+            == "[S3] Protected bucket; skipping: amp-stack-terraform-state\n"
+        )
