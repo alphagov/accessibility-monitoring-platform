@@ -1,5 +1,5 @@
 import urllib.error
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 
 import pytest
 from botocore.exceptions import ClientError
@@ -12,6 +12,7 @@ from terraform_stack.terraform_deploy.terraform_deployment import (
     create_proto_backend,
     create_proto_env,
     create_proto_name,
+    delete_ecr_repos,
     delete_secrets,
     empty_s3_bucket,
     get_aws_account_id,
@@ -598,4 +599,85 @@ def test_delete_secrets_with_client_error_exception(capsys):
         mock_secrets_manager.delete_secret.assert_called_once_with(
             SecretId=f"arn:aws:secretsmanager:eu-west-2:144664177605:secret:{prefix}_secret_key-urgsoa",
             ForceDeleteWithoutRecovery=True,
+        )
+
+
+def test_delete_ecr_repos(capsys):
+    with patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.boto3"
+    ) as mock_boto3:
+        region: str = "eu-west-2"
+        prefix: str = "prefix"
+        mock_paginator: MagicMock = MagicMock()
+        mock_paginator.paginate.return_value = [
+            {
+                "repositories": [
+                    {"repositoryName": f"{prefix}r/amp-svc"},
+                    {"repositoryName": f"{prefix}r/viewer-svc"},
+                ]
+            }
+        ]
+        mock_ecr_manager: MagicMock = MagicMock()
+        mock_ecr_manager.get_paginator.return_value = mock_paginator
+        mock_boto3.client.return_value = mock_ecr_manager
+
+        delete_ecr_repos(region=region, prefix=prefix, dry_run=False)
+
+        captured = capsys.readouterr()
+
+        assert (
+            captured.out
+            == f"""[ECR] Found: {prefix}r/amp-svc
+  Deleted: {prefix}r/amp-svc
+[ECR] Found: {prefix}r/viewer-svc
+  Deleted: {prefix}r/viewer-svc
+"""
+        )
+        mock_ecr_manager.delete_repository.assert_has_calls(
+            [
+                call(repositoryName=f"{prefix}r/amp-svc", force=True),
+                call(repositoryName=f"{prefix}r/viewer-svc", force=True),
+            ]
+        )
+
+
+def test_delete_ecr_repos_client_error_exception(capsys):
+    with patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.boto3"
+    ) as mock_boto3:
+        region: str = "eu-west-2"
+        prefix: str = "prefix"
+        mock_paginator: MagicMock = MagicMock()
+        mock_paginator.paginate.return_value = [
+            {
+                "repositories": [
+                    {"repositoryName": f"{prefix}r/amp-svc"},
+                    {"repositoryName": f"{prefix}r/viewer-svc"},
+                ]
+            }
+        ]
+        mock_ecr_manager: MagicMock = MagicMock()
+        mock_ecr_manager.get_paginator.return_value = mock_paginator
+        mock_ecr_manager.delete_repository.side_effect = ClientError(
+            error_response={}, operation_name="foo"
+        )
+        mock_boto3.client.return_value = mock_ecr_manager
+
+        delete_ecr_repos(region=region, prefix=prefix, dry_run=False)
+
+        captured = capsys.readouterr()
+
+        assert (
+            captured.out
+            == f"""[ECR] Found: {prefix}r/amp-svc
+  Failed to delete {prefix}r/amp-svc: An error occurred (Unknown) when calling the foo operation: Unknown
+[ECR] Found: {prefix}r/viewer-svc
+  Failed to delete {prefix}r/viewer-svc: An error occurred (Unknown) when calling the foo operation: Unknown
+"""
+        )
+        mock_ecr_manager.delete_repository.assert_has_calls(
+            [
+                call(repositoryName=f"{prefix}r/amp-svc", force=True),
+                call(repositoryName=f"{prefix}r/viewer-svc", force=True),
+            ]
         )
