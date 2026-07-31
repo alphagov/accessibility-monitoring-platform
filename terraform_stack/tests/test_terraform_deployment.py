@@ -19,6 +19,7 @@ from terraform_stack.terraform_deploy.terraform_deployment import (
     flush_database,
     get_aws_account_id,
     get_terraform_output,
+    log_info_for_prototype,
     matches,
     prepare_environment,
     run,
@@ -754,8 +755,10 @@ def test_check_env_exists(env_name, expected_result):
 
 def test_get_terraform_output():
     with patch("terraform_stack.terraform_deploy.terraform_deployment.run") as mock_run:
+        mock_run.return_value = "terraform output result"
         parameter: str = "app_url"
-        get_terraform_output(parameter=parameter)
+
+        assert get_terraform_output(parameter=parameter) == "terraform output result"
 
         mock_run.assert_called_once_with(
             [
@@ -765,4 +768,27 @@ def test_get_terraform_output():
                 parameter,
             ],
             capture_output=True,
+        )
+
+
+def test_log_info_for_prototype(capsys):
+    with patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.get_terraform_output"
+    ) as mock_get_terraform_output:
+        mock_get_terraform_output.side_effect = ["url1", "url2"]
+        log_info_for_prototype()
+
+        captured = capsys.readouterr()
+
+        mock_get_terraform_output.assert_has_calls(
+            [
+                call("platform_url"),
+                call("viewer_url"),
+            ]
+        )
+        assert (
+            captured.out
+            == """>>> amp url: url1
+>>> viewer url: url2
+"""
         )
