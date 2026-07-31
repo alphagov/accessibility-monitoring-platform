@@ -9,13 +9,16 @@ from terraform_stack.terraform_deploy.terraform_deployment import (
     Config,
     Environment,
     Function,
+    check_env_exists,
     create_proto_backend,
     create_proto_env,
     create_proto_name,
     delete_ecr_repos,
     delete_secrets,
     empty_s3_bucket,
+    flush_database,
     get_aws_account_id,
+    get_terraform_output,
     matches,
     prepare_environment,
     run,
@@ -680,4 +683,86 @@ def test_delete_ecr_repos_client_error_exception(capsys):
                 call(repositoryName=f"{prefix}r/amp-svc", force=True),
                 call(repositoryName=f"{prefix}r/viewer-svc", force=True),
             ]
+        )
+
+
+def test_flush_database():
+    with patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.Args"
+    ) as mock_args_class, patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.run"
+    ) as mock_run, patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.exec"
+    ) as mock_exec, patch(
+        "terraform_stack.terraform_deploy.terraform_deployment.get_terraform_output"
+    ) as mock_get_terraform_output:
+        mock_args: Args = Args.parse(
+            ["--environment", Environment.PROD, "--function", Function.DOWN]
+        )
+        mock_args_class.parse.return_value = mock_args
+        s3_bucket_name: str = "s3_bucket_one"
+        mock_get_terraform_output.return_value = s3_bucket_name
+
+        flush_database()
+
+        mock_run.assert_has_calls(
+            [
+                call(
+                    [
+                        "terraform",
+                        "init",
+                        "-backend-config=backends/prod_env.hcl",
+                        "-reconfigure",
+                    ]
+                ),
+                call(
+                    [
+                        "aws",
+                        "s3",
+                        "sync",
+                        "s3://db-store-for-prototypes/",
+                        f"s3://{s3_bucket_name}/",
+                    ]
+                ),
+            ]
+        )
+        mock_exec.assert_called_once_with(
+            "python terraform_stack/ecs_tools/ecs_prepare_db.py"
+        )
+        mock_get_terraform_output.assert_called_once_with("s3_bucket_name")
+
+
+@pytest.mark.parametrize(
+    "env_name,expected_result",
+    [("proto-1234", True), ("proto-none", False)],
+)
+def test_check_env_exists(env_name, expected_result):
+    with patch("terraform_stack.terraform_deploy.terraform_deployment.run") as mock_run:
+        mock_run.return_value = """{
+            "clusterArns": [
+                "arn:aws:ecs:eu-west-2:144664177605:cluster/app2223r-envproto-1234-Cluster-XXXXXXXXXXXX"
+            ]
+        }"""
+
+        assert check_env_exists(env_name=env_name) == expected_result
+
+        mock_run.assert_called_once_with(
+            ["aws", "ecs", "list-clusters"],
+            capture_output=True,
+        )
+
+
+def test_get_terraform_output():
+    with patch("terraform_stack.terraform_deploy.terraform_deployment.run") as mock_run:
+        parameter: str = "app_url"
+        get_terraform_output(parameter=parameter)
+
+        mock_run.assert_called_once_with(
+            [
+                "terraform",
+                "output",
+                "-raw",
+                parameter,
+            ],
+            capture_output=True,
         )
