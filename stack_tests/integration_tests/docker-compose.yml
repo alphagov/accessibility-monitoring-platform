@@ -81,7 +81,7 @@ services:
             - POSTGRES_PORT=5435
 
     localstack:
-        image: localstack/localstack:4.14
+        image: ministackorg/ministack:latest
         hostname: localstack
         ports:
             - "4567:4566"
