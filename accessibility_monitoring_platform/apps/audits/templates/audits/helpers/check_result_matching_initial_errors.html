@@ -9,7 +9,7 @@
             <ul class="govuk-list govuk-list--bullet amp-margin-bottom-10">
             {% for failed_check_result in form.other_pages_failed_check_results %}
                 <li>
-                    <b>{{ failed_check_result.page }}</b>
+                    <b>{{ failed_check_result.wcag_page_initial }}</b>
                     <textarea id="{{ form.notes.auto_id }}-{{ forloop.counter }}" hidden>{{ failed_check_result.notes }}</textarea>
                     <span tabIndex="0"
                         class="amp-control amp-copy-error"

@@ -1,7 +1,7 @@
 {% extends 'common/case_form.html' %}
 
 {% block preform %}
-{% if case.audit %}
+{% if case.audit_overview %}
     {% include 'audits/helpers/test_summary.html' with show_wcag_summary=True show_statement_summary=True %}
 {% else %}
     <h2 class="govuk-heading-l">Overview</h2>

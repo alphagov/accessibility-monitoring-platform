@@ -4,7 +4,7 @@
 <div class="govuk-width-container">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% include 'cases/helpers/case_banner.html' with case=retest.simplified_case %}
+            {% include 'cases/helpers/case_banner.html' %}
         </div>
     </div>
     {% include 'audits/helpers/retest_breadcrumbs.html' %}
@@ -21,15 +21,15 @@
             <div class="govuk-grid-column-two-thirds">
                 {% include "common/messages.html" %}
                 {% include 'common/error_summary.html' with form=statement_link_form %}
-                {% if retest.simplified_case.audit.unique_statement_page_urls %}
-                    {% for statement_page in retest.simplified_case.audit.unique_statement_page_urls %}
+                {% if case.audit_overview.unique_statement_page_urls %}
+                    {% for statement_page in case.audit_overview.unique_statement_page_urls %}
                         <p class="govuk-body-m amp-margin-bottom-0">
                             <b>Statement link #{{ forloop.counter }}</b>
                         </p>
                         <ul class="govuk-list govuk-list--bullet amp-margin-bottom-20">
                             {% include 'audits/helpers/statement_page_url_and_added.html' %}
                             <li>
-                                <a href="{% url 'audits:edit-equality-body-remove-statement-page' retest.id statement_page.id %}" class="govuk-link govuk-link--no-visited-state">
+                                <a href="{% url 'audits:edit-equality-body-remove-statement-page' statement_audit.id statement_page.id %}" class="govuk-link govuk-link--no-visited-state">
                                     Remove</a>
                             </li>
                         </ul>
@@ -37,7 +37,7 @@
                 {% else %}
                     <p class="govuk-body-m amp-margin-bottom-20">No statement links added</p>
                 {% endif %}
-                <form method="post" action="{% url sitemap.current_platform_page.url_name retest.id %}">
+                <form method="post" action="{% url sitemap.current_platform_page.url_name object.id %}">
                     {% csrf_token %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=form.hidden_fields %}
                     {% include 'common/form_hidden_fields.html' with hidden_fields=statement_link_form.hidden_fields %}

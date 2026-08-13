@@ -1,0 +1,1841 @@
+[
+{
+    "model": "audits.auditoverview",
+    "pk": 1,
+    "fields": {
+        "simplified_case": 1,
+        "initial_date_of_test": "2026-07-06",
+        "published_report_data_updated_time": "2026-07-06T08:48:40.346Z",
+        "updated": "2026-07-06T08:45:06.007Z"
+    }
+},
+{
+    "model": "audits.wcagaudit",
+    "pk": 1,
+    "fields": {
+        "version": 1,
+        "simplified_case": 1,
+        "audit_round_type": "initial",
+        "round_number": 0,
+        "updated": "2026-07-06T08:49:18.591Z",
+        "date_of_test": "2026-07-06",
+        "notes": "",
+        "is_deleted": false,
+        "screen_size": "13in",
+        "exemptions_state": "unknown",
+        "metadata_complete_date": "2026-07-06",
+        "pages_complete_date": "2026-07-06",
+        "comparison_complete_date": null,
+        "compliance_state": "partially-compliant",
+        "compliance_notes": "",
+        "compliance_decision_complete_date": "2026-07-06",
+        "summary_complete_date": "2026-07-06"
+    }
+},
+{
+    "model": "audits.wcagaudit",
+    "pk": 2,
+    "fields": {
+        "version": 2,
+        "simplified_case": 1,
+        "audit_round_type": "12-week",
+        "round_number": 1,
+        "updated": "2026-07-06T08:48:40.349Z",
+        "date_of_test": "2026-07-06",
+        "notes": "",
+        "is_deleted": false,
+        "screen_size": "13in",
+        "exemptions_state": "unknown",
+        "metadata_complete_date": null,
+        "pages_complete_date": null,
+        "comparison_complete_date": null,
+        "compliance_state": "partially-compliant",
+        "compliance_notes": "",
+        "compliance_decision_complete_date": "2026-07-06",
+        "summary_complete_date": null
+    }
+},
+{
+    "model": "audits.statementaudit",
+    "pk": 1,
+    "fields": {
+        "version": 1,
+        "simplified_case": 1,
+        "audit_round_type": "initial",
+        "round_number": 0,
+        "updated": "2026-07-06T08:51:02.704Z",
+        "date_of_test": "2026-07-06",
+        "notes": "",
+        "is_deleted": false,
+        "pages_complete_date": "2026-07-06",
+        "backup_complete_date": "2026-07-06",
+        "statement_extra_report_text": "",
+        "statement_overview_complete_date": "2026-07-06",
+        "statement_website_complete_date": "2026-07-06",
+        "statement_compliance_complete_date": "2026-07-06",
+        "statement_non_accessible_complete_date": "2026-07-06",
+        "statement_preparation_complete_date": "2026-07-06",
+        "statement_feedback_complete_date": "2026-07-06",
+        "statement_disproportionate_complete_date": "2026-07-06",
+        "statement_custom_complete_date": "2026-07-06",
+        "disproportionate_burden_claim": "no-claim",
+        "disproportionate_burden_notes": "",
+        "disproportionate_burden_complete_date": "2026-07-06",
+        "compliance_state": "not-compliant",
+        "compliance_notes": "",
+        "compliance_complete_date": "2026-07-06",
+        "summary_complete_date": "2026-07-06"
+    }
+},
+{
+    "model": "audits.statementaudit",
+    "pk": 2,
+    "fields": {
+        "version": 6,
+        "simplified_case": 1,
+        "audit_round_type": "12-week",
+        "round_number": 1,
+        "updated": "2026-07-06T08:51:57.739Z",
+        "date_of_test": "2026-07-06",
+        "notes": "",
+        "is_deleted": false,
+        "pages_complete_date": null,
+        "backup_complete_date": null,
+        "statement_extra_report_text": "",
+        "statement_overview_complete_date": "2026-07-06",
+        "statement_website_complete_date": "2026-07-06",
+        "statement_compliance_complete_date": null,
+        "statement_non_accessible_complete_date": null,
+        "statement_preparation_complete_date": null,
+        "statement_feedback_complete_date": null,
+        "statement_disproportionate_complete_date": null,
+        "statement_custom_complete_date": null,
+        "disproportionate_burden_claim": "no-claim",
+        "disproportionate_burden_notes": "",
+        "disproportionate_burden_complete_date": "2026-07-06",
+        "compliance_state": "not-compliant",
+        "compliance_notes": "",
+        "compliance_complete_date": "2026-07-06",
+        "summary_complete_date": "2026-07-06"
+    }
+},
+{
+    "model": "audits.wcagpageinitial",
+    "pk": 1,
+    "fields": {
+        "wcag_audit": 1,
+        "page_type": "home",
+        "name": "",
+        "url": "https://simplified-org.com",
+        "location": "",
+        "not_found": "no",
+        "is_contact_page": "no",
+        "notes": "",
+        "no_errors_date": null,
+        "complete_date": "2026-07-06",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:46:01.827Z"
+    }
+},
+{
+    "model": "audits.wcagpageinitial",
+    "pk": 2,
+    "fields": {
+        "wcag_audit": 1,
+        "page_type": "contact",
+        "name": "",
+        "url": "",
+        "location": "",
+        "not_found": "no",
+        "is_contact_page": "no",
+        "notes": "",
+        "no_errors_date": null,
+        "complete_date": null,
+        "is_deleted": false,
+        "updated": "2026-07-06T08:45:06.049Z"
+    }
+},
+{
+    "model": "audits.wcagpageinitial",
+    "pk": 3,
+    "fields": {
+        "wcag_audit": 1,
+        "page_type": "statement",
+        "name": "",
+        "url": "https://simplified-org.com/statement",
+        "location": "",
+        "not_found": "no",
+        "is_contact_page": "no",
+        "notes": "",
+        "no_errors_date": null,
+        "complete_date": "2026-07-06",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:46:23.322Z"
+    }
+},
+{
+    "model": "audits.wcagpageinitial",
+    "pk": 4,
+    "fields": {
+        "wcag_audit": 1,
+        "page_type": "pdf",
+        "name": "",
+        "url": "",
+        "location": "",
+        "not_found": "no",
+        "is_contact_page": "no",
+        "notes": "",
+        "no_errors_date": null,
+        "complete_date": null,
+        "is_deleted": false,
+        "updated": "2026-07-06T08:45:06.053Z"
+    }
+},
+{
+    "model": "audits.wcagpageinitial",
+    "pk": 5,
+    "fields": {
+        "wcag_audit": 1,
+        "page_type": "form",
+        "name": "",
+        "url": "",
+        "location": "",
+        "not_found": "no",
+        "is_contact_page": "no",
+        "notes": "",
+        "no_errors_date": null,
+        "complete_date": null,
+        "is_deleted": false,
+        "updated": "2026-07-06T08:45:06.054Z"
+    }
+},
+{
+    "model": "audits.wcagpageretest",
+    "pk": 1,
+    "fields": {
+        "wcag_audit": 2,
+        "wcag_page_initial": 1,
+        "complete_date": "2026-07-06",
+        "url": "",
+        "location": "",
+        "no_errors_date": null,
+        "page_missing_date": null,
+        "notes": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:48:15.289Z"
+    }
+},
+{
+    "model": "audits.wcagpageretest",
+    "pk": 2,
+    "fields": {
+        "wcag_audit": 2,
+        "wcag_page_initial": 2,
+        "complete_date": null,
+        "url": "",
+        "location": "",
+        "no_errors_date": null,
+        "page_missing_date": null,
+        "notes": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.091Z"
+    }
+},
+{
+    "model": "audits.wcagcheckresultinitial",
+    "pk": 1,
+    "fields": {
+        "wcag_audit": 1,
+        "wcag_page_initial": 1,
+        "issue_identifier": "1-A-1",
+        "type": "axe",
+        "wcag_definition": 23,
+        "check_result_state": "error",
+        "notes": "First error",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:46:02.161Z"
+    }
+},
+{
+    "model": "audits.wcagcheckresultinitial",
+    "pk": 2,
+    "fields": {
+        "wcag_audit": 1,
+        "wcag_page_initial": 1,
+        "issue_identifier": "1-A-2",
+        "type": "axe",
+        "wcag_definition": 24,
+        "check_result_state": "error",
+        "notes": "Second error",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:46:02.212Z"
+    }
+},
+{
+    "model": "audits.wcagcheckresultinitial",
+    "pk": 3,
+    "fields": {
+        "wcag_audit": 1,
+        "wcag_page_initial": 2,
+        "issue_identifier": "1-A-3",
+        "type": "axe",
+        "wcag_definition": 23,
+        "check_result_state": "not-tested",
+        "notes": "First error",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:46:23.428Z"
+    }
+},
+{
+    "model": "audits.wcagcheckresultinitial",
+    "pk": 4,
+    "fields": {
+        "wcag_audit": 1,
+        "wcag_page_initial": 2,
+        "issue_identifier": "1-A-4",
+        "type": "axe",
+        "wcag_definition": 24,
+        "check_result_state": "error",
+        "notes": "Second error",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:46:23.435Z"
+    }
+},
+{
+    "model": "audits.wcagcheckresultretest",
+    "pk": 1,
+    "fields": {
+        "wcag_audit": 2,
+        "wcag_page_retest": 1,
+        "wcag_check_result_initial": 1,
+        "wcag_definition": 23,
+        "retest_state": "fixed",
+        "notes": "Yay",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:48:15.345Z"
+    }
+},
+{
+    "model": "audits.wcagcheckresultretest",
+    "pk": 2,
+    "fields": {
+        "wcag_audit": 2,
+        "wcag_page_retest": 1,
+        "wcag_check_result_initial": 2,
+        "wcag_definition": 24,
+        "retest_state": "not-fixed",
+        "notes": "Oh-oh",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:48:15.360Z"
+    }
+},
+{
+    "model": "audits.wcagcheckresultretest",
+    "pk": 3,
+    "fields": {
+        "wcag_audit": 2,
+        "wcag_page_retest": 2,
+        "wcag_check_result_initial": 3,
+        "wcag_definition": 24,
+        "retest_state": "fixed",
+        "notes": "Yay",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:48:33.073Z"
+    }
+},
+{
+    "model": "audits.wcagcheckresultinitialnoteshistory",
+    "pk": 1,
+    "fields": {
+        "wcag_check_result_initial": 1,
+        "notes": "First error",
+        "created_by": 1,
+        "created": "2026-07-06T08:46:02.189Z"
+    }
+},
+{
+    "model": "audits.wcagcheckresultinitialnoteshistory",
+    "pk": 2,
+    "fields": {
+        "wcag_check_result_initial": 2,
+        "notes": "Second error",
+        "created_by": 1,
+        "created": "2026-07-06T08:46:02.216Z"
+    }
+},
+{
+    "model": "audits.wcagcheckresultinitialnoteshistory",
+    "pk": 3,
+    "fields": {
+        "wcag_check_result_initial": 3,
+        "notes": "First error",
+        "created_by": 1,
+        "created": "2026-07-06T08:46:23.430Z"
+    }
+},
+{
+    "model": "audits.wcagcheckresultinitialnoteshistory",
+    "pk": 4,
+    "fields": {
+        "wcag_check_result_initial": 4,
+        "notes": "Second error",
+        "created_by": 1,
+        "created": "2026-07-06T08:46:23.436Z"
+    }
+},
+{
+    "model": "audits.wcagcheckresultretestnoteshistory",
+    "pk": 1,
+    "fields": {
+        "wcag_check_result_retest": 1,
+        "retest_state": "fixed",
+        "notes": "Yay",
+        "created_by": 1,
+        "created": "2026-07-06T08:48:15.318Z"
+    }
+},
+{
+    "model": "audits.wcagcheckresultretestnoteshistory",
+    "pk": 2,
+    "fields": {
+        "wcag_check_result_retest": 2,
+        "retest_state": "not-fixed",
+        "notes": "Oh-oh",
+        "created_by": 1,
+        "created": "2026-07-06T08:48:15.350Z"
+    }
+},
+{
+    "model": "audits.wcagcheckresultretestnoteshistory",
+    "pk": 3,
+    "fields": {
+        "wcag_check_result_retest": 3,
+        "retest_state": "fixed",
+        "notes": "Yay",
+        "created_by": 1,
+        "created": "2026-07-06T08:48:33.056Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93560,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 1,
+        "statement_check_result_initial": null,
+        "type": "overview",
+        "check_result_state": "yes",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:46:54.715Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93561,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 2,
+        "statement_check_result_initial": null,
+        "type": "overview",
+        "check_result_state": "yes",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:46:54.726Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93562,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 3,
+        "statement_check_result_initial": null,
+        "type": "website",
+        "check_result_state": "yes",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:03.405Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93563,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 4,
+        "statement_check_result_initial": null,
+        "type": "website",
+        "check_result_state": "no",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:03.414Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93564,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 5,
+        "statement_check_result_initial": null,
+        "type": "website",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:03.423Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93565,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 6,
+        "statement_check_result_initial": null,
+        "type": "website",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:03.432Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93566,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 44,
+        "statement_check_result_initial": null,
+        "type": "website",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:03.440Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93567,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 7,
+        "statement_check_result_initial": null,
+        "type": "website",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:03.451Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93568,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 8,
+        "statement_check_result_initial": null,
+        "type": "website",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:03.462Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93569,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 9,
+        "statement_check_result_initial": null,
+        "type": "website",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:03.472Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93570,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 10,
+        "statement_check_result_initial": null,
+        "type": "website",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:03.480Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93571,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 11,
+        "statement_check_result_initial": null,
+        "type": "compliance",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:20.337Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93572,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 12,
+        "statement_check_result_initial": null,
+        "type": "compliance",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:20.349Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93573,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 13,
+        "statement_check_result_initial": null,
+        "type": "compliance",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:20.357Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93574,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 14,
+        "statement_check_result_initial": null,
+        "type": "compliance",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:20.365Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93575,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 15,
+        "statement_check_result_initial": null,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:26.656Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93576,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 16,
+        "statement_check_result_initial": null,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:26.669Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93577,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 17,
+        "statement_check_result_initial": null,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:26.682Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93578,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 18,
+        "statement_check_result_initial": null,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:26.698Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93579,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 19,
+        "statement_check_result_initial": null,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:26.711Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93580,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 20,
+        "statement_check_result_initial": null,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:26.720Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93581,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 21,
+        "statement_check_result_initial": null,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:26.730Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93582,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 22,
+        "statement_check_result_initial": null,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:26.742Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93583,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 23,
+        "statement_check_result_initial": null,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:26.753Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93584,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 24,
+        "statement_check_result_initial": null,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:26.763Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93585,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 25,
+        "statement_check_result_initial": null,
+        "type": "preparation",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:34.360Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93586,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 26,
+        "statement_check_result_initial": null,
+        "type": "preparation",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:34.369Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93587,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 27,
+        "statement_check_result_initial": null,
+        "type": "preparation",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:34.375Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93588,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 28,
+        "statement_check_result_initial": null,
+        "type": "preparation",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:34.381Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93589,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 29,
+        "statement_check_result_initial": null,
+        "type": "preparation",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:34.387Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93590,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 30,
+        "statement_check_result_initial": null,
+        "type": "preparation",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:34.393Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93591,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 31,
+        "statement_check_result_initial": null,
+        "type": "preparation",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:34.398Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93592,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 32,
+        "statement_check_result_initial": null,
+        "type": "preparation",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:34.403Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93593,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 33,
+        "statement_check_result_initial": null,
+        "type": "preparation",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:34.408Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93594,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 34,
+        "statement_check_result_initial": null,
+        "type": "feedback",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:40.478Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93595,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 35,
+        "statement_check_result_initial": null,
+        "type": "feedback",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:40.489Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93596,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 36,
+        "statement_check_result_initial": null,
+        "type": "feedback",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:40.499Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93597,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 37,
+        "statement_check_result_initial": null,
+        "type": "feedback",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:40.510Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93598,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 38,
+        "statement_check_result_initial": null,
+        "type": "feedback",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:40.520Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93599,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 39,
+        "statement_check_result_initial": null,
+        "type": "feedback",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:40.533Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93600,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 40,
+        "statement_check_result_initial": null,
+        "type": "feedback",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:40.543Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93601,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 41,
+        "statement_check_result_initial": null,
+        "type": "feedback",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:40.553Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93602,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 42,
+        "statement_check_result_initial": null,
+        "type": "feedback",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:40.564Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93603,
+    "fields": {
+        "statement_audit": 1,
+        "issue_identifier": "1-S-1",
+        "statement_check": 43,
+        "statement_check_result_initial": null,
+        "type": "disproportionate",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:50:44.686Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93604,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 1,
+        "statement_check_result_initial": 93560,
+        "type": "overview",
+        "check_result_state": "yes",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:51:29.881Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93605,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 2,
+        "statement_check_result_initial": 93561,
+        "type": "overview",
+        "check_result_state": "yes",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:51:29.892Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93606,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 3,
+        "statement_check_result_initial": 93562,
+        "type": "website",
+        "check_result_state": "yes",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:51:39.318Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93607,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 4,
+        "statement_check_result_initial": 93563,
+        "type": "website",
+        "check_result_state": "no",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:51:39.321Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93608,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 5,
+        "statement_check_result_initial": 93564,
+        "type": "website",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:51:39.324Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93609,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 6,
+        "statement_check_result_initial": 93565,
+        "type": "website",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:51:39.326Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93610,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 44,
+        "statement_check_result_initial": 93566,
+        "type": "website",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:51:39.328Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93611,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 7,
+        "statement_check_result_initial": 93567,
+        "type": "website",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:51:39.331Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93612,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 8,
+        "statement_check_result_initial": 93568,
+        "type": "website",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:51:39.333Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93613,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 9,
+        "statement_check_result_initial": 93569,
+        "type": "website",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:51:39.337Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93614,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 10,
+        "statement_check_result_initial": 93570,
+        "type": "website",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:51:39.340Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93615,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 11,
+        "statement_check_result_initial": 93571,
+        "type": "compliance",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.142Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93616,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 12,
+        "statement_check_result_initial": 93572,
+        "type": "compliance",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.145Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93617,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 13,
+        "statement_check_result_initial": 93573,
+        "type": "compliance",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.149Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93618,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 14,
+        "statement_check_result_initial": 93574,
+        "type": "compliance",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.151Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93619,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 15,
+        "statement_check_result_initial": 93575,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.155Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93620,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 16,
+        "statement_check_result_initial": 93576,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.158Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93621,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 17,
+        "statement_check_result_initial": 93577,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.160Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93622,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 18,
+        "statement_check_result_initial": 93578,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.163Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93623,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 19,
+        "statement_check_result_initial": 93579,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.164Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93624,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 20,
+        "statement_check_result_initial": 93580,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.167Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93625,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 21,
+        "statement_check_result_initial": 93581,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.169Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93626,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 22,
+        "statement_check_result_initial": 93582,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.172Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93627,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 23,
+        "statement_check_result_initial": 93583,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.174Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93628,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 24,
+        "statement_check_result_initial": 93584,
+        "type": "non-accessible",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.177Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93629,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 25,
+        "statement_check_result_initial": 93585,
+        "type": "preparation",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.181Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93630,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 26,
+        "statement_check_result_initial": 93586,
+        "type": "preparation",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.184Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93631,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 27,
+        "statement_check_result_initial": 93587,
+        "type": "preparation",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.185Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93632,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 28,
+        "statement_check_result_initial": 93588,
+        "type": "preparation",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.189Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93633,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 29,
+        "statement_check_result_initial": 93589,
+        "type": "preparation",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.192Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93634,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 30,
+        "statement_check_result_initial": 93590,
+        "type": "preparation",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.194Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93635,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 31,
+        "statement_check_result_initial": 93591,
+        "type": "preparation",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.196Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93636,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 32,
+        "statement_check_result_initial": 93592,
+        "type": "preparation",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.199Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93637,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 33,
+        "statement_check_result_initial": 93593,
+        "type": "preparation",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.201Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93638,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 34,
+        "statement_check_result_initial": 93594,
+        "type": "feedback",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.204Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93639,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 35,
+        "statement_check_result_initial": 93595,
+        "type": "feedback",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.206Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93640,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 36,
+        "statement_check_result_initial": 93596,
+        "type": "feedback",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.208Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93641,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 37,
+        "statement_check_result_initial": 93597,
+        "type": "feedback",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.213Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93642,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 38,
+        "statement_check_result_initial": 93598,
+        "type": "feedback",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.215Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93643,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 39,
+        "statement_check_result_initial": 93599,
+        "type": "feedback",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.218Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93644,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 40,
+        "statement_check_result_initial": 93600,
+        "type": "feedback",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.221Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93645,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 41,
+        "statement_check_result_initial": 93601,
+        "type": "feedback",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.223Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93646,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 42,
+        "statement_check_result_initial": 93602,
+        "type": "feedback",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.225Z"
+    }
+},
+{
+    "model": "audits.statementcheckresult",
+    "pk": 93647,
+    "fields": {
+        "statement_audit": 2,
+        "issue_identifier": "1-S-1",
+        "statement_check": 43,
+        "statement_check_result_initial": 93603,
+        "type": "disproportionate",
+        "check_result_state": "not-tested",
+        "public_comment": "",
+        "auditor_information": "",
+        "is_deleted": false,
+        "updated": "2026-07-06T08:47:35.228Z"
+    }
+},
+{
+    "model": "audits.statementpage",
+    "pk": 2,
+    "fields": {
+        "audit": null,
+        "simplified_case": 1,
+        "audit_overview": 1,
+        "is_deleted": false,
+        "url": "https://simplified-org.com/statement",
+        "backup_url": "",
+        "added_stage": "any",
+        "created": "2026-07-06T08:45:40.238Z"
+    }
+}
+]

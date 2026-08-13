@@ -11,13 +11,11 @@ from django.http import HttpResponse, StreamingHttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
-from ...common.models import EventHistory
-from ...simplified.models import (
-    CaseCompliance,
-    CaseStatus,
-    SimplifiedCase,
-    SimplifiedEventHistory,
+from ...audits.tests.create_test_data import (
+    create_simplified_case_with_initial_and_12_week_audits,
 )
+from ...common.models import EventHistory
+from ...simplified.models import CaseStatus, SimplifiedCase, SimplifiedEventHistory
 from ..models import Export, ExportCase
 from .test_forms import CUTOFF_DATE, create_exportable_case
 
@@ -41,20 +39,22 @@ def create_cases_and_export(
     enforcement_body: SimplifiedCase.EnforcementBody = SimplifiedCase.EnforcementBody.EHRC,
 ) -> Export:
     """Creates cases and export"""
-    simplified_case_1: SimplifiedCase = SimplifiedCase.objects.create(
-        organisation_name=ORGANISATION_NAME,
-        compliance_email_sent_date=COMPLIANCE_EMAIL_SENT_DATE,
-        enforcement_body=enforcement_body,
-        status=SimplifiedCase.Status.CASE_CLOSED_WAITING_TO_SEND,
+    simplified_case_1: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
     )
-    CaseCompliance.objects.create(simplified_case=simplified_case_1)
-    simplified_case_2: SimplifiedCase = SimplifiedCase.objects.create(
-        organisation_name="Other Org Name",
-        compliance_email_sent_date=COMPLIANCE_EMAIL_SENT_DATE,
-        enforcement_body=enforcement_body,
-        status=SimplifiedCase.Status.CASE_CLOSED_WAITING_TO_SEND,
+    simplified_case_1.organisation_name = ORGANISATION_NAME
+    simplified_case_1.compliance_email_sent_date = COMPLIANCE_EMAIL_SENT_DATE
+    simplified_case_1.enforcement_body = enforcement_body
+    simplified_case_1.status = SimplifiedCase.Status.CASE_CLOSED_WAITING_TO_SEND
+    simplified_case_1.save()
+    simplified_case_2: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
     )
-    CaseCompliance.objects.create(simplified_case=simplified_case_2)
+    simplified_case_2.organisation_name = "Other Org Name"
+    simplified_case_2.compliance_email_sent_date = COMPLIANCE_EMAIL_SENT_DATE
+    simplified_case_2.enforcement_body = enforcement_body
+    simplified_case_2.status = SimplifiedCase.Status.CASE_CLOSED_WAITING_TO_SEND
+    simplified_case_2.save()
 
     user: User = User.objects.create()
     export: Export = Export.objects.create(

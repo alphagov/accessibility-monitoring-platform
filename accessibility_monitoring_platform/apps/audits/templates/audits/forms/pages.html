@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block form %}
-<form method="post" action="{% url 'audits:edit-audit-pages' audit.id %}">
+<form method="post" action="{% url 'audits:edit-audit-pages' object.id %}">
     {% csrf_token %}
     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
     {{ standard_pages_formset.management_form }}
@@ -20,9 +20,7 @@
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             <br/>
-                            <h2 class="govuk-heading-m">
-                                {{ page_form.instance.page_title }}
-                            </h2>
+                            <h2 class="govuk-heading-m">{{ page_form.instance.page_title }}</h2>
                             {% include 'common/form_errors.html' with errors=page_form.non_field_errors %}
                             {% include 'common/form_hidden_fields.html' with hidden_fields=page_form.hidden_fields %}
                             {% if page_form.instance.page_type == 'form' %}
