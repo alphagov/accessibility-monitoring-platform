@@ -7,9 +7,10 @@ from datetime import date, datetime
 import pytest
 from django.contrib.auth.models import User
 
+from ...audits.models import StatementAudit, WcagAudit
+from ...audits.tests.create_test_data import create_case_and_compliance
 from ...common.models import Boolean
-from ...simplified.models import CaseCompliance, SimplifiedCase
-from ...simplified.utils import create_case_and_compliance
+from ...simplified.models import SimplifiedCase
 from ..forms import ExportCreateForm
 from ..models import Export
 
@@ -24,8 +25,8 @@ def create_exportable_case() -> SimplifiedCase:
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=user,
-        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
-        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=StatementAudit.StatementCompliance.COMPLIANT,
+        website_compliance_state_initial=WcagAudit.WebsiteCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=SimplifiedCase.ReportApprovedStatus.APPROVED,
         report_sent_date=CUTOFF_DATETIME,

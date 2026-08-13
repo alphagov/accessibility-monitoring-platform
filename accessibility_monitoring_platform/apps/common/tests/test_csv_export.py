@@ -16,7 +16,7 @@ def test_format_model_field_with_no_data():
         format_model_field(
             source_instance=None,
             column=CSVColumn(
-                column_header="A", source_class=SimplifiedCase, source_attr="a"
+                column_header="A", source_classkey=SimplifiedCase, source_attr="a"
             ),
         )
         == ""
@@ -29,7 +29,7 @@ def test_format_model_field_with_no_data():
         (
             CSVColumn(
                 column_header="Test type",
-                source_class=SimplifiedCase,
+                source_classkey=SimplifiedCase,
                 source_attr="test_type",
             ),
             "simplified",
@@ -38,7 +38,7 @@ def test_format_model_field_with_no_data():
         (
             CSVColumn(
                 column_header="Report sent on",
-                source_class=SimplifiedCase,
+                source_classkey=SimplifiedCase,
                 source_attr="report_sent_date",
             ),
             date(2020, 12, 31),
@@ -47,7 +47,7 @@ def test_format_model_field_with_no_data():
         (
             CSVColumn(
                 column_header="Enforcement recommendation",
-                source_class=SimplifiedCase,
+                source_classkey=SimplifiedCase,
                 source_attr="recommendation_for_enforcement",
             ),
             "no-further-action",
@@ -56,7 +56,7 @@ def test_format_model_field_with_no_data():
         (
             CSVColumn(
                 column_header="Which equality body will check the case",
-                source_class=SimplifiedCase,
+                source_classkey=SimplifiedCase,
                 source_attr="enforcement_body",
             ),
             "ehrc",
@@ -76,7 +76,7 @@ def test_format_model_field(column, case_value, expected_formatted_value):
 def test_required_data_missing():
     """Test equality body CSV column required_data_missing"""
     equality_body_csv_column: EqualityBodyCSVColumn = EqualityBodyCSVColumn(
-        column_header="A", source_class=SimplifiedCase, source_attr="a"
+        column_header="A", source_classkey=SimplifiedCase, source_attr="a"
     )
 
     assert equality_body_csv_column.required_data_missing is False

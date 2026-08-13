@@ -83,7 +83,7 @@
         </p>
         {% if required_data_missing_columns %}
             <h2 class="govuk-heading-m" id="missing-data">Missing data</h2>
-            {% if case.test_type == 'simplified' and not case.audit %}
+            {% if case.test_type == 'simplified' and not case.audit_overview.initial_wcag_audit %}
                 <p class="govuk-body-m">
                     There isn't an initial test
                     (<a href="{% url 'simplified:edit-test-results' case.id %}" class="govuk-link govuk-link--no-visited-state">Go to testing details</a>)

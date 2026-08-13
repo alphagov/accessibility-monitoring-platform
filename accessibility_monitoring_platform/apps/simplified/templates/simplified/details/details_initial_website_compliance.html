@@ -3,6 +3,6 @@
 {% block prefixrows %}
     <tr class="govuk-table__row">
         <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">Initial website compliance decision</th>
-        <td class="govuk-table__cell amp-width-one-half">{{ case.compliance.get_website_compliance_state_initial_display }}</td>
+        <td class="govuk-table__cell amp-width-one-half">{{ case.audit_overview.initial_wcag_audit.get_compliance_state_display }}</td>
     </tr>
 {% endblock %}

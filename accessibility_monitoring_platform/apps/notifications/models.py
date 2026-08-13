@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 
-from ..cases.models import BaseCase, TestType
+from ..cases.models import BaseCase
 from ..common.models import Link
 from ..common.templatetags.common_tags import amp_date
 

@@ -21,7 +21,7 @@ They will contact you if they believe further action is required.
 On behalf of the Secretary of State for Science, Innovation and Technology we make a decision on the compliance of accessibility statements.
 <br>
 <br>
-{% if case.accessibility_statement_compliance_display == 'Compliant' %}
+{% if case.audit_overview.last_statement_audit.compliance_state == 'compliant' %}
 We have determined that your statement is compliant.
 Please make sure to keep your statement updated when any changes are made to the website.
 {% else %}

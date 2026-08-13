@@ -23,8 +23,8 @@
                     <td class="govuk-table__cell amp-width-one-quarter">
                         {% if filter == "all-cases" %}
                             <a href="{% url 'cases:case-list' %}?auditor={{ case.auditor.id }}" class="govuk-link"> {{ case.auditor.get_full_name }} </a>
-                        {% elif case.audit %}
-                            <a href="{% url 'audits:edit-audit-metadata' case.audit.id %}" class="govuk-link"> Testing details </a>
+                        {% elif case.audit_overview.initial_wcag_audit %}
+                            <a href="{% url 'audits:edit-audit-metadata' case.audit_overview.initial_wcag_audit.id %}" class="govuk-link"> Testing details </a>
                         {% else %}
                             <a href="{% url 'simplified:edit-test-results' case.id %}" class="govuk-link"> Testing details </a>
                         {% endif %}

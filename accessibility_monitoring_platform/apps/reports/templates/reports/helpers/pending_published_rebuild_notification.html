@@ -1,4 +1,4 @@
-{% if case.report.latest_s3_report and case.report.latest_s3_report.created < case.audit.published_report_data_updated_time %}
+{% if case.report.latest_s3_report and case.report.latest_s3_report.created < case.audit_overview.published_report_data_updated_time %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <div class="govuk-notification-banner" role="region" aria-labelledby="banner-title-published-rebuild" data-module="govuk-notification-banner">
@@ -21,7 +21,7 @@
                         <a class="govuk-notification-banner__link" href="{% url 'simplified:edit-publish-report' case.id %}">
                             Case > Report QA > Publish report</a></p>
                     <p class="govuk-body">
-                        <a class="govuk-notification-banner__link" href="{% url 'audits:clear-outdated-published-report-warning' case.audit.id %}?redirect_destination={{ request.path }}">
+                        <a class="govuk-notification-banner__link" href="{% url 'audits:clear-outdated-published-report-warning' case.audit_overview.id %}?redirect_destination={{ request.path }}">
                             Dismiss this banner</a></p>
                 </div>
             </div>

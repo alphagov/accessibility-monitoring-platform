@@ -3,11 +3,11 @@
 {% block preform %}
     {% include 'audits/helpers/details_statement_links_and_backups.html' %}
 
-    {% if not audit.custom_statement_check_results %}
+    {% if not statement_audit.custom_statement_check_results %}
         <p class="govuk-body">No custom statement issues have been entered</p>
     {% endif %}
 
-    {% for custom_issue in audit.custom_statement_check_results %}
+    {% for custom_issue in statement_audit.custom_statement_check_results %}
         <h2 id="{{ custom_issue.issue_identifier }}" class="govuk-heading-s">
             <ul class="govuk-body amp-horizontal-list">
                 <li>
@@ -29,7 +29,7 @@
     {% endfor %}
 
     <p class="govuk-body amp-margin-bottom-30">
-        + <a href="{% url 'audits:edit-custom-issue-create' audit.id %}" class="govuk-link govuk-link--no-visited-state">
+        + <a href="{% url 'audits:edit-custom-issue-create' statement_audit.id %}" class="govuk-link govuk-link--no-visited-state">
             Add custom issue
         </a>
     </p>
