@@ -15,6 +15,7 @@ from accessibility_monitoring_platform.apps.common.models import (
 
 from ....audits.models import (
     Audit,
+    AuditOverview,
     CheckResult,
     CheckResultNotesHistory,
     CheckResultRetestNotesHistory,
@@ -23,14 +24,22 @@ from ....audits.models import (
     RetestCheckResult,
     RetestPage,
     RetestStatementCheckResult,
+    StatementAudit,
     StatementCheck,
     StatementCheckResult,
     StatementPage,
+    WcagAudit,
+    WcagCheckResultInitial,
+    WcagCheckResultInitialNotesHistory,
+    WcagCheckResultRetest,
+    WcagCheckResultRetestNotesHistory,
     WcagDefinition,
+    WcagPageInitial,
+    WcagPageRetest,
 )
 from ....cases.models import BaseCase, CaseFile
 from ....comments.models import Comment
-from ....common.models import EmailTemplate
+from ....common.models import EmailTemplate, EventHistory
 from ....detailed.models import Contact as DetailedContact
 from ....detailed.models import DetailedCase, DetailedCaseHistory, DetailedEventHistory
 from ....detailed.models import ZendeskTicket as DetailedZendeskTicket
@@ -90,31 +99,41 @@ class Command(BaseCommand):
     def handle(self, *args, **options):  # pylint: disable=unused-argument
         """Reset database for integration tests"""
 
+        StatementCheckResult.objects.all().update(statement_check_result_initial=None)
         delete_from_models(
             [
+                CheckResultRetestNotesHistory,  # Old model to be deleted
+                CheckResultNotesHistory,  # Old model to be deleted
+                RetestCheckResult,  # Old model to be deleted
+                CheckResult,  # Old model to be deleted
+                RetestPage,  # Old model to be deleted
+                Page,  # Old model to be deleted
+                StatementCheckResult,  # Old model to be deleted
+                RetestStatementCheckResult,  # Old model to be deleted
+                Retest,  # Old model to be deleted
+                StatementPage,
+                Audit,  # Old model to be deleted
+                WcagCheckResultRetestNotesHistory,
+                WcagCheckResultInitialNotesHistory,
+                WcagCheckResultRetest,
+                WcagCheckResultInitial,
+                WcagPageRetest,
+                WcagPageInitial,
+                WcagAudit,
+                StatementAudit,
+                AuditOverview,
                 Task,
                 DetailedZendeskTicket,
                 EmailTemplate,
                 ExportCase,
                 Export,
                 ZendeskTicket,
-                StatementPage,
                 FrequentlyUsedLink,
                 EqualityBodyCorrespondence,
-                RetestStatementCheckResult,
-                RetestCheckResult,
-                RetestPage,
-                Retest,
-                StatementCheckResult,
-                CheckResultRetestNotesHistory,
-                CheckResultNotesHistory,
-                CheckResult,
-                Page,
-                Audit,
                 StatementCheck,
                 WcagDefinition,
                 UserCacheUniqueHash,
-                CaseCompliance,
+                CaseCompliance,  # Old model to be deleted
                 CaseStatus,
                 SimplifiedCaseHistory,
                 CaseFile,
@@ -156,7 +175,7 @@ class Command(BaseCommand):
                 MobileCase,
             ]
         )
-        delete_from_models([BaseCase])
+        delete_from_models([EventHistory, BaseCase])
         delete_from_models([ChangeToPlatform, IssueReport, Platform, Sector])  # Common
         delete_from_models([Group, User])
         delete_from_models([AllowedEmail])
@@ -173,7 +192,6 @@ class Command(BaseCommand):
         load_fixture("cases")
         load_fixture("simplified")
         load_fixture("contact")
-        load_fixture("audits")  # Test results
-        load_fixture("statementcheckresult")
+        load_fixture("audit_overview")  # Test results
         load_fixture("reports")  # Reports
         load_fixture("s3_report")  # Published report

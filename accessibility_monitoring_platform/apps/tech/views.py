@@ -25,7 +25,6 @@ from ..mobile.csv_export import (
     MOBILE_EQUALITY_BODY_TEST_SUMMARY_COLUMNS_FOR_EXPORT,
 )
 from ..mobile.models import MobileCase
-from ..reports.models import Report
 from ..simplified.csv_export import (
     SIMPLIFIED_EQUALITY_BODY_CORRESPONDENCE_COLUMNS_FOR_EXPORT,
     SIMPLIFIED_EQUALITY_BODY_METADATA_COLUMNS_FOR_EXPORT,
@@ -45,15 +44,13 @@ class CaseContextMixin:
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        report: Report | None = Report.objects.all().first()
-        if report is None or not hasattr(
-            report.base_case, "simplifiedcase"
-        ):  # In test environment
+        simplified_case: SimplifiedCase | None = SimplifiedCase.objects.filter(
+            status=SimplifiedCase.Status.COMPLETE
+        ).first()
+        if simplified_case is None:
             simplified_case: SimplifiedCase | None = (
                 SimplifiedCase.objects.all().first()
             )
-        else:
-            simplified_case: SimplifiedCase = report.base_case.simplifiedcase
         context["case"] = simplified_case
         context["simplified_case"] = simplified_case
         context["detailed_case"] = DetailedCase.objects.first()

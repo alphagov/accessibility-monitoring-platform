@@ -1,27 +1,27 @@
 <h2 class="govuk-heading-s amp-margin-bottom-5 {% if fontsize == 'm' %} govuk-!-font-size-19 {% else %} govuk-!-font-size-16 {% endif %}">WCAG issues</h2>
-<p class="govuk-body-s amp-margin-bottom-10 {% if fontsize == 'm' %} govuk-!-font-size-19 {% else %} govuk-!-font-size-16 {% endif %}">Initial test: {{ audit.failed_check_results.count }}</p>
+<p class="govuk-body-s amp-margin-bottom-10 {% if fontsize == 'm' %} govuk-!-font-size-19 {% else %} govuk-!-font-size-16 {% endif %}">Initial test: {{ case.audit_overview.initial_wcag_audit.failed_wcag_check_result_initials.count }}</p>
 <p class="govuk-body-s amp-margin-bottom-10 {% if fontsize == 'm' %} govuk-!-font-size-19 {% else %} govuk-!-font-size-16 {% endif %}">
-    Retest: {{ audit.unfixed_check_results.count }}
-    {% if audit %}
-        ({{ audit.percentage_wcag_issues_fixed }}% fixed)
+    Retest: {{ case.audit_overview.first_twelve_week_wcag_audit.unfixed_wcag_check_result_retests.count }}
+    {% if case.audit_overview %}
+        ({{ case.audit_overview.first_twelve_week_wcag_audit.percentage_wcag_issues_fixed }}% fixed)
     {% endif %}
-    {% if audit.missing_at_retest_pages %}
-        ({{ audit.missing_at_retest_pages.count }} deleted page{% if audit.missing_at_retest_pages.count != 1 %}s{% endif %})
+    {% if case.audit_overview.first_twelve_week_wcag_audit.wcag_page_retests_missing_at_retest %}
+        ({{ case.audit_overview.first_twelve_week_wcag_audit.wcag_page_retests_missing_at_retest.count }} deleted page{% if case.audit_overview.first_twelve_week_wcag_audit.wcag_page_retests_missing_at_retest.count != 1 %}s{% endif %})
     {% endif %}
 </p>
 <h2 class="govuk-heading-s amp-margin-bottom-5 {% if fontsize == 'm' %} govuk-!-font-size-19 {% else %} govuk-!-font-size-16 {% endif %}">Statement issues</h2>
 <p class="govuk-body-s amp-margin-bottom-10 {% if fontsize == 'm' %} govuk-!-font-size-19 {% else %} govuk-!-font-size-16 {% endif %}">
     Initial test:
-    {% if audit.accessibility_statement_page and audit.accessibility_statement_page.not_found == 'no' %}
-        {{ audit.failed_statement_check_results.count }}
+    {% if case.audit_overview.initial_statement_audit.statement_found_check.check_result_state == 'yes' %}
+        {{ case.audit_overview.initial_statement_audit.failed_statement_check_results.count }}
     {% else %}
         No statement found
     {% endif %}
 </p>
 <p class="govuk-body-m amp-margin-bottom-10 {% if fontsize == 'm' %} govuk-!-font-size-19 {% else %} govuk-!-font-size-16 {% endif %}">
     Retest test:
-    {% if audit.accessibility_statement_page and not audit.accessibility_statement_page.retest_page_missing_date %}
-        {{ audit.failed_retest_statement_check_results.count }}
+    {% if case.audit_overview.first_twelve_week_statement_audit.statement_found_check.check_result_state == 'yes' %}
+        {{ case.audit_overview.first_twelve_week_statement_audit.failed_statement_check_results.count }}
     {% else %}
         No statement found
     {% endif %}

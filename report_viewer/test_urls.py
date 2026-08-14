@@ -2,6 +2,8 @@
 Test top-level urls
 """
 
+from unittest.mock import MagicMock, patch
+
 import pytest
 from django.http.response import HttpResponse
 from pytest_django.asserts import assertContains
@@ -19,12 +21,18 @@ def test_robots_txt(client):
     "url",
     ["/security.txt", "/.well-known/security.txt"],
 )
-def test_security_txt(url, client):
+@patch("report_viewer.urls.requests")
+def test_security_txt(mock_requests, url, client):
     """Test security txt"""
-    response: HttpResponse = client.get(url)
+    mock_requests_response: MagicMock = MagicMock()
+    mock_requests_response.status_code = 200
+    mock_requests.get.return_value = mock_requests_response
 
-    assert response.status_code == 200
-    assertContains(response, "Policy: https://www.gov.uk/help/report-vulnerability")
+    client.get(url)
+
+    mock_requests.get.assert_called_once_with(
+        "https://vdp.cabinetoffice.gov.uk/.well-known/security.txt", stream=True
+    )
 
 
 def test_custom_404(client):

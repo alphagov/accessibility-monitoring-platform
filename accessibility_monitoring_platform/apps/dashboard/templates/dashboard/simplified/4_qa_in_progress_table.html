@@ -12,7 +12,7 @@
         <tbody class="govuk-table__body">
             {% for case in cases %}
                 <tr class="govuk-table__row ">
-                    <th scope="row" class="govuk-table__header amp-width-15-percent govuk-!-font-weight-regular">{{ case.audit.date_of_test|amp_date_trunc }}</th>
+                    <th scope="row" class="govuk-table__header amp-width-15-percent govuk-!-font-weight-regular">{{ case.audit_overview.initial_wcag_audit.date_of_test|amp_date_trunc }}</th>
                     <td class="govuk-table__cell amp-width-one-half">
                         <a href="{{ case.get_absolute_url }}" class="govuk-link govuk-link--no-visited-state">{{ case.full_name }}</a>
                     </td>

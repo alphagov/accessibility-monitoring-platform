@@ -1,14 +1,12 @@
-{% if check_result.checkresultretestnoteshistory_set.all %}
+{% if check_result.wcagcheckresultretestnoteshistory_set.all %}
     <div class="govuk-grid-row amp-margin-top-20">
         <div class="govuk-grid-column-full">
             <details class="govuk-details" data-module="govuk-details">
                 <summary class="govuk-details__summary">
-                    <span class="govuk-details__summary-text">
-                        Update history ({{ check_result.checkresultretestnoteshistory_set.count }})
+                        Update history ({{ check_result.wcagcheckresultretestnoteshistory_set.count }})
                     </span>
                 </summary>
-                <div class="govuk-details__text">
-                    {% for check_result_history_event in check_result.checkresultretestnoteshistory_set.all %}
+                    {% for check_result_history_event in check_result.wcagcheckresultretestnoteshistory_set.all %}
                         <p>
                             {% if forloop.counter == 1 %}
                                 Issue last updated
@@ -22,7 +20,7 @@
                             {% endif %}
                         </p>
                         {% if forloop.counter > 1 %}
-                            {{ check_result_history_event.retest_notes|markdown_to_html }}
+                            {{ check_result_history_event.notes|markdown_to_html }}
                         {% endif %}
                     {% endfor %}
                 </div>

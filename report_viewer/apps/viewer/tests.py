@@ -14,7 +14,6 @@ from django.urls import reverse
 from moto import mock_aws
 from pytest_django.asserts import assertContains, assertNotContains
 
-from accessibility_monitoring_platform.apps.audits.models import Audit
 from accessibility_monitoring_platform.apps.common.models import (
     Platform,
     UserCacheUniqueHash,
@@ -90,7 +89,6 @@ def test_view_report(client):
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     user: User = User.objects.create()
     Report.objects.create(base_case=simplified_case)
-    Audit.objects.create(simplified_case=simplified_case)
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
     html: str = "<p>  This is example text </ p>"
     s3_read_write_report.upload_string_to_s3_as_html(
@@ -118,7 +116,6 @@ def test_view_older_report(client):
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     user: User = User.objects.create()
-    Audit.objects.create(simplified_case=simplified_case)
     report: Report = Report.objects.create(base_case=simplified_case)
 
     template: Template = loader.get_template(
@@ -179,7 +176,6 @@ def test_view_report_not_on_s3(client):
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     user: User = User.objects.create()
     Report.objects.create(base_case=simplified_case)
-    Audit.objects.create(simplified_case=simplified_case)
     s3_read_write_report: S3ReadWriteReport = S3ReadWriteReport()
     html_on_db: str = "<p>Text on DB</p>"
     s3_read_write_report.upload_string_to_s3_as_html(

@@ -46,7 +46,7 @@ MAX_UPLOAD_FILE_SIZE_MB: int = 100
 
 class DateType(models.TextChoices):
     TEST_START = (
-        "simplifiedcase__audit_simplifiedcase__date_of_test",
+        "simplifiedcase__auditoverview_simplifiedcase__initial_date_of_test",
         "Date test started",
     )
     SENT = "simplifiedcase__sent_to_enforcement_body_sent_date", "Date sent to EB"

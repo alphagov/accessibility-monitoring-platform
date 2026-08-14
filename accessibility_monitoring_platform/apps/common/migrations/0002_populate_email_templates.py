@@ -94,10 +94,10 @@ but we found the following issues.
 <td width=4%>{{ forloop.counter }}</td>
 <td headers="statement-issue" width=48%>
 {{ statement_check_result.statement_check.report_text }}
-{% if statement_check_result.report_comment %}
+{% if statement_check_result.public_comment %}
 <br>
 <br>
-{{ statement_check_result.report_comment }}
+{{ statement_check_result.public_comment }}
 {% endif %}
 </td>
 <td headers="statement-12-week-update" width=48%></td>
@@ -382,7 +382,7 @@ Please review the issues listed below and provide an update.
 <td width=1%>{{ forloop.counter }}</td>
 <td headers="statement-issue" width=49%>
 <p>{{ statement_check_result.statement_check.report_text }}</p>
-{{ statement_check_result.report_comment|markdown_to_html }}
+{{ statement_check_result.public_comment|markdown_to_html }}
 </td>
 <td headers="statement-12-week-update" width=49%>
 {{ statement_check_result.retest_comment|markdown_to_html }}

@@ -10,12 +10,12 @@ from django.http import HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
 
-from ...audits.models import Audit
+from ...audits.models import AuditOverview, StatementAudit, WcagAudit
+from ...audits.tests.create_test_data import create_case_and_compliance
 from ...common.models import Boolean, ChangeToPlatform
 from ...detailed.models import DetailedCase
 from ...notifications.models import Task
-from ...simplified.models import CaseCompliance, SimplifiedCase
-from ...simplified.utils import create_case_and_compliance
+from ...simplified.models import SimplifiedCase
 
 
 def test_dashboard_loads_correctly_when_user_logged_in(admin_client):
@@ -80,8 +80,8 @@ def test_dashboard_shows_link_to_closed_and_sent_cases(admin_client, admin_user)
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
-        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
-        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
+        website_compliance_state_initial=WcagAudit.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=StatementAudit.StatementCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=SimplifiedCase.ReportApprovedStatus.APPROVED,
         report_sent_date=datetime.now(),
@@ -111,8 +111,8 @@ def test_dashboard_shows_link_to_no_contact_email_sent(admin_client, admin_user)
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
-        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
-        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
+        website_compliance_state_initial=WcagAudit.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=StatementAudit.StatementCompliance.COMPLIANT,
         report_review_status=Boolean.YES,
         report_approved_status=SimplifiedCase.ReportApprovedStatus.APPROVED,
         status=SimplifiedCase.Status.REPORT_READY_TO_SEND,
@@ -162,8 +162,8 @@ def test_dashboard_shows_link_to_completed_cases(admin_client, admin_user):
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
-        website_compliance_state_initial=CaseCompliance.WebsiteCompliance.COMPLIANT,
-        statement_compliance_state_initial=CaseCompliance.StatementCompliance.COMPLIANT,
+        website_compliance_state_initial=WcagAudit.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=StatementAudit.StatementCompliance.COMPLIANT,
         case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND,
     )
 
@@ -250,7 +250,7 @@ def test_dashboard_shows_link_to_reminder_reviewing(admin_client, admin_user):
     Tests dashboard shows link to reminder for cases of status
     reviewing changes
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+    simplified_case: SimplifiedCase = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
@@ -261,13 +261,8 @@ def test_dashboard_shows_link_to_reminder_reviewing(admin_client, admin_user):
         twelve_week_update_requested_date=datetime.now(),
         twelve_week_correspondence_acknowledged_date=datetime.now(),
         status=SimplifiedCase.Status.REVIEWING_CHANGES,
-    )
-    CaseCompliance.objects.create(simplified_case=simplified_case)
-    simplified_case.compliance.statement_compliance_state_initial = (
-        CaseCompliance.StatementCompliance.COMPLIANT
-    )
-    simplified_case.compliance.website_compliance_state_initial = (
-        CaseCompliance.WebsiteCompliance.COMPLIANT
+        website_compliance_state_initial=WcagAudit.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=StatementAudit.StatementCompliance.COMPLIANT,
     )
     task: Task = Task.objects.create(
         type=Task.Type.REMINDER,
@@ -291,7 +286,7 @@ def test_dashboard_shows_link_to_reminder_final(admin_client, admin_user):
     Tests dashboard shows link to reminder for cases of status
     final decision due
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+    simplified_case: SimplifiedCase = create_case_and_compliance(
         home_page_url="https://www.website.com",
         organisation_name="org name",
         auditor=admin_user,
@@ -299,13 +294,8 @@ def test_dashboard_shows_link_to_reminder_final(admin_client, admin_user):
         report_approved_status=SimplifiedCase.ReportApprovedStatus.APPROVED,
         no_psb_contact=Boolean.YES,
         status=SimplifiedCase.Status.FINAL_DECISION_DUE,
-    )
-    CaseCompliance.objects.create(simplified_case=simplified_case)
-    simplified_case.compliance.statement_compliance_state_initial = (
-        CaseCompliance.StatementCompliance.COMPLIANT
-    )
-    simplified_case.compliance.website_compliance_state_initial = (
-        CaseCompliance.WebsiteCompliance.COMPLIANT
+        website_compliance_state_initial=WcagAudit.WebsiteCompliance.COMPLIANT,
+        statement_compliance_state_initial=StatementAudit.StatementCompliance.COMPLIANT,
     )
     task: Task = Task.objects.create(
         type=Task.Type.REMINDER,
@@ -337,6 +327,7 @@ def test_dashboard_shows_link_to_testing_details_only_when_no_test_exists(
         auditor=admin_user,
         status=SimplifiedCase.Status.TEST_IN_PROGRESS,
     )
+    AuditOverview.objects.create(simplified_case=simplified_case)
 
     response: HttpResponse = admin_client.get(reverse("dashboard:home"))
 
@@ -347,7 +338,7 @@ def test_dashboard_shows_link_to_testing_details_only_when_no_test_exists(
         reverse("simplified:edit-test-results", kwargs={"pk": simplified_case.id}),
     )
 
-    audit: Audit = Audit.objects.create(simplified_case=simplified_case)
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
 
     response: HttpResponse = admin_client.get(reverse("dashboard:home"))
 
@@ -359,7 +350,7 @@ def test_dashboard_shows_link_to_testing_details_only_when_no_test_exists(
     )
     assertContains(
         response,
-        reverse("audits:edit-audit-metadata", kwargs={"pk": audit.id}),
+        reverse("audits:edit-audit-metadata", kwargs={"pk": wcag_audit.id}),
     )
 
 
