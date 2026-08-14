@@ -699,7 +699,7 @@ def test_get_requested_platform_page_for_retest_page(rf):
 
     current_platform_page: PlatformPage = get_requested_platform_page(request)
 
-    assert current_platform_page.get_name() == "Retest #0 | Home"
+    assert current_platform_page.get_name() == "Retest #1 | Home"
     assert current_platform_page.url_name == "audits:edit-retest-page-checks"
 
 

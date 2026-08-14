@@ -4521,7 +4521,7 @@ def test_twelve_week_statement_audit_next_page_name(
 @pytest.mark.parametrize(
     "path_name, expected_next_page",
     [
-        ("retest-metadata-update", "Post case | Retest #0 | Home"),
+        ("retest-metadata-update", "Post case | Retest #1 | Home"),
         ("edit-equality-body-statement-overview", "Post case | Statement information"),
         ("edit-equality-body-statement-overview", "Post case | Statement results"),
     ],
