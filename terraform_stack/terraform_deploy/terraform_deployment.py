@@ -1,51 +1,38 @@
 #!/usr/bin/env python3
 
 import argparse
-from collections.abc import Sequence
-from dataclasses import dataclass
-from enum import StrEnum
 import json
 import os
-from pathlib import Path
 import random
+import ssl
 import string
 import subprocess
 import time
-from typing import Literal, overload
-import urllib.request
 import urllib.error
-import ssl
-
-from typing import ClassVar
+import urllib.request
+from collections.abc import Sequence
+from enum import StrEnum
+from pathlib import Path
+from typing import Literal, overload
 
 import boto3
 from botocore.exceptions import ClientError
 
+AWS_REGION: str = "eu-west-2"
 
-@dataclass(frozen=True)
-class Config:
-    """Application configuration constants."""
+AWS_ACCOUNT_ID_TEST: str = "144664177605"
+AWS_ACCOUNT_ID_PROD: str = "584234429739"
 
-    aws_region: str = "eu-west-2"
+PLATFORM_DOCKER_PATH: str = "../Dockerfiles/amp_platform.DockerFile"
+VIEWER_DOCKER_PATH: str = "../Dockerfiles/amp_viewer.DockerFile"
 
-    aws_account_id_test: str = "144664177605"
-    aws_account_id_prod: str = "584234429739"
+PROTO_TERRAFORM_BUCKET_STORE: str = "amp-stack-terraform-state"
+BACKUP_DB: str = "db-store-for-prototypes"
 
-    platform_docker_path: str = "../Dockerfiles/amp_platform.DockerFile"
-    viewer_docker_path: str = "../Dockerfiles/amp_viewer.DockerFile"
-
-    proto_terraform_bucket_store: str = "amp-stack-terraform-state"
-    backup_db: str = "db-store-for-prototypes"
-
-    create_dummy_account_script_path: str = (
-        "terraform_stack/ecs_tools/create_dummy_account.py"
-    )
-    ecs_prepare_db_script_path: str = "terraform_stack/ecs_tools/ecs_prepare_db.py"
-
-    @property
-    def protected_s3_buckets(self) -> tuple[str, ...]:
-        """Return the S3 buckets that must not be deleted."""
-        return (self.proto_terraform_bucket_store,)
+CREATE_DUMMY_ACCOUNT_SCRIPT_PATH: str = (
+    "terraform_stack/ecs_tools/create_dummy_account.py"
+)
+ECS_PREPARE_DB_SCRIPT_PATH: str = "terraform_stack/ecs_tools/ecs_prepare_db.py"
 
 
 class Environment(StrEnum):
@@ -64,104 +51,24 @@ class Function(StrEnum):
     CREATE_DUMMY_ACCOUNT = "create_dummy_account"
 
 
-@dataclass(frozen=True)
-class Args:
-    environment: Environment
-    function: Function
-    command: str | None
-    dryrun: bool
-    force_reset_db: bool
-    PROTO: ClassVar[str] = "proto"
-    TEST: ClassVar[str] = "test"
-    STAGING: ClassVar[str] = "staging"
-    PROD: ClassVar[str] = "prod"
-
-    @classmethod
-    def parse(cls) -> "Args":
-        """Create and configure the command-line argument parser.
-
-        Returns:
-            argparse.ArgumentParser: A parser configured with the supported
-            deployment environment and operation.
-        """
-        parser = argparse.ArgumentParser(
-            description="Build Docker images and deploy with Terraform."
-        )
-
-        parser.add_argument(
-            "--environment",
-            type=Environment,
-            choices=list(Environment),
-            required=True,
-            help="Deployment environment",
-        )
-
-        parser.add_argument(
-            "--function",
-            type=Function,
-            choices=list(Function),
-            required=True,
-            help="Operation to perform",
-        )
-
-        parser.add_argument(
-            "--command",
-            required=False,
-            help="Command for exec function",
-        )
-
-        parser.add_argument(
-            "--dryrun",
-            required=False,
-            action="store_true",
-            help="Will list the resources it will remove if true and retain Terraform infrastructure.",
-        )
-
-        parser.add_argument(
-            "--force_reset_db",
-            required=False,
-            action="store_true",
-            help="Will reset the database when updating a prototype.",
-        )
-
-        namespace = parser.parse_args()
-
-        return cls(
-            environment=namespace.environment,
-            function=namespace.function,
-            command=namespace.command,
-            dryrun=namespace.dryrun,
-            force_reset_db=namespace.force_reset_db,
-        )
-
-
 def validate_permissions(
-    args: Args,
+    environment: Environment,
+    function: Function,
     account_id: str,
-    config: Config,
 ) -> None:
     """Validate that the requested operation is permitted.
 
     Checks that the authenticated AWS account is recognised and that the
     requested environment and operation are allowed for that account.
 
-    Args:
-        args: The parsed command-line arguments.
-        account_id: The AWS account ID of the currently authenticated
-            credentials.
-        config: The application configuration.
-
     Raises:
         ValueError: If the authenticated AWS account is not recognised or the
             requested operation is not permitted for that account.
     """
-    if (
-        account_id != config.aws_account_id_test
-        and account_id != config.aws_account_id_prod
-    ):
+    if account_id != AWS_ACCOUNT_ID_TEST and account_id != AWS_ACCOUNT_ID_PROD:
         raise Exception(">>> You're currently signed into an unrecognised aws env")
 
-    if account_id == config.aws_account_id_test and args.environment in [
+    if account_id == AWS_ACCOUNT_ID_TEST and environment in [
         Environment.PROD,
         Environment.STAGING,
         Environment.TEST,
@@ -170,20 +77,17 @@ def validate_permissions(
             ">>> You're currently signed into test and launching (or decommissioning) a prod, staging, or testing env"
         )
 
-    if account_id == config.aws_account_id_prod and args.function == "down":
+    if account_id == AWS_ACCOUNT_ID_PROD and function == Function.DOWN:
         raise Exception(
             ">>> You're currently signed into prod and attempting to delete something"
         )
 
-    if account_id == config.aws_account_id_prod and args.environment == Args.PROTO:
+    if account_id == AWS_ACCOUNT_ID_PROD and environment == Environment.PROTO:
         raise Exception(
             ">>> You're currently signed into prod and attempting to launch a prototype"
         )
 
-    if (
-        account_id == config.aws_account_id_prod
-        and args.function == "create_dummy_account"
-    ):
+    if account_id == AWS_ACCOUNT_ID_PROD and function == Function.CREATE_DUMMY_ACCOUNT:
         raise Exception(
             ">>> You're currently signed into prod and attempting to create a dummy account"
         )
@@ -213,12 +117,6 @@ def run(
     input_text: str | None = None,
 ) -> str | None:
     """Run a subprocess command.
-
-    Args:
-        command: The command and its arguments to execute.
-        capture_output: If ``True``, capture and return the command's standard
-            output.
-        input_text: Optional text to send to the command's standard input.
 
     Returns:
         The command's standard output with leading and trailing whitespace
@@ -355,8 +253,7 @@ def create_proto_env(proto_name: str) -> None:
 
 
 def prepare_environment(
-    args: Args,
-    config: Config,
+    environment: Environment,
 ) -> str:
     """Prepare the target environment for deployment.
 
@@ -372,18 +269,18 @@ def prepare_environment(
     """
     environment_name: str
 
-    if args.environment == Environment.PROTO:
+    if environment == Environment.PROTO:
         environment_name = create_proto_name()
 
         print(f">>> Prototype name: {environment_name}")
 
         create_proto_backend(
             proto_name=environment_name,
-            terraform_bucket_store=config.proto_terraform_bucket_store,
+            terraform_bucket_store=PROTO_TERRAFORM_BUCKET_STORE,
         )
         create_proto_env(environment_name)
     else:
-        environment_name = args.environment
+        environment_name = environment
 
     return environment_name
 
@@ -656,7 +553,9 @@ def delete_ecr_repos(
                 print(f"  Failed to delete {repo_name}: {error}")
 
 
-def flush_database() -> None:
+def flush_database(
+    environment: Environment,
+) -> None:
     """Reset the application's database.
 
     For prototype environments, creates the required Terraform backend and
@@ -668,9 +567,7 @@ def flush_database() -> None:
         subprocess.CalledProcessError: If a Terraform, AWS CLI, or ECS Exec
             command fails.
     """
-    args: Args = Args.parse()
-    config: Config = Config()
-    environment_name: str = prepare_environment(args=args, config=config)
+    environment_name: str = prepare_environment(environment=environment)
 
     run(
         [
@@ -688,12 +585,12 @@ def flush_database() -> None:
             "aws",
             "s3",
             "sync",
-            f"s3://{config.backup_db}/",
+            f"s3://{BACKUP_DB}/",
             f"s3://{s3_bucket}/",
         ]
     )
 
-    exec(f"python {config.ecs_prepare_db_script_path}")
+    exec(f"python {ECS_PREPARE_DB_SCRIPT_PATH}")
 
 
 def check_env_exists(env_name: str) -> bool:
@@ -755,11 +652,14 @@ def log_info_for_prototype() -> None:
     """
     url_amp: str = get_terraform_output("platform_url")
     url_viewer: str = get_terraform_output("viewer_url")
-    print(f">>> amp url: {url_amp}")
-    print(f">>> viewer url: {url_viewer}")
+    print(f">>> amp url: https://{url_amp}")
+    print(f">>> viewer url: https://{url_viewer}")
 
 
-def up() -> None:
+def up(
+    environment: Environment,
+    force_reset_db: bool,
+) -> None:
     """Build and deploy the requested environment.
 
     Prepares the Terraform configuration, creates the ECR repositories, builds
@@ -776,18 +676,14 @@ def up() -> None:
         TimeoutError: If a newly deployed prototype does not become available
             before the timeout expires.
     """
-    args: Args = Args.parse()
-    config: Config = Config()
-
     prototype_exists: bool = False
 
-    if args.environment == Environment.PROTO:
+    if environment == Environment.PROTO:
         prototype_name: str = create_proto_name().replace("_", "-")
         prototype_exists = check_env_exists(prototype_name)
 
     environment_name: str = prepare_environment(
-        args=args,
-        config=config,
+        environment=environment,
     )
 
     # Terraform init
@@ -834,13 +730,13 @@ def up() -> None:
             "ecr",
             "get-login-password",
             "--region",
-            config.aws_region,
+            AWS_REGION,
         ],
         capture_output=True,
     )
 
     aws_account_id = get_aws_account_id()
-    registry = f"{aws_account_id}.dkr.ecr.{config.aws_region}.amazonaws.com"
+    registry = f"{aws_account_id}.dkr.ecr.{AWS_REGION}.amazonaws.com"
 
     run(
         [
@@ -867,7 +763,7 @@ def up() -> None:
             "-t",
             f"{web_repo}:{image_tag}",
             "-f",
-            config.platform_docker_path,
+            PLATFORM_DOCKER_PATH,
             "--load",
             "..",
         ]
@@ -886,7 +782,7 @@ def up() -> None:
             "-t",
             f"{viewer_repo}:{image_tag}",
             "-f",
-            config.viewer_docker_path,
+            VIEWER_DOCKER_PATH,
             "--load",
             "..",
         ]
@@ -910,14 +806,14 @@ def up() -> None:
 
     print(f"\nDeployment complete.\nImage tag: {image_tag}")
 
-    log_info_for_prototype()
-
-    if args.environment != Environment.PROTO:
+    if environment != Environment.PROTO:
+        log_info_for_prototype()
         return
 
-    should_flush_database: bool = not prototype_exists or args.force_reset_db
+    should_flush_database: bool = not prototype_exists or force_reset_db
 
     if not should_flush_database:
+        log_info_for_prototype()
         return
 
     platform_url: str = get_terraform_output(parameter="platform_url")
@@ -925,12 +821,17 @@ def up() -> None:
 
     wait_for_service(
         url=service_url,
-        timeout=500,
+        timeout=1200,
     )
-    flush_database()
+    flush_database(environment=environment)
+    log_info_for_prototype()
 
 
-def breakdown_proto() -> None:
+def breakdown_proto(
+    environment: Environment,
+    dry_run: bool,
+    force_reset_db: bool,
+) -> None:
     """Remove the resources associated with a prototype environment.
 
     Prepares the prototype environment, initialises its Terraform backend,
@@ -945,12 +846,8 @@ def breakdown_proto() -> None:
         subprocess.CalledProcessError: If a Terraform or AWS CLI command exits
             with a non-zero status.
     """
-    config: Config = Config()
-    args: Args = Args.parse()
-
     environment_name: str = prepare_environment(
-        config=config,
-        args=args,
+        environment=environment,
     )
 
     backend_file: str = f"backends/{environment_name}_env.hcl"
@@ -966,26 +863,25 @@ def breakdown_proto() -> None:
     )
 
     app_name: str = get_terraform_output("app_name")
-    dry_run: bool = args.dryrun
 
     if not app_name:
         raise RuntimeError("Terraform output 'app_name' is blank.")
 
     empty_s3_bucket(
-        region=config.aws_region,
+        region=AWS_REGION,
         prefix=app_name,
         dry_run=dry_run,
-        buckets_to_ignore=config.protected_s3_buckets,
+        buckets_to_ignore=(PROTO_TERRAFORM_BUCKET_STORE,),
     )
 
     delete_secrets(
-        region=config.aws_region,
+        region=AWS_REGION,
         prefix=app_name,
         dry_run=dry_run,
     )
 
     delete_ecr_repos(
-        region=config.aws_region,
+        region=AWS_REGION,
         prefix=app_name,
         dry_run=dry_run,
     )
@@ -1004,7 +900,10 @@ def breakdown_proto() -> None:
     )
 
 
-def exec(cmd: str | None = None) -> None:
+def exec(
+    command: str,
+    environment: Environment = Environment.PROTO,
+) -> None:
     """Execute a command inside the application's running ECS task.
 
     Resolves the target environment, initialises the corresponding Terraform
@@ -1023,19 +922,13 @@ def exec(cmd: str | None = None) -> None:
             command exits with a non-zero status.
         json.JSONDecodeError: If an AWS CLI response is not valid JSON.
     """
-    args: Args = Args.parse()
-    config: Config = Config()
-
-    command: str | None = cmd if cmd is not None else args.command
-
     if command is None:
         raise ValueError(
             "A command must be provided either through 'cmd' or '--command'."
         )
 
     environment_name: str = prepare_environment(
-        config=config,
-        args=args,
+        environment=environment,
     )
     backend_file: str = f"backends/{environment_name}_env.hcl"
 
@@ -1169,49 +1062,101 @@ def create_burner_account_terraform(
 
 
 def main():
+    parsed = make_parser()
+    environment = parsed.environment
+    function = parsed.function
+    command = parsed.command
+    dry_run = parsed.dryrun
+    force_reset_db = parsed.force_reset_db
+
     script_dir = Path(__file__).resolve().parent
     project_dir = script_dir.parent
     os.chdir(project_dir)
 
-    args = Args.parse()
-    config = Config()
-
     account_id = get_aws_account_id()
     validate_permissions(
-        args=args,
+        environment=environment,
+        function=function,
         account_id=account_id,
-        config=config,
     )
 
-    if args.function == Function.UP:
-        print(">>> Deploying: ", args.environment)
-        up()
+    if function == Function.UP:
+        print(">>> Deploying: ", environment)
+        up(
+            environment=environment,
+            force_reset_db=force_reset_db,
+        )
 
-    if args.function == Function.DOWN:
+    if function == Function.DOWN:
         print(">>> breaking down environment")
-        if args.environment != Args.PROTO:
+        if environment != Environment.PROTO:
             raise Exception("Only prototypes can be broken down")
-        breakdown_proto()
+        breakdown_proto(
+            environment=environment,
+            dry_run=dry_run,
+            force_reset_db=force_reset_db,
+        )
 
-    if args.function == Function.EXEC:
+    if function == Function.EXEC:
         print(">>> exec into environment")
-        exec()
+        exec(command=command, environment=environment)
 
-    if args.function == Function.RESET_DB:
+    if function == Function.RESET_DB:
         print(">>> Resetting database")
-        if args.environment != Args.PROTO:
+        if environment != Environment.PROTO:
             raise Exception("Only prototypes can have their databases reset")
-        flush_database()
+        flush_database(
+            environment=environment,
+        )
 
-    if args.function == Function.LIST:
+    if function == Function.LIST:
         print(">>> list environments")
         list_environments()
 
-    if args.function == Function.CREATE_DUMMY_ACCOUNT:
+    if function == Function.CREATE_DUMMY_ACCOUNT:
         print(">>> Creating dummy account")
-        if args.environment != Args.PROTO:
+        if environment != Environment.PROTO:
             raise Exception("Only prototypes can create dummy accounts")
-        create_burner_account_terraform(config.create_dummy_account_script_path)
+        create_burner_account_terraform(CREATE_DUMMY_ACCOUNT_SCRIPT_PATH)
+
+
+def make_parser(args=None):
+    parser = argparse.ArgumentParser(
+        description="Build Docker images and deploy with Terraform."
+    )
+    parser.add_argument(
+        "--environment",
+        type=Environment,
+        choices=list(Environment),
+        required=True,
+        help="Deployment environment",
+    )
+    parser.add_argument(
+        "--function",
+        type=Function,
+        choices=list(Function),
+        required=True,
+        help="Operation to perform",
+    )
+    parser.add_argument(
+        "--command",
+        required=False,
+        help="Command for exec function",
+    )
+    parser.add_argument(
+        "--dryrun",
+        required=False,
+        action="store_true",
+        help="Will list the resources it will remove if true and retain Terraform infrastructure.",
+    )
+    parser.add_argument(
+        "--force_reset_db",
+        required=False,
+        action="store_true",
+        help="Will reset the database when updating a prototype.",
+    )
+    parsed = parser.parse_args(args)
+    return parsed
 
 
 if __name__ == "__main__":

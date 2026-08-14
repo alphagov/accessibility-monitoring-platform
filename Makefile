@@ -100,3 +100,6 @@ terraform_create_account_prototype:
 
 terraform_list_environments:
 	python terraform_stack/terraform_deploy/terraform_deployment.py --environment proto --function ls
+
+terraform_local_stack_up:
+	docker compose --file Dockerfiles/docker-compose-full-stack.yml  up --build
