@@ -807,7 +807,6 @@ def up(
     print(f"\nDeployment complete.\nImage tag: {image_tag}")
 
     if environment != Environment.PROTO:
-        log_info_for_prototype()
         return
 
     should_flush_database: bool = not prototype_exists or force_reset_db
