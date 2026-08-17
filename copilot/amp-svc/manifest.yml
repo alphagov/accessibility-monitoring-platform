@@ -27,7 +27,7 @@ exec: true
 http:
   grace_period: 600s
   healthcheck:
-    grace_period: 600s
+    grace_period: 6000s
     healthy_threshold: 2
     interval: 120s
     path: /healthcheck/
