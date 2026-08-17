@@ -91,7 +91,7 @@ def test_restore_wcag_page_initial_view(admin_client):
 
     response: HttpResponse = admin_client.get(
         reverse(
-            "audits:restore-page",
+            "audits:restore-wcag-page-initial",
             kwargs={"pk": wcag_page_initial.id},
         ),
     )
@@ -1992,7 +1992,7 @@ def test_page_checks_edit_page_contains_hint_text(admin_client):
     Test page checks page loads and contains WCAG definition hint text
     """
     wcag_audit: WcagAudit = create_initial_wcag_audit()
-    page: WcagPageInitial = WcagPageInitial.objects.get(
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
         wcag_audit=wcag_audit,
         page_type=WcagPageInitial.Type.HOME,
     )
@@ -2003,7 +2003,7 @@ def test_page_checks_edit_page_contains_hint_text(admin_client):
     wcag_definition.save()
 
     response: HttpResponse = admin_client.get(
-        reverse("audits:edit-audit-page-checks", kwargs={"pk": page.id})
+        reverse("audits:edit-audit-page-checks", kwargs={"pk": wcag_page_initial.id})
     )
 
     assert response.status_code == 200
@@ -2231,11 +2231,13 @@ def test_page_checks_edit_saves_results(admin_client):
 def test_page_checks_edit_stays_on_page(admin_client):
     """Test that a successful page checks edit stays on the page"""
     wcag_audit: WcagAudit = create_initial_wcag_audit()
-    page: WcagPageInitial = WcagPageInitial.objects.get(
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
         wcag_audit=wcag_audit,
         page_type=WcagPageInitial.Type.HOME,
     )
-    url: str = reverse("audits:edit-audit-page-checks", kwargs={"pk": page.id})
+    url: str = reverse(
+        "audits:edit-audit-page-checks", kwargs={"pk": wcag_page_initial.id}
+    )
 
     response: HttpResponse = admin_client.post(
         url,

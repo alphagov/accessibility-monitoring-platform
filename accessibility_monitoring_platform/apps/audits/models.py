@@ -722,6 +722,10 @@ class WcagAudit(AuditRound):
             wcag_page_retest__in=self.missing_wcag_page_retests,
         )
 
+    @property
+    def deleted_wcag_page_initials(self):
+        return self.wcagpageinitial_set.filter(is_deleted=True)
+
 
 class StatementAudit(AuditRound):
     """Model for testing accessibility statement content"""
