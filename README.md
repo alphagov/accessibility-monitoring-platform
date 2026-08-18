@@ -27,6 +27,7 @@ The report viewer is a public-facing application used for public service bodies 
 ## Requirements
 
 - Docker
+- uv ([see](https://docs.astral.sh/uv/getting-started/installation/))
 - Python 3.12
 - PostgreSQL
 - Node and NPM
