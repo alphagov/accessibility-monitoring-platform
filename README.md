@@ -47,19 +47,20 @@ You should now be able to access AWS services. You can test you have the right a
 
 To set up your local sandbox, follow the instructions below.
 
-1. Create a virtual environment
+1. Create a virtual environment using `uv`
 2. Activate the virtual environment
 3. Copy .env.example as .env
-4. Run `pip install pre-commit` (enables pre-commit checks in
+4. Run `uv pip install pre-commit` (enables pre-commit checks in
 [.pre-commit-config.yaml](https://github.com/alphagov/accessibility-monitoring-platform/blob/dev/.pre-commit-config.yaml))
 5. Run `make init`
 
 For example:
 
 ```
-python3 -m venv venv
+uv venv --python python3.12 venv
 source venv/bin/activate
 cp .env.example .env
+uv pip install pre-commit
 make init
 ```
 
@@ -200,5 +201,4 @@ The deployment process takes around 30 minutes. Decommissioning takes up to 15 m
 - `README.md` : Documentation for the repo
 - `requirements_for_test.txt` : Tracks developer dependencies for Python
 - `requirements.in` : Tracks production dependencies for Python
-- `requirements.txt` : Derived from requirements.in by pip-compile.
-
+- `requirements.txt` : Derived from requirements.in by `uv pip compile`.
