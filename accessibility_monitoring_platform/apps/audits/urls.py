@@ -14,7 +14,7 @@ from .views.base import (
     WcagDefinitionListView,
     WcagDefinitionUpdateView,
     create_audit,
-    restore_page,
+    restore_wcag_page_initial,
 )
 from .views.equality_body import (
     EqualityBodyRetestMetadataUpdateView,
@@ -109,9 +109,9 @@ urlpatterns: list[URLPattern] = [
         name="edit-audit-pages",
     ),
     path(
-        "pages/<int:pk>/restore-page/",
-        login_required(restore_page),
-        name="restore-page",
+        "pages/<int:pk>/restore-wcag-page-initial/",
+        login_required(restore_wcag_page_initial),
+        name="restore-wcag-page-initial",
     ),
     path(
         "pages/<int:pk>/edit-audit-page-checks/",

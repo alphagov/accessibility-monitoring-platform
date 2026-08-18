@@ -314,11 +314,13 @@ def test_get_post_case_tasks():
     assert post_case_task.type == Task.Type.POSTCASE
     assert post_case_task.date == wcag_audit_retest.date_of_test
     assert post_case_task.base_case == simplified_case
-    assert post_case_task.description == "Incomplete retest"
+    assert post_case_task.description == "Website compliance decision not set"
 
     option: Link = post_case_task.options[0]
 
-    assert option.url == wcag_audit_retest.get_absolute_url()
+    assert option.url == reverse(
+        "audits:retest-compliance-update", kwargs={"pk": wcag_audit_retest.id}
+    )
     assert option.label == "View retest"
 
     wcag_audit_retest.compliance_state = WcagAudit.WebsiteCompliance.COMPLIANT
