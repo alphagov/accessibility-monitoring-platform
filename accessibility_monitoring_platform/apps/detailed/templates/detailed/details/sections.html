@@ -11,7 +11,7 @@
                     </div>
                 {% endif %}
                 {% for case_detail_page in case_detail_section.pages %}
-                    {% include case_detail_page.page.case_details_template_name %}
+                    {% include case_detail_page.platform_page.case_details_template_name %}
                 {% endfor %}
             {% endfor %}
             {% if case.retest_website_compliance_information or case.retest_statement_compliance_information %}

@@ -12,7 +12,7 @@ import pytest
 from django.contrib.auth.models import User
 from moto import mock_aws
 
-from ...audits.models import Audit
+from ...audits.models import AuditOverview
 from ...common.models import Boolean, Sector, SubCategory
 from ...mobile.models import MobileCase
 from ...simplified.models import CaseStatus, SimplifiedCase
@@ -70,14 +70,14 @@ def test_case_filtered_by_date_of_test_date_range():
     excluded_simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         organisation_name="Excluded"
     )
-    Audit.objects.create(
-        simplified_case=excluded_simplified_case, date_of_test=PAST_DATE
+    AuditOverview.objects.create(
+        simplified_case=excluded_simplified_case, initial_date_of_test=PAST_DATE
     )
     included_simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         organisation_name="Included"
     )
-    Audit.objects.create(
-        simplified_case=included_simplified_case, date_of_test=TODAYS_DATE
+    AuditOverview.objects.create(
+        simplified_case=included_simplified_case, initial_date_of_test=TODAYS_DATE
     )
 
     form: MockForm = MockForm(

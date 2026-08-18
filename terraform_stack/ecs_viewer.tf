@@ -67,7 +67,7 @@ resource "aws_ecs_service" "viewer" {
   platform_version = "1.4.0"
   force_new_deployment = true
   enable_execute_command = true
-  health_check_grace_period_seconds = 300
+  health_check_grace_period_seconds = 600
 
 
   network_configuration {

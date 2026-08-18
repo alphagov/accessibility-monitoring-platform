@@ -15,7 +15,7 @@ from django.db.models import QuerySet
 from django.http import StreamingHttpResponse
 from django.urls import reverse
 
-from ..audits.models import Audit
+from ..audits.models import StatementAudit, WcagAudit
 from ..cases.csv_export import csv_output_generator
 from ..cases.utils import CaseDetailPage, CaseDetailSection
 from ..common.form_extract_utils import (
@@ -29,13 +29,7 @@ from .csv_export import (
     SIMPLIFIED_CASE_COLUMNS_FOR_EXPORT,
     SIMPLIFIED_FEEDBACK_SURVEY_COLUMNS_FOR_EXPORT,
 )
-from .models import (
-    COMPLIANCE_FIELDS,
-    CaseCompliance,
-    CaseEvent,
-    SimplifiedCase,
-    SimplifiedEventHistory,
-)
+from .models import CaseEvent, SimplifiedCase, SimplifiedEventHistory
 
 CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
     ("auditor", "auditor_id"),
@@ -44,7 +38,6 @@ CASE_FIELD_AND_FILTER_NAMES: list[tuple[str, str]] = [
     ("sector", "sector_id"),
     ("subcategory", "subcategory_id"),
 ]
-
 
 ONE_WEEK_IN_DAYS: int = 7
 TWELVE_WEEKS_IN_DAYS: int = 12 * ONE_WEEK_IN_DAYS
@@ -57,8 +50,21 @@ def get_simplified_case_detail_sections(
     get_case_rows: Callable = partial(
         extract_form_labels_and_values, instance=simplified_case
     )
-    get_audit_rows: Callable = partial(
-        extract_form_labels_and_values, instance=simplified_case.audit
+    get_wcag_audit_rows: Callable = partial(
+        extract_form_labels_and_values,
+        instance=(
+            simplified_case.audit_overview.initial_wcag_audit
+            if simplified_case.audit_overview is not None
+            else None
+        ),
+    )
+    get_statement_audit_rows: Callable = partial(
+        extract_form_labels_and_values,
+        instance=(
+            simplified_case.audit_overview.initial_statement_audit
+            if simplified_case.audit_overview is not None
+            else None
+        ),
     )
     view_sections: list[CaseDetailSection] = []
     for page_group in sitemap.platform_page_groups:
@@ -68,34 +74,44 @@ def get_simplified_case_detail_sections(
         ):
             case_detail_pages: list[CaseDetailPage] = []
             if page_group.pages is not None:
-                for page in page_group.pages:
-                    if page.show:
+                for platform_page in page_group.pages:
+                    if platform_page.show:
                         display_fields: list[FieldLabelAndValue] = []
-                        if page.case_details_form_class:
+                        if platform_page.case_details_form_class:
                             if (
-                                page.case_details_form_class._meta.model
+                                platform_page.case_details_form_class._meta.model
                                 == SimplifiedCase
                             ):
                                 display_fields = get_case_rows(
-                                    form=page.case_details_form_class()
+                                    form=platform_page.case_details_form_class()
                                 )
-                            elif page.case_details_form_class._meta.model == Audit:
-                                display_fields = get_audit_rows(
-                                    form=page.case_details_form_class()
+                            elif (
+                                platform_page.case_details_form_class._meta.model
+                                == WcagAudit
+                            ):
+                                display_fields = get_wcag_audit_rows(
+                                    form=platform_page.case_details_form_class()
                                 )
-                        if page.case_details_template_name:
+                            elif (
+                                platform_page.case_details_form_class._meta.model
+                                == StatementAudit
+                            ):
+                                display_fields = get_statement_audit_rows(
+                                    form=platform_page.case_details_form_class()
+                                )
+                        if platform_page.case_details_template_name:
                             case_detail_pages.append(
                                 CaseDetailPage(
-                                    page=page,
+                                    platform_page=platform_page,
                                     display_fields=display_fields,
                                 )
                             )
-                        if page.subpages is not None:
-                            for subpage in page.subpages:
+                        if platform_page.subpages is not None:
+                            for subpage in platform_page.subpages:
                                 if subpage.case_details_template_name:
                                     case_detail_pages.append(
                                         CaseDetailPage(
-                                            page=subpage,
+                                            platform_page=subpage,
                                         )
                                     )
             view_sections.append(
@@ -130,7 +146,7 @@ def record_case_event(
             event_type=CaseEvent.EventType.AUDITOR,
             message=f"Auditor changed from {old_user_name} to {new_user_name}",
         )
-    if old_case.audit is None and new_case.audit is not None:
+    if old_case.audit_overview is None and new_case.audit_overview is not None:
         CaseEvent.objects.create(
             simplified_case=old_case,
             done_by=user,
@@ -199,26 +215,6 @@ def build_edit_link_html(simplified_case: SimplifiedCase, url_name: str) -> str:
     return (
         f"<a href='{edit_url}' class='govuk-link govuk-link--no-visited-state'>Edit</a>"
     )
-
-
-def create_case_and_compliance(**kwargs) -> SimplifiedCase:
-    """Create case and populate compliance fields from arbitrary arguments"""
-    compliance_kwargs: dict[str, Any] = {
-        key: value for key, value in kwargs.items() if key in COMPLIANCE_FIELDS
-    }
-    non_compliance_args: dict[str, Any] = {
-        key: value for key, value in kwargs.items() if key not in COMPLIANCE_FIELDS
-    }
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        **non_compliance_args
-    )
-    CaseCompliance.objects.create(simplified_case=simplified_case)
-    if compliance_kwargs:
-        for key, value in compliance_kwargs.items():
-            setattr(simplified_case.compliance, key, value)
-        simplified_case.compliance.save()
-        simplified_case.save()
-    return simplified_case
 
 
 def record_simplified_model_update_event(
@@ -296,19 +292,30 @@ def download_simplified_feedback_survey_cases(
 
 
 def get_email_template_context(simplified_case: SimplifiedCase) -> dict[str, Any]:
-    """Collect data to add to context of email template previews"""
+    """Collect data to add to context of email templates"""
     context: dict[str, Any] = {}
     context["12_weeks_from_today"] = date.today() + timedelta(days=TWELVE_WEEKS_IN_DAYS)
     context["case"] = simplified_case
-    context["retest"] = simplified_case.retests.first()
-    if simplified_case.audit is not None:
-        context["issues_tables"] = build_issues_tables(
-            pages=simplified_case.audit.testable_pages,
-            check_results_attr="unfixed_check_results",
-        )
-        context["retest_issues_tables"] = build_issues_tables(
-            pages=simplified_case.audit.retestable_pages,
-            use_retest_notes=True,
-            check_results_attr="unfixed_check_results",
-        )
+    context["initial_wcag_audit"] = simplified_case.audit_overview.initial_wcag_audit
+    context["initial_statement_audit"] = (
+        simplified_case.audit_overview.initial_statement_audit
+    )
+    context["last_equality_body_wcag_audit"] = (
+        simplified_case.audit_overview.last_equality_body_wcag_audit
+    )
+    context["last_equality_body_statement_audit"] = (
+        simplified_case.audit_overview.last_equality_body_statement_audit
+    )
+    if simplified_case.audit_overview is not None:
+        if simplified_case.audit_overview.initial_wcag_audit is not None:
+            context["issues_tables"] = build_issues_tables(
+                wcag_pages=simplified_case.audit_overview.initial_wcag_audit.testable_wcag_page_initials,
+                check_results_attr="unfixed_wcag_check_result_initials",
+            )
+        if simplified_case.audit_overview.first_twelve_week_wcag_audit is not None:
+            context["retest_issues_tables"] = build_issues_tables(
+                wcag_pages=simplified_case.audit_overview.first_twelve_week_wcag_audit.retestable_wcag_page_retests,
+                use_retest_notes=True,
+                check_results_attr="unfixed_wcag_check_result_retests",
+            )
     return context

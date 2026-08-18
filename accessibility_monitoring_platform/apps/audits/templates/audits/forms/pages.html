@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block form %}
-<form method="post" action="{% url 'audits:edit-audit-pages' audit.id %}">
+<form method="post" action="{% url 'audits:edit-audit-pages' object.id %}">
     {% csrf_token %}
     {% include 'common/form_errors.html' with errors=form.non_field_errors %}
     {{ standard_pages_formset.management_form }}
@@ -20,9 +20,7 @@
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full">
                             <br/>
-                            <h2 class="govuk-heading-m">
-                                {{ page_form.instance.page_title }}
-                            </h2>
+                            <h2 class="govuk-heading-m">{{ page_form.instance.page_title }}</h2>
                             {% include 'common/form_errors.html' with errors=page_form.non_field_errors %}
                             {% include 'common/form_hidden_fields.html' with hidden_fields=page_form.hidden_fields %}
                             {% if page_form.instance.page_type == 'form' %}
@@ -97,16 +95,16 @@
         data-module="govuk-button"
     />
     <div class="govuk-grid-row">
-        {% if audit.deleted_pages %}
+        {% if wcag_audit.deleted_wcag_page_initials %}
             <div class="govuk-grid-column-full amp-margin-bottom-30">
                 <h2 id="deleted-pages"class="govuk-heading-m amp-margin-bottom-5">Removed pages</h2>
                 <table class="govuk-table">
                     <tbody class="govuk-table__body">
-                        {% for page in audit.deleted_pages %}
+                        {% for wcag_page_initial in wcag_audit.deleted_wcag_page_initials %}
                             <tr class="govuk-table__row">
-                                <th scope="row" class="govuk-table__header amp-width-one-half">{{ page.page_title }}</th>
+                                <th scope="row" class="govuk-table__header amp-width-one-half">{{ wcag_page_initial.page_title }}</th>
                                 <td class="govuk-table__cell amp-width-one-half">
-                                    <a href="{% url 'audits:restore-page' page.id %}" class="govuk-link govuk-link--no-visited-state">
+                                    <a href="{% url 'audits:restore-wcag-page-initial' wcag_page_initial.id %}" class="govuk-link govuk-link--no-visited-state">
                                         Unremove page</a>
                                 </td>
                             </tr>

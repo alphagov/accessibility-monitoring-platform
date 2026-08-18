@@ -66,4 +66,4 @@ services:
 
 volumes:
   db-data:
-  pgadmin-data:
+  # pgadmin-data:
