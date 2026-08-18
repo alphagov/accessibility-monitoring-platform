@@ -1,7 +1,7 @@
 init:
 	docker compose up -d \
-		&& pip install --upgrade pip \
-		&& pip install -r requirements_for_test.txt \
+		&& uv pip install --upgrade pip \
+		&& uv pip install -r requirements_for_test.txt \
 		&& npm i \
 		&& make static_files_process \
 		&& make collect_static \
@@ -12,8 +12,7 @@ init:
 		&& echo "email: admin@email.com & password: secret"
 
 freeze_requirements: # Pin all requirements including sub dependencies into requirements.txt
-	pip install --upgrade pip-tools
-	pip-compile --upgrade requirements.in
+	uv pip compile --upgrade requirements.in
 
 clean_local:
 	docker compose down
