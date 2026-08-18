@@ -1,4 +1,4 @@
-{% if case.wcagaudit_set.all.last.compliance_state == 'compliant' and case.statementaudit_set.all.last.compliance_state == 'compliant' %}
+{% if case.audit_overview.initial_wcag_audit.compliance_state == 'compliant' and case.audit_overview.initial_statement_audit.compliance_state == 'compliant' %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <div class="govuk-notification-banner {% if case.case_completed == 'complete-no-send' %}govuk-notification-banner--success{% endif %}" role="region" aria-labelledby="banner-title-compliant-website" data-module="govuk-notification-banner">

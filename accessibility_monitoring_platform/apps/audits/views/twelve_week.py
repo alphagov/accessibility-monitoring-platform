@@ -22,7 +22,6 @@ from ..forms import (
     AuditRetestCheckResultFilterForm,
     AuditStatementSummaryUpdateForm,
     AuditTwelveWeekDisproportionateBurdenUpdateForm,
-    StatementAuditComplianceUpdateForm,
     StatementAuditStatementBackupUpdateForm,
     StatementAuditStatementComplianceUpdateForm,
     StatementAuditStatementCustomUpdateForm,
@@ -37,6 +36,7 @@ from ..forms import (
     StatementCheckResultRetestCustomUpdateForm,
     StatementCheckResultRetestFormset,
     StatementCheckResultRetestUpdateForm,
+    TwelveWeekStatementAuditComplianceUpdateForm,
     WcagAuditComplianceUpdateForm,
     WcagAuditRetestMetadataUpdateForm,
     WcagAuditRetestPagesUpdateForm,
@@ -608,8 +608,8 @@ class TwelveWeekDisproportionateBurdenUpdateView(StatementAuditUpdateView):
 
 class TwelveWeekStatementComplianceStatementUpdateView(StatementAuditUpdateView):
 
-    form_class: type[StatementAuditComplianceUpdateForm] = (
-        StatementAuditComplianceUpdateForm
+    form_class: type[TwelveWeekStatementAuditComplianceUpdateForm] = (
+        TwelveWeekStatementAuditComplianceUpdateForm
     )
     template_name: str = "audits/forms/retest_statement_decision.html"
 
