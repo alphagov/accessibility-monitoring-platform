@@ -562,7 +562,9 @@ class WcagAudit(AuditRound):
 
     @property
     def equality_body_retest_name(self) -> str:
-        retest_number: int = self.round_number - 1
+        retest_number: int = self.round_number
+        if self.simplified_case.audit_overview.first_twelve_week_wcag_audit is not None:
+            retest_number -= 1
         return f"Retest #{retest_number}"
 
     @property
@@ -719,6 +721,10 @@ class WcagAudit(AuditRound):
             is_deleted=False,
             wcag_page_retest__in=self.missing_wcag_page_retests,
         )
+
+    @property
+    def deleted_wcag_page_initials(self):
+        return self.wcagpageinitial_set.filter(is_deleted=True)
 
 
 class StatementAudit(AuditRound):

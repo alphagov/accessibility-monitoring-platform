@@ -528,10 +528,12 @@ def get_audit_summary_context(
                 initial_result=wcag_failed_check_result_initial,
                 retest_result=wcag_failed_check_result_initial.twelve_week_wcag_check_result_retest,
             )
-            if (
-                show_all
-                or summary_wcag_check_result.retest_result is None
-                or summary_wcag_check_result.retest_result.retest_state
+            if show_all or summary_wcag_check_result.retest_result is None:
+                summary_wcag_check_results.append(summary_wcag_check_result)
+            elif (
+                summary_wcag_check_result.retest_result.wcag_page_retest.page_missing_date
+                is None
+                and summary_wcag_check_result.retest_result.retest_state
                 != WcagCheckResultRetest.RetestResult.FIXED
             ):
                 summary_wcag_check_results.append(summary_wcag_check_result)
@@ -560,9 +562,7 @@ def get_audit_summary_context(
 
     summary_statement_check_results: list[SummaryStatementCheckResult] = []
 
-    statement_check_results: (
-        QuerySet[StatementCheckResult] | QuerySet[StatementCheckResult]
-    ) = (
+    statement_check_results: QuerySet[StatementCheckResult] = (
         statement_audit_12_week.statement_check_results
         if statement_audit_12_week is not None
         else initial_statement_audit.statement_check_results
@@ -598,6 +598,15 @@ def get_audit_summary_context(
                 summary_statement_check_result.initial_result is not None
                 and summary_statement_check_result.initial_result.check_result_state
                 == StatementCheckResult.Result.NO
+                and summary_statement_check_result.retest_result is None
+            )
+            or (
+                summary_statement_check_result.initial_result is not None
+                and summary_statement_check_result.initial_result.check_result_state
+                == StatementCheckResult.Result.NO
+                and summary_statement_check_result.retest_result is not None
+                and summary_statement_check_result.retest_result.check_result_state
+                != StatementCheckResult.Result.YES
             )
             or (
                 summary_statement_check_result.retest_result is not None

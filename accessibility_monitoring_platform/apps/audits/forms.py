@@ -288,6 +288,27 @@ class StatementAuditComplianceUpdateForm(VersionForm):
         ]
 
 
+class TwelveWeekStatementAuditComplianceUpdateForm(VersionForm):
+    """
+    Form for editing statement compliance decision completion
+    """
+
+    compliance_state = AMPChoiceRadioField(
+        label="12-week statement compliance decision",
+        help_text="This field effects the case status",
+        choices=StatementAudit.StatementCompliance.choices,
+    )
+    compliance_complete_date = AMPDatePageCompleteField()
+
+    class Meta:
+        model = StatementAudit
+        fields: list[str] = [
+            "version",
+            "compliance_state",
+            "compliance_complete_date",
+        ]
+
+
 class StatementCheckResultForm(forms.ModelForm):
     """
     Form for updating a single statement check

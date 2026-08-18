@@ -490,6 +490,8 @@ class InitialStatementAuditPlatformPage(StatementAuditPlatformPage):
             self.instance = instance.statementaudit_set.filter(
                 audit_round_type=self.audit_round_type
             ).first()
+        elif isinstance(instance, WcagAudit):
+            self.instance = instance.equivalent_statement_audit
         else:
             super().set_instance(instance=instance)
 

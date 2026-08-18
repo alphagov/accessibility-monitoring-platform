@@ -118,7 +118,7 @@ def create_audit(request: HttpRequest, case_id: int) -> HttpResponse:
     return redirect(reverse("audits:edit-audit-metadata", kwargs={"pk": wcag_audit.id}))
 
 
-def restore_page(request: HttpRequest, pk: int) -> HttpResponse:
+def restore_wcag_page_initial(request: HttpRequest, pk: int) -> HttpResponse:
     """
     Restore deleted page
 

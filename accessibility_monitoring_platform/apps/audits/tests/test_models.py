@@ -746,6 +746,7 @@ def test_wcag_audit_equality_body_previous_retest_wcag_audit():
 @pytest.mark.django_db
 def test_wcag_audit_equality_body_retest_name():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    AuditOverview.objects.create(simplified_case=simplified_case)
     WcagAudit.objects.create(simplified_case=simplified_case)
     WcagAudit.objects.create(
         simplified_case=simplified_case,
