@@ -310,10 +310,10 @@ def get_post_case_tasks(user: User) -> list[Task]:
         compliance_state=WcagAudit.WebsiteCompliance.UNKNOWN,
     )
 
-    for wcag_audit in wcag_audit_retests:
+    for wcag_audit_retest in wcag_audit_retests:
         if (
             Task.objects.filter(
-                base_case=wcag_audit.simplified_case,
+                base_case=wcag_audit_retest.simplified_case,
                 type=Task.Type.REMINDER,
                 date__gte=today,
             ).first()
@@ -321,15 +321,18 @@ def get_post_case_tasks(user: User) -> list[Task]:
         ):
             task: Task = Task(
                 type=Task.Type.POSTCASE,
-                date=wcag_audit.date_of_test,
-                base_case=wcag_audit.simplified_case,
-                description="Incomplete retest",
+                date=wcag_audit_retest.date_of_test,
+                base_case=wcag_audit_retest.simplified_case,
+                description="Website compliance decision not set",
                 action="View retest",
             )
             task.options: list[Link] = [
                 Link(
                     label="View retest",
-                    url=wcag_audit.get_absolute_url(),
+                    url=reverse(
+                        "audits:retest-compliance-update",
+                        kwargs={"pk": wcag_audit_retest.id},
+                    ),
                 )
             ]
             tasks.append(task)
