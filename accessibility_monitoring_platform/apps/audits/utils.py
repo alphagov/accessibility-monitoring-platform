@@ -528,14 +528,13 @@ def get_audit_summary_context(
                 initial_result=wcag_failed_check_result_initial,
                 retest_result=wcag_failed_check_result_initial.twelve_week_wcag_check_result_retest,
             )
-            if show_all or (
+            if show_all or summary_wcag_check_result.retest_result is None:
+                summary_wcag_check_results.append(summary_wcag_check_result)
+            elif (
                 summary_wcag_check_result.retest_result.wcag_page_retest.page_missing_date
                 is None
-                and (
-                    summary_wcag_check_result.retest_result is None
-                    or summary_wcag_check_result.retest_result.retest_state
-                    != WcagCheckResultRetest.RetestResult.FIXED
-                )
+                and summary_wcag_check_result.retest_result.retest_state
+                != WcagCheckResultRetest.RetestResult.FIXED
             ):
                 summary_wcag_check_results.append(summary_wcag_check_result)
 
