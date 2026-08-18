@@ -5,8 +5,9 @@ import pytest
 from botocore.exceptions import ClientError
 
 from terraform_stack.terraform_deploy.terraform_deployment import (
-    Args,
-    Config,
+    AWS_ACCOUNT_ID_PROD,
+    AWS_ACCOUNT_ID_TEST,
+    PROTO_TERRAFORM_BUCKET_STORE,
     Environment,
     Function,
     check_env_exists,
@@ -20,6 +21,7 @@ from terraform_stack.terraform_deploy.terraform_deployment import (
     get_aws_account_id,
     get_terraform_output,
     log_info_for_prototype,
+    make_parser,
     matches,
     prepare_environment,
     run,
@@ -28,58 +30,25 @@ from terraform_stack.terraform_deploy.terraform_deployment import (
 )
 
 
-def test_config():
-    config: Config = Config()
-
-    assert config.aws_region == "eu-west-2"
-    assert config.aws_account_id_test == "144664177605"
-    assert config.aws_account_id_prod == "584234429739"
-    assert config.platform_docker_path == "../Dockerfiles/amp_platform.DockerFile"
-    assert config.viewer_docker_path == "../Dockerfiles/amp_viewer.DockerFile"
-    assert config.proto_terraform_bucket_store == "amp-stack-terraform-state"
-    assert config.backup_db == "db-store-for-prototypes"
-    assert (
-        config.create_dummy_account_script_path
-        == "terraform_stack/ecs_tools/create_dummy_account.py"
-    )
-    assert (
-        config.ecs_prepare_db_script_path
-        == "terraform_stack/ecs_tools/ecs_prepare_db.py"
-    )
-    assert config.protected_s3_buckets == (config.proto_terraform_bucket_store,)
-
-
-def test_args_parse():
-    args_parse: Args = Args.parse(
-        ["--environment", Environment.PROTO, "--function", Function.UP]
-    )
-
-    assert args_parse.environment == Environment.PROTO
-    assert args_parse.function == Function.UP
-    assert args_parse.command is None
-    assert args_parse.dryrun is False
-    assert args_parse.force_reset_db is False
-
-
 @pytest.mark.parametrize(
     "environment,account_id",
     [(Environment.PROTO, "144664177605"), (Environment.PROD, "584234429739")],
 )
 def test_validate_permissions_correct_account_id(environment, account_id):
-    mock_args: Args = Args.parse(
-        ["--environment", environment, "--function", Function.LIST]
+    validate_permissions(
+        environment=environment,
+        function=Function.LIST,
+        account_id=account_id,
     )
-    config: Config = Config()
-    validate_permissions(args=mock_args, account_id=account_id, config=config)
 
 
 def test_validate_permissions_unknown_account_id():
-    mock_args: Args = Args.parse(
-        ["--environment", Environment.PROTO, "--function", Function.LIST]
-    )
-    config: Config = Config()
     with pytest.raises(Exception) as exc_info:
-        validate_permissions(args=mock_args, account_id="unknown", config=config)
+        validate_permissions(
+            environment=Environment.PROTO,
+            function=Function.LIST,
+            account_id="unknown",
+        )
 
     assert (
         str(exc_info.value)
@@ -91,13 +60,11 @@ def test_validate_permissions_unknown_account_id():
     "environment", [Environment.PROD, Environment.STAGING, Environment.TEST]
 )
 def test_validate_permissions_wrong_environment_for_test_account(environment):
-    mock_args: Args = Args.parse(
-        ["--environment", environment, "--function", Function.LIST]
-    )
-    config: Config = Config()
     with pytest.raises(Exception) as exc_info:
         validate_permissions(
-            args=mock_args, account_id=config.aws_account_id_test, config=config
+            environment=environment,
+            function=Function.LIST,
+            account_id=AWS_ACCOUNT_ID_TEST,
         )
 
     assert (
@@ -107,13 +74,11 @@ def test_validate_permissions_wrong_environment_for_test_account(environment):
 
 
 def test_validate_permissions_prod_drop():
-    mock_args: Args = Args.parse(
-        ["--environment", Environment.PROD, "--function", Function.DOWN]
-    )
-    config: Config = Config()
     with pytest.raises(Exception) as exc_info:
         validate_permissions(
-            args=mock_args, account_id=config.aws_account_id_prod, config=config
+            environment=Environment.PROD,
+            function=Function.DOWN,
+            account_id=AWS_ACCOUNT_ID_PROD,
         )
 
     assert (
@@ -123,13 +88,11 @@ def test_validate_permissions_prod_drop():
 
 
 def test_validate_permissions_prod_proto():
-    mock_args: Args = Args.parse(
-        ["--environment", Environment.PROTO, "--function", Function.LIST]
-    )
-    config: Config = Config()
     with pytest.raises(Exception) as exc_info:
         validate_permissions(
-            args=mock_args, account_id=config.aws_account_id_prod, config=config
+            environment=Environment.PROTO,
+            function=Function.LIST,
+            account_id=AWS_ACCOUNT_ID_PROD,
         )
 
     assert (
@@ -139,18 +102,11 @@ def test_validate_permissions_prod_proto():
 
 
 def test_validate_permissions_prod_create_dummy_account():
-    mock_args: Args = Args.parse(
-        [
-            "--environment",
-            Environment.PROD,
-            "--function",
-            Function.CREATE_DUMMY_ACCOUNT,
-        ]
-    )
-    config: Config = Config()
     with pytest.raises(Exception) as exc_info:
         validate_permissions(
-            args=mock_args, account_id=config.aws_account_id_prod, config=config
+            environment=Environment.PROD,
+            function=Function.CREATE_DUMMY_ACCOUNT,
+            account_id=AWS_ACCOUNT_ID_PROD,
         )
 
     assert (
@@ -250,19 +206,18 @@ def test_create_proto_backend():
         mock_backend_dir: MagicMock = MagicMock()
         mock_backend_dir.__truediv__.return_value = mock_backend_file
         mock_path.return_value = mock_backend_dir
-        config: Config = Config()
         proto_name: str = "proto_name"
 
         create_proto_backend(
             proto_name=proto_name,
-            terraform_bucket_store=config.proto_terraform_bucket_store,
+            terraform_bucket_store=PROTO_TERRAFORM_BUCKET_STORE,
         )
 
         mock_path.assert_called_once_with("backends")
         mock_backend_dir.mkdir.assert_called_once_with(parents=True, exist_ok=True)
         mock_backend_dir.__truediv__.assert_called_once_with(f"{proto_name}_env.hcl")
         mock_backend_file.write_text.assert_called_once_with(
-            f"""bucket       = "{config.proto_terraform_bucket_store}"
+            f"""bucket       = "{PROTO_TERRAFORM_BUCKET_STORE}"
 key          = "{proto_name}/terraform.tfstate"
 region       = "eu-west-2"
 encrypt      = true
@@ -308,18 +263,7 @@ viewer_image_tag    = "latest"''',
         (Environment.TEST, "test"),
     ],
 )
-@pytest.mark.parametrize(
-    "function",
-    [
-        Function.CREATE_DUMMY_ACCOUNT,
-        Function.DOWN,
-        Function.EXEC,
-        Function.LIST,
-        Function.RESET_DB,
-        Function.UP,
-    ],
-)
-def test_prepare_environment(function, environment, expected_environment_name):
+def test_prepare_environment(environment, expected_environment_name):
     with patch(
         "terraform_stack.terraform_deploy.terraform_deployment.subprocess.check_output"
     ) as mock_check_output, patch(
@@ -328,12 +272,8 @@ def test_prepare_environment(function, environment, expected_environment_name):
         mock_check_output.return_value = "1234-branch"
         mock_backend_dir: MagicMock = MagicMock()
         mock_path.return_value = mock_backend_dir
-        mock_args: Args = Args.parse(
-            ["--environment", environment, "--function", function]
-        )
-        config: Config = Config()
 
-        environment_name: str = prepare_environment(args=mock_args, config=config)
+        environment_name: str = prepare_environment(environment=environment)
 
         assert environment_name == expected_environment_name
 
@@ -407,13 +347,12 @@ def test_empty_s3_bucket_client_error(capsys):
         mock_boto3.resource.return_value = mock_s3_resource
         region: str = "eu-west-2"
         prefix: str = "prefix"
-        config: Config = Config()
 
         empty_s3_bucket(
             region=region,
             prefix=prefix,
             dry_run=False,
-            buckets_to_ignore=config.protected_s3_buckets,
+            buckets_to_ignore=(PROTO_TERRAFORM_BUCKET_STORE,),
         )
 
         captured = capsys.readouterr()
@@ -435,12 +374,11 @@ def test_empty_s3_bucket_no_buckets(capsys):
         mock_boto3.resource.return_value = mock_s3_resource
         region: str = "eu-west-2"
         prefix: str = "prefix"
-        config: Config = Config()
         empty_s3_bucket(
             region=region,
             prefix=prefix,
             dry_run=False,
-            buckets_to_ignore=config.protected_s3_buckets,
+            buckets_to_ignore=(PROTO_TERRAFORM_BUCKET_STORE,),
         )
 
         captured = capsys.readouterr()
@@ -467,13 +405,12 @@ def test_empty_s3_bucket_protected_bucket(capsys):
         mock_boto3.resource.return_value = mock_s3_resource
         region: str = "eu-west-2"
         prefix: str = "prefix"
-        config: Config = Config()
 
         empty_s3_bucket(
             region=region,
             prefix=prefix,
             dry_run=False,
-            buckets_to_ignore=config.protected_s3_buckets,
+            buckets_to_ignore=(PROTO_TERRAFORM_BUCKET_STORE,),
         )
 
         captured = capsys.readouterr()
@@ -689,22 +626,16 @@ def test_delete_ecr_repos_client_error_exception(capsys):
 
 def test_flush_database():
     with patch(
-        "terraform_stack.terraform_deploy.terraform_deployment.Args"
-    ) as mock_args_class, patch(
         "terraform_stack.terraform_deploy.terraform_deployment.run"
     ) as mock_run, patch(
         "terraform_stack.terraform_deploy.terraform_deployment.exec"
     ) as mock_exec, patch(
         "terraform_stack.terraform_deploy.terraform_deployment.get_terraform_output"
     ) as mock_get_terraform_output:
-        mock_args: Args = Args.parse(
-            ["--environment", Environment.PROD, "--function", Function.DOWN]
-        )
-        mock_args_class.parse.return_value = mock_args
         s3_bucket_name: str = "s3_bucket_one"
         mock_get_terraform_output.return_value = s3_bucket_name
 
-        flush_database()
+        flush_database(environment=Environment.PROD)
 
         mock_run.assert_has_calls(
             [
@@ -775,7 +706,7 @@ def test_log_info_for_prototype(capsys):
     with patch(
         "terraform_stack.terraform_deploy.terraform_deployment.get_terraform_output"
     ) as mock_get_terraform_output:
-        mock_get_terraform_output.side_effect = ["url1", "url2"]
+        mock_get_terraform_output.side_effect = ["domain1", "domain2"]
         log_info_for_prototype()
 
         captured = capsys.readouterr()
@@ -788,7 +719,19 @@ def test_log_info_for_prototype(capsys):
         )
         assert (
             captured.out
-            == """>>> amp url: url1
->>> viewer url: url2
+            == """>>> amp url: https://domain1
+>>> viewer url: https://domain2
 """
         )
+
+
+def test_make_parser():
+    parsed = make_parser(
+        ["--environment", Environment.PROTO, "--function", Function.UP]
+    )
+
+    assert parsed.environment == Environment.PROTO
+    assert parsed.function == Function.UP
+    assert parsed.command is None
+    assert parsed.dryrun is False
+    assert parsed.force_reset_db is False
