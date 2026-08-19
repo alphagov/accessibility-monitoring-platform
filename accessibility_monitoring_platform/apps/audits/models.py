@@ -663,7 +663,8 @@ class WcagAudit(AuditRound):
     @property
     def unfixed_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
         return self.wcag_check_result_retests.filter(
-            wcag_check_result_initial__check_result_state=WcagCheckResultInitial.Result.ERROR
+            wcag_check_result_initial__check_result_state=WcagCheckResultInitial.Result.ERROR,
+            wcag_page_retest__page_missing_date=None,
         ).exclude(
             retest_state=WcagCheckResultRetest.RetestResult.FIXED,
         )
