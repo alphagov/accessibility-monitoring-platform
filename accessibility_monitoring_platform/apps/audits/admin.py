@@ -283,49 +283,6 @@ class StatementCheckResultAdmin(admin.ModelAdmin):
 
     search_fields = [
         "issue_identifier",
-        "audit__simplified_case__organisation_name",
-        "audit__simplified_case__case_identifier",
-        "statement_check__label",
-        "statement_check__success_criteria",
-        "statement_check__report_text",
-    ]
-    list_display = [
-        "issue_identifier",
-        "audit",
-        "is_deleted",
-        "statement_check",
-    ]
-    list_filter = [
-        "check_result_state",
-        "retest_state",
-        "type",
-        "is_deleted",
-    ]
-    fieldsets = (
-        (
-            None,
-            {
-                "fields": (
-                    ("type", "is_deleted"),
-                    ("audit",),
-                    ("statement_check",),
-                    ("check_result_state",),
-                    ("report_comment",),
-                    ("retest_state",),
-                    ("retest_email_comment",),
-                    ("auditor_notes",),
-                )
-            },
-        ),
-    )
-    readonly_fields = ["audit"]
-    show_facets = admin.ShowFacets.ALWAYS
-
-
-class StatementCheckResultAdmin(admin.ModelAdmin):
-
-    search_fields = [
-        "issue_identifier",
         "statement_audit__simplified_case__organisation_name",
         "statement_audit__simplified_case__case_identifier",
         "statement_check__label",

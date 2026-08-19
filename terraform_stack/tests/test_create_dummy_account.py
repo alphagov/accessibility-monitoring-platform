@@ -5,8 +5,6 @@ from unittest.mock import Mock
 
 import pytest
 
-from terraform_stack.ecs_tools.create_dummy_account import create_dummy_account
-
 import terraform_stack.ecs_tools.create_dummy_account as account_module
 
 
