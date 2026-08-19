@@ -13,8 +13,8 @@ def create_statement_checks(apps, schema_editor):
     statement_audit = StatementAudit.objects.filter(
         id=S2558_INITIAL_STATEMENT_AUDIT_ID
     ).first()
-    case_number: int = statement_audit.simplified_case.case_number
     if statement_audit is not None:
+        case_number: int = statement_audit.simplified_case.case_number
         for statement_check in (
             StatementCheck.objects.all()
             .exclude(date_start__gt=statement_audit.date_of_test)
