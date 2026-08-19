@@ -1031,6 +1031,59 @@ def test_get_audit_summary_context_wcag_check_results_by_page(rf):
 
 
 @pytest.mark.django_db
+def test_get_audit_summary_context_wcag_check_results_missing_page(rf):
+    """
+    Test summary_wcag_check_results_by_page does not include results for page
+    marked as missing at 12-weeks
+    """
+    request: HttpRequest = rf.get("/")
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
+    create_retest_wcag_audit(initial_wcag_audit=initial_wcag_audit)
+    initial_statement_audit: StatementAudit = create_initial_statement_audit(
+        simplified_case=simplified_case
+    )
+    create_retest_statement_audit(initial_statement_audit=initial_statement_audit)
+
+    context: dict[str, Any] = get_audit_summary_context(
+        request=request,
+        simplified_case=simplified_case,
+    )
+
+    assert "summary_wcag_check_results_by_page" in context
+    assert context["summary_wcag_check_results_by_page"] == {}
+
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.filter(
+            wcag_audit=initial_wcag_audit,
+        ).first()
+    )
+    wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
+    wcag_check_result_initial.save()
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
+        wcag_page_initial=wcag_check_result_initial.wcag_page_initial
+    )
+    wcag_page_retest.page_missing_date = TODAY
+    wcag_page_retest.save()
+
+    context: dict[str, Any] = get_audit_summary_context(
+        request=request,
+        simplified_case=simplified_case,
+    )
+
+    assert "summary_wcag_check_results_by_page" in context
+
+    summary_wcag_check_results_by_page: dict[WcagPageInitial, Any] = context[
+        "summary_wcag_check_results_by_page"
+    ]
+
+    assert (
+        wcag_check_result_initial.wcag_page_initial
+        not in summary_wcag_check_results_by_page
+    )
+
+
+@pytest.mark.django_db
 def test_get_audit_summary_context_pages_with_retest_notes(rf):
     """Test pages_with_retest_notes set as expected"""
     request: HttpRequest = rf.get("/")
@@ -1328,6 +1381,27 @@ def test_get_audit_summary_context_statement_check_results_by_type(rf):
 
     assert "overview" in summary_statement_check_results_by_type
     assert len(summary_statement_check_results_by_type["overview"]) == 1
+
+    twelve_week_statement_check_result: StatementCheckResult = (
+        statement_check_result_initial_overview.twelve_week_retest
+    )
+    twelve_week_statement_check_result.check_result_state = (
+        StatementCheckResult.Result.YES
+    )
+    twelve_week_statement_check_result.save()
+
+    context: dict[str, Any] = get_audit_summary_context(
+        request=request,
+        simplified_case=initial_statement_audit.simplified_case,
+    )
+
+    assert "summary_statement_check_results_by_type" in context
+
+    summary_statement_check_results_by_type: dict[
+        str, QuerySet[StatementCheckResult]
+    ] = context["summary_statement_check_results_by_type"]
+
+    assert "overview" not in summary_statement_check_results_by_type
 
 
 @pytest.mark.django_db

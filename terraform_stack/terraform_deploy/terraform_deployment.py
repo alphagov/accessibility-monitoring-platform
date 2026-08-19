@@ -260,10 +260,6 @@ def prepare_environment(
     For prototype environments, generates a unique environment name and
     creates the required Terraform backend and environment configuration.
 
-    Args:
-        args: The parsed command-line arguments.
-        config: The application configuration.
-
     Returns:
         The name of the environment to operate on.
     """
