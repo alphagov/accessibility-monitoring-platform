@@ -400,9 +400,9 @@ class AuditOverview(models.Model):
         )
 
     @property
-    def last_edited(self) -> datetime:
+    def last_edited(self) -> datetime | None:
         """Return when case or related data was last changed"""
-        updated_times: list[datetime] = [self.updated]
+        updated_times: list[datetime | None] = [self.updated]
 
         if self.wcag_audits.last() is not None:
             wcag_audit: WcagAudit = self.wcag_audits.last()
@@ -420,7 +420,11 @@ class AuditOverview(models.Model):
                 ) in wcag_page_retest.wcag_check_result_retests:
                     updated_times.append(wcag_check_result_retest.updated)
 
-        return max([updated for updated in updated_times if updated is not None])
+        updated_times_without_none: list[datetime] = [
+            updated for updated in updated_times if updated is not None
+        ]
+        if updated_times_without_none:
+            return max(updated_times_without_none)
 
 
 class AuditRound(VersionModel):
@@ -663,7 +667,8 @@ class WcagAudit(AuditRound):
     @property
     def unfixed_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
         return self.wcag_check_result_retests.filter(
-            wcag_check_result_initial__check_result_state=WcagCheckResultInitial.Result.ERROR
+            wcag_check_result_initial__check_result_state=WcagCheckResultInitial.Result.ERROR,
+            wcag_page_retest__page_missing_date=None,
         ).exclude(
             retest_state=WcagCheckResultRetest.RetestResult.FIXED,
         )

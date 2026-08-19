@@ -8,7 +8,7 @@
     <h2 class="govuk-heading-s amp-margin-bottom-5 govuk-!-font-size-16">Date created</h2>
     <p class="govuk-body-s amp-margin-bottom-10">{{ case.created|amp_date }}</p>
     <h2 class="govuk-heading-s amp-margin-bottom-5 govuk-!-font-size-16">Last edited</h2>
-    <p class="govuk-body-s amp-margin-bottom-10">{{ case.last_edited|amp_date }}</p>
+    <p class="govuk-body-s amp-margin-bottom-10">{% if case.last_edited %}{{ case.last_edited|amp_date }}{% else %}None{% endif %}</p>
     {% include "audits/helpers/numbers_of_issues.html" %}
     {% if not case.archive %}
         <h2 class="govuk-heading-s amp-margin-bottom-5 govuk-!-font-size-16">Comments</h2>
