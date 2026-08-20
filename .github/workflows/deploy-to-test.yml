@@ -74,6 +74,14 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
 
+      - name: Deploy via Terraform
+        run: |
+          python terraform_stack/terraform_deploy/terraform_deployment.py --environment test --function up
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
+
       - name: Smoke tests
         run: |
           docker compose --file stack_tests/smoke_tests/test-platform.docker-compose.yml up --abort-on-container-exit && \

@@ -1,0 +1,6 @@
+environment         = "test-env"
+domain_name         = "accessibility-monitoring.service.gov.uk"
+app_domain_name     = "platform-test-two.accessibility-monitoring.service.gov.uk"
+app_two_domain_name = "viewer-test-two.accessibility-monitoring.service.gov.uk"
+image_tag           = "latest"
+viewer_image_tag    = "latest"
