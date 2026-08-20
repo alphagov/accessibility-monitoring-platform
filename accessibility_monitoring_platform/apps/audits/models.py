@@ -1076,6 +1076,10 @@ class WcagPageInitial(models.Model):
             for wcag_check_result_initial in wcag_check_result_initials
         }
 
+    @property
+    def twelve_week_wcag_page_retest(self) -> WcagPageRetest | None:
+        return self.wcagpageretest_set.all().first()
+
 
 class WcagPageRetest(models.Model):
     wcag_audit = models.ForeignKey(WcagAudit, on_delete=models.PROTECT, null=True)
