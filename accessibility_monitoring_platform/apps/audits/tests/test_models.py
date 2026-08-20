@@ -1697,6 +1697,24 @@ def test_wcag_page_initial_wcag_check_result_initials_by_wcag_definition():
 
 
 @pytest.mark.django_db
+def test_wcag_page_initial_twelve_week_wcag_page_retest():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
+    wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
+        wcag_audit=wcag_audit, page_type=WcagPageInitial.Type.HOME
+    )
+
+    assert wcag_page_initial.twelve_week_wcag_page_retest is None
+
+    wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.create(
+        wcag_audit=wcag_audit,
+        wcag_page_initial=wcag_page_initial,
+    )
+
+    assert wcag_page_initial.twelve_week_wcag_page_retest == wcag_page_retest
+
+
+@pytest.mark.django_db
 def test_wcag_page_retest_updated_updated():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
