@@ -61,10 +61,10 @@
                 {% if summary_wcag_check_results_by_page or summary_wcag_check_results_by_wcag %}
                     <ul class="govuk-list">
                         {% if show_failures_by_page %}
-                            {% for page, summary_wcag_check_results in summary_wcag_check_results_by_page.items %}
+                            {% for wcag_page_initial, summary_wcag_check_results in summary_wcag_check_results_by_page.items %}
                                 <li>
-                                    <a href="#page-{{ page.id }}" class="govuk-link govuk-link--no-visited-state">
-                                        {{ page.page_title }} &middot; {{ summary_wcag_check_results|length }}</a>
+                                    <a href="#page-{{ wcag_page_initial.id }}" class="govuk-link govuk-link--no-visited-state">
+                                        {{ wcag_page_initial.page_title }} &middot; {{ summary_wcag_check_results|length }}</a>
                                 </li>
                             {% endfor %}
                         {% else %}
@@ -75,7 +75,7 @@
                                 </li>
                             {% endfor %}
                         {% endif %}
-                        {% if pages_with_retest_notes %}
+                        {% if not show_failures_by_page and pages_with_retest_notes %}
                             <li>
                                 <a href="#additional-page-issues" class="govuk-link govuk-link--no-visited-state">
                                     Additional issues found on page &middot; {{ pages_with_retest_notes|length }}</a>
@@ -213,21 +213,21 @@
 </div>
 {% if show_wcag_summary %}
     {% if show_failures_by_page %}
-        {% for page, summary_wcag_check_results in summary_wcag_check_results_by_page.items %}
+        {% for wcag_page_initial, summary_wcag_check_results in summary_wcag_check_results_by_page.items %}
             <br/>
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-full">
-                    <h2 id="page-{{ page.id }}" class="govuk-heading-m govuk-!-font-size-19 govuk-!-font-weight-bold">{{ page.page_title }} &middot; {{ summary_wcag_check_results|length }}</h2>
-                    {% if page.location %}
+                    <h2 id="page-{{ wcag_page_initial.id }}" class="govuk-heading-m govuk-!-font-size-19 govuk-!-font-weight-bold">{{ wcag_page_initial.page_title }} &middot; {{ summary_wcag_check_results|length }}</h2>
+                    {% if wcag_page_initial.location %}
                         <div class="govuk-grid-row">
                             <div class="govuk-grid-column-full">
-                                <p class="govuk-body">{{ page.location }}</p>
+                                <p class="govuk-body">{{ wcag_page_initial.location }}</p>
                             </div>
                         </div>
                     {% endif %}
                     <div class="govuk-grid-row">
                         <div class="govuk-grid-column-full govuk-button-group amp-margin-bottom-0">
-                            <a href="{{ page.url }}" class="govuk-link" target="_blank">
+                            <a href="{{ wcag_page_initial.url }}" class="govuk-link" target="_blank">
                                 Open page in new tab
                             </a>
                         </div>
@@ -250,7 +250,7 @@
                                     <td class="govuk-table__cell amp-width-one-third">
                                         <p class="amp-margin-top-0">{{ summary_wcag_check_result.initial_result.get_check_result_state_display }}</p>
                                         <div class="amp-notes amp-margin-bottom-15">{{ summary_wcag_check_result.initial_result.notes|markdown_to_html }}</div>
-                                        <a href="{% url 'audits:edit-audit-page-checks' page.id %}" class="govuk-link govuk-link--no-visited-state">
+                                        <a href="{% url 'audits:edit-audit-page-checks' wcag_page_initial.id %}" class="govuk-link govuk-link--no-visited-state">
                                             Edit initial test
                                         </a>
                                     </td>
@@ -258,8 +258,8 @@
                                         <p class="amp-margin-top-0">{{ summary_wcag_check_result.retest_result.get_retest_state_display }}</p>
                                         <div class="amp-notes amp-margin-bottom-15">{{ summary_wcag_check_result.retest_result.notes|markdown_to_html }}</div>
                                         {% if enable_12_week_ui %}
-                                            {% if page %}
-                                                <a href="{% url 'audits:edit-wcag-page-retest-check-results' page.id %}" class="govuk-link govuk-link--no-visited-state">
+                                            {% if summary_wcag_check_result.retest_result.wcag_page_retest %}
+                                                <a href="{% url 'audits:edit-wcag-page-retest-check-results' summary_wcag_check_result.retest_result.wcag_page_retest.id %}" class="govuk-link govuk-link--no-visited-state">
                                                     Edit 12-week test
                                                 </a>
                                             {% endif %}
@@ -273,7 +273,9 @@
                                 <td scope="row" class="govuk-table__cell amp-width-one-third">Additional issues found on page</td>
                                 <td class="govuk-table__cell amp-width-one-third amp-notes"></td>
                                 <td class="govuk-table__cell amp-width-one-third amp-notes{% if not enable_12_week_ui %} amp-disabled{% endif %}">
-                                    {{ page.retest_notes|markdown_to_html }}
+                                    {% if wcag_page_initial.twelve_week_wcag_page_retest %}
+                                        {{ wcag_page_initial.twelve_week_wcag_page_retest.notes|markdown_to_html }}
+                                    {% endif %}
                                 </td>
                             </tr>
                         </tbody>
@@ -341,8 +343,8 @@
                                         <p class="amp-margin-top-0">{{ summary_wcag_check_result.retest_result.get_retest_state_display }}</p>
                                         <div class="amp-notes amp-margin-bottom-15">{{ summary_wcag_check_result.retest_result.notes|markdown_to_html }}</div>
                                         {% if enable_12_week_ui %}
-                                            {% if summary_wcag_check_result.initial_result.wcag_page_initial %}
-                                                <a href="{% url 'audits:edit-wcag-page-retest-check-results' summary_wcag_check_result.initial_result.wcag_page_initial.id %}" class="govuk-link govuk-link--no-visited-state">
+                                            {% if summary_wcag_check_result.retest_result.wcag_page_retest %}
+                                                <a href="{% url 'audits:edit-wcag-page-retest-check-results' summary_wcag_check_result.retest_result.wcag_page_retest.id %}" class="govuk-link govuk-link--no-visited-state">
                                                     Edit 12-week test
                                                 </a>
                                             {% endif %}
@@ -364,44 +366,40 @@
                 <thead class="govuk-table__head">
                     <tr class="govuk-table__row">
                         <th scope="col" class="govuk-table__header amp-width-one-third">Page</th>
-                        <th scope="col" class="govuk-table__header amp-width-one-third">Initial test</th>
-                        <th scope="col" class="govuk-table__header amp-width-one-third{% if not enable_12_week_ui %} amp-disabled{% endif %}">12-week test</th>
+                        <th scope="col" class="govuk-table__header amp-width-two-thirds{% if not enable_12_week_ui %} amp-disabled{% endif %}">12-week test</th>
                     </tr>
                 </thead>
                 <tbody class="govuk-table__body">
-                {% for page in pages_with_retest_notes %}
+                {% for wcag_page_retest in pages_with_retest_notes %}
                     <tr class="govuk-table__row">
                         <td class="govuk-table__cell amp-width-one-third">
-                            <p class="amp-margin-top-0">{{ page }}</p>
+                            <p class="amp-margin-top-0">{{ wcag_page_retest }}</p>
                             <ul class="govuk-list">
-                            {% if page.location %}
-                                <li>{{ page.location }}</li>
+                            {% if wcag_page_retest.latest_page_location %}
+                                <li>{{ wcag_page_retest.latest_page_location }}</li>
                             {% endif %}
                             <li>
-                                <a href="{{ page.url }}" class="govuk-link" target="_blank">
+                                <a href="{{ wcag_page_retest.latest_page_url }}" class="govuk-link" target="_blank">
                                     Open page in new tab
                                 </a>
                             </li>
                             <li>
-                                <a href="{% url 'audits:edit-audit-page-checks' page.id %}" class="govuk-link govuk-link--no-visited-state">
+                                <a href="{% url 'audits:edit-audit-page-checks' wcag_page_retest.wcag_page_initial.id %}" class="govuk-link govuk-link--no-visited-state">
                                     Edit initial test
                                 </a>
                             </li>
                             {% if enable_12_week_ui %}
-                                {% if page.failed_check_results %}
-                                    <li>
-                                        <a href="{% url 'audits:edit-wcag-page-retest-check-results' page.id %}" class="govuk-link govuk-link--no-visited-state">
-                                            Edit 12-week test
-                                        </a>
-                                    </li>
-                                {% endif %}
+                                <li>
+                                    <a href="{% url 'audits:edit-wcag-page-retest-check-results' wcag_page_retest.id %}" class="govuk-link govuk-link--no-visited-state">
+                                        Edit 12-week test
+                                    </a>
+                                </li>
                             {% else %}
                                 <span class="govuk-body amp-disabled">Edit 12-week test</span>
                             {% endif %}
                         </td>
-                        <td class="govuk-table__cell amp-width-one-third amp-notes"></td>
-                        <td class="govuk-table__cell amp-width-one-third amp-notes{% if not enable_12_week_ui %} amp-disabled{% endif %}">
-                            {{ page.retest_notes|markdown_to_html }}
+                        <td class="govuk-table__cell amp-width-two-thirds amp-notes{% if not enable_12_week_ui %} amp-disabled{% endif %}">
+                            {{ wcag_page_retest.notes|markdown_to_html }}
                         </td>
                     </tr>
                 {% endfor %}
