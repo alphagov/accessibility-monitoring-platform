@@ -49,6 +49,7 @@ class Function(StrEnum):
     LIST = "ls"
     RESET_DB = "reset_db"
     CREATE_DUMMY_ACCOUNT = "create_dummy_account"
+    TUNNEL = "tunnel"
 
 
 def validate_permissions(
@@ -1004,6 +1005,89 @@ def exec(
     )
 
 
+def tunnel(environment: Environment = Environment.PROTO) -> None:
+    environment_name: str = prepare_environment(
+        environment=environment,
+    )
+    backend_file: str = f"backends/{environment_name}_env.hcl"
+
+    run(
+        [
+            "terraform",
+            "init",
+            f"-backend-config={backend_file}",
+            "-reconfigure",
+        ]
+    )
+
+    app_name = get_terraform_output("app_name")
+    ecs_one_name = get_terraform_output("ecs_one_name")
+
+    cluster_name: str = f"{app_name}-cluster"
+
+    services_output: str = run(
+        [
+            "aws",
+            "ecs",
+            "list-services",
+            "--cluster",
+            cluster_name,
+        ],
+        capture_output=True,
+    )
+
+    services_data: dict[str, list[str]] = json.loads(services_output)
+    main_ecs_name: str | None = None
+
+    service_arn: str
+    for service_arn in services_data["serviceArns"]:
+        service_name: str = service_arn.split("/")[-1]
+
+        if service_name == ecs_one_name:
+            main_ecs_name = service_name
+            break
+
+    if main_ecs_name is None:
+        raise RuntimeError("Could not find the target ECS service.")
+
+    tasks_output: str = run(
+        [
+            "aws",
+            "ecs",
+            "list-tasks",
+            "--cluster",
+            cluster_name,
+            "--service-name",
+            main_ecs_name,
+        ],
+        capture_output=True,
+    )
+
+    tasks_data: dict[str, list[str]] = json.loads(tasks_output)
+    task_arns: list[str] = tasks_data["taskArns"]
+
+    if not task_arns:
+        raise RuntimeError("Could not find a running ECS task.")
+
+    task_arn: str = task_arns[0]
+    task_id: str = task_arn.split("/")[-1]
+
+    run(
+        [
+            "aws",
+            "ecs",
+            "execute-command",
+            "--cluster",
+            cluster_name,
+            "--task",
+            task_id,
+            "--interactive",
+            "--command",
+            "/bin/sh",
+        ]
+    )
+
+
 def list_environments() -> None:
     """List the available ECS clusters.
 
@@ -1095,6 +1179,10 @@ def main():
     if function == Function.EXEC:
         print(">>> exec into environment")
         exec(command=command, environment=environment)
+
+    if function == Function.TUNNEL:
+        print(">>> tunnel into environment")
+        tunnel(environment=environment)
 
     if function == Function.RESET_DB:
         print(">>> Resetting database")
