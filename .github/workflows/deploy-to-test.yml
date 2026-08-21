@@ -47,45 +47,55 @@ jobs:
         docker compose up --abort-on-container-exit
 
   deploy:
-    needs: int-test
-    name: Deploy to AWS
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install AWS Copilot
-        run: |
-          mkdir -p $GITHUB_WORKSPACE/bin
-          # download copilot
-          # curl -Lo copilot https://github.com/aws/copilot-cli/releases/latest/download/copilot-linux && chmod +x copilot && sudo mv copilot /usr/local/bin/copilot && copilot --help
-          curl -Lo copilot-linux https://github.com/aws/copilot-cli/releases/latest/download/copilot-linux && \
-          # make copilot bin executable
-          sudo chmod +x copilot-linux && \
-          # move to path
-          sudo mv copilot-linux $GITHUB_WORKSPACE/bin/copilot && \
-          # add to PATH
-          echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
+  needs: int-test
+  name: Deploy to AWS
+  runs-on: ubuntu-24.04
 
-      - name: Deploy to AWS
-        run: |
-          copilot svc deploy --name viewer-svc --env testenv && \
-          copilot svc deploy --name amp-svc --env testenv
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
+  steps:
+    - uses: actions/checkout@v4
 
-      - name: Deploy via Terraform
-        run: |
-          python terraform_stack/terraform_deploy/terraform_deployment.py --environment test --function up
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
+    - name: Install AWS Copilot
+      run: |
+        mkdir -p "$GITHUB_WORKSPACE/bin"
+        curl -Lo "$GITHUB_WORKSPACE/bin/copilot" \
+          https://github.com/aws/copilot-cli/releases/latest/download/copilot-linux
+        chmod +x "$GITHUB_WORKSPACE/bin/copilot"
+        echo "$GITHUB_WORKSPACE/bin" >> "$GITHUB_PATH"
 
-      - name: Smoke tests
-        run: |
-          docker compose --file stack_tests/smoke_tests/test-platform.docker-compose.yml up --abort-on-container-exit && \
-          docker compose --file stack_tests/smoke_tests_viewer/test-viewer.docker-compose.yml up --abort-on-container-exit
-        env:
-          SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
-          SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
+    - name: Deploy to AWS
+      run: |
+        copilot svc deploy --name viewer-svc --env testenv
+        copilot svc deploy --name amp-svc --env testenv
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
+        AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v4
+      with:
+        terraform_version: 1.14.0
+        terraform_wrapper: false
+
+    - name: Deploy via Terraform
+      run: |
+        python terraform_stack/terraform_deploy/terraform_deployment.py \
+          --environment test \
+          --function up
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
+        AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
+
+    - name: Smoke tests
+      run: |
+        docker compose \
+          --file stack_tests/smoke_tests/test-platform.docker-compose.yml \
+          up --abort-on-container-exit
+
+        docker compose \
+          --file stack_tests/smoke_tests_viewer/test-viewer.docker-compose.yml \
+          up --abort-on-container-exit
+      env:
+        SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
+        SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
