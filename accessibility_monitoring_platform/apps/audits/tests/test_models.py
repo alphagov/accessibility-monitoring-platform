@@ -1445,6 +1445,70 @@ def test_statement_audit_fixed_statement_check_results():
 
 
 @pytest.mark.django_db
+def test_statement_audit_outstanding_statement_check_results():
+    initial_statement_audit: StatementAudit = create_initial_statement_audit()
+    initial_custom: StatementCheckResult = StatementCheckResult.objects.get(
+        statement_check=None
+    )
+    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
+        initial_statement_audit=initial_statement_audit
+    )
+    retest_custom: StatementCheckResult = StatementCheckResult.objects.get(
+        statement_check=None, type=StatementCheck.Type.RETEST
+    )
+    initial_no_not_retested: StatementCheckResult = StatementCheckResult.objects.filter(
+        statement_audit=twelve_week_statement_audit,
+        statement_check__type=StatementCheck.Type.WEBSITE,
+    ).first()
+    initial_no_not_retested.statement_check_result_initial.check_result_state = (
+        StatementCheckResult.Result.NO
+    )
+    initial_no_not_retested.statement_check_result_initial.save()
+    initial_yes_retest_no: StatementCheckResult = StatementCheckResult.objects.filter(
+        statement_audit=twelve_week_statement_audit,
+        statement_check__type=StatementCheck.Type.FEEDBACK,
+    ).first()
+    initial_yes_retest_no.statement_check_result_initial.check_result_state = (
+        StatementCheckResult.Result.YES
+    )
+    initial_yes_retest_no.statement_check_result_initial.save()
+    initial_yes_retest_no.check_result_state = StatementCheckResult.Result.NO
+    initial_yes_retest_no.save()
+    initial_no_retest_yes: StatementCheckResult = StatementCheckResult.objects.filter(
+        statement_audit=twelve_week_statement_audit,
+        statement_check__type=StatementCheck.Type.PREPARATION,
+    ).first()
+    initial_no_retest_yes.statement_check_result_initial.check_result_state = (
+        StatementCheckResult.Result.NO
+    )
+    initial_no_retest_yes.statement_check_result_initial.save()
+    initial_no_retest_yes.check_result_state = StatementCheckResult.Result.YES
+    initial_no_retest_yes.save()
+
+    assert initial_custom in initial_statement_audit.outstanding_statement_check_results
+    assert twelve_week_statement_audit.outstanding_statement_check_results.count() == 4
+    assert (
+        initial_custom
+        not in twelve_week_statement_audit.outstanding_statement_check_results
+    )
+    assert (
+        retest_custom in twelve_week_statement_audit.outstanding_statement_check_results
+    )
+    assert (
+        initial_no_not_retested
+        in twelve_week_statement_audit.outstanding_statement_check_results
+    )
+    assert (
+        initial_yes_retest_no
+        in twelve_week_statement_audit.outstanding_statement_check_results
+    )
+    assert (
+        initial_no_retest_yes
+        not in twelve_week_statement_audit.outstanding_statement_check_results
+    )
+
+
+@pytest.mark.django_db
 def test_statement_audit_outstanding_statement_check_results_includes_new_failures():
     """
     Tests specific statement_audit outstanding_statement_check_results property
