@@ -900,8 +900,11 @@ class StatementAudit(AuditRound):
     ) -> QuerySet[StatementCheckResult]:
         return self.statement_check_results.filter(
             Q(check_result_state=StatementCheckResult.Result.NO)
-            | Q(check_result_state=StatementCheckResult.Result.NOT_TESTED)
-        )
+            | Q(
+                statement_check_result_initial__check_result_state=StatementCheckResult.Result.NO
+            )
+            | Q(statement_check=None)
+        ).exclude(check_result_state=StatementCheckResult.Result.YES)
 
     @property
     def overview_outstanding_statement_check_results(
