@@ -33,25 +33,26 @@ services:
           test: curl --fail http://localhost:8001/healthcheck || exit 1
       stdin_open: true
       tty: true
-
+  
   report_viewer:
-      build:
-          context: ..
-          dockerfile: ./amp_viewer.DockerFile
-      image: "amp_viewer"
-      ports:
-          - "8002:8001"
-      depends_on:
-          - db
-          - localstack
-          - web
-      environment:
-          - ALLOWED_HOSTS='* localhost 0.0.0.0 0.0.0.0:8001'
-          - SECRET_KEY='123456789'
-          - DEBUG=FALSE
-          - INTEGRATION_TEST=FALSE
-          - 'DB_SECRET={"dbname":"postgres","username":"admin","password":"secret","host":"db","port":5432}'
-          - DB_NAME=bucketname
+    build:
+        context: ..
+        dockerfile: ./amp_viewer.DockerFile
+    image: "amp_viewer"
+    ports:
+        - "8002:8001"
+    depends_on:
+        - db
+        - localstack
+        - web
+    environment:
+        - ALLOWED_HOSTS='* localhost 0.0.0.0 0.0.0.0:8001'
+        - SECRET_KEY='123456789'
+        - DEBUG=FALSE
+        - INTEGRATION_TEST=FALSE
+        - 'DB_SECRET={"dbname":"postgres","username":"admin","password":"secret","host":"db","port":5432}'
+        - DB_NAME=bucketname
+
   localstack:
     image: localstack/localstack:4.14
     hostname: localstack
