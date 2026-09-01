@@ -35,7 +35,9 @@ def get_initial_statement_check_result_url_from_issue_identifier(
 ) -> str:
     try:
         statement_check_result_initial: StatementCheckResult = (
-            StatementCheckResult.objects.get(issue_identifier=issue_identifier)
+            StatementCheckResult.objects.get(
+                issue_identifier=issue_identifier, statement_check_result_initial=None
+            )
         )
         if statement_check_result_initial.type == StatementCheck.Type.RETEST:
             return ""
@@ -87,7 +89,7 @@ class Comment(models.Model):
         )
 
     @property
-    def body_html_with_issue_identifier_links(self) -> str:
+    def body_html_with_issue_identifier_initial_links(self) -> str:
         html: str = markdown.markdown(
             escape(self.body),
             extensions=settings.MARKDOWN_EXTENSIONS,

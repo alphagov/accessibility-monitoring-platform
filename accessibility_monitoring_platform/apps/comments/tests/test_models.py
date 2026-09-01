@@ -45,9 +45,9 @@ def test_comment_updated_updated():
 
 
 @pytest.mark.django_db
-def test_body_html_with_issue_identifier_links_no_matching_issues():
+def test_body_html_with_issue_identifier_initial_links_no_matching_issues():
     """
-    Test the comment body_html_with_issue_identifier_links does not change issue
+    Test the comment body_html_with_issue_identifier_initial_links does not change issue
     identifiers with no matching issues.
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
@@ -56,13 +56,13 @@ def test_body_html_with_issue_identifier_links_no_matching_issues():
     )
     comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
 
-    assert comment.body_html_with_issue_identifier_links == f"<p>{body}</p>"
+    assert comment.body_html_with_issue_identifier_initial_links == f"<p>{body}</p>"
 
 
 @pytest.mark.django_db
-def test_body_html_with_issue_identifier_links_matching_check_result():
+def test_body_html_with_issue_identifier_initial_links_matching_check_result():
     """
-    Test the comment body_html_with_issue_identifier_links converts issue identifier
+    Test the comment body_html_with_issue_identifier_initial_links converts issue identifier
     to link to initial check result page for matching issue.
     """
     wcag_audit: WcagAudit = create_initial_wcag_audit()
@@ -78,15 +78,15 @@ def test_body_html_with_issue_identifier_links_matching_check_result():
     comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
 
     assert (
-        comment.body_html_with_issue_identifier_links
+        comment.body_html_with_issue_identifier_initial_links
         == '<p><a href="/audits/pages/1/edit-audit-page-checks/#1-A-1" class="govuk-link govuk-link--no-visited-state" target="_blank">1-A-1</a> 1-S-2 1-SC-2</p>'
     )
 
 
 @pytest.mark.django_db
-def test_body_html_with_issue_identifier_links_longer_issue_identifier():
+def test_body_html_with_issue_identifier_initial_links_longer_issue_identifier():
     """
-    Test the comment body_html_with_issue_identifier_links does not convert longer issue
+    Test the comment body_html_with_issue_identifier_initial_links does not convert longer issue
     identifier to link.
     """
     wcag_audit: WcagAudit = create_initial_wcag_audit()
@@ -102,15 +102,15 @@ def test_body_html_with_issue_identifier_links_longer_issue_identifier():
     comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
 
     assert (
-        comment.body_html_with_issue_identifier_links
+        comment.body_html_with_issue_identifier_initial_links
         == '<p><a href="/audits/pages/1/edit-audit-page-checks/#1-A-1" class="govuk-link govuk-link--no-visited-state" target="_blank">1-A-1</a> 1-A-199</p>'
     )
 
 
 @pytest.mark.django_db
-def test_body_html_with_issue_identifier_links_matching_statement_check_result():
+def test_body_html_with_issue_identifier_initial_links_matching_statement_check_result():
     """
-    Test the comment body_html_with_issue_identifier_links converts issue identifier
+    Test the comment body_html_with_issue_identifier_initial_links converts issue identifier
     to link to initial statement check result page for matching issue.
     """
     statement_audit: StatementAudit = create_initial_statement_audit()
@@ -127,15 +127,15 @@ def test_body_html_with_issue_identifier_links_matching_statement_check_result()
     comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
 
     assert (
-        comment.body_html_with_issue_identifier_links
+        comment.body_html_with_issue_identifier_initial_links
         == '<p>1-A-2 <a href="/audits/1/edit-statement-overview/#1-S-1" class="govuk-link govuk-link--no-visited-state" target="_blank">1-S-1</a> 1-SC-2</p>'
     )
 
 
 @pytest.mark.django_db
-def test_body_html_with_issue_identifier_links_matching_custom_statement_check_result():
+def test_body_html_with_issue_identifier_initial_links_matching_custom_statement_check_result():
     """
-    Test the comment body_html_with_issue_identifier_links converts issue identifier
+    Test the comment body_html_with_issue_identifier_initial_links converts issue identifier
     to link to initial custom statement check result page for matching issue.
     """
     statement_audit: StatementAudit = create_initial_statement_audit()
@@ -149,7 +149,7 @@ def test_body_html_with_issue_identifier_links_matching_custom_statement_check_r
     comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
 
     assert (
-        comment.body_html_with_issue_identifier_links
+        comment.body_html_with_issue_identifier_initial_links
         == '<p>1-A-2 1-S-2 <a href="/audits/1/edit-statement-custom/#1-SC-44" class="govuk-link govuk-link--no-visited-state" target="_blank">1-SC-44</a></p>'
     )
 
