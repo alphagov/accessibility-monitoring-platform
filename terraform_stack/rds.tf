@@ -8,7 +8,7 @@ resource "aws_db_instance" "postgres" {
 
   engine         = "postgres"
   engine_version = "16"
-  instance_class = "db.t4g.micro"
+  instance_class = "db.t4g.small"
 
   allocated_storage = 20
   db_name           = "accessibility_monitoring_app"
