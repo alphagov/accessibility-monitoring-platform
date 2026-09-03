@@ -17,6 +17,8 @@ from ...audits.models import (
 from ...audits.tests.create_test_data import (
     create_initial_statement_audit,
     create_initial_wcag_audit,
+    create_retest_statement_audit,
+    create_retest_wcag_audit,
 )
 from ...detailed.models import DetailedCase
 from ...mobile.models import MobileCase
@@ -45,9 +47,9 @@ def test_comment_updated_updated():
 
 
 @pytest.mark.django_db
-def test_body_html_with_issue_identifier_links_no_matching_issues():
+def test_body_html_with_issue_identifier_initial_links_no_matching_issues():
     """
-    Test the comment body_html_with_issue_identifier_links does not change issue
+    Test the comment body_html_with_issue_identifier_initial_links does not change issue
     identifiers with no matching issues.
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
@@ -56,13 +58,49 @@ def test_body_html_with_issue_identifier_links_no_matching_issues():
     )
     comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
 
-    assert comment.body_html_with_issue_identifier_links == f"<p>{body}</p>"
+    assert comment.body_html_with_issue_identifier_initial_links == f"<p>{body}</p>"
 
 
 @pytest.mark.django_db
-def test_body_html_with_issue_identifier_links_matching_check_result():
+def test_body_html_with_deleted_issues_initial_links_no_matching_issues():
     """
-    Test the comment body_html_with_issue_identifier_links converts issue identifier
+    Test the comment body_html_with_issue_identifier_initial_links does not change issue
+    identifiers with deleted issues.
+    """
+    wcag_audit: WcagAudit = create_initial_wcag_audit()
+    simplified_case: SimplifiedCase = wcag_audit.simplified_case
+    wcag_check_result_initial: WcagCheckResultInitial = (
+        WcagCheckResultInitial.objects.filter(
+            wcag_audit=wcag_audit,
+        ).first()
+    )
+    wcag_check_result_initial.is_deleted = True
+    wcag_check_result_initial.save()
+    statement_audit: StatementAudit = create_initial_statement_audit()
+    statement_check: StatementCheck = StatementCheck.objects.all().first()
+    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
+        statement_audit=statement_audit,
+        type=statement_check.type,
+        statement_check=statement_check,
+        is_deleted=True,
+    )
+    statement_check_result_custom: StatementCheckResult = (
+        StatementCheckResult.objects.create(
+            statement_audit=statement_audit, is_deleted=True
+        )
+    )
+    body: str = (
+        f"{wcag_check_result_initial.issue_identifier} {statement_check_result.issue_identifier} {statement_check_result_custom.issue_identifier}"
+    )
+    comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
+
+    assert comment.body_html_with_issue_identifier_initial_links == f"<p>{body}</p>"
+
+
+@pytest.mark.django_db
+def test_body_html_with_issue_identifier_initial_links_matching_check_result():
+    """
+    Test the comment body_html_with_issue_identifier_initial_links converts issue identifier
     to link to initial check result page for matching issue.
     """
     wcag_audit: WcagAudit = create_initial_wcag_audit()
@@ -78,15 +116,15 @@ def test_body_html_with_issue_identifier_links_matching_check_result():
     comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
 
     assert (
-        comment.body_html_with_issue_identifier_links
+        comment.body_html_with_issue_identifier_initial_links
         == '<p><a href="/audits/pages/1/edit-audit-page-checks/#1-A-1" class="govuk-link govuk-link--no-visited-state" target="_blank">1-A-1</a> 1-S-2 1-SC-2</p>'
     )
 
 
 @pytest.mark.django_db
-def test_body_html_with_issue_identifier_links_longer_issue_identifier():
+def test_body_html_with_issue_identifier_initial_links_longer_issue_identifier():
     """
-    Test the comment body_html_with_issue_identifier_links does not convert longer issue
+    Test the comment body_html_with_issue_identifier_initial_links does not convert longer issue
     identifier to link.
     """
     wcag_audit: WcagAudit = create_initial_wcag_audit()
@@ -102,15 +140,15 @@ def test_body_html_with_issue_identifier_links_longer_issue_identifier():
     comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
 
     assert (
-        comment.body_html_with_issue_identifier_links
+        comment.body_html_with_issue_identifier_initial_links
         == '<p><a href="/audits/pages/1/edit-audit-page-checks/#1-A-1" class="govuk-link govuk-link--no-visited-state" target="_blank">1-A-1</a> 1-A-199</p>'
     )
 
 
 @pytest.mark.django_db
-def test_body_html_with_issue_identifier_links_matching_statement_check_result():
+def test_body_html_with_issue_identifier_initial_links_matching_statement_check_result():
     """
-    Test the comment body_html_with_issue_identifier_links converts issue identifier
+    Test the comment body_html_with_issue_identifier_initial_links converts issue identifier
     to link to initial statement check result page for matching issue.
     """
     statement_audit: StatementAudit = create_initial_statement_audit()
@@ -127,15 +165,15 @@ def test_body_html_with_issue_identifier_links_matching_statement_check_result()
     comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
 
     assert (
-        comment.body_html_with_issue_identifier_links
+        comment.body_html_with_issue_identifier_initial_links
         == '<p>1-A-2 <a href="/audits/1/edit-statement-overview/#1-S-1" class="govuk-link govuk-link--no-visited-state" target="_blank">1-S-1</a> 1-SC-2</p>'
     )
 
 
 @pytest.mark.django_db
-def test_body_html_with_issue_identifier_links_matching_custom_statement_check_result():
+def test_body_html_with_issue_identifier_initial_links_matching_custom_statement_check_result():
     """
-    Test the comment body_html_with_issue_identifier_links converts issue identifier
+    Test the comment body_html_with_issue_identifier_initial_links converts issue identifier
     to link to initial custom statement check result page for matching issue.
     """
     statement_audit: StatementAudit = create_initial_statement_audit()
@@ -149,8 +187,42 @@ def test_body_html_with_issue_identifier_links_matching_custom_statement_check_r
     comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
 
     assert (
-        comment.body_html_with_issue_identifier_links
+        comment.body_html_with_issue_identifier_initial_links
         == '<p>1-A-2 1-S-2 <a href="/audits/1/edit-statement-custom/#1-SC-44" class="govuk-link govuk-link--no-visited-state" target="_blank">1-SC-44</a></p>'
+    )
+
+
+@pytest.mark.django_db
+def test_body_html_with_matching_retest_issues_initial_links():
+    """
+    Test the comment body_html_with_issue_identifier_initial_links works when issues
+    have been retested.
+    """
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    create_retest_wcag_audit(initial_wcag_audit=initial_wcag_audit)
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
+    wcag_check_result_initial: WcagCheckResultInitial | None = (
+        initial_wcag_audit.wcagcheckresultinitial_set.all().first()
+    )
+    initial_statement_audit: StatementAudit = create_initial_statement_audit(
+        simplified_case=simplified_case
+    )
+    create_retest_statement_audit(initial_statement_audit=initial_statement_audit)
+    statement_check_result: StatementCheckResult | None = (
+        initial_statement_audit.overview_statement_check_results.first()
+    )
+
+    assert wcag_check_result_initial is not None
+    assert statement_check_result is not None
+
+    body: str = (
+        f"{wcag_check_result_initial.issue_identifier} {statement_check_result.issue_identifier}"
+    )
+    comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
+
+    assert comment.body_html_with_issue_identifier_initial_links == (
+        f'<p><a href="/audits/pages/{wcag_check_result_initial.id}/edit-audit-page-checks/#{wcag_check_result_initial.issue_identifier}" class="govuk-link govuk-link--no-visited-state" target="_blank">{wcag_check_result_initial.issue_identifier}</a> '
+        f'<a href="/audits/{statement_check_result.id}/edit-statement-overview/#{statement_check_result.issue_identifier}" class="govuk-link govuk-link--no-visited-state" target="_blank">{statement_check_result.issue_identifier}</a></p>'
     )
 
 
