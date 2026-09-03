@@ -60,18 +60,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-      - name: Install AWS Copilot
-        run: |
-          mkdir -p $GITHUB_WORKSPACE/bin
-          # download copilot
-          # curl -Lo copilot https://github.com/aws/copilot-cli/releases/latest/download/copilot-linux && chmod +x copilot && sudo mv copilot /usr/local/bin/copilot && copilot --help
-          curl -Lo copilot-linux https://github.com/aws/copilot-cli/releases/latest/download/copilot-linux && \
-          # make copilot bin executable
-          sudo chmod +x copilot-linux && \
-          # move to path
-          sudo mv copilot-linux $GITHUB_WORKSPACE/bin/copilot && \
-          # add to PATH
-          echo "$GITHUB_WORKSPACE/bin" >> $GITHUB_PATH
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.14.0
+          terraform_wrapper: false
 
       - name: Install AWS session manager
         run: |
@@ -80,9 +73,9 @@ jobs:
 
       - name: Backup databases
         run: |
-          copilot svc exec -a ampapp -e prodenv -n amp-svc --command "python aws_tools/dump_rds_to_s3_as_sql.py" && \
+          python terraform_stack/terraform_deploy/terraform_deployment.py --environment prod --function exec --command "python aws_tools/dump_rds_to_s3_as_sql.py" && \
           sleep 30 && \
-          aws s3 sync s3://ampapp-prodenv-addonsstack-yu-reportstoragebucket-18zkdeyu0it3u/ s3://amp-aurora-backup-prod/
+          aws s3 sync s3://amp-app-prod-env-prod-env-files/ s3://amp-aurora-backup-prod/
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
@@ -90,10 +83,9 @@ jobs:
 
       - name: Staging tests
         run: |
-          aws s3 sync s3://ampapp-prodenv-addonsstack-yu-reportstoragebucket-18zkdeyu0it3u/ s3://ampapp-stageenv-addonsstack-h2-reportstoragebucket-xwtkixk9ar66/ && \
-          copilot svc exec -a ampapp -e stageenv -n amp-svc --command "python aws_tools/reset_staging_db.py" && \
-          copilot svc deploy --name viewer-svc --env stageenv && \
-          copilot svc deploy --name amp-svc --env stageenv && \
+          aws s3 sync s3://amp-app-prod-env-prod-env-files/ s3://amp-app-staging-env-staging-env-files/ && \
+          python terraform_stack/terraform_deploy/terraform_deployment.py --environment staging --function exec --command 'python terraform_stack/terraform_deploy/prod_deploy_tools.py' && \
+          python terraform_stack/terraform_deploy/terraform_deployment.py --environment staging --function up && \
           docker compose --file stack_tests/smoke_tests/staging-platform.docker-compose.yml up --abort-on-container-exit && \
           docker compose --file stack_tests/smoke_tests_viewer/staging-viewer.docker-compose.yml up --abort-on-container-exit
         env:
@@ -105,8 +97,7 @@ jobs:
 
       - name: Deploy to AWS
         run: |
-          copilot svc deploy --name viewer-svc --env prodenv && \
-          copilot svc deploy --name amp-svc --env prodenv
+          python terraform_stack/terraform_deploy/terraform_deployment.py --environment prod --function up
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}

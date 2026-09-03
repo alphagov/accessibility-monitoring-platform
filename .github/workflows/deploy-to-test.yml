@@ -53,15 +53,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install AWS Copilot
-        run: |
-          mkdir -p "$GITHUB_WORKSPACE/bin"
-          curl -Lo "$GITHUB_WORKSPACE/bin/copilot" \
-            https://github.com/aws/copilot-cli/releases/latest/download/copilot-linux
-          chmod +x "$GITHUB_WORKSPACE/bin/copilot"
-          echo "$GITHUB_WORKSPACE/bin" >> "$GITHUB_PATH"
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v4
         with:
