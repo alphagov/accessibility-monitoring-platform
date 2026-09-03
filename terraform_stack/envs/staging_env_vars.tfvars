@@ -1,6 +1,6 @@
 environment         = "staging-env"
 domain_name         = "accessibility-monitoring.service.gov.uk"
 app_domain_name     = "platform-staging.accessibility-monitoring.service.gov.uk"
-app_two_domain_name = "viewer-staging.accessibility-monitoring.service.gov.uk"
+app_two_domain_name = "reports-staging.accessibility-monitoring.service.gov.uk"
 image_tag           = "latest"
 viewer_image_tag    = "latest"
