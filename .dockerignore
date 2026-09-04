@@ -12,5 +12,6 @@ pytest_report_viewer.ini
 data/
 stack_tests/
 venv/
+node_modules/
 .github/
 .vscode/

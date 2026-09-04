@@ -95,19 +95,17 @@ def create_db(
 def most_recent_db_s3_path(bucket: str) -> str:
     """Return the S3 key for the most recently modified SQL backup.
 
-    Lists the objects in the supplied S3 bucket, filters the results to
-    objects whose keys contain ``.sql``, and returns the key of the most
-    recently modified matching object.
+    Searches for SQL backup files within the ``aws_aurora_backup`` folder
+    and returns the key of the most recently modified matching object.
 
     Args:
         bucket: Name of the S3 bucket containing database backups.
 
     Returns:
-        The S3 object key for the most recently modified SQL backup.
+        The S3 object key for the most recently modified SQL backup,
+        or an empty string if no matching backup exists.
 
     Raises:
-        KeyError: If the S3 response does not contain a ``Contents`` field.
-        IndexError: If the bucket contains no matching SQL backup objects.
         botocore.exceptions.BotoCoreError: If the AWS SDK encounters an error.
         botocore.exceptions.ClientError: If the S3 request fails.
     """
@@ -116,16 +114,23 @@ def most_recent_db_s3_path(bucket: str) -> str:
 
     latest_backup = None
 
-    for page in paginator.paginate(Bucket=bucket):
+    for page in paginator.paginate(
+        Bucket=bucket,
+        Prefix="aws_aurora_backup/",
+    ):
         for obj in page.get("Contents", []):
             if obj["Key"].endswith(".sql"):
-                if latest_backup is None or obj["LastModified"] > latest_backup["LastModified"]:
+                if (
+                    latest_backup is None
+                    or obj["LastModified"] > latest_backup["LastModified"]
+                ):
                     latest_backup = obj
 
     if latest_backup is None:
         return ""
 
     return latest_backup["Key"]
+
 
 def download_sql_file(
     bucket: str,
