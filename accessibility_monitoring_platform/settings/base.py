@@ -171,34 +171,14 @@ elif os.environ.get("TERRAFORM") == "TRUE":
         "CONN_MAX_AGE": 0,
         "ENGINE": "django.db.backends.postgresql",
     }
-    bucket_name: str = os.environ["BUCKET_NAME"]
     DATABASES["aws-s3-bucket"] = {
-        "bucket_name": bucket_name,
+        "bucket_name": os.environ["BUCKET_NAME"],
         "aws_access_key_id": None,
         "aws_secret_access_key": None,
         "aws_region": "eu-west-2",
     }
 elif os.getenv("DB_SECRET") and os.getenv("DB_NAME"):
-    db_secrets: str = os.environ["DB_SECRET"]
-    json_acceptable_string: str = db_secrets.replace("'", '"')
-    db_secrets_dict = json.loads(json_acceptable_string)
-    DATABASES["default"] = {
-        "NAME": db_secrets_dict["dbname"],
-        "USER": db_secrets_dict["username"],
-        "PASSWORD": db_secrets_dict["password"],
-        "HOST": db_secrets_dict["host"],
-        "PORT": db_secrets_dict["port"],
-        "CONN_MAX_AGE": 0,
-        "ENGINE": "django.db.backends.postgresql",
-    }
-    bucket_name: str = os.environ["DB_NAME"]
-    DATABASES["aws-s3-bucket"] = {
-        "bucket_name": bucket_name,
-        "aws_access_key_id": None,
-        "aws_secret_access_key": None,
-        "aws_region": "us-east-1",
-    }
-
+    raise Exception(">>> Database credentials incorrectly entered")
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
