@@ -12,7 +12,7 @@ init:
 		&& echo "email: admin@email.com & password: secret"
 
 freeze_requirements: # Pin all requirements including sub dependencies into requirements.txt
-	uv pip compile --upgrade requirements.in
+	uv pip compile --upgrade requirements.in --output-file requirements.txt
 
 clean_local:
 	docker compose down
