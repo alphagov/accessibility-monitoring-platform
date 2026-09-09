@@ -13,10 +13,10 @@ services:
         command: -p 5435
 
     web:
+        platform: linux/amd64
         build:
             context: ../..
-            dockerfile: ./stack_tests/integration_tests/platform.Dockerfile
-        image: "platform_image"
+            dockerfile: ./Dockerfiles/amp_platform.DockerFile
         volumes:
             - "../../accessibility_monitoring_platform/:/code/accessibility_monitoring_platform/"
             - "./cypress/:/code/stack_tests/integration_tests/cypress/"
@@ -53,15 +53,12 @@ services:
         tty: true
 
     report_viewer:
-        image: "platform_image"
+        platform: linux/amd64
+        build:
+            context: ../..
+            dockerfile: ./Dockerfiles/amp_viewer.DockerFile
         volumes:
             - "../../report_viewer/:/code/report_viewer/"
-        command: >
-            bash -c "
-            make static_files_process;
-            python manage_report_viewer.py collectstatic --noinput;
-            waitress-serve --port=8002 report_viewer.wsgi:application;
-            "
         ports:
             - "8002:8002"
         depends_on:
