@@ -26,11 +26,15 @@ jobs:
         source venv/bin/activate
         pip install --upgrade pip
         pip install -r requirements_for_test.txt
-        export DB_SECRET="{'dbClusterIdentifier':'none','password':'secret','dbname':'accessibility_monitoring_app','engine':'postgres','port':5432,'host':'localhost','username':'admin'}"
-        export DB_NAME=bucket-name
         export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
         export SECRET_KEY=1234
         export DEBUG=TRUE
+        export TERRAFORM=TRUE
+        export DB_HOST=locahost
+        export DB_NAME=accessibility_monitoring_app
+        export DB_USER=admin
+        export BUCKET_NAME=bucket-name
+        export 'DB_PASSWORD={"username": "admin", "password": "secret"}'
         npm i
         make static_files_process
         make test
