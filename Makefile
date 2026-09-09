@@ -70,18 +70,6 @@ local_stack_make_admin:
 local_stack_cleanup:
 	rm -r data/postgres-data-full-stack
 
-deploy_prototype:
-	python aws_prototype/main.py -b up -fd
-
-deploy_prototype_no_flush:
-	python aws_prototype/main.py -b up
-
-breakdown_prototype:
-	python aws_prototype/main.py -b down
-
-new_account_prototype:
-	python aws_prototype/main.py -b newaccount
-
 prototype_reload_database:
 	python aws_prototype/main.py -b reload_database
 
