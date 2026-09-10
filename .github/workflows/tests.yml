@@ -27,7 +27,7 @@ jobs:
         export DB_NAME=accessibility_monitoring_app
         export DB_USER=admin
         export BUCKET_NAME=amp-dummy-s3-bucket
-        export DB_PASSWORD={"username": "admin", "password": "secret"}
+        export DB_PASSWORD='{"username": "admin", "password": "secret"}'
         export AMP_PROTOCOL='http://'
         export AMP_VIEWER_DOMAIN='127.0.0.1:8082'
         npm i
