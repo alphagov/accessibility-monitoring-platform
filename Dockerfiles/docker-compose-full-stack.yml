@@ -26,7 +26,7 @@ services:
       environment:
           - ALLOWED_HOSTS='* localhost 0.0.0.0 0.0.0.0:8001 web web:8001' # Only localhost:8001 works for localstack
           - SECRET_KEY='123456789'
-          - DEBUG=FALSE
+          - DEBUG=TRUE
           - INTEGRATION_TEST=FALSE
           - TERRAFORM=TRUE
           - DB_HOST=db
