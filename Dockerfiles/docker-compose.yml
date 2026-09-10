@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: secret
       PGDATA: /var/lib/postgresql/data
     volumes:
-      - ./data/postgres-data:/var/lib/postgresql/data
+      - ../data/postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
@@ -23,7 +23,7 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./data/pgadmin-data:/var/lib/pgadmin
+      - ../data/pgadmin-data:/var/lib/pgadmin
     links:
       - "db:pgsql-server"
 
@@ -40,7 +40,7 @@ services:
       - HOSTNAME_EXTERNAL=localstack
       - DATA_DIR=${LOCALSTACK_DATA_DIR:-/tmp/localstack/data}
     volumes:
-      - "./data/localstack-data:/var/lib/localstack"
+      - "../data/localstack-data:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
 
 volumes:

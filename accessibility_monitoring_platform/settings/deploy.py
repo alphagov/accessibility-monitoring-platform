@@ -23,7 +23,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-if os.getenv("TERRAFORM") and os.getenv("NOTIFY_API_KEY"):
+if os.getenv("NOTIFY_API_KEY"):
     secret: str = os.getenv("NOTIFY_API_KEY", "")
     data = json.loads(secret)
     EMAIL_BACKEND: str = "accessibility_monitoring_platform.email.NotifyEmailBackend"
@@ -41,3 +41,10 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 6  # Six days in seconds
+
+if os.getenv("BYPASS_SECURE_COOKIE", "").upper() == "TRUE":
+    # Integration tests access the app over plain HTTP (e.g. http://web:8001).
+    # Secure cookies are not sent over HTTP, which prevents authentication and
+    # CSRF validation, so disable the Secure flag for integration tests only.
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False

@@ -1,5 +1,5 @@
 init:
-	docker compose up -d \
+	docker compose --file Dockerfiles/docker-compose.yml up -d \
 		&& uv pip install --upgrade pip \
 		&& uv pip install -r requirements_for_test.txt \
 		&& npm i \
@@ -26,6 +26,12 @@ start:
 
 start_report_viewer:
 	python manage_report_viewer.py runserver 8082
+
+start_local_db:
+	docker compose --file Dockerfiles/docker-compose.yml up -d
+
+stop_local_db:
+	docker compose --file Dockerfiles/docker-compose.yml down
 
 static_files_process:
 	node pulp/init.js ./accessibility_monitoring_platform_settings.json --nowatch

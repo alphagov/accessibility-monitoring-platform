@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: secret
       PGDATA: /var/lib/postgresql/data
     volumes:
-      - ../data/postgres-data-full-stack:/var/lib/postgresql/data
+      - ../data/postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
@@ -26,13 +26,16 @@ services:
       environment:
           - ALLOWED_HOSTS='* localhost 0.0.0.0 0.0.0.0:8001 web web:8001' # Only localhost:8001 works for localstack
           - SECRET_KEY='123456789'
-          - DEBUG=TRUE
-          - INTEGRATION_TEST=FALSE
+          - DEBUG=FALSE
+          - DOCKER_COMPOSE=TRUE
+          - AMP_PROTOCOL=http://
+          - AMP_VIEWER_DOMAIN=0.0.0.0:8002
+          - BYPASS_SECURE_COOKIE=TRUE
           - TERRAFORM=TRUE
           - DB_HOST=db
-          - DB_NAME=postgres
+          - DB_NAME=accessibility_monitoring_app
           - DB_USER=admin
-          - BUCKET_NAME=amp-app-prod-env-prod-env-files
+          - BUCKET_NAME=amp-dummy-s3-bucket
           - 'DB_PASSWORD={"username": "admin", "password": "secret"}'
       healthcheck:
           test: curl --fail http://localhost:8001/healthcheck || exit 1
@@ -55,12 +58,13 @@ services:
         - ALLOWED_HOSTS='* localhost 0.0.0.0 0.0.0.0:8001'
         - SECRET_KEY='123456789'
         - DEBUG=FALSE
-        - INTEGRATION_TEST=FALSE
+        - DOCKER_COMPOSE=TRUE
+        - BYPASS_SECURE_COOKIE=TRUE
         - TERRAFORM=TRUE
         - DB_HOST=db
-        - DB_NAME=postgres
+        - DB_NAME=accessibility_monitoring_app
         - DB_USER=admin
-        - BUCKET_NAME=amp-app-prod-env-prod-env-files
+        - BUCKET_NAME=amp-dummy-s3-bucket
         - 'DB_PASSWORD={"username": "admin", "password": "secret"}'
 
   localstack:
