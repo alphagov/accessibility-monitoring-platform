@@ -40,5 +40,4 @@ jobs:
         python-version: '3.12'
     - name: Integration tests
       run: |
-        cd stack_tests/integration_tests
-        docker compose up --abort-on-container-exit
+        docker compose --file stack_tests/integration_tests/docker-compose.yml up --abort-on-container-exit
