@@ -12,18 +12,24 @@ jobs:
         python-version: '3.12'
     - uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '24'
     - name: Unit tests
       run: |
         python3 -m venv venv
         source venv/bin/activate
         pip install --upgrade pip
         pip install -r requirements_for_test.txt
-        export VCAP_SERVICES="{  'aws-s3-bucket': [    {      'binding_guid': '00000000-0000-0000-0000-000000000000',      'binding_name': null,      'credentials': {      'aws_access_key_id': 'key',      'aws_region': 'us-east-1',      'aws_secret_access_key': 'secret',      'bucket_name': 'bucketname',      'deploy_env': ''    },    'instance_guid': '00000000-0000-0000-0000-000000000000',    'instance_name': 'instance_name',    'label': 'aws-s3-bucket',    'name': 'instance_name',    'plan': 'default',    'provider': null,    'syslog_drain_url': null,    'tags': [      's3'    ],    'volume_mounts': []    }  ],  'postgres':[    {      'credentials': {        'uri': 'postgres://admin:secret@localhost:5432/accessibility_monitoring_app'      },      'name': 'monitoring-platform-default-db'    }  ]}"
-        export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
-        export SECRET_KEY=1234
         export DEBUG=TRUE
-        export DOCKER_COMPOSE=FALSE
+        export SECRET_KEY=12345678
+        export ALLOWED_HOSTS='localhost 127.0.0.1'
+        export TERRAFORM=TRUE
+        export DB_HOST=localhost
+        export DB_NAME=accessibility_monitoring_app
+        export DB_USER=admin
+        export BUCKET_NAME=amp-dummy-s3-bucket
+        export DB_PASSWORD={"username": "admin", "password": "secret"}
+        export AMP_PROTOCOL='http://'
+        export AMP_VIEWER_DOMAIN='127.0.0.1:8082'
         npm i
         make static_files_process
         make test
