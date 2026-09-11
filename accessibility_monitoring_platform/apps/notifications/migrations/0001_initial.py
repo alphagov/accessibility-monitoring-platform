@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("auth", "0012_alter_user_first_name_max_length"),
-        ("cases", "0004_case_no_contact_four_week_chaser_due_date_and_more"),
+        ("cases", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
