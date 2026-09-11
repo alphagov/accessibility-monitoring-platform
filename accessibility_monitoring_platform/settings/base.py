@@ -21,10 +21,10 @@ from dotenv import load_dotenv
 DEBUG = os.getenv("DEBUG") == "TRUE"
 
 UNDER_TEST = (len(sys.argv) > 1 and sys.argv[1] == "test") or "pytest" in sys.modules
-INTEGRATION_TEST = os.getenv("INTEGRATION_TEST") == "TRUE"
+DOCKER_COMPOSE = os.getenv("DOCKER_COMPOSE") == "TRUE"
 
 S3_MOCK_ENDPOINT = None
-if INTEGRATION_TEST:
+if DOCKER_COMPOSE:
     S3_MOCK_ENDPOINT = "http://localstack:4566"
 elif DEBUG and not UNDER_TEST:
     S3_MOCK_ENDPOINT = "http://localhost:4566"
@@ -136,49 +136,50 @@ TEMPLATES = [
 
 DATABASES = {}
 
-if UNDER_TEST or INTEGRATION_TEST:
-    if INTEGRATION_TEST:
-        DATABASES["default"] = {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.environ["POSTGRES_NAME"],
-            "USER": os.environ["POSTGRES_USER"],
-            "PASSWORD": os.environ["POSTGRES_PASSWORD"],
-            "HOST": os.environ["POSTGRES_HOST"],
-            "PORT": os.environ["POSTGRES_PORT"],
-        }
-    else:
-        DATABASES["default"] = {
-            "NAME": "accessibility_monitoring_app",
-            "ENGINE": "django.db.backends.sqlite3",
-        }
+if UNDER_TEST:
+    DATABASES["default"] = {
+        "NAME": "accessibility_monitoring_app",
+        "ENGINE": "django.db.backends.sqlite3",
+    }
+
     DATABASES["aws-s3-bucket"] = {
         "aws_access_key_id": "key",
-        "aws_region": "us-east-1",
         "aws_secret_access_key": "secret",
+        "aws_region": "us-east-1",
         "bucket_name": "bucketname",
         "deploy_env": "",
     }
+
 elif os.environ.get("TERRAFORM") == "TRUE":
-    db_secrets: str = os.environ["DB_PASSWORD"]
-    json_acceptable_string: str = db_secrets.replace("'", '"')
-    db_username_password = json.loads(json_acceptable_string)
+    db_credentials = json.loads(
+        os.environ["DB_PASSWORD"].replace("'", '"')
+    )
+
     DATABASES["default"] = {
         "NAME": os.environ["DB_NAME"],
-        "USER": db_username_password["username"],
-        "PASSWORD": db_username_password["password"],
+        "USER": db_credentials["username"],
+        "PASSWORD": db_credentials["password"],
         "HOST": os.environ["DB_HOST"],
         "PORT": 5432,
         "CONN_MAX_AGE": 0,
         "ENGINE": "django.db.backends.postgresql",
     }
+
+    local_s3 = DEBUG or DOCKER_COMPOSE
+
     DATABASES["aws-s3-bucket"] = {
         "bucket_name": os.environ["BUCKET_NAME"],
-        "aws_access_key_id": None,
-        "aws_secret_access_key": None,
-        "aws_region": "eu-west-2",
+        "aws_region": "us-east-1" if local_s3 else "eu-west-2",
+        "aws_access_key_id": "key" if local_s3 else None,
+        "aws_secret_access_key": "secret" if local_s3 else None,
     }
-elif os.getenv("DB_SECRET") and os.getenv("DB_NAME"):
-    raise Exception(">>> Database credentials incorrectly entered")
+
+    if DOCKER_COMPOSE:
+        DATABASES["default"]["PORT"] = os.environ["DB_PORT_DOCKER"]
+
+else:
+    raise RuntimeError("Database credentials incorrectly entered")
+
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
@@ -301,25 +302,8 @@ SECURE_CSP = {
     "img-src": [CSP.SELF, "data:"],
 }
 
-AWS_PROTOTYPE_FILE: Path = Path("aws_prototype.json")
-if AWS_PROTOTYPE_FILE.exists() and UNDER_TEST is False:
-    aws_prototype_text: str = AWS_PROTOTYPE_FILE.read_text()
-    aws_prototype_data: dict = json.loads(aws_prototype_text)
-    AMP_PROTOTYPE_NAME = aws_prototype_data["prototype_name"]
-    AMP_PROTOCOL: str = aws_prototype_data["amp_protocol"]
-    AMP_VIEWER_DOMAIN: str = aws_prototype_data["viewer_domain"]
-elif DEBUG:
-    AMP_PROTOTYPE_NAME = os.getenv("AMP_PROTOTYPE_NAME", "")
-    AMP_PROTOCOL = os.getenv("AMP_PROTOCOL", "http://")
-    AMP_VIEWER_DOMAIN = os.getenv("AMP_VIEWER_DOMAIN", "127.0.0.1:8082")
-elif os.environ.get("TERRAFORM") == "TRUE":
-    AMP_PROTOTYPE_NAME = os.getenv("AMP_PROTOTYPE_NAME", "")
-    AMP_PROTOCOL = os.getenv("AMP_PROTOCOL", "http://")
-    AMP_VIEWER_DOMAIN = os.getenv("AMP_VIEWER_DOMAIN", "127.0.0.1:8082")
-else:
-    AMP_PROTOTYPE_NAME = os.getenv("AMP_PROTOTYPE_NAME", "")
-    AMP_PROTOCOL = os.getenv("AMP_PROTOCOL", "http://")
-    AMP_VIEWER_DOMAIN = os.getenv("AMP_VIEWER_DOMAIN", "localhost:8002")
+AMP_PROTOCOL = os.getenv("AMP_PROTOCOL", "https://")
+AMP_VIEWER_DOMAIN = os.getenv("AMP_VIEWER_DOMAIN", "localhost:8002")
 
 COPILOT_APPLICATION_NAME = os.getenv("COPILOT_APPLICATION_NAME", None)
 

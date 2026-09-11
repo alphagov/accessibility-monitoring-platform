@@ -21,10 +21,10 @@ from dotenv import load_dotenv
 DEBUG = os.getenv("DEBUG") == "TRUE"
 
 UNDER_TEST = (len(sys.argv) > 1 and sys.argv[1] == "test") or "pytest" in sys.modules
-INTEGRATION_TEST = os.getenv("INTEGRATION_TEST") == "TRUE"
+DOCKER_COMPOSE = os.getenv("DOCKER_COMPOSE") == "TRUE"
 
 S3_MOCK_ENDPOINT = None
-if os.getenv("INTEGRATION_TEST") == "TRUE":
+if os.getenv("DOCKER_COMPOSE") == "TRUE":
     S3_MOCK_ENDPOINT = "http://localstack:4566"
 elif DEBUG and not UNDER_TEST:
     S3_MOCK_ENDPOINT = "http://localhost:4566"
@@ -126,68 +126,48 @@ WSGI_APPLICATION = "report_viewer.wsgi.application"
 
 DATABASES = {}
 
-if UNDER_TEST or INTEGRATION_TEST:
-    if INTEGRATION_TEST:
-        DATABASES["default"] = {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.environ["POSTGRES_NAME"],
-            "USER": os.environ["POSTGRES_USER"],
-            "PASSWORD": os.environ["POSTGRES_PASSWORD"],
-            "HOST": os.environ["POSTGRES_HOST"],
-            "PORT": os.environ["POSTGRES_PORT"],
-        }
-    else:
-        DATABASES["default"] = {
-            "NAME": "accessibility_monitoring_app",
-            "ENGINE": "django.db.backends.sqlite3",
-        }
+if UNDER_TEST:
+    DATABASES["default"] = {
+        "NAME": "accessibility_monitoring_app",
+        "ENGINE": "django.db.backends.sqlite3",
+    }
+
     DATABASES["aws-s3-bucket"] = {
         "aws_access_key_id": "key",
-        "aws_region": "us-east-1",
         "aws_secret_access_key": "secret",
+        "aws_region": "us-east-1",
         "bucket_name": "bucketname",
         "deploy_env": "",
     }
 elif os.environ.get("TERRAFORM") == "TRUE":
-    db_secrets: str = os.environ["DB_PASSWORD"]
-    json_acceptable_string: str = db_secrets.replace("'", '"')
-    db_username_password = json.loads(json_acceptable_string)
+    db_credentials = json.loads(
+        os.environ["DB_PASSWORD"].replace("'", '"')
+    )
+
     DATABASES["default"] = {
         "NAME": os.environ["DB_NAME"],
-        "USER": db_username_password["username"],
-        "PASSWORD": db_username_password["password"],
+        "USER": db_credentials["username"],
+        "PASSWORD": db_credentials["password"],
         "HOST": os.environ["DB_HOST"],
         "PORT": 5432,
         "CONN_MAX_AGE": 0,
         "ENGINE": "django.db.backends.postgresql",
     }
-    bucket_name: str = os.environ["BUCKET_NAME"]
+
+    local_s3 = DEBUG or DOCKER_COMPOSE
+
     DATABASES["aws-s3-bucket"] = {
-        "bucket_name": bucket_name,
-        "aws_access_key_id": None,
-        "aws_secret_access_key": None,
-        "aws_region": "eu-west-2",
+        "bucket_name": os.environ["BUCKET_NAME"],
+        "aws_region": "us-east-1" if local_s3 else "eu-west-2",
+        "aws_access_key_id": "key" if local_s3 else None,
+        "aws_secret_access_key": "secret" if local_s3 else None,
     }
-elif os.getenv("DB_SECRET") and os.getenv("DB_NAME"):
-    db_secrets: str = os.environ["DB_SECRET"]
-    json_acceptable_string: str = db_secrets.replace("'", '"')
-    db_secrets_dict = json.loads(json_acceptable_string)
-    DATABASES["default"] = {
-        "NAME": db_secrets_dict["dbname"],
-        "USER": db_secrets_dict["username"],
-        "PASSWORD": db_secrets_dict["password"],
-        "HOST": db_secrets_dict["host"],
-        "PORT": db_secrets_dict["port"],
-        "CONN_MAX_AGE": 0,
-        "ENGINE": "django.db.backends.postgresql",
-    }
-    bucket_name: str = os.environ["DB_NAME"]
-    DATABASES["aws-s3-bucket"] = {
-        "bucket_name": bucket_name,
-        "aws_access_key_id": None,
-        "aws_secret_access_key": None,
-        "aws_region": "us-east-1",
-    }
+
+    if DOCKER_COMPOSE:
+        DATABASES["default"]["PORT"] = os.environ["DB_PORT_DOCKER"]
+
+else:
+    raise RuntimeError("Database credentials incorrectly entered")
 
 LOGGING = {
     "version": 1,
