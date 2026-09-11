@@ -162,6 +162,10 @@ elif os.environ.get("TERRAFORM") == "TRUE":
         "aws_access_key_id": "key" if local_s3 else None,
         "aws_secret_access_key": "secret" if local_s3 else None,
     }
+
+    if DOCKER_COMPOSE:
+        DATABASES["default"]["PORT"] = os.environ["DB_PORT_DOCKER"]
+
 else:
     raise RuntimeError("Database credentials incorrectly entered")
 
