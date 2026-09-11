@@ -74,7 +74,7 @@ jobs:
       - name: Backup databases
         run: |
           python terraform_stack/terraform_deploy/terraform_deployment.py --environment prod --function exec --command "python terraform_stack/terraform_deploy/dump_rds_to_s3_as_sql.py" && \
-          sleep 30 && \
+          python terraform_stack/terraform_deploy/check_for_s3_backup.py && \
           aws s3 sync s3://amp-app-prod-env-prod-env-files/ s3://amp-aurora-backup-prod/
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
