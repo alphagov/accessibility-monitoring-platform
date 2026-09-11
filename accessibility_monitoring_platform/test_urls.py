@@ -22,9 +22,10 @@ def test_robots_txt(client):
 )
 @patch("accessibility_monitoring_platform.urls.requests")
 def test_security_txt(mock_requests, url, client):
-    """Test security txt gotten from vdp.cabinetoffice.gov.u"""
+    """Test security txt gotten from vdp.cabinetoffice.gov.uk"""
     mock_requests_response: MagicMock = MagicMock()
     mock_requests_response.status_code = 200
+    mock_requests_response.reason = ""
     mock_requests.get.return_value = mock_requests_response
 
     client.get(url)

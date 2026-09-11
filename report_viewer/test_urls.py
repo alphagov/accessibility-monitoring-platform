@@ -26,6 +26,7 @@ def test_security_txt(mock_requests, url, client):
     """Test security txt"""
     mock_requests_response: MagicMock = MagicMock()
     mock_requests_response.status_code = 200
+    mock_requests_response.reason = ""
     mock_requests.get.return_value = mock_requests_response
 
     client.get(url)
