@@ -15,7 +15,7 @@ freeze_requirements: # Pin all requirements including sub dependencies into requ
 	uv pip compile --upgrade requirements.in
 
 clean_local:
-	docker compose down
+	docker compose --file Dockerfiles/docker-compose.yml down
 	rm -rf ./data
 	rm -rf ./node_modules
 	rm -rf ./venv
