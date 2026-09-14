@@ -4543,6 +4543,44 @@ def test_retest_next_page_name(path_name, expected_next_page, admin_client):
     assertContains(response, f"<b>{expected_next_page}</b>", html=True)
 
 
+@pytest.mark.parametrize(
+    "url_name,audit_round_type,added_stage",
+    [
+        (
+            "audits:initial-remove-statement-page",
+            StatementAudit.AuditRoundType.INITIAL,
+            StatementPage.AddedStage.INITIAL,
+        ),
+        (
+            "audits:edit-audit-retest-remove-statement-page",
+            StatementAudit.AuditRoundType.TWELVE_WEEK,
+            StatementPage.AddedStage.TWELVE_WEEK,
+        ),
+    ],
+)
+def test_statement_page_removal_renders(
+    url_name, audit_round_type, added_stage, admin_client
+):
+    """Test that remove statement link pages render"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    StatementAudit.objects.create(
+        simplified_case=simplified_case, audit_round_type=audit_round_type
+    )
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+    statement_page: StatementPage = StatementPage.objects.create(
+        simplified_case=simplified_case,
+        audit_overview=audit_overview,
+        added_stage=added_stage,
+    )
+    response: HttpResponse = admin_client.get(
+        reverse(url_name, kwargs={"pk": statement_page.id}),
+    )
+
+    assert response.status_code == 200
+
+
 def test_initial_statement_page_removal(admin_client):
     """Test statement page removal and redirect"""
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
@@ -4905,3 +4943,23 @@ def test_delete_new_12_week_custom_issue_redirects(admin_client):
     assert events.count() == 1
     assert events[0].parent == custom_issue
     assert events[0].event_type == SimplifiedEventHistory.Type.UPDATE
+
+
+def test_equality_body_retest_statement_page_removal_renders(admin_client):
+    """Test that equality body retest remove statement link page renders"""
+    wcag_audit: WcagAudit = create_equality_body_audits()
+    statement_audit: StatementAudit = StatementAudit.objects.get(
+        audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY
+    )
+    simplified_case: SimplifiedCase = wcag_audit.simplified_case
+    statement_page: StatementPage = StatementPage.objects.create(
+        simplified_case=simplified_case, audit_overview=simplified_case.audit_overview
+    )
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:edit-equality-body-remove-statement-page",
+            kwargs={"pk": statement_page.id, "statement_audit_id": statement_audit.id},
+        ),
+    )
+
+    assert response.status_code == 200
