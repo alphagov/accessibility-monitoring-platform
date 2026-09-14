@@ -1,23 +1,17 @@
 # Stage 1: PostgreSQL client binaries + their matching libpq runtime
-FROM postgres:16-bookworm AS postgres-client
+FROM postgres:18-bookworm AS postgres-client
 
 
 # Stage 2: application image
 FROM python:3.12-slim-bookworm
 
-ARG NODE_MAJOR=20
+ARG NODE_MAJOR=24
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_NO_CACHE_DIR=1
 
-# System/build dependencies.
-#
-# libpq-dev is still needed here for building Python PostgreSQL dependencies
-# such as psycopg2. It also installs Debian's system libpq, but PostgreSQL
-# command-line tools below are explicitly configured to use the libpq copied
-# from the postgres:16-bookworm image instead.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         build-essential \
@@ -32,34 +26,20 @@ RUN apt-get update \
 # ---------------------------------------------------------------------------
 # PostgreSQL client
 # ---------------------------------------------------------------------------
-#
-# Do NOT copy only /usr/lib/postgresql/16.
-#
-# The PostgreSQL client binaries from postgres:16-bookworm may have been built
-# against a newer libpq than the one supplied by Debian Bookworm.
-#
-# Copy both the PostgreSQL 16 tooling AND the exact libpq runtime from the same
-# source image so psql/pg_dump cannot accidentally load Debian's older libpq.
 
 COPY --from=postgres-client \
-    /usr/lib/postgresql/16 \
-    /opt/postgresql/16
+    /usr/lib/postgresql/18 \
+    /opt/postgresql/18
 
 COPY --from=postgres-client \
     /usr/lib/x86_64-linux-gnu/libpq.so.5* \
     /opt/postgresql/lib/
 
-ENV PATH="/opt/postgresql/16/bin:${PATH}" \
+ENV PATH="/opt/postgresql/18/bin:${PATH}" \
     LD_LIBRARY_PATH="/opt/postgresql/lib"
 
 
 # Fail the Docker build immediately if PostgreSQL client linkage is broken.
-#
-# ldd should show:
-#
-#   libpq.so.5 => /opt/postgresql/lib/libpq.so.5
-#
-# and both version commands must execute successfully.
 RUN echo "PostgreSQL client:" \
     && command -v psql \
     && psql --version \
