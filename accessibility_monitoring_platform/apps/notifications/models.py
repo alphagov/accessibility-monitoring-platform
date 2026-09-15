@@ -8,6 +8,8 @@ from ..cases.models import BaseCase
 from ..common.models import Link
 from ..common.templatetags.common_tags import amp_date
 
+SHORT_DESCRIPTION_LENGTH: int = 200
+
 
 class Task(models.Model):
     """Django model for user-specific tasks"""
@@ -116,9 +118,9 @@ class Task(models.Model):
 
     @property
     def short_description(self) -> str:
-        if len(self.description) > 200:
-            return f"{self.description[:200]}. . ."
-        return self.description[:200]
+        if len(self.description) > SHORT_DESCRIPTION_LENGTH:
+            return f"{self.description[:SHORT_DESCRIPTION_LENGTH]}. . ."
+        return self.description[:SHORT_DESCRIPTION_LENGTH]
 
 
 class NotificationSetting(models.Model):
