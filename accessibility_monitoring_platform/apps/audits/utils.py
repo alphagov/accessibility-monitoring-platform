@@ -308,7 +308,7 @@ def get_next_platform_page_wcag_page_initial(
     """
     if not wcag_audit.testable_wcag_page_initials:
         return get_platform_page_by_url_name(
-            url_name="audits:edit-website-decision", instance=wcag_audit
+            url_name="audits:edit-audit-wcag-summary", instance=wcag_audit
         )
 
     if current_wcag_page_initial is None:
@@ -320,7 +320,7 @@ def get_next_platform_page_wcag_page_initial(
     testable_pages: list[WcagPageInitial] = list(wcag_audit.testable_wcag_page_initials)
     if testable_pages[-1] == current_wcag_page_initial:
         return get_platform_page_by_url_name(
-            url_name="audits:edit-website-decision", instance=wcag_audit
+            url_name="audits:edit-audit-wcag-summary", instance=wcag_audit
         )
 
     current_page_position: int = index_or_404(
@@ -341,7 +341,7 @@ def get_next_platform_page_twelve_week(
     """
     if wcag_audit.wcag_page_retests.count() == 0:
         return get_platform_page_by_url_name(
-            url_name="audits:edit-audit-retest-website-decision", instance=wcag_audit
+            url_name="audits:edit-audit-retest-wcag-summary", instance=wcag_audit
         )
 
     if current_page is None:
@@ -352,7 +352,7 @@ def get_next_platform_page_twelve_week(
 
     if wcag_audit.wcag_page_retests.last() == current_page:
         return get_platform_page_by_url_name(
-            url_name="audits:edit-audit-retest-website-decision", instance=wcag_audit
+            url_name="audits:edit-audit-retest-wcag-summary", instance=wcag_audit
         )
 
     wcag_page_retests: list[WcagPageRetest] = list(wcag_audit.wcag_page_retests)
