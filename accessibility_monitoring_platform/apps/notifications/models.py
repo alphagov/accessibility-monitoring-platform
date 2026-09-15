@@ -114,6 +114,12 @@ class Task(models.Model):
             )
         return options
 
+    @property
+    def short_description(self) -> str:
+        if len(self.description) > 200:
+            return f"{self.description[:200]}. . ."
+        return self.description[:200]
+
 
 class NotificationSetting(models.Model):
     """Django model for notifications settings"""

@@ -22,6 +22,7 @@ class CommentAdmin(admin.ModelAdmin):
         "body",
         "hidden",
     ]
+    list_filter = ["user"]
 
 
 admin.site.register(Comment, CommentAdmin)
