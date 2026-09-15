@@ -22,15 +22,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AWS_PROTOTYPE_FILE: Path = Path("aws_prototype.json")
-if AWS_PROTOTYPE_FILE.exists():
-    EMAIL_BACKEND: str = "django.core.mail.backends.console.EmailBackend"
-elif os.getenv("NOTIFY_API_KEY"):
+if os.getenv("NOTIFY_API_KEY"):
+    secret: str = os.getenv("NOTIFY_API_KEY", "")
+    data = json.loads(secret)
     EMAIL_BACKEND: str = "accessibility_monitoring_platform.email.NotifyEmailBackend"
-    EMAIL_NOTIFY_API_KEY: str = os.getenv("NOTIFY_API_KEY", "")
-    EMAIL_NOTIFY_BASIC_TEMPLATE: str = os.getenv("EMAIL_NOTIFY_BASIC_TEMPLATE", "")
+    EMAIL_NOTIFY_API_KEY = data["EMAIL_NOTIFY_API_KEY"]
+    EMAIL_NOTIFY_BASIC_TEMPLATE = data["EMAIL_NOTIFY_BASIC_TEMPLATE"]
 else:
-    EMAIL_BACKEND: str = "django.core.mail.backends.console.EmailBackend"
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True
@@ -41,3 +40,10 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 6  # Six days in seconds
+
+if os.getenv("BYPASS_SECURE_COOKIE", "").upper() == "TRUE":
+    # Integration tests access the app over plain HTTP (e.g. http://web:8001).
+    # Secure cookies are not sent over HTTP, which prevents authentication and
+    # CSRF validation, so disable the Secure flag for integration tests only.
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False

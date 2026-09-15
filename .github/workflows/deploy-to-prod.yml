@@ -3,7 +3,7 @@ name: Deploy to production
 on:
   workflow_dispatch: # allows manual triggering
   schedule:
-    - cron: '0 3 * * *' # runs daily at 00:00
+    - cron: '0 3 * * *' # runs daily at 03:00
 
 jobs:
   test:
@@ -19,18 +19,24 @@ jobs:
         python-version: '3.12'
     - uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '24'
     - name: Unit tests
       run: |
         python3 -m venv venv
         source venv/bin/activate
         pip install --upgrade pip
         pip install -r requirements_for_test.txt
-        export DB_SECRET="{'dbClusterIdentifier':'none','password':'secret','dbname':'accessibility_monitoring_app','engine':'postgres','port':5432,'host':'localhost','username':'admin'}"
-        export DB_NAME=bucket-name
-        export ALLOWED_HOSTS='localhost 127.0.0.1 0.0.0.0'
-        export SECRET_KEY=1234
         export DEBUG=TRUE
+        export SECRET_KEY=12345678
+        export ALLOWED_HOSTS='localhost 127.0.0.1'
+        export TERRAFORM=TRUE
+        export DB_HOST=localhost
+        export DB_NAME=accessibility_monitoring_app
+        export DB_USER=admin
+        export BUCKET_NAME=amp-dummy-s3-bucket
+        export DB_PASSWORD='{"username": "admin", "password": "secret"}'
+        export AMP_PROTOCOL='http://'
+        export AMP_VIEWER_DOMAIN='127.0.0.1:8082'
         npm i
         make static_files_process
         make test
@@ -49,8 +55,7 @@ jobs:
         python-version: '3.12'
     - name: Integration tests
       run: |
-        cd stack_tests/integration_tests
-        docker compose up --abort-on-container-exit
+        docker compose --file stack_tests/integration_tests/docker-compose.yml up --abort-on-container-exit
 
   deploy:
     needs: int-test
@@ -74,7 +79,7 @@ jobs:
       - name: Backup databases
         run: |
           python terraform_stack/terraform_deploy/terraform_deployment.py --environment prod --function exec --command "python terraform_stack/terraform_deploy/dump_rds_to_s3_as_sql.py" && \
-          sleep 30 && \
+          python terraform_stack/terraform_deploy/check_for_s3_backup.py && \
           aws s3 sync s3://amp-app-prod-env-prod-env-files/ s3://amp-aurora-backup-prod/
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
@@ -96,20 +101,20 @@ jobs:
           SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
           SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
 
-      # - name: Deploy to AWS
-      #   run: |
-      #     python terraform_stack/terraform_deploy/terraform_deployment.py --environment prod --function up
-      #   env:
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
-      #     AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
+      - name: Deploy to AWS
+        run: |
+          python terraform_stack/terraform_deploy/terraform_deployment.py --environment prod --function up
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_COPILOT }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_COPILOT }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION_COPILOT }}
 
-      # - name: Smoke tests
-      #   run: |
-      #     cd stack_tests/smoke_tests
-      #     docker compose up --abort-on-container-exit
-      #     cd ../smoke_tests_viewer
-      #     docker compose up --abort-on-container-exit
-      #   env:
-      #     SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
-      #     SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
+      - name: Smoke tests
+        run: |
+          cd stack_tests/smoke_tests
+          docker compose up --abort-on-container-exit
+          cd ../smoke_tests_viewer
+          docker compose up --abort-on-container-exit
+        env:
+          SMOKE_TESTS_USERNAME: ${{ secrets.SMOKE_TESTS_USERNAME }}
+          SMOKE_TESTS_PASSWORD: ${{ secrets.SMOKE_TESTS_PASSWORD }}
