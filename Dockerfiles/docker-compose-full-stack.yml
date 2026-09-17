@@ -43,7 +43,7 @@ services:
             test: curl --fail http://localhost:8001/healthcheck || exit 1
         stdin_open: true
         tty: true
-  
+
     report_viewer:
         platform: linux/amd64
         build:
