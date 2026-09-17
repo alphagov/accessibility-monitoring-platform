@@ -369,15 +369,6 @@ class WcagPageChecksFormView(NextPlatformPageMixin, FormView):
         return super().form_valid(form)
 
 
-class WcagAuditComplianceInitialUpdateView(WcagAuditUpdateView):
-    """
-    View to update website compliance fields
-    """
-
-    form_class: type[WcagAuditComplianceUpdateForm] = WcagAuditComplianceUpdateForm
-    template_name: str = "common/case_form.html"
-
-
 class InitialWcagAuditSummaryFirstUpdateView(
     AuditSummaryFirstMixin, WcagAuditUpdateView
 ):
@@ -385,12 +376,14 @@ class InitialWcagAuditSummaryFirstUpdateView(
     form_class: type[WcagAuditWcagSummaryUpdateForm] = WcagAuditWcagSummaryUpdateForm
     template_name: str = "audits/forms/test_summary_wcag.html"
 
-    def get_next_platform_page(self) -> PlatformPage:
-        wcag_audit: WcagAudit = self.object
-        return get_platform_page_by_url_name(
-            url_name="audits:edit-statement-pages",
-            instance=wcag_audit.equivalent_statement_audit,
-        )
+
+class WcagAuditComplianceInitialUpdateView(WcagAuditUpdateView):
+    """
+    View to update website compliance fields
+    """
+
+    form_class: type[WcagAuditComplianceUpdateForm] = WcagAuditComplianceUpdateForm
+    template_name: str = "common/case_form.html"
 
 
 class InitialAddStatementPageUpdateView(AddStatementLinkUpdateView):
@@ -720,17 +713,6 @@ class InitialDisproportionateBurdenUpdateView(StatementAuditUpdateView):
     template_name: str = "audits/forms/statement_form.html"
 
 
-class AuditCaseComplianceStatementInitialUpdateView(StatementAuditUpdateView):
-    """
-    View to update statement decision fields
-    """
-
-    form_class: type[StatementAuditComplianceUpdateForm] = (
-        StatementAuditComplianceUpdateForm
-    )
-    template_name: str = "audits/forms/statement_decision.html"
-
-
 class StatementAuditSummaryFirstUpdateView(
     AuditSummaryFirstMixin, StatementAuditUpdateView
 ):
@@ -740,6 +722,17 @@ class StatementAuditSummaryFirstUpdateView(
 
     form_class: type[AuditStatementSummaryUpdateForm] = AuditStatementSummaryUpdateForm
     template_name: str = "audits/forms/test_summary_statement.html"
+
+
+class AuditCaseComplianceStatementInitialUpdateView(StatementAuditUpdateView):
+    """
+    View to update statement decision fields
+    """
+
+    form_class: type[StatementAuditComplianceUpdateForm] = (
+        StatementAuditComplianceUpdateForm
+    )
+    template_name: str = "audits/forms/statement_decision.html"
 
     def get_next_platform_page(self) -> PlatformPage:
         simplified_case: SimplifiedCase = self.object.simplified_case

@@ -119,14 +119,14 @@ urlpatterns: list[URLPattern] = [
         name="edit-audit-page-checks",
     ),
     path(
-        "<int:pk>/edit-website-decision/",
-        login_required(WcagAuditComplianceInitialUpdateView.as_view()),
-        name="edit-website-decision",
-    ),
-    path(
         "<int:pk>/edit-audit-wcag-summary/",
         login_required(InitialWcagAuditSummaryFirstUpdateView.as_view()),
         name="edit-audit-wcag-summary",
+    ),
+    path(
+        "<int:pk>/edit-website-decision/",
+        login_required(WcagAuditComplianceInitialUpdateView.as_view()),
+        name="edit-website-decision",
     ),
     path(
         "<int:pk>/edit-statement-pages/",
@@ -209,14 +209,14 @@ urlpatterns: list[URLPattern] = [
         name="edit-initial-disproportionate-burden",
     ),
     path(
-        "<int:pk>/edit-statement-decision/",
-        login_required(AuditCaseComplianceStatementInitialUpdateView.as_view()),
-        name="edit-statement-decision",
-    ),
-    path(
         "<int:pk>/edit-audit-statement-summary/",
         login_required(StatementAuditSummaryFirstUpdateView.as_view()),
         name="edit-audit-statement-summary",
+    ),
+    path(
+        "<int:pk>/edit-statement-decision/",
+        login_required(AuditCaseComplianceStatementInitialUpdateView.as_view()),
+        name="edit-statement-decision",
     ),
     path(
         "<int:pk>/audit-retest-start/",
@@ -239,14 +239,14 @@ urlpatterns: list[URLPattern] = [
         name="edit-wcag-page-retest-check-results",
     ),
     path(
-        "<int:pk>/edit-retest-website-decision/",
-        login_required(WcagAuditComplianceRetestUpdateView.as_view()),
-        name="edit-audit-retest-website-decision",
-    ),
-    path(
         "<int:pk>/edit-retest-wcag-summary/",
         login_required(TwelveWeekWcagAuditSummaryFirstUpdateView.as_view()),
         name="edit-audit-retest-wcag-summary",
+    ),
+    path(
+        "<int:pk>/edit-retest-website-decision/",
+        login_required(WcagAuditComplianceRetestUpdateView.as_view()),
+        name="edit-audit-retest-website-decision",
     ),
     path(
         "<int:pk>/edit-audit-retest-statement-pages/",
@@ -334,14 +334,14 @@ urlpatterns: list[URLPattern] = [
         name="edit-twelve-week-disproportionate-burden",
     ),
     path(
-        "<int:pk>/edit-audit-retest-statement-decision/",
-        login_required(TwelveWeekStatementComplianceStatementUpdateView.as_view()),
-        name="edit-audit-retest-statement-decision",
-    ),
-    path(
         "<int:pk>/edit-retest-statement-summary/",
         login_required(TwelveWeekStatementSummaryFirstUpdateView.as_view()),
         name="edit-audit-retest-statement-summary",
+    ),
+    path(
+        "<int:pk>/edit-audit-retest-statement-decision/",
+        login_required(TwelveWeekStatementComplianceStatementUpdateView.as_view()),
+        name="edit-audit-retest-statement-decision",
     ),
     path(
         "wcag-definition-list/",

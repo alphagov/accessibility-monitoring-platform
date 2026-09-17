@@ -223,6 +223,14 @@ class WcagPageRetestCheckResultsUpdateView(NextPlatformPageMixin, UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
+class TwelveWeekWcagAuditSummaryFirstUpdateView(
+    AuditSummaryFirstMixin, WcagAuditUpdateView
+):
+
+    form_class: type[WcagAuditWcagSummaryUpdateForm] = WcagAuditWcagSummaryUpdateForm
+    template_name: str = "audits/forms/test_summary_wcag.html"
+
+
 class WcagAuditComplianceRetestUpdateView(WcagAuditUpdateView):
     """
     View to retest website compliance fields
@@ -235,21 +243,6 @@ class WcagAuditComplianceRetestUpdateView(WcagAuditUpdateView):
         form = super().get_form()
         form.fields["compliance_state"].label = "12-week website compliance decision"
         return form
-
-
-class TwelveWeekWcagAuditSummaryFirstUpdateView(
-    AuditSummaryFirstMixin, WcagAuditUpdateView
-):
-
-    form_class: type[WcagAuditWcagSummaryUpdateForm] = WcagAuditWcagSummaryUpdateForm
-    template_name: str = "audits/forms/test_summary_wcag.html"
-
-    def get_next_platform_page(self) -> PlatformPage:
-        wcag_audit: WcagAudit = self.object
-        return get_platform_page_by_url_name(
-            url_name="audits:edit-audit-retest-statement-pages",
-            instance=wcag_audit.equivalent_statement_audit,
-        )
 
 
 class TwelveWeekAddStatementPageUpdateView(AddStatementLinkUpdateView):

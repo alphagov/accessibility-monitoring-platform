@@ -51,11 +51,11 @@ describe('Create simplified case, tests and report', () => {
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Accessibility statement page test`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Compliance decision`)
-    cy.get('[name="compliance_state"]').check('partially-compliant')
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | WCAG summary`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | WCAG summary`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Compliance decision`)
+    cy.get('[name="compliance_state"]').check('partially-compliant')
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement links`)
@@ -93,10 +93,10 @@ describe('Create simplified case, tests and report', () => {
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Disproportionate burden`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement compliance`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement summary`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement summary`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement compliance`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Start report`)
@@ -174,10 +174,10 @@ describe('Create simplified case, tests and report', () => {
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Accessibility statement page retest`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Compliance decision`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | WCAG summary`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | WCAG summary`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Compliance decision`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement links`)
@@ -215,10 +215,10 @@ describe('Create simplified case, tests and report', () => {
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Disproportionate burden`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Compliance decision`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement summary`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement summary`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Compliance decision`)
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Reviewing changes`)

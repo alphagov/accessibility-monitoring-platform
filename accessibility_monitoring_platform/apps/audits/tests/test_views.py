@@ -364,15 +364,15 @@ def test_twelve_week_audit_statement_check_specific_page_loads(
     [
         ("audits:edit-audit-metadata", "save", "audits:edit-audit-metadata"),
         ("audits:edit-audit-metadata", "save_continue", "audits:edit-audit-pages"),
-        ("audits:edit-website-decision", "save", "audits:edit-website-decision"),
-        (
-            "audits:edit-website-decision",
-            "save_continue",
-            "audits:edit-audit-wcag-summary",
-        ),
         ("audits:edit-audit-wcag-summary", "save", "audits:edit-audit-wcag-summary"),
         (
             "audits:edit-audit-wcag-summary",
+            "save_continue",
+            "audits:edit-website-decision",
+        ),
+        ("audits:edit-website-decision", "save", "audits:edit-website-decision"),
+        (
+            "audits:edit-website-decision",
             "save_continue",
             "audits:edit-statement-pages",
         ),
@@ -415,12 +415,6 @@ def test_initial_wcag_audit_edit_redirects_based_on_button_pressed(
 @pytest.mark.parametrize(
     "path_name, button_name, expected_redirect_path_name",
     [
-        ("audits:edit-statement-decision", "save", "audits:edit-statement-decision"),
-        (
-            "audits:edit-statement-decision",
-            "save_continue",
-            "audits:edit-audit-statement-summary",
-        ),
         (
             "audits:edit-audit-statement-summary",
             "save",
@@ -428,6 +422,12 @@ def test_initial_wcag_audit_edit_redirects_based_on_button_pressed(
         ),
         (
             "audits:edit-audit-statement-summary",
+            "save_continue",
+            "audits:edit-statement-decision",
+        ),
+        ("audits:edit-statement-decision", "save", "audits:edit-statement-decision"),
+        (
+            "audits:edit-statement-decision",
             "save_continue",
             "simplified:edit-create-report",
         ),
@@ -488,22 +488,22 @@ def test_initial_statement_audit_edit_redirects_based_on_button_pressed(
             "audits:edit-audit-retest-pages",
         ),
         (
-            "audits:edit-audit-retest-website-decision",
+            "audits:edit-audit-retest-wcag-summary",
             "save",
-            "audits:edit-audit-retest-website-decision",
+            "audits:edit-audit-retest-wcag-summary",
         ),
         (
-            "audits:edit-audit-retest-website-decision",
+            "audits:edit-audit-retest-wcag-summary",
             "save_continue",
-            "audits:edit-audit-retest-wcag-summary",
+            "audits:edit-audit-retest-website-decision",
         ),
         (
-            "audits:edit-audit-retest-wcag-summary",
+            "audits:edit-audit-retest-website-decision",
             "save",
-            "audits:edit-audit-retest-wcag-summary",
+            "audits:edit-audit-retest-website-decision",
         ),
         (
-            "audits:edit-audit-retest-wcag-summary",
+            "audits:edit-audit-retest-website-decision",
             "save_continue",
             "audits:edit-audit-retest-statement-pages",
         ),
@@ -569,7 +569,7 @@ def test_twelve_week_wcag_audit_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-audit-retest-statement-decision",
             "save_continue",
-            "audits:edit-audit-retest-statement-summary",
+            "simplified:edit-review-changes",
         ),
         (
             "audits:edit-audit-retest-statement-summary",
@@ -579,7 +579,7 @@ def test_twelve_week_wcag_audit_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-audit-retest-statement-summary",
             "save_continue",
-            "simplified:edit-review-changes",
+            "audits:edit-audit-retest-statement-decision",
         ),
     ],
 )
@@ -628,9 +628,9 @@ def test_twelve_week_statement_audit_edit_redirects_based_on_button_pressed(
     assert response.url == expected_path
 
 
-def test_audit_statement_summary_page_redirect_when_report_exists(admin_client):
+def test_audit_statement_decision_page_redirect_when_report_exists(admin_client):
     """
-    Test that audit statement summary page redirects to Report ready for QA
+    Test that audit statement decision page redirects to Report ready for QA
     when a report exists
     """
     simplified_case: SimplifiedCase = (
@@ -647,7 +647,7 @@ def test_audit_statement_summary_page_redirect_when_report_exists(admin_client):
 
     response: HttpResponse = admin_client.post(
         reverse(
-            "audits:edit-audit-statement-summary", kwargs=twelve_week_statement_audit_pk
+            "audits:edit-statement-decision", kwargs=twelve_week_statement_audit_pk
         ),
         {
             "version": twelve_week_statement_audit.version,
@@ -923,7 +923,7 @@ def test_add_statement_backup(url_name, admin_client):
         (
             "audits:edit-initial-disproportionate-burden",
             "save_continue",
-            "audits:edit-statement-decision",
+            "audits:edit-audit-statement-summary",
         ),
     ],
 )
@@ -970,8 +970,8 @@ def test_initial_wcag_audit_statement_edit_redirects_based_on_button_pressed(
     [
         (
             "audits:edit-audit-retest-website-decision",
-            "save_continue",
-            "audits:edit-audit-retest-wcag-summary",
+            "save",
+            "audits:edit-audit-retest-website-decision",
         ),
         (
             "audits:edit-audit-retest-statement-pages",
@@ -1081,7 +1081,7 @@ def test_initial_wcag_audit_statement_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-twelve-week-disproportionate-burden",
             "save_continue",
-            "audits:edit-audit-retest-statement-decision",
+            "audits:edit-audit-retest-statement-summary",
         ),
     ],
 )
@@ -1523,7 +1523,7 @@ def test_retest_metadata_skips_to_statement_when_no_psb_response(admin_client):
     "button_name, expected_redirect_path_name",
     [
         ("save", "audits:edit-audit-pages"),
-        ("save_continue", "audits:edit-website-decision"),
+        ("save_continue", "audits:edit-audit-wcag-summary"),
     ],
 )
 def test_pages_redirects_based_on_button_pressed(
@@ -4431,7 +4431,7 @@ def test_tall_results_page_has_back_to_top_link(path_name, admin_client):
     "path_name, expected_next_page",
     [
         ("edit-audit-metadata", "Initial WCAG test | Add or remove pages"),
-        ("edit-audit-pages", "Initial WCAG test | Compliance decision"),
+        ("edit-audit-pages", "Initial WCAG test | WCAG summary"),
     ],
 )
 def test_initial_wcag_audit_next_page_name(path_name, expected_next_page, admin_client):
@@ -4473,7 +4473,7 @@ def test_initial_statement_audit_next_page_name(
     "path_name, expected_next_page",
     [
         ("edit-audit-retest-metadata", "12-week WCAG test | Update page links"),
-        ("edit-audit-retest-pages", "12-week WCAG test | Compliance decision"),
+        ("edit-audit-retest-pages", "12-week WCAG test | WCAG summary"),
     ],
 )
 def test_twelve_week_wcag_audit_next_page_name(
