@@ -84,7 +84,7 @@
                         </li>
                         <li class="amp-custom-nav-bar amp-margin-right-25">
                             {% if read %}
-                                <b> View read </b>
+                                <b>View read</b>
                             {% else %}
                                 <a href="?type=qa-comment&read=true" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">View read</a>
                             {% endif %}
@@ -102,7 +102,7 @@
                         </li>
                         <li class="amp-custom-nav-bar amp-margin-right-25">
                             {% if read %}
-                                <b> View read </b>
+                                <b>View read</b>
                             {% else %}
                                 <a href="?type=report-approved&read=true" class="govuk-link govuk-link--no-visited-state govuk-link--no-underline">View read</a>
                             {% endif %}
@@ -233,8 +233,13 @@
                                         <div class="amp-min-width-170 ">
                                             <b>Description</b>
                                         </div>
-                                        <div>
-                                            {{ task.description }}
+                                        {% if task.type == 'qa-comment' %}
+                                            <div class="amp-markdown">
+                                                {{ task.short_description|markdown_to_html }}
+                                        {% else %}
+                                            <div>
+                                                {{ task.description }}
+                                        {% endif %}
                                         </div>
                                     </div>
                                 {% endif %}

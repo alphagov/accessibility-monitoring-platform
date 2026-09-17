@@ -11,7 +11,7 @@ from ...common.models import Link
 from ...detailed.models import DetailedCase
 from ...mobile.models import MobileCase
 from ...simplified.models import SimplifiedCase
-from ..models import NotificationSetting, Task
+from ..models import SHORT_DESCRIPTION_LENGTH, NotificationSetting, Task
 
 
 @pytest.mark.django_db
@@ -212,3 +212,23 @@ def test_options_read_reminder():
             ),
         ),
     ]
+
+
+def test_short_description():
+    """
+    Task short description contains first 200 characters of description followed by
+    '. . .' if description is more than 200 characters long.
+    """
+    task: Task = Task(description="x" * (SHORT_DESCRIPTION_LENGTH - 1))
+
+    assert task.short_description == "x" * (SHORT_DESCRIPTION_LENGTH - 1)
+
+    task: Task = Task(description="x" * SHORT_DESCRIPTION_LENGTH)
+
+    assert task.short_description == "x" * SHORT_DESCRIPTION_LENGTH
+
+    task: Task = Task(description="x" * (SHORT_DESCRIPTION_LENGTH + 1))
+
+    assert (
+        task.short_description == f"{task.description[:SHORT_DESCRIPTION_LENGTH]}. . ."
+    )
