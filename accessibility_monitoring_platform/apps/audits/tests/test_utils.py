@@ -564,7 +564,7 @@ def test_get_next_platform_page_audit_with_no_pages():
         wcag_audit=wcag_audit
     )
 
-    assert platform_page.url_name == "audits:edit-website-decision"
+    assert platform_page.url_name == "audits:edit-audit-wcag-summary"
 
 
 @pytest.mark.django_db
@@ -614,7 +614,9 @@ def test_get_next_platform_page_audit_with_pages():
         wcag_audit=wcag_audit, current_wcag_page_initial=current_wcag_page_initial
     )
 
-    assert platform_page.url == reverse("audits:edit-website-decision", kwargs=audit_pk)
+    assert platform_page.url == reverse(
+        "audits:edit-audit-wcag-summary", kwargs=audit_pk
+    )
 
 
 @pytest.mark.django_db
@@ -676,7 +678,7 @@ def test_get_next_platform_page_twelve_week_wcag_audit_with_pages():
     )
 
     assert platform_page.url == reverse(
-        "audits:edit-audit-retest-website-decision", kwargs=audit_pk
+        "audits:edit-audit-retest-wcag-summary", kwargs=audit_pk
     )
 
 
@@ -689,7 +691,7 @@ def test_get_next_platform_page_twelve_week_audit_with_no_errors():
     wcag_audit: WcagAudit = create_initial_wcag_audit()
     wcag_audit_pk: dict[str, int] = {"pk": wcag_audit.id}
     assert get_next_platform_page_twelve_week(wcag_audit=wcag_audit).url == reverse(
-        "audits:edit-audit-retest-website-decision", kwargs=wcag_audit_pk
+        "audits:edit-audit-retest-wcag-summary", kwargs=wcag_audit_pk
     )
 
 
