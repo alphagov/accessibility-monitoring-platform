@@ -122,9 +122,10 @@ def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[Base
     domain: str = extract_domain_from_url(url)
     if organisation_name:
         return BaseCase.objects.filter(
-            Q(organisation_name__icontains=organisation_name) | Q(domain=domain)
+            Q(organisation_name__icontains=organisation_name)
+            | Q(domain__iexact=domain)
         )
-    return BaseCase.objects.filter(domain=domain)
+    return BaseCase.objects.filter(domain__iexact=domain)
 
 
 class S3ReadWriteFile(S3Wrapper):

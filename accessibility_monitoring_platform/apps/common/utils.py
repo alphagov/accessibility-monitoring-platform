@@ -42,6 +42,7 @@ class SessionExpiry:
 
 def extract_domain_from_url(url: str) -> str:
     """Extract and return domain string from url string"""
+    url = url.strip().lower()
     if url.startswith("https://"):
         url = url[8:]
     elif url.startswith("http://"):

@@ -160,6 +160,20 @@ def test_extract_domain_from_url_no_protocol():
     assert extract_domain_from_url(url="www.example.com") == "www.example.com"
 
 
+def test_extract_domain_from_url_uppercase():
+    """Tests that the domain is lowercased when url contains uppercase"""
+    assert (
+        extract_domain_from_url(url="https://EXAMPLE.COM/index.html") == "example.com"
+    )
+
+
+def test_extract_domain_from_url_uppercase_protocol():
+    """Tests that the domain is extracted when the protocol is uppercase"""
+    assert (
+        extract_domain_from_url(url="HTTPS://example.com/index.html") == "example.com"
+    )
+
+
 @pytest.mark.parametrize(
     "domain, expected_result",
     [

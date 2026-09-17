@@ -644,6 +644,21 @@ def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
 
 
 @pytest.mark.django_db
+def test_find_duplicate_cases_case_insensitive_domain():
+    """Test find_duplicate_cases matches domains differing only by case"""
+    domain_case: SimplifiedCase = SimplifiedCase.objects.create(
+        home_page_url=HOME_PAGE_URL
+    )
+
+    duplicate_cases: list[BaseCase] = list(
+        find_duplicate_cases(f"https://{DOMAIN.upper()}/other-page", "")
+    )
+
+    assert len(duplicate_cases) == 1
+    assert duplicate_cases[0].case_identifier == domain_case.case_identifier
+
+
+@pytest.mark.django_db
 @mock_aws
 def test_writing_to_s3():
     """Test writing a file to S3"""
