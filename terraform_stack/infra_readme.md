@@ -4,6 +4,23 @@ The infrastructure code for the Accessibility Monitoring Platform is mostly self
 
 This README provides a brief overview of how the platform is set up, how Terraform is used, how the CI/CD pipeline works, and other useful functions.
 
+## Contents
+
+- [Infrastructure](#infrastructure)
+
+- [Terraform](#terraform)
+
+- [Prototypes](#prototypes)
+
+- [CI/CD pipeline](#cicd-pipeline)
+
+- [Manual backup](#manual-backup)
+
+- [Resetting the test environment data](#resetting-the-test-environment-data)
+
+- [Viewing production logs](#viewing-production-logs)
+
+
 ## Infrastructure
 
 The core infrastructure is designed to be as simple as possible. It consists of four main components:
@@ -25,7 +42,7 @@ There is also supporting infrastructure used to operate and monitor the platform
 
 - An additional S3 bucket that is synchronised with the primary S3 bucket for backup purposes
 - An S3 bucket that stores load balancer logs, which can be queried using Athena
-- AWS WAF, with its logs stored in a separate S3 bucket
+- AWS WAF, with its logs stored in a separate S3 bucket, which can also be queried using Athena
 - A Lambda function that queries the load balancer logs and sends email alerts for HTTP 500 errors
 - A CloudWatch dashboard
 
@@ -118,6 +135,7 @@ The data in the test environment does not get updated automatically. To update t
 
 ```
 git checkout dev && \
+git pull && \
 aws s3 sync s3://amp-app-prod-env-prod-env-files/ s3://amp-app-test-env-test-env-files/ && \
 python terraform_stack/terraform_deploy/terraform_deployment.py --environment test --function exec --command 'python terraform_stack/terraform_deploy/prod_deploy_tools.py' && \
 python terraform_stack/terraform_deploy/terraform_deployment.py --environment test --function up
