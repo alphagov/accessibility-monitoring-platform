@@ -140,9 +140,7 @@ if UNDER_TEST:
         "deploy_env": "",
     }
 elif os.environ.get("TERRAFORM") == "TRUE":
-    db_credentials = json.loads(
-        os.environ["DB_PASSWORD"].replace("'", '"')
-    )
+    db_credentials = json.loads(os.environ["DB_PASSWORD"].replace("'", '"'))
 
     DATABASES["default"] = {
         "NAME": os.environ["DB_NAME"],
@@ -249,7 +247,9 @@ CONTACT_ADMIN_EMAIL = (
     "accessibility-monitoring-platform-contact-form@digital.cabinet-office.gov.uk"
 )
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+MAILERS = {
+    "default": {"BACKEND": "django.core.mail.backends.console.EmailBackend"},
+}
 
 DATE_FORMAT = "d/m/Y"
 

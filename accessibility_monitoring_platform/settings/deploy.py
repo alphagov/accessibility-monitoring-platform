@@ -26,11 +26,13 @@ AUTH_PASSWORD_VALIDATORS = [
 if os.getenv("NOTIFY_API_KEY"):
     secret: str = os.getenv("NOTIFY_API_KEY", "")
     data = json.loads(secret)
-    EMAIL_BACKEND: str = "accessibility_monitoring_platform.email.NotifyEmailBackend"
     EMAIL_NOTIFY_API_KEY = data["EMAIL_NOTIFY_API_KEY"]
     EMAIL_NOTIFY_BASIC_TEMPLATE = data["EMAIL_NOTIFY_BASIC_TEMPLATE"]
-else:
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+    MAILERS = {
+        "default": {
+            "BACKEND": "accessibility_monitoring_platform.email.NotifyEmailBackend",
+        },
+    }
 
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True
