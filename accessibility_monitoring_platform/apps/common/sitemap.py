@@ -237,7 +237,9 @@ class PlatformPage:
 
     def set_instance(self, instance: models.Model | None):
         if self.instance_class is not None and instance is not None:
-            if isinstance(instance, self.instance_class):
+            if isinstance(instance, self.instance_class) or issubclass(
+                self.instance_class, type(instance)
+            ):
                 self.instance = instance
             else:
                 logger.warning("Cannot set instance of %s to %s", self, instance)
@@ -1135,6 +1137,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             BaseCaseCommentsPlatformPage(
                 name="QA comments ({instance.qa_comments_count})",
                 url_name="simplified:edit-qa-comments",
+                instance_class=SimplifiedCase,
                 subpages=[
                     PlatformPage(
                         name="Edit or delete comment",
