@@ -5,14 +5,9 @@ an error.
 
 from django.db import migrations
 
-REMOVE_BAD_RETEST_RESULTS: str = """
-DELETE FROM audits_wcagcheckresultretest r
- WHERE EXISTS (SELECT id
-                 FROM audits_wcagcheckresultinitial
-                WHERE id = r.wcag_check_result_initial_id
-                  AND check_result_state <> 'error')
-;
-"""
+REMOVE_BAD_RETEST_RESULTS: str = (
+    "DELETE FROM audits_wcagcheckresultretest WHERE EXISTS (SELECT id FROM audits_wcagcheckresultinitial WHERE id = wcag_check_result_initial_id AND check_result_state <> 'error');"
+)
 
 
 class Migration(migrations.Migration):
