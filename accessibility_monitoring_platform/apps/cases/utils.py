@@ -120,11 +120,14 @@ def filter_cases(form: CaseSearchForm) -> QuerySet[BaseCase]:
 def find_duplicate_cases(url: str, organisation_name: str = "") -> QuerySet[BaseCase]:
     """Look for cases with matching domain or organisation name"""
     domain: str = extract_domain_from_url(url)
+    if domain[:4].lower() == "www.":
+        domain = domain[4:]
+    domain_query: Q = Q(domain__iexact=domain) | Q(domain__iexact=f"www.{domain}")
     if organisation_name:
         return BaseCase.objects.filter(
-            Q(organisation_name__icontains=organisation_name) | Q(domain=domain)
+            Q(organisation_name__icontains=organisation_name) | domain_query
         )
-    return BaseCase.objects.filter(domain=domain)
+    return BaseCase.objects.filter(domain_query)
 
 
 class S3ReadWriteFile(S3Wrapper):

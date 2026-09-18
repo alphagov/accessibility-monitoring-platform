@@ -643,6 +643,38 @@ def test_find_duplicate_cases(url, domain, expected_number_of_duplicates):
         )
 
 
+@pytest.mark.parametrize(
+    "stored_url, lookup_url",
+    [
+        ("https://example.com", "https://www.example.com"),
+        ("https://www.example.com", "https://example.com"),
+        ("https://www.example.com", "https://www.example.com"),
+        ("https://example.com", "https://WWW.EXAMPLE.COM"),
+        ("https://WWW.example.com", "https://www.EXAMPLE.com"),
+    ],
+)
+@pytest.mark.django_db
+def test_find_duplicate_cases_ignores_www_prefix(stored_url, lookup_url):
+    """Test find_duplicate_cases matches domains with and without www prefix"""
+    SimplifiedCase.objects.create(home_page_url=stored_url)
+
+    duplicate_cases: list[BaseCase] = list(find_duplicate_cases(lookup_url))
+
+    assert len(duplicate_cases) == 1
+
+
+@pytest.mark.django_db
+def test_find_duplicate_cases_ignores_www_prefix_with_organisation_name():
+    """Test www-insensitive domain match on the organisation-name search path"""
+    SimplifiedCase.objects.create(home_page_url="https://example.com")
+
+    duplicate_cases: list[BaseCase] = list(
+        find_duplicate_cases("https://www.example.com", "Unrelated org")
+    )
+
+    assert len(duplicate_cases) == 1
+
+
 @pytest.mark.django_db
 @mock_aws
 def test_writing_to_s3():
