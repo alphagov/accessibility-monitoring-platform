@@ -96,3 +96,7 @@ terraform_list_environments:
 
 terraform_local_stack_up:
 	docker compose --file Dockerfiles/docker-compose-full-stack.yml  up --build
+
+prod_logs_one_day:
+	aws logs tail /ecs/amp-app-prod-env --since 24h --format short \
+		> "prod-ecs-$$(date '+%Y-%m-%d_%H-%M-%S').log"
