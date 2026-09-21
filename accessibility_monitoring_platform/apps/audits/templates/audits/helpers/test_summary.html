@@ -248,14 +248,19 @@
                                         {% include 'audits/helpers/issue_identifier.html' with issue=summary_wcag_check_result.initial_result %}
                                     </td>
                                     <td class="govuk-table__cell amp-width-one-third">
-                                        <p class="amp-margin-top-0">{{ summary_wcag_check_result.initial_result.get_check_result_state_display }}</p>
                                         <div class="amp-notes amp-margin-bottom-15">{{ summary_wcag_check_result.initial_result.notes|markdown_to_html }}</div>
                                         <a href="{% url 'audits:edit-audit-page-checks' wcag_page_initial.id %}" class="govuk-link govuk-link--no-visited-state">
                                             Edit initial test
                                         </a>
                                     </td>
                                     <td class="govuk-table__cell amp-width-one-third{% if not enable_12_week_ui %} amp-disabled{% endif %}">
-                                        <p class="amp-margin-top-0">{{ summary_wcag_check_result.retest_result.get_retest_state_display }}</p>
+                                        <p class="amp-margin-top-0">
+                                            {% if summary_wcag_check_result.retest_result.retest_state %}
+                                                {{ summary_wcag_check_result.retest_result.get_retest_state_display }}
+                                            {% else %}
+                                                Not retested
+                                            {% endif %}
+                                        </p>
                                         <div class="amp-notes amp-margin-bottom-15">{{ summary_wcag_check_result.retest_result.notes|markdown_to_html }}</div>
                                         {% if enable_12_week_ui %}
                                             {% if summary_wcag_check_result.retest_result.wcag_page_retest %}
@@ -333,14 +338,19 @@
                                         </ul>
                                     </td>
                                     <td class="govuk-table__cell amp-width-one-third">
-                                        <p class="amp-margin-top-0">{{ summary_wcag_check_result.initial_result.get_check_result_state_display }}</p>
                                         <div class="amp-notes amp-margin-bottom-15">{{ summary_wcag_check_result.initial_result.notes|markdown_to_html }}</div>
                                         <a href="{% url 'audits:edit-audit-page-checks' summary_wcag_check_result.initial_result.wcag_page_initial.id %}" class="govuk-link govuk-link--no-visited-state">
                                             Edit initial test
                                         </a>
                                     </td>
                                     <td class="govuk-table__cell amp-width-one-third{% if not enable_12_week_ui %} amp-disabled{% endif %}">
-                                        <p class="amp-margin-top-0">{{ summary_wcag_check_result.retest_result.get_retest_state_display }}</p>
+                                        <p class="amp-margin-top-0">
+                                            {% if summary_wcag_check_result.retest_result.retest_state %}
+                                                {{ summary_wcag_check_result.retest_result.get_retest_state_display }}
+                                            {% else %}
+                                                Not retested
+                                            {% endif %}
+                                        </p>
                                         <div class="amp-notes amp-margin-bottom-15">{{ summary_wcag_check_result.retest_result.notes|markdown_to_html }}</div>
                                         {% if enable_12_week_ui %}
                                             {% if summary_wcag_check_result.retest_result.wcag_page_retest %}
