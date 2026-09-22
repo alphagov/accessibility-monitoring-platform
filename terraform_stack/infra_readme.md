@@ -20,6 +20,8 @@ This README provides a brief overview of how the platform is set up, how Terrafo
 
 - [Viewing production logs](#viewing-production-logs)
 
+- [Alerts](#alerts)
+
 
 ## Infrastructure
 
@@ -148,3 +150,11 @@ To retrieve the previous day's production logs locally, run:
 ```
 make prod_logs_one_day
 ```
+
+## Alerts
+
+There are currently two alerts in Simple Notification Service (SNS) that developers should subscribe to.
+
+First, `500_errors_platform` sends a daily summary of 40x errors, along with immediate alerts for 500 errors. This is useful for identifying unusually high request volumes and spotting application errors.
+
+Second, `amp-app-prod-env-ecs-deployment-failures` sends alerts when an ECS container fails to start.
