@@ -124,6 +124,10 @@ resource "aws_ecs_service" "app" {
   enable_execute_command = true
   health_check_grace_period_seconds = 600
 
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = true
+  }
 
   network_configuration {
     subnets          = module.vpc.private_subnets
