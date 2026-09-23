@@ -19,7 +19,6 @@ class S3UpdateKey(S3Wrapper):
             return False
 
     def update_key(self, old_key: str, new_key: str) -> None:
-        breakpoint()
         self.s3_resource.meta.client.copy(
             {"Bucket": self.bucket, "Key": old_key}, self.bucket, new_key
         )
