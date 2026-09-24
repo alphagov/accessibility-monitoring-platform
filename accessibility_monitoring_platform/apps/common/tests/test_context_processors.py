@@ -11,7 +11,7 @@ from ...common.models import FooterLink, FrequentlyUsedLink, Platform
 from ...common.sitemap import PlatformPage, Sitemap
 from ...common.utils import get_platform_settings
 from ...simplified.models import SimplifiedCase
-from ..context_processors import platform_page
+from ..context_processors import AmpWatermark, platform_page
 from ..forms import AMPTopMenuForm
 
 ORGANISATION_NAME: str = "Organisation name two"
@@ -149,3 +149,23 @@ def test_platform_page_non_case_sitemap_template_context():
     current_platform_page: PlatformPage = sitemap.current_platform_page
 
     assert current_platform_page.get_name() == "Dashboard"
+
+
+@pytest.mark.parametrize(
+    "amp_viewer_domain, left, right",
+    [
+        ("localhost", "", ""),
+        ("reports.accessibility-monitoring.service.gov.uk", "", ""),
+        ("reports-test.accessibility-monitoring.service.gov.uk", "TEST", "PLATFORM"),
+        (
+            "proto-1234-viewer.proto.accessibility-monitoring.service.gov.uk",
+            "PROTO-1234",
+            "PROTOTYPE",
+        ),
+    ],
+)
+def test_amp_watermarks(amp_viewer_domain, left, right):
+    amp_watermark: AmpWatermark = AmpWatermark(amp_viewer_domain=amp_viewer_domain)
+
+    assert amp_watermark.left == left
+    assert amp_watermark.right == right
