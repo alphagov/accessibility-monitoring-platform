@@ -17,10 +17,15 @@ class S3RemoveOldBackups(S3Wrapper):
     def get_s3_keys(self) -> list[str]:
         bucket = self.s3_resource.Bucket(self.bucket)
         s3_keys: list[str] = []
-        this_year: int = date.today().year
-        for year in range(FIRST_BACKUP_YEAR, this_year):
+        today: date = date.today()
+        one_year_ago_key: str = (
+            f"{S3_KEY_PREFIX}{today.year - 1}{today.month:02d}{today.day:02d}"
+        )
+        for year in range(FIRST_BACKUP_YEAR, today.year):
             s3_key_prefix: str = f"{S3_KEY_PREFIX}{year}"
             for obj in bucket.objects.filter(Prefix=s3_key_prefix):
+                if obj.key > one_year_ago_key:
+                    break
                 s3_keys.append(obj.key)
         return s3_keys
 
