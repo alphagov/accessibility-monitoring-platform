@@ -13,9 +13,9 @@ S3_KEY_PREFIX: str = "aws_aurora_backup/"
 FIRST_BACKUP_YEAR: int = 2023
 
 
-class S3RemoveOldBackups(S3Wrapper):
+class S3Housekeeping(S3Wrapper):
     def get_s3_keys(self) -> list[str]:
-        bucket = self.s3_resource.Bucket(self.bucket)
+        bucket = self.s3_resource.Bucket(self.bucket_name)
         s3_keys: list[str] = []
         today: date = date.today()
         one_year_ago_key: str = (
@@ -30,13 +30,13 @@ class S3RemoveOldBackups(S3Wrapper):
         return s3_keys
 
     def delete_key(self, s3_key: str) -> None:
-        self.s3_client.delete_object(Bucket=self.bucket, Key=s3_key)
+        self.s3_client.delete_object(Bucket=self.bucket_name, Key=s3_key)
 
 
 def rm_old_db_backups():
     """Delete database backups over one year old from S3"""
-    s3_remove_backups: S3RemoveOldBackups = S3RemoveOldBackups()
-    s3_keys: list[str] = s3_remove_backups.get_s3_keys()
+    s3_housekeeping: S3Housekeeping = S3Housekeeping()
+    s3_keys: list[str] = s3_housekeeping.get_s3_keys()
 
     logger.info("%d S3 keys found", len(s3_keys))
     if len(s3_keys) > 0:
@@ -44,7 +44,7 @@ def rm_old_db_backups():
         logger.info("Last key: %s", s3_keys[-1])
 
     for s3_key in s3_keys:
-        s3_remove_backups.delete_key(s3_key=s3_key)
+        s3_housekeeping.delete_key(s3_key=s3_key)
 
 
 class Command(BaseCommand):
