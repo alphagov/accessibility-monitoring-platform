@@ -33,7 +33,7 @@ class S3Housekeeping(S3Wrapper):
         self.s3_client.delete_object(Bucket=self.bucket_name, Key=s3_key)
 
 
-def rm_old_db_backups():
+def rm_old_db_backups(dry_run: bool = False):
     """Delete database backups over one year old from S3"""
     s3_housekeeping: S3Housekeeping = S3Housekeeping()
     s3_keys: list[str] = s3_housekeeping.get_s3_keys()
@@ -43,13 +43,22 @@ def rm_old_db_backups():
         logger.info("First key: %s", s3_keys[0])
         logger.info("Last key: %s", s3_keys[-1])
 
-    for s3_key in s3_keys:
-        s3_housekeeping.delete_key(s3_key=s3_key)
+    if dry_run is False:
+        for s3_key in s3_keys:
+            s3_housekeeping.delete_key(s3_key=s3_key)
 
 
 class Command(BaseCommand):
     """Django command to perform housekeeping"""
 
-    def handle(self, *args, **options):
+    help = "Housekeeping: Delete old database backups from S3"
 
-        rm_old_db_backups()
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--dry-run", action="store_true", help="Run without updates"
+        )
+
+    def handle(self, *args, **options):
+        dry_run: bool = options["dry_run"]
+
+        rm_old_db_backups(dry_run=dry_run)

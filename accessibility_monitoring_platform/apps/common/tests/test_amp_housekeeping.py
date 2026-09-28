@@ -16,9 +16,16 @@ FILE_BODY: bytes = b"contents"
 MOCK_DATE: date = date(2026, 4, 1)
 
 
+@pytest.mark.parametrize(
+    "dry_run, expected_result",
+    [
+        (True, [FILE_TO_DELETE_KEY, FILE_TO_KEEP_KEY]),
+        (False, [FILE_TO_KEEP_KEY]),
+    ],
+)
 @pytest.mark.django_db
 @mock_aws
-def test_rm_old_db_backups():
+def test_rm_old_db_backups(dry_run: bool, expected_result: list[str]):
     connection = boto3.resource("s3", region_name="us-east-1")
     bucket = connection.Bucket(BUCKET_NAME)
     bucket.create()
@@ -34,10 +41,10 @@ def test_rm_old_db_backups():
     ) as mock_date:
         mock_date.today.return_value = MOCK_DATE
 
-        rm_old_db_backups()
+        rm_old_db_backups(dry_run=dry_run)
 
         keys: list[str] = [
             obj.key for obj in bucket.objects.filter(Prefix=S3_KEY_PREFIX)
         ]
 
-        assert keys == [FILE_TO_KEEP_KEY]
+        assert keys == expected_result
