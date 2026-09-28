@@ -1,4 +1,4 @@
-"""Delete old database backups from S3"""
+"""Housekeeping: Delete old database backups from S3"""
 
 import logging
 from datetime import date
@@ -33,18 +33,23 @@ class S3RemoveOldBackups(S3Wrapper):
         self.s3_client.delete_object(Bucket=self.bucket, Key=s3_key)
 
 
+def rm_old_db_backups():
+    """Delete database backups over one year old from S3"""
+    s3_remove_backups: S3RemoveOldBackups = S3RemoveOldBackups()
+    s3_keys: list[str] = s3_remove_backups.get_s3_keys()
+
+    logger.info("%d S3 keys found", len(s3_keys))
+    if len(s3_keys) > 0:
+        logger.info("First key: %s", s3_keys[0])
+        logger.info("Last key: %s", s3_keys[-1])
+
+    for s3_key in s3_keys:
+        s3_remove_backups.delete_key(s3_key=s3_key)
+
+
 class Command(BaseCommand):
-    """Django command to remove old database backups"""
+    """Django command to perform housekeeping"""
 
     def handle(self, *args, **options):
 
-        s3_remove_backups: S3RemoveOldBackups = S3RemoveOldBackups()
-        s3_keys: list[str] = s3_remove_backups.get_s3_keys()
-
-        logger.info("%d S3 keys found", len(s3_keys))
-        if len(s3_keys) > 0:
-            logger.info("First key: %s", s3_keys[0])
-            logger.info("Last key: %s", s3_keys[-1])
-
-        for s3_key in s3_keys:
-            s3_remove_backups.delete_key(s3_key=s3_key)
+        rm_old_db_backups()
