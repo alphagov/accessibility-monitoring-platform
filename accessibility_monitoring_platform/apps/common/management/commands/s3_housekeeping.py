@@ -11,11 +11,12 @@ logger = logging.getLogger(__name__)
 
 S3_KEY_PREFIX: str = "aws_aurora_backup/"
 FIRST_BACKUP_YEAR: int = 2023
+DELETE_CHUNK_SIZE: int = 600
 
 
 class S3DBBackup(S3Wrapper):
     def get_s3_keys(self) -> list[str]:
-        bucket = self.s3_resource.Bucket(self.bucket_name)
+        self.s3_bucket = self.s3_resource.Bucket(self.bucket_name)
         s3_keys: list[str] = []
         today: date = date.today()
         one_year_ago_key: str = (
@@ -23,14 +24,27 @@ class S3DBBackup(S3Wrapper):
         )
         for year in range(FIRST_BACKUP_YEAR, today.year):
             s3_key_prefix: str = f"{S3_KEY_PREFIX}{year}"
-            for obj in bucket.objects.filter(Prefix=s3_key_prefix):
+            for obj in self.s3_bucket.objects.filter(Prefix=s3_key_prefix):
                 if obj.key > one_year_ago_key:
                     break
                 s3_keys.append(obj.key)
         return s3_keys
 
-    def delete_key(self, s3_key: str) -> None:
-        self.s3_client.delete_object(Bucket=self.bucket_name, Key=s3_key)
+    def delete_keys(self, dry_run: bool, s3_keys: list[str]) -> None:
+        """Delete objects in batches"""
+        s3_keys_chunks: list[list[str]] = [
+            s3_keys[i : i + DELETE_CHUNK_SIZE]
+            for i in range(0, len(s3_keys), DELETE_CHUNK_SIZE)
+        ]
+        for s3_keys_chunk in s3_keys_chunks:
+            if len(s3_keys_chunk) > 1:
+                logger.info(
+                    "Deleting from %s to %s", s3_keys_chunk[0], s3_keys_chunk[-1]
+                )
+            if dry_run is False:
+                self.s3_bucket.delete_objects(
+                    Delete={"Objects": [{"Key": s3_key} for s3_key in s3_keys_chunk]}
+                )
 
 
 def rm_old_db_backups(dry_run: bool = False):
@@ -43,9 +57,7 @@ def rm_old_db_backups(dry_run: bool = False):
         logger.info("First key: %s", s3_keys[0])
         logger.info("Last key: %s", s3_keys[-1])
 
-    if dry_run is False:
-        for s3_key in s3_keys:
-            s3_db_backup.delete_key(s3_key=s3_key)
+    s3_db_backup.delete_keys(dry_run=dry_run, s3_keys=s3_keys)
 
 
 class Command(BaseCommand):
