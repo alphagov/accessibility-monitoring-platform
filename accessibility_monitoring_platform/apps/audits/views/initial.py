@@ -405,7 +405,9 @@ class InitialDeleteStatementPageUpdateView(DeleteStatementPageUpdateView):
         statement_page: StatementPage = self.object
         return reverse(
             "audits:edit-statement-pages",
-            kwargs={"pk": statement_page.id},
+            kwargs={
+                "pk": statement_page.simplified_case.audit_overview.initial_statement_audit.id
+            },
         )
 
 

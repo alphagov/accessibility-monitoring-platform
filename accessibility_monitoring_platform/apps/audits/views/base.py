@@ -419,13 +419,18 @@ class AddStatementLinkUpdateView(StatementAuditUpdateView):
             else:
                 added_stage: StatementPage.AddedStage = StatementPage.AddedStage.RETEST
             statement_url: str = statement_link_form.cleaned_data["statement_url"]
-            if (
-                statement_url
-                and StatementPage.objects.filter(
+            existing_statement_page: StatementPage | None = (
+                StatementPage.objects.filter(
                     simplified_case=simplified_case, url=statement_url
                 ).first()
-                is None
+            )
+            if (
+                existing_statement_page is not None
+                and existing_statement_page.is_deleted is True
             ):
+                existing_statement_page.is_deleted = False
+                existing_statement_page.save()
+            if statement_url and existing_statement_page is None:
                 statement_page: StatementPage = StatementPage.objects.create(
                     simplified_case=simplified_case,
                     audit_overview=simplified_case.audit_overview,
