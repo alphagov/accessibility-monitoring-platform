@@ -7,7 +7,7 @@ import boto3
 import pytest
 from moto import mock_aws
 
-from ..management.commands.amp_housekeeping import S3_KEY_PREFIX, rm_old_db_backups
+from ..management.commands.s3_housekeeping import S3_KEY_PREFIX, rm_old_db_backups
 
 BUCKET_NAME: str = "bucketname"
 FILE_TO_DELETE_KEY: str = f"{S3_KEY_PREFIX}20250401"
@@ -37,7 +37,7 @@ def test_rm_old_db_backups(dry_run: bool, expected_result: list[str]):
     assert keys == [FILE_TO_DELETE_KEY, FILE_TO_KEEP_KEY]
 
     with patch(
-        "accessibility_monitoring_platform.apps.common.management.commands.amp_housekeeping.date"
+        "accessibility_monitoring_platform.apps.common.management.commands.s3_housekeeping.date"
     ) as mock_date:
         mock_date.today.return_value = MOCK_DATE
 
