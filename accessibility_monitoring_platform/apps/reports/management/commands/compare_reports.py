@@ -33,6 +33,7 @@ class Command(BaseCommand):
                     "v1_6_0__20250122",
                     "v1_7_0__20250416",
                     "v1_8_0__20250424",
+                    "v1_9_0__20250917",
                 ]:
                     reports = Report.objects.filter(report_version=report_version)
                     if reports.count() == 0:
