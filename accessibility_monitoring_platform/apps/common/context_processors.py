@@ -19,6 +19,19 @@ from ..notifications.utils import get_number_of_tasks
 from .forms import AMPTopMenuForm
 
 
+class AmpWatermark:
+    left: str = ""
+    right: str = ""
+
+    def __init__(self, amp_viewer_domain: str):
+        if amp_viewer_domain.startswith("reports-test"):
+            self.left = "TEST"
+            self.right = "PLATFORM"
+        elif amp_viewer_domain.startswith("proto"):
+            self.left = amp_viewer_domain[0:10].upper()
+            self.right = "PROTOTYPE"
+
+
 @dataclass
 class PlatformPageContext:
     today: datetime
@@ -31,6 +44,7 @@ class PlatformPageContext:
     custom_footer_links: QuerySet[FooterLink]
     sitemap: Sitemap
     case: BaseCase | None
+    amp_watermark: AmpWatermark
 
 
 def platform_page(
@@ -55,5 +69,6 @@ def platform_page(
             custom_footer_links=FooterLink.objects.filter(is_deleted=False),
             sitemap=sitemap,
             case=sitemap.current_platform_page.get_case(),
+            amp_watermark=AmpWatermark(amp_viewer_domain=settings.AMP_VIEWER_DOMAIN),
         )
     )
