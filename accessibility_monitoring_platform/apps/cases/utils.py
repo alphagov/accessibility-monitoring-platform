@@ -136,20 +136,20 @@ class S3ReadWriteFile(S3Wrapper):
 
         self.s3_client.put_object(
             Body=file_content,
-            Bucket=self.bucket,
+            Bucket=self.bucket_name,
             Key=case_file.s3_key,
         )
 
     def check_case_file_on_s3(self, case_file: CaseFile) -> bool:
         try:
-            self.s3_client.head_object(Bucket=self.bucket, Key=case_file.s3_key)
+            self.s3_client.head_object(Bucket=self.bucket_name, Key=case_file.s3_key)
             return True
         except self.s3_client.exceptions.ClientError:
             return False
 
     def read_case_file_from_s3(self, case_file: CaseFile) -> bytes | str:
         try:
-            s3_object: Any = self.s3_resource.Object(self.bucket, case_file.s3_key)
+            s3_object: Any = self.s3_resource.Object(self.bucket_name, case_file.s3_key)
             return s3_object.get()["Body"].read()
         except self.s3_client.exceptions.NoSuchKey:
             logger.error("Key not found on S3: %s", case_file.s3_key)

@@ -660,7 +660,7 @@ def test_writing_to_s3():
     )
 
     s3_object: Any = s3_read_write.s3_resource.Object(
-        s3_read_write.bucket, case_file.s3_key
+        s3_read_write.bucket_name, case_file.s3_key
     )
 
     assert s3_object.get()["Body"].read().decode() == DOCUMENT_CONTENT

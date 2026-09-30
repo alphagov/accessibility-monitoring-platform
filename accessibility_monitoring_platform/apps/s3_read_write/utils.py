@@ -40,7 +40,7 @@ class S3ReadWriteReport(S3Wrapper):
 
         self.s3_client.put_object(
             Body=html_content,
-            Bucket=self.bucket,
+            Bucket=self.bucket_name,
             Key=s3_url_for_report,
         )
 
@@ -61,7 +61,7 @@ class S3ReadWriteReport(S3Wrapper):
         if S3Report.objects.filter(guid=guid).exists():
             s3file = S3Report.objects.get(guid=guid)
             try:
-                obj = self.s3_resource.Object(self.bucket, s3file.s3_directory)
+                obj = self.s3_resource.Object(self.bucket_name, s3file.s3_directory)
                 return obj.get()["Body"].read().decode("utf-8")
             except self.s3_client.exceptions.NoSuchKey:
                 return NO_REPORT_HTML

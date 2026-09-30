@@ -13,16 +13,16 @@ logger = logging.getLogger(__name__)
 class S3UpdateKey(S3Wrapper):
     def check_file_on_s3(self, old_key: str) -> bool:
         try:
-            self.s3_client.head_object(Bucket=self.bucket, Key=old_key)
+            self.s3_client.head_object(Bucket=self.bucket_name, Key=old_key)
             return True
         except self.s3_client.exceptions.ClientError:
             return False
 
     def update_key(self, old_key: str, new_key: str) -> None:
         self.s3_resource.meta.client.copy(
-            {"Bucket": self.bucket, "Key": old_key}, self.bucket, new_key
+            {"Bucket": self.bucket_name, "Key": old_key}, self.bucket_name, new_key
         )
-        self.s3_client.delete_object(Bucket=self.bucket, Key=old_key)
+        self.s3_client.delete_object(Bucket=self.bucket_name, Key=old_key)
 
 
 def correct_report_s3_keys(apps, schema_editor):

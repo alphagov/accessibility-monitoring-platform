@@ -29,10 +29,10 @@ class S3Wrapper:
         # Creates bucket for unit testing, integration testing, and local development
         if settings.DEBUG or settings.UNDER_TEST or settings.DOCKER_COMPOSE:
             response = self.s3_client.list_buckets()
-            bucket_names = [bucket["Name"] for bucket in response["Buckets"]]
+            bucket_names: list[str] = [bucket["Name"] for bucket in response["Buckets"]]
             if settings.DATABASES["aws-s3-bucket"]["bucket_name"] not in bucket_names:
                 self.s3_client.create_bucket(
                     Bucket=settings.DATABASES["aws-s3-bucket"]["bucket_name"],
                 )
 
-        self.bucket: str = settings.DATABASES["aws-s3-bucket"]["bucket_name"]
+        self.bucket_name: str = settings.DATABASES["aws-s3-bucket"]["bucket_name"]
