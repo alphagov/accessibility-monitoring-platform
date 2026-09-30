@@ -189,17 +189,7 @@ def test_dashboard_shows_warning_of_recent_changes_to_platform(admin_client):
     assert response.status_code == 200
 
     assertContains(
-        response,
-        f"""<div class="govuk-warning-text">
-            <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-            <strong class="govuk-warning-text__text">
-                <span class="govuk-warning-text__assistive">Warning</span>
-                An update has been made to the platform. View the update in
-                <a href="{reverse("common:platform-history")}" class="govuk-link govuk-link--no-visited-state">
-                    Settings &gt; Platform version history</a>
-            </strong>
-        </div>""",
-        html=True,
+        response, "The platform has been updated to Recent change", html=True
     )
 
 

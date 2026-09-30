@@ -5,20 +5,17 @@
 {% block content %}
 <div class="govuk-width-container">
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
-        {% if recent_changes_to_platform %}
+        {% if most_recent_change_to_platform %}
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-full">
-                    <div class="govuk-warning-text">
-                        <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
-                        <strong class="govuk-warning-text__text">
-                            <span class="govuk-warning-text__assistive">Warning</span>
-                            An update has been made to the platform. View the update in
-                            <a href="{% url 'common:platform-history' %}" class="govuk-link govuk-link--no-visited-state">
-                                Settings > Platform version history</a>
-                        </strong>
-                    </div>
+            <details class="govuk-details amp-margin-bottom-10" data-module="govuk-details">
+                <summary class="govuk-details__summary">
+                    <span class="govuk-details__summary-text">The platform has been updated to {{ most_recent_change_to_platform.name }}</span>
+                </summary>
+                <div class="govuk-details__text">
+                    {{ most_recent_change_to_platform.notes|markdown_to_html }}
                 </div>
-            </div>
+            </details>
         {% endif %}
         <div class="govuk-grid-row amp-margin-bottom-30">
             {% if mfa_disabled %}

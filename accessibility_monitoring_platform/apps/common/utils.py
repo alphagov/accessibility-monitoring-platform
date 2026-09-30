@@ -14,7 +14,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import models
-from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.http.request import QueryDict
 from django.utils import timezone
@@ -125,10 +124,9 @@ def get_platform_settings() -> Platform:
     return platform
 
 
-def get_recent_changes_to_platform() -> QuerySet[ChangeToPlatform]:
-    """Find platform changes made in last 24 hours"""
-    twenty_four_hours_ago: datetime = timezone.now() - timedelta(hours=24)
-    return ChangeToPlatform.objects.filter(created__gte=twenty_four_hours_ago)
+def get_most_recent_change_to_platform() -> ChangeToPlatform | None:
+    """Find most recent change to platform"""
+    return ChangeToPlatform.objects.all().first()
 
 
 def get_days_ago_timestamp(days: int = 30) -> datetime:
