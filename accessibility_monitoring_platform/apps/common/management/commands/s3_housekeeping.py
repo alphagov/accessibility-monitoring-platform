@@ -52,6 +52,7 @@ def rm_old_db_backups(dry_run: bool = False):
     s3_db_backup: S3DBBackup = S3DBBackup()
     s3_keys: list[str] = s3_db_backup.get_s3_keys()
 
+    logger.info("Processing bucket: %s", s3_db_backup.bucket_name)
     logger.info("%d S3 keys found", len(s3_keys))
     if len(s3_keys) > 0:
         logger.info("First key: %s", s3_keys[0])
