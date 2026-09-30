@@ -421,7 +421,7 @@ class AddStatementLinkUpdateView(StatementAuditUpdateView):
             statement_url: str = statement_link_form.cleaned_data["statement_url"]
             existing_statement_page: StatementPage | None = (
                 StatementPage.objects.filter(
-                    simplified_case=simplified_case, url=statement_url
+                    audit_overview=simplified_case.audit_overview, url=statement_url
                 ).first()
             )
             if (
@@ -432,7 +432,6 @@ class AddStatementLinkUpdateView(StatementAuditUpdateView):
                 existing_statement_page.save()
             if statement_url and existing_statement_page is None:
                 statement_page: StatementPage = StatementPage.objects.create(
-                    simplified_case=simplified_case,
                     audit_overview=simplified_case.audit_overview,
                     url=statement_url,
                     added_stage=added_stage,
@@ -467,7 +466,7 @@ class DeleteStatementPageUpdateView(UpdateView):
         record_simplified_model_update_event(
             user=self.request.user,
             model_object=self.object,
-            simplified_case=self.object.simplified_case,
+            simplified_case=self.object.audit_overview.simplified_case,
         )
         return super().form_valid(form)
 

@@ -1513,7 +1513,6 @@ def test_latest_statement_frequently_used_link(admin_client):
     assertNotContains(response, "Latest accessibility statement")
 
     StatementPage.objects.create(
-        simplified_case=simplified_case,
         audit_overview=audit_overview,
         url="https://example.com/statement",
     )
