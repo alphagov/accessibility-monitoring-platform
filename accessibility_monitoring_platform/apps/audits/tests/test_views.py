@@ -788,6 +788,61 @@ def test_add_statement_link(url_name, audit_round_type, added_stage, admin_clien
 
 
 @pytest.mark.parametrize(
+    "url_name,audit_round_type,added_stage",
+    [
+        (
+            "audits:edit-statement-pages",
+            StatementAudit.AuditRoundType.INITIAL,
+            StatementPage.AddedStage.INITIAL,
+        ),
+        (
+            "audits:edit-audit-retest-statement-pages",
+            StatementAudit.AuditRoundType.TWELVE_WEEK,
+            StatementPage.AddedStage.TWELVE_WEEK,
+        ),
+        (
+            "audits:edit-equality-body-statement-pages",
+            StatementAudit.AuditRoundType.EQUALITY_BODY,
+            StatementPage.AddedStage.RETEST,
+        ),
+    ],
+)
+def test_add_statement_link_undeletes(
+    url_name, audit_round_type, added_stage, admin_client
+):
+    """Test that add statement link views undeletes statement link with matching URL"""
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case, audit_round_type=audit_round_type
+    )
+    deleted_statement_page: StatementPage = StatementPage.objects.create(
+        simplified_case=statement_audit.simplified_case,
+        audit_overview=statement_audit.simplified_case.audit_overview,
+        url=STATEMENT_PAGE_URL,
+        is_deleted=True,
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse(url_name, kwargs={"pk": statement_audit.id}),
+        {
+            "version": statement_audit.version,
+            "statement_url": STATEMENT_PAGE_URL,
+            "save": "Save",
+        },
+    )
+
+    assert response.status_code == 302
+
+    assert StatementPage.objects.filter(url=STATEMENT_PAGE_URL).count() == 1
+
+    statement_page: StatementPage = StatementPage.objects.get(
+        id=deleted_statement_page.id
+    )
+
+    assert statement_page.is_deleted is False
+
+
+@pytest.mark.parametrize(
     "url_name",
     [
         "audits:initial-statement-backup",
