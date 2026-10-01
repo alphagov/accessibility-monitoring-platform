@@ -10,7 +10,6 @@ from accessibility_monitoring_platform.apps.common.s3_utils import S3Wrapper
 logger = logging.getLogger(__name__)
 
 S3_KEY_PREFIX: str = "aws_aurora_backup/"
-FIRST_BACKUP_YEAR: int = 2023
 DELETE_CHUNK_SIZE: int = 600
 
 
@@ -22,12 +21,10 @@ class S3DBBackup(S3Wrapper):
         one_year_ago_key: str = (
             f"{S3_KEY_PREFIX}{today.year - 1}{today.month:02d}{today.day:02d}"
         )
-        for year in range(FIRST_BACKUP_YEAR, today.year):
-            s3_key_prefix: str = f"{S3_KEY_PREFIX}{year}"
-            for obj in self.s3_bucket.objects.filter(Prefix=s3_key_prefix):
-                if obj.key > one_year_ago_key:
-                    break
-                s3_keys.append(obj.key)
+        for obj in self.s3_bucket.objects.filter(Prefix=S3_KEY_PREFIX):
+            if obj.key > one_year_ago_key:
+                break
+            s3_keys.append(obj.key)
         return s3_keys
 
     def delete_keys(self, dry_run: bool, s3_keys: list[str]) -> None:
