@@ -180,17 +180,14 @@ def test_dashboard_shows_link_to_completed_cases(admin_client, admin_user):
     )
 
 
-def test_dashboard_shows_warning_of_recent_changes_to_platform(admin_client):
-    """Check dashboard contains link to find completed cases"""
-    ChangeToPlatform.objects.create(name="Recent change")
+def test_dashboard_shows_most_recent_change_to_platform(admin_client):
+    ChangeToPlatform.objects.create(version="v1.0.0")
 
     response: HttpResponse = admin_client.get(reverse("dashboard:home"))
 
     assert response.status_code == 200
 
-    assertContains(
-        response, "The platform has been updated to Recent change", html=True
-    )
+    assertContains(response, "The platform has been updated to v1.0.0", html=True)
 
 
 def test_dashboard_shows_correct_links_to_tasks(admin_client, admin_user):

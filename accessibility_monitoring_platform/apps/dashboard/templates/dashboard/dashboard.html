@@ -9,11 +9,14 @@
             <details class="govuk-details amp-margin-bottom-10" data-module="govuk-details">
                 <summary class="govuk-details__summary">
                     <span class="govuk-details__summary-text">
-                        The platform has been updated to {{ most_recent_change_to_platform.name }}
+                        The platform has been updated to {{ most_recent_change_to_platform.version }}
                     </span>
                 </summary>
-                <div class="govuk-details__text amp-notes">
-                    {{ most_recent_change_to_platform.notes|markdown_to_html }}
+                <div class="govuk-details__text">
+                    <div class="amp-notes amp-margin-bottom-20">{{ most_recent_change_to_platform.notes|markdown_to_html }}</div>
+                    <p class="govuk-body">
+                        <a href="{% url 'common:platform-history' %}" class="govuk-link govuk-link--no-visited-state">View all updates</a>
+                    </p>
                 </div>
             </details>
         {% endif %}
