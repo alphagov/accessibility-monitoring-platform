@@ -767,6 +767,9 @@ def test_add_statement_link(url_name, audit_round_type, added_stage, admin_clien
     statement_audit: StatementAudit = StatementAudit.objects.create(
         simplified_case=simplified_case, audit_round_type=audit_round_type
     )
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
 
     response: HttpResponse = admin_client.post(
         reverse(url_name, kwargs={"pk": statement_audit.id}),
@@ -780,7 +783,7 @@ def test_add_statement_link(url_name, audit_round_type, added_stage, admin_clien
     assert response.status_code == 302
 
     statement_page: StatementPage = StatementPage.objects.get(
-        simplified_case=statement_audit.simplified_case
+        audit_overview=audit_overview
     )
 
     assert statement_page.url == STATEMENT_PAGE_URL
@@ -811,12 +814,8 @@ def test_add_statement_link_undeletes(
     url_name, audit_round_type, added_stage, admin_client
 ):
     """Test that add statement link views undeletes statement link with matching URL"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case, audit_round_type=audit_round_type
-    )
+    statement_audit: StatementAudit = create_initial_statement_audit()
     deleted_statement_page: StatementPage = StatementPage.objects.create(
-        simplified_case=statement_audit.simplified_case,
         audit_overview=statement_audit.simplified_case.audit_overview,
         url=STATEMENT_PAGE_URL,
         is_deleted=True,
@@ -1398,7 +1397,6 @@ def test_audit_retest_statement_overview_updates_statement_checkresult(
     }
 
     StatementPage.objects.create(
-        simplified_case=simplified_case,
         audit_overview=simplified_case.audit_overview,
         added_stage=StatementPage.AddedStage.INITIAL,
     )
@@ -1463,7 +1461,6 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
     }
 
     StatementPage.objects.create(
-        simplified_case=simplified_case,
         audit_overview=simplified_case.audit_overview,
         added_stage=StatementPage.AddedStage.TWELVE_WEEK,
         url="https://www.website.com/statement",
@@ -1801,8 +1798,8 @@ def test_initial_statement_page_url_creates_statement_page(admin_client):
             wcag_audit=wcag_audit,
             page_type=page_type,
         )
-    AuditOverview.objects.create(
-        simplified_case=simplified_case,
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
     )
     wcag_page_initial: WcagPageInitial = (
         wcag_audit.accessibility_statement_wcag_page_initial
@@ -1839,7 +1836,7 @@ def test_initial_statement_page_url_creates_statement_page(admin_client):
     assert wcag_page_initial.url == STATEMENT_PAGE_URL
 
     statement_page: StatementPage = StatementPage.objects.get(
-        simplified_case=simplified_case
+        audit_overview=audit_overview
     )
 
     assert statement_page.url == STATEMENT_PAGE_URL
@@ -1857,7 +1854,6 @@ def test_page_url_changes_do_not_create_statement_page(admin_client):
     wcag_page_initial_statement.url = ""
     wcag_page_initial_statement.save()
     StatementPage.objects.create(
-        simplified_case=wcag_audit.simplified_case,
         audit_overview=wcag_audit.simplified_case.audit_overview,
     )
 
@@ -1890,7 +1886,7 @@ def test_page_url_changes_do_not_create_statement_page(admin_client):
     assert wcag_page_initial_statement.url == STATEMENT_PAGE_URL
 
     statement_page: StatementPage = StatementPage.objects.get(
-        simplified_case=wcag_audit.simplified_case
+        audit_overview=wcag_audit.simplified_case.audit_overview
     )
 
     assert statement_page.url == ""
@@ -4617,16 +4613,10 @@ def test_statement_page_removal_renders(
     url_name, audit_round_type, added_stage, admin_client
 ):
     """Test that remove statement link pages render"""
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    StatementAudit.objects.create(
-        simplified_case=simplified_case, audit_round_type=audit_round_type
-    )
-    audit_overview: AuditOverview = AuditOverview.objects.create(
-        simplified_case=simplified_case
-    )
+    statement_audit: StatementAudit = create_initial_statement_audit()
+    create_retest_statement_audit(initial_statement_audit=statement_audit)
     statement_page: StatementPage = StatementPage.objects.create(
-        simplified_case=simplified_case,
-        audit_overview=audit_overview,
+        audit_overview=statement_audit.simplified_case.audit_overview,
         added_stage=added_stage,
     )
     response: HttpResponse = admin_client.get(
@@ -4646,7 +4636,7 @@ def test_initial_statement_page_removal(admin_client):
         simplified_case=simplified_case
     )
     statement_page: StatementPage = StatementPage.objects.create(
-        simplified_case=simplified_case, audit_overview=audit_overview
+        audit_overview=audit_overview
     )
 
     response: HttpResponse = admin_client.post(
@@ -4680,7 +4670,7 @@ def test_twelve_week_statement_page_removal(admin_client):
         simplified_case=simplified_case
     )
     statement_page: StatementPage = StatementPage.objects.create(
-        simplified_case=simplified_case, audit_overview=audit_overview
+        audit_overview=audit_overview
     )
 
     response: HttpResponse = admin_client.post(
@@ -4712,7 +4702,7 @@ def test_equality_body_retest_statement_page_removal(admin_client):
     )
     simplified_case: SimplifiedCase = wcag_audit.simplified_case
     statement_page: StatementPage = StatementPage.objects.create(
-        simplified_case=simplified_case, audit_overview=simplified_case.audit_overview
+        audit_overview=simplified_case.audit_overview
     )
 
     response: HttpResponse = admin_client.post(
@@ -5008,7 +4998,7 @@ def test_equality_body_retest_statement_page_removal_renders(admin_client):
     )
     simplified_case: SimplifiedCase = wcag_audit.simplified_case
     statement_page: StatementPage = StatementPage.objects.create(
-        simplified_case=simplified_case, audit_overview=simplified_case.audit_overview
+        audit_overview=simplified_case.audit_overview
     )
     response: HttpResponse = admin_client.get(
         reverse(

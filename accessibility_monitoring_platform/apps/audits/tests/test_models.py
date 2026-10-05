@@ -220,7 +220,7 @@ def test_audit_overview_statement_pages():
     assert audit_overview.statement_pages.count() == 0
 
     statement_page: StatementPage = StatementPage.objects.create(
-        simplified_case=simplified_case, audit_overview=audit_overview
+        audit_overview=audit_overview
     )
 
     assert audit_overview.statement_pages.count() == 1
@@ -241,7 +241,6 @@ def test_audit_overview_latest_statement_link():
     assert audit_overview.latest_statement_link is None
 
     StatementPage.objects.create(
-        simplified_case=simplified_case,
         audit_overview=audit_overview,
         url=STATEMENT_PAGE_URL,
     )
@@ -249,7 +248,6 @@ def test_audit_overview_latest_statement_link():
     assert audit_overview.latest_statement_link == STATEMENT_PAGE_URL
 
     StatementPage.objects.create(
-        simplified_case=simplified_case,
         audit_overview=audit_overview,
     )
 
@@ -346,7 +344,6 @@ def test_audit_overview_accessibility_statement_found():
     assert audit_overview.accessibility_statement_found is False
 
     statement_page: StatementPage = StatementPage.objects.create(
-        simplified_case=simplified_case,
         audit_overview=audit_overview,
     )
 
