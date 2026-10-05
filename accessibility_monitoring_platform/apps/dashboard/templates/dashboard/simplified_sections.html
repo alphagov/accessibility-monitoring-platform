@@ -3,7 +3,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-three-quarters">
                 <h2 id="cases-status-unknown" class="govuk-heading-m">
-                    Unknown - {{ cases_by_status.unknown|length }}
+                    Unknown · {{ cases_by_status.unknown|length }}
                 </h2>
             </div>
             <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
@@ -18,7 +18,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-three-quarters">
                 <h2 id="cases-status-unassigned" class="govuk-heading-m">
-                    Unassigned cases - {{ cases_by_status.unassigned_case|length }}
+                    Unassigned cases · {{ cases_by_status.unassigned_case|length }}
                 </h2>
             </div>
             <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
@@ -33,7 +33,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-three-quarters">
                 <h2 id="cases-status-test-in-progress" class="govuk-heading-m">
-                    Tests in progress - {{ cases_by_status.test_in_progress|length }}
+                    Tests in progress · {{ cases_by_status.test_in_progress|length }}
                 </h2>
             </div>
             <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
@@ -48,7 +48,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-three-quarters">
                 <h2 id="cases-status-reports-in-progress" class="govuk-heading-m">
-                    Reports in progress - {{ cases_by_status.reports_in_progress|length }}
+                    Reports in progress · {{ cases_by_status.reports_in_progress|length }}
                 </h2>
             </div>
             <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
@@ -63,7 +63,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-three-quarters">
                 <h2 id="cases-status-qa-in-progress" class="govuk-heading-m">
-                    QA in progress - {{ cases_by_status.qa_in_progress|length }}
+                    QA in progress · {{ cases_by_status.qa_in_progress|length }}
                 </h2>
             </div>
             <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
@@ -78,7 +78,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-three-quarters">
                 <h2 id="cases-status-report-ready-to-send" class="govuk-heading-m">
-                    Reports ready to send - {{ cases_by_status.report_ready_to_send|length }}
+                    Reports ready to send · {{ cases_by_status.report_ready_to_send|length }}
                 </h2>
             </div>
             <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
@@ -93,7 +93,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-three-quarters">
                 <h2 id="cases-status-in-report-correspondence" class="govuk-heading-m">
-                    Report sent - {{ cases_by_status.in_report_correspondence|length }}
+                    Report sent · {{ cases_by_status.in_report_correspondence|length }}
                 </h2>
             </div>
             <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
@@ -108,7 +108,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-three-quarters">
                 <h2 id="cases-status-in-probation-period" class="govuk-heading-m">
-                    Report acknowledged waiting for 12-week deadline - {{ cases_by_status.in_probation_period|length }}
+                    Waiting for 12-week deadline · {{ cases_by_status.in_probation_period|length }}
                 </h2>
             </div>
             <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
@@ -123,7 +123,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-three-quarters">
                 <h2 id="cases-status-in-12-week-correspondence" class="govuk-heading-m">
-                    After 12-week correspondence - {{ cases_by_status.in_12_week_correspondence|length }}
+                    After 12-week correspondence · {{ cases_by_status.in_12_week_correspondence|length }}
                 </h2>
             </div>
             <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
@@ -138,7 +138,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-three-quarters">
                 <h2 id="cases-status-reviewing-changes" class="govuk-heading-m">
-                    Reviewing changes - {{ cases_by_status.reviewing_changes|length }}
+                    Reviewing changes · {{ cases_by_status.reviewing_changes|length }}
                 </h2>
             </div>
             <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
@@ -153,7 +153,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-three-quarters">
                 <h2 id="cases-status-final-decision-due" class="govuk-heading-m">
-                    Final decision due - {{ cases_by_status.final_decision_due|length }}
+                    Final decision due · {{ cases_by_status.final_decision_due|length }}
                 </h2>
             </div>
             <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
@@ -169,7 +169,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-three-quarters">
                 <h2 id="cases-status-case-closed-waiting-to-be-sent" class="govuk-heading-m">
-                    Case closed and waiting to be sent to equalities body - {{ cases_by_status.case_closed_waiting_to_be_sent|length }}
+                    Waiting to be sent to equalities body · {{ cases_by_status.case_closed_waiting_to_be_sent|length }}
                 </h2>
             </div>
             <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
@@ -184,7 +184,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-three-quarters">
                 <h2 id="cases-status-in-correspondence-with-equalities-body" class="govuk-heading-m">
-                    In correspondence with equalities body - {{ cases_by_status.in_correspondence_with_equalities_body|length }}
+                    In correspondence with equalities body · {{ cases_by_status.in_correspondence_with_equalities_body|length }}
                 </h2>
             </div>
             <div class="govuk-grid-column-one-quarter govuk-button-group amp-flex-end">
