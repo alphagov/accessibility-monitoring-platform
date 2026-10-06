@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 
 from ..cases.models import TestType
-from ..common.utils import checks_if_2fa_is_enabled, get_recent_changes_to_platform
+from ..common.utils import checks_if_2fa_is_enabled, get_most_recent_change_to_platform
 from ..detailed.models import DetailedCase
 from ..mobile.models import MobileCase
 from ..notifications.utils import build_task_list, get_task_type_counts
@@ -123,7 +123,7 @@ class DashboardView(TemplateView):
                 "cases_by_status": cases_by_status,
                 "today": date.today(),
                 "mfa_disabled": not checks_if_2fa_is_enabled(user=user),
-                "recent_changes_to_platform": get_recent_changes_to_platform(),
+                "most_recent_change_to_platform": get_most_recent_change_to_platform(),
                 "task_type_counts": get_task_type_counts(
                     tasks=build_task_list(user=self.request.user)
                 ),
