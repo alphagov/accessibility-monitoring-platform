@@ -196,7 +196,6 @@ class WcagAuditPagesUpdateView(WcagAuditUpdateView):
                     if audit_overview.statement_pages.count() == 0:
                         # Create first statement link
                         statement_page: StatementPage = StatementPage.objects.create(
-                            simplified_case=wcag_audit.simplified_case,
                             audit_overview=audit_overview,
                             url=wcag_page_initial_wcag_audit.url,
                         )
@@ -405,9 +404,7 @@ class InitialDeleteStatementPageUpdateView(DeleteStatementPageUpdateView):
         statement_page: StatementPage = self.object
         return reverse(
             "audits:edit-statement-pages",
-            kwargs={
-                "pk": statement_page.simplified_case.audit_overview.initial_statement_audit.id
-            },
+            kwargs={"pk": statement_page.audit_overview.initial_statement_audit.id},
         )
 
 

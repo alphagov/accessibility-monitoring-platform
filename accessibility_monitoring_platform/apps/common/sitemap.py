@@ -302,6 +302,8 @@ class PlatformPage:
                 self.instance.mobile_case, MobileCase
             ):
                 return self.instance.mobile_case
+            if hasattr(self.instance, "audit_overview"):
+                return self.instance.audit_overview.simplified_case
             if hasattr(self.instance, "wcag_audit"):
                 return self.instance.wcag_audit.simplified_case
             if hasattr(self.instance, "statement_audit"):

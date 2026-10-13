@@ -2423,7 +2423,6 @@ def test_twelve_week_retest_page_shows_if_statement_exists(
     )
 
     StatementPage.objects.create(
-        simplified_case=simplified_case,
         audit_overview=simplified_case.audit_overview,
         added_stage=StatementPage.AddedStage.TWELVE_WEEK,
         url="https://example.com",
@@ -3187,7 +3186,7 @@ def test_navigation_links_shown_for_report_pages(
 
 def test_outstanding_issues(admin_client):
     """
-    Test out standing issues page renders according to URL parameters.
+    Test outstanding issues page renders according to URL parameters.
     """
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
@@ -3258,7 +3257,7 @@ def test_outstanding_issues(admin_client):
 
 def test_outstanding_issues_new_case(admin_client):
     """
-    Test out standing issues page shows placeholder text for case without audit
+    Test outstanding issues page shows placeholder text for case without audit
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     url: str = reverse(
@@ -3270,6 +3269,52 @@ def test_outstanding_issues_new_case(admin_client):
     assert response.status_code == 200
 
     assertContains(response, "This is a new case and does not have any test data.")
+
+
+def test_outstanding_issues_initial_test_only(admin_client):
+    """
+    Test outstanding issues page shows placeholder text for case without retest
+    """
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
+    create_initial_statement_audit(simplified_case=simplified_case)
+    url: str = reverse(
+        "simplified:outstanding-issues", kwargs={"pk": simplified_case.id}
+    )
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """
+        <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top">
+            <b>Issues remaining at 12-weeks</b>
+        </td>
+        <td class="amp-padding-bottom-10">N/A</td>""",
+        html=True,
+    )
+
+    assertContains(
+        response,
+        """
+        <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top">
+            <b>Pages removed at 12-weeks</b>
+        </td>
+        <td class="amp-padding-bottom-10">N/A</td>""",
+        html=True,
+    )
+
+    assertContains(
+        response,
+        """
+        <td class="amp-padding-bottom-10 amp-padding-right-25 amp-min-width-180 amp-vertically-align-top">
+            <b>Issues remaining at 12-weeks</b>
+        </td>
+        <td class="amp-padding-bottom-10">N/A</td>""",
+        html=True,
+    )
 
 
 @pytest.mark.parametrize(
@@ -3941,6 +3986,27 @@ def test_case_overview(admin_client):
     assertContains(
         response,
         """<p class="govuk-body-m amp-margin-bottom-10 govuk-!-font-size-16">Retest test: No statement found</p>""",
+        html=True,
+    )
+
+
+def test_case_overview_initial_test_only(admin_client):
+    """Test case overview shows placeholder text for case without retest"""
+    initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
+    simplified_case: SimplifiedCase = initial_wcag_audit.simplified_case
+    create_initial_statement_audit(simplified_case=simplified_case)
+    url: str = reverse("simplified:case-detail", kwargs={"pk": simplified_case.id})
+
+    response: HttpResponse = admin_client.get(url)
+
+    assert response.status_code == 200
+
+    assertContains(
+        response,
+        """
+        <p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">
+            Retest: N/A
+        </p>""",
         html=True,
     )
 

@@ -216,28 +216,28 @@ def test_dashboard_shows_correct_links_to_tasks(admin_client, admin_user):
                 <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>QA comments unread</b></p>
                 <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
                     0
-                    (<a href="/notifications/task-list/?type=qa-comment" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
+                     · <a href="/notifications/task-list/?type=qa-comment" class="govuk-link govuk-link--no-visited-state">View in task list</a>
                 </p>
             </div>
             <div class="amp-margin-bottom-25">
                 <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Reminders overdue</b></p>
                 <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
                     0
-                    (<a href="/notifications/task-list/?type=reminder" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
+                     · <a href="/notifications/task-list/?type=reminder" class="govuk-link govuk-link--no-visited-state">View in task list</a>
                 </p>
             </div>
             <div class="amp-margin-bottom-25">
                 <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Cases overdue</b></p>
                 <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
                     0
-                    (<a href="/notifications/task-list/?type=overdue" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
+                     · <a href="/notifications/task-list/?type=overdue" class="govuk-link govuk-link--no-visited-state">View in task list</a>
                 </p>
             </div>
             <div>
                 <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10"><b>Post case notifications</b></p>
                 <p class="govuk-body govuk-!-font-size-16 amp-margin-bottom-10">
                     0
-                    (<a href="/notifications/task-list/?type=postcase" class="govuk-link govuk-link--no-visited-state">View in task list</a>)
+                     · <a href="/notifications/task-list/?type=postcase" class="govuk-link govuk-link--no-visited-state">View in task list</a>
                 </p>
             </div>
         """,

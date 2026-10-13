@@ -358,7 +358,7 @@ def test_report_includes_statement_custom_issue(admin_client):
     )
     report: Report = Report.objects.create(base_case=simplified_case)
     StatementPage.objects.create(
-        simplified_case=simplified_case, url="https://example.com"
+        audit_overview=simplified_case.audit_overview, url="https://example.com"
     )
 
     report_pk_kwargs: dict[str, int] = {"pk": report.id}
