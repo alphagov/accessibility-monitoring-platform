@@ -237,7 +237,7 @@ def test_task_list_future_filter(rf):
 
     assert response.status_code == 200
 
-    assertContains(response, "Tasks (1)")
+    assertContains(response, "Tasks  ·  1")
     assertContains(response, DESCRIPTION)
 
 

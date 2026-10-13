@@ -1520,10 +1520,7 @@ class StatementCheckResult(models.Model):
         NO = "no", "No"
         NOT_TESTED = "not-tested", "Not tested"
 
-    audit = models.ForeignKey(Audit, on_delete=models.PROTECT, null=True, blank=True)
-    statement_audit = models.ForeignKey(
-        StatementAudit, on_delete=models.PROTECT, null=True, blank=True
-    )
+    statement_audit = models.ForeignKey(StatementAudit, on_delete=models.PROTECT)
     id_within_case = models.IntegerField(default=0, blank=True)
     issue_identifier = models.CharField(max_length=20, default="")
     statement_check = models.ForeignKey(
@@ -1795,13 +1792,7 @@ class StatementPage(models.Model):
         TWELVE_WEEK = "12-week-retest", "12-week retest"
         RETEST = "retest", "Equality body retest"
 
-    audit = models.ForeignKey(Audit, on_delete=models.PROTECT, null=True)
-    simplified_case = models.ForeignKey(
-        SimplifiedCase, on_delete=models.PROTECT, null=True
-    )
-    audit_overview = models.ForeignKey(
-        AuditOverview, on_delete=models.PROTECT, null=True
-    )
+    audit_overview = models.ForeignKey(AuditOverview, on_delete=models.PROTECT)
     is_deleted = models.BooleanField(default=False)
 
     url = models.TextField(default="", blank=True)

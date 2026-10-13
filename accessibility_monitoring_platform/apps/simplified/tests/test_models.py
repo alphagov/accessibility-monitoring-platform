@@ -1458,9 +1458,7 @@ def test_case_website_contact_links_count():
 
     assert simplified_case.website_contact_links_count == 1
 
-    StatementPage.objects.create(
-        simplified_case=simplified_case, audit_overview=audit_overview, url="url"
-    )
+    StatementPage.objects.create(audit_overview=audit_overview, url="url")
 
     assert simplified_case.website_contact_links_count == 2
 

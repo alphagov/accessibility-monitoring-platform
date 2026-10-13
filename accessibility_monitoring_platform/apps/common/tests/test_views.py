@@ -1513,7 +1513,6 @@ def test_latest_statement_frequently_used_link(admin_client):
     assertNotContains(response, "Latest accessibility statement")
 
     StatementPage.objects.create(
-        simplified_case=simplified_case,
         audit_overview=audit_overview,
         url="https://example.com/statement",
     )
@@ -1541,7 +1540,7 @@ def test_navbar_tasks_emboldened(admin_client, admin_user):
         response,
         """<li>
             <a class="govuk-link govuk-link--no-visited-state" href="/notifications/task-list/">
-                Tasks (0)
+                Tasks · 0
             </a>
         </li>""",
         html=True,
@@ -1563,7 +1562,7 @@ def test_navbar_tasks_emboldened(admin_client, admin_user):
         """<li>
         <b>
             <a class="govuk-link govuk-link--no-visited-state" href="/notifications/task-list/">
-                Tasks (1)
+                Tasks · 1
             </a>
         </b>
         </li>""",

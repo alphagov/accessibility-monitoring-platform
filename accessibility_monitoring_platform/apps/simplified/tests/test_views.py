@@ -2423,7 +2423,6 @@ def test_twelve_week_retest_page_shows_if_statement_exists(
     )
 
     StatementPage.objects.create(
-        simplified_case=simplified_case,
         audit_overview=simplified_case.audit_overview,
         added_stage=StatementPage.AddedStage.TWELVE_WEEK,
         url="https://example.com",

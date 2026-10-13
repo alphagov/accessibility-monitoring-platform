@@ -1828,8 +1828,6 @@
     "model": "audits.statementpage",
     "pk": 2,
     "fields": {
-        "audit": null,
-        "simplified_case": 1,
         "audit_overview": 1,
         "is_deleted": false,
         "url": "https://simplified-org.com/statement",
