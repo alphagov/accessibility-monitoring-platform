@@ -59,6 +59,7 @@ test_report_viewer:
 		&& coverage erase
 
 test:
+	make static_files_process
 	make test_accessibility_monitoring_platform
 	make test_report_viewer
 	pytest terraform_stack/tests
