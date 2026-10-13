@@ -133,13 +133,13 @@ class Platform(models.Model):
 
 
 class ChangeToPlatform(models.Model):
-    """
-    Record of platform changes made and deployed.
-    """
+    """Record of platform changes made and deployed."""
 
-    name = models.CharField(max_length=200)
+    name = models.CharField(default="", max_length=200, blank=True)
     notes = models.TextField(default="", blank=True)
     created = models.DateTimeField(auto_now_add=True)
+    version = models.CharField(default="", max_length=100)
+    date_of_change = models.DateField(blank=True, null=True)
 
     class Meta:
         ordering = ["-id"]
@@ -147,6 +147,11 @@ class ChangeToPlatform(models.Model):
 
     def __str__(self):
         return str(self.name)
+
+    def save(self, *args, **kwargs):
+        if self.id is None and self.name == "" and self.version and self.date_of_change:
+            self.name = f"{self.version} - {self.date_of_change:%-d %B %Y}"
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self) -> str:
         return reverse("common:platform-history")

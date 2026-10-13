@@ -128,9 +128,22 @@ class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
 class ChangeToPlatformAdmin(admin.ModelAdmin):
     """Django admin configuration for ChangeToPlatform model"""
 
-    search_fields = ["name", "notes"]
-    list_display = ["name", "created"]
+    search_fields = ["name", "notes", "version"]
+    list_display = ["name", "version", "date_of_change", "created"]
     date_hierarchy = "created"
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    ("version",),
+                    ("date_of_change"),
+                    ("notes",),
+                    ("name",),
+                )
+            },
+        ),
+    )
 
 
 class UserCacheUniqueHashAdmin(admin.ModelAdmin):
