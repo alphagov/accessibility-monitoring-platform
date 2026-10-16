@@ -6,6 +6,7 @@ Write out reports which differ for detailed comparison.
 Differences found are in WCAG boilerplate text which has changed.
 """
 
+import logging
 from typing import Any
 
 from django.core.management.base import BaseCommand
@@ -13,6 +14,8 @@ from django.template import Template, loader
 
 from ...models import Report
 from ...utils import build_report_context
+
+logging.basicConfig(level=logging.INFO)
 
 
 class Command(BaseCommand):
@@ -37,7 +40,7 @@ class Command(BaseCommand):
                 ]:
                     reports = Report.objects.filter(report_version=report_version)
                     if reports.count() == 0:
-                        print(f"No reports found for {report_version}")
+                        logging.info(f"No reports found for {report_version}")
                     else:
                         for report in [reports.first(), reports.last()]:
                             template: Template = loader.get_template(
@@ -49,7 +52,7 @@ class Command(BaseCommand):
                             html_report: str = template.render(report_context)
                             if report.latest_s3_report is not None:
                                 if report.latest_s3_report.html != html_report:
-                                    print(f"{report} mismatch")
+                                    logging.info(f"{report} mismatch")
                                     old_reports_file.write(
                                         f"<h1>{report} mismatch</h1>"
                                     )
