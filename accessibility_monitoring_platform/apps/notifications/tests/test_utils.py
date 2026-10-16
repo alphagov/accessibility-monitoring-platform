@@ -1102,5 +1102,3 @@ def test_email_all_specialists_all_detailed_reminders_due(mailoutbox):
     assert "First reminder description" in mailoutbox[0].body
     assert "Second reminder description" in mailoutbox[0].body
     assert "Third reminder description" not in mailoutbox[0].body
-
-    # print(mailoutbox[0].message())  # Visible when run with pytest -s

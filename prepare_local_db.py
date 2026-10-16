@@ -1,5 +1,6 @@
 """Prepare Local DB - Downloads the latest db backup and uploads to local postgres instance"""
 
+import logging
 import subprocess
 from datetime import date
 from pathlib import Path
@@ -8,6 +9,9 @@ import boto3
 
 S3_BUCKET: str = "amp-aurora-backup-prod"
 LOCAL_DIR_PATH: Path = Path("data", "s3_files")
+
+logging.basicConfig(level=logging.INFO)
+
 
 if __name__ == "__main__":
     s3_client = boto3.client("s3")
@@ -25,7 +29,7 @@ if __name__ == "__main__":
     local_file_path: Path = LOCAL_DIR_PATH / file_name
 
     if not local_file_path.exists():
-        print(f">>> downloading {s3_path}")
+        logging.info(f">>> downloading {s3_path}")
         s3_client.download_file(S3_BUCKET, s3_path, str(local_file_path))
 
     subprocess.call(

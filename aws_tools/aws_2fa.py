@@ -1,8 +1,11 @@
 import argparse
 import configparser
+import logging
 import os
 
 import boto3
+
+logging.basicConfig(level=logging.INFO)
 
 
 def main(user: str, mfa_token: str):
@@ -26,20 +29,26 @@ def main(user: str, mfa_token: str):
 
     if len(iam_response["MFADevices"]) > 1:
         for n, device in enumerate(iam_response["MFADevices"]):
-            print(f"""#{n+1}: SerialNumber - {device["SerialNumber"]} | EnableDate: {str(device["EnableDate"])}""")
+            logging.info(
+                f"""#{n+1}: SerialNumber - {device["SerialNumber"]} | EnableDate: {str(device["EnableDate"])}"""
+            )
 
         while True:
-            print("Pick which MFA device you want to use:")
+            logging.info("Pick which MFA device you want to use:")
             option = input()
             if option.isdigit() is False:
-                print("Please input a number...")
+                logging.info("Please input a number...")
             elif int(option) > len(iam_response["MFADevices"]):
-                print(f"{option} is greater than the number of options. Please select from the options provided...")
+                logging.info(
+                    f"{option} is greater than the number of options. Please select from the options provided..."
+                )
             elif int(option) <= 0:
-                print("Please input a positive integer...")
+                logging.info("Please input a positive integer...")
             else:
                 option = int(option) - 1
-                print(f""">>> Selected {iam_response["MFADevices"][option]["SerialNumber"]}""")
+                logging.info(
+                    f""">>> Selected {iam_response["MFADevices"][option]["SerialNumber"]}"""
+                )
                 serial_number: str = iam_response["MFADevices"][option]["SerialNumber"]
                 break
     else:
@@ -67,7 +76,7 @@ def main(user: str, mfa_token: str):
     with open(credentials_path, "w", encoding="utf-8") as configfile:
         config.write(configfile)
 
-    print(">>> Saved MFA credentials under mfa profile")
+    logging.info(">>> Saved MFA credentials under mfa profile")
 
 
 if __name__ == "__main__":

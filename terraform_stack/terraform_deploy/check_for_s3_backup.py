@@ -1,8 +1,11 @@
+import logging
 import time
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 
 import boto3
 from botocore.exceptions import ClientError
+
+logger = logging.getLogger("deploy_logger")
 
 
 def wait_for_recent_s3_object(
@@ -47,14 +50,14 @@ def wait_for_recent_s3_object(
                             newest_object = obj
 
             if newest_object:
-                print(
+                logger.info(
                     f"Backup found: s3://{bucket}/{newest_object['Key']} "
                     f"(uploaded {newest_object['LastModified'].isoformat()})"
                 )
                 return newest_object
 
         except ClientError as exc:
-            print(f"Error checking S3: {exc}")
+            logger.info(f"Error checking S3: {exc}")
             raise
 
         elapsed = time.monotonic() - started_at
@@ -68,9 +71,8 @@ def wait_for_recent_s3_object(
         remaining = timeout_seconds - elapsed
         sleep_for = min(poll_interval, remaining)
 
-        print(
-            f"No backup found yet. Checking again in "
-            f"{sleep_for:.0f} seconds..."
+        logger.info(
+            f"No backup found yet. Checking again in " f"{sleep_for:.0f} seconds..."
         )
 
         time.sleep(sleep_for)
@@ -90,8 +92,8 @@ if __name__ == "__main__":
             max_poll_seconds=60,
         )
 
-        print(f"Backup confirmed: {backup['Key']}")
+        logger.info(f"Backup confirmed: {backup['Key']}")
 
     except TimeoutError as exc:
-        print(exc)
+        logger.info(exc)
         raise SystemExit(1)
