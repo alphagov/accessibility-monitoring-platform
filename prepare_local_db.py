@@ -6,7 +6,7 @@ from pathlib import Path
 
 import boto3
 
-S3_BUCKET: str = "amp-aurora-backup-prod"
+S3_BUCKET: str = "amp-app-prod-env-prod-env-files-backup"
 LOCAL_DIR_PATH: Path = Path("data", "s3_files")
 
 if __name__ == "__main__":
