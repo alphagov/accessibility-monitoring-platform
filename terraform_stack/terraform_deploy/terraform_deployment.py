@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import logging
 import os
 import random
 import ssl
@@ -33,6 +34,21 @@ CREATE_DUMMY_ACCOUNT_SCRIPT_PATH: str = (
     "terraform_stack/ecs_tools/create_dummy_account.py"
 )
 ECS_PREPARE_DB_SCRIPT_PATH: str = "terraform_stack/ecs_tools/ecs_prepare_db.py"
+
+logger = logging.getLogger("deploy_logger")
+logger.setLevel(logging.INFO)
+
+console_handler = logging.StreamHandler()
+file_handler = logging.FileHandler("terraform_deploy.log", mode="a", encoding="utf-8")
+formatter = logging.Formatter(
+    "{asctime} - {levelname} - {message}",
+    style="{",
+    datefmt="%Y-%m-%d %H:%M",
+)
+
+logger.addHandler(console_handler)
+logger.addHandler(file_handler)
+file_handler.setFormatter(formatter)
 
 
 class Environment(StrEnum):
@@ -127,7 +143,7 @@ def run(
         subprocess.CalledProcessError: If the command exits with a non-zero
             status.
     """
-    print(f"\n> {' '.join(command)}")
+    logger.info(f"\n> {' '.join(command)}")
 
     result = subprocess.run(
         command,
@@ -269,7 +285,7 @@ def prepare_environment(
     if environment == Environment.PROTO:
         environment_name = create_proto_name()
 
-        print(f">>> Prototype name: {environment_name}")
+        logger.info(f">>> Prototype name: {environment_name}")
 
         create_proto_backend(
             proto_name=environment_name,
@@ -316,11 +332,11 @@ def wait_for_service(
                 context=context,
                 timeout=5,
             ) as response:
-                print(f">>> {url} returned {response.status}")
+                logger.info(f">>> {url} returned {response.status}")
                 return response.status == 200
 
         except (urllib.error.URLError, TimeoutError) as error:
-            print(error)
+            logger.info(error)
 
         time.sleep(interval)
 
@@ -378,7 +394,7 @@ def empty_s3_bucket(
         buckets: list[dict[str, object]] = s3_client.list_buckets().get("Buckets", [])
 
     except ClientError as error:
-        print(f"[S3] Failed to list buckets: {error}")
+        logger.info(f"[S3] Failed to list buckets: {error}")
         return
 
     buckets_to_delete: list[str] = []
@@ -388,13 +404,13 @@ def empty_s3_bucket(
         bucket_name: str = bucket["Name"]
 
         if bucket_name in buckets_to_ignore:
-            print(f"[S3] Protected bucket; skipping: {bucket_name}")
+            logger.info(f"[S3] Protected bucket; skipping: {bucket_name}")
             continue
 
         if not matches(bucket_name, [prefix]):
             continue
 
-        print(f"[S3] Found bucket: {bucket_name}")
+        logger.info(f"[S3] Found bucket: {bucket_name}")
 
         try:
             bucket_region: str = (
@@ -405,11 +421,13 @@ def empty_s3_bucket(
             )
 
             if bucket_region != region:
-                print(f"  Skipping; bucket is in {bucket_region}, " f"not {region}")
+                logger.info(
+                    f"  Skipping; bucket is in {bucket_region}, " f"not {region}"
+                )
                 continue
 
         except ClientError as error:
-            print(f"  Failed to inspect {bucket_name}: {error}")
+            logger.info(f"  Failed to inspect {bucket_name}: {error}")
             continue
 
         buckets_to_delete.append(bucket_name)
@@ -418,7 +436,7 @@ def empty_s3_bucket(
             object_count: int = sum(
                 1 for _ in s3_resource.Bucket(bucket_name).objects.all()
             )
-            print(f"Would delete {object_count} objects")
+            logger.info(f"Would delete {object_count} objects")
             continue
 
     if len(buckets_to_delete) > 1:
@@ -432,10 +450,10 @@ def empty_s3_bucket(
         for bucket_name in buckets_to_delete:
             try:
                 s3_resource.Bucket(bucket_name).object_versions.delete()
-                print(f"Deleted all objects from {bucket_name}")
+                logger.info(f"Deleted all objects from {bucket_name}")
 
             except ClientError as error:
-                print(f"Failed to empty {bucket_name}: {error}")
+                logger.info(f"Failed to empty {bucket_name}: {error}")
 
 
 def delete_secrets(
@@ -477,14 +495,14 @@ def delete_secrets(
 
             arn: str = secret["ARN"]
 
-            print(f"[Secrets Manager] Found: {name}")
+            logger.info(f"[Secrets Manager] Found: {name}")
 
             if dry_run:
                 continue
 
             try:
                 if "DeletionDate" in secret:
-                    print(f"  Scheduled for deletion; restoring first: {name}")
+                    logger.info(f"  Scheduled for deletion; restoring first: {name}")
                     sm.restore_secret(SecretId=arn)
 
                 sm.delete_secret(
@@ -492,10 +510,10 @@ def delete_secrets(
                     ForceDeleteWithoutRecovery=True,
                 )
 
-                print(f"  Force deleted: {name}")
+                logger.info(f"  Force deleted: {name}")
 
             except ClientError as error:
-                print(f"  Failed to delete {name}: {error}")
+                logger.info(f"  Failed to delete {name}: {error}")
 
 
 def delete_ecr_repos(
@@ -534,7 +552,7 @@ def delete_ecr_repos(
             if not matches(repo_name, [prefix]):
                 continue
 
-            print(f"[ECR] Found: {repo_name}")
+            logger.info(f"[ECR] Found: {repo_name}")
 
             if dry_run:
                 continue
@@ -544,10 +562,10 @@ def delete_ecr_repos(
                     repositoryName=repo_name,
                     force=True,
                 )
-                print(f"  Deleted: {repo_name}")
+                logger.info(f"  Deleted: {repo_name}")
 
             except ClientError as error:
-                print(f"  Failed to delete {repo_name}: {error}")
+                logger.info(f"  Failed to delete {repo_name}: {error}")
 
 
 def flush_database(
@@ -649,8 +667,8 @@ def log_info_for_prototype() -> None:
     """
     url_amp: str = get_terraform_output("platform_url")
     url_viewer: str = get_terraform_output("viewer_url")
-    print(f">>> amp url: https://{url_amp}")
-    print(f">>> viewer url: https://{url_viewer}")
+    logger.info(f">>> amp url: https://{url_amp}")
+    logger.info(f">>> viewer url: https://{url_viewer}")
 
 
 def up(
@@ -748,7 +766,7 @@ def up(
     )
 
     # Build web image
-    print(f"\nBuilding web image: {web_repo}:{image_tag}")
+    logger.info(f"\nBuilding web image: {web_repo}:{image_tag}")
 
     run(
         [
@@ -767,7 +785,7 @@ def up(
     )
 
     # Build viewer image
-    print(f"\nBuilding viewer image: {viewer_repo}:{image_tag}")
+    logger.info(f"\nBuilding viewer image: {viewer_repo}:{image_tag}")
 
     run(
         [
@@ -801,7 +819,7 @@ def up(
         ]
     )
 
-    print(f"\nDeployment complete.\nImage tag: {image_tag}")
+    logger.info(f"\nDeployment complete.\nImage tag: {image_tag}")
 
     if environment != Environment.PROTO:
         return
@@ -883,7 +901,7 @@ def breakdown_proto(
     )
 
     if dry_run:
-        print(">>> Skipping Terraform destroy in dry-run mode.")
+        logger.info(">>> Skipping Terraform destroy in dry-run mode.")
         return
 
     run(
@@ -1105,11 +1123,11 @@ def list_environments() -> None:
 
     data: dict[str, list[str]] = json.loads(ecs_str)
 
-    print(f'>>> Found {len(data["clusterArns"])} clusters:')
+    logger.info(f'>>> Found {len(data["clusterArns"])} clusters:')
 
     cluster: str
     for cluster in data["clusterArns"]:
-        print("- ", cluster.split("/")[-1])
+        logger.info("- ", cluster.split("/")[-1])
 
 
 def create_burner_account_terraform(
@@ -1125,7 +1143,7 @@ def create_burner_account_terraform(
         create_account_script_path: The path to the helper script inside the
             ECS task.
     """
-    print(">>> Creating burner account")
+    logger.info(">>> Creating burner account")
 
     email: str = (
         f'{"".join(random.choice(string.ascii_lowercase) for _ in range(7))}'
@@ -1136,8 +1154,8 @@ def create_burner_account_terraform(
 
     exec(command)
 
-    print(f"email: {email}")
-    print(f"password: {password}")
+    logger.info(f"email: {email}")
+    logger.info(f"password: {password}")
 
 
 def main():
@@ -1160,14 +1178,14 @@ def main():
     )
 
     if function == Function.UP:
-        print(">>> Deploying: ", environment)
+        logger.info(">>> Deploying: ", environment)
         up(
             environment=environment,
             force_reset_db=force_reset_db,
         )
 
     if function == Function.DOWN:
-        print(">>> breaking down environment")
+        logger.info(">>> breaking down environment")
         if environment != Environment.PROTO:
             raise Exception("Only prototypes can be broken down")
         breakdown_proto(
@@ -1177,15 +1195,15 @@ def main():
         )
 
     if function == Function.EXEC:
-        print(">>> exec into environment")
+        logger.info(">>> exec into environment")
         exec(command=command, environment=environment)
 
     if function == Function.TUNNEL:
-        print(">>> tunnel into environment")
+        logger.info(">>> tunnel into environment")
         tunnel(environment=environment)
 
     if function == Function.RESET_DB:
-        print(">>> Resetting database")
+        logger.info(">>> Resetting database")
         if environment != Environment.PROTO:
             raise Exception("Only prototypes can have their databases reset")
         flush_database(
@@ -1193,11 +1211,11 @@ def main():
         )
 
     if function == Function.LIST:
-        print(">>> list environments")
+        logger.info(">>> list environments")
         list_environments()
 
     if function == Function.CREATE_DUMMY_ACCOUNT:
-        print(">>> Creating dummy account")
+        logger.info(">>> Creating dummy account")
         if environment != Environment.PROTO:
             raise Exception("Only prototypes can create dummy accounts")
         create_burner_account_terraform(CREATE_DUMMY_ACCOUNT_SCRIPT_PATH)

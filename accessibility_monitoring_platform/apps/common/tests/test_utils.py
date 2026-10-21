@@ -46,8 +46,8 @@ from ..utils import (
     get_detailed_mobile_email_template_context,
     get_dict_without_page_items,
     get_first_of_this_month_last_year,
+    get_most_recent_change_to_platform,
     get_platform_settings,
-    get_recent_changes_to_platform,
     get_url_parameters_for_pagination,
     list_to_dictionary_of_lists,
     record_common_model_create_event,
@@ -318,10 +318,7 @@ def test_get_platform_settings():
 
 
 @pytest.mark.django_db
-def test_get_recent_changes_to_platform():
-    """
-    Test get_recent_changes_to_platform returne platform changes made in last 24 hours
-    """
+def test_get_most_recent_change_to_platform():
     older_change_to_platform: ChangeToPlatform = ChangeToPlatform.objects.create(
         name="Older"
     )
@@ -331,12 +328,12 @@ def test_get_recent_changes_to_platform():
         name="Recent"
     )
 
-    recent_changes_to_platform: QuerySet[ChangeToPlatform] = (
-        get_recent_changes_to_platform()
+    most_recent_change_to_platform: ChangeToPlatform | None = (
+        get_most_recent_change_to_platform()
     )
 
-    assert recent_changes_to_platform.count() == 1
-    assert recent_change_to_platform in recent_changes_to_platform
+    assert most_recent_change_to_platform is not None
+    assert most_recent_change_to_platform == recent_change_to_platform
 
 
 def test_list_to_dictionary_of_lists():

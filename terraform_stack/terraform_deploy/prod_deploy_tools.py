@@ -1,12 +1,14 @@
 """ECS Prepare DB - Launches on ECS that prepares the database for the production environment"""
 
 import json
+import logging
 import os
 import subprocess
-from typing import Any, TypedDict
+from typing import TypedDict
 
 import boto3
 
+logger = logging.getLogger("deploy_logger")
 
 
 def delete_db(
@@ -91,7 +93,6 @@ def create_db(
     )
 
 
-
 def most_recent_db_s3_path(bucket: str) -> str:
     """Return the S3 key for the most recently modified SQL backup.
 
@@ -161,7 +162,7 @@ def download_sql_file(
         s3_object,
         local_path,
     )
-    print(f"- Downloaded {s3_object}")
+    logger.info(f"- Downloaded {s3_object}")
 
 
 def load_db_backup(
@@ -222,7 +223,7 @@ def clean_up(local_path: str) -> None:
         local_path: Path to the local database backup file to delete.
     """
     os.remove(local_path)
-    print("- Deleted local DB backup")
+    logger.info("- Deleted local DB backup")
 
 
 def redo_migrations() -> None:

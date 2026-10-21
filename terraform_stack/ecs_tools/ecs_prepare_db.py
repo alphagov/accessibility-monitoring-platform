@@ -1,11 +1,15 @@
 """ECS Prepare DB - Launches on ECS that prepares the database for the prototype"""
 
 import json
+import logging
 import os
 import subprocess
 from typing import Any, TypedDict
 
 import boto3
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def delete_db(
@@ -150,7 +154,7 @@ def download_sql_file(
         s3_object,
         local_path,
     )
-    print(f"- Downloaded {s3_object}")
+    logger.info(f"- Downloaded {s3_object}")
 
 
 def load_db_backup(
@@ -204,14 +208,14 @@ def load_db_backup(
 def clean_up(local_path: str) -> None:
     """Delete a local database backup file.
 
-    Removes the file at the supplied local path and prints a confirmation
+    Removes the file at the supplied local path and logs a confirmation
     message after the deletion succeeds.
 
     Args:
         local_path: Path to the local database backup file to delete.
     """
     os.remove(local_path)
-    print("- Deleted local DB backup")
+    logger.info("- Deleted local DB backup")
 
 
 def redo_migrations() -> None:

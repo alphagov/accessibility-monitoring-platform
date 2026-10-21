@@ -334,7 +334,7 @@ def test_matches_value_error_exception():
     assert str(exc_info.value) == "'name' must not be empty."
 
 
-def test_empty_s3_bucket_client_error(capsys):
+def test_empty_s3_bucket_client_error(caplog):
     with patch(
         "terraform_stack.terraform_deploy.terraform_deployment.boto3"
     ) as mock_boto3:
@@ -355,15 +355,14 @@ def test_empty_s3_bucket_client_error(capsys):
             buckets_to_ignore=(PROTO_TERRAFORM_BUCKET_STORE,),
         )
 
-        captured = capsys.readouterr()
-
+        assert len(caplog.records) == 1
         assert (
-            captured.out
-            == "[S3] Failed to list buckets: An error occurred (Unknown) when calling the foo operation: Unknown\n"
+            caplog.records[0].message
+            == "[S3] Failed to list buckets: An error occurred (Unknown) when calling the foo operation: Unknown"
         )
 
 
-def test_empty_s3_bucket_no_buckets(capsys):
+def test_empty_s3_bucket_no_buckets(caplog):
     with patch(
         "terraform_stack.terraform_deploy.terraform_deployment.boto3"
     ) as mock_boto3:
@@ -381,12 +380,10 @@ def test_empty_s3_bucket_no_buckets(capsys):
             buckets_to_ignore=(PROTO_TERRAFORM_BUCKET_STORE,),
         )
 
-        captured = capsys.readouterr()
-
-        assert captured.out == ""
+        assert len(caplog.records) == 0
 
 
-def test_empty_s3_bucket_protected_bucket(capsys):
+def test_empty_s3_bucket_protected_bucket(caplog):
     with patch(
         "terraform_stack.terraform_deploy.terraform_deployment.boto3"
     ) as mock_boto3:
@@ -413,15 +410,14 @@ def test_empty_s3_bucket_protected_bucket(capsys):
             buckets_to_ignore=(PROTO_TERRAFORM_BUCKET_STORE,),
         )
 
-        captured = capsys.readouterr()
-
+        assert len(caplog.records) == 1
         assert (
-            captured.out
-            == "[S3] Protected bucket; skipping: amp-stack-terraform-state\n"
+            caplog.records[0].message
+            == "[S3] Protected bucket; skipping: amp-stack-terraform-state"
         )
 
 
-def test_delete_secrets(capsys):
+def test_delete_secrets(caplog):
     with patch(
         "terraform_stack.terraform_deploy.terraform_deployment.boto3"
     ) as mock_boto3:
@@ -444,19 +440,18 @@ def test_delete_secrets(capsys):
 
         delete_secrets(region=region, prefix=prefix, dry_run=False)
 
-        captured = capsys.readouterr()
-
+        assert len(caplog.records) == 2
         assert (
-            captured.out
-            == f"[Secrets Manager] Found: {prefix}_secret_key\n  Force deleted: {prefix}_secret_key\n"
+            caplog.records[0].message == f"[Secrets Manager] Found: {prefix}_secret_key"
         )
+        assert caplog.records[1].message == f"  Force deleted: {prefix}_secret_key"
         mock_secrets_manager.delete_secret.assert_called_once_with(
             SecretId=f"arn:aws:secretsmanager:eu-west-2:144664177605:secret:{prefix}_secret_key-urgsoa",
             ForceDeleteWithoutRecovery=True,
         )
 
 
-def test_delete_secrets_with_restore(capsys):
+def test_delete_secrets_with_restore(caplog):
     with patch(
         "terraform_stack.terraform_deploy.terraform_deployment.boto3"
     ) as mock_boto3:
@@ -480,15 +475,13 @@ def test_delete_secrets_with_restore(capsys):
 
         delete_secrets(region=region, prefix=prefix, dry_run=False)
 
-        captured = capsys.readouterr()
-
+        assert len(caplog.records) == 3
+        assert caplog.records[0].message == "[Secrets Manager] Found: prefix_secret_key"
         assert (
-            captured.out
-            == """[Secrets Manager] Found: prefix_secret_key
-  Scheduled for deletion; restoring first: prefix_secret_key
-  Force deleted: prefix_secret_key
-"""
+            caplog.records[1].message
+            == "  Scheduled for deletion; restoring first: prefix_secret_key"
         )
+        assert caplog.records[2].message == "  Force deleted: prefix_secret_key"
         mock_secrets_manager.restore_secret.assert_called_once_with(
             SecretId=f"arn:aws:secretsmanager:eu-west-2:144664177605:secret:{prefix}_secret_key-urgsoa"
         )
@@ -498,7 +491,7 @@ def test_delete_secrets_with_restore(capsys):
         )
 
 
-def test_delete_secrets_with_client_error_exception(capsys):
+def test_delete_secrets_with_client_error_exception(caplog):
     with patch(
         "terraform_stack.terraform_deploy.terraform_deployment.boto3"
     ) as mock_boto3:
@@ -525,14 +518,15 @@ def test_delete_secrets_with_client_error_exception(capsys):
 
         delete_secrets(region=region, prefix=prefix, dry_run=False)
 
-        captured = capsys.readouterr()
-
+        assert len(caplog.records) == 3
+        assert caplog.records[0].message == "[Secrets Manager] Found: prefix_secret_key"
         assert (
-            captured.out
-            == """[Secrets Manager] Found: prefix_secret_key
-  Scheduled for deletion; restoring first: prefix_secret_key
-  Failed to delete prefix_secret_key: An error occurred (Unknown) when calling the foo operation: Unknown
-"""
+            caplog.records[1].message
+            == "  Scheduled for deletion; restoring first: prefix_secret_key"
+        )
+        assert (
+            caplog.records[2].message
+            == "  Failed to delete prefix_secret_key: An error occurred (Unknown) when calling the foo operation: Unknown"
         )
         mock_secrets_manager.restore_secret.assert_called_once_with(
             SecretId=f"arn:aws:secretsmanager:eu-west-2:144664177605:secret:{prefix}_secret_key-urgsoa"
@@ -543,7 +537,7 @@ def test_delete_secrets_with_client_error_exception(capsys):
         )
 
 
-def test_delete_ecr_repos(capsys):
+def test_delete_ecr_repos(caplog):
     with patch(
         "terraform_stack.terraform_deploy.terraform_deployment.boto3"
     ) as mock_boto3:
@@ -564,16 +558,11 @@ def test_delete_ecr_repos(capsys):
 
         delete_ecr_repos(region=region, prefix=prefix, dry_run=False)
 
-        captured = capsys.readouterr()
-
-        assert (
-            captured.out
-            == f"""[ECR] Found: {prefix}r/amp-svc
-  Deleted: {prefix}r/amp-svc
-[ECR] Found: {prefix}r/viewer-svc
-  Deleted: {prefix}r/viewer-svc
-"""
-        )
+        assert len(caplog.records) == 4
+        assert caplog.records[0].message == f"[ECR] Found: {prefix}r/amp-svc"
+        assert caplog.records[1].message == f"  Deleted: {prefix}r/amp-svc"
+        assert caplog.records[2].message == f"[ECR] Found: {prefix}r/viewer-svc"
+        assert caplog.records[3].message == f"  Deleted: {prefix}r/viewer-svc"
         mock_ecr_manager.delete_repository.assert_has_calls(
             [
                 call(repositoryName=f"{prefix}r/amp-svc", force=True),
@@ -582,7 +571,7 @@ def test_delete_ecr_repos(capsys):
         )
 
 
-def test_delete_ecr_repos_client_error_exception(capsys):
+def test_delete_ecr_repos_client_error_exception(caplog):
     with patch(
         "terraform_stack.terraform_deploy.terraform_deployment.boto3"
     ) as mock_boto3:
@@ -606,15 +595,16 @@ def test_delete_ecr_repos_client_error_exception(capsys):
 
         delete_ecr_repos(region=region, prefix=prefix, dry_run=False)
 
-        captured = capsys.readouterr()
-
+        assert len(caplog.records) == 4
+        assert caplog.records[0].message == f"[ECR] Found: {prefix}r/amp-svc"
         assert (
-            captured.out
-            == f"""[ECR] Found: {prefix}r/amp-svc
-  Failed to delete {prefix}r/amp-svc: An error occurred (Unknown) when calling the foo operation: Unknown
-[ECR] Found: {prefix}r/viewer-svc
-  Failed to delete {prefix}r/viewer-svc: An error occurred (Unknown) when calling the foo operation: Unknown
-"""
+            caplog.records[1].message
+            == f"  Failed to delete {prefix}r/amp-svc: An error occurred (Unknown) when calling the foo operation: Unknown"
+        )
+        assert caplog.records[2].message == f"[ECR] Found: {prefix}r/viewer-svc"
+        assert (
+            caplog.records[3].message
+            == f"  Failed to delete {prefix}r/viewer-svc: An error occurred (Unknown) when calling the foo operation: Unknown"
         )
         mock_ecr_manager.delete_repository.assert_has_calls(
             [
@@ -702,14 +692,12 @@ def test_get_terraform_output():
         )
 
 
-def test_log_info_for_prototype(capsys):
+def test_log_info_for_prototype(caplog):
     with patch(
         "terraform_stack.terraform_deploy.terraform_deployment.get_terraform_output"
     ) as mock_get_terraform_output:
         mock_get_terraform_output.side_effect = ["domain1", "domain2"]
         log_info_for_prototype()
-
-        captured = capsys.readouterr()
 
         mock_get_terraform_output.assert_has_calls(
             [
@@ -717,12 +705,9 @@ def test_log_info_for_prototype(capsys):
                 call("viewer_url"),
             ]
         )
-        assert (
-            captured.out
-            == """>>> amp url: https://domain1
->>> viewer url: https://domain2
-"""
-        )
+        assert len(caplog.records) == 2
+        assert caplog.records[0].message == ">>> amp url: https://domain1"
+        assert caplog.records[1].message == ">>> viewer url: https://domain2"
 
 
 def test_make_parser():

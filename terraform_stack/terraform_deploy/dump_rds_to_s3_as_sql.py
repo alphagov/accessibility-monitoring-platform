@@ -1,13 +1,15 @@
 import json
+import logging
 import os
-from datetime import datetime
 import subprocess
+from datetime import datetime
 from typing import TypedDict
 
 import boto3
 from dotenv import load_dotenv
 
 load_dotenv()
+logger = logging.getLogger("deploy_logger")
 
 
 class DatabaseCredentials(TypedDict):
@@ -15,6 +17,7 @@ class DatabaseCredentials(TypedDict):
 
     username: str
     password: str
+
 
 def download_db_backup(
     db_host: str,
@@ -88,7 +91,7 @@ def main() -> None:
 
     temp_db_path = "temp_db.sql"
 
-    print(">>> downloading DB from RDS")
+    logger.info(">>> downloading DB from RDS")
     download_db_backup(
         db_host=db_host,
         db_username=db_username_password["username"],
@@ -103,10 +106,10 @@ def main() -> None:
         f"""_prodenv.sql"""
     )
 
-    print(">>> Uploading file to s3 bucket")
+    logger.info(">>> Uploading file to s3 bucket")
     upload_file(local_path=temp_db_path, s3_path=object_name, aws_bucket=s3_bucket)
 
-    print(">>> Cleaning up")
+    logger.info(">>> Cleaning up")
     cleanup(temp_db_path)
 
 
