@@ -3,7 +3,7 @@ FROM postgres:18-bookworm AS postgres-client
 
 
 # Stage 2: application image
-FROM python:3.12-slim-bookworm
+FROM python:3.13-slim-bookworm
 
 ARG NODE_MAJOR=24
 
