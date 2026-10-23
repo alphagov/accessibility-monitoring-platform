@@ -51,5 +51,8 @@
     "uglify-js": "3.19.3",
     "vinyl-buffer": "1.0.1",
     "vinyl-source-stream": "2.0.0"
+  },
+  "overrides": {
+    "sha.js": "^2.4.12"
   }
 }
