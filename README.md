@@ -28,7 +28,7 @@ The report viewer is a public-facing application used for public service bodies 
 
 - Docker
 - uv ([see](https://docs.astral.sh/uv/getting-started/installation/))
-- Python 3.12
+- Python 3.13
 - PostgreSQL
 - Node and NPM
 - Standard JS Globally installed (if using VSCode)
@@ -58,7 +58,7 @@ To set up your local sandbox, follow the instructions below.
 For example:
 
 ```
-uv venv --python python3.12 venv
+uv venv --python python3.13 venv
 source venv/bin/activate
 cp .env.example .env
 uv pip install pre-commit
