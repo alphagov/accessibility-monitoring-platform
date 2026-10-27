@@ -261,10 +261,10 @@ DATE_FORMAT = "d/m/Y"
 MARKDOWN_EXTENSIONS = ["fenced_code", "sane_lists"]
 
 # django-axes
-AXES_LOCKOUT_PARAMETERS = ["username"]  # Block only on username
+AXES_LOCKOUT_PARAMETERS = ["username", "ip_address"]
 AXES_FAILURE_LIMIT = 20
 AXES_PASSWORD_FORM_FIELD = "auth-password"
-AXES_COOLOFF_TIME = 7 * 24  # Number of hours in one week
+AXES_COOLOFF_TIME = 24  # 24 hours
 
 if UNDER_TEST:
     #  django-axes is incompatible with the platform test environment
