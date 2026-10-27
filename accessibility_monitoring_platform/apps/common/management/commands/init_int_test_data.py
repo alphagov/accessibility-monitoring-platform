@@ -66,19 +66,21 @@ from ....simplified.models import (
 from ....users.models import AllowedEmail
 from ...models import ChangeToPlatform, IssueReport, Platform, Sector
 
+logger = logging.getLogger(__name__)
+
 
 def load_fixture(fixture: str) -> None:
     """Load data from fixture into database"""
     fixture_path: str = f"stack_tests/integration_tests/fixtures/{fixture}.json"
     print(f"Loading {fixture_path}")
-    logging.info("Loading fixture from %s:", fixture_path)
+    logger.info("Loading fixture from %s:", fixture_path)
     call_command("loaddata", fixture_path)
 
 
 def delete_from_models(model_classes: list[type[models.Model]]) -> None:
     """Delete all data from models"""
     for model_class in model_classes:
-        logging.info("Deleting data from model %s", model_class)
+        logger.info("Deleting data from model %s", model_class)
         model_class.objects.all().delete()
 
 
@@ -86,7 +88,7 @@ def delete_from_tables(table_names: list[str]) -> None:
     """Delete data from tables"""
     with connection.cursor() as cursor:
         for table_name in table_names:
-            logging.info("Deleting data from table %s", table_name)
+            logger.info("Deleting data from table %s", table_name)
             try:
                 cursor.execute(f"DELETE FROM {table_name}")
             except OperationalError:  # Tables don't exist in unit test environment

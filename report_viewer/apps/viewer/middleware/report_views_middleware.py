@@ -114,7 +114,7 @@ class ReportMetrics:
                         fingerprint_hash=fingerprint_hash,
                         fingerprint_codename=fingerprint_codename,
                     ).save()
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning("Error in ReportMetrics Middleware: %s", e)
 
         response = self.get_response(request)

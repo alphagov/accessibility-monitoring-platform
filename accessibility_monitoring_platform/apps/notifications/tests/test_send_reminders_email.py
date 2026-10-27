@@ -35,15 +35,14 @@ def test_send_reminders_email_only_called_monday(call_time, expected_to_call):
     """Test send_reminders_email only calls init_int_test_data can be called"""
     os.environ["COPILOT_ENVIRONMENT_NAME"] = "prodenv"
     mock_email_all_specialists_all_detailed_reminders_due: Mock = Mock()
-    with patch(
-        "django.utils.timezone.now",
-        Mock(return_value=call_time),
-    ):
-        with patch(
+    with (
+        patch("django.utils.timezone.now", Mock(return_value=call_time)),
+        patch(
             "accessibility_monitoring_platform.apps.notifications.management.commands.send_reminders_email.email_all_specialists_all_detailed_reminders_due",
             mock_email_all_specialists_all_detailed_reminders_due,
-        ):
-            call_command("send_reminders_email")
+        ),
+    ):
+        call_command("send_reminders_email")
 
     if expected_to_call is True:
         mock_email_all_specialists_all_detailed_reminders_due.assert_called_once()

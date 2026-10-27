@@ -499,15 +499,17 @@ def test_load_db_backup_closes_sql_file_after_subprocess_finishes(
 
 def test_load_db_backup_raises_file_not_found_error() -> None:
     """Raise FileNotFoundError when the backup file does not exist."""
-    with patch("terraform_stack.ecs_tools.ecs_prepare_db.subprocess.run") as mock_run:
-        with pytest.raises(FileNotFoundError):
-            load_db_backup(
-                local_path="/tmp/missing-backup.sql",
-                db_host="localhost",
-                db_username="test_user",
-                db_password="test_password",
-                db_name="test_database",
-            )
+    with (
+        patch("terraform_stack.ecs_tools.ecs_prepare_db.subprocess.run") as mock_run,
+        pytest.raises(FileNotFoundError),
+    ):
+        load_db_backup(
+            local_path="/tmp/missing-backup.sql",
+            db_host="localhost",
+            db_username="test_user",
+            db_password="test_password",
+            db_name="test_database",
+        )
 
     mock_run.assert_not_called()
 
@@ -711,9 +713,9 @@ def test_main_raises_type_error_when_required_variable_is_missing(
     with (
         patch.dict(os.environ, environment, clear=True),
         patch.object(ecs_prepare_db, "delete_db") as mock_delete_db,
+        pytest.raises(TypeError, match=expected_message),
     ):
-        with pytest.raises(TypeError, match=expected_message):
-            main()
+        main()
 
     mock_delete_db.assert_not_called()
 
@@ -741,9 +743,11 @@ def test_main_raises_type_error_when_required_variable_is_empty(
     }
     environment[variable] = value
 
-    with patch.dict(os.environ, environment, clear=True):
-        with pytest.raises(TypeError, match=expected_message):
-            main()
+    with (
+        patch.dict(os.environ, environment, clear=True),
+        pytest.raises(TypeError, match=expected_message),
+    ):
+        main()
 
 
 def test_main_raises_error_for_invalid_credentials_json() -> None:
@@ -758,9 +762,9 @@ def test_main_raises_error_for_invalid_credentials_json() -> None:
     with (
         patch.dict(os.environ, environment, clear=True),
         patch.object(ecs_prepare_db, "delete_db") as mock_delete_db,
+        pytest.raises(json.JSONDecodeError),
     ):
-        with pytest.raises(json.JSONDecodeError):
-            main()
+        main()
 
     mock_delete_db.assert_not_called()
 
@@ -786,9 +790,9 @@ def test_main_raises_key_error_when_credential_field_is_missing(
     with (
         patch.dict(os.environ, environment, clear=True),
         patch.object(ecs_prepare_db, "delete_db") as mock_delete_db,
+        pytest.raises(KeyError, match=missing_key),
     ):
-        with pytest.raises(KeyError, match=missing_key):
-            main()
+        main()
 
     mock_delete_db.assert_not_called()
 

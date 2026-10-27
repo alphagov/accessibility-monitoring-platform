@@ -144,15 +144,15 @@ def diff_model_fields(
     if not old_fields:
         return new_fields
     diff_fields = {}
-    for key in new_fields:
+    for key, value in new_fields.items():
         if key in old_fields:
-            if old_fields[key] != new_fields[key]:
-                diff_fields[key] = f"{old_fields[key]} -> {new_fields[key]}"
+            if old_fields[key] != value:
+                diff_fields[key] = f"{old_fields[key]} -> {value}"
         else:
-            diff_fields[key] = f"-> {new_fields[key]}"
-    for key in old_fields:
+            diff_fields[key] = f"-> {value}"
+    for key, value in old_fields.items():
         if key not in new_fields:
-            diff_fields[key] = f"{old_fields[key]} ->"
+            diff_fields[key] = f"{value} ->"
     return diff_fields
 
 

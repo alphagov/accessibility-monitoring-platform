@@ -12,7 +12,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
-from ..utils import (  # pylint: disable=relative-beyond-top-level
+from ..utils import (
     amp_format_date,
     amp_format_date_short_month,
     amp_format_datetime,
@@ -29,7 +29,7 @@ def list_item_by_index(items: list[T], index: int) -> T | None:
     """Given a list of items and an index, return the indexed item"""
     try:
         return items[index]
-    except Exception:  # pylint: disable=broad-except
+    except Exception:  # noqa BLE001
         return None
 
 

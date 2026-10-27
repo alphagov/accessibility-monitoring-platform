@@ -443,9 +443,11 @@ class BaseCase(VersionModel):
 
     @property
     def tag_name_suffix(self) -> str:
-        if self.test_type == BaseCase.TestType.SIMPLIFIED:
-            if self.simplifiedcase.archive:
-                return "archive"
+        if (
+            self.test_type == BaseCase.TestType.SIMPLIFIED
+            and self.simplifiedcase.archive
+        ):
+            return "archive"
         return self.test_type
 
     def get_case(self):

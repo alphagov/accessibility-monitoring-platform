@@ -415,26 +415,27 @@ class CaseQAApprovalUpdateView(CaseUpdateView):
 
     def form_valid(self, form: forms.ModelForm) -> HttpResponseRedirect:
         """Notify auditor if case has been QA approved."""
-        if form.changed_data and "report_approved_status" in form.changed_data:
-            if (
-                self.object.report_approved_status
-                == SimplifiedCase.ReportApprovedStatus.APPROVED
-            ):
-                simplified_case: SimplifiedCase = self.object
-                if simplified_case.auditor is not None:
-                    task: Task = add_task(
-                        user=simplified_case.auditor,
-                        base_case=simplified_case,
-                        type=Task.Type.REPORT_APPROVED,
-                        description=f"{self.request.user.get_full_name()} QA approved Case {simplified_case}",
-                        email_description=f"{simplified_case} - Report approved",
-                        request=self.request,
-                    )
-                    record_simplified_model_create_event(
-                        user=self.request.user,
-                        model_object=task,
-                        simplified_case=simplified_case,
-                    )
+        if (
+            form.changed_data
+            and "report_approved_status" in form.changed_data
+            and self.object.report_approved_status
+            == SimplifiedCase.ReportApprovedStatus.APPROVED
+        ):
+            simplified_case: SimplifiedCase = self.object
+            if simplified_case.auditor is not None:
+                task: Task = add_task(
+                    user=simplified_case.auditor,
+                    base_case=simplified_case,
+                    type=Task.Type.REPORT_APPROVED,
+                    description=f"{self.request.user.get_full_name()} QA approved Case {simplified_case}",
+                    email_description=f"{simplified_case} - Report approved",
+                    request=self.request,
+                )
+                record_simplified_model_create_event(
+                    user=self.request.user,
+                    model_object=task,
+                    simplified_case=simplified_case,
+                )
         return super().form_valid(form=form)
 
 
@@ -493,14 +494,16 @@ class ContactCreateView(CreateView):
         simplified_case: SimplifiedCase = get_object_or_404(
             SimplifiedCase, id=self.kwargs.get("case_id")
         )
-        if "preferred" in form.changed_data:
-            if form.cleaned_data["preferred"] == Contact.Preferred.YES:
-                for contact in Contact.objects.filter(
-                    simplified_case=simplified_case,
-                    preferred=Contact.Preferred.YES,
-                ):
-                    contact.preferred = Contact.Preferred.NO
-                    contact.save()
+        if (
+            "preferred" in form.changed_data
+            and form.cleaned_data["preferred"] == Contact.Preferred.YES
+        ):
+            for contact in Contact.objects.filter(
+                simplified_case=simplified_case,
+                preferred=Contact.Preferred.YES,
+            ):
+                contact.preferred = Contact.Preferred.NO
+                contact.save()
         contact: Contact = form.save(commit=False)
         contact.simplified_case = simplified_case
         return super().form_valid(form)
@@ -526,14 +529,16 @@ class ContactUpdateView(UpdateView):
 
     def form_valid(self, form: SimplifiedContactUpdateForm):
         """Mark contact as deleted if button is pressed"""
-        if "preferred" in form.changed_data:
-            if form.cleaned_data["preferred"] == Contact.Preferred.YES:
-                for contact in Contact.objects.filter(
-                    simplified_case=self.object.simplified_case,
-                    preferred=Contact.Preferred.YES,
-                ):
-                    contact.preferred = Contact.Preferred.NO
-                    contact.save()
+        if (
+            "preferred" in form.changed_data
+            and form.cleaned_data["preferred"] == Contact.Preferred.YES
+        ):
+            for contact in Contact.objects.filter(
+                simplified_case=self.object.simplified_case,
+                preferred=Contact.Preferred.YES,
+            ):
+                contact.preferred = Contact.Preferred.NO
+                contact.save()
         contact: Contact = form.save(commit=False)
         if "delete_contact" in self.request.POST:
             contact.is_deleted = True

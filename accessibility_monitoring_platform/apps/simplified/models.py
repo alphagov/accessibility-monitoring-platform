@@ -37,6 +37,10 @@ PSB_APPEAL_WINDOW_IN_DAYS: int = 28
 UPDATE_SEPARATOR: str = " -> "
 
 
+class SimplifiedWorkflowException(Exception):
+    pass
+
+
 class Sort(models.TextChoices):
     NEWEST = "", "Newest, Unassigned first"
     OLDEST = "id", "Oldest"
@@ -414,7 +418,7 @@ class SimplifiedCase(BaseCase):
                 return self.report_followup_week_4_sent_date + timedelta(
                     days=ONE_WEEK_IN_DAYS
                 )
-            raise Exception(
+            raise SimplifiedWorkflowException(
                 "Case is in-report-correspondence but neither sent date is set"
             )
 

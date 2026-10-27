@@ -20,56 +20,54 @@ def populate_events(apps, schema_editor):
     ZendeskTicket = apps.get_model("cases", "ZendeskTicket")
     Task = apps.get_model("notifications", "Task")
 
-    counter: int = 0
-
-    for common_event in CommonEvent.objects.all():
-        if common_event.content_type_id == 25:  #  cases	contact
+    for counter, common_event in enumerate(CommonEvent.objects.all(), start=1):
+        if common_event.content_type_id == 25:  # cases	contact
             contact: Contact = Contact.objects.get(id=common_event.object_id)
             case_id: int = contact.case_id
-        elif common_event.content_type_id == 26:  #  cases	case
+        elif common_event.content_type_id == 26:  # cases	case
             case_id: int = common_event.object_id
-        elif common_event.content_type_id == 47:  #  reminders	reminder
+        elif common_event.content_type_id == 47:  # reminders	reminder
             case_id: int | None = None
-        elif common_event.content_type_id == 48:  #  audits	audit
+        elif common_event.content_type_id == 48:  # audits	audit
             audit: Audit = Audit.objects.get(id=common_event.object_id)
             case_id: int = audit.case_id
-        elif common_event.content_type_id == 49:  #  audits	wcagdefinition
+        elif common_event.content_type_id == 49:  # audits	wcagdefinition
             case_id: int | None = None
-        elif common_event.content_type_id == 50:  #  audits	page
+        elif common_event.content_type_id == 50:  # audits	page
             page: Page = Page.objects.get(id=common_event.object_id)
             audit: Audit = Audit.objects.get(id=page.audit_id)
             case_id: int = audit.case_id
-        elif common_event.content_type_id == 51:  #  audits	checkresult
+        elif common_event.content_type_id == 51:  # audits	checkresult
             check_result: CheckResult = CheckResult.objects.get(
                 id=common_event.object_id
             )
             audit: Audit = Audit.objects.get(id=check_result.audit_id)
             case_id: int = audit.case_id
-        elif common_event.content_type_id == 54:  #  reports	report
+        elif common_event.content_type_id == 54:  # reports	report
             report: Report = Report.objects.get(id=common_event.object_id)
             case_id: int = report.case_id
-        elif common_event.content_type_id == 45:  #  comments	comment
+        elif common_event.content_type_id == 45:  # comments	comment
             comment: Comment = Comment.objects.get(id=common_event.object_id)
             case_id: int = comment.case_id
-        elif common_event.content_type_id == 71:  #  common	frequentlyusedlink
+        elif common_event.content_type_id == 71:  # common	frequentlyusedlink
             case_id: int | None = None
-        elif common_event.content_type_id == 73:  #  audits	statementcheckresult
+        elif common_event.content_type_id == 73:  # audits	statementcheckresult
             statement_check_result: StatementCheckResult = (
                 StatementCheckResult.objects.get(id=common_event.object_id)
             )
             audit: Audit = Audit.objects.get(id=statement_check_result.audit_id)
             case_id: int = audit.case_id
-        elif common_event.content_type_id == 74:  #  common	footerlink
+        elif common_event.content_type_id == 74:  # common	footerlink
             case_id: int | None = None
-        elif common_event.content_type_id == 77:  #  cases	equalitybodycorrespondence
+        elif common_event.content_type_id == 77:  # cases	equalitybodycorrespondence
             equality_body_correspondence: EqualityBodyCorrespondence = (
                 EqualityBodyCorrespondence.objects.get(id=common_event.object_id)
             )
             case_id: int = equality_body_correspondence.case_id
-        elif common_event.content_type_id == 78:  #  audits	retest
+        elif common_event.content_type_id == 78:  # audits	retest
             retest: Retest = Retest.objects.get(id=common_event.object_id)
             case_id: int = retest.case_id
-        elif common_event.content_type_id == 82:  #  audits	statementpage
+        elif common_event.content_type_id == 82:  # audits	statementpage
             statement_page: StatementPage = StatementPage.objects.get(
                 id=common_event.object_id
             )
@@ -108,7 +106,6 @@ def populate_events(apps, schema_editor):
         event_history.created = common_event.created
         event_history.save()
 
-        counter += 1
         if counter % 1000 == 0:
             print(f"Added {counter} events")
 

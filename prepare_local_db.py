@@ -11,6 +11,7 @@ S3_BUCKET: str = "amp-app-prod-env-prod-env-files-backup"
 LOCAL_DIR_PATH: Path = Path("data", "s3_files")
 
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 if __name__ == "__main__":
@@ -29,7 +30,7 @@ if __name__ == "__main__":
     local_file_path: Path = LOCAL_DIR_PATH / file_name
 
     if not local_file_path.exists():
-        logging.info(f">>> downloading {s3_path}")
+        logger.info(f">>> downloading {s3_path}")
         s3_client.download_file(S3_BUCKET, s3_path, str(local_file_path))
 
     subprocess.call(

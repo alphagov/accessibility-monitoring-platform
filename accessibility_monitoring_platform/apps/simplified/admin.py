@@ -43,164 +43,164 @@ class MetaStatusCaseListFilter(admin.SimpleListFilter):
 class SimplifiedCaseAdmin(admin.ModelAdmin):
     """Django admin configuration for SimplifiedCase model"""
 
-    readonly_fields = ["created"]
-    search_fields = ["case_number", "organisation_name", "domain", "case_identifier"]
-    list_display = [
+    readonly_fields = ("created",)
+    search_fields = ("case_number", "organisation_name", "domain", "case_identifier")
+    list_display = (
         "case_number",
         "organisation_name",
         "domain",
         "auditor",
         "created",
         "status",
-    ]
-    list_filter = [
+    )
+    list_filter = (
         "variant",
         MetaStatusCaseListFilter,
         ("auditor", admin.RelatedOnlyFieldListFilter),
-    ]
+    )
     show_facets = admin.ShowFacets.ALWAYS
 
 
 class CaseStatusAdmin(admin.ModelAdmin):
     """Django admin configuration for CaseStatus model"""
 
-    readonly_fields = ["simplified_case"]
-    search_fields = [
+    readonly_fields = ("simplified_case",)
+    search_fields = (
         "simplified_case__organisation_name",
         "simplified_case__case_number",
-    ]
-    list_display = ["simplified_case", "status"]
-    list_filter = ["status"]
+    )
+    list_display = ("simplified_case", "status")
+    list_filter = ("status",)
     show_facets = admin.ShowFacets.ALWAYS
 
 
 class CaseComplianceAdmin(admin.ModelAdmin):
     """Django admin configuration for CaseCompliance model"""
 
-    readonly_fields = ["simplified_case"]
-    search_fields = [
+    readonly_fields = ("simplified_case",)
+    search_fields = (
         "simplified_case__organisation_name",
         "simplified_case__case_number",
-    ]
-    list_display = [
+    )
+    list_display = (
         "simplified_case",
         "__str__",
-    ]
-    list_filter = [
+    )
+    list_filter = (
         "website_compliance_state_initial",
         "website_compliance_state_12_week",
         "statement_compliance_state_initial",
         "statement_compliance_state_12_week",
-    ]
+    )
     show_facets = admin.ShowFacets.ALWAYS
 
 
 class CaseEventAdmin(admin.ModelAdmin, ExportCsvMixin):
     """Django admin configuration for CaseEvent model"""
 
-    readonly_fields = [
+    readonly_fields = (
         "simplified_case",
         "event_type",
         "message",
         "event_time",
         "done_by",
-    ]
-    search_fields = [
+    )
+    search_fields = (
         "simplified_case__organisation_name",
         "simplified_case__case_number",
         "message",
         "done_by__username",
-    ]
-    list_display = ["message", "event_time", "done_by", "simplified_case", "event_type"]
-    list_filter = ["event_type", ("done_by", admin.RelatedOnlyFieldListFilter)]
-    actions = ["export_as_csv"]
+    )
+    list_display = ("message", "event_time", "done_by", "simplified_case", "event_type")
+    list_filter = ("event_type", ("done_by", admin.RelatedOnlyFieldListFilter))
+    actions = ("export_as_csv",)
 
 
 class ContactAdmin(admin.ModelAdmin):
     """Django admin configuration for Contact model"""
 
-    search_fields = [
+    search_fields = (
         "name",
         "job_title",
         "email",
         "case__organisation_name",
         "case__case_number",
-    ]
-    list_display = ["email", "name", "job_title", "simplified_case"]
-    autocomplete_fields = ["simplified_case"]
+    )
+    list_display = ("email", "name", "job_title", "simplified_case")
+    autocomplete_fields = ("simplified_case",)
 
 
 class EqualityBodyCorrespondenceAdmin(admin.ModelAdmin):
     """Django admin configuration for EqualityBodyCorrespondence model"""
 
-    search_fields = [
+    search_fields = (
         "message",
         "notes",
         "case__organisation_name",
         "case__case_number",
-    ]
-    list_display = ["created", "simplified_case", "type", "status", "message"]
-    list_filter = ["type", "status"]
+    )
+    list_display = ("created", "simplified_case", "type", "status", "message")
+    list_filter = ("type", "status")
 
 
 class ZendeskTicketAdmin(admin.ModelAdmin):
     """Django admin configuration for EqualityBodyCorrespondence model"""
 
-    search_fields = [
+    search_fields = (
         "url",
         "summary",
         "simplified_case__organisation_name",
         "simplified_case__case_number",
-    ]
-    list_display = ["url", "summary", "simplified_case", "created", "is_deleted"]
-    list_filter = ["is_deleted"]
+    )
+    list_display = ("url", "summary", "simplified_case", "created", "is_deleted")
+    list_filter = ("is_deleted",)
 
 
 class SimplifiedCaseHistoryAdmin(admin.ModelAdmin):
     """Django admin configuration for SimplifiedCaseHistory model"""
 
-    readonly_fields = ["simplified_case", "event_type", "created_by", "created"]
-    search_fields = [
+    readonly_fields = ("simplified_case", "event_type", "created_by", "created")
+    search_fields = (
         "simplified_case__case_number",
         "simplified_case__organisation_name",
         "label",
         "value",
-    ]
-    list_display = [
+    )
+    list_display = (
         "simplified_case",
         "event_type",
         "label",
         "created_by",
         "created",
-    ]
-    list_filter = [
+    )
+    list_filter = (
         "event_type",
         ("created_by", admin.RelatedOnlyFieldListFilter),
-    ]
+    )
     show_facets = admin.ShowFacets.ALWAYS
 
 
 class SimplifiedEventHistoryAdmin(admin.ModelAdmin):
     """Django admin configuration for SimplifiedEventHistory model"""
 
-    search_fields = [
+    search_fields = (
         "simplified_case__organisation_name",
         "simplified_case__case_number",
-    ]
-    list_display = [
+    )
+    list_display = (
         "simplified_case",
         "event_type",
         "content_type",
         "created",
         "created_by",
         "difference",
-    ]
-    list_filter = [
+    )
+    list_filter = (
         "event_type",
         ("content_type", admin.RelatedOnlyFieldListFilter),
         ("created_by", admin.RelatedOnlyFieldListFilter),
-    ]
-    readonly_fields = ["simplified_case"]
+    )
+    readonly_fields = ("simplified_case",)
     show_facets = admin.ShowFacets.ALWAYS
 
 
