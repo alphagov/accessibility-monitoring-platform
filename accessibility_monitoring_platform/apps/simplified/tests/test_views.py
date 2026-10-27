@@ -1129,11 +1129,6 @@ def test_updating_case_creates_case_event(admin_client):
             "save_continue",
             "simplified:edit-publish-report",
         ),
-        (
-            "simplified:edit-qa-approval",
-            "save_continue",
-            "simplified:edit-publish-report",
-        ),
         ("simplified:edit-publish-report", "save", "simplified:edit-publish-report"),
         (
             "simplified:edit-publish-report",

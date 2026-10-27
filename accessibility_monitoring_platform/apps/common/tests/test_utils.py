@@ -165,8 +165,6 @@ def test_extract_domain_from_url_no_protocol():
         ("abc", "abc"),
         ("abc.gov.uk", "abc"),
         ("abc.nhs.uk", "abc"),
-        ("abc.gov.uk", "abc"),
-        ("abc.gov.uk", "abc"),
         ("abc.com", "abc"),
         ("abc.wales", "abc"),
         ("abc.cymru", "abc"),

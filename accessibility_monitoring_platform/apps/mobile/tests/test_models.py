@@ -689,7 +689,6 @@ def test_contact_email():
     [
         (None, None, None),
         (date(2020, 1, 1), None, date(2020, 1, 1)),
-        (date(2020, 1, 1), None, date(2020, 1, 1)),
         (date(2020, 1, 1), date(2020, 1, 2), date(2020, 1, 1)),
     ],
 )

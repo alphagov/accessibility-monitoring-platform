@@ -317,15 +317,14 @@ class CaseMetadataUpdateView(CaseUpdateView):
     def form_valid(self, form: forms.ModelForm):
         """Process contents of valid form"""
         simplified_case: SimplifiedCase = self.object
-        if simplified_case.published_report_url:
-            if (
-                "enforcement_body" in form.changed_data
-                or "home_page_url" in form.changed_data
-                or "organisation_name" in form.changed_data
-            ):
-                update_published_report_data_updated_time(
-                    wcag_audit=simplified_case.audit_overview.initial_wcag_audit
-                )
+        if simplified_case.published_report_url and (
+            "enforcement_body" in form.changed_data
+            or "home_page_url" in form.changed_data
+            or "organisation_name" in form.changed_data
+        ):
+            update_published_report_data_updated_time(
+                wcag_audit=simplified_case.audit_overview.initial_wcag_audit
+            )
         return super().form_valid(form=form)
 
 

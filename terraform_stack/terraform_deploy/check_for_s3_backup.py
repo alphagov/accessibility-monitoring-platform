@@ -42,12 +42,11 @@ def wait_for_recent_s3_object(
 
             for page in paginator.paginate(Bucket=bucket, Prefix=prefix):
                 for obj in page.get("Contents", []):
-                    if obj["LastModified"] >= recent_cutoff:
-                        if (
-                            newest_object is None
-                            or obj["LastModified"] > newest_object["LastModified"]
-                        ):
-                            newest_object = obj
+                    if obj["LastModified"] >= recent_cutoff and (
+                        newest_object is None
+                        or obj["LastModified"] > newest_object["LastModified"]
+                    ):
+                        newest_object = obj
 
             if newest_object:
                 logger.info(

@@ -14,4 +14,4 @@ def has_group(user: User, group_name: str) -> bool:
         group: Group = Group.objects.get(name=group_name)
     except Group.DoesNotExist:
         return False
-    return True if group in user.groups.all() else False
+    return group in user.groups.all()

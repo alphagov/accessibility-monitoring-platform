@@ -226,9 +226,7 @@ class PlatformPage:
         """Should page be visible in the case navigation UI"""
         if self.instance is not None and self.show_flag_name is not None:
             return getattr(self.instance, self.show_flag_name)
-        if self.instance is None and self.url_kwarg_key:
-            return False
-        return True
+        return not (self.instance is None and self.url_kwarg_key)
 
     @property
     def complete(self):
@@ -245,16 +243,15 @@ class PlatformPage:
                 logger.warning("Cannot set instance of %s to %s", self, instance)
 
     def populate_subpage_instances(self):
-        if self.instance is not None:
-            if self.subpages is not None:
-                subpage_instances: list[PlatformPage] = []
-                for subpage in self.subpages:
-                    subpage_instance: PlatformPage = copy.copy(subpage)
-                    if subpage_instance.instance_class == self.instance_class:
-                        subpage_instance.instance = self.instance
-                    subpage_instance.populate_subpage_instances()
-                    subpage_instances.append(subpage_instance)
-                self.subpages = subpage_instances
+        if self.instance is not None and self.subpages is not None:
+            subpage_instances: list[PlatformPage] = []
+            for subpage in self.subpages:
+                subpage_instance: PlatformPage = copy.copy(subpage)
+                if subpage_instance.instance_class == self.instance_class:
+                    subpage_instance.instance = self.instance
+                subpage_instance.populate_subpage_instances()
+                subpage_instances.append(subpage_instance)
+            self.subpages = subpage_instances
 
     def populate_from_case(self, case: AnyCaseType):
         if case.__class__ == BaseCase:

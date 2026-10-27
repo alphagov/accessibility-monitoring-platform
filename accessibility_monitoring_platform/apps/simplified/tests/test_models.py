@@ -309,8 +309,10 @@ def test_psb_appeal_deadline(compliance_email_sent_date, expected_psb_appeal_dea
         ("https://gov.uk/bank-holidays/", "gov.uk/bank-holidays"),
         ("https://www.google.com/maps", "google.com/maps"),
         (
-            "http://www.google.com/search?q=bbc+news&oq=&aqs=chrome.3.69i5"
-            "9i450l8.515265j0j7&sourceid=chrome&ie=UTF-8",
+            (
+                "http://www.google.com/search?q=bbc+news&oq=&aqs=chrome.3.69i5"
+                "9i450l8.515265j0j7&sourceid=chrome&ie=UTF-8"
+            ),
             "google.com/search?q=bbc+n…",
         ),
         ("https://www3.halton.gov.uk/Pages/Home.aspx", "halton.gov.uk/Pages/Home.…"),

@@ -192,18 +192,17 @@ class WcagAuditPagesUpdateView(WcagAuditUpdateView):
                     wcag_page_initial_wcag_audit.page_type
                     == WcagPageInitial.Type.STATEMENT
                     and wcag_page_initial_wcag_audit.url
-                ):
-                    if audit_overview.statement_pages.count() == 0:
-                        # Create first statement link
-                        statement_page: StatementPage = StatementPage.objects.create(
-                            audit_overview=audit_overview,
-                            url=wcag_page_initial_wcag_audit.url,
-                        )
-                        record_simplified_model_create_event(
-                            user=self.request.user,
-                            model_object=statement_page,
-                            simplified_case=wcag_audit.simplified_case,
-                        )
+                ) and audit_overview.statement_pages.count() == 0:
+                    # Create first statement link
+                    statement_page: StatementPage = StatementPage.objects.create(
+                        audit_overview=audit_overview,
+                        url=wcag_page_initial_wcag_audit.url,
+                    )
+                    record_simplified_model_create_event(
+                        user=self.request.user,
+                        model_object=statement_page,
+                        simplified_case=wcag_audit.simplified_case,
+                    )
                 record_simplified_model_update_event(
                     user=self.request.user,
                     model_object=wcag_page_initial_wcag_audit,

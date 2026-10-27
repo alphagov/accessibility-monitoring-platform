@@ -683,14 +683,13 @@ def add_to_wcag_check_result_restest_notes_history(
     if (
         previous_wcag_check_result_retest is None
         or wcag_check_result_retest.notes != previous_wcag_check_result_retest.notes
-    ):
-        if wcag_check_result_retest.notes:
-            WcagCheckResultRetestNotesHistory.objects.create(
-                wcag_check_result_retest=wcag_check_result_retest,
-                created_by=user,
-                retest_state=wcag_check_result_retest.retest_state,
-                notes=wcag_check_result_retest.notes,
-            )
+    ) and wcag_check_result_retest.notes:
+        WcagCheckResultRetestNotesHistory.objects.create(
+            wcag_check_result_retest=wcag_check_result_retest,
+            created_by=user,
+            retest_state=wcag_check_result_retest.retest_state,
+            notes=wcag_check_result_retest.notes,
+        )
 
 
 def build_equality_body_retest_context_data(

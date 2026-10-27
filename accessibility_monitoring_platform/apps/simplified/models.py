@@ -867,7 +867,7 @@ class SimplifiedCase(BaseCase):
             archive = json.loads(self.archive)
         else:
             return None
-        return archive["sections"] if "sections" in archive else None
+        return archive.get("sections", None)
 
     @property
     def equality_body_correspondences(self):
@@ -1022,19 +1022,18 @@ class SimplifiedCase(BaseCase):
             ):
                 return self.in_report_correspondence_progress
 
-        if self.status == SimplifiedCase.Status.AWAITING_12_WEEK_DEADLINE:
-            if (
-                self.report_followup_week_12_due_date is not None
-                and self.report_followup_week_12_due_date > start_date
-                and self.report_followup_week_12_due_date <= end_date
-            ):
-                return Link(
-                    label="12-week update due",
-                    url=reverse(
-                        "simplified:edit-12-week-update-requested",
-                        kwargs=kwargs_case_pk,
-                    ),
-                )
+        if self.status == SimplifiedCase.Status.AWAITING_12_WEEK_DEADLINE and (
+            self.report_followup_week_12_due_date is not None
+            and self.report_followup_week_12_due_date > start_date
+            and self.report_followup_week_12_due_date <= end_date
+        ):
+            return Link(
+                label="12-week update due",
+                url=reverse(
+                    "simplified:edit-12-week-update-requested",
+                    kwargs=kwargs_case_pk,
+                ),
+            )
 
         if self.status == SimplifiedCase.Status.AFTER_12_WEEK_CORES:
             if (

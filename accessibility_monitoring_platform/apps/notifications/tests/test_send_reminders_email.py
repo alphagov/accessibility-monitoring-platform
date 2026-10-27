@@ -23,7 +23,6 @@ SUNDAY: datetime = datetime(2025, 11, 16, 2, 0, 0, tzinfo=UTC)
     [
         (MONDAY, True),
         (TUESDAY, False),
-        (TUESDAY, False),
         (WEDNESDAY, False),
         (THURSDAY, False),
         (FRIDAY, False),

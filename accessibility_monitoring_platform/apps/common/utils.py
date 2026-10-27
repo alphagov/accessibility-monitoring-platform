@@ -110,7 +110,7 @@ def validate_url(url: str) -> None:
     Validate URL string entered by user
     """
 
-    if not (url.startswith("http://") or url.startswith("https://")):
+    if not (url.startswith(("http://", "https://"))):
         raise ValidationError("URL must start with http:// or https://")
 
 
