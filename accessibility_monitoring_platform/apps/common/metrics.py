@@ -2,8 +2,7 @@
 
 from collections import OrderedDict
 from dataclasses import dataclass
-from datetime import datetime, timedelta
-from datetime import timezone as datetime_timezone
+from datetime import UTC, datetime, timedelta
 
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.db.models.query import QuerySet
@@ -120,9 +119,7 @@ def group_timeseries_data_by_month(
     current_month: int = start_date.month
     month_dates: list[datetime] = []
     for _ in range(13):
-        month_dates.append(
-            datetime(current_year, current_month, 1, tzinfo=datetime_timezone.utc)
-        )
+        month_dates.append(datetime(current_year, current_month, 1, tzinfo=UTC))
         if current_month < 12:
             current_month += 1
         else:

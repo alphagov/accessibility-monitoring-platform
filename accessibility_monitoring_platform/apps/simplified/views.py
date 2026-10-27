@@ -187,11 +187,9 @@ class CaseDetailView(DetailView):
         sitemap: Sitemap = Sitemap(request=self.request)
 
         return {
-            **{
-                "case_detail_sections": get_simplified_case_detail_sections(
-                    simplified_case=simplified_case, sitemap=sitemap
-                )
-            },
+            "case_detail_sections": get_simplified_case_detail_sections(
+                simplified_case=simplified_case, sitemap=sitemap
+            ),
             **context,
         }
 

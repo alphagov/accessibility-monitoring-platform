@@ -1,6 +1,6 @@
 """Test utility functions of cases CSV export"""
 
-from typing import Generator
+from collections.abc import Generator
 
 import pytest
 

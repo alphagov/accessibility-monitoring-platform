@@ -4,7 +4,7 @@ Test utility functions of cases app
 
 import json
 from dataclasses import dataclass
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from typing import Any
 from unittest.mock import patch
 
@@ -264,7 +264,7 @@ def test_download_cases_simplified():
         create_simplified_case_with_initial_and_12_week_audits()
     )
     simplified_case.contact_notes = "Contact for CSV export"
-    simplified_case.created = datetime(2022, 12, 16, tzinfo=timezone.utc)
+    simplified_case.created = datetime(2022, 12, 16, tzinfo=UTC)
     simplified_case.save()
     simplified_cases: list[SimplifiedCase] = [simplified_case]
     Contact.objects.create(simplified_case=simplified_case, email="test@example.com")
@@ -386,9 +386,7 @@ def test_download_feedback_survey_cases():
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    simplified_case.compliance_email_sent_date = datetime(
-        2022, 12, 16, tzinfo=timezone.utc
-    )
+    simplified_case.compliance_email_sent_date = datetime(2022, 12, 16, tzinfo=UTC)
     simplified_case.contact_notes = SIMPLIFIED_CONTACT_NOTES
     simplified_case.save()
     simplified_cases: list[SimplifiedCase] = [simplified_case]

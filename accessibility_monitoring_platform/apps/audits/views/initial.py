@@ -330,10 +330,8 @@ class WcagPageChecksFormView(NextPlatformPageMixin, FormView):
                 "wcag_definition"
             ]
             check_results_form.fields["check_result_state"].label = wcag_definition
-            setattr(
-                check_results_form,
-                "other_pages_failed_check_results",
-                other_pages_failed_check_results.get(wcag_definition, []),
+            check_results_form.other_pages_failed_check_results = (
+                other_pages_failed_check_results.get(wcag_definition, [])
             )
 
         context["check_results_formset"] = check_results_formset

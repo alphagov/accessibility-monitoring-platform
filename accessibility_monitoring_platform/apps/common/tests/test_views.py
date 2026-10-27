@@ -2,7 +2,7 @@
 Tests for common views
 """
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from unittest.mock import Mock, patch
 
 import pytest
@@ -296,21 +296,13 @@ def test_case_progress_metric_over(
     Test case progress metric, which is over in last 30 days, is calculated and
     displayed correctly.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=UTC)
     mock_date.today.return_value = date(2022, 1, 10)
 
-    SimplifiedCase.objects.create(
-        **{case_field: datetime(2021, 11, 5, tzinfo=timezone.utc)}
-    )
-    SimplifiedCase.objects.create(
-        **{case_field: datetime(2021, 12, 5, tzinfo=timezone.utc)}
-    )
-    SimplifiedCase.objects.create(
-        **{case_field: datetime(2021, 12, 16, tzinfo=timezone.utc)}
-    )
-    SimplifiedCase.objects.create(
-        **{case_field: datetime(2022, 1, 1, tzinfo=timezone.utc)}
-    )
+    SimplifiedCase.objects.create(**{case_field: datetime(2021, 11, 5, tzinfo=UTC)})
+    SimplifiedCase.objects.create(**{case_field: datetime(2021, 12, 5, tzinfo=UTC)})
+    SimplifiedCase.objects.create(**{case_field: datetime(2021, 12, 16, tzinfo=UTC)})
+    SimplifiedCase.objects.create(**{case_field: datetime(2022, 1, 1, tzinfo=UTC)})
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-case"))
 
@@ -335,20 +327,20 @@ def test_case_created_progress_metric_over(mock_date, mock_timezone, admin_clien
     Test case progress metric, which is over in last 30 days, is calculated and
     displayed correctly.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=UTC)
     mock_date.today.return_value = date(2022, 1, 10)
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    simplified_case.created = datetime(2021, 11, 5, tzinfo=timezone.utc)
+    simplified_case.created = datetime(2021, 11, 5, tzinfo=UTC)
     simplified_case.save()
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    simplified_case.created = datetime(2021, 12, 5, tzinfo=timezone.utc)
+    simplified_case.created = datetime(2021, 12, 5, tzinfo=UTC)
     simplified_case.save()
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    simplified_case.created = datetime(2021, 12, 16, tzinfo=timezone.utc)
+    simplified_case.created = datetime(2021, 12, 16, tzinfo=UTC)
     simplified_case.save()
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    simplified_case.created = datetime(2022, 1, 1, tzinfo=timezone.utc)
+    simplified_case.created = datetime(2022, 1, 1, tzinfo=UTC)
     simplified_case.save()
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-case"))
@@ -384,21 +376,13 @@ def test_case_progress_metric_under(
     Test case progress metric, which is under in last 30 days, is calculated and
     displayed correctly.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=UTC)
     mock_date.today.return_value = date(2022, 1, 20)
 
-    SimplifiedCase.objects.create(
-        **{case_field: datetime(2021, 11, 5, tzinfo=timezone.utc)}
-    )
-    SimplifiedCase.objects.create(
-        **{case_field: datetime(2021, 12, 5, tzinfo=timezone.utc)}
-    )
-    SimplifiedCase.objects.create(
-        **{case_field: datetime(2021, 12, 6, tzinfo=timezone.utc)}
-    )
-    SimplifiedCase.objects.create(
-        **{case_field: datetime(2022, 1, 1, tzinfo=timezone.utc)}
-    )
+    SimplifiedCase.objects.create(**{case_field: datetime(2021, 11, 5, tzinfo=UTC)})
+    SimplifiedCase.objects.create(**{case_field: datetime(2021, 12, 5, tzinfo=UTC)})
+    SimplifiedCase.objects.create(**{case_field: datetime(2021, 12, 6, tzinfo=UTC)})
+    SimplifiedCase.objects.create(**{case_field: datetime(2022, 1, 1, tzinfo=UTC)})
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-case"))
 
@@ -423,20 +407,20 @@ def test_case_created_progress_metric_under(mock_date, mock_timezone, admin_clie
     Test case progress metric, which is under in last 30 days, is calculated and
     displayed correctly.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=UTC)
     mock_date.today.return_value = date(2022, 1, 20)
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    simplified_case.created = datetime(2021, 11, 5, tzinfo=timezone.utc)
+    simplified_case.created = datetime(2021, 11, 5, tzinfo=UTC)
     simplified_case.save()
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    simplified_case.created = datetime(2021, 12, 5, tzinfo=timezone.utc)
+    simplified_case.created = datetime(2021, 12, 5, tzinfo=UTC)
     simplified_case.save()
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    simplified_case.created = datetime(2021, 12, 6, tzinfo=timezone.utc)
+    simplified_case.created = datetime(2021, 12, 6, tzinfo=UTC)
     simplified_case.save()
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    simplified_case.created = datetime(2022, 1, 1, tzinfo=timezone.utc)
+    simplified_case.created = datetime(2022, 1, 1, tzinfo=UTC)
     simplified_case.save()
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-case"))
@@ -472,20 +456,12 @@ def test_case_yearly_metric(mock_timezone, label, table_id, case_field, admin_cl
     """
     Test case yearly metric table values.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=UTC)
 
-    SimplifiedCase.objects.create(
-        **{case_field: datetime(2021, 11, 5, tzinfo=timezone.utc)}
-    )
-    SimplifiedCase.objects.create(
-        **{case_field: datetime(2021, 12, 5, tzinfo=timezone.utc)}
-    )
-    SimplifiedCase.objects.create(
-        **{case_field: datetime(2021, 12, 6, tzinfo=timezone.utc)}
-    )
-    SimplifiedCase.objects.create(
-        **{case_field: datetime(2022, 1, 1, tzinfo=timezone.utc)}
-    )
+    SimplifiedCase.objects.create(**{case_field: datetime(2021, 11, 5, tzinfo=UTC)})
+    SimplifiedCase.objects.create(**{case_field: datetime(2021, 12, 5, tzinfo=UTC)})
+    SimplifiedCase.objects.create(**{case_field: datetime(2021, 12, 6, tzinfo=UTC)})
+    SimplifiedCase.objects.create(**{case_field: datetime(2022, 1, 1, tzinfo=UTC)})
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-case"))
 
@@ -502,19 +478,19 @@ def test_case_created_yearly_metric(mock_timezone, admin_client):
     """
     Test case yearly metric table values.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=UTC)
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    simplified_case.created = datetime(2021, 11, 5, tzinfo=timezone.utc)
+    simplified_case.created = datetime(2021, 11, 5, tzinfo=UTC)
     simplified_case.save()
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    simplified_case.created = datetime(2021, 12, 5, tzinfo=timezone.utc)
+    simplified_case.created = datetime(2021, 12, 5, tzinfo=UTC)
     simplified_case.save()
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    simplified_case.created = datetime(2021, 12, 6, tzinfo=timezone.utc)
+    simplified_case.created = datetime(2021, 12, 6, tzinfo=UTC)
     simplified_case.save()
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    simplified_case.created = datetime(2022, 1, 1, tzinfo=timezone.utc)
+    simplified_case.created = datetime(2022, 1, 1, tzinfo=UTC)
     simplified_case.save()
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-case"))
@@ -534,7 +510,7 @@ def test_policy_progress_metric_website_compliance(mock_timezone, admin_client):
     """
     Test policy progress metric for website compliance is calculated correctly.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=UTC)
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         case_completed="complete-no-send"
@@ -546,7 +522,7 @@ def test_policy_progress_metric_website_compliance(mock_timezone, admin_client):
     WcagAudit.objects.create(
         simplified_case=simplified_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 15, tzinfo=UTC),
     )
     fixed_case: SimplifiedCase = SimplifiedCase.objects.create(
         case_completed="complete-no-send",
@@ -559,7 +535,7 @@ def test_policy_progress_metric_website_compliance(mock_timezone, admin_client):
     WcagAudit.objects.create(
         simplified_case=fixed_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 5, tzinfo=UTC),
     )
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
@@ -582,7 +558,7 @@ def test_policy_progress_metric_statement_compliance(mock_timezone, admin_client
     """
     Test policy progress metric for website compliance is calculated correctly.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=UTC)
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND
@@ -591,16 +567,16 @@ def test_policy_progress_metric_statement_compliance(mock_timezone, admin_client
     WcagAudit.objects.create(
         simplified_case=simplified_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 15, tzinfo=UTC),
     )
     StatementAudit.objects.create(
         simplified_case=simplified_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 5, tzinfo=UTC),
     )
     StatementAudit.objects.create(
         simplified_case=simplified_case,
-        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 5, tzinfo=UTC),
     )
     fixed_case: SimplifiedCase = create_case_and_compliance(
         case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND,
@@ -609,12 +585,12 @@ def test_policy_progress_metric_statement_compliance(mock_timezone, admin_client
     WcagAudit.objects.create(
         simplified_case=fixed_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 5, tzinfo=UTC),
     )
     StatementAudit.objects.create(
         simplified_case=fixed_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 5, tzinfo=UTC),
         compliance_state=StatementAudit.StatementCompliance.COMPLIANT,
     )
 
@@ -638,17 +614,17 @@ def test_policy_progress_metric_website_issues(mock_timezone, admin_client):
     """
     Test policy progress metric for website accessibility issues is calculated correctly.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=UTC)
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     initial_wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=simplified_case,
-        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 15, tzinfo=UTC),
     )
     first_twelve_week_wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=simplified_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 15, tzinfo=UTC),
     )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
         wcag_audit=initial_wcag_audit
@@ -708,18 +684,18 @@ def test_policy_progress_metric_statement_issues(mock_timezone, admin_client):
     """
     Test policy progress metric for accessibility statement issues is calculated correctly.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=UTC)
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     AuditOverview.objects.create(simplified_case=simplified_case)
     initial_statement_audit: StatementAudit = StatementAudit.objects.create(
         simplified_case=simplified_case,
-        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 15, tzinfo=UTC),
     )
     first_twelve_week_statement_audit: StatementAudit = StatementAudit.objects.create(
         simplified_case=simplified_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 15, tzinfo=UTC),
     )
     statement_check: StatementCheck = StatementCheck.objects.all().first()
     statement_check_result_initial: StatementCheckResult = (
@@ -760,18 +736,18 @@ def test_policy_metric_completed_with_equalities_bodies(mock_timezone, admin_cli
     """
     Test policy metric for completed cases with equalities bodies.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=UTC)
 
     SimplifiedCase.objects.create(
-        created=datetime(2021, 11, 12, tzinfo=timezone.utc),
+        created=datetime(2021, 11, 12, tzinfo=UTC),
         enforcement_body_pursuing="yes-completed",
     )
     SimplifiedCase.objects.create(
-        created=datetime(2021, 5, 12, tzinfo=timezone.utc),
+        created=datetime(2021, 5, 12, tzinfo=UTC),
         enforcement_body_pursuing="yes-in-progress",
     )
     SimplifiedCase.objects.create(
-        created=datetime(2021, 2, 1, tzinfo=timezone.utc),
+        created=datetime(2021, 2, 1, tzinfo=UTC),
         enforcement_body_pursuing="yes-in-progress",
     )
 
@@ -793,19 +769,19 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
     """
     Test policy yearly metric table values for website state.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=UTC)
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND
     )
     WcagAudit.objects.create(
         simplified_case=simplified_case,
-        date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 9, 15, tzinfo=UTC),
     )
     WcagAudit.objects.create(
         simplified_case=simplified_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 15, tzinfo=UTC),
     )
     initially_compliant_website_case: SimplifiedCase = create_case_and_compliance(
         case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND,
@@ -813,13 +789,13 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
     )
     WcagAudit.objects.create(
         simplified_case=initially_compliant_website_case,
-        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 15, tzinfo=UTC),
         compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
     )
     WcagAudit.objects.create(
         simplified_case=initially_compliant_website_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 5, tzinfo=UTC),
     )
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
@@ -827,12 +803,12 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
     )
     WcagAudit.objects.create(
         simplified_case=simplified_case,
-        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 15, tzinfo=UTC),
     )
     WcagAudit.objects.create(
         simplified_case=simplified_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 15, tzinfo=UTC),
     )
     fixed_case: SimplifiedCase = SimplifiedCase.objects.create(
         case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND,
@@ -840,12 +816,12 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
     )
     WcagAudit.objects.create(
         simplified_case=fixed_case,
-        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 5, tzinfo=UTC),
     )
     WcagAudit.objects.create(
         simplified_case=fixed_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 5, tzinfo=UTC),
     )
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
@@ -853,12 +829,12 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
     )
     WcagAudit.objects.create(
         simplified_case=simplified_case,
-        date_of_test=datetime(2021, 11, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 11, 15, tzinfo=UTC),
     )
     WcagAudit.objects.create(
         simplified_case=simplified_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 11, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 11, 15, tzinfo=UTC),
     )
     fixed_case: SimplifiedCase = SimplifiedCase.objects.create(
         case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND,
@@ -866,12 +842,12 @@ def test_policy_yearly_metric_website_state(mock_timezone, admin_client):
     )
     WcagAudit.objects.create(
         simplified_case=fixed_case,
-        date_of_test=datetime(2021, 11, 5, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 11, 5, tzinfo=UTC),
     )
     WcagAudit.objects.create(
         simplified_case=fixed_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 11, 5, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 11, 5, tzinfo=UTC),
     )
 
     response: HttpResponse = admin_client.get(reverse("common:metrics-policy"))
@@ -890,28 +866,28 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     """
     Test policy yearly metric table values for accessibility statement state.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=UTC)
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
         case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND
     )
     WcagAudit.objects.create(
         simplified_case=simplified_case,
-        date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 9, 15, tzinfo=UTC),
     )
     StatementAudit.objects.create(
         simplified_case=simplified_case,
-        date_of_test=datetime(2021, 9, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 9, 15, tzinfo=UTC),
     )
     WcagAudit.objects.create(
         simplified_case=simplified_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 15, tzinfo=UTC),
     )
     StatementAudit.objects.create(
         simplified_case=simplified_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 15, tzinfo=UTC),
     )
     initially_compliant_website_case: SimplifiedCase = create_case_and_compliance(
         case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND,
@@ -919,70 +895,24 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     )
     WcagAudit.objects.create(
         simplified_case=initially_compliant_website_case,
-        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 5, tzinfo=UTC),
         compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
     )
     StatementAudit.objects.create(
         simplified_case=initially_compliant_website_case,
-        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 5, tzinfo=UTC),
         compliance_state=StatementAudit.StatementCompliance.COMPLIANT,
     )
     WcagAudit.objects.create(
         simplified_case=initially_compliant_website_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 5, tzinfo=UTC),
         compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
     )
     StatementAudit.objects.create(
         simplified_case=initially_compliant_website_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
-        compliance_state=StatementAudit.StatementCompliance.COMPLIANT,
-    )
-
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND
-    )
-    WcagAudit.objects.create(
-        simplified_case=simplified_case,
-        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
-    )
-    StatementAudit.objects.create(
-        simplified_case=simplified_case,
-        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
-    )
-    WcagAudit.objects.create(
-        simplified_case=simplified_case,
-        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
-    )
-    StatementAudit.objects.create(
-        simplified_case=simplified_case,
-        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 15, tzinfo=timezone.utc),
-    )
-    fixed_case: SimplifiedCase = SimplifiedCase.objects.create(
-        case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND,
-        recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
-    )
-    WcagAudit.objects.create(
-        simplified_case=fixed_case,
-        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
-    )
-    StatementAudit.objects.create(
-        simplified_case=fixed_case,
-        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
-    )
-    WcagAudit.objects.create(
-        simplified_case=fixed_case,
-        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
-        compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
-    )
-    StatementAudit.objects.create(
-        simplified_case=fixed_case,
-        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 12, 5, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 5, tzinfo=UTC),
         compliance_state=StatementAudit.StatementCompliance.COMPLIANT,
     )
 
@@ -991,21 +921,21 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     )
     WcagAudit.objects.create(
         simplified_case=simplified_case,
-        date_of_test=datetime(2021, 11, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 15, tzinfo=UTC),
     )
     StatementAudit.objects.create(
         simplified_case=simplified_case,
-        date_of_test=datetime(2021, 11, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 15, tzinfo=UTC),
     )
     WcagAudit.objects.create(
         simplified_case=simplified_case,
-        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 11, 15, tzinfo=timezone.utc),
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 12, 15, tzinfo=UTC),
     )
     StatementAudit.objects.create(
         simplified_case=simplified_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 11, 15, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 15, tzinfo=UTC),
     )
     fixed_case: SimplifiedCase = SimplifiedCase.objects.create(
         case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND,
@@ -1013,22 +943,68 @@ def test_policy_yearly_metric_statement_state(mock_timezone, admin_client):
     )
     WcagAudit.objects.create(
         simplified_case=fixed_case,
-        date_of_test=datetime(2021, 11, 5, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 5, tzinfo=UTC),
     )
     StatementAudit.objects.create(
         simplified_case=fixed_case,
-        date_of_test=datetime(2021, 11, 5, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 5, tzinfo=UTC),
     )
     WcagAudit.objects.create(
         simplified_case=fixed_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 11, 5, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 5, tzinfo=UTC),
         compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
     )
     StatementAudit.objects.create(
         simplified_case=fixed_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-        date_of_test=datetime(2021, 11, 5, tzinfo=timezone.utc),
+        date_of_test=datetime(2021, 12, 5, tzinfo=UTC),
+        compliance_state=StatementAudit.StatementCompliance.COMPLIANT,
+    )
+
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        date_of_test=datetime(2021, 11, 15, tzinfo=UTC),
+    )
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        date_of_test=datetime(2021, 11, 15, tzinfo=UTC),
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 11, 15, tzinfo=UTC),
+    )
+    StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 11, 15, tzinfo=UTC),
+    )
+    fixed_case: SimplifiedCase = SimplifiedCase.objects.create(
+        case_completed=SimplifiedCase.CaseCompleted.COMPLETE_NO_SEND,
+        recommendation_for_enforcement=SimplifiedCase.RecommendationForEnforcement.NO_FURTHER_ACTION,
+    )
+    WcagAudit.objects.create(
+        simplified_case=fixed_case,
+        date_of_test=datetime(2021, 11, 5, tzinfo=UTC),
+    )
+    StatementAudit.objects.create(
+        simplified_case=fixed_case,
+        date_of_test=datetime(2021, 11, 5, tzinfo=UTC),
+    )
+    WcagAudit.objects.create(
+        simplified_case=fixed_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 11, 5, tzinfo=UTC),
+        compliance_state=WcagAudit.WebsiteCompliance.COMPLIANT,
+    )
+    StatementAudit.objects.create(
+        simplified_case=fixed_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+        date_of_test=datetime(2021, 11, 5, tzinfo=UTC),
         compliance_state=StatementAudit.StatementCompliance.COMPLIANT,
     )
 
@@ -1050,13 +1026,13 @@ def test_report_published_progress_metric_over(mock_date, mock_timezone, admin_c
     Test published reports progress metric, which is over in last 30 days, is calculated and
     displayed correctly.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 10, tzinfo=UTC)
     mock_date.today.return_value = date(2022, 1, 29)
 
     for created_date in [
-        datetime(2021, 12, 5, tzinfo=timezone.utc),
-        datetime(2022, 1, 1, tzinfo=timezone.utc),
-        datetime(2022, 1, 2, tzinfo=timezone.utc),
+        datetime(2021, 12, 5, tzinfo=UTC),
+        datetime(2022, 1, 1, tzinfo=UTC),
+        datetime(2022, 1, 2, tzinfo=UTC),
     ]:
         with patch(
             "django.utils.timezone.now",
@@ -1090,14 +1066,14 @@ def test_report_published_progress_metric_under(mock_date, mock_timezone, admin_
     Test published reports progress metric, which is under in last 30 days, is calculated and
     displayed correctly.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=UTC)
     mock_date.today.return_value = date(2022, 1, 29)
 
     for created_date in [
-        datetime(2021, 11, 5, tzinfo=timezone.utc),
-        datetime(2021, 12, 5, tzinfo=timezone.utc),
-        datetime(2021, 12, 6, tzinfo=timezone.utc),
-        datetime(2022, 1, 1, tzinfo=timezone.utc),
+        datetime(2021, 11, 5, tzinfo=UTC),
+        datetime(2021, 12, 5, tzinfo=UTC),
+        datetime(2021, 12, 6, tzinfo=UTC),
+        datetime(2022, 1, 1, tzinfo=UTC),
     ]:
         with patch(
             "django.utils.timezone.now",
@@ -1131,15 +1107,15 @@ def test_report_viewed_progress_metric_under(mock_date, mock_timezone, admin_cli
     Test reports viewed progress metric, which is under in last 30 days, is calculated and
     displayed correctly.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 29, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 29, tzinfo=UTC)
     mock_date.today.return_value = date(2022, 1, 29)
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     for created_date in [
-        datetime(2021, 12, 5, tzinfo=timezone.utc),
-        datetime(2021, 12, 6, tzinfo=timezone.utc),
-        datetime(2022, 1, 1, tzinfo=timezone.utc),
+        datetime(2021, 12, 5, tzinfo=UTC),
+        datetime(2021, 12, 6, tzinfo=UTC),
+        datetime(2022, 1, 1, tzinfo=UTC),
     ]:
         with patch("django.utils.timezone.now", Mock(return_value=created_date)):
             simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
@@ -1170,13 +1146,13 @@ def test_report_acknowledged_progress_metric_under(
     Test report acknowledged progress metric, which is under in last 30 days, is calculated and
     displayed correctly.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 29, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 29, tzinfo=UTC)
     mock_date.today.return_value = date(2022, 1, 29)
 
     for acknowledged_date in [
-        datetime(2021, 12, 5, tzinfo=timezone.utc),
-        datetime(2021, 12, 6, tzinfo=timezone.utc),
-        datetime(2022, 1, 1, tzinfo=timezone.utc),
+        datetime(2021, 12, 5, tzinfo=UTC),
+        datetime(2021, 12, 6, tzinfo=UTC),
+        datetime(2022, 1, 1, tzinfo=UTC),
     ]:
         SimplifiedCase.objects.create(report_acknowledged_date=acknowledged_date)
 
@@ -1201,15 +1177,15 @@ def test_report_published_yearly_metric(mock_timezone, admin_client):
     """
     Test report published yearly metric table values.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=UTC)
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     for creation_time in [
-        datetime(2021, 11, 5, tzinfo=timezone.utc),
-        datetime(2021, 12, 5, tzinfo=timezone.utc),
-        datetime(2021, 12, 6, tzinfo=timezone.utc),
-        datetime(2022, 1, 1, tzinfo=timezone.utc),
+        datetime(2021, 11, 5, tzinfo=UTC),
+        datetime(2021, 12, 5, tzinfo=UTC),
+        datetime(2021, 12, 6, tzinfo=UTC),
+        datetime(2022, 1, 1, tzinfo=UTC),
     ]:
         with patch("django.utils.timezone.now", Mock(return_value=creation_time)):
             simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
@@ -1235,15 +1211,15 @@ def test_report_viewed_yearly_metric(mock_timezone, admin_client):
     """
     Test report published yearly metric table values.
     """
-    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=timezone.utc)
+    mock_timezone.now.return_value = datetime(2022, 1, 20, tzinfo=UTC)
 
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
 
     for creation_time in [
-        datetime(2021, 11, 5, tzinfo=timezone.utc),
-        datetime(2021, 12, 5, tzinfo=timezone.utc),
-        datetime(2021, 12, 6, tzinfo=timezone.utc),
-        datetime(2022, 1, 1, tzinfo=timezone.utc),
+        datetime(2021, 11, 5, tzinfo=UTC),
+        datetime(2021, 12, 5, tzinfo=UTC),
+        datetime(2021, 12, 6, tzinfo=UTC),
+        datetime(2022, 1, 1, tzinfo=UTC),
     ]:
         with patch("django.utils.timezone.now", Mock(return_value=creation_time)):
             simplified_case: SimplifiedCase = SimplifiedCase.objects.create()

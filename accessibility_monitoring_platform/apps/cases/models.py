@@ -42,7 +42,7 @@ def get_previous_case_identifier(previous_case_url: str) -> str | None:
         return base_case.case_identifier
 
 
-class DisablePyTestCollectionMixin(object):
+class DisablePyTestCollectionMixin:
     __test__ = False
 
 

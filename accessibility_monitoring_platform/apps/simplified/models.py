@@ -1189,7 +1189,7 @@ class CaseStatus(models.Model):
     def __str__(self) -> str:
         return self.status
 
-    def calculate_status(self) -> str:  # noqa: C901
+    def calculate_status(self) -> str:
         from ..audits.models import StatementAudit, WcagAudit
 
         initial_wcag_audit: WcagAudit | None = (

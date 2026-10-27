@@ -3,19 +3,19 @@ Test for send_reminders_email command which should only email the users on a Mon
 """
 
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import Mock, patch
 
 import pytest
 from django.core.management import call_command
 
-MONDAY: datetime = datetime(2025, 11, 10, 2, 0, 0, tzinfo=timezone.utc)
-TUESDAY: datetime = datetime(2025, 11, 11, 2, 0, 0, tzinfo=timezone.utc)
-WEDNESDAY: datetime = datetime(2025, 11, 12, 2, 0, 0, tzinfo=timezone.utc)
-THURSDAY: datetime = datetime(2025, 11, 13, 2, 0, 0, tzinfo=timezone.utc)
-FRIDAY: datetime = datetime(2025, 11, 14, 2, 0, 0, tzinfo=timezone.utc)
-SATURDAY: datetime = datetime(2025, 11, 15, 2, 0, 0, tzinfo=timezone.utc)
-SUNDAY: datetime = datetime(2025, 11, 16, 2, 0, 0, tzinfo=timezone.utc)
+MONDAY: datetime = datetime(2025, 11, 10, 2, 0, 0, tzinfo=UTC)
+TUESDAY: datetime = datetime(2025, 11, 11, 2, 0, 0, tzinfo=UTC)
+WEDNESDAY: datetime = datetime(2025, 11, 12, 2, 0, 0, tzinfo=UTC)
+THURSDAY: datetime = datetime(2025, 11, 13, 2, 0, 0, tzinfo=UTC)
+FRIDAY: datetime = datetime(2025, 11, 14, 2, 0, 0, tzinfo=UTC)
+SATURDAY: datetime = datetime(2025, 11, 15, 2, 0, 0, tzinfo=UTC)
+SUNDAY: datetime = datetime(2025, 11, 16, 2, 0, 0, tzinfo=UTC)
 
 
 @pytest.mark.parametrize(

@@ -30,7 +30,7 @@ def main(user: str, mfa_token: str):
     if len(iam_response["MFADevices"]) > 1:
         for n, device in enumerate(iam_response["MFADevices"]):
             logging.info(
-                f"""#{n+1}: SerialNumber - {device["SerialNumber"]} | EnableDate: {str(device["EnableDate"])}"""
+                f"""#{n+1}: SerialNumber - {device["SerialNumber"]} | EnableDate: {device["EnableDate"]!s}"""
             )
 
         while True:

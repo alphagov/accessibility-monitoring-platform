@@ -4,7 +4,7 @@ Test utility functions of cases app
 
 import io
 from dataclasses import dataclass
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from typing import Any
 from unittest.mock import Mock, patch
 
@@ -125,7 +125,7 @@ def test_case_filtered_by_updated_date_range():
         "django.utils.timezone.now",
         Mock(
             return_value=datetime(
-                PAST_DATE.year, PAST_DATE.month, PAST_DATE.day, tzinfo=timezone.utc
+                PAST_DATE.year, PAST_DATE.month, PAST_DATE.day, tzinfo=UTC
             )
         ),
     ):
@@ -137,7 +137,7 @@ def test_case_filtered_by_updated_date_range():
                 TODAYS_DATE.year,
                 TODAYS_DATE.month,
                 TODAYS_DATE.day,
-                tzinfo=timezone.utc,
+                tzinfo=UTC,
             )
         ),
     ):
@@ -167,7 +167,7 @@ def test_filtering_by_date_range_is_inclusive():
                 TODAYS_DATE.year,
                 TODAYS_DATE.month,
                 TODAYS_DATE.day,
-                tzinfo=timezone.utc,
+                tzinfo=UTC,
             )
         ),
     ):

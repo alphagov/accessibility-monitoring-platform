@@ -3,7 +3,7 @@ Tests for cases models
 """
 
 import json
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from unittest.mock import Mock, patch
 
 import pytest
@@ -49,24 +49,24 @@ from ..models import (
 DOMAIN: str = "example.com"
 HOME_PAGE_URL: str = f"https://{DOMAIN}/index.html"
 ORGANISATION_NAME: str = "Organisation name"
-DATETIME_HISTORIC: datetime = datetime(2020, 9, 15, tzinfo=timezone.utc)
-DATETIME_CASE_CREATED: datetime = datetime(2021, 9, 15, tzinfo=timezone.utc)
-DATETIME_CASE_UPDATED: datetime = datetime(2021, 9, 16, tzinfo=timezone.utc)
-DATETIME_CONTACT_CREATED: datetime = datetime(2021, 9, 17, tzinfo=timezone.utc)
-DATETIME_CONTACT_UPDATED: datetime = datetime(2021, 9, 18, tzinfo=timezone.utc)
+DATETIME_HISTORIC: datetime = datetime(2020, 9, 15, tzinfo=UTC)
+DATETIME_CASE_CREATED: datetime = datetime(2021, 9, 15, tzinfo=UTC)
+DATETIME_CASE_UPDATED: datetime = datetime(2021, 9, 16, tzinfo=UTC)
+DATETIME_CONTACT_CREATED: datetime = datetime(2021, 9, 17, tzinfo=UTC)
+DATETIME_CONTACT_UPDATED: datetime = datetime(2021, 9, 18, tzinfo=UTC)
 DATE_AUDIT_CREATED: date = date(2021, 9, 19)
-DATETIME_AUDIT_CREATED: datetime = datetime(2021, 9, 19, tzinfo=timezone.utc)
-DATETIME_AUDIT_UPDATED: datetime = datetime(2021, 9, 20, tzinfo=timezone.utc)
-DATETIME_PAGE_CREATED: datetime = datetime(2021, 9, 21, tzinfo=timezone.utc)
-DATETIME_PAGE_UPDATED: datetime = datetime(2021, 9, 22, tzinfo=timezone.utc)
-DATETIME_CHECK_RESULT_CREATED: datetime = datetime(2021, 9, 23, tzinfo=timezone.utc)
-DATETIME_CHECK_RESULT_UPDATED: datetime = datetime(2021, 9, 24, tzinfo=timezone.utc)
-DATETIME_COMMENT_CREATED: datetime = datetime(2021, 9, 25, tzinfo=timezone.utc)
-DATETIME_COMMENT_UPDATED: datetime = datetime(2021, 9, 26, tzinfo=timezone.utc)
+DATETIME_AUDIT_CREATED: datetime = datetime(2021, 9, 19, tzinfo=UTC)
+DATETIME_AUDIT_UPDATED: datetime = datetime(2021, 9, 20, tzinfo=UTC)
+DATETIME_PAGE_CREATED: datetime = datetime(2021, 9, 21, tzinfo=UTC)
+DATETIME_PAGE_UPDATED: datetime = datetime(2021, 9, 22, tzinfo=UTC)
+DATETIME_CHECK_RESULT_CREATED: datetime = datetime(2021, 9, 23, tzinfo=UTC)
+DATETIME_CHECK_RESULT_UPDATED: datetime = datetime(2021, 9, 24, tzinfo=UTC)
+DATETIME_COMMENT_CREATED: datetime = datetime(2021, 9, 25, tzinfo=UTC)
+DATETIME_COMMENT_UPDATED: datetime = datetime(2021, 9, 26, tzinfo=UTC)
 REMINDER_DUE_DATE: date = date(2022, 1, 1)
-DATETIME_REMINDER_UPDATED: datetime = datetime(2021, 9, 27, tzinfo=timezone.utc)
-DATETIME_REPORT_UPDATED: datetime = datetime(2021, 9, 28, tzinfo=timezone.utc)
-DATETIME_S3REPORT_UPDATED: datetime = datetime(2021, 9, 29, tzinfo=timezone.utc)
+DATETIME_REMINDER_UPDATED: datetime = datetime(2021, 9, 27, tzinfo=UTC)
+DATETIME_REPORT_UPDATED: datetime = datetime(2021, 9, 28, tzinfo=UTC)
+DATETIME_S3REPORT_UPDATED: datetime = datetime(2021, 9, 29, tzinfo=UTC)
 NO_CONTACT_DATE: date = date(2020, 4, 1)
 NO_CONTACT_ONE_WEEK: date = NO_CONTACT_DATE + timedelta(days=7)
 NO_CONTACT_FOUR_WEEKS: date = NO_CONTACT_DATE + timedelta(days=28)
@@ -1994,9 +1994,7 @@ def test_simplified_case_report_acknowledged_yes_no():
     assert SimplifiedCase().report_acknowledged_yes_no == "No"
     assert (
         SimplifiedCase(
-            report_acknowledged_date=datetime(
-                2020, 1, 1, 0, 0, 0, 0, tzinfo=timezone.utc
-            )
+            report_acknowledged_date=datetime(2020, 1, 1, 0, 0, 0, 0, tzinfo=UTC)
         ).report_acknowledged_yes_no
         == "Yes"
     )

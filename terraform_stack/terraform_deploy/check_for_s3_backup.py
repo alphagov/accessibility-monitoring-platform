@@ -1,6 +1,6 @@
 import logging
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import boto3
 from botocore.exceptions import ClientError
@@ -32,7 +32,7 @@ def wait_for_recent_s3_object(
     poll_interval = initial_poll_seconds
 
     while True:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         recent_cutoff = now - timedelta(minutes=recent_within_minutes)
 
         try:

@@ -2,8 +2,9 @@
 
 import copy
 import csv
+from collections.abc import Generator
 from dataclasses import dataclass
-from typing import Any, Generator
+from typing import Any
 
 from django.db.models.query import QuerySet
 from django.urls import reverse

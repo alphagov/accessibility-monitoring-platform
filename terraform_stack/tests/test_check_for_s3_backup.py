@@ -1,11 +1,13 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 import boto3
 import pytest
 from moto import mock_aws
 
-from terraform_stack.terraform_deploy.check_for_s3_backup import wait_for_recent_s3_object
+from terraform_stack.terraform_deploy.check_for_s3_backup import (
+    wait_for_recent_s3_object,
+)
 
 BUCKET = "test-backup-bucket"
 PREFIX = "aws_aurora_backup/"
@@ -35,7 +37,7 @@ def test_finds_recent_backup():
     )
 
     assert result["Key"] == f"{PREFIX}backup.sql"
-    assert result["LastModified"] <= datetime.now(timezone.utc)
+    assert result["LastModified"] <= datetime.now(UTC)
 
 
 @mock_aws

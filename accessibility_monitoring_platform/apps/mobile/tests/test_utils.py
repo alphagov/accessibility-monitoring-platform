@@ -1,6 +1,6 @@
 """Tests for utilities for mobile cases"""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 from django.contrib.auth.models import User
@@ -90,7 +90,7 @@ def test_download_cases_mobile():
         username="johnsmith", first_name="John", last_name="Smith"
     )
     mobile_case: MobileCase = MobileCase.objects.create()
-    mobile_case.created = datetime(2022, 12, 16, tzinfo=timezone.utc)
+    mobile_case.created = datetime(2022, 12, 16, tzinfo=UTC)
     mobile_case.save()
     mobile_cases: list[MobileCase] = [mobile_case]
     MobileContact.objects.create(
@@ -228,7 +228,7 @@ def test_download_cases_mobile():
 def test_download_feedback_survey_mobile_cases():
     """Test creation of CSV for feedback survey for mobile cases"""
     mobile_case: MobileCase = MobileCase.objects.create(
-        recommendation_decision_sent_date=datetime(2022, 12, 16, tzinfo=timezone.utc),
+        recommendation_decision_sent_date=datetime(2022, 12, 16, tzinfo=UTC),
     )
     user: User = User.objects.create(
         username="johnsmith", first_name="John", last_name="Smith"
@@ -282,7 +282,7 @@ def test_download_feedback_survey_mobile_cases():
 def test_download_equality_body_mobile_cases():
     """Test creation of CSV for equality body for mobile cases"""
     mobile_case: MobileCase = MobileCase.objects.create(
-        recommendation_decision_sent_date=datetime(2022, 12, 16, tzinfo=timezone.utc),
+        recommendation_decision_sent_date=datetime(2022, 12, 16, tzinfo=UTC),
     )
     user: User = User.objects.create(
         username="johnsmith", first_name="John", last_name="Smith"
