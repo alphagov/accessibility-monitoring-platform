@@ -44,13 +44,13 @@ class ExportCsvMixin:
 class EmailTemplateAdmin(admin.ModelAdmin):
     """Django admin configuration for EmailTemplate model"""
 
-    search_fields = [
+    search_fields = (
         "name",
         "template_name",
         "updated_by__username",
         "created_by__username",
-    ]
-    list_display = [
+    )
+    list_display = (
         "name",
         "template_name",
         "is_simplified",
@@ -58,39 +58,39 @@ class EmailTemplateAdmin(admin.ModelAdmin):
         "is_mobile",
         "is_deleted",
         "position",
-    ]
-    list_filter = [
+    )
+    list_filter = (
         "is_simplified",
         "is_detailed",
         "is_mobile",
         "is_deleted",
-    ]
-    readonly_fields = [
+    )
+    readonly_fields = (
         "created",
         "updated",
-    ]
+    )
     show_facets = admin.ShowFacets.ALWAYS
 
 
 class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
     """Django admin configuration for IssueReport model"""
 
-    readonly_fields = [
+    readonly_fields = (
         "page_url",
         "page_title",
         "goal_description",
         "issue_description",
         "created",
         "created_by",
-    ]
-    search_fields = [
+    )
+    search_fields = (
         "page_url",
         "page_title",
         "goal_description",
         "issue_description",
         "trello_ticket",
-    ]
-    list_display = [
+    )
+    list_display = (
         "issue_number",
         "page_title",
         "created_by",
@@ -98,8 +98,8 @@ class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
         "complete",
         "goal_description",
         "issue_description",
-    ]
-    list_filter = ["complete", ("created_by", admin.RelatedOnlyFieldListFilter)]
+    )
+    list_filter = ("complete", ("created_by", admin.RelatedOnlyFieldListFilter))
     fieldsets = (
         (
             None,
@@ -117,7 +117,7 @@ class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
     )
     show_facets = admin.ShowFacets.ALWAYS
 
-    actions = ["export_as_csv"]
+    actions = ("export_as_csv",)
 
     def has_delete_permission(
         self, request, obj=None
@@ -128,8 +128,8 @@ class IssueReportAdmin(admin.ModelAdmin, ExportCsvMixin):
 class ChangeToPlatformAdmin(admin.ModelAdmin):
     """Django admin configuration for ChangeToPlatform model"""
 
-    search_fields = ["name", "notes", "version"]
-    list_display = ["name", "version", "date_of_change", "created"]
+    search_fields = ("name", "notes", "version")
+    list_display = ("name", "version", "date_of_change", "created")
     date_hierarchy = "created"
     fieldsets = (
         (
@@ -137,7 +137,7 @@ class ChangeToPlatformAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     ("version",),
-                    ("date_of_change"),
+                    ("date_of_change",),
                     ("notes",),
                     ("name",),
                 )
@@ -149,47 +149,47 @@ class ChangeToPlatformAdmin(admin.ModelAdmin):
 class UserCacheUniqueHashAdmin(admin.ModelAdmin):
     """Django admin configuration for IssueReport model"""
 
-    readonly_fields = ["user", "fingerprint_hash"]
-    search_fields = ["user"]
-    list_display = ["user", "fingerprint_hash"]
-    list_filter = ["user", "fingerprint_hash"]
+    readonly_fields = ("user", "fingerprint_hash")
+    search_fields = ("user",)
+    list_display = ("user", "fingerprint_hash")
+    list_filter = ("user", "fingerprint_hash")
 
 
 class FrequentlyUsedLinksAdmin(admin.ModelAdmin):
     """ "Django admin configuration for FrequentlyUsedLink model"""
 
-    list_display = ["label", "url", "case_type", "position", "is_deleted"]
-    list_filter = ["case_type", "is_deleted"]
+    list_display = ("label", "url", "case_type", "position", "is_deleted")
+    list_filter = ("case_type", "is_deleted")
     show_facets = admin.ShowFacets.ALWAYS
 
 
 class FooterLinksAdmin(admin.ModelAdmin):
     """ "Django admin configuration for FooterLink model"""
 
-    list_display = ["label", "url", "is_deleted"]
+    list_display = ("label", "url", "is_deleted")
 
 
 class SubCategorysAdmin(admin.ModelAdmin):
     """ "Django admin configuration for SubCategory model"""
 
-    list_display = ["name"]
+    list_display = ("name",)
 
 
 class EventHistoryAdmin(admin.ModelAdmin):
     """Django admin configuration for EventHistory model"""
 
-    list_display = [
+    list_display = (
         "event_type",
         "content_type",
         "created",
         "created_by",
         "difference",
-    ]
-    list_filter = [
+    )
+    list_filter = (
         "event_type",
         ("content_type", admin.RelatedOnlyFieldListFilter),
         ("created_by", admin.RelatedOnlyFieldListFilter),
-    ]
+    )
     show_facets = admin.ShowFacets.ALWAYS
 
 

@@ -2,7 +2,7 @@
 Tests for reports models
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import Mock, patch
 
 import pytest
@@ -13,7 +13,7 @@ from ...simplified.models import SimplifiedCase
 from ..models import Report
 
 DOMAIN: str = "example.com"
-DATETIME_REPORT_UPDATED: datetime = datetime(2021, 9, 28, tzinfo=timezone.utc)
+DATETIME_REPORT_UPDATED: datetime = datetime(2021, 9, 28, tzinfo=UTC)
 
 
 @pytest.mark.django_db

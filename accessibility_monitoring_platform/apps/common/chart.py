@@ -1,7 +1,6 @@
 import math
 from dataclasses import dataclass
-from datetime import datetime
-from datetime import timezone as datetime_timezone
+from datetime import UTC, datetime
 
 from django.utils import timezone
 
@@ -145,9 +144,7 @@ def build_13_month_x_axis() -> list[ChartAxisTick]:
     now: datetime = timezone.now()
     current_month: int = now.month
     current_year: int = now.year - 1
-    tick_datetime: datetime = datetime(
-        current_year, current_month, 1, tzinfo=datetime_timezone.utc
-    )
+    tick_datetime: datetime = datetime(current_year, current_month, 1, tzinfo=UTC)
     x_axis: list[ChartAxisTick] = []
     for x_position in range(0, 650, 50):
         x_axis_tick: ChartAxisTick = ChartAxisTick(
@@ -164,9 +161,7 @@ def build_13_month_x_axis() -> list[ChartAxisTick]:
         else:
             current_month = 1
             current_year += 1
-        tick_datetime = datetime(
-            current_year, current_month, 1, tzinfo=datetime_timezone.utc
-        )
+        tick_datetime = datetime(current_year, current_month, 1, tzinfo=UTC)
     return x_axis
 
 

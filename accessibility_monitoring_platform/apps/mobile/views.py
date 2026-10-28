@@ -187,11 +187,9 @@ class MobileCaseDetailView(DetailView):
         sitemap: Sitemap = Sitemap(request=self.request)
 
         return {
-            **{
-                "case_detail_sections": get_mobile_case_detail_sections(
-                    mobile_case=mobile_case, sitemap=sitemap
-                )
-            },
+            "case_detail_sections": get_mobile_case_detail_sections(
+                mobile_case=mobile_case, sitemap=sitemap
+            ),
             **context,
         }
 
@@ -212,11 +210,9 @@ class CaseDetailView(DetailView):
         sitemap: Sitemap = Sitemap(request=self.request)
 
         return {
-            **{
-                "case_detail_sections": get_mobile_case_detail_sections(
-                    mobile_case=mobile_case, sitemap=sitemap
-                )
-            },
+            "case_detail_sections": get_mobile_case_detail_sections(
+                mobile_case=mobile_case, sitemap=sitemap
+            ),
             **context,
         }
 

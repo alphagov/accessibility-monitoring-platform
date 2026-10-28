@@ -35,7 +35,7 @@ def build_field(
             data_type = "datetime"
         elif isinstance(field, date):
             data_type = "date"
-        elif isinstance(field, str) or isinstance(field, int) or field is None:
+        elif isinstance(field, (str, int)) or field is None:
             data_type = "str"
 
     if data_type == "date":

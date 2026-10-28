@@ -2,8 +2,7 @@
 Tests for cases models
 """
 
-from datetime import date, datetime, timedelta, timezone
-from typing import Type
+from datetime import UTC, date, datetime, timedelta
 from unittest.mock import Mock, patch
 
 import pytest
@@ -37,12 +36,12 @@ from .create_test_data import (
 )
 
 TODAY: date = date.today()
-PREVIOUS_STATEMENT_CHECKS_TIME: datetime = datetime(2025, 4, 1, tzinfo=timezone.utc)
+PREVIOUS_STATEMENT_CHECKS_TIME: datetime = datetime(2025, 4, 1, tzinfo=UTC)
 PAGE_NAME: str = "Page name"
 WCAG_DESCRIPTION: str = "WCAG definition description"
-DATETIME_AUDIT_UPDATED: datetime = datetime(2021, 9, 20, tzinfo=timezone.utc)
-DATETIME_PAGE_UPDATED: datetime = datetime(2021, 9, 22, tzinfo=timezone.utc)
-DATETIME_CHECK_RESULT_UPDATED: datetime = datetime(2021, 9, 24, tzinfo=timezone.utc)
+DATETIME_AUDIT_UPDATED: datetime = datetime(2021, 9, 20, tzinfo=UTC)
+DATETIME_PAGE_UPDATED: datetime = datetime(2021, 9, 22, tzinfo=UTC)
+DATETIME_CHECK_RESULT_UPDATED: datetime = datetime(2021, 9, 24, tzinfo=UTC)
 INITIAL_NOTES: str = "Initial notes"
 FINAL_NOTES: str = "Final notes"
 INCOMPLETE_DEADLINE_TEXT: str = "Incomplete deadline text"
@@ -55,7 +54,7 @@ GOOGLE_DRIVE_LINK: str = "https://drive.google.com/link1"
 NON_GOOGLE_DRIVE_LINK: str = "https://example.com/link2"
 STATEMENT_PAGE_URL: str = "https://example.com/statement"
 STATEMENT_PAGE_LOCATION: str = "Statement location"
-DATETIME_AUDIT_CREATED: datetime = datetime(2021, 4, 1, tzinfo=timezone.utc)
+DATETIME_AUDIT_CREATED: datetime = datetime(2021, 4, 1, tzinfo=UTC)
 
 
 @pytest.mark.django_db
@@ -648,7 +647,7 @@ def test_audit_overview_last_edited():
     ],
 )
 def test_audit_round_attrs(
-    audit_class: Type[StatementAudit] | Type[WcagAudit],
+    audit_class: type[StatementAudit] | type[WcagAudit],
     audit_round_type: AuditRound.AuditRoundType,
     attr_name: str,
     expected_result: str,

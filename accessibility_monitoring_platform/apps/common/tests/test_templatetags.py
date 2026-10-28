@@ -2,7 +2,7 @@
 Test templatetags of common app
 """
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 
 import pytest
 
@@ -77,8 +77,8 @@ def test_amp_date_trunc(date_to_format, expected_result):
 @pytest.mark.parametrize(
     "datetime_to_format,expected_result",
     [
-        (datetime(2021, 1, 4, 9, 1, 0, 0, timezone.utc), "4 January 2021 9:01am"),
-        (datetime(2021, 7, 4, 8, 1, 0, 0, timezone.utc), "4 July 2021 9:01am"),
+        (datetime(2021, 1, 4, 9, 1, 0, 0, UTC), "4 January 2021 9:01am"),
+        (datetime(2021, 7, 4, 8, 1, 0, 0, UTC), "4 July 2021 9:01am"),
         (None, ""),
     ],
 )
@@ -90,8 +90,8 @@ def test_amp_datetime(datetime_to_format, expected_result):
 @pytest.mark.parametrize(
     "datetime_to_format,expected_result",
     [
-        (datetime(2021, 1, 4, 9, 1, 0, 0, timezone.utc), "4 Jan 21 9:01am"),
-        (datetime(2021, 7, 4, 8, 1, 0, 0, timezone.utc), "4 Jul 21 9:01am"),
+        (datetime(2021, 1, 4, 9, 1, 0, 0, UTC), "4 Jan 21 9:01am"),
+        (datetime(2021, 7, 4, 8, 1, 0, 0, UTC), "4 Jul 21 9:01am"),
         (None, ""),
     ],
 )

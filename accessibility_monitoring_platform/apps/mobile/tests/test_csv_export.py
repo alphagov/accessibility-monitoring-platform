@@ -1,6 +1,6 @@
 """Test utility functions of mobile CSV export"""
 
-from typing import Generator
+from collections.abc import Generator
 
 import pytest
 from django.contrib.auth.models import User

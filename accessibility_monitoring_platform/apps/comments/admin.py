@@ -8,21 +8,21 @@ from .models import Comment
 class CommentAdmin(admin.ModelAdmin):
     """Django admin configuration for Comment model"""
 
-    readonly_fields = ["created_date"]
-    search_fields = [
+    readonly_fields = ("created_date",)
+    search_fields = (
         "base_case__case_identifier",
         "base_case__organisation_name",
         "user__username",
         "body",
         "hidden",
-    ]
-    list_display = [
+    )
+    list_display = (
         "base_case",
         "user",
         "body",
         "hidden",
-    ]
-    list_filter = ["user"]
+    )
+    list_filter = ("user",)
 
 
 admin.site.register(Comment, CommentAdmin)

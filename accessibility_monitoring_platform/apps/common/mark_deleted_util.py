@@ -14,7 +14,7 @@ def get_id_from_button_name(
     Given a button name in the form: prefix_[id] extract and return the id value.
     """
     key_names: list[str] = [
-        key for key in querydict.keys() if key.startswith(button_name_prefix)
+        key for key in querydict if key.startswith(button_name_prefix)
     ]
     object_id: int | None = None
     if len(key_names) == 1:

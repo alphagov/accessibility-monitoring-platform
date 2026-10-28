@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import argparse
 import json
 import logging
@@ -34,6 +32,11 @@ CREATE_DUMMY_ACCOUNT_SCRIPT_PATH: str = (
     "terraform_stack/ecs_tools/create_dummy_account.py"
 )
 ECS_PREPARE_DB_SCRIPT_PATH: str = "terraform_stack/ecs_tools/ecs_prepare_db.py"
+
+
+class TerraformDeploymentException(Exception):
+    pass
+
 
 logger = logging.getLogger("deploy_logger")
 logger.setLevel(logging.INFO)
@@ -83,29 +86,31 @@ def validate_permissions(
             requested operation is not permitted for that account.
     """
     if account_id != AWS_ACCOUNT_ID_TEST and account_id != AWS_ACCOUNT_ID_PROD:
-        raise Exception(">>> You're currently signed into an unrecognised aws env")
+        raise TerraformDeploymentException(
+            ">>> You're currently signed into an unrecognised aws env"
+        )
 
     if account_id == AWS_ACCOUNT_ID_TEST and environment in [
         Environment.PROD,
         Environment.STAGING,
         Environment.TEST,
     ]:
-        raise Exception(
+        raise TerraformDeploymentException(
             ">>> You're currently signed into test and launching (or decommissioning) a prod, staging, or testing env"
         )
 
     if account_id == AWS_ACCOUNT_ID_PROD and function == Function.DOWN:
-        raise Exception(
+        raise TerraformDeploymentException(
             ">>> You're currently signed into prod and attempting to delete something"
         )
 
     if account_id == AWS_ACCOUNT_ID_PROD and environment == Environment.PROTO:
-        raise Exception(
+        raise TerraformDeploymentException(
             ">>> You're currently signed into prod and attempting to launch a prototype"
         )
 
     if account_id == AWS_ACCOUNT_ID_PROD and function == Function.CREATE_DUMMY_ACCOUNT:
-        raise Exception(
+        raise TerraformDeploymentException(
             ">>> You're currently signed into prod and attempting to create a dummy account"
         )
 
@@ -1127,7 +1132,7 @@ def list_environments() -> None:
 
     cluster: str
     for cluster in data["clusterArns"]:
-        logger.info("- ", cluster.split("/")[-1])
+        logger.info("- %s", cluster.split("/")[-1])
 
 
 def create_burner_account_terraform(
@@ -1178,7 +1183,7 @@ def main():
     )
 
     if function == Function.UP:
-        logger.info(">>> Deploying: ", environment)
+        logger.info(">>> Deploying: %s", environment)
         up(
             environment=environment,
             force_reset_db=force_reset_db,
@@ -1187,7 +1192,7 @@ def main():
     if function == Function.DOWN:
         logger.info(">>> breaking down environment")
         if environment != Environment.PROTO:
-            raise Exception("Only prototypes can be broken down")
+            raise TerraformDeploymentException("Only prototypes can be broken down")
         breakdown_proto(
             environment=environment,
             dry_run=dry_run,
@@ -1205,7 +1210,9 @@ def main():
     if function == Function.RESET_DB:
         logger.info(">>> Resetting database")
         if environment != Environment.PROTO:
-            raise Exception("Only prototypes can have their databases reset")
+            raise TerraformDeploymentException(
+                "Only prototypes can have their databases reset"
+            )
         flush_database(
             environment=environment,
         )
@@ -1217,7 +1224,9 @@ def main():
     if function == Function.CREATE_DUMMY_ACCOUNT:
         logger.info(">>> Creating dummy account")
         if environment != Environment.PROTO:
-            raise Exception("Only prototypes can create dummy accounts")
+            raise TerraformDeploymentException(
+                "Only prototypes can create dummy accounts"
+            )
         create_burner_account_terraform(CREATE_DUMMY_ACCOUNT_SCRIPT_PATH)
 
 

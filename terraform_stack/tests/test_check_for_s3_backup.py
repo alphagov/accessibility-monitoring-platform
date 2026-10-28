@@ -1,11 +1,13 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 import boto3
 import pytest
 from moto import mock_aws
 
-from terraform_stack.terraform_deploy.check_for_s3_backup import wait_for_recent_s3_object
+from terraform_stack.terraform_deploy.check_for_s3_backup import (
+    wait_for_recent_s3_object,
+)
 
 BUCKET = "test-backup-bucket"
 PREFIX = "aws_aurora_backup/"
@@ -35,7 +37,7 @@ def test_finds_recent_backup():
     )
 
     assert result["Key"] == f"{PREFIX}backup.sql"
-    assert result["LastModified"] <= datetime.now(timezone.utc)
+    assert result["LastModified"] <= datetime.now(UTC)
 
 
 @mock_aws
@@ -48,18 +50,20 @@ def test_times_out_when_no_backup_found():
     )
 
     # Avoid actually sleeping during the unit test.
-    with patch("terraform_stack.terraform_deploy.check_for_s3_backup.time.sleep"):
-        # Make monotonic advance far enough to trigger the timeout.
-        with patch(
+    # Make monotonic advance far enough to trigger the timeout.
+    with (
+        patch("terraform_stack.terraform_deploy.check_for_s3_backup.time.sleep"),
+        patch(
             "terraform_stack.terraform_deploy.check_for_s3_backup.time.monotonic",
             side_effect=[0, 1, 3, 6],
-        ):
-            with pytest.raises(TimeoutError, match="No recent object found"):
-                wait_for_recent_s3_object(
-                    bucket=BUCKET,
-                    prefix=PREFIX,
-                    recent_within_minutes=10,
-                    timeout_seconds=5,
-                    initial_poll_seconds=1,
-                    max_poll_seconds=2,
-                )
+        ),
+        pytest.raises(TimeoutError, match="No recent object found"),
+    ):
+        wait_for_recent_s3_object(
+            bucket=BUCKET,
+            prefix=PREFIX,
+            recent_within_minutes=10,
+            timeout_seconds=5,
+            initial_poll_seconds=1,
+            max_poll_seconds=2,
+        )

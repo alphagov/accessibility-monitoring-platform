@@ -16,7 +16,6 @@ def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
     for email_template in EmailTemplate.objects.all():
         email_template.template_name = ""
         email_template.save()
-    pass
 
 
 class Migration(migrations.Migration):

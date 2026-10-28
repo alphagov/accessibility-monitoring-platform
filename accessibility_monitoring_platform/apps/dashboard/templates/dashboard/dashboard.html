@@ -13,6 +13,7 @@
                     </span>
                 </summary>
                 <div class="govuk-details__text">
+                    <div class="amp-notes amp-margin-bottom-10">Updated {{ most_recent_change_to_platform.date_of_change|date:"d F Y"  }}</div>
                     <div class="amp-notes amp-margin-bottom-20">{{ most_recent_change_to_platform.notes|markdown_to_html }}</div>
                     <p class="govuk-body">
                         <a href="{% url 'common:platform-history' %}" class="govuk-link govuk-link--no-visited-state">View all updates</a>

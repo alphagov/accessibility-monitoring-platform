@@ -135,14 +135,14 @@ def get_detailed_case_detail_sections(
                 for platform_page in page_group.pages:
                     if platform_page.show:
                         display_fields: list[FieldLabelAndValue] = []
-                        if platform_page.case_details_form_class:
-                            if (
-                                platform_page.case_details_form_class._meta.model
-                                == DetailedCase
-                            ):
-                                display_fields = get_case_rows(
-                                    form=platform_page.case_details_form_class()
-                                )
+                        if (
+                            platform_page.case_details_form_class
+                            and platform_page.case_details_form_class._meta.model
+                            == DetailedCase
+                        ):
+                            display_fields = get_case_rows(
+                                form=platform_page.case_details_form_class()
+                            )
                         if platform_page.case_details_template_name:
                             case_detail_pages.append(
                                 CaseDetailPage(

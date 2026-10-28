@@ -274,15 +274,14 @@ class SimplifiedCasePublishReportUpdateForm(VersionForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         simplified_case: SimplifiedCase = self.instance
-        if simplified_case:
-            if (
-                not simplified_case.published_report_url
-                or not simplified_case.report
-                or simplified_case.report_review_status != Boolean.YES
-                or simplified_case.report_approved_status
-                != SimplifiedCase.ReportApprovedStatus.APPROVED
-            ):
-                self.fields["publish_report_complete_date"].widget = forms.HiddenInput()
+        if simplified_case and (
+            not simplified_case.published_report_url
+            or not simplified_case.report
+            or simplified_case.report_review_status != Boolean.YES
+            or simplified_case.report_approved_status
+            != SimplifiedCase.ReportApprovedStatus.APPROVED
+        ):
+            self.fields["publish_report_complete_date"].widget = forms.HiddenInput()
 
 
 class SimplifiedManageContactDetailsUpdateForm(VersionForm):

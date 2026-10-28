@@ -91,7 +91,8 @@ class PermissionsPolicyMiddleware:
 
     def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]) -> None:
         self.get_response = get_response
-        self.header_value  # Access at setup so ImproperlyConfigured can be raised # pylint: disable=pointless-statement
+        # Access at setup so ImproperlyConfigured can be raised
+        self.header_value  # noqa: B018
         receiver(setting_changed)(self.clear_header_value)
 
     def __call__(self, request: HttpRequest) -> HttpResponse:

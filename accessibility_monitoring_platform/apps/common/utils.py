@@ -5,9 +5,9 @@ import json
 import re
 import urllib
 from collections.abc import Iterable
-from datetime import date, datetime, timedelta
-from datetime import timezone as datetime_timezone
-from typing import Any, Match
+from datetime import UTC, date, datetime, timedelta
+from re import Match
+from typing import Any
 from zoneinfo import ZoneInfo
 
 from django.contrib.auth.models import User
@@ -51,8 +51,7 @@ def extract_domain_from_url(url: str) -> str:
 
 def sanitise_domain(domain: str) -> str:
     """Remove common parts from domain to return unique bit"""
-    if domain.startswith("www."):
-        domain = domain[4:]
+    domain = domain.removeprefix("www.")
 
     for dot_gov in [".gov.", ".nhs."]:
         dot_gov_position: int = domain.find(dot_gov)
@@ -69,8 +68,7 @@ def sanitise_domain(domain: str) -> str:
         ".ac.uk",
         ".net",
     ]:
-        if domain.endswith(suffix):
-            domain = domain[: -len(suffix)]
+        domain = domain.removesuffix(suffix)
     return domain
 
 
@@ -112,7 +110,7 @@ def validate_url(url: str) -> None:
     Validate URL string entered by user
     """
 
-    if not (url.startswith("http://") or url.startswith("https://")):
+    if not (url.startswith(("http://", "https://"))):
         raise ValidationError("URL must start with http:// or https://")
 
 
@@ -136,9 +134,7 @@ def get_days_ago_timestamp(days: int = 30) -> datetime:
     """
     today: date = date.today()
     days_ago_date: date = today - timedelta(days=days)
-    return datetime.combine(
-        days_ago_date, datetime.min.time(), tzinfo=datetime_timezone.utc
-    )
+    return datetime.combine(days_ago_date, datetime.min.time(), tzinfo=UTC)
 
 
 def diff_model_fields(
@@ -148,15 +144,15 @@ def diff_model_fields(
     if not old_fields:
         return new_fields
     diff_fields = {}
-    for key in new_fields:
+    for key, value in new_fields.items():
         if key in old_fields:
-            if old_fields[key] != new_fields[key]:
-                diff_fields[key] = f"{old_fields[key]} -> {new_fields[key]}"
+            if old_fields[key] != value:
+                diff_fields[key] = f"{old_fields[key]} -> {value}"
         else:
-            diff_fields[key] = f"-> {new_fields[key]}"
-    for key in old_fields:
+            diff_fields[key] = f"-> {value}"
+    for key, value in old_fields.items():
         if key not in new_fields:
-            diff_fields[key] = f"{old_fields[key]} ->"
+            diff_fields[key] = f"{value} ->"
     return diff_fields
 
 
@@ -282,7 +278,7 @@ def get_url_parameters_for_pagination(request: HttpRequest):
 def get_first_of_this_month_last_year() -> datetime:
     """Calculate and return the first of this month last year"""
     now: datetime = timezone.now()
-    return datetime(now.year - 1, now.month, 1, tzinfo=datetime_timezone.utc)
+    return datetime(now.year - 1, now.month, 1, tzinfo=UTC)
 
 
 def replace_whole_words(old_word: str, replacement: str, string: str):

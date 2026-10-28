@@ -42,7 +42,7 @@ def get_previous_case_identifier(previous_case_url: str) -> str | None:
         return base_case.case_identifier
 
 
-class DisablePyTestCollectionMixin(object):
+class DisablePyTestCollectionMixin:
     __test__ = False
 
 
@@ -443,9 +443,11 @@ class BaseCase(VersionModel):
 
     @property
     def tag_name_suffix(self) -> str:
-        if self.test_type == BaseCase.TestType.SIMPLIFIED:
-            if self.simplifiedcase.archive:
-                return "archive"
+        if (
+            self.test_type == BaseCase.TestType.SIMPLIFIED
+            and self.simplifiedcase.archive
+        ):
+            return "archive"
         return self.test_type
 
     def get_case(self):

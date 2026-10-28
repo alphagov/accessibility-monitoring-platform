@@ -2,7 +2,7 @@
 Tests for reports views
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import Mock, patch
 
 import pytest
@@ -325,7 +325,7 @@ def test_report_metrics_unique_vists_shows_only_current_report(admin_client):
     )
     with patch(
         "django.utils.timezone.now",
-        Mock(return_value=datetime(2020, 1, 5, tzinfo=timezone.utc)),
+        Mock(return_value=datetime(2020, 1, 5, tzinfo=UTC)),
     ):
         ReportVisitsMetrics.objects.create(
             base_case=other_simplified_case,

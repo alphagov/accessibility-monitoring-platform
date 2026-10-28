@@ -3,7 +3,7 @@
 import json
 import os
 import subprocess
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -78,17 +78,19 @@ def test_delete_db_propagates_subprocess_error() -> None:
         cmd=["psql"],
     )
 
-    with patch(
-        "terraform_stack.ecs_tools.ecs_prepare_db.subprocess.run",
-        side_effect=error,
+    with (
+        patch(
+            "terraform_stack.ecs_tools.ecs_prepare_db.subprocess.run",
+            side_effect=error,
+        ),
+        pytest.raises(subprocess.CalledProcessError) as exc_info,
     ):
-        with pytest.raises(subprocess.CalledProcessError) as exc_info:
-            delete_db(
-                db_host="localhost",
-                db_username="test_user",
-                db_password="test_password",
-                db_name="test_database",
-            )
+        delete_db(
+            db_host="localhost",
+            db_username="test_user",
+            db_password="test_password",
+            db_name="test_database",
+        )
 
     assert exc_info.value is error
 
@@ -188,17 +190,19 @@ def test_create_db_propagates_subprocess_error() -> None:
         cmd=["psql"],
     )
 
-    with patch(
-        "terraform_stack.ecs_tools.ecs_prepare_db.subprocess.run",
-        side_effect=process_error,
+    with (
+        patch(
+            "terraform_stack.ecs_tools.ecs_prepare_db.subprocess.run",
+            side_effect=process_error,
+        ),
+        pytest.raises(subprocess.CalledProcessError) as exc_info,
     ):
-        with pytest.raises(subprocess.CalledProcessError) as exc_info:
-            create_db(
-                db_host="localhost",
-                db_username="test_user",
-                db_password="test_password",
-                db_name="test_database",
-            )
+        create_db(
+            db_host="localhost",
+            db_username="test_user",
+            db_password="test_password",
+            db_name="test_database",
+        )
 
     assert exc_info.value is process_error
 
@@ -217,7 +221,7 @@ def test_most_recent_db_s3_path_returns_latest_sql_backup(
                     2025,
                     1,
                     1,
-                    tzinfo=timezone.utc,
+                    tzinfo=UTC,
                 ),
             },
             {
@@ -226,7 +230,7 @@ def test_most_recent_db_s3_path_returns_latest_sql_backup(
                     2025,
                     3,
                     1,
-                    tzinfo=timezone.utc,
+                    tzinfo=UTC,
                 ),
             },
             {
@@ -235,7 +239,7 @@ def test_most_recent_db_s3_path_returns_latest_sql_backup(
                     2025,
                     2,
                     1,
-                    tzinfo=timezone.utc,
+                    tzinfo=UTC,
                 ),
             },
         ],
@@ -262,7 +266,7 @@ def test_most_recent_db_s3_path_uses_last_modified_not_list_order(
                     2025,
                     3,
                     1,
-                    tzinfo=timezone.utc,
+                    tzinfo=UTC,
                 ),
             },
             {
@@ -271,7 +275,7 @@ def test_most_recent_db_s3_path_uses_last_modified_not_list_order(
                     2025,
                     1,
                     1,
-                    tzinfo=timezone.utc,
+                    tzinfo=UTC,
                 ),
             },
             {
@@ -280,7 +284,7 @@ def test_most_recent_db_s3_path_uses_last_modified_not_list_order(
                     2025,
                     2,
                     1,
-                    tzinfo=timezone.utc,
+                    tzinfo=UTC,
                 ),
             },
         ],
@@ -305,7 +309,7 @@ def test_most_recent_db_s3_path_raises_index_error_when_no_sql_files_exist(
                     2025,
                     1,
                     1,
-                    tzinfo=timezone.utc,
+                    tzinfo=UTC,
                 ),
             },
         ],
@@ -495,15 +499,17 @@ def test_load_db_backup_closes_sql_file_after_subprocess_finishes(
 
 def test_load_db_backup_raises_file_not_found_error() -> None:
     """Raise FileNotFoundError when the backup file does not exist."""
-    with patch("terraform_stack.ecs_tools.ecs_prepare_db.subprocess.run") as mock_run:
-        with pytest.raises(FileNotFoundError):
-            load_db_backup(
-                local_path="/tmp/missing-backup.sql",
-                db_host="localhost",
-                db_username="test_user",
-                db_password="test_password",
-                db_name="test_database",
-            )
+    with (
+        patch("terraform_stack.ecs_tools.ecs_prepare_db.subprocess.run") as mock_run,
+        pytest.raises(FileNotFoundError),
+    ):
+        load_db_backup(
+            local_path="/tmp/missing-backup.sql",
+            db_host="localhost",
+            db_username="test_user",
+            db_password="test_password",
+            db_name="test_database",
+        )
 
     mock_run.assert_not_called()
 
@@ -520,18 +526,20 @@ def test_load_db_backup_propagates_subprocess_error(
         cmd=["psql"],
     )
 
-    with patch(
-        "terraform_stack.ecs_tools.ecs_prepare_db.subprocess.run",
-        side_effect=process_error,
+    with (
+        patch(
+            "terraform_stack.ecs_tools.ecs_prepare_db.subprocess.run",
+            side_effect=process_error,
+        ),
+        pytest.raises(subprocess.CalledProcessError) as exc_info,
     ):
-        with pytest.raises(subprocess.CalledProcessError) as exc_info:
-            load_db_backup(
-                local_path=str(sql_path),
-                db_host="localhost",
-                db_username="test_user",
-                db_password="test_password",
-                db_name="test_database",
-            )
+        load_db_backup(
+            local_path=str(sql_path),
+            db_host="localhost",
+            db_username="test_user",
+            db_password="test_password",
+            db_name="test_database",
+        )
 
     assert exc_info.value is process_error
 
@@ -581,12 +589,14 @@ def test_clean_up_does_not_print_when_deletion_fails(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     """Do not print a success message when file deletion fails."""
-    with patch(
-        "terraform_stack.ecs_tools.ecs_prepare_db.os.remove",
-        side_effect=PermissionError("Permission denied"),
+    with (
+        patch(
+            "terraform_stack.ecs_tools.ecs_prepare_db.os.remove",
+            side_effect=PermissionError("Permission denied"),
+        ),
+        pytest.raises(PermissionError, match="Permission denied"),
     ):
-        with pytest.raises(PermissionError, match="Permission denied"):
-            clean_up("/protected/database-backup.sql")
+        clean_up("/protected/database-backup.sql")
 
     assert capsys.readouterr().out == ""
 
@@ -609,12 +619,14 @@ def test_redo_migrations_propagates_subprocess_error() -> None:
         cmd=["python", "./manage.py", "migrate"],
     )
 
-    with patch(
-        "terraform_stack.ecs_tools.ecs_prepare_db.subprocess.run",
-        side_effect=process_error,
+    with (
+        patch(
+            "terraform_stack.ecs_tools.ecs_prepare_db.subprocess.run",
+            side_effect=process_error,
+        ),
+        pytest.raises(subprocess.CalledProcessError) as exc_info,
     ):
-        with pytest.raises(subprocess.CalledProcessError) as exc_info:
-            redo_migrations()
+        redo_migrations()
 
     assert exc_info.value is process_error
 
@@ -701,9 +713,9 @@ def test_main_raises_type_error_when_required_variable_is_missing(
     with (
         patch.dict(os.environ, environment, clear=True),
         patch.object(ecs_prepare_db, "delete_db") as mock_delete_db,
+        pytest.raises(TypeError, match=expected_message),
     ):
-        with pytest.raises(TypeError, match=expected_message):
-            main()
+        main()
 
     mock_delete_db.assert_not_called()
 
@@ -731,9 +743,11 @@ def test_main_raises_type_error_when_required_variable_is_empty(
     }
     environment[variable] = value
 
-    with patch.dict(os.environ, environment, clear=True):
-        with pytest.raises(TypeError, match=expected_message):
-            main()
+    with (
+        patch.dict(os.environ, environment, clear=True),
+        pytest.raises(TypeError, match=expected_message),
+    ):
+        main()
 
 
 def test_main_raises_error_for_invalid_credentials_json() -> None:
@@ -748,9 +762,9 @@ def test_main_raises_error_for_invalid_credentials_json() -> None:
     with (
         patch.dict(os.environ, environment, clear=True),
         patch.object(ecs_prepare_db, "delete_db") as mock_delete_db,
+        pytest.raises(json.JSONDecodeError),
     ):
-        with pytest.raises(json.JSONDecodeError):
-            main()
+        main()
 
     mock_delete_db.assert_not_called()
 
@@ -776,9 +790,9 @@ def test_main_raises_key_error_when_credential_field_is_missing(
     with (
         patch.dict(os.environ, environment, clear=True),
         patch.object(ecs_prepare_db, "delete_db") as mock_delete_db,
+        pytest.raises(KeyError, match=missing_key),
     ):
-        with pytest.raises(KeyError, match=missing_key):
-            main()
+        main()
 
     mock_delete_db.assert_not_called()
 
@@ -809,9 +823,9 @@ def test_main_stops_when_database_deletion_fails() -> None:
             ecs_prepare_db,
             "most_recent_db_s3_path",
         ) as mock_most_recent,
+        pytest.raises(subprocess.CalledProcessError) as exc_info,
     ):
-        with pytest.raises(subprocess.CalledProcessError) as exc_info:
-            main()
+        main()
 
     assert exc_info.value is process_error
     mock_create_db.assert_not_called()

@@ -139,7 +139,7 @@ class PlatformCheckingView(StaffRequiredMixin, FormView):
         if "raise_403" in self.request.POST:
             raise PermissionDenied
         if "raise_500" in self.request.POST:
-            1 / 0
+            1 / 0  # noqa: B018
         logger.log(
             level=int(form.cleaned_data["level"]), msg=form.cleaned_data["message"]
         )
