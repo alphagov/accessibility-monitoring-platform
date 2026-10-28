@@ -4523,8 +4523,8 @@ def test_initial_statement_audit_next_page_name(
 @pytest.mark.parametrize(
     "path_name, expected_next_page",
     [
-        ("edit-audit-retest-metadata", "12-week WCAG test | Update page links"),
-        ("edit-audit-retest-pages", "12-week WCAG test | WCAG summary"),
+        ("edit-audit-retest-metadata", "WCAG retests > Retest # | Update page links"),
+        ("edit-audit-retest-pages", "WCAG retests > Retest # | WCAG summary"),
     ],
 )
 def test_twelve_week_wcag_audit_next_page_name(

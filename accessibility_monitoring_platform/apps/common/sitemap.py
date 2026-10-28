@@ -851,6 +851,25 @@ class SimplifiedCasePlatformPageGroup(BaseCasePlatformPageGroup):
         self.case: SimplifiedCase | None = None
 
 
+class WcagRetestPlatformPageGroup(SimplifiedCasePlatformPageGroup):
+    wcag_retest_nav_group: bool = True
+
+    def populate_from_case(self, case: SimplifiedCase):
+        self.case = case
+        retest_page: PlatformPage = self.pages.pop()
+        if case.audit_overview:
+            for wcag_audit in case.audit_overview.twelve_week_wcag_audits:
+                new_retest_page: PlatformPage = copy.copy(retest_page)
+                new_retest_page.set_instance(instance=wcag_audit)
+                self.pages.append(new_retest_page)
+        super().populate_from_case(case=case)
+
+
+class WcagRetestRoundPlatformPageGroup(SimplifiedCasePlatformPageGroup):
+    wcag_retest_nav_group: bool = True
+    show_if_contains_current_page: bool = True
+
+
 class DetailedCasePlatformPageGroup(BaseCasePlatformPageGroup):
     def __init__(self, type=PlatformPageGroup.Type.DETAILED_CASE_NAV, **kwargs):
         super().__init__(**kwargs)
@@ -1295,6 +1314,26 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             ),
         ],
     ),
+    WcagRetestPlatformPageGroup(
+        name="WCAG retests",
+        pages=[
+            SimplifiedCasePlatformPage(
+                name="Latest retest comparison",
+                url_name="simplified:latest-retest-comparison",
+            ),
+            SimplifiedCasePlatformPage(
+                name="+ New test",
+                url_name="simplified:new-12-week-wcag-retest",
+            ),
+            PlatformPage(
+                name="{instance.case_nav_label}",
+                url_name="audits:edit-12-week-wcag-audit",
+                url_kwarg_key="pk",
+                instance_class=WcagAudit,
+                complete_flag_name="complete",
+            ),
+        ],
+    ),
     SimplifiedCasePlatformPageGroup(
         name="Start 12-week retest",
         show_flag_name="show_start_12_week_retest",
@@ -1306,8 +1345,8 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             ),
         ],
     ),
-    SimplifiedCasePlatformPageGroup(
-        name="12-week WCAG test",
+    WcagRetestRoundPlatformPageGroup(
+        name="WCAG retests > Retest #",
         show_flag_name="show_12_week_retest",
         pages=[
             WcagAuditTwelveWeekPlatformPage(
@@ -2741,8 +2780,23 @@ def build_sitemap_for_current_page(
                     == PlatformPageGroup.Type.MOBILE_CASE_TOOLS
                 )
             ):
-                platform_page_group.populate_from_case(case=case)
-                case_navigation.append(platform_page_group)
+                if hasattr(platform_page_group, "wcag_retest_nav_group"):
+                    if hasattr(platform_page_group, "show_if_contains_current_page"):
+                        if (
+                            current_platform_page.platform_page_group.name
+                            == platform_page_group.name
+                        ):
+                            platform_page_group.populate_from_case(case=case)
+                            case_navigation.append(platform_page_group)
+                    elif (
+                        current_platform_page.platform_page_group.name
+                        != "WCAG retests > Retest #"
+                    ):
+                        platform_page_group.populate_from_case(case=case)
+                        case_navigation.append(platform_page_group)
+                else:
+                    platform_page_group.populate_from_case(case=case)
+                    case_navigation.append(platform_page_group)
 
         return case_navigation
     return SITE_MAP

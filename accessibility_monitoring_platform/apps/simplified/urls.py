@@ -50,8 +50,10 @@ from .views import (
     ContactCreateView,
     ContactUpdateView,
     EqualityBodyCorrespondenceCreateView,
+    LatestRetestComparisonUpdateView,
     ListCaseEqualityBodyCorrespondenceUpdateView,
     ManageContactDetailsUpdateView,
+    NewTwelveWeekWcagAuditUpdateView,
     SimplifiedCaseNoteCreateView,
     SimplifiedCaseNoteUpdateView,
     ZendeskTicketConfirmDeleteUpdateView,
@@ -204,6 +206,16 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-12-week-update-request-ack/",
         login_required(CaseTwelveWeekUpdateAcknowledgedUpdateView.as_view()),
         name="edit-12-week-update-request-ack",
+    ),
+    path(
+        "<int:pk>/latest-retest-comparison/",
+        login_required(LatestRetestComparisonUpdateView.as_view()),
+        name="latest-retest-comparison",
+    ),
+    path(
+        "<int:pk>/new-12-week-wcag-retest/",
+        login_required(NewTwelveWeekWcagAuditUpdateView.as_view()),
+        name="new-12-week-wcag-retest",
     ),
     path(
         "<int:pk>/edit-twelve-week-retest/",
