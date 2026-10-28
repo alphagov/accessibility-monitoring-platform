@@ -769,12 +769,33 @@ svg {
 
 .amp-nav-details__summary {
     cursor: pointer;
-    color:  govuk-colour("blue");
+    color: govuk-colour("blue");
     margin-bottom: 5px;
+    list-style: none;
+
+    // Hide the default triangle
+    &::-webkit-details-marker {
+        display: none;
+    }
+
+    // Closed state: pointing right
     &::before {
         content: "";
         display: inline-block;
-        text-decoration: none;
+        width: 7px;
+        height: 7px;
+        border-right: 2px solid govuk-colour("blue");
+        border-bottom: 2px solid govuk-colour("blue");
+        transform: rotate(-45deg);
+        margin-right: 8px;
+        vertical-align: 1px;
+    }
+}
+
+// Open state: pointing down
+.amp-nav-details[open] {
+    .amp-nav-details__summary::before {
+        transform: rotate(45deg);
     }
 }
 
