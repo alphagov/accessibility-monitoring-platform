@@ -72,6 +72,13 @@ from .base import (
 )
 
 
+def redirect_to_retest(request: HttpRequest, pk: int) -> HttpResponse:
+    wcag_audit: WcagAudit = get_object_or_404(WcagAudit, id=pk)
+    return redirect(
+        reverse("audits:edit-audit-retest-metadata", kwargs={"pk": wcag_audit.id})
+    )
+
+
 class WcagAuditRetestMetadataUpdateView(WcagAuditUpdateView):
 
     form_class: type[WcagAuditRetestMetadataUpdateForm] = (

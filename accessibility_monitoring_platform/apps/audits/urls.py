@@ -88,6 +88,7 @@ from .views.twelve_week import (
     WcagAuditRetestPagesView,
     WcagPageRetestCheckResultsUpdateView,
     delete_new_12_week_custom_issue,
+    redirect_to_retest,
     start_retest,
 )
 
@@ -222,6 +223,11 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/audit-retest-start/",
         login_required(start_retest),
         name="audit-retest-start",
+    ),
+    path(
+        "<int:pk>/edit-12-week-wcag-audit/",
+        login_required(redirect_to_retest),
+        name="edit-12-week-wcag-audit",
     ),
     path(
         "<int:pk>/edit-audit-retest-metadata/",

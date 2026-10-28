@@ -525,7 +525,7 @@ def test_start_12_week_retest_page_hidden(admin_client):
     )
     assertContains(
         response,
-        OTHER_PAGE_GROUP.format(name="12-week WCAG test 0/4"),
+        OTHER_PAGE_GROUP.format(name="WCAG retests · 1"),
         html=True,
     )
     assertContains(

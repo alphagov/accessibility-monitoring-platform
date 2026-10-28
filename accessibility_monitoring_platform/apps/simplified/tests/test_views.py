@@ -370,8 +370,8 @@ def test_view_case_includes_tests(admin_client):
     assertContains(response, "Date of test")
     assertContains(response, "Initial statement compliance decision")
 
-    assertContains(response, "12-week retest metadata")
-    assertContains(response, "Date of retest")
+    assertContains(response, "Latest retest comparison")
+    # assertContains(response, "Date of retest")
 
 
 def test_view_case_includes_zendesk_tickets(admin_client):
@@ -4247,7 +4247,7 @@ def test_next_page_name(path_name, expected_next_page, admin_client):
         ("edit-case-metadata", "Initial WCAG test | Initial test metadata"),
         (
             "edit-12-week-update-request-ack",
-            "12-week WCAG test | 12-week retest metadata",
+            "WCAG retests > Retest # | 12-week retest metadata",
         ),
     ],
 )

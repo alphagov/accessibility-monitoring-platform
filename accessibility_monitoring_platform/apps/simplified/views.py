@@ -171,6 +171,10 @@ def format_due_date_help_text(due_date: date | None) -> str:
     return f"Due {amp_format_date(due_date)}"
 
 
+class CasePlaceholderTemplateView(TemplateView):
+    template_name: str = "cases/placeholder.html"
+
+
 class CaseDetailView(DetailView):
     """
     View of details of a single case
@@ -763,6 +767,14 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
         return get_platform_page_by_url_name(
             url_name="simplified:edit-review-changes", instance=simplified_case
         )
+
+
+class LatestRetestComparisonUpdateView(CasePlaceholderTemplateView):
+    pass
+
+
+class NewTwelveWeekWcagAuditUpdateView(CasePlaceholderTemplateView):
+    pass
 
 
 class CaseTwelveWeekRetestUpdateView(CaseUpdateView):

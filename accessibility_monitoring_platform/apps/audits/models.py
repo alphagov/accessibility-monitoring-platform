@@ -13,7 +13,11 @@ from django.urls import reverse
 from django.utils import timezone
 
 from ..common.models import Boolean, StartEndDateManager, VersionModel
-from ..common.utils import amp_format_date, calculate_percentage
+from ..common.utils import (
+    amp_format_date,
+    amp_format_date_short_month,
+    calculate_percentage,
+)
 from ..simplified.models import SimplifiedCase
 
 ISSUE_IDENTIFIER_WCAG: str = "A"
@@ -261,10 +265,14 @@ class AuditOverview(models.Model):
         ).first()
 
     @property
-    def first_twelve_week_wcag_audit(self) -> WcagAudit | None:
+    def twelve_week_wcag_audits(self) -> WcagAudit | None:
         return self.wcag_audits.filter(
             audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK
-        ).first()
+        )
+
+    @property
+    def first_twelve_week_wcag_audit(self) -> WcagAudit | None:
+        return self.twelve_week_wcag_audits.first()
 
     @property
     def equality_body_wcag_audits(self) -> WcagAudit | None:
@@ -730,6 +738,14 @@ class WcagAudit(AuditRound):
     @property
     def deleted_wcag_page_initials(self):
         return self.wcagpageinitial_set.filter(is_deleted=True)
+
+    @property
+    def case_nav_label(self) -> str:
+        return f"Retest #{self.round_number} · {amp_format_date_short_month(self.date_of_test)}"
+
+    @property
+    def complete(self) -> bool:
+        return self.compliance_state != WcagAudit.WebsiteCompliance.UNKNOWN
 
 
 class StatementAudit(AuditRound):
