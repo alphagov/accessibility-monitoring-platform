@@ -1,7 +1,6 @@
 """Tests - test for notifications models"""
 
 from datetime import date
-from typing import Type
 
 import pytest
 from django.contrib.auth.models import User
@@ -43,7 +42,7 @@ def test_notifications_settings_returns_str():
     ],
 )
 def test_task_options(
-    case_class: Type[DetailedCase] | Type[MobileCase] | Type[SimplifiedCase],
+    case_class: type[DetailedCase] | type[MobileCase] | type[SimplifiedCase],
     case_test_type: str,
     task_type: Task.Type,
     expected_url: str,

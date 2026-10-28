@@ -5,8 +5,7 @@ Test - common utility functions
 import csv
 import io
 import json
-from datetime import date, datetime, timedelta
-from datetime import timezone as datetime_timezone
+from datetime import UTC, date, datetime, timedelta
 from typing import Any
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
@@ -16,7 +15,6 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.db.models import QuerySet
 from django.http import HttpRequest, StreamingHttpResponse
 from django.http.request import QueryDict
 from django.utils import timezone
@@ -167,8 +165,6 @@ def test_extract_domain_from_url_no_protocol():
         ("abc", "abc"),
         ("abc.gov.uk", "abc"),
         ("abc.nhs.uk", "abc"),
-        ("abc.gov.uk", "abc"),
-        ("abc.gov.uk", "abc"),
         ("abc.com", "abc"),
         ("abc.wales", "abc"),
         ("abc.cymru", "abc"),
@@ -568,10 +564,10 @@ def test_get_days_ago_timestamp():
     with patch("accessibility_monitoring_platform.apps.common.utils.date") as mock_date:
         mock_date.today.return_value = date(2023, 2, 1)
         assert get_days_ago_timestamp() == datetime(
-            2023, 1, 2, 0, 0, tzinfo=datetime_timezone.utc
+            2023, 1, 2, 0, 0, tzinfo=UTC
         )  # 30 days before
         assert get_days_ago_timestamp(days=31) == datetime(
-            2023, 1, 1, 0, 0, tzinfo=datetime_timezone.utc
+            2023, 1, 1, 0, 0, tzinfo=UTC
         )  # 31 days before
 
 
@@ -579,12 +575,12 @@ def test_get_days_ago_timestamp():
     "now, expected_result",
     [
         (
-            datetime(2023, 8, 25, 0, 0, tzinfo=datetime_timezone.utc),
-            datetime(2022, 8, 1, 0, 0, tzinfo=datetime_timezone.utc),
+            datetime(2023, 8, 25, 0, 0, tzinfo=UTC),
+            datetime(2022, 8, 1, 0, 0, tzinfo=UTC),
         ),
         (
-            datetime(2022, 1, 2, 0, 0, tzinfo=datetime_timezone.utc),
-            datetime(2021, 1, 1, 0, 0, tzinfo=datetime_timezone.utc),
+            datetime(2022, 1, 2, 0, 0, tzinfo=UTC),
+            datetime(2021, 1, 1, 0, 0, tzinfo=UTC),
         ),
     ],
 )

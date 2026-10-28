@@ -1,7 +1,7 @@
 """Test utilities used to archive data"""
 
 from dataclasses import dataclass
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 
 import pytest
 
@@ -62,7 +62,7 @@ def test_build_field_date():
 def test_build_field_datetime():
     """Test building a datetime field"""
     mock_model: MockModel = MockModel(
-        datetime_field=datetime(2020, 2, 28, 12, 0, 1, 0, timezone.utc)
+        datetime_field=datetime(2020, 2, 28, 12, 0, 1, 0, UTC)
     )
 
     assert build_field(

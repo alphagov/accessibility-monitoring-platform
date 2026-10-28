@@ -1,6 +1,6 @@
 """Tests for utilities for detailed cases"""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 from django.contrib.auth.models import User
@@ -57,7 +57,7 @@ def test_download_cases_detailed():
         username="johnsmith", first_name="John", last_name="Smith"
     )
     detailed_case: DetailedCase = DetailedCase.objects.create()
-    detailed_case.created = datetime(2022, 12, 16, tzinfo=timezone.utc)
+    detailed_case.created = datetime(2022, 12, 16, tzinfo=UTC)
     detailed_case.save()
     detailed_cases: list[DetailedCase] = [detailed_case]
     Contact.objects.create(
@@ -183,7 +183,7 @@ def test_download_cases_detailed():
 def test_download_feedback_survey_detailed_cases():
     """Test creation of CSV for feedback survey for detailed cases"""
     detailed_case: DetailedCase = DetailedCase.objects.create(
-        recommendation_decision_sent_date=datetime(2022, 12, 16, tzinfo=timezone.utc),
+        recommendation_decision_sent_date=datetime(2022, 12, 16, tzinfo=UTC),
     )
     user: User = User.objects.create(
         username="johnsmith", first_name="John", last_name="Smith"
@@ -237,7 +237,7 @@ def test_download_feedback_survey_detailed_cases():
 def test_download_equality_body_detailed_cases():
     """Test creation of CSV for equality body for detailed cases"""
     detailed_case: DetailedCase = DetailedCase.objects.create(
-        recommendation_decision_sent_date=datetime(2022, 12, 16, tzinfo=timezone.utc),
+        recommendation_decision_sent_date=datetime(2022, 12, 16, tzinfo=UTC),
     )
     user: User = User.objects.create(
         username="johnsmith", first_name="John", last_name="Smith"

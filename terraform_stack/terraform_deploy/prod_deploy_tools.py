@@ -120,12 +120,11 @@ def most_recent_db_s3_path(bucket: str) -> str:
         Prefix="aws_aurora_backup/",
     ):
         for obj in page.get("Contents", []):
-            if obj["Key"].endswith(".sql"):
-                if (
-                    latest_backup is None
-                    or obj["LastModified"] > latest_backup["LastModified"]
-                ):
-                    latest_backup = obj
+            if obj["Key"].endswith(".sql") and (
+                latest_backup is None
+                or obj["LastModified"] > latest_backup["LastModified"]
+            ):
+                latest_backup = obj
 
     if latest_backup is None:
         return ""

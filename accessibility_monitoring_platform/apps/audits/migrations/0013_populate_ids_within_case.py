@@ -21,9 +21,9 @@ def populate_id_within_case(apps, schema_editor):  # pylint: disable=unused-argu
     RetestCheckResult = apps.get_model("audits", "RetestCheckResult")
     RetestStatementCheckResult = apps.get_model("audits", "RetestStatementCheckResult")
 
-    issue_number = 0
-    for statement_check in StatementCheck.objects.all():
-        issue_number += 1
+    for issue_number, statement_check in enumerate(
+        StatementCheck.objects.all(), start=1
+    ):
         statement_check.issue_number = issue_number
         statement_check.save()
 
@@ -35,10 +35,10 @@ def populate_id_within_case(apps, schema_editor):  # pylint: disable=unused-argu
                 issue_type=ISSUE_IDENTIFIER_WCAG,
             )
             check_result.save()
-        id_within_case = 0
 
-        for statement_check_result in StatementCheckResult.objects.filter(audit=audit):
-            id_within_case += 1
+        for id_within_case, statement_check_result in enumerate(
+            StatementCheckResult.objects.filter(audit=audit), start=1
+        ):
             statement_check_result.id_within_case = id_within_case
             issue_type = ISSUE_IDENTIFIER_STATEMENT
             if statement_check_result.statement_check is None:
@@ -62,11 +62,9 @@ def populate_id_within_case(apps, schema_editor):  # pylint: disable=unused-argu
             )
             retest_check_result.save()
 
-        id_within_case = 0
-        for retest_statement_check_result in RetestStatementCheckResult.objects.filter(
-            retest=retest
+        for id_within_case, retest_statement_check_result in enumerate(
+            RetestStatementCheckResult.objects.filter(retest=retest), start=1
         ):
-            id_within_case += 1
             retest_statement_check_result.id_within_case = id_within_case
             issue_type = ISSUE_IDENTIFIER_STATEMENT
             if retest_statement_check_result.statement_check is None:

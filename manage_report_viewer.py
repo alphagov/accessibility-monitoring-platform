@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-local = True if os.getenv("DEBUG") == "TRUE" else False
+local = os.getenv("DEBUG") == "TRUE"
 
 
 def main():

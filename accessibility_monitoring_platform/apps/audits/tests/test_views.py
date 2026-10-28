@@ -3041,7 +3041,7 @@ def test_update_audit_checks_version(admin_client):
         f"""<div class="govuk-error-summary__body">
             <ul class="govuk-list govuk-error-summary__list">
                 <li class="govuk-error-message">
-                    {str(wcag_audit)} has changed since this page loaded
+                    {wcag_audit!s} has changed since this page loaded
                 </li>
             </ul>
         </div>""",

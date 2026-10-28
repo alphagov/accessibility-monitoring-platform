@@ -25,9 +25,8 @@ class QACommentUpdateView(UpdateView):
     def form_valid(self, form: ModelForm):
         """Process contents of valid form"""
         comment: Comment = form.save(commit=False)
-        if "remove_comment" in self.request.POST:
-            if comment.user.id == self.request.user.id:  # type: ignore
-                comment.hidden = True
+        if "remove_comment" in self.request.POST and comment.user.id == self.request.user.id:  # type: ignore
+            comment.hidden = True
         if comment.base_case.test_type == BaseCase.TestType.SIMPLIFIED:
             record_simplified_model_update_event(
                 user=self.request.user,

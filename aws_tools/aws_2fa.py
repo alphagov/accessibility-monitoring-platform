@@ -5,7 +5,13 @@ import os
 
 import boto3
 
+
+class AWS2FAException(Exception):
+    pass
+
+
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def main(user: str, mfa_token: str):
@@ -16,7 +22,7 @@ def main(user: str, mfa_token: str):
     config.read(credentials_path)
 
     if user not in config:
-        raise Exception("User does not exist in credentials")
+        raise AWS2FAException("User does not exist in credentials")
 
     iam_client = boto3.client(
         "iam",
@@ -29,24 +35,24 @@ def main(user: str, mfa_token: str):
 
     if len(iam_response["MFADevices"]) > 1:
         for n, device in enumerate(iam_response["MFADevices"]):
-            logging.info(
-                f"""#{n+1}: SerialNumber - {device["SerialNumber"]} | EnableDate: {str(device["EnableDate"])}"""
+            logger.info(
+                f"""#{n+1}: SerialNumber - {device["SerialNumber"]} | EnableDate: {device["EnableDate"]!s}"""
             )
 
         while True:
-            logging.info("Pick which MFA device you want to use:")
+            logger.info("Pick which MFA device you want to use:")
             option = input()
             if option.isdigit() is False:
-                logging.info("Please input a number...")
+                logger.info("Please input a number...")
             elif int(option) > len(iam_response["MFADevices"]):
-                logging.info(
+                logger.info(
                     f"{option} is greater than the number of options. Please select from the options provided..."
                 )
             elif int(option) <= 0:
-                logging.info("Please input a positive integer...")
+                logger.info("Please input a positive integer...")
             else:
                 option = int(option) - 1
-                logging.info(
+                logger.info(
                     f""">>> Selected {iam_response["MFADevices"][option]["SerialNumber"]}"""
                 )
                 serial_number: str = iam_response["MFADevices"][option]["SerialNumber"]
@@ -76,7 +82,7 @@ def main(user: str, mfa_token: str):
     with open(credentials_path, "w", encoding="utf-8") as configfile:
         config.write(configfile)
 
-    logging.info(">>> Saved MFA credentials under mfa profile")
+    logger.info(">>> Saved MFA credentials under mfa profile")
 
 
 if __name__ == "__main__":

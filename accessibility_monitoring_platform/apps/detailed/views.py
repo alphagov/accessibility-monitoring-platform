@@ -194,11 +194,9 @@ class CaseDetailView(DetailView):
         sitemap: Sitemap = Sitemap(request=self.request)
 
         return {
-            **{
-                "case_detail_sections": get_detailed_case_detail_sections(
-                    detailed_case=detailed_case, sitemap=sitemap
-                )
-            },
+            "case_detail_sections": get_detailed_case_detail_sections(
+                detailed_case=detailed_case, sitemap=sitemap
+            ),
             **context,
         }
 

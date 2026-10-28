@@ -2,7 +2,7 @@
 Tests for cases models
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import Mock, patch
 
 import pytest
@@ -29,7 +29,7 @@ from ..models import (
     get_initial_statement_check_result_url_from_issue_identifier,
 )
 
-DATETIME_COMMENT_UPDATED: datetime = datetime(2021, 9, 26, tzinfo=timezone.utc)
+DATETIME_COMMENT_UPDATED: datetime = datetime(2021, 9, 26, tzinfo=UTC)
 
 
 @pytest.mark.django_db

@@ -17,19 +17,21 @@ INITIAL_STATEMENT_AUDIT: str = "StatementAudit Initial"
 TWELVE_WEEK_STATEMENT_AUDIT: str = "StatementAudit TwelveWeek"
 
 
-ExportableClassKeys = Literal[
-    INITIAL_WCAG_AUDIT,
-    TWELVE_WEEK_WCAG_AUDIT,
-    INITIAL_STATEMENT_AUDIT,
-    TWELVE_WEEK_STATEMENT_AUDIT,
-    DetailedCase,
-    DetailedContact,
-    CaseStatus,
-    Report,
-    SimplifiedCase,
-    SimplifiedContact,
-    None,
-]
+ExportableClassKeys = (
+    Literal[
+        INITIAL_WCAG_AUDIT,
+        TWELVE_WEEK_WCAG_AUDIT,
+        INITIAL_STATEMENT_AUDIT,
+        TWELVE_WEEK_STATEMENT_AUDIT,
+        DetailedCase,
+        DetailedContact,
+        CaseStatus,
+        Report,
+        SimplifiedCase,
+        SimplifiedContact,
+    ]
+    | None
+)
 
 
 @dataclass
@@ -75,7 +77,7 @@ def format_model_field(
         return ""
     value: Any = getattr(source_instance, column.source_attr, "")
     get_display_name: str = f"get_{column.source_attr}_display"
-    if isinstance(value, date) or isinstance(value, datetime):
+    if isinstance(value, (date, datetime)):
         return value.strftime("%d/%m/%Y")
     elif column.source_attr == "enforcement_body":
         return value.upper()

@@ -24,7 +24,7 @@ class CacheUserUniqueID:
                     user=request.user,
                     fingerprint_hash=fingerprint_hash,
                 ).save()
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning("Error in CacheUserUniqueID Middleware: %s", e)
 
         response = self.get_response(request)

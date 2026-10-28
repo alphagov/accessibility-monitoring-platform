@@ -25,12 +25,10 @@ OLD_TO_NEW_CASE_STATUS_MAPPING: dict[str, str] = {
 
 def cleanup_case_statuses(apps, schema_editor):
     CaseStatus = apps.get_model("simplified", "CaseStatus")
-    count: int = 0
 
-    for case_status in CaseStatus.objects.all():
+    for count, case_status in enumerate(CaseStatus.objects.all(), start=1):
         case_status.status = OLD_TO_NEW_CASE_STATUS_MAPPING[case_status.status]
         case_status.save()
-        count += 1
         if count % 1000 == 0:
             print(f"{count} case statuses updated")
 

@@ -46,8 +46,7 @@ def add_comment_notification(request: HttpRequest, comment: Comment) -> bool:
             user_ids.add(user.id)
 
     # Remove the commentor from the list of ids
-    if request.user.id in user_ids:
-        user_ids.remove(request.user.id)
+    user_ids.discard(request.user.id)
 
     first_name: str = request.user.first_name
     last_name: str = request.user.last_name

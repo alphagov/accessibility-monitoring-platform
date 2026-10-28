@@ -7,9 +7,9 @@ def populate_id_with_case(apps, schema_editor):  # pylint: disable=unused-argume
     Audit = apps.get_model("audits", "Audit")
     CheckResult = apps.get_model("audits", "CheckResult")
     for audit in Audit.objects.all():
-        id_within_case = 0
-        for check_result in CheckResult.objects.filter(audit=audit):
-            id_within_case += 1
+        for id_within_case, check_result in enumerate(
+            CheckResult.objects.filter(audit=audit), start=1
+        ):
             check_result.id_within_case = id_within_case
             check_result.save()
 

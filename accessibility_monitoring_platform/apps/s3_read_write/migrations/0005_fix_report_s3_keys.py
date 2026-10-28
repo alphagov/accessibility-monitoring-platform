@@ -33,7 +33,7 @@ def correct_report_s3_keys(apps, schema_editor):
     for s3_report in S3Report.objects.all().order_by("id"):
         if not s3_report.s3_directory.startswith(f"caseid_{s3_report.base_case_id}/"):
             old_s3_directory: str = s3_report.s3_directory
-            old_prefix, old_suffix = old_s3_directory.split("/")
+            _old_prefix, old_suffix = old_s3_directory.split("/")
             new_s3_directory: str = f"caseid_{s3_report.base_case_id}/{old_suffix}"
             if s3_update_key.check_file_on_s3(old_key=old_s3_directory) is True:
                 logger.warning("Missing published report in S3: %s", old_s3_directory)

@@ -1,12 +1,12 @@
 # Update creation datetime of Trello descriptions to put them at the beginning of customer notes
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import Mock, patch
 
 from django.db import migrations
 
 TRELLO_DESCRIPTION_LABEL: str = "Description imported from Trello"
-TRELLO_DESCRIPTION_TIME: datetime = datetime(1970, 1, 1, tzinfo=timezone.utc)
+TRELLO_DESCRIPTION_TIME: datetime = datetime(1970, 1, 1, tzinfo=UTC)
 
 
 def move_trello_description(apps, schema_editor):

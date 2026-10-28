@@ -375,9 +375,8 @@ def build_task_list(user: User | None, **kwargs) -> list[Task]:
             task.options: list[Link] = [overdue_case.overdue_link]
             tasks.append(task)
 
-    if user is not None:
-        if type is None or type == Task.Type.POSTCASE:
-            tasks += get_post_case_tasks(user=user)
+    if user is not None and (type is None or type == Task.Type.POSTCASE):
+        tasks += get_post_case_tasks(user=user)
 
     sorted_tasks: list[Task] = sorted(
         tasks,

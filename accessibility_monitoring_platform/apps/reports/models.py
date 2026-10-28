@@ -43,7 +43,7 @@ class ReportWrapper(models.Model):
         ordering = ["-id"]
 
     def __str__(self) -> str:
-        return str("Report wrapper text")
+        return "Report wrapper text"
 
     def get_absolute_url(self) -> str:
         return reverse("reports:edit-report-wrapper")
