@@ -22,6 +22,8 @@ from ..forms import (
     AuditRetestCheckResultFilterForm,
     AuditStatementSummaryUpdateForm,
     AuditTwelveWeekDisproportionateBurdenUpdateForm,
+    NextWcagAuditUpdateForm,
+    RetestWcagAuditComplianceUpdateForm,
     StatementAuditStatementBackupUpdateForm,
     StatementAuditStatementComplianceUpdateForm,
     StatementAuditStatementCustomUpdateForm,
@@ -232,17 +234,29 @@ class TwelveWeekWcagAuditSummaryFirstUpdateView(
 
 
 class WcagAuditComplianceRetestUpdateView(WcagAuditUpdateView):
-    """
-    View to retest website compliance fields
-    """
 
-    form_class: type[WcagAuditComplianceUpdateForm] = WcagAuditComplianceUpdateForm
+    form_class: type[RetestWcagAuditComplianceUpdateForm] = (
+        RetestWcagAuditComplianceUpdateForm
+    )
     template_name: str = "audits/forms/retest_website_decision.html"
 
     def get_form(self, form_class=None):
         form = super().get_form()
-        form.fields["compliance_state"].label = "12-week website compliance decision"
+        form.fields["compliance_state"].label = (
+            f"Retest #{self.object.round_number} website compliance decision"
+        )
+        is_retest_complete_label: str = f"Retest #{self.object.round_number} complete"
+        form.fields["is_retest_complete"].label = is_retest_complete_label
+        form.fields["is_retest_complete"].widget.attrs = {
+            "label": is_retest_complete_label
+        }
         return form
+
+
+class NextTwelveWeekWcagAuditUpdateView(WcagAuditUpdateView):
+
+    form_class: type[NextWcagAuditUpdateForm] = NextWcagAuditUpdateForm
+    template_name: str = "audits/forms/next_twelve_week_wcag_audit.html"
 
 
 class TwelveWeekAddStatementPageUpdateView(AddStatementLinkUpdateView):

@@ -239,6 +239,8 @@ class PlatformPage:
                 self.instance_class, type(instance)
             ):
                 self.instance = instance
+                if self.platform_page_group is not None:
+                    self.platform_page_group.set_instance(instance=instance)
             else:
                 logger.warning("Cannot set instance of %s to %s", self, instance)
 
@@ -787,16 +789,32 @@ class PlatformPageGroup:
     type: Type = Type.DEFAULT
     show_flag_name: str | None = None
     case_nav_group: bool = True
+    case: SimplifiedCase | DetailedCase | MobileCase | None = None
     pages: list[PlatformPage] | None = None
 
     @property
     def show(self):
         return self.case_nav_group
 
+    def get_name(self) -> str:
+        if (
+            self.case is None
+            or not hasattr(self.case, "audit_overview")
+            or self.case.audit_overview is None
+            or self.case.audit_overview.last_twelve_week_wcag_audit is None
+        ):
+            return self.name
+        return self.name.format(case=self.case)
+
     def populate_from_case(self, case: SimplifiedCase | DetailedCase | MobileCase):
+        self.case = case
         if self.pages is not None:
             for page in self.pages:
                 page.populate_from_case(case=case)
+
+    def set_instance(self, instance: models.Model):
+        if hasattr(instance, "simplified_case"):
+            self.case = instance.simplified_case
 
     def completable_pages_and_subpages(self) -> list[PlatformPage]:
         """Pages and subpages which can be marked as complete"""
@@ -1307,7 +1325,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
         ],
     ),
     SimplifiedCasePlatformPageGroup(
-        name="12-week WCAG test",
+        name="WCAG retest #{case.audit_overview.last_twelve_week_wcag_audit.round_number}",
         show_flag_name="show_12_week_retest",
         pages=[
             WcagAuditTwelveWeekPlatformPage(
@@ -1334,16 +1352,21 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 case_details_template_name="simplified/details/details_12_week_pages.html",
             ),
             WcagAuditTwelveWeekPlatformPage(
-                name="WCAG summary",
+                name="Test comparison",
                 url_name="audits:edit-audit-retest-wcag-summary",
                 complete_flag_name="summary_complete_date",
                 next_page_url_name="audits:edit-audit-retest-website-decision",
             ),
             WcagAuditTwelveWeekPlatformPage(
-                name="Compliance decision",
+                name="WCAG compliance",
                 url_name="audits:edit-audit-retest-website-decision",
                 complete_flag_name="compliance_decision_complete_date",
                 case_details_template_name="simplified/details/details_twelve_week_website_compliance.html",
+                next_page_url_name="audits:next-twelve-week-wcag-retest",
+            ),
+            WcagAuditTwelveWeekPlatformPage(
+                name="+ Start new retest",
+                url_name="audits:next-twelve-week-wcag-retest",
                 next_page_url_name="audits:edit-audit-retest-statement-pages",
             ),
         ],
@@ -2758,3 +2781,11 @@ class Sitemap:
         self.platform_page_groups = build_sitemap_for_current_page(
             current_platform_page=self.current_platform_page
         )
+        for platform_page_group in self.platform_page_groups:
+            if (
+                self.current_platform_page.platform_page_group is not None
+                and platform_page_group.name
+                == self.current_platform_page.platform_page_group.name
+            ):
+                self.current_platform_page.platform_page_group = platform_page_group
+                break

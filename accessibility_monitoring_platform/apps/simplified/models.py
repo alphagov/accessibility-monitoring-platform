@@ -678,7 +678,7 @@ class SimplifiedCase(BaseCase):
         return (
             self.not_archived
             and self.audit_overview is not None
-            and self.audit_overview.first_twelve_week_wcag_audit is None
+            and self.audit_overview.last_twelve_week_wcag_audit is None
         )
 
     @property
@@ -686,7 +686,7 @@ class SimplifiedCase(BaseCase):
         return (
             self.not_archived
             and self.audit_overview is not None
-            and self.audit_overview.first_twelve_week_wcag_audit is not None
+            and self.audit_overview.last_twelve_week_wcag_audit is not None
         )
 
     @property

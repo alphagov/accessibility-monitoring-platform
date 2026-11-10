@@ -261,10 +261,18 @@ class AuditOverview(models.Model):
         ).first()
 
     @property
-    def first_twelve_week_wcag_audit(self) -> WcagAudit | None:
+    def twelve_week_wcag_audits(self) -> WcagAudit | None:
         return self.wcag_audits.filter(
             audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK
-        ).first()
+        )
+
+    @property
+    def first_twelve_week_wcag_audit(self) -> WcagAudit | None:
+        return self.twelve_week_wcag_audits.first()
+
+    @property
+    def last_twelve_week_wcag_audit(self) -> WcagAudit | None:
+        return self.twelve_week_wcag_audits.last()
 
     @property
     def equality_body_wcag_audits(self) -> WcagAudit | None:
@@ -353,6 +361,16 @@ class AuditOverview(models.Model):
         )
 
     @property
+    def first_twelve_week_statement_audit(self) -> StatementAudit | None:
+        if self.twelve_week_statement_audits is not None:
+            return self.twelve_week_statement_audits.first()
+
+    @property
+    def last_twelve_week_statement_audit(self) -> StatementAudit | None:
+        if self.twelve_week_statement_audits is not None:
+            return self.twelve_week_statement_audits.last()
+
+    @property
     def equality_body_statement_audits(self) -> StatementAudit | None:
         return self.statement_audits.filter(
             audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY
@@ -361,11 +379,6 @@ class AuditOverview(models.Model):
     @property
     def last_statement_audit(self) -> StatementAudit | None:
         return self.statement_audits.last()
-
-    @property
-    def first_twelve_week_statement_audit(self) -> StatementAudit | None:
-        if self.twelve_week_statement_audits is not None:
-            return self.twelve_week_statement_audits.first()
 
     @property
     def last_equality_body_statement_audit(self) -> WcagAudit | None:
@@ -530,6 +543,7 @@ class WcagAudit(AuditRound):
         choices=WebsiteCompliance.choices,
         default=WebsiteCompliance.UNKNOWN,
     )
+    is_retest_complete = models.BooleanField(default=False)
     compliance_notes = models.TextField(default="", blank=True)
     compliance_decision_complete_date = models.DateField(null=True, blank=True)
 

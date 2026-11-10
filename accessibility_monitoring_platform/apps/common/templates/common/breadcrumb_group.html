@@ -1,3 +1,4 @@
 {% if sitemap.current_platform_page.platform_page_group.name %}
-    <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.platform_page_group.name }}</li>
+    <li class="govuk-breadcrumbs__list-item">{{ sitemap.current_platform_page.platform_page_group.get_name }}</li>
+
 {% endif %}

@@ -116,7 +116,7 @@ def get_simplified_case_detail_sections(
                                     )
             view_sections.append(
                 CaseDetailSection(
-                    page_group_name=page_group.name, pages=case_detail_pages
+                    page_group_name=page_group.get_name(), pages=case_detail_pages
                 )
             )
     return view_sections

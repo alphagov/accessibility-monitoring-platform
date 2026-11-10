@@ -1,6 +1,7 @@
 {% extends 'common/case_form.html' %}
 
 {% block preform %}
+{% include 'audits/helpers/completed_retest_notification.html' %}
 {% if audit_retest_pages_formset.errors %}
     {% for form in audit_retest_pages_formset.forms %}
         {% if form.errors %}

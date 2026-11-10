@@ -505,7 +505,7 @@ def test_initial_statement_audit_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-audit-retest-website-decision",
             "save_continue",
-            "audits:edit-audit-retest-statement-pages",
+            "audits:next-twelve-week-wcag-retest",
         ),
     ],
 )
@@ -4523,8 +4523,8 @@ def test_initial_statement_audit_next_page_name(
 @pytest.mark.parametrize(
     "path_name, expected_next_page",
     [
-        ("edit-audit-retest-metadata", "12-week WCAG test | Update page links"),
-        ("edit-audit-retest-pages", "12-week WCAG test | WCAG summary"),
+        ("edit-audit-retest-metadata", "WCAG retest #0 | Update page links"),
+        ("edit-audit-retest-pages", "WCAG retest #0 | Test comparison"),
     ],
 )
 def test_twelve_week_wcag_audit_next_page_name(
@@ -4535,6 +4535,7 @@ def test_twelve_week_wcag_audit_next_page_name(
         simplified_case=simplified_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
     )
+    AuditOverview.objects.create(simplified_case=simplified_case)
     url: str = reverse(f"audits:{path_name}", kwargs={"pk": wcag_audit.id})
 
     response: HttpResponse = admin_client.get(url)
