@@ -455,9 +455,7 @@ class WcagAuditInitialPlatformPage(WcagAuditPlatformPage):
 class WcagAuditTwelveWeekPlatformPage(WcagAuditPlatformPage):
     def set_instance(self, instance: models.Model | None):
         if isinstance(instance, SimplifiedCase):
-            self.instance = instance.wcagaudit_set.filter(
-                audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK
-            ).last()
+            self.instance = instance.audit_overview.last_twelve_week_wcag_audit
         else:
             super().set_instance(instance=instance)
 

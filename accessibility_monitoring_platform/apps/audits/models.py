@@ -268,10 +268,6 @@ class AuditOverview(models.Model):
 
     @property
     def last_twelve_week_wcag_audit(self) -> WcagAudit | None:
-        return self.twelve_week_wcag_audits.first()
-
-    @property
-    def last_twelve_week_wcag_audit(self) -> WcagAudit | None:
         return self.twelve_week_wcag_audits.last()
 
     @property
