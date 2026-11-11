@@ -1,7 +1,7 @@
 {% extends 'cases/details/details.html' %}
 
 {% block prefixrows %}
-    {% for wcag_page_retest in case.audit_overview.first_twelve_week_wcag_audit.retestable_wcag_page_retests %}
+    {% for wcag_page_retest in case.audit_overview.last_twelve_week_wcag_audit.retestable_wcag_page_retests %}
         <tr class="govuk-table__row">
             <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">{{ wcag_page_retest.wcag_page_initial.page_title }}</th>
             <td class="govuk-table__cell amp-width-one-half">

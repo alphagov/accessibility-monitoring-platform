@@ -103,20 +103,20 @@ def test_audit_overview_initial_wcag_audit():
 
 
 @pytest.mark.django_db
-def test_audit_overview_first_twelve_week_wcag_audit():
+def test_audit_overview_last_twelve_week_wcag_audit():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit_overview: AuditOverview = AuditOverview.objects.create(
         simplified_case=simplified_case
     )
 
-    assert audit_overview.first_twelve_week_wcag_audit is None
+    assert audit_overview.last_twelve_week_wcag_audit is None
 
     wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=simplified_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
     )
 
-    assert audit_overview.first_twelve_week_wcag_audit == wcag_audit
+    assert audit_overview.last_twelve_week_wcag_audit == wcag_audit
 
 
 @pytest.mark.django_db
@@ -843,14 +843,14 @@ def test_wcag_audit_wcag_page_retests():
         create_simplified_case_with_initial_and_12_week_audits()
     )
     initial_wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
-    first_twelve_week_wcag_audit: WcagAudit = (
-        simplified_case.audit_overview.first_twelve_week_wcag_audit
+    last_twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
     )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
         wcag_audit=initial_wcag_audit, url="https://example.com"
     )
     WcagPageRetest.objects.create(
-        wcag_audit=first_twelve_week_wcag_audit,
+        wcag_audit=last_twelve_week_wcag_audit,
         wcag_page_initial=wcag_page_initial,
         is_deleted=True,
     )
@@ -858,12 +858,12 @@ def test_wcag_audit_wcag_page_retests():
         wcag_audit=initial_wcag_audit
     )
     WcagPageRetest.objects.create(
-        wcag_audit=first_twelve_week_wcag_audit,
+        wcag_audit=last_twelve_week_wcag_audit,
         wcag_page_initial=wcag_page_initial,
     )
 
     assert initial_wcag_audit.wcag_page_retests.count() == 0
-    assert first_twelve_week_wcag_audit.wcag_page_retests.count() == 6
+    assert last_twelve_week_wcag_audit.wcag_page_retests.count() == 6
 
 
 @pytest.mark.django_db
@@ -873,20 +873,20 @@ def test_wcag_audit_retestable_wcag_page_retests():
         create_simplified_case_with_initial_and_12_week_audits()
     )
     initial_wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
-    first_twelve_week_wcag_audit: WcagAudit = (
-        simplified_case.audit_overview.first_twelve_week_wcag_audit
+    last_twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
     )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
         wcag_audit=initial_wcag_audit, url="https://example.com"
     )
     WcagPageRetest.objects.create(
-        wcag_audit=first_twelve_week_wcag_audit,
+        wcag_audit=last_twelve_week_wcag_audit,
         wcag_page_initial=wcag_page_initial,
         page_missing_date=date.today(),
     )
 
     assert initial_wcag_audit.retestable_wcag_page_retests.count() == 0
-    assert first_twelve_week_wcag_audit.retestable_wcag_page_retests.count() == 6
+    assert last_twelve_week_wcag_audit.retestable_wcag_page_retests.count() == 6
 
 
 @pytest.mark.django_db
@@ -1003,7 +1003,7 @@ def test_wcag_audit_wcag_check_result_retests():
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_wcag_audit: WcagAudit = (
-        simplified_case.audit_overview.first_twelve_week_wcag_audit
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
     )
 
     assert twelve_week_wcag_audit.wcag_check_result_retests.count() == 11
@@ -1112,8 +1112,8 @@ def test_wcag_audit_percentage_wcag_issues_fixed():
         create_simplified_case_with_initial_and_12_week_audits()
     )
     initial_wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
-    first_twelve_week_wcag_audit: WcagAudit = (
-        simplified_case.audit_overview.first_twelve_week_wcag_audit
+    last_twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.filter(wcag_audit=initial_wcag_audit).first()
@@ -1124,12 +1124,12 @@ def test_wcag_audit_percentage_wcag_issues_fixed():
         wcag_check_result_initial=wcag_check_result_initial
     )
 
-    assert first_twelve_week_wcag_audit.percentage_wcag_issues_fixed == 0
+    assert last_twelve_week_wcag_audit.percentage_wcag_issues_fixed == 0
 
     wcag_check_result_retest.retest_state = WcagCheckResultRetest.RetestResult.FIXED
     wcag_check_result_retest.save()
 
-    assert first_twelve_week_wcag_audit.percentage_wcag_issues_fixed == 100
+    assert last_twelve_week_wcag_audit.percentage_wcag_issues_fixed == 100
 
 
 @pytest.mark.django_db
@@ -1137,11 +1137,11 @@ def test_wcag_audit_missing_wcag_page_retests():
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    first_twelve_week_wcag_audit: WcagAudit = (
-        simplified_case.audit_overview.first_twelve_week_wcag_audit
+    last_twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
     )
 
-    assert first_twelve_week_wcag_audit.missing_wcag_page_retests.count() == 0
+    assert last_twelve_week_wcag_audit.missing_wcag_page_retests.count() == 0
 
     wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
         wcag_page_initial__page_type=WcagPageInitial.Type.HOME
@@ -1149,9 +1149,9 @@ def test_wcag_audit_missing_wcag_page_retests():
     wcag_page_retest.page_missing_date = date.today()
     wcag_page_retest.save()
 
-    assert first_twelve_week_wcag_audit.missing_wcag_page_retests.count() == 1
+    assert last_twelve_week_wcag_audit.missing_wcag_page_retests.count() == 1
     assert (
-        first_twelve_week_wcag_audit.missing_wcag_page_retests.first()
+        last_twelve_week_wcag_audit.missing_wcag_page_retests.first()
         == wcag_page_retest
     )
 
@@ -1161,11 +1161,11 @@ def test_wcag_audit_missing_at_retest_check_results():
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    first_twelve_week_wcag_audit: WcagAudit = (
-        simplified_case.audit_overview.first_twelve_week_wcag_audit
+    last_twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
     )
 
-    assert first_twelve_week_wcag_audit.missing_at_retest_check_results.count() == 0
+    assert last_twelve_week_wcag_audit.missing_at_retest_check_results.count() == 0
 
     wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
         wcag_page_initial__page_type=WcagPageInitial.Type.HOME
@@ -1173,7 +1173,7 @@ def test_wcag_audit_missing_at_retest_check_results():
     wcag_page_retest.page_missing_date = date.today()
     wcag_page_retest.save()
 
-    assert first_twelve_week_wcag_audit.missing_at_retest_check_results.count() == 2
+    assert last_twelve_week_wcag_audit.missing_at_retest_check_results.count() == 2
 
 
 @pytest.mark.django_db
@@ -1668,11 +1668,11 @@ def test_wcag_page_initial_unfixed_wcag_check_result_initials():
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    first_twelve_week_wcag_audit: WcagAudit = (
+    last_twelve_week_wcag_audit: WcagAudit = (
         simplified_case.audit_overview.initial_wcag_audit
     )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
-        wcag_audit=first_twelve_week_wcag_audit, page_type=WcagPageInitial.Type.HOME
+        wcag_audit=last_twelve_week_wcag_audit, page_type=WcagPageInitial.Type.HOME
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         wcag_page_initial.wcag_check_result_initials.first()
@@ -1827,11 +1827,11 @@ def test_wcag_page_retest_unfixed_wcag_check_result_initials():
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    first_twelve_week_wcag_audit: WcagAudit = (
+    last_twelve_week_wcag_audit: WcagAudit = (
         simplified_case.audit_overview.initial_wcag_audit
     )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
-        wcag_audit=first_twelve_week_wcag_audit, page_type=WcagPageInitial.Type.HOME
+        wcag_audit=last_twelve_week_wcag_audit, page_type=WcagPageInitial.Type.HOME
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         wcag_page_initial.wcag_check_result_initials.first()
@@ -1859,11 +1859,11 @@ def test_wcag_page_retest_first_equality_body_wcag_check_result_retests():
         create_simplified_case_with_initial_and_12_week_audits()
     )
     initial_wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
-    first_twelve_week_wcag_audit: WcagAudit = (
+    last_twelve_week_wcag_audit: WcagAudit = (
         simplified_case.audit_overview.initial_wcag_audit
     )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
-        wcag_audit=first_twelve_week_wcag_audit, page_type=WcagPageInitial.Type.HOME
+        wcag_audit=last_twelve_week_wcag_audit, page_type=WcagPageInitial.Type.HOME
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         wcag_page_initial.wcag_check_result_initials.first()

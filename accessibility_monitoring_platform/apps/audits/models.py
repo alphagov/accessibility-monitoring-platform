@@ -267,7 +267,7 @@ class AuditOverview(models.Model):
         )
 
     @property
-    def first_twelve_week_wcag_audit(self) -> WcagAudit | None:
+    def last_twelve_week_wcag_audit(self) -> WcagAudit | None:
         return self.twelve_week_wcag_audits.first()
 
     @property
@@ -291,11 +291,11 @@ class AuditOverview(models.Model):
     @property
     def website_compliance_display(self) -> str:
         if (
-            self.first_twelve_week_wcag_audit is not None
-            and self.first_twelve_week_wcag_audit.compliance_state
+            self.last_twelve_week_wcag_audit is not None
+            and self.last_twelve_week_wcag_audit.compliance_state
             != WcagAudit.WebsiteCompliance.UNKNOWN
         ):
-            return self.first_twelve_week_wcag_audit.get_compliance_state_display()
+            return self.last_twelve_week_wcag_audit.get_compliance_state_display()
         return self.initial_wcag_audit.get_compliance_state_display()
 
     @property
@@ -573,7 +573,7 @@ class WcagAudit(AuditRound):
     @property
     def equality_body_retest_name(self) -> str:
         retest_number: int = self.round_number
-        if self.simplified_case.audit_overview.first_twelve_week_wcag_audit is not None:
+        if self.simplified_case.audit_overview.last_twelve_week_wcag_audit is not None:
             retest_number -= 1
         return f"Retest #{retest_number}"
 

@@ -67,11 +67,11 @@
                         <div class="govuk-hint">{{ case.audit_overview.initial_wcag_audit.get_compliance_state_display }}</div>
                     </div>
                 {% endif %}
-                {% if case.audit_overview.first_twelve_week_wcag_audit %}
+                {% if case.audit_overview.last_twelve_week_wcag_audit %}
                     <div class="govuk-form-group">
                         <label class="govuk-label"><b>Final compliance decision (found in
-                            <a href="{% url 'audits:edit-audit-retest-website-decision' case.audit_overview.first_twelve_week_wcag_audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
-                        <div class="govuk-hint">{{ case.audit_overview.first_twelve_week_wcag_audit.get_compliance_state_display }}</div>
+                            <a href="{% url 'audits:edit-audit-retest-website-decision' case.audit_overview.last_twelve_week_wcag_audit.id %}" class="govuk-link govuk-link--no-visited-state">retest</a>)</b></label>
+                        <div class="govuk-hint">{{ case.audit_overview.last_twelve_week_wcag_audit.get_compliance_state_display }}</div>
                     </div>
                 {% endif %}
             </div>
