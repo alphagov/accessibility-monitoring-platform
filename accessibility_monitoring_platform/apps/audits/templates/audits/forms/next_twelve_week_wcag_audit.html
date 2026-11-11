@@ -7,9 +7,7 @@
             {% include 'cases/helpers/case_banner.html' %}
         </div>
     </div>
-    {% block breadcrumbs %}
-        {% include 'common/breadcrumbs.html' %}
-    {% endblock %}
+    {% include 'common/breadcrumbs.html' %}
     <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
         {% include 'simplified/helpers/compliant_website_notification.html' %}
         <div class="govuk-grid-row">
@@ -19,16 +17,14 @@
             <div class="govuk-grid-column-three-quarters amp-padding-vertical-30">
                 {% include "common/helpers/edit_header.html" %}
                 {% if wcag_audit.is_retest_complete %}
-                    <p class="govuk-body">Retest #3 is complete and a new retest can be started.</p>
+                    <p class="govuk-body">Retest #{{ wcag_audit.round_number }} is complete and a new retest can be started.</p>
                     <p class="govuk-body">A new retest only includes the outstanding issues.</p>
                     <form method="post" action="{% url sitemap.current_platform_page.url_name object.id %}">
                         {% csrf_token %}
                         {% include 'common/form_errors.html' with errors=form.non_field_errors %}
                         <div class="govuk-grid-row">
                             <div class="govuk-grid-column-full">
-                                {% block formfields %}
                                 {% include 'common/amp_form_snippet.html' %}
-                                {% endblock %}
                             </div>
                         </div>
                         <div class="govuk-grid-row">

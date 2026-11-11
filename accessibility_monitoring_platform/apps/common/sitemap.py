@@ -457,7 +457,7 @@ class WcagAuditTwelveWeekPlatformPage(WcagAuditPlatformPage):
         if isinstance(instance, SimplifiedCase):
             self.instance = instance.wcagaudit_set.filter(
                 audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK
-            ).first()
+            ).last()
         else:
             super().set_instance(instance=instance)
 
@@ -465,7 +465,7 @@ class WcagAuditTwelveWeekPlatformPage(WcagAuditPlatformPage):
         if hasattr(case, "wcagaudit_set"):
             wcag_audit: WcagAudit | None = case.wcagaudit_set.filter(
                 audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK
-            ).first()
+            ).last()
             if wcag_audit is not None:
                 self.set_instance(instance=wcag_audit)
         super().populate_from_case(case=case)
@@ -490,11 +490,9 @@ class InitialStatementAuditPlatformPage(StatementAuditPlatformPage):
 
     def set_instance(self, instance: models.Model | None):
         if isinstance(instance, SimplifiedCase):
-            self.instance = instance.statementaudit_set.filter(
-                audit_round_type=self.audit_round_type
-            ).first()
+            self.instance = instance.audit_overview.last_statement_audit
         elif isinstance(instance, WcagAudit):
-            self.instance = instance.equivalent_statement_audit
+            self.instance = instance.simplified_case.audit_overview.last_statement_audit
         else:
             super().set_instance(instance=instance)
 
@@ -502,7 +500,7 @@ class InitialStatementAuditPlatformPage(StatementAuditPlatformPage):
         if hasattr(case, "statementaudit_set"):
             statement_audit: StatementAudit | None = case.statementaudit_set.filter(
                 audit_round_type=self.audit_round_type
-            ).first()
+            ).last()
             if statement_audit is not None:
                 self.set_instance(instance=statement_audit)
         super().populate_from_case(case=case)
@@ -641,7 +639,7 @@ class EqualityBodyAuditStatementLinksPlatformPage(
             isinstance(instance, WcagAudit)
             and instance.audit_round_type == WcagAudit.AuditRoundType.EQUALITY_BODY
         ):
-            self.instance = instance.equivalent_statement_audit
+            self.instance = instance.simplified_case.audit_overview.last_statement_audit
         else:
             super().set_instance(instance=instance)
 
@@ -686,7 +684,7 @@ class WcagAuditRetestPagesPlatformPage(WcagAuditPlatformPage):
     def populate_from_case(self, case: AnyCaseType):
         if hasattr(case, "audit_overview") and case.audit_overview is not None:
             wcag_audit: WcagAudit | None = (
-                case.audit_overview.first_twelve_week_wcag_audit
+                case.audit_overview.last_twelve_week_wcag_audit
             )
             if wcag_audit is not None:
                 self.set_instance(instance=wcag_audit)

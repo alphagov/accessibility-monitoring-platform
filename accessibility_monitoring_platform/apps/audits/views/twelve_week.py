@@ -39,7 +39,6 @@ from ..forms import (
     StatementCheckResultRetestFormset,
     StatementCheckResultRetestUpdateForm,
     TwelveWeekStatementAuditComplianceUpdateForm,
-    WcagAuditComplianceUpdateForm,
     WcagAuditRetestMetadataUpdateForm,
     WcagAuditRetestPagesUpdateForm,
     WcagAuditWcagSummaryUpdateForm,
@@ -257,6 +256,40 @@ class NextTwelveWeekWcagAuditUpdateView(WcagAuditUpdateView):
 
     form_class: type[NextWcagAuditUpdateForm] = NextWcagAuditUpdateForm
     template_name: str = "audits/forms/next_twelve_week_wcag_audit.html"
+
+    def form_valid(self, form: ModelForm):
+        previous_wcag_audit: WcagAudit = self.object
+        simplified_case: SimplifiedCase = previous_wcag_audit.simplified_case
+        audit_overview: AuditOverview = simplified_case.audit_overview
+
+        new_twelve_week_wcag_audit: WcagAudit = (
+            create_retest_wcag_audit_and_check_results(
+                audit_overview=audit_overview,
+                audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+            )
+        )
+        record_simplified_model_create_event(
+            user=self.request.user,
+            model_object=new_twelve_week_wcag_audit,
+            simplified_case=simplified_case,
+        )
+
+        CaseEvent.objects.create(
+            simplified_case=simplified_case,
+            done_by=self.request.user,
+            event_type=CaseEvent.EventType.START_RETEST,
+            message="Started retest",
+        )
+
+        self.new_twelve_week_wcag_audit = new_twelve_week_wcag_audit
+
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "audits:edit-audit-retest-metadata",
+            kwargs={"pk": self.new_twelve_week_wcag_audit.id},
+        )
 
 
 class TwelveWeekAddStatementPageUpdateView(AddStatementLinkUpdateView):

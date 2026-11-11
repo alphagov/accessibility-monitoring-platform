@@ -559,14 +559,6 @@ class WcagAudit(AuditRound):
         return reverse("audits:edit-audit-metadata", kwargs={"pk": self.pk})
 
     @property
-    def equivalent_statement_audit(self) -> StatementAudit:
-        """Return matching statement audit"""
-        return StatementAudit.objects.get(
-            simplified_case=self.simplified_case,
-            round_number=self.round_number,
-        )
-
-    @property
     def equality_body_previous_retest_wcag_audit(self) -> WcagAudit | None:
         """
         Return previous equality body or 12-week retest for an equality body retest
@@ -1320,8 +1312,9 @@ class WcagCheckResultInitial(models.Model):
     @property
     def twelve_week_wcag_check_result_retest(self) -> WcagCheckResultRetest | None:
         return WcagCheckResultRetest.objects.filter(
-            wcag_check_result_initial=self
-        ).first()
+            wcag_check_result_initial=self,
+            wcag_audit__audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        ).last()
 
 
 class WcagCheckResultRetest(models.Model):

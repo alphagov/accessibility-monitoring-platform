@@ -693,19 +693,6 @@ def test_wcag_audit_get_absolute_url():
 
 
 @pytest.mark.django_db
-def test_wcag_audit_equivalent_statement_audit():
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    WcagAudit.objects.create(simplified_case=simplified_case)
-    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
-    StatementAudit.objects.create(simplified_case=simplified_case)
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case
-    )
-
-    assert wcag_audit.equivalent_statement_audit == statement_audit
-
-
-@pytest.mark.django_db
 def test_wcag_audit_equality_body_previous_retest_wcag_audit():
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
 
@@ -1208,30 +1195,6 @@ def test_statement_audit_save_populates_round_number():
     statement_audit.save()
 
     assert statement_audit.round_number == 1
-
-
-@pytest.mark.django_db
-def test_statement_audit_equivalent_equality_body_wcag_audit():
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    AuditOverview.objects.create(simplified_case=simplified_case)
-    WcagAudit.objects.create(simplified_case=simplified_case)
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case
-    )
-
-    assert statement_audit.equivalent_equality_body_wcag_audit is None
-
-    equality_body_wcag_audit: WcagAudit = WcagAudit.objects.create(
-        simplified_case=simplified_case,
-        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
-    )
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case
-    )
-
-    assert (
-        statement_audit.equivalent_equality_body_wcag_audit == equality_body_wcag_audit
-    )
 
 
 @pytest.mark.django_db
