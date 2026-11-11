@@ -237,7 +237,7 @@
                             <tr class="govuk-table__row">
                                 <th scope="col" class="govuk-table__header amp-width-one-third">WCAG issue</th>
                                 <th scope="col" class="govuk-table__header amp-width-one-third">Initial test</th>
-                                <th scope="col" class="govuk-table__header amp-width-one-third{% if not enable_12_week_ui %} amp-disabled{% endif %}">12-week test</th>
+                                <th scope="col" class="govuk-table__header amp-width-one-third{% if not enable_12_week_ui %} amp-disabled{% endif %}">Retest #{{ wcag_audit.round_number }}</th>
                             </tr>
                         </thead>
                         <tbody class="govuk-table__body">
@@ -255,21 +255,17 @@
                                     </td>
                                     <td class="govuk-table__cell amp-width-one-third{% if not enable_12_week_ui %} amp-disabled{% endif %}">
                                         <p class="amp-margin-top-0">
-                                            {% if summary_wcag_check_result.retest_result.retest_state %}
-                                                {{ summary_wcag_check_result.retest_result.get_retest_state_display }}
-                                            {% else %}
-                                                Not retested
-                                            {% endif %}
+                                            {% include 'audits/helpers/retest_state_tag.html' with retest_result=summary_wcag_check_result.retest_result %}
                                         </p>
                                         <div class="amp-notes amp-margin-bottom-15">{{ summary_wcag_check_result.retest_result.notes|markdown_to_html }}</div>
-                                        {% if enable_12_week_ui %}
+                                        {% if enable_12_week_ui and summary_wcag_check_result.retest_result.wcag_audit.round_number == wcag_audit.round_number %}
                                             {% if summary_wcag_check_result.retest_result.wcag_page_retest %}
                                                 <a href="{% url 'audits:edit-wcag-page-retest-check-results' summary_wcag_check_result.retest_result.wcag_page_retest.id %}" class="govuk-link govuk-link--no-visited-state">
-                                                    Edit 12-week test
+                                                    Edit retest
                                                 </a>
                                             {% endif %}
                                         {% else %}
-                                            <span class="govuk-body amp-disabled">Edit 12-week test</span>
+                                            <span class="govuk-body amp-disabled">Edit retest</span>
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -315,7 +311,7 @@
                             <tr class="govuk-table__row">
                                 <th scope="col" class="govuk-table__header amp-width-one-third">Page</th>
                                 <th scope="col" class="govuk-table__header amp-width-one-third">Initial test</th>
-                                <th scope="col" class="govuk-table__header amp-width-one-third{% if not enable_12_week_ui %} amp-disabled{% endif %}">12-week test</th>
+                                <th scope="col" class="govuk-table__header amp-width-one-third{% if not enable_12_week_ui %} amp-disabled{% endif %}">Retest #{{ wcag_audit.round_number }}</th>
                             </tr>
                         </thead>
                         <tbody class="govuk-table__body">
@@ -345,21 +341,17 @@
                                     </td>
                                     <td class="govuk-table__cell amp-width-one-third{% if not enable_12_week_ui %} amp-disabled{% endif %}">
                                         <p class="amp-margin-top-0">
-                                            {% if summary_wcag_check_result.retest_result.retest_state %}
-                                                {{ summary_wcag_check_result.retest_result.get_retest_state_display }}
-                                            {% else %}
-                                                Not retested
-                                            {% endif %}
+                                            {% include 'audits/helpers/retest_state_tag.html' with retest_result=summary_wcag_check_result.retest_result %}
                                         </p>
                                         <div class="amp-notes amp-margin-bottom-15">{{ summary_wcag_check_result.retest_result.notes|markdown_to_html }}</div>
-                                        {% if enable_12_week_ui %}
+                                        {% if enable_12_week_ui and summary_wcag_check_result.retest_result.wcag_audit.round_number == wcag_audit.round_number %}
                                             {% if summary_wcag_check_result.retest_result.wcag_page_retest %}
                                                 <a href="{% url 'audits:edit-wcag-page-retest-check-results' summary_wcag_check_result.retest_result.wcag_page_retest.id %}" class="govuk-link govuk-link--no-visited-state">
-                                                    Edit 12-week test
+                                                    Edit retest
                                                 </a>
                                             {% endif %}
                                         {% else %}
-                                            <span class="govuk-body amp-disabled">Edit 12-week test</span>
+                                            <span class="govuk-body amp-disabled">Edit retest</span>
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -376,7 +368,7 @@
                 <thead class="govuk-table__head">
                     <tr class="govuk-table__row">
                         <th scope="col" class="govuk-table__header amp-width-one-third">Page</th>
-                        <th scope="col" class="govuk-table__header amp-width-two-thirds{% if not enable_12_week_ui %} amp-disabled{% endif %}">12-week test</th>
+                        <th scope="col" class="govuk-table__header amp-width-two-thirds{% if not enable_12_week_ui %} amp-disabled{% endif %}">Retest #{{ wcag_audit.round_number }}</th>
                     </tr>
                 </thead>
                 <tbody class="govuk-table__body">
@@ -401,11 +393,11 @@
                             {% if enable_12_week_ui %}
                                 <li>
                                     <a href="{% url 'audits:edit-wcag-page-retest-check-results' wcag_page_retest.id %}" class="govuk-link govuk-link--no-visited-state">
-                                        Edit 12-week test
+                                        Edit retest
                                     </a>
                                 </li>
                             {% else %}
-                                <span class="govuk-body amp-disabled">Edit 12-week test</span>
+                                <span class="govuk-body amp-disabled">Edit retest</span>
                             {% endif %}
                         </td>
                         <td class="govuk-table__cell amp-width-two-thirds amp-notes{% if not enable_12_week_ui %} amp-disabled{% endif %}">

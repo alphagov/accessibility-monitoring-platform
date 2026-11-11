@@ -1,0 +1,15 @@
+{% if retest_result.retest_state %}
+    {% if retest_result.retest_state == 'fixed' %}
+        <strong class="govuk-tag govuk-tag--green">
+    {% elif retest_result.retest_state == 'not-fixed' %}
+        <strong class="govuk-tag govuk-tag--red">
+    {% else %}
+        <strong class="govuk-tag govuk-tag--grey">
+    {% endif %}
+        {{ retest_result.get_retest_state_display }}
+        &middot;
+        Retest #{{ retest_result.wcag_audit.round_number }}
+    </strong>
+{% else %}
+    <strong class="govuk-tag govuk-tag--grey">Not retested</strong>
+{% endif %}
