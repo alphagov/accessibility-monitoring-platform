@@ -10,7 +10,7 @@ describe('12-week retest', () => {
   })
 
   it('can edit 12-week retest metadata', () => {
-    cy.contains('12-week WCAG test').click()
+    cy.contains('WCAG retest #1').click()
     cy.contains(/^12-week retest metadata$/).click()
     cy.contains('Populate with today\'s date').click()
     cy.get('[name="metadata_complete_date"]').click()
@@ -20,7 +20,7 @@ describe('12-week retest', () => {
   })
 
   it('can edit 12-week retesting home', () => {
-    cy.contains('12-week WCAG test').click()
+    cy.contains('WCAG retest #1').click()
     cy.contains(/^Home page retest$/).click()
     cy.title().should('eq', 'example.com · Simplified Organisation | Home page retest')
     cy.get('[name="form-0-retest_state"]').check('fixed')

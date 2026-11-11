@@ -174,11 +174,15 @@ describe('Create simplified case, tests and report', () => {
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Accessibility statement page retest`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | WCAG summary`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Test comparison`)
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Compliance decision`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | WCAG compliance`)
     cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | + Start new retest`)
+    cy.contains('12-week statement').click()
+    cy.contains('Statement links').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement links`)
     cy.contains('Save and continue').click()
