@@ -454,7 +454,11 @@ class WcagAuditInitialPlatformPage(WcagAuditPlatformPage):
 
 class WcagAuditTwelveWeekPlatformPage(WcagAuditPlatformPage):
     def set_instance(self, instance: models.Model | None):
-        if isinstance(instance, SimplifiedCase):
+        if (
+            isinstance(instance, SimplifiedCase)
+            and hasattr(instance, "audit_overview")
+            and instance.audit_overview is not None
+        ):
             self.instance = instance.audit_overview.last_twelve_week_wcag_audit
         else:
             super().set_instance(instance=instance)
