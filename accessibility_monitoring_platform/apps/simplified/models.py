@@ -767,9 +767,7 @@ class SimplifiedCase(BaseCase):
             or self.audit_overview.last_twelve_week_wcag_audit is None
         ):
             return 0
-        return (
-            self.audit_overview.last_twelve_week_wcag_audit.fixed_wcag_check_result_retests.count()
-        )
+        return self.audit_overview.fixed_wcag_check_result_retests.count()
 
     @property
     def total_website_issues_unfixed(self) -> int:
@@ -794,7 +792,7 @@ class SimplifiedCase(BaseCase):
         if failed_checks_count == 0:
             return "n/a"
         fixed_checks_count: int = (
-            self.audit_overview.last_twelve_week_wcag_audit.fixed_wcag_check_result_retests.count()
+            self.audit_overview.fixed_wcag_check_result_retests.count()
         )
         return int(fixed_checks_count * 100 / failed_checks_count)
 
@@ -831,7 +829,7 @@ class SimplifiedCase(BaseCase):
             return "No retest exists"
         return format_outstanding_issues(
             failed_checks_count=self.audit_overview.initial_wcag_audit.failed_wcag_check_result_initials.count(),
-            fixed_checks_count=self.audit_overview.last_twelve_week_wcag_audit.fixed_wcag_check_result_retests.count(),
+            fixed_checks_count=self.audit_overview.fixed_wcag_check_result_retests.count(),
         )
 
     @property

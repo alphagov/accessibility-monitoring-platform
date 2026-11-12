@@ -237,7 +237,13 @@
                             <tr class="govuk-table__row">
                                 <th scope="col" class="govuk-table__header amp-width-one-third">WCAG issue</th>
                                 <th scope="col" class="govuk-table__header amp-width-one-third">Initial test</th>
-                                <th scope="col" class="govuk-table__header amp-width-one-third{% if not enable_12_week_ui %} amp-disabled{% endif %}">Retest #{{ wcag_audit.round_number }}</th>
+                                <th scope="col" class="govuk-table__header amp-width-one-third{% if not enable_12_week_ui %} amp-disabled{% endif %}">
+                                    {% if summary_wcag_check_results.0.retest_result %}
+                                        Retest #{{ wcag_audit.round_number }}
+                                    {% else %}
+                                        12-week retest
+                                    {% endif %}
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="govuk-table__body">
@@ -311,7 +317,13 @@
                             <tr class="govuk-table__row">
                                 <th scope="col" class="govuk-table__header amp-width-one-third">Page</th>
                                 <th scope="col" class="govuk-table__header amp-width-one-third">Initial test</th>
-                                <th scope="col" class="govuk-table__header amp-width-one-third{% if not enable_12_week_ui %} amp-disabled{% endif %}">Retest #{{ wcag_audit.round_number }}</th>
+                                <th scope="col" class="govuk-table__header amp-width-one-third{% if not enable_12_week_ui %} amp-disabled{% endif %}">
+                                    {% if summary_wcag_check_results.0.retest_result %}
+                                        Retest #{{ wcag_audit.round_number }}
+                                    {% else %}
+                                        12-week retest
+                                    {% endif %}
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="govuk-table__body">

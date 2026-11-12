@@ -271,6 +271,15 @@ class AuditOverview(models.Model):
         return self.twelve_week_wcag_audits.last()
 
     @property
+    def fixed_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
+        return WcagCheckResultRetest.objects.filter(
+            wcag_check_result_initial__wcag_audit=self.initial_wcag_audit,
+            wcag_check_result_initial__check_result_state=WcagCheckResultInitial.Result.ERROR,
+            wcag_page_retest__page_missing_date=None,
+            retest_state=WcagCheckResultRetest.RetestResult.FIXED,
+        )
+
+    @property
     def equality_body_wcag_audits(self) -> WcagAudit | None:
         return self.wcag_audits.filter(
             audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY
@@ -661,12 +670,6 @@ class WcagAudit(AuditRound):
         )
 
     @property
-    def fixed_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
-        return self.wcag_check_result_retests.filter(
-            retest_state=WcagCheckResultRetest.RetestResult.FIXED,
-        )
-
-    @property
     def unfixed_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
         return self.wcag_check_result_retests.filter(
             wcag_check_result_initial__check_result_state=WcagCheckResultInitial.Result.ERROR,
@@ -713,7 +716,7 @@ class WcagAudit(AuditRound):
     def percentage_wcag_issues_fixed(self) -> int:
         return calculate_percentage(
             total=self.simplified_case.audit_overview.initial_wcag_audit.failed_wcag_check_result_initials.count(),
-            partial=self.fixed_wcag_check_result_retests.count(),
+            partial=self.simplified_case.audit_overview.fixed_wcag_check_result_retests.count(),
         )
 
     @property
