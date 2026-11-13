@@ -68,7 +68,7 @@ def populate_equality_body_columns(
                 case.audit_overview.initial_statement_audit
             )
             source_instances[TWELVE_WEEK_STATEMENT_AUDIT] = (
-                case.audit_overview.first_twelve_week_statement_audit
+                case.audit_overview.last_twelve_week_statement_audit
             )
         if hasattr(case, "report"):
             source_instances[Report] = case.report
@@ -129,7 +129,7 @@ def populate_csv_columns(
                 case.audit_overview.initial_statement_audit
             )
             source_instances[TWELVE_WEEK_STATEMENT_AUDIT] = (
-                case.audit_overview.first_twelve_week_statement_audit
+                case.audit_overview.last_twelve_week_statement_audit
             )
 
     columns: list[CSVColumn] = copy.deepcopy(column_definitions)

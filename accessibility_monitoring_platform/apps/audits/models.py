@@ -366,7 +366,7 @@ class AuditOverview(models.Model):
         )
 
     @property
-    def first_twelve_week_statement_audit(self) -> StatementAudit | None:
+    def last_twelve_week_statement_audit(self) -> StatementAudit | None:
         if self.twelve_week_statement_audits is not None:
             return self.twelve_week_statement_audits.first()
 
@@ -399,7 +399,7 @@ class AuditOverview(models.Model):
             == 0
         ):
             return False
-        if self.first_twelve_week_statement_audit is None:
+        if self.last_twelve_week_statement_audit is None:
             return (
                 self.initial_statement_audit.overview_statement_check_results.exclude(
                     check_result_state=StatementCheckResult.Result.YES
@@ -411,7 +411,7 @@ class AuditOverview(models.Model):
                 check_result_state=StatementCheckResult.Result.YES
             ).count()
             == 0
-            and self.first_twelve_week_statement_audit.overview_statement_check_results.exclude(
+            and self.last_twelve_week_statement_audit.overview_statement_check_results.exclude(
                 check_result_state=StatementCheckResult.Result.YES
             ).count()
             == 0
@@ -798,6 +798,7 @@ class StatementAudit(AuditRound):
         choices=StatementCompliance.choices,
         default=StatementCompliance.UNKNOWN,
     )
+    is_retest_complete = models.BooleanField(default=False)
     compliance_notes = models.TextField(default="", blank=True)
     compliance_complete_date = models.DateField(null=True, blank=True)
 

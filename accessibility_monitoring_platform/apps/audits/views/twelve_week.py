@@ -22,7 +22,9 @@ from ..forms import (
     AuditRetestCheckResultFilterForm,
     AuditStatementSummaryUpdateForm,
     AuditTwelveWeekDisproportionateBurdenUpdateForm,
+    NextStatementAuditUpdateForm,
     NextWcagAuditUpdateForm,
+    RetestStatementAuditComplianceUpdateForm,
     RetestWcagAuditComplianceUpdateForm,
     StatementAuditStatementBackupUpdateForm,
     StatementAuditStatementComplianceUpdateForm,
@@ -84,7 +86,7 @@ class WcagAuditRetestMetadataUpdateView(WcagAuditUpdateView):
         wcag_audit: WcagAudit = self.object
         if not wcag_audit.simplified_case.psb_response:
             twelve_week_statement_audit: StatementAudit = (
-                wcag_audit.simplified_case.audit_overview.first_twelve_week_statement_audit
+                wcag_audit.simplified_case.audit_overview.last_twelve_week_statement_audit
             )
             return get_platform_page_by_url_name(
                 url_name="audits:edit-audit-retest-statement-pages",
@@ -278,7 +280,7 @@ class NextTwelveWeekWcagAuditUpdateView(WcagAuditUpdateView):
             simplified_case=simplified_case,
             done_by=self.request.user,
             event_type=CaseEvent.EventType.START_RETEST,
-            message="Started retest",
+            message="Started WCAG retest",
         )
 
         self.new_twelve_week_wcag_audit = new_twelve_week_wcag_audit
@@ -312,7 +314,7 @@ class TwelveWeekDeleteStatementPageUpdateView(DeleteStatementPageUpdateView):
         return reverse(
             "audits:edit-audit-retest-statement-pages",
             kwargs={
-                "pk": statement_page.audit_overview.first_twelve_week_statement_audit.id
+                "pk": statement_page.audit_overview.last_twelve_week_statement_audit.id
             },
         )
 
@@ -646,14 +648,6 @@ class TwelveWeekDisproportionateBurdenUpdateView(StatementAuditUpdateView):
     template_name: str = "audits/forms/twelve_week_disproportionate_burden.html"
 
 
-class TwelveWeekStatementComplianceStatementUpdateView(StatementAuditUpdateView):
-
-    form_class: type[TwelveWeekStatementAuditComplianceUpdateForm] = (
-        TwelveWeekStatementAuditComplianceUpdateForm
-    )
-    template_name: str = "audits/forms/retest_statement_decision.html"
-
-
 class TwelveWeekStatementSummaryFirstUpdateView(
     AuditSummaryFirstMixin, StatementAuditUpdateView
 ):
@@ -663,6 +657,66 @@ class TwelveWeekStatementSummaryFirstUpdateView(
 
     form_class: type[AuditStatementSummaryUpdateForm] = AuditStatementSummaryUpdateForm
     template_name: str = "audits/forms/test_summary_statement.html"
+
+
+class TwelveWeekStatementComplianceStatementUpdateView(StatementAuditUpdateView):
+
+    form_class: type[RetestStatementAuditComplianceUpdateForm] = (
+        RetestStatementAuditComplianceUpdateForm
+    )
+    template_name: str = "audits/forms/retest_statement_decision.html"
+
+    def get_form(self, form_class=None):
+        form = super().get_form()
+        form.fields["compliance_state"].label = (
+            f"Retest #{self.object.round_number} website compliance decision"
+        )
+        is_retest_complete_label: str = f"Retest #{self.object.round_number} complete"
+        form.fields["is_retest_complete"].label = is_retest_complete_label
+        form.fields["is_retest_complete"].widget.attrs = {
+            "label": is_retest_complete_label
+        }
+        return form
+
+
+class NextTwelveWeekStatementAuditUpdateView(StatementAuditUpdateView):
+
+    form_class: type[NextStatementAuditUpdateForm] = NextStatementAuditUpdateForm
+    template_name: str = "audits/forms/next_twelve_week_statement_audit.html"
+
+    def form_valid(self, form: ModelForm):
+        previous_statement_audit: StatementAudit = self.object
+        simplified_case: SimplifiedCase = previous_statement_audit.simplified_case
+        audit_overview: AuditOverview = simplified_case.audit_overview
+
+        new_twelve_week_statement_audit: StatementAudit = (
+            create_statement_audit_and_check_results(
+                audit_overview=audit_overview,
+                audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+            )
+        )
+        record_simplified_model_create_event(
+            user=self.request.user,
+            model_object=new_twelve_week_statement_audit,
+            simplified_case=simplified_case,
+        )
+
+        CaseEvent.objects.create(
+            simplified_case=simplified_case,
+            done_by=self.request.user,
+            event_type=CaseEvent.EventType.START_RETEST,
+            message="Started statement retest",
+        )
+
+        self.new_twelve_week_statement_audit = new_twelve_week_statement_audit
+
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "audits:edit-audit-retest-statement-pages",
+            kwargs={"pk": self.new_twelve_week_statement_audit.id},
+        )
 
 
 def start_retest(

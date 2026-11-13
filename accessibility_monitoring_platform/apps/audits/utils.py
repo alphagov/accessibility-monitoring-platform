@@ -498,7 +498,7 @@ def get_audit_summary_context(
         audit_overview.initial_statement_audit
     )
     statement_audit_12_week: StatementAudit | None = (
-        audit_overview.first_twelve_week_statement_audit
+        audit_overview.last_twelve_week_statement_audit
     )
     context: dict[str, Any] = {}
     show_failures_by_page: bool = "page-view" in request.GET

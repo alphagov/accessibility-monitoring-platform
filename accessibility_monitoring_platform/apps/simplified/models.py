@@ -812,8 +812,8 @@ class SimplifiedCase(BaseCase):
         if self.audit_overview is None:
             return "unknown"
         if (
-            self.audit_overview.first_twelve_week_statement_audit is not None
-            and self.audit_overview.first_twelve_week_statement_audit.all_overview_statement_checks_have_passed
+            self.audit_overview.last_twelve_week_statement_audit is not None
+            and self.audit_overview.last_twelve_week_statement_audit.all_overview_statement_checks_have_passed
         ):
             return "Yes"
         return "No"
@@ -839,7 +839,7 @@ class SimplifiedCase(BaseCase):
             or self.audit_overview.initial_statement_audit is None
         ):
             return "No test exists"
-        if self.audit_overview.first_twelve_week_statement_audit is None:
+        if self.audit_overview.last_twelve_week_statement_audit is None:
             return format_statement_check_overview(
                 tests_passed=self.audit_overview.initial_statement_audit.passed_statement_check_results.count(),
                 tests_failed=self.audit_overview.initial_statement_audit.failed_statement_check_results.count(),
@@ -847,8 +847,8 @@ class SimplifiedCase(BaseCase):
         return format_statement_check_overview(
             tests_passed=self.audit_overview.initial_statement_audit.passed_statement_check_results.count(),
             tests_failed=self.audit_overview.initial_statement_audit.failed_statement_check_results.count(),
-            retests_passed=self.audit_overview.first_twelve_week_statement_audit.passed_statement_check_results.count(),
-            retests_failed=self.audit_overview.first_twelve_week_statement_audit.failed_statement_check_results.count(),
+            retests_passed=self.audit_overview.last_twelve_week_statement_audit.passed_statement_check_results.count(),
+            retests_failed=self.audit_overview.last_twelve_week_statement_audit.failed_statement_check_results.count(),
         )
 
     @property

@@ -631,7 +631,7 @@ class CaseNoPSBResponseUpdateView(
             return reverse(
                 "audits:edit-audit-retest-statement-pages",
                 kwargs={
-                    "pk": simplified_case.audit_overview.first_twelve_week_statement_audit.id
+                    "pk": simplified_case.audit_overview.last_twelve_week_statement_audit.id
                 },
             )
         return super().get_success_url()

@@ -445,24 +445,24 @@ def test_audit_overview_last_statement_audit():
 
 
 @pytest.mark.django_db
-def test_audit_overview_first_twelve_week_statement_audit():
+def test_audit_overview_last_twelve_week_statement_audit():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit_overview: AuditOverview = AuditOverview.objects.create(
         simplified_case=simplified_case
     )
 
-    assert audit_overview.first_twelve_week_statement_audit is None
+    assert audit_overview.last_twelve_week_statement_audit is None
 
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case,
-        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-    )
     StatementAudit.objects.create(
         simplified_case=simplified_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
     )
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+    )
 
-    assert audit_overview.first_twelve_week_statement_audit == statement_audit
+    assert audit_overview.last_twelve_week_statement_audit == statement_audit
 
 
 @pytest.mark.django_db

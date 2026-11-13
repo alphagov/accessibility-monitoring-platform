@@ -692,7 +692,7 @@ def test_policy_progress_metric_statement_issues(mock_timezone, admin_client):
         simplified_case=simplified_case,
         date_of_test=datetime(2021, 12, 15, tzinfo=UTC),
     )
-    first_twelve_week_statement_audit: StatementAudit = StatementAudit.objects.create(
+    last_twelve_week_statement_audit: StatementAudit = StatementAudit.objects.create(
         simplified_case=simplified_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
         date_of_test=datetime(2021, 12, 15, tzinfo=UTC),
@@ -708,7 +708,7 @@ def test_policy_progress_metric_statement_issues(mock_timezone, admin_client):
     )
     statement_check_result_initial: StatementCheckResult = (
         StatementCheckResult.objects.create(
-            statement_audit=first_twelve_week_statement_audit,
+            statement_audit=last_twelve_week_statement_audit,
             statement_check_result_initial=statement_check_result_initial,
             type=statement_check.type,
             statement_check=statement_check,

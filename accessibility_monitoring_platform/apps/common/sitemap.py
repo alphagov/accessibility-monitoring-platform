@@ -464,12 +464,8 @@ class WcagAuditTwelveWeekPlatformPage(WcagAuditPlatformPage):
             super().set_instance(instance=instance)
 
     def populate_from_case(self, case: AnyCaseType):
-        if hasattr(case, "wcagaudit_set"):
-            wcag_audit: WcagAudit | None = case.wcagaudit_set.filter(
-                audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK
-            ).last()
-            if wcag_audit is not None:
-                self.set_instance(instance=wcag_audit)
+        if hasattr(case, "audit_overview") and case.audit_overview is not None:
+            self.set_instance(instance=case.audit_overview.last_twelve_week_wcag_audit)
         super().populate_from_case(case=case)
 
 
@@ -483,6 +479,25 @@ class StatementAuditPlatformPage(PlatformPage):
     def get_case(self) -> SimplifiedCase | None:
         if self.instance is not None:
             return self.instance.simplified_case
+
+
+class StatementAuditTwelveWeekPlatformPage(StatementAuditPlatformPage):
+    def set_instance(self, instance: models.Model | None):
+        if (
+            isinstance(instance, SimplifiedCase)
+            and hasattr(instance, "audit_overview")
+            and instance.audit_overview is not None
+        ):
+            self.instance = instance.audit_overview.last_twelve_week_statement_audit
+        else:
+            super().set_instance(instance=instance)
+
+    def populate_from_case(self, case: AnyCaseType):
+        if hasattr(case, "audit_overview") and case.audit_overview is not None:
+            self.set_instance(
+                instance=case.audit_overview.last_twelve_week_statement_audit
+            )
+        super().populate_from_case(case=case)
 
 
 class InitialStatementAuditPlatformPage(StatementAuditPlatformPage):
@@ -564,7 +579,7 @@ class TwelveWeekStatementAuditCustomIssuesPlatformPage(
             current_statement_audit: StatementAudit | None = (
                 case.statementaudit_set.filter(
                     audit_round_type=self.audit_round_type
-                ).first()
+                ).last()
             )
             if current_statement_audit is not None:
                 self.set_instance(instance=current_statement_audit)
@@ -600,7 +615,7 @@ class InitialAuditStatementLinksPlatformPage(InitialStatementAuditPlatformPage):
         if hasattr(case, "statementaudit_set"):
             statement_audit: StatementAudit | None = case.statementaudit_set.filter(
                 audit_round_type=self.audit_round_type
-            ).first()
+            ).last()
             if statement_audit is not None:
                 self.set_instance(instance=statement_audit)
                 if self.subpages is not None:
@@ -797,17 +812,9 @@ class PlatformPageGroup:
         return self.case_nav_group
 
     def get_name(self) -> str:
-        if (
-            self.case is None
-            or not hasattr(self.case, "audit_overview")
-            or self.case.audit_overview is None
-            or self.case.audit_overview.last_twelve_week_wcag_audit is None
-        ):
-            return self.name
-        return self.name.format(case=self.case)
+        return self.name
 
     def populate_from_case(self, case: SimplifiedCase | DetailedCase | MobileCase):
-        self.case = case
         if self.pages is not None:
             for page in self.pages:
                 page.populate_from_case(case=case)
@@ -881,6 +888,40 @@ class MobileCasePlatformPageGroup(BaseCasePlatformPageGroup):
         super().__init__(**kwargs)
         self.type: PlatformPageGroup.Type = type
         self.case: MobileCase | None = None
+
+
+class WcagAuditPlatformPageGroup(SimplifiedCasePlatformPageGroup):
+
+    def get_name(self) -> str:
+        if (
+            self.case is None
+            or not hasattr(self.case, "audit_overview")
+            or self.case.audit_overview is None
+            or self.case.audit_overview.last_twelve_week_wcag_audit is None
+        ):
+            return self.name
+        return self.name.format(case=self.case)
+
+    def populate_from_case(self, case: SimplifiedCase | DetailedCase | MobileCase):
+        self.case = case
+        super().populate_from_case(case=case)
+
+
+class StatementAuditPlatformPageGroup(SimplifiedCasePlatformPageGroup):
+
+    def get_name(self) -> str:
+        if (
+            self.case is None
+            or not hasattr(self.case, "audit_overview")
+            or self.case.audit_overview is None
+            or self.case.audit_overview.last_twelve_week_statement_audit is None
+        ):
+            return self.name
+        return self.name.format(case=self.case)
+
+    def populate_from_case(self, case: SimplifiedCase | DetailedCase | MobileCase):
+        self.case = case
+        super().populate_from_case(case=case)
 
 
 MAP_TEST_TYPE_TO_CASE_NAV: dict[BaseCase.TestType, PlatformPageGroup.Type] = {
@@ -1324,7 +1365,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             ),
         ],
     ),
-    SimplifiedCasePlatformPageGroup(
+    WcagAuditPlatformPageGroup(
         name="WCAG retest #{case.audit_overview.last_twelve_week_wcag_audit.round_number}",
         show_flag_name="show_12_week_retest",
         pages=[
@@ -1371,8 +1412,8 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             ),
         ],
     ),
-    SimplifiedCasePlatformPageGroup(
-        name="12-week statement",
+    StatementAuditPlatformPageGroup(
+        name="Statement retest #{case.audit_overview.last_twelve_week_statement_audit.round_number}",
         show_flag_name="show_12_week_retest",
         pages=[
             TwelveWeekAuditStatementLinksPlatformPage(
@@ -1390,19 +1431,19 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                     )
                 ],
             ),
-            TwelveWeekStatementAuditPlatformPage(
+            StatementAuditTwelveWeekPlatformPage(
                 name="Statement backups",
                 url_name="audits:edit-audit-retest-statement-backup",
                 complete_flag_name="backup_complete_date",
                 case_details_template_name="simplified/details/details_statement_backups.html",
                 next_page_url_name="audits:edit-retest-statement-overview",
             ),
-            TwelveWeekStatementAuditPlatformPage(
+            StatementAuditTwelveWeekPlatformPage(
                 name="Statement overview",
                 url_name="audits:edit-retest-statement-overview",
                 complete_flag_name="statement_overview_complete_date",
                 subpages=[
-                    TwelveWeekStatementAuditPlatformPage(
+                    StatementAuditTwelveWeekPlatformPage(
                         name="Statement information",
                         url_name="audits:edit-retest-statement-website",
                         complete_flag_name="statement_website_complete_date",
@@ -1410,7 +1451,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                         case_details_template_name="simplified/details/details_twelve_week_statement_checks_website.html",
                         next_page_url_name="audits:edit-retest-statement-compliance",
                     ),
-                    TwelveWeekStatementAuditPlatformPage(
+                    StatementAuditTwelveWeekPlatformPage(
                         name="Compliance status",
                         url_name="audits:edit-retest-statement-compliance",
                         complete_flag_name="statement_compliance_complete_date",
@@ -1418,7 +1459,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                         case_details_template_name="simplified/details/details_twelve_week_statement_checks_compliance.html",
                         next_page_url_name="audits:edit-retest-statement-non-accessible",
                     ),
-                    TwelveWeekStatementAuditPlatformPage(
+                    StatementAuditTwelveWeekPlatformPage(
                         name="Non-accessible content",
                         url_name="audits:edit-retest-statement-non-accessible",
                         complete_flag_name="statement_non_accessible_complete_date",
@@ -1426,7 +1467,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                         case_details_template_name="simplified/details/details_twelve_week_statement_checks_non_accessible.html",
                         next_page_url_name="audits:edit-retest-statement-preparation",
                     ),
-                    TwelveWeekStatementAuditPlatformPage(
+                    StatementAuditTwelveWeekPlatformPage(
                         name="Statement preparation",
                         url_name="audits:edit-retest-statement-preparation",
                         complete_flag_name="statement_preparation_complete_date",
@@ -1434,7 +1475,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                         case_details_template_name="simplified/details/details_twelve_week_statement_checks_preparation.html",
                         next_page_url_name="audits:edit-retest-statement-feedback",
                     ),
-                    TwelveWeekStatementAuditPlatformPage(
+                    StatementAuditTwelveWeekPlatformPage(
                         name="Feedback and enforcement procedure",
                         url_name="audits:edit-retest-statement-feedback",
                         complete_flag_name="statement_feedback_complete_date",
@@ -1442,7 +1483,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                         case_details_template_name="simplified/details/details_twelve_week_statement_checks_feedback.html",
                         next_page_url_name="audits:edit-retest-statement-disproportionate",
                     ),
-                    TwelveWeekStatementAuditPlatformPage(
+                    StatementAuditTwelveWeekPlatformPage(
                         name="Disproportionate burden claim",
                         url_name="audits:edit-retest-statement-disproportionate",
                         complete_flag_name="statement_disproportionate_complete_date",
@@ -1465,7 +1506,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                         visible_only_when_current=True,
                         instance_class=StatementCheckResult,
                     ),
-                    TwelveWeekStatementAuditPlatformPage(
+                    StatementAuditTwelveWeekPlatformPage(
                         name="Add 12-week custom issue",
                         url_name="audits:edit-retest-12-week-custom-issue-create",
                         url_kwarg_key="statement_audit_id",
@@ -1489,7 +1530,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 case_details_template_name="simplified/details/details_twelve_week_statement_checks_custom.html",
                 next_page_url_name="audits:edit-twelve-week-disproportionate-burden",
             ),
-            TwelveWeekStatementAuditPlatformPage(
+            StatementAuditTwelveWeekPlatformPage(
                 name="Disproportionate burden",
                 url_name="audits:edit-twelve-week-disproportionate-burden",
                 complete_flag_name="disproportionate_burden_complete_date",
@@ -1497,17 +1538,22 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 case_details_template_name="cases/details/details.html",
                 next_page_url_name="audits:edit-audit-retest-statement-summary",
             ),
-            TwelveWeekStatementAuditPlatformPage(
+            StatementAuditTwelveWeekPlatformPage(
                 name="Statement summary",
                 url_name="audits:edit-audit-retest-statement-summary",
                 complete_flag_name="summary_complete_date",
                 next_page_url_name="audits:edit-audit-retest-statement-decision",
             ),
-            TwelveWeekStatementAuditPlatformPage(
-                name="Compliance decision",
+            StatementAuditTwelveWeekPlatformPage(
+                name="Statement compliance",
                 url_name="audits:edit-audit-retest-statement-decision",
                 complete_flag_name="compliance_complete_date",
                 case_details_template_name="simplified/details/details_twelve_week_statement_compliance.html",
+                next_page_url_name="audits:next-twelve-week-statement-retest",
+            ),
+            StatementAuditTwelveWeekPlatformPage(
+                name="+ Start new retest",
+                url_name="audits:next-twelve-week-statement-retest",
                 next_page_url_name="simplified:edit-review-changes",
             ),
         ],
