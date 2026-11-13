@@ -116,7 +116,7 @@ def get_simplified_case_detail_sections(
                                     )
             view_sections.append(
                 CaseDetailSection(
-                    page_group_name=page_group.name, pages=case_detail_pages
+                    page_group_name=page_group.get_name(), pages=case_detail_pages
                 )
             )
     return view_sections
@@ -312,9 +312,9 @@ def get_email_template_context(simplified_case: SimplifiedCase) -> dict[str, Any
                 wcag_pages=simplified_case.audit_overview.initial_wcag_audit.testable_wcag_page_initials,
                 check_results_attr="unfixed_wcag_check_result_initials",
             )
-        if simplified_case.audit_overview.first_twelve_week_wcag_audit is not None:
+        if simplified_case.audit_overview.last_twelve_week_wcag_audit is not None:
             context["retest_issues_tables"] = build_issues_tables(
-                wcag_pages=simplified_case.audit_overview.first_twelve_week_wcag_audit.retestable_wcag_page_retests,
+                wcag_pages=simplified_case.audit_overview.last_twelve_week_wcag_audit.retestable_wcag_page_retests,
                 use_retest_notes=True,
                 check_results_attr="unfixed_wcag_check_result_retests",
             )

@@ -678,7 +678,7 @@ class SimplifiedCase(BaseCase):
         return (
             self.not_archived
             and self.audit_overview is not None
-            and self.audit_overview.first_twelve_week_wcag_audit is None
+            and self.audit_overview.last_twelve_week_wcag_audit is None
         )
 
     @property
@@ -686,7 +686,7 @@ class SimplifiedCase(BaseCase):
         return (
             self.not_archived
             and self.audit_overview is not None
-            and self.audit_overview.first_twelve_week_wcag_audit is not None
+            and self.audit_overview.last_twelve_week_wcag_audit is not None
         )
 
     @property
@@ -764,19 +764,17 @@ class SimplifiedCase(BaseCase):
         if (
             self.audit_overview is None
             or self.audit_overview.initial_wcag_audit is None
-            or self.audit_overview.first_twelve_week_wcag_audit is None
+            or self.audit_overview.last_twelve_week_wcag_audit is None
         ):
             return 0
-        return (
-            self.audit_overview.first_twelve_week_wcag_audit.fixed_wcag_check_result_retests.count()
-        )
+        return self.audit_overview.fixed_wcag_check_result_retests.count()
 
     @property
     def total_website_issues_unfixed(self) -> int:
         if (
             self.audit_overview is None
             or self.audit_overview.initial_wcag_audit is None
-            or self.audit_overview.first_twelve_week_wcag_audit is None
+            or self.audit_overview.last_twelve_week_wcag_audit is None
         ):
             return 0
         return self.total_website_issues - self.total_website_issues_fixed
@@ -785,7 +783,7 @@ class SimplifiedCase(BaseCase):
     def percentage_website_issues_fixed(self) -> int | str:
         if (
             self.audit_overview is None
-            or self.audit_overview.first_twelve_week_wcag_audit is None
+            or self.audit_overview.last_twelve_week_wcag_audit is None
         ):
             return "n/a"
         failed_checks_count: int = (
@@ -794,7 +792,7 @@ class SimplifiedCase(BaseCase):
         if failed_checks_count == 0:
             return "n/a"
         fixed_checks_count: int = (
-            self.audit_overview.first_twelve_week_wcag_audit.fixed_wcag_check_result_retests.count()
+            self.audit_overview.fixed_wcag_check_result_retests.count()
         )
         return int(fixed_checks_count * 100 / failed_checks_count)
 
@@ -814,8 +812,8 @@ class SimplifiedCase(BaseCase):
         if self.audit_overview is None:
             return "unknown"
         if (
-            self.audit_overview.first_twelve_week_statement_audit is not None
-            and self.audit_overview.first_twelve_week_statement_audit.all_overview_statement_checks_have_passed
+            self.audit_overview.last_twelve_week_statement_audit is not None
+            and self.audit_overview.last_twelve_week_statement_audit.all_overview_statement_checks_have_passed
         ):
             return "Yes"
         return "No"
@@ -827,11 +825,11 @@ class SimplifiedCase(BaseCase):
             or self.audit_overview.initial_wcag_audit is None
         ):
             return "No test exists"
-        if self.audit_overview.first_twelve_week_wcag_audit is None:
+        if self.audit_overview.last_twelve_week_wcag_audit is None:
             return "No retest exists"
         return format_outstanding_issues(
             failed_checks_count=self.audit_overview.initial_wcag_audit.failed_wcag_check_result_initials.count(),
-            fixed_checks_count=self.audit_overview.first_twelve_week_wcag_audit.fixed_wcag_check_result_retests.count(),
+            fixed_checks_count=self.audit_overview.fixed_wcag_check_result_retests.count(),
         )
 
     @property
@@ -841,7 +839,7 @@ class SimplifiedCase(BaseCase):
             or self.audit_overview.initial_statement_audit is None
         ):
             return "No test exists"
-        if self.audit_overview.first_twelve_week_statement_audit is None:
+        if self.audit_overview.last_twelve_week_statement_audit is None:
             return format_statement_check_overview(
                 tests_passed=self.audit_overview.initial_statement_audit.passed_statement_check_results.count(),
                 tests_failed=self.audit_overview.initial_statement_audit.failed_statement_check_results.count(),
@@ -849,8 +847,8 @@ class SimplifiedCase(BaseCase):
         return format_statement_check_overview(
             tests_passed=self.audit_overview.initial_statement_audit.passed_statement_check_results.count(),
             tests_failed=self.audit_overview.initial_statement_audit.failed_statement_check_results.count(),
-            retests_passed=self.audit_overview.first_twelve_week_statement_audit.passed_statement_check_results.count(),
-            retests_failed=self.audit_overview.first_twelve_week_statement_audit.failed_statement_check_results.count(),
+            retests_passed=self.audit_overview.last_twelve_week_statement_audit.passed_statement_check_results.count(),
+            retests_failed=self.audit_overview.last_twelve_week_statement_audit.failed_statement_check_results.count(),
         )
 
     @property

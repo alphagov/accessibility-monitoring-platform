@@ -8,7 +8,7 @@ from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains
 
-from ...audits.models import WcagAudit, WcagPageInitial, WcagPageRetest
+from ...audits.models import AuditOverview, WcagAudit, WcagPageInitial, WcagPageRetest
 from ...audits.tests.create_test_data import (
     create_equality_body_audits,
     create_initial_wcag_audit,
@@ -493,6 +493,7 @@ def test_wcag_audit_twelve_week_platform_page():
         simplified_case=simplified_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
     )
+    AuditOverview.objects.create(simplified_case=simplified_case)
 
     audit_platform_page.populate_from_case(case=simplified_case)
 

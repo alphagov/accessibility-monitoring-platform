@@ -1,7 +1,7 @@
 <br/>
 {% for platform_page_group in sitemap.platform_page_groups %}
     {% if case.test_type == 'simplified' and platform_page_group.type == 'simplified_case_tools' and platform_page_group.show %}
-        <h2 class="govuk-heading-s amp-margin-bottom-10">{{ platform_page_group.name }}</h2>
+        <h2 class="govuk-heading-s amp-margin-bottom-10">{{ platform_page_group.get_name }}</h2>
         <div class="amp-nav-steps">
             <ul class="govuk-list">
                 <li>
@@ -31,7 +31,7 @@
             </ul>
         </div>
     {% elif case.test_type == 'detailed' and platform_page_group.type == 'detailed_case_tools' and platform_page_group.show %}
-        <h2 class="govuk-heading-s amp-margin-bottom-10">{{ platform_page_group.name }}</h2>
+        <h2 class="govuk-heading-s amp-margin-bottom-10">{{ platform_page_group.get_name }}</h2>
         <div class="amp-nav-steps">
             <ul class="govuk-list">
                 {% for platform_page in platform_page_group.pages %}
@@ -45,7 +45,7 @@
             </ul>
         </div>
     {% elif case.test_type == 'mobile' and platform_page_group.type == 'mobile_case_tools' and platform_page_group.show %}
-        <h2 class="govuk-heading-s amp-margin-bottom-10">{{ platform_page_group.name }}</h2>
+        <h2 class="govuk-heading-s amp-margin-bottom-10">{{ platform_page_group.get_name }}</h2>
         <div class="amp-nav-steps">
             <ul class="govuk-list">
                 {% for platform_page in platform_page_group.pages %}

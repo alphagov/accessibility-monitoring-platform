@@ -5,7 +5,7 @@ We have completed the retest and some issues are still outstanding.
 Please review the issues listed below and provide an update.
 <br>
 <br>
-{% if case.audit_overview.first_twelve_week_wcag_audit.unfixed_wcag_check_result_retests %}
+{% if case.audit_overview.last_twelve_week_wcag_audit.unfixed_wcag_check_result_retests %}
     {% for issues_table in issues_tables %}
     {% if issues_table.rows %}
     <h2>{{ issues_table.page }}{% if issues_table.page.page_type != 'pdf' %} page{% endif %} issues</h2>

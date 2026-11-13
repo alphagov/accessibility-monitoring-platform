@@ -264,7 +264,7 @@ def test_twelve_week_wcag_audit_specific_page_loads(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_wcag_audit_pk: dict[str, int] = {
-        "pk": simplified_case.audit_overview.first_twelve_week_wcag_audit.id
+        "pk": simplified_case.audit_overview.last_twelve_week_wcag_audit.id
     }
 
     response: HttpResponse = admin_client.get(
@@ -294,7 +294,7 @@ def test_twelve_week_statement_audit_specific_page_loads(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
-        "pk": simplified_case.audit_overview.first_twelve_week_statement_audit.id
+        "pk": simplified_case.audit_overview.last_twelve_week_statement_audit.id
     }
 
     response: HttpResponse = admin_client.get(
@@ -347,7 +347,7 @@ def test_twelve_week_audit_statement_check_specific_page_loads(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
-        "pk": simplified_case.audit_overview.first_twelve_week_statement_audit.id
+        "pk": simplified_case.audit_overview.last_twelve_week_statement_audit.id
     }
 
     response: HttpResponse = admin_client.get(
@@ -505,7 +505,7 @@ def test_initial_statement_audit_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-audit-retest-website-decision",
             "save_continue",
-            "audits:edit-audit-retest-statement-pages",
+            "audits:next-twelve-week-wcag-retest",
         ),
     ],
 )
@@ -523,7 +523,7 @@ def test_twelve_week_wcag_audit_edit_redirects_based_on_button_pressed(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_wcag_audit: WcagAudit = (
-        simplified_case.audit_overview.first_twelve_week_wcag_audit
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
     )
     twelve_week_wcag_audit_pk: dict[str, int] = {"pk": twelve_week_wcag_audit.id}
 
@@ -543,7 +543,7 @@ def test_twelve_week_wcag_audit_edit_redirects_based_on_button_pressed(
 
     if expected_redirect_path_name == "audits:edit-audit-retest-statement-pages":
         twelve_week_statement_audit: StatementAudit = (
-            simplified_case.audit_overview.first_twelve_week_statement_audit
+            simplified_case.audit_overview.last_twelve_week_statement_audit
         )
         twelve_week_statement_audit_pk: dict[str, int] = {
             "pk": twelve_week_statement_audit.id
@@ -562,16 +562,6 @@ def test_twelve_week_wcag_audit_edit_redirects_based_on_button_pressed(
     "path_name, button_name, expected_redirect_path_name",
     [
         (
-            "audits:edit-audit-retest-statement-decision",
-            "save",
-            "audits:edit-audit-retest-statement-decision",
-        ),
-        (
-            "audits:edit-audit-retest-statement-decision",
-            "save_continue",
-            "simplified:edit-review-changes",
-        ),
-        (
             "audits:edit-audit-retest-statement-summary",
             "save",
             "audits:edit-audit-retest-statement-summary",
@@ -580,6 +570,16 @@ def test_twelve_week_wcag_audit_edit_redirects_based_on_button_pressed(
             "audits:edit-audit-retest-statement-summary",
             "save_continue",
             "audits:edit-audit-retest-statement-decision",
+        ),
+        (
+            "audits:edit-audit-retest-statement-decision",
+            "save",
+            "audits:edit-audit-retest-statement-decision",
+        ),
+        (
+            "audits:edit-audit-retest-statement-decision",
+            "save_continue",
+            "audits:next-twelve-week-statement-retest",
         ),
     ],
 )
@@ -597,7 +597,7 @@ def test_twelve_week_statement_audit_edit_redirects_based_on_button_pressed(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.first_twelve_week_statement_audit
+        simplified_case.audit_overview.last_twelve_week_statement_audit
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": twelve_week_statement_audit.id
@@ -638,7 +638,7 @@ def test_audit_statement_decision_page_redirect_when_report_exists(admin_client)
     )
     case_pk: dict[str, int] = {"pk": simplified_case.id}
     twelve_week_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.first_twelve_week_statement_audit
+        simplified_case.audit_overview.last_twelve_week_statement_audit
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": twelve_week_statement_audit.id
@@ -712,7 +712,7 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.first_twelve_week_statement_audit
+        simplified_case.audit_overview.last_twelve_week_statement_audit
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": twelve_week_statement_audit.id
@@ -1153,7 +1153,7 @@ def test_twelve_week_audit_statement_edit_redirects_based_on_button_pressed(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.first_twelve_week_statement_audit
+        simplified_case.audit_overview.last_twelve_week_statement_audit
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": twelve_week_statement_audit.id
@@ -1390,7 +1390,7 @@ def test_audit_retest_statement_overview_updates_statement_checkresult(
     simplified_case.auditor = user
     simplified_case.save()
     twelve_week_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.first_twelve_week_statement_audit
+        simplified_case.audit_overview.last_twelve_week_statement_audit
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": twelve_week_statement_audit.id
@@ -1454,7 +1454,7 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
     simplified_case.auditor = user
     simplified_case.save()
     twelve_week_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.first_twelve_week_statement_audit
+        simplified_case.audit_overview.last_twelve_week_statement_audit
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": twelve_week_statement_audit.id
@@ -1545,10 +1545,10 @@ def test_retest_metadata_skips_to_statement_when_no_psb_response(admin_client):
     simplified_case.no_psb_contact = Boolean.YES
     simplified_case.save()
     twelve_week_wcag_audit: WcagAudit = (
-        simplified_case.audit_overview.first_twelve_week_wcag_audit
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
     )
     twelve_week_statement_audit: WcagAudit = (
-        simplified_case.audit_overview.first_twelve_week_statement_audit
+        simplified_case.audit_overview.last_twelve_week_statement_audit
     )
 
     response: HttpResponse = admin_client.post(
@@ -2503,7 +2503,7 @@ def test_start_retest_redirects(admin_client):
 
     assert response.url == reverse(
         "audits:edit-audit-retest-metadata",
-        kwargs={"pk": audit_overview.first_twelve_week_wcag_audit.id},
+        kwargs={"pk": audit_overview.last_twelve_week_wcag_audit.id},
     )
 
 
@@ -3255,7 +3255,7 @@ def test_summary_page_context(rf):
     )
     assert (
         context["wcag_audit_12_week"]
-        == simplified_case.audit_overview.first_twelve_week_wcag_audit
+        == simplified_case.audit_overview.last_twelve_week_wcag_audit
     )
     assert (
         context["initial_statement_audit"]
@@ -3263,11 +3263,11 @@ def test_summary_page_context(rf):
     )
     assert (
         context["statement_audit_12_week"]
-        == simplified_case.audit_overview.first_twelve_week_statement_audit
+        == simplified_case.audit_overview.last_twelve_week_statement_audit
     )
     assert (
         context["statement_audit"]
-        == simplified_case.audit_overview.first_twelve_week_statement_audit
+        == simplified_case.audit_overview.last_twelve_week_statement_audit
     )
 
 
@@ -3275,7 +3275,7 @@ def test_summary_page_context(rf):
     "url_name, audit_overview_attr",
     [
         ("audits:edit-audit-wcag-summary", "initial_wcag_audit"),
-        ("audits:edit-audit-retest-wcag-summary", "first_twelve_week_wcag_audit"),
+        ("audits:edit-audit-retest-wcag-summary", "last_twelve_week_wcag_audit"),
     ],
 )
 def test_summary_page_view(url_name, audit_overview_attr, admin_client):
@@ -3308,7 +3308,7 @@ def test_summary_page_view(url_name, audit_overview_attr, admin_client):
     "url_name, audit_overview_attr",
     [
         ("audits:edit-audit-wcag-summary", "initial_wcag_audit"),
-        ("audits:edit-audit-retest-wcag-summary", "first_twelve_week_wcag_audit"),
+        ("audits:edit-audit-retest-wcag-summary", "last_twelve_week_wcag_audit"),
     ],
 )
 def test_summary_wcag_view(url_name, audit_overview_attr, admin_client):
@@ -3340,7 +3340,7 @@ def test_summary_wcag_view(url_name, audit_overview_attr, admin_client):
     "url_name, audit_overview_attr",
     [
         ("audits:edit-audit-wcag-summary", "initial_wcag_audit"),
-        ("audits:edit-audit-retest-wcag-summary", "first_twelve_week_wcag_audit"),
+        ("audits:edit-audit-retest-wcag-summary", "last_twelve_week_wcag_audit"),
     ],
 )
 def test_summary_page_view_unfixed(url_name, audit_overview_attr, admin_client):
@@ -3399,7 +3399,7 @@ def test_summary_page_view_unfixed(url_name, audit_overview_attr, admin_client):
     "url_name, audit_overview_attr",
     [
         ("audits:edit-audit-wcag-summary", "initial_wcag_audit"),
-        ("audits:edit-audit-retest-wcag-summary", "first_twelve_week_wcag_audit"),
+        ("audits:edit-audit-retest-wcag-summary", "last_twelve_week_wcag_audit"),
     ],
 )
 def test_summary_page_view_show_all(url_name, audit_overview_attr, admin_client):
@@ -3460,7 +3460,7 @@ def test_summary_page_view_show_all(url_name, audit_overview_attr, admin_client)
         ("audits:edit-audit-statement-summary", "initial_statement_audit"),
         (
             "audits:edit-audit-retest-statement-summary",
-            "first_twelve_week_statement_audit",
+            "last_twelve_week_statement_audit",
         ),
     ],
 )
@@ -3473,7 +3473,7 @@ def test_test_statement_summary_page_view(url_name, audit_overview_attr, admin_c
         simplified_case.audit_overview.initial_statement_audit
     )
     statement_audit_12_week: StatementAudit = (
-        simplified_case.audit_overview.first_twelve_week_statement_audit
+        simplified_case.audit_overview.last_twelve_week_statement_audit
     )
     statement_audit_for_url: StatementAudit = getattr(
         simplified_case.audit_overview, audit_overview_attr
@@ -3542,7 +3542,7 @@ def test_test_statement_summary_page_view(url_name, audit_overview_attr, admin_c
         ("audits:edit-audit-statement-summary", "initial_statement_audit"),
         (
             "audits:edit-audit-retest-statement-summary",
-            "first_twelve_week_statement_audit",
+            "last_twelve_week_statement_audit",
         ),
     ],
 )
@@ -3557,7 +3557,7 @@ def test_test_statement_summary_page_summary(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     statement_audit_12_week: StatementAudit = (
-        simplified_case.audit_overview.first_twelve_week_statement_audit
+        simplified_case.audit_overview.last_twelve_week_statement_audit
     )
     statement_audit_for_url: StatementAudit = getattr(
         simplified_case.audit_overview, audit_overview_attr
@@ -4523,8 +4523,8 @@ def test_initial_statement_audit_next_page_name(
 @pytest.mark.parametrize(
     "path_name, expected_next_page",
     [
-        ("edit-audit-retest-metadata", "12-week WCAG test | Update page links"),
-        ("edit-audit-retest-pages", "12-week WCAG test | WCAG summary"),
+        ("edit-audit-retest-metadata", "WCAG retest #0 | Update page links"),
+        ("edit-audit-retest-pages", "WCAG retest #0 | Test comparison"),
     ],
 )
 def test_twelve_week_wcag_audit_next_page_name(
@@ -4535,6 +4535,7 @@ def test_twelve_week_wcag_audit_next_page_name(
         simplified_case=simplified_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
     )
+    AuditOverview.objects.create(simplified_case=simplified_case)
     url: str = reverse(f"audits:{path_name}", kwargs={"pk": wcag_audit.id})
 
     response: HttpResponse = admin_client.get(url)
@@ -4547,10 +4548,13 @@ def test_twelve_week_wcag_audit_next_page_name(
 @pytest.mark.parametrize(
     "path_name, expected_next_page",
     [
-        ("edit-retest-statement-overview", "12-week statement | Statement information"),
         (
             "edit-retest-statement-overview",
-            "12-week statement | Custom issues",
+            "Statement retest #0 | Statement information",
+        ),
+        (
+            "edit-retest-statement-overview",
+            "Statement retest #0 | Custom issues",
         ),
     ],
 )
@@ -4562,6 +4566,7 @@ def test_twelve_week_statement_audit_next_page_name(
         simplified_case=simplified_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
     )
+    AuditOverview.objects.create(simplified_case=simplified_case)
     url: str = reverse(f"audits:{path_name}", kwargs={"pk": statement_audit.id})
 
     response: HttpResponse = admin_client.get(url)

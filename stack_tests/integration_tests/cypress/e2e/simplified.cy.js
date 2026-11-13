@@ -94,7 +94,7 @@ describe('Case overview', () => {
   })
 
   it('can edit 12-week retest metadata', () => {
-    cy.contains('12-week WCAG test').click()
+    cy.contains('WCAG retest #1').click()
     cy.contains(/^12-week retest metadata$/).click()
     cy.get('[name="metadata_complete_date"]').click()
     cy.contains('Save').click()

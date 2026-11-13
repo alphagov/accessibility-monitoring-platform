@@ -493,12 +493,12 @@ def get_audit_summary_context(
     """Return the context for test summary pages"""
     audit_overview: AuditOverview = simplified_case.audit_overview
     initial_wcag_audit: WcagAudit | None = audit_overview.initial_wcag_audit
-    wcag_audit_12_week: WcagAudit | None = audit_overview.first_twelve_week_wcag_audit
+    wcag_audit_12_week: WcagAudit | None = audit_overview.last_twelve_week_wcag_audit
     initial_statement_audit: StatementAudit | None = (
         audit_overview.initial_statement_audit
     )
     statement_audit_12_week: StatementAudit | None = (
-        audit_overview.first_twelve_week_statement_audit
+        audit_overview.last_twelve_week_statement_audit
     )
     context: dict[str, Any] = {}
     show_failures_by_page: bool = "page-view" in request.GET
@@ -699,16 +699,16 @@ def build_equality_body_retest_context_data(
     context: dict[str, Any] = {}
 
     if wcag_audit is not None:
-        statement_audit: StatementAudit = wcag_audit.equivalent_statement_audit
+        statement_audit: StatementAudit = (
+            wcag_audit.simplified_case.audit_overview.last_statement_audit
+        )
     else:
         wcag_audit: WcagAudit = statement_audit.equivalent_equality_body_wcag_audit
 
     audit_overview: AuditOverview = statement_audit.simplified_case.audit_overview
 
     context["initial_wcag_audit"] = audit_overview.initial_wcag_audit
-    context["first_twelve_week_wcag_audit"] = (
-        audit_overview.first_twelve_week_wcag_audit
-    )
+    context["last_twelve_week_wcag_audit"] = audit_overview.last_twelve_week_wcag_audit
     context["statement_audit"] = statement_audit
     context["wcag_audit"] = wcag_audit
 

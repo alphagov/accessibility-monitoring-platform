@@ -1,0 +1,62 @@
+{% extends 'cases/base.html' %}
+
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% include 'cases/helpers/case_banner.html' %}
+        </div>
+    </div>
+    {% include 'common/breadcrumbs.html' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        {% include 'simplified/helpers/compliant_website_notification.html' %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-quarter amp-padding-left-0">
+                {% include "cases/helpers/case_nav.html" with case_nav_type='simplified_case_nav' %}
+            </div>
+            <div class="govuk-grid-column-three-quarters amp-padding-vertical-30">
+                {% include "common/helpers/edit_header.html" %}
+                {% if wcag_audit.is_retest_complete %}
+                    <p class="govuk-body">Retest #{{ wcag_audit.round_number }} is complete and a new retest can be started.</p>
+                    <p class="govuk-body">A new retest only includes the outstanding issues.</p>
+                    <form method="post" action="{% url sitemap.current_platform_page.url_name object.id %}">
+                        {% csrf_token %}
+                        {% include 'common/form_errors.html' with errors=form.non_field_errors %}
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full">
+                                {% include 'common/amp_form_snippet.html' %}
+                            </div>
+                        </div>
+                        <div class="govuk-grid-row">
+                            <div class="govuk-grid-column-full govuk-button-group">
+                                <input
+                                    type="submit"
+                                    value="Start new retest"
+                                    name="start_new_retest"
+                                    class="govuk-button"
+                                    data-module="govuk-button"
+                                />
+                                {% if wcag_audit.simplified_case.audit_overview.last_twelve_week_statement_audit %}
+                                    <a
+                                        href="{% url 'audits:edit-audit-retest-statement-pages' wcag_audit.simplified_case.audit_overview.last_twelve_week_statement_audit.id %}"
+                                        class="govuk-link govuk-link--no-visited-state"
+                                    >
+                                        Continue to statement retest
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </form>
+                {% else %}
+                    <p class="govuk-body">The current retest is incomplete.</p>
+                    <p class="govuk-body">
+                        The retest has to be marked as completed in
+                        <a href="{% url 'audits:edit-audit-retest-website-decision' wcag_audit.id %}" class="govuk-link govuk-link--no-visited-state">WCAG compliance</a>
+                        before starting a new test.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

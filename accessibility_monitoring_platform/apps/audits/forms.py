@@ -6,6 +6,7 @@ from django import forms
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from ..common.forms import (
+    AMPBooleanCheckboxWidget,
     AMPCharFieldWide,
     AMPChoiceCheckboxField,
     AMPChoiceCheckboxWidget,
@@ -248,7 +249,7 @@ WcagCheckResultInitialFormset: forms.formsets.BaseFormSet = forms.formset_factor
 
 class WcagAuditComplianceUpdateForm(VersionForm):
     """
-    Form for editing website compliance decision completion
+    Form for editing initial website compliance decision completion
     """
 
     compliance_state = AMPChoiceRadioField(
@@ -264,6 +265,48 @@ class WcagAuditComplianceUpdateForm(VersionForm):
             "version",
             "compliance_state",
             "compliance_decision_complete_date",
+        ]
+
+
+class RetestWcagAuditComplianceUpdateForm(WcagAuditComplianceUpdateForm):
+    """
+    Form for editing retest website compliance decision completion
+    """
+
+    is_retest_complete = forms.BooleanField(
+        label="Retest # complete",
+        help_text="This will close the retest and allow for a new retest to be created",
+        required=False,
+        widget=AMPBooleanCheckboxWidget(attrs={"label": "Retest # complete"}),
+    )
+
+    class Meta:
+        model = WcagAudit
+        fields: list[str] = [
+            "version",
+            "compliance_state",
+            "is_retest_complete",
+            "compliance_decision_complete_date",
+        ]
+
+
+class NextWcagAuditUpdateForm(VersionForm):
+    """Form for view checking next 12-week WCAG audit can be created"""
+
+    class Meta:
+        model = WcagAudit
+        fields: list[str] = [
+            "version",
+        ]
+
+
+class NextStatementAuditUpdateForm(VersionForm):
+    """Form for view checking next 12-week statement audit can be created"""
+
+    class Meta:
+        model = StatementAudit
+        fields: list[str] = [
+            "version",
         ]
 
 
@@ -305,6 +348,30 @@ class TwelveWeekStatementAuditComplianceUpdateForm(VersionForm):
         fields: list[str] = [
             "version",
             "compliance_state",
+            "compliance_complete_date",
+        ]
+
+
+class RetestStatementAuditComplianceUpdateForm(
+    TwelveWeekStatementAuditComplianceUpdateForm
+):
+    """
+    Form for editing retest statement compliance decision completion
+    """
+
+    is_retest_complete = forms.BooleanField(
+        label="Retest # complete",
+        help_text="This will close the retest and allow for a new retest to be created",
+        required=False,
+        widget=AMPBooleanCheckboxWidget(attrs={"label": "Retest # complete"}),
+    )
+
+    class Meta:
+        model = StatementAudit
+        fields: list[str] = [
+            "version",
+            "compliance_state",
+            "is_retest_complete",
             "compliance_complete_date",
         ]
 

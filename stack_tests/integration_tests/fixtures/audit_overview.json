@@ -29,7 +29,8 @@
         "compliance_state": "partially-compliant",
         "compliance_notes": "",
         "compliance_decision_complete_date": "2026-07-06",
-        "summary_complete_date": "2026-07-06"
+        "summary_complete_date": "2026-07-06",
+        "is_retest_complete": false
     }
 },
 {
@@ -52,7 +53,8 @@
         "compliance_state": "partially-compliant",
         "compliance_notes": "",
         "compliance_decision_complete_date": "2026-07-06",
-        "summary_complete_date": null
+        "summary_complete_date": null,
+        "is_retest_complete": true
     }
 },
 {

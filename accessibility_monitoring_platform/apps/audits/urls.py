@@ -74,6 +74,8 @@ from .views.twelve_week import (
     AuditRetestStatementPreparationFormView,
     AuditRetestStatementWebsiteFormView,
     New12WeekCustomIssueDeleteTemplateView,
+    NextTwelveWeekStatementAuditUpdateView,
+    NextTwelveWeekWcagAuditUpdateView,
     StatementCheckResultRetestCustomUpdateView,
     TwelveWeekAddStatementPageUpdateView,
     TwelveWeekDeleteStatementPageUpdateView,
@@ -249,6 +251,11 @@ urlpatterns: list[URLPattern] = [
         name="edit-audit-retest-website-decision",
     ),
     path(
+        "<int:pk>/next-twelve-week-wcag-retest/",
+        login_required(NextTwelveWeekWcagAuditUpdateView.as_view()),
+        name="next-twelve-week-wcag-retest",
+    ),
+    path(
         "<int:pk>/edit-audit-retest-statement-pages/",
         login_required(TwelveWeekAddStatementPageUpdateView.as_view()),
         name="edit-audit-retest-statement-pages",
@@ -342,6 +349,11 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-audit-retest-statement-decision/",
         login_required(TwelveWeekStatementComplianceStatementUpdateView.as_view()),
         name="edit-audit-retest-statement-decision",
+    ),
+    path(
+        "<int:pk>/next-twelve-week-statement-retest/",
+        login_required(NextTwelveWeekStatementAuditUpdateView.as_view()),
+        name="next-twelve-week-statement-retest",
     ),
     path(
         "wcag-definition-list/",

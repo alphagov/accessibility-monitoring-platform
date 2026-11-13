@@ -3,6 +3,7 @@
 {% load static %}
 
 {% block preform %}
+{% include 'audits/helpers/completed_wcag_retest_notification.html' with wcag_audit=wcag_page_retest.wcag_audit %}
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <p class="govuk-body-m amp-margin-bottom-0">
