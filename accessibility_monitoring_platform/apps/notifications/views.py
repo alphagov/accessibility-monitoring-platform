@@ -87,6 +87,11 @@ class TaskMarkAsReadView(ListView):
             task.user.id == request.user.id  # type: ignore
         ):  # Checks whether the task was created by user
             task.read = True
+            record_case_model_update_event(
+                user=self.request.user,
+                model_object=task,
+                base_case=task.base_case,
+            )
             task.save()
             if task.type == Task.Type.REMINDER:
                 messages.success(request, f"{task.base_case} Reminder task deleted")
