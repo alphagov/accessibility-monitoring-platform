@@ -368,11 +368,6 @@ class AuditOverview(models.Model):
     @property
     def last_twelve_week_statement_audit(self) -> StatementAudit | None:
         if self.twelve_week_statement_audits is not None:
-            return self.twelve_week_statement_audits.first()
-
-    @property
-    def last_twelve_week_statement_audit(self) -> StatementAudit | None:
-        if self.twelve_week_statement_audits is not None:
             return self.twelve_week_statement_audits.last()
 
     @property
@@ -1310,7 +1305,7 @@ class WcagCheckResultInitial(models.Model):
         return f"{self.issue_identifier} ({self.wcag_page_initial})"
 
     @property
-    def twelve_week_wcag_check_result_retest(self) -> WcagCheckResultRetest | None:
+    def last_twelve_week_wcag_check_result_retest(self) -> WcagCheckResultRetest | None:
         return WcagCheckResultRetest.objects.filter(
             wcag_check_result_initial=self,
             wcag_audit__audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,

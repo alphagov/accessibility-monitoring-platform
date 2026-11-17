@@ -558,6 +558,180 @@ def test_twelve_week_wcag_audit_edit_redirects_based_on_button_pressed(
     assert response.url == expected_path
 
 
+def test_twelve_week_wcag_audit_is_retest_complete_labels(admin_client):
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:edit-audit-retest-website-decision",
+            kwargs={"pk": twelve_week_wcag_audit.id},
+        ),
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        f"""<span class="govuk-label"><b>Retest #{twelve_week_wcag_audit.round_number} complete</b></span>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        f"""<label class="govuk-label govuk-checkboxes__label" for="id_is_retest_complete">
+                Retest #{twelve_week_wcag_audit.round_number} complete
+            </label>""",
+        html=True,
+    )
+
+
+def test_next_twelve_week_wcag_audit_is_retest_complete_false(admin_client):
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:next-twelve-week-wcag-retest",
+            kwargs={"pk": twelve_week_wcag_audit.id},
+        ),
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        "The current retest is incomplete.",
+    )
+    assertNotContains(
+        response,
+        f"Retest #{twelve_week_wcag_audit.round_number} is complete and a new retest can be started.",
+    )
+    assertNotContains(
+        response,
+        """<input
+            type="submit"
+            value="Start new retest"
+            name="start_new_retest"
+            class="govuk-button"
+            data-module="govuk-button"
+        />""",
+        html=True,
+    )
+
+
+def test_next_twelve_week_wcag_audit_is_retest_complete_true(admin_client):
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
+    )
+    twelve_week_wcag_audit.is_retest_complete = True
+    twelve_week_wcag_audit.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:next-twelve-week-wcag-retest",
+            kwargs={"pk": twelve_week_wcag_audit.id},
+        ),
+    )
+
+    assert response.status_code == 200
+    assertNotContains(
+        response,
+        "The current retest is incomplete.",
+    )
+    assertContains(
+        response,
+        f"Retest #{twelve_week_wcag_audit.round_number} is complete and a new retest can be started.",
+    )
+    assertContains(
+        response,
+        """<input
+            type="submit"
+            value="Start new retest"
+            name="start_new_retest"
+            class="govuk-button"
+            data-module="govuk-button"
+        />""",
+        html=True,
+    )
+
+
+def test_next_twelve_week_wcag_audit_creates_wcag_audit(admin_client):
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
+    )
+
+    assert (
+        WcagAudit.objects.filter(
+            simplified_case=simplified_case,
+            audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        ).count()
+        == 1
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "audits:next-twelve-week-wcag-retest",
+            kwargs={"pk": twelve_week_wcag_audit.id},
+        ),
+        {
+            "version": twelve_week_wcag_audit.version,
+            "start_new_retest": "Start new retest",
+        },
+    )
+
+    assert response.status_code == 302
+    assert (
+        WcagAudit.objects.filter(
+            simplified_case=simplified_case,
+            audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        ).count()
+        == 2
+    )
+
+    new_twelve_week_wcag_audit: WcagAudit = WcagAudit.objects.filter(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    ).last()
+
+    assert (
+        new_twelve_week_wcag_audit.round_number
+        == twelve_week_wcag_audit.round_number + 1
+    )
+    assert response.url == reverse(
+        "audits:edit-audit-retest-metadata",
+        kwargs={"pk": new_twelve_week_wcag_audit.id},
+    )
+
+    simplified_event_histories: QuerySet[SimplifiedEventHistory] = (
+        SimplifiedEventHistory.objects.filter(simplified_case=simplified_case)
+    )
+    assert simplified_event_histories.count() == 1
+
+    simplified_event_history: SimplifiedEventHistory = simplified_event_histories[0]
+    assert simplified_event_history.event_type == SimplifiedEventHistory.Type.CREATE
+
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(
+        simplified_case=simplified_case
+    )
+    assert case_events.count() == 1
+
+    case_event: CaseEvent = case_events[0]
+    assert case_event.event_type == CaseEvent.EventType.START_RETEST
+    assert case_event.message == "Started WCAG retest"
+
+
 @pytest.mark.parametrize(
     "path_name, button_name, expected_redirect_path_name",
     [
@@ -1501,6 +1675,180 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
     )
 
     assert statement_checkresult_2.check_result_state == StatementCheckResult.Result.NO
+
+
+def test_twelve_week_statement_audit_is_retest_complete_labels(admin_client):
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    twelve_week_statement_audit: StatementAudit = (
+        simplified_case.audit_overview.last_twelve_week_statement_audit
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:edit-audit-retest-statement-decision",
+            kwargs={"pk": twelve_week_statement_audit.id},
+        ),
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        f"""<span class="govuk-label"><b>Retest #{twelve_week_statement_audit.round_number} complete</b></span>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        f"""<label class="govuk-label govuk-checkboxes__label" for="id_is_retest_complete">
+                Retest #{twelve_week_statement_audit.round_number} complete
+            </label>""",
+        html=True,
+    )
+
+
+def test_next_twelve_week_statement_audit_is_retest_complete_false(admin_client):
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    twelve_week_statement_audit: StatementAudit = (
+        simplified_case.audit_overview.last_twelve_week_statement_audit
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:next-twelve-week-statement-retest",
+            kwargs={"pk": twelve_week_statement_audit.id},
+        ),
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        "The current retest is incomplete.",
+    )
+    assertNotContains(
+        response,
+        f"Retest #{twelve_week_statement_audit.round_number} is complete and a new retest can be started.",
+    )
+    assertNotContains(
+        response,
+        """<input
+            type="submit"
+            value="Start new retest"
+            name="start_new_retest"
+            class="govuk-button"
+            data-module="govuk-button"
+        />""",
+        html=True,
+    )
+
+
+def test_next_twelve_week_statement_audit_is_retest_complete_true(admin_client):
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    twelve_week_statement_audit: StatementAudit = (
+        simplified_case.audit_overview.last_twelve_week_statement_audit
+    )
+    twelve_week_statement_audit.is_retest_complete = True
+    twelve_week_statement_audit.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:next-twelve-week-statement-retest",
+            kwargs={"pk": twelve_week_statement_audit.id},
+        ),
+    )
+
+    assert response.status_code == 200
+    assertNotContains(
+        response,
+        "The current retest is incomplete.",
+    )
+    assertContains(
+        response,
+        f"Retest #{twelve_week_statement_audit.round_number} is complete and a new retest can be started.",
+    )
+    assertContains(
+        response,
+        """<input
+            type="submit"
+            value="Start new retest"
+            name="start_new_retest"
+            class="govuk-button"
+            data-module="govuk-button"
+        />""",
+        html=True,
+    )
+
+
+def test_next_twelve_week_statement_audit_creates_statement_audit(admin_client):
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    twelve_week_statement_audit: StatementAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
+    )
+
+    assert (
+        StatementAudit.objects.filter(
+            simplified_case=simplified_case,
+            audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        ).count()
+        == 1
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "audits:next-twelve-week-statement-retest",
+            kwargs={"pk": twelve_week_statement_audit.id},
+        ),
+        {
+            "version": twelve_week_statement_audit.version,
+            "start_new_retest": "Start new retest",
+        },
+    )
+
+    assert response.status_code == 302
+    assert (
+        StatementAudit.objects.filter(
+            simplified_case=simplified_case,
+            audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        ).count()
+        == 2
+    )
+
+    new_twelve_week_statement_audit: StatementAudit = StatementAudit.objects.filter(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    ).last()
+
+    assert (
+        new_twelve_week_statement_audit.round_number
+        == twelve_week_statement_audit.round_number + 1
+    )
+    assert response.url == reverse(
+        "audits:edit-audit-retest-statement-pages",
+        kwargs={"pk": new_twelve_week_statement_audit.id},
+    )
+
+    simplified_event_histories: QuerySet[SimplifiedEventHistory] = (
+        SimplifiedEventHistory.objects.filter(simplified_case=simplified_case)
+    )
+    assert simplified_event_histories.count() == 1
+
+    simplified_event_history: SimplifiedEventHistory = simplified_event_histories[0]
+    assert simplified_event_history.event_type == SimplifiedEventHistory.Type.CREATE
+
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(
+        simplified_case=simplified_case
+    )
+    assert case_events.count() == 1
+
+    case_event: CaseEvent = case_events[0]
+    assert case_event.event_type == CaseEvent.EventType.START_RETEST
+    assert case_event.message == "Started statement retest"
 
 
 def test_retest_date_change_creates_case_event(admin_client):
