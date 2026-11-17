@@ -181,7 +181,7 @@ describe('Create simplified case, tests and report', () => {
     cy.get('[name="is_retest_complete"]').check({ force: true })
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | + Start new retest`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | + Start new WCAG retest`)
     cy.contains('Continue to statement retest').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement links`)
@@ -226,7 +226,7 @@ describe('Create simplified case, tests and report', () => {
     cy.get('[name="is_retest_complete"]').check({ force: true })
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | + Start new retest`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | + Start new statement retest`)
     cy.contains('Continue to reviewing changes').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Reviewing changes`)

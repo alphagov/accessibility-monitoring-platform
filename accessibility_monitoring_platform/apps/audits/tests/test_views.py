@@ -576,13 +576,13 @@ def test_twelve_week_wcag_audit_is_retest_complete_labels(admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        f"""<span class="govuk-label"><b>Retest #{twelve_week_wcag_audit.round_number} complete</b></span>""",
+        f"""<span class="govuk-label"><b>WCAG retest #{twelve_week_wcag_audit.round_number} complete</b></span>""",
         html=True,
     )
     assertContains(
         response,
         f"""<label class="govuk-label govuk-checkboxes__label" for="id_is_retest_complete">
-                Retest #{twelve_week_wcag_audit.round_number} complete
+                WCAG retest #{twelve_week_wcag_audit.round_number} complete
             </label>""",
         html=True,
     )
@@ -606,17 +606,17 @@ def test_next_twelve_week_wcag_audit_is_retest_complete_false(admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        "The current retest is incomplete.",
+        "The current WCAG retest is incomplete.",
     )
     assertNotContains(
         response,
-        f"Retest #{twelve_week_wcag_audit.round_number} is complete and a new retest can be started.",
+        f"WCAG retest #{twelve_week_wcag_audit.round_number} is complete and a new WCAG retest can be started.",
     )
     assertNotContains(
         response,
         """<input
             type="submit"
-            value="Start new retest"
+            value="Start new WCAG retest"
             name="start_new_retest"
             class="govuk-button"
             data-module="govuk-button"
@@ -645,17 +645,17 @@ def test_next_twelve_week_wcag_audit_is_retest_complete_true(admin_client):
     assert response.status_code == 200
     assertNotContains(
         response,
-        "The current retest is incomplete.",
+        "The current WCAG retest is incomplete.",
     )
     assertContains(
         response,
-        f"Retest #{twelve_week_wcag_audit.round_number} is complete and a new retest can be started.",
+        f"WCAG retest #{twelve_week_wcag_audit.round_number} is complete and a new WCAG retest can be started.",
     )
     assertContains(
         response,
         """<input
             type="submit"
-            value="Start new retest"
+            value="Start new WCAG retest"
             name="start_new_retest"
             class="govuk-button"
             data-module="govuk-button"
@@ -1695,13 +1695,13 @@ def test_twelve_week_statement_audit_is_retest_complete_labels(admin_client):
     assert response.status_code == 200
     assertContains(
         response,
-        f"""<span class="govuk-label"><b>Retest #{twelve_week_statement_audit.round_number} complete</b></span>""",
+        f"""<span class="govuk-label"><b>Statement retest #{twelve_week_statement_audit.round_number} complete</b></span>""",
         html=True,
     )
     assertContains(
         response,
         f"""<label class="govuk-label govuk-checkboxes__label" for="id_is_retest_complete">
-                Retest #{twelve_week_statement_audit.round_number} complete
+                Statement retest #{twelve_week_statement_audit.round_number} complete
             </label>""",
         html=True,
     )
@@ -1725,17 +1725,17 @@ def test_next_twelve_week_statement_audit_is_retest_complete_false(admin_client)
     assert response.status_code == 200
     assertContains(
         response,
-        "The current retest is incomplete.",
+        "The current statement retest is incomplete.",
     )
     assertNotContains(
         response,
-        f"Retest #{twelve_week_statement_audit.round_number} is complete and a new retest can be started.",
+        f"Statement retest #{twelve_week_statement_audit.round_number} is complete and a new statement retest can be started.",
     )
     assertNotContains(
         response,
         """<input
             type="submit"
-            value="Start new retest"
+            value="Start new statement retest"
             name="start_new_retest"
             class="govuk-button"
             data-module="govuk-button"
@@ -1764,17 +1764,17 @@ def test_next_twelve_week_statement_audit_is_retest_complete_true(admin_client):
     assert response.status_code == 200
     assertNotContains(
         response,
-        "The current retest is incomplete.",
+        "The current statement retest is incomplete.",
     )
     assertContains(
         response,
-        f"Retest #{twelve_week_statement_audit.round_number} is complete and a new retest can be started.",
+        f"Statement retest #{twelve_week_statement_audit.round_number} is complete and a new statement retest can be started.",
     )
     assertContains(
         response,
         """<input
             type="submit"
-            value="Start new retest"
+            value="Start new statement retest"
             name="start_new_retest"
             class="govuk-button"
             data-module="govuk-button"

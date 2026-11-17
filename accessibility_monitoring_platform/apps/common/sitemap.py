@@ -1406,7 +1406,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 next_page_url_name="audits:next-twelve-week-wcag-retest",
             ),
             WcagAuditTwelveWeekPlatformPage(
-                name="+ Start new retest",
+                name="+ Start new WCAG retest",
                 url_name="audits:next-twelve-week-wcag-retest",
                 next_page_url_name="audits:edit-audit-retest-statement-pages",
             ),
@@ -1552,7 +1552,7 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 next_page_url_name="audits:next-twelve-week-statement-retest",
             ),
             StatementAuditTwelveWeekPlatformPage(
-                name="+ Start new retest",
+                name="+ Start new statement retest",
                 url_name="audits:next-twelve-week-statement-retest",
                 next_page_url_name="simplified:edit-review-changes",
             ),

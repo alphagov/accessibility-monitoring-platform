@@ -246,7 +246,9 @@ class WcagAuditComplianceRetestUpdateView(WcagAuditUpdateView):
         form.fields["compliance_state"].label = (
             f"Retest #{self.object.round_number} website compliance decision"
         )
-        is_retest_complete_label: str = f"Retest #{self.object.round_number} complete"
+        is_retest_complete_label: str = (
+            f"WCAG retest #{self.object.round_number} complete"
+        )
         form.fields["is_retest_complete"].label = is_retest_complete_label
         form.fields["is_retest_complete"].widget.attrs = {
             "label": is_retest_complete_label
@@ -671,7 +673,9 @@ class TwelveWeekStatementComplianceStatementUpdateView(StatementAuditUpdateView)
         form.fields["compliance_state"].label = (
             f"Retest #{self.object.round_number} website compliance decision"
         )
-        is_retest_complete_label: str = f"Retest #{self.object.round_number} complete"
+        is_retest_complete_label: str = (
+            f"Statement retest #{self.object.round_number} complete"
+        )
         form.fields["is_retest_complete"].label = is_retest_complete_label
         form.fields["is_retest_complete"].widget.attrs = {
             "label": is_retest_complete_label
