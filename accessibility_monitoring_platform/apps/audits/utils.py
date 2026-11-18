@@ -636,7 +636,10 @@ def get_audit_summary_context(
     )
 
     context["number_of_wcag_issues"] = len(summary_wcag_check_results)
-    context["number_of_statement_issues"] = len(summary_statement_check_results)
+    context["number_of_statement_issues"] = (
+        len(summary_statement_check_results)
+        + simplified_case.audit_overview.custom_statement_check_results.count()
+    )
 
     return context
 

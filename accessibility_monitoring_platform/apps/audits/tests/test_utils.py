@@ -1307,7 +1307,7 @@ def test_get_audit_summary_context_issue_counts(rf):
     assert "number_of_wcag_issues" in context
     assert context["number_of_wcag_issues"] == 1
     assert "number_of_statement_issues" in context
-    assert context["number_of_statement_issues"] == 1
+    assert context["number_of_statement_issues"] == 3
 
     for statement_check_result_initial in StatementCheckResult.objects.filter(
         type=StatementCheck.Type.OVERVIEW

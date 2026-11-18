@@ -413,6 +413,14 @@ class AuditOverview(models.Model):
         )
 
     @property
+    def custom_statement_check_results(
+        self,
+    ) -> QuerySet[CustomStatementCheckResult]:
+        return self.simplified_case.customstatementcheckresult_set.exclude(
+            is_deleted=True
+        )
+
+    @property
     def last_edited(self) -> datetime | None:
         """Return when case or related data was last changed"""
         updated_times: list[datetime | None] = [self.updated]
@@ -818,7 +826,9 @@ class StatementAudit(AuditRound):
     def statement_check_results(
         self,
     ) -> QuerySet[StatementCheckResult]:
-        return self.statementcheckresult_set.exclude(is_deleted=True)
+        return self.statementcheckresult_set.exclude(is_deleted=True).exclude(
+            type=StatementCheck.Type.CUSTOM
+        )
 
     @property
     def overview_statement_check_results(self) -> QuerySet[StatementCheckResult]:
@@ -857,10 +867,6 @@ class StatementAudit(AuditRound):
         return self.statement_check_results.filter(
             type=StatementCheck.Type.DISPROPORTIONATE
         )
-
-    @property
-    def custom_statement_check_results(self) -> QuerySet[StatementCheckResult]:
-        return self.statement_check_results.filter(type=StatementCheck.Type.CUSTOM)
 
     @property
     def statement_found_check(self) -> StatementCheckResult | None:
@@ -935,6 +941,12 @@ class StatementAudit(AuditRound):
             ).count()
             == 0
         )
+
+    @property
+    def custom_statement_check_results(
+        self,
+    ) -> QuerySet[CustomStatementCheckResult]:
+        return self.customstatementcheckresult_set.exclude(is_deleted=True)
 
 
 class Page(models.Model):
@@ -1614,6 +1626,58 @@ class StatementCheckResult(models.Model):
             .exclude(statement_check=None)
             .first()
         )
+
+
+class CustomStatementCheckResult(models.Model):
+    """Model for accessibility statement-specific custom check result"""
+
+    class Result(models.TextChoices):
+        YES = "yes", "Yes"
+        NO = "no", "No"
+        NOT_TESTED = "not-tested", "Not tested"
+
+    simplified_case = models.ForeignKey(SimplifiedCase, on_delete=models.PROTECT)
+    statement_audit = models.ForeignKey(StatementAudit, on_delete=models.PROTECT)
+    id_within_case = models.IntegerField(default=0, blank=True)
+    issue_identifier = models.CharField(max_length=20, default="")
+    retest_state = models.CharField(
+        max_length=10,
+        choices=Result.choices,
+        default=Result.NOT_TESTED,
+    )
+    auditor_information = models.TextField(default="", blank=True)
+    public_comment = models.TextField(default="", blank=True)
+    retest_comment = models.TextField(default="", blank=True)
+    is_deleted = models.BooleanField(default=False)
+    updated = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["id"]
+        indexes = [
+            models.Index(
+                fields=[
+                    "issue_identifier",
+                ]
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.simplified_case} | Custom [{self.issue_identifier}]"
+
+    def save(self, *args, **kwargs) -> None:
+        if not self.id and not self.issue_identifier:
+            custom_suffix: str = "C"
+            issue_number: int = (
+                self.simplified_case.customstatementcheckresult_set.all().count() + 1
+            )
+            case_number: int = self.simplified_case.case_number
+            self.issue_identifier = f"{case_number}-{ISSUE_IDENTIFIER_STATEMENT}{custom_suffix}-{issue_number}"
+        self.updated = timezone.now()
+        super().save(*args, **kwargs)
+
+    @property
+    def label(self):
+        return "Custom"
 
 
 class Retest(VersionModel):

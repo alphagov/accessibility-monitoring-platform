@@ -23,6 +23,7 @@ from ..common.forms import (
 from ..common.models import Boolean
 from ..common.utils import validate_file_size
 from .models import (
+    CustomStatementCheckResult,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
@@ -550,7 +551,7 @@ class StatementAuditStatementCustomUpdateForm(VersionForm):
         ]
 
 
-class StatementCheckResultCreateUpdateForm(forms.ModelForm):
+class CustomStatementCheckResultCreateUpdateForm(forms.ModelForm):
     """
     Form for creating or updating a custom issue StatementCheckResult
     """
@@ -559,39 +560,21 @@ class StatementCheckResultCreateUpdateForm(forms.ModelForm):
     auditor_information = AMPTextField(label="Notes for auditor")
 
     class Meta:
-        model = StatementCheckResult
+        model = CustomStatementCheckResult
         fields = ["public_comment", "auditor_information"]
 
 
-class StatementCheckResultRetestCreateForm(forms.ModelForm):
+class CustomStatementCheckResultRetestCreateForm(forms.ModelForm):
     """
     Form for creating a new 12-week custom issue StatementCheckResult
     """
 
-    public_comment = AMPTextField(label="Issue description for organisation")
-    auditor_information = AMPTextField(label="12-week retest information")
+    retest_comment = AMPTextField(label="Comments for emails")
+    auditor_information = AMPTextField(label="Notes for auditor")
 
     class Meta:
-        model = StatementCheckResult
-        fields = ["public_comment", "auditor_information"]
-
-
-class StatementCheckResultRetestUpdateForm(forms.ModelForm):
-    """
-    Form for updating a custom statement check result entered at 12-weeks
-    """
-
-    public_comment = AMPTextField(label="Issue description for organisation")
-    auditor_information = AMPTextField(label="12-week retest information")
-    check_result_state = AMPChoiceRadioField(
-        label="Mark this statement as resolved",
-        choices=StatementCheckResult.Result.choices,
-        widget=AMPRadioSelectWidget(),
-    )
-
-    class Meta:
-        model = StatementCheckResult
-        fields = ["public_comment", "auditor_information", "check_result_state"]
+        model = CustomStatementCheckResult
+        fields = ["retest_comment", "auditor_information"]
 
 
 class StatementAuditInitialDisproportionateBurdenUpdateForm(VersionForm):
@@ -809,23 +792,23 @@ WcagCheckResultRetestFormset: forms.formsets.BaseFormSet = forms.modelformset_fa
 )
 
 
-class StatementCheckResultRetestCustomUpdateForm(forms.ModelForm):
-    """
-    Form for updating an initial statement custom issue
-    """
+class CustomStatementCheckResultRetestUpdateForm(forms.ModelForm):
+    """Form for updating a custom statement check result"""
 
-    check_result_state = AMPChoiceRadioField(
+    retest_state = AMPChoiceRadioField(
         label="Mark this statement issue as resolved",
         choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
-    public_comment = AMPTextField(label="Comments for email")
+    retest_comment = AMPTextField(label="Comments for email")
+    auditor_information = AMPTextField(label="Notes for auditor")
 
     class Meta:
-        model = StatementCheckResult
+        model = CustomStatementCheckResult
         fields = [
-            "check_result_state",
-            "public_comment",
+            "retest_state",
+            "retest_comment",
+            "auditor_information",
         ]
 
 
@@ -1246,32 +1229,18 @@ class RetestStatementCustomUpdateForm(VersionForm):
         ]
 
 
-class EqualityBodyRetestCustomStatementCheckResultForm(forms.ModelForm):
-    """
-    Form for updating a single statement check retest
-    """
-
-    public_comment = AMPTextField(label="Retest comments")
-
-    class Meta:
-        model = StatementCheckResult
-        fields = [
-            "public_comment",
-        ]
-
-
 EqualityBodyRetestCustomStatementCheckResultFormset: forms.formsets.BaseFormSet = (
     forms.modelformset_factory(
-        StatementCheckResult,
-        EqualityBodyRetestCustomStatementCheckResultForm,
+        CustomStatementCheckResult,
+        CustomStatementCheckResultRetestUpdateForm,
         extra=0,
     )
 )
 EqualityBodyRetestCustomStatementCheckResultFormsetOneExtra: (
     forms.formsets.BaseFormSet
 ) = forms.modelformset_factory(
-    StatementCheckResult,
-    EqualityBodyRetestCustomStatementCheckResultForm,
+    CustomStatementCheckResult,
+    CustomStatementCheckResultRetestUpdateForm,
     extra=1,
 )
 

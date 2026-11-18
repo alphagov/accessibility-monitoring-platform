@@ -22,8 +22,8 @@ from ..audits.forms import (
     WcagAuditRetestMetadataUpdateForm,
 )
 from ..audits.models import (
+    CustomStatementCheckResult,
     StatementAudit,
-    StatementCheckResult,
     StatementPage,
     WcagAudit,
     WcagPageInitial,
@@ -564,7 +564,11 @@ class InitialStatementAuditCustomIssuesPlatformPage(InitialStatementAuditPlatfor
                             platform_page=self, instance=statement_audit
                         )
                     )
-                    for custom_issue in statement_audit.custom_statement_check_results:
+                    for (
+                        custom_issue
+                    ) in (
+                        statement_audit.simplified_case.audit_overview.custom_statement_check_results
+                    ):
                         bound_subpages += populate_subpages_with_instance(
                             platform_page=self, instance=custom_issue
                         )
@@ -591,14 +595,8 @@ class TwelveWeekStatementAuditCustomIssuesPlatformPage(
                     )
                     for (
                         custom_issue
-                    ) in current_statement_audit.custom_statement_check_results:
-                        bound_subpages += populate_subpages_with_instance(
-                            platform_page=self, instance=custom_issue
-                        )
-                    for (
-                        custom_issue
                     ) in (
-                        current_statement_audit.new_12_week_custom_statement_check_results
+                        current_statement_audit.simplified_case.audit_overview.custom_statement_check_results
                     ):
                         bound_subpages += populate_subpages_with_instance(
                             platform_page=self, instance=custom_issue
@@ -1126,14 +1124,14 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                         url_name="audits:edit-custom-issue-update",
                         url_kwarg_key="pk",
                         visible_only_when_current=True,
-                        instance_class=StatementCheckResult,
+                        instance_class=CustomStatementCheckResult,
                     ),
                     PlatformPage(
                         name="Remove custom issue {instance.issue_identifier}",
                         url_name="audits:edit-custom-issue-delete-confirm",
                         url_kwarg_key="pk",
                         visible_only_when_current=True,
-                        instance_class=StatementCheckResult,
+                        instance_class=CustomStatementCheckResult,
                     ),
                 ],
                 case_details_template_name="simplified/details/details_initial_statement_checks_custom.html",
@@ -1500,11 +1498,11 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                 complete_flag_name="statement_custom_complete_date",
                 subpages=[
                     PlatformPage(
-                        name="Edit initial custom issue {instance.issue_identifier}",
-                        url_name="audits:edit-retest-initial-custom-issue-update",
+                        name="Edit custom issue {instance.issue_identifier}",
+                        url_name="audits:edit-retest-custom-issue-update",
                         url_kwarg_key="pk",
                         visible_only_when_current=True,
-                        instance_class=StatementCheckResult,
+                        instance_class=CustomStatementCheckResult,
                     ),
                     StatementAuditTwelveWeekPlatformPage(
                         name="Add 12-week custom issue",
@@ -1513,18 +1511,11 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
                         visible_only_when_current=True,
                     ),
                     PlatformPage(
-                        name="Edit 12-week custom issue {instance.issue_identifier}",
-                        url_name="audits:edit-retest-new-12-week-custom-issue-update",
-                        url_kwarg_key="pk",
-                        visible_only_when_current=True,
-                        instance_class=StatementCheckResult,
-                    ),
-                    PlatformPage(
                         name="Remove 12-week custom issue {instance.issue_identifier}",
                         url_name="audits:edit-retest-new-12-week-custom-issue-delete-confirm",
                         url_kwarg_key="pk",
                         visible_only_when_current=True,
-                        instance_class=StatementCheckResult,
+                        instance_class=CustomStatementCheckResult,
                     ),
                 ],
                 case_details_template_name="simplified/details/details_twelve_week_statement_checks_custom.html",

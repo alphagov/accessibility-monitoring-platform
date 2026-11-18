@@ -425,13 +425,10 @@
 {% endif %}
 {% if show_statement_summary %}
     {% for statement_check_type, summary_statement_check_results in summary_statement_check_results_by_type.items %}
-        {% if statement_check_type == '12-week' %}
-            {% include 'audits/helpers/test_summary_new_12_week_statement_content.html' %}
-        {% else %}
-            {% include 'audits/helpers/test_summary_initial_statement_content.html' %}
-        {% endif %}
+        {% include 'audits/helpers/test_summary_initial_statement_content.html' %}
         {% include 'common/top_and_bottom.html' %}
     {% endfor %}
+    {% include 'audits/helpers/test_summary_custom_statement_check_results.html' %}
 {% endif %}
 
 <hr id="bottom-of-page" class="amp-width-100 amp-margin-bottom-30">

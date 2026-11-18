@@ -14,6 +14,7 @@ from ...simplified.models import SimplifiedCase
 from ..models import (
     AuditOverview,
     AuditRound,
+    CustomStatementCheckResult,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
@@ -1247,7 +1248,6 @@ def test_statement_audit_statement_check_results():
         ("preparation", "preparation"),
         ("feedback", "feedback"),
         ("disproportionate", "disproportionate"),
-        ("custom", "custom"),
     ],
 )
 @pytest.mark.django_db
@@ -1360,7 +1360,7 @@ def test_statement_audit_failed_statement_check_results():
         )
     )
 
-    assert failed_statement_check_results.count() == 1  # Custom issue
+    assert failed_statement_check_results.count() == 0
     assertQuerySetEqual(
         statement_audit.failed_statement_check_results, failed_statement_check_results
     )
@@ -1379,7 +1379,7 @@ def test_statement_audit_failed_statement_check_results():
         )
     )
 
-    assert failed_statement_check_results.count() > 1
+    assert failed_statement_check_results.count() > 0
     assertQuerySetEqual(
         statement_audit.failed_statement_check_results, failed_statement_check_results
     )
@@ -1428,14 +1428,8 @@ def test_statement_audit_fixed_statement_check_results():
 @pytest.mark.django_db
 def test_statement_audit_outstanding_statement_check_results():
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    initial_custom: StatementCheckResult = StatementCheckResult.objects.get(
-        statement_check=None
-    )
     twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
-    )
-    retest_custom: StatementCheckResult = StatementCheckResult.objects.get(
-        statement_check=None, type=StatementCheck.Type.RETEST
     )
     initial_no_not_retested: StatementCheckResult = StatementCheckResult.objects.filter(
         statement_audit=twelve_week_statement_audit,
@@ -1466,15 +1460,7 @@ def test_statement_audit_outstanding_statement_check_results():
     initial_no_retest_yes.check_result_state = StatementCheckResult.Result.YES
     initial_no_retest_yes.save()
 
-    assert initial_custom in initial_statement_audit.outstanding_statement_check_results
-    assert twelve_week_statement_audit.outstanding_statement_check_results.count() == 4
-    assert (
-        initial_custom
-        not in twelve_week_statement_audit.outstanding_statement_check_results
-    )
-    assert (
-        retest_custom in twelve_week_statement_audit.outstanding_statement_check_results
-    )
+    assert twelve_week_statement_audit.outstanding_statement_check_results.count() == 2
     assert (
         initial_no_not_retested
         in twelve_week_statement_audit.outstanding_statement_check_results
@@ -2470,14 +2456,11 @@ def test_wcag_check_result_retest_previous_wcag_check_result_retest():
 def test_statement_check_result_round_string():
     with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_CREATED)):
         create_initial_statement_audit()
-    custom_statement_check_result_round: StatementCheckResult = (
-        StatementCheckResult.objects.get(statement_check=None)
+    custom_statement_check_result_round: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.get()
     )
 
-    assert (
-        str(custom_statement_check_result_round)
-        == "#S-1 StatementAudit Initial test (1 April 2021) | Custom [1-SC-43]"
-    )
+    assert str(custom_statement_check_result_round) == "#S-1 | Custom [1-SC-1]"
 
     statement_check: StatementCheck = StatementCheck.objects.all().first()
     statement_check_result_round: StatementCheckResult = (
@@ -2494,11 +2477,11 @@ def test_statement_check_result_round_string():
 def test_statement_check_result_round_issue_identifier():
     with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_CREATED)):
         create_initial_statement_audit()
-    custom_statement_check_result_round: StatementCheckResult = (
-        StatementCheckResult.objects.get(statement_check=None)
+    custom_statement_check_result_round: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.get()
     )
 
-    assert custom_statement_check_result_round.issue_identifier == "1-SC-43"
+    assert custom_statement_check_result_round.issue_identifier == "1-SC-1"
 
     statement_check: StatementCheck = StatementCheck.objects.all().first()
     statement_check_result_round: StatementCheckResult = (
@@ -2508,20 +2491,6 @@ def test_statement_check_result_round_issue_identifier():
     assert (
         statement_check_result_round.issue_identifier
         == f"1-S-{statement_check.issue_number}"
-    )
-
-
-@pytest.mark.django_db
-def test_statement_check_result_round_custom_state_default():
-    """Test that custom statement check results default to check result state of NO"""
-    create_initial_statement_audit()
-    custom_statement_check_result_round: StatementCheckResult = (
-        StatementCheckResult.objects.get(statement_check=None)
-    )
-
-    assert (
-        custom_statement_check_result_round.check_result_state
-        == StatementCheckResult.Result.NO
     )
 
 
@@ -2623,16 +2592,16 @@ def test_statement_check_result_round_edit_12_week_url_name():
         compliance_statement_check_result_round.edit_12_week_url_name
         == "audits:edit-retest-statement-compliance"
     )
-    retest_custom_statement_check_result_round: StatementCheckResult = (
+    retest_feedback_statement_check_result_round: StatementCheckResult = (
         StatementCheckResult.objects.filter(
             statement_audit=twelve_week_statement_audit,
-            type=StatementCheck.Type.RETEST,
+            type=StatementCheck.Type.FEEDBACK,
         ).first()
     )
 
     assert (
-        retest_custom_statement_check_result_round.edit_12_week_url_name
-        == "audits:edit-retest-statement-custom"
+        retest_feedback_statement_check_result_round.edit_12_week_url_name
+        == "audits:edit-retest-statement-feedback"
     )
 
 

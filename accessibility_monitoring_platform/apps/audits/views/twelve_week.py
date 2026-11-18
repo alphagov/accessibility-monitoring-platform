@@ -22,6 +22,8 @@ from ..forms import (
     AuditRetestCheckResultFilterForm,
     AuditStatementSummaryUpdateForm,
     AuditTwelveWeekDisproportionateBurdenUpdateForm,
+    CustomStatementCheckResultRetestCreateForm,
+    CustomStatementCheckResultRetestUpdateForm,
     NextStatementAuditUpdateForm,
     NextWcagAuditUpdateForm,
     RetestStatementAuditComplianceUpdateForm,
@@ -36,10 +38,7 @@ from ..forms import (
     StatementAuditStatementPagesUpdateForm,
     StatementAuditStatementPreparationUpdateForm,
     StatementAuditStatementWebsiteUpdateForm,
-    StatementCheckResultRetestCreateForm,
-    StatementCheckResultRetestCustomUpdateForm,
     StatementCheckResultRetestFormset,
-    StatementCheckResultRetestUpdateForm,
     TwelveWeekStatementAuditComplianceUpdateForm,
     WcagAuditRetestMetadataUpdateForm,
     WcagAuditRetestPagesUpdateForm,
@@ -50,6 +49,7 @@ from ..forms import (
 )
 from ..models import (
     AuditOverview,
+    CustomStatementCheckResult,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
@@ -498,36 +498,38 @@ class AuditRetestStatementCustomFormView(StatementAuditUpdateView):
     template_name: str = "audits/statement_checks/retest_statement_other.html"
 
 
-class StatementCheckResultRetestCustomUpdateView(UpdateView):
+class CustomStatementCheckResultRetestUpdateView(UpdateView):
     """
     View to update an initial custom issue
     """
 
-    model: type[StatementCheckResult] = StatementCheckResult
+    model: type[CustomStatementCheckResult] = CustomStatementCheckResult
     context_object_name: str = "custom_issue"
-    form_class: type[StatementCheckResultRetestCustomUpdateForm] = (
-        StatementCheckResultRetestCustomUpdateForm
+    form_class: type[CustomStatementCheckResultRetestUpdateForm] = (
+        CustomStatementCheckResultRetestUpdateForm
     )
     template_name: str = (
         "audits/statement_checks/retest_initial_custom_issue_update.html"
     )
 
-    def form_valid(self, form: StatementCheckResultRetestCustomUpdateForm):
+    def form_valid(self, form: CustomStatementCheckResultRetestUpdateForm):
         """Populate custom issue"""
-        custom_issue: StatementCheckResult = form.save(commit=False)
+        custom_issue: CustomStatementCheckResult = form.save(commit=False)
         record_simplified_model_update_event(
             user=self.request.user,
             model_object=custom_issue,
-            simplified_case=custom_issue.statement_audit.simplified_case,
+            simplified_case=custom_issue.simplified_case,
         )
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Return to the list of custom issues"""
-        custom_issue: StatementCheckResult = self.object
+        custom_issue: CustomStatementCheckResult = self.object
         url: str = reverse(
             "audits:edit-retest-statement-custom",
-            kwargs={"pk": custom_issue.statement_audit.id},
+            kwargs={
+                "pk": custom_issue.simplified_case.audit_overview.last_twelve_week_statement_audit.id
+            },
         )
         return f"{url}#{custom_issue.issue_identifier}"
 
@@ -537,9 +539,9 @@ class AuditRetestNew12WeekCustomIssueCreateView(CreateView):
     View to create new 12-week custom issue
     """
 
-    model: type[StatementCheckResult] = StatementCheckResult
-    form_class: type[StatementCheckResultRetestCreateForm] = (
-        StatementCheckResultRetestCreateForm
+    model: type[CustomStatementCheckResult] = CustomStatementCheckResult
+    form_class: type[CustomStatementCheckResultRetestCreateForm] = (
+        CustomStatementCheckResultRetestCreateForm
     )
     template_name: str = "audits/forms/twelve_week_custom_issue_create.html"
 
@@ -551,59 +553,31 @@ class AuditRetestNew12WeekCustomIssueCreateView(CreateView):
         )
         return context
 
-    def form_valid(self, form: StatementCheckResultRetestCreateForm):
+    def form_valid(self, form: CustomStatementCheckResultRetestCreateForm):
         """Populate custom issue"""
         statement_audit: StatementAudit = get_object_or_404(
             StatementAudit, id=self.kwargs.get("statement_audit_id")
         )
-        statement_check_result_retest: StatementCheckResult = form.save(commit=False)
-        statement_check_result_retest.statement_audit = statement_audit
-        statement_check_result_retest.type = StatementCheck.Type.RETEST
+        custom_statement_check_result: CustomStatementCheckResult = form.save(
+            commit=False
+        )
+        custom_statement_check_result.statement_audit = statement_audit
+        custom_statement_check_result.simplified_case = statement_audit.simplified_case
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Return to the list of custom issues"""
-        custom_issue: StatementCheckResult = self.object
+        custom_issue: CustomStatementCheckResult = self.object
         record_simplified_model_create_event(
             user=self.request.user,
             model_object=custom_issue,
-            simplified_case=custom_issue.statement_audit.simplified_case,
+            simplified_case=custom_issue.simplified_case,
         )
         url: str = reverse(
             "audits:edit-retest-statement-custom",
-            kwargs={"pk": custom_issue.statement_audit.id},
-        )
-        return f"{url}#{custom_issue.issue_identifier}"
-
-
-class AuditRetestNew12WeekCustomIssueUpdateView(UpdateView):
-    """
-    View to update a custom issue entered at 12-weeks
-    """
-
-    model: type[StatementCheckResult] = StatementCheckResult
-    context_object_name: str = "custom_issue"
-    form_class: type[StatementCheckResultRetestUpdateForm] = (
-        StatementCheckResultRetestUpdateForm
-    )
-    template_name: str = "audits/forms/new_12_week_custom_issue_update.html"
-
-    def form_valid(self, form: StatementCheckResultRetestUpdateForm):
-        """Populate custom issue"""
-        custom_issue: StatementCheckResult = form.save(commit=False)
-        record_simplified_model_update_event(
-            user=self.request.user,
-            model_object=custom_issue,
-            simplified_case=custom_issue.statement_audit.simplified_case,
-        )
-        return super().form_valid(form)
-
-    def get_success_url(self) -> str:
-        """Return to the list of custom issues"""
-        custom_issue: StatementCheckResult = self.object
-        url: str = reverse(
-            "audits:edit-retest-statement-custom",
-            kwargs={"pk": custom_issue.statement_audit.id},
+            kwargs={
+                "pk": custom_issue.simplified_case.audit_overview.last_twelve_week_statement_audit.id
+            },
         )
         return f"{url}#{custom_issue.issue_identifier}"
 

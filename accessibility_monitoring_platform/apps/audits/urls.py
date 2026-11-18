@@ -22,11 +22,11 @@ from .views.equality_body import (
     RetestAddStatementPageUpdateView,
     RetestComparisonUpdateView,
     RetestComplianceUpdateView,
+    RetestCustomStatementCheckResultFormView,
     RetestDeleteStatementPageUpdateView,
     RetestDisproportionateBurdenUpdateView,
     RetestStatementBackupUpdateView,
     RetestStatementComplianceFormView,
-    RetestStatementCustomFormView,
     RetestStatementDecisionUpdateView,
     RetestStatementDisproportionateFormView,
     RetestStatementFeedbackFormView,
@@ -65,7 +65,6 @@ from .views.initial import (
 )
 from .views.twelve_week import (
     AuditRetestNew12WeekCustomIssueCreateView,
-    AuditRetestNew12WeekCustomIssueUpdateView,
     AuditRetestStatementComplianceFormView,
     AuditRetestStatementCustomFormView,
     AuditRetestStatementDisproportionateFormView,
@@ -73,10 +72,10 @@ from .views.twelve_week import (
     AuditRetestStatementNonAccessibleFormView,
     AuditRetestStatementPreparationFormView,
     AuditRetestStatementWebsiteFormView,
+    CustomStatementCheckResultRetestUpdateView,
     New12WeekCustomIssueDeleteTemplateView,
     NextTwelveWeekStatementAuditUpdateView,
     NextTwelveWeekWcagAuditUpdateView,
-    StatementCheckResultRetestCustomUpdateView,
     TwelveWeekAddStatementPageUpdateView,
     TwelveWeekDeleteStatementPageUpdateView,
     TwelveWeekDisproportionateBurdenUpdateView,
@@ -311,19 +310,14 @@ urlpatterns: list[URLPattern] = [
         name="edit-retest-statement-custom",
     ),
     path(
-        "<int:pk>/edit-retest-initial-custom-issue-update/",
-        login_required(StatementCheckResultRetestCustomUpdateView.as_view()),
-        name="edit-retest-initial-custom-issue-update",
+        "<int:pk>/edit-retest-custom-issue-update/",
+        login_required(CustomStatementCheckResultRetestUpdateView.as_view()),
+        name="edit-retest-custom-issue-update",
     ),
     path(
         "<int:statement_audit_id>/edit-retest-12-week-custom-issue-create/",
         login_required(AuditRetestNew12WeekCustomIssueCreateView.as_view()),
         name="edit-retest-12-week-custom-issue-create",
-    ),
-    path(
-        "<int:pk>/edit-retest-new-12-week-custom-issue-update/",
-        login_required(AuditRetestNew12WeekCustomIssueUpdateView.as_view()),
-        name="edit-retest-new-12-week-custom-issue-update",
     ),
     path(
         "<int:pk>/edit-retest-new-12-week-custom-issue-delete-confirm/",
@@ -467,7 +461,7 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "retests/<int:pk>/edit-equality-body-statement-custom/",
-        login_required(RetestStatementCustomFormView.as_view()),
+        login_required(RetestCustomStatementCheckResultFormView.as_view()),
         name="edit-equality-body-statement-custom",
     ),
     path(

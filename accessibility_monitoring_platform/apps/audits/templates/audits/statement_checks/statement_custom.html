@@ -7,7 +7,7 @@
         <p class="govuk-body">No custom statement issues have been entered</p>
     {% endif %}
 
-    {% for custom_issue in statement_audit.custom_statement_check_results %}
+    {% for custom_issue in statement_audit.simplified_case.audit_overview.custom_statement_check_results %}
         <h2 id="{{ custom_issue.issue_identifier }}" class="govuk-heading-s">
             <ul class="govuk-body amp-horizontal-list">
                 <li>
@@ -18,10 +18,12 @@
                     <a href="{% url 'audits:edit-custom-issue-update' custom_issue.id %}" class="govuk-link govuk-link--no-visited-state">
                         Edit</a>
                 </li>
-                <li>
-                    <a href="{% url 'audits:edit-custom-issue-delete-confirm' custom_issue.id %}" class="govuk-link govuk-link--no-visited-state">
-                        Remove</a>
-                </li>
+                {% if custom_issue.statement_audit == statement_audit %}
+                    <li>
+                        <a href="{% url 'audits:edit-custom-issue-delete-confirm' custom_issue.id %}" class="govuk-link govuk-link--no-visited-state">
+                            Remove</a>
+                    </li>
+                {% endif %}
             </ul>
         </h2>
         {% include 'audits/statement_checks/custom_issue_detail.html' %}

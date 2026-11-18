@@ -3979,7 +3979,7 @@ def test_case_overview(admin_client):
     )
     assertContains(
         response,
-        """<p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">Initial test: 3</p>""",
+        """<p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">Initial test: 2</p>""",
         html=True,
     )
     assertContains(
