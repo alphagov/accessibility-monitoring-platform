@@ -183,7 +183,7 @@ Disproportionate burden was: {{ last_equality_body_statement_audit.get_dispropor
     <br>
     <br>
 {% endif %}
-{% if last_equality_body_statement_audit.failed_statement_check_results %}
+{% if last_equality_body_statement_audit.failed_statement_check_results or case.audit_overview.outstanding_custom_statement_check_results %}
     <table id="email-statement-issues-table">
         <thead>
             <tr>
@@ -203,6 +203,18 @@ Disproportionate burden was: {{ last_equality_body_statement_audit.get_dispropor
                     {% endif %}
                     {% if failed_statement_check_result.public_comment %}
                         {{ failed_statement_check_result.public_comment|markdown_to_html }}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        {% for custom_statement_check_result in case.audit_overview.outstanding_custom_statement_check_results %}
+            <tr valign="top">
+                <td headers="statement-issue-{{ custom_statement_check_result.issue_identifier }}" width=100%>
+                    <b>Issue {{ custom_statement_check_result.issue_identifier }}</b>
+                    <br>
+                    {{ custom_statement_check_result.public_comment|markdown_to_html }}
+                    {% if custom_statement_check_result.retest_comment %}
+                        {{ custom_statement_check_result.retest_comment|markdown_to_html }}
                     {% endif %}
                 </td>
             </tr>

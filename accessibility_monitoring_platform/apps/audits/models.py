@@ -421,6 +421,14 @@ class AuditOverview(models.Model):
         )
 
     @property
+    def outstanding_custom_statement_check_results(
+        self,
+    ) -> QuerySet[CustomStatementCheckResult]:
+        return self.custom_statement_check_results.exclude(
+            retest_state=CustomStatementCheckResult.Result.YES
+        )
+
+    @property
     def last_edited(self) -> datetime | None:
         """Return when case or related data was last changed"""
         updated_times: list[datetime | None] = [self.updated]
@@ -827,7 +835,7 @@ class StatementAudit(AuditRound):
         self,
     ) -> QuerySet[StatementCheckResult]:
         return self.statementcheckresult_set.exclude(is_deleted=True).exclude(
-            type=StatementCheck.Type.CUSTOM
+            statement_check=None
         )
 
     @property

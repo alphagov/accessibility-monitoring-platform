@@ -84,7 +84,7 @@ You do not need to provide information from your own audit.
     <br>
     <br>
 {% endif %}
-{% if case.audit_overview.initial_statement_audit.failed_statement_check_results %}
+{% if case.audit_overview.initial_statement_audit.failed_statement_check_results or case.audit_overview.outstanding_custom_statement_check_results %}
     We found the following issues.
     <br>
     <br>
@@ -108,6 +108,19 @@ You do not need to provide information from your own audit.
                                 <br>
                             {% endif %}
                             {{ statement_check_result.public_comment }}
+                        {% endif %}
+                    </td>
+                    <td headers="statement-12-week-update" width=50%></td>
+                </tr>
+            {% endfor %}
+            {% for custom_statement_check_result in case.audit_overview.outstanding_custom_statement_check_results %}
+                <tr valign="top">
+                    <td headers="statement-issue" width=50%>
+                        <b>Issue {{ custom_statement_check_result.issue_identifier }}</b>
+                        <br>
+                        {{ custom_statement_check_result.public_comment|markdown_to_html }}
+                        {% if custom_statement_check_result.retest_comment %}
+                            {{ custom_statement_check_result.retest_comment|markdown_to_html }}
                         {% endif %}
                     </td>
                     <td headers="statement-12-week-update" width=50%></td>

@@ -1329,28 +1329,6 @@ def test_statement_audit_statement_structure_check():
 
 
 @pytest.mark.django_db
-def test_statement_audit_new_12_week_custom_statement_check_results():
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case,
-        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-    )
-    new_12_week_custom_check_result: StatementCheckResult = (
-        StatementCheckResult.objects.create(
-            statement_audit=statement_audit,
-            type=StatementCheck.Type.RETEST,
-            public_comment="12-week custom statement issue",
-        )
-    )
-
-    assert statement_audit.new_12_week_custom_statement_check_results.count() == 1
-    assert (
-        statement_audit.new_12_week_custom_statement_check_results.first()
-        == new_12_week_custom_check_result
-    )
-
-
-@pytest.mark.django_db
 def test_statement_audit_failed_statement_check_results():
     statement_audit: StatementAudit = create_initial_statement_audit()
     failed_statement_check_results: QuerySet[StatementCheckResult] = (
@@ -1472,30 +1450,6 @@ def test_statement_audit_outstanding_statement_check_results():
     assert (
         initial_no_retest_yes
         not in twelve_week_statement_audit.outstanding_statement_check_results
-    )
-
-
-@pytest.mark.django_db
-def test_statement_audit_outstanding_statement_check_results_includes_new_failures():
-    """
-    Tests specific statement_audit outstanding_statement_check_results property
-    includes new custom errors found for the first time on 12-week retest.
-    """
-    initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
-        initial_statement_audit=initial_statement_audit
-    )
-    twelve_week_statement_check_result_retest: StatementCheckResult = (
-        StatementCheckResult.objects.create(
-            statement_audit=twelve_week_statement_audit,
-            type=StatementCheck.Type.RETEST,
-            public_comment="Custom issue found at 12-weeks",
-        )
-    )
-
-    assert (
-        twelve_week_statement_check_result_retest
-        in twelve_week_statement_audit.outstanding_statement_check_results
     )
 
 

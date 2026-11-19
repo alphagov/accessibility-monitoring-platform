@@ -154,11 +154,18 @@
             <br/>
             <h2 class="govuk-heading-s">Statement assessment contents</h2>
             <div class="amp-border-left">
-                {% if summary_statement_check_results_by_type.items %}
+                {% if summary_statement_check_results_by_type.items or case.audit_overview.custom_statement_check_results %}
                     <ul class="govuk-list">
+                    {% if summary_statement_check_results_by_type.items %}
                         {% for statement_check_type, summary_statement_check_results in summary_statement_check_results_by_type.items %}
-                            <li><a href="#statement-{{ statement_check_type }}" class="govuk-link govuk-link--no-visited-state">{{ summary_statement_check_results.0.initial_result.get_type_display }}</a></li>
+                            <li><a href="#statement-{{ statement_check_type }}" class="govuk-link govuk-link--no-visited-state">
+                                {{ summary_statement_check_results.0.initial_result.get_type_display }}</a></li>
                         {% endfor %}
+                    {% endif %}
+                    {% if case.audit_overview.custom_statement_check_results %}
+                        <li><a href="#statement-custom" class="govuk-link govuk-link--no-visited-state">
+                            Custom statement issues</a></li>
+                    {% endif %}
                     </ul>
                 {% else %}
                     <p class="govuk-body">None</p>
@@ -428,7 +435,9 @@
         {% include 'audits/helpers/test_summary_initial_statement_content.html' %}
         {% include 'common/top_and_bottom.html' %}
     {% endfor %}
-    {% include 'audits/helpers/test_summary_custom_statement_check_results.html' %}
+    {% if case.audit_overview.custom_statement_check_results %}
+        {% include 'audits/helpers/test_summary_custom_statement_check_results.html' %}
+    {% endif %}
 {% endif %}
 
 <hr id="bottom-of-page" class="amp-width-100 amp-margin-bottom-30">

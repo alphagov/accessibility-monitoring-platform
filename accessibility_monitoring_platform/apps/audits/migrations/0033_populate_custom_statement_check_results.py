@@ -66,8 +66,6 @@ def populate_custom_statement_check_results(apps, schema_editor):
         known_issues[statement_check_result.issue_identifier] = (
             custom_statement_check_result
         )
-        # statement_check_result.is_deleted = True
-        # statement_check_result.save()
 
 
 def reverse_code(apps, schema_editor):  # pylint: disable=unused-argument
