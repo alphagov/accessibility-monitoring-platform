@@ -5227,8 +5227,10 @@ def test_delete_new_12_week_custom_issue_redirects(admin_client):
         simplified_case=simplified_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
     )
-    custom_issue: StatementCheckResult = StatementCheckResult.objects.create(
-        statement_audit=statement_audit
+    custom_issue: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.create(
+            statement_audit=statement_audit, simplified_case=simplified_case
+        )
     )
 
     response: HttpResponse = admin_client.post(

@@ -19,6 +19,12 @@
                     <a href="{% url 'audits:edit-retest-custom-issue-update' custom_issue.id %}" class="govuk-link govuk-link--no-visited-state">
                         Edit</a>
                 </li>
+                {% if custom_issue.statement_audit == statement_audit %}
+                    <li>
+                        <a href="{% url 'audits:edit-retest-new-12-week-custom-issue-delete-confirm' custom_issue.id %}" class="govuk-link govuk-link--no-visited-state">
+                            Remove</a>
+                    </li>
+                {% endif %}
             </ul>
         </h2>
         {% include 'audits/statement_checks/custom_issue_detail.html' with show_retest_state=True %}

@@ -22,6 +22,7 @@ from ..simplified.utils import (
 from .forms import WcagCheckResultInitialForm
 from .models import (
     AuditOverview,
+    CustomStatementCheckResult,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
@@ -630,15 +631,21 @@ def get_audit_summary_context(
             if statement_check_result.type == StatementCheck.Type.OVERVIEW
         ]
 
+    custom_statement_check_results: QuerySet[CustomStatementCheckResult] = (
+        simplified_case.audit_overview.custom_statement_check_results
+        if show_all
+        else simplified_case.audit_overview.outstanding_custom_statement_check_results
+    )
+
     context["summary_statement_check_results"] = summary_statement_check_results
     context["summary_statement_check_results_by_type"] = list_to_dictionary_of_lists(
         items=summary_statement_check_results, group_by_attr="type"
     )
+    context["custom_statement_check_results"] = custom_statement_check_results
 
     context["number_of_wcag_issues"] = len(summary_wcag_check_results)
     context["number_of_statement_issues"] = (
-        len(summary_statement_check_results)
-        + simplified_case.audit_overview.custom_statement_check_results.count()
+        len(summary_statement_check_results) + custom_statement_check_results.count()
     )
 
     return context

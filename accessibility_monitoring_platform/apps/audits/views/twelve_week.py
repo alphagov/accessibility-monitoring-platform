@@ -487,7 +487,7 @@ class AuditRetestStatementDisproportionateFormView(
     statement_check_type: str = StatementCheck.Type.DISPROPORTIONATE
 
 
-class AuditRetestStatementCustomFormView(StatementAuditUpdateView):
+class AuditRetestCustomStatementIssueFormView(StatementAuditUpdateView):
     """
     View to add/update custom statement issues check results at 12-weeks
     """
@@ -495,10 +495,12 @@ class AuditRetestStatementCustomFormView(StatementAuditUpdateView):
     form_class: type[StatementAuditStatementCustomUpdateForm] = (
         StatementAuditStatementCustomUpdateForm
     )
-    template_name: str = "audits/statement_checks/retest_statement_other.html"
+    template_name: str = (
+        "audits/statement_checks/custom_statement_issue_twelve_week_list.html"
+    )
 
 
-class CustomStatementCheckResultRetestUpdateView(UpdateView):
+class AuditRetestCustomStatementIssueUpdateView(UpdateView):
     """
     View to update an initial custom issue
     """
@@ -509,7 +511,7 @@ class CustomStatementCheckResultRetestUpdateView(UpdateView):
         CustomStatementCheckResultRetestUpdateForm
     )
     template_name: str = (
-        "audits/statement_checks/retest_initial_custom_issue_update.html"
+        "audits/statement_checks/custom_statement_issue_twelve_week_update.html"
     )
 
     def form_valid(self, form: CustomStatementCheckResultRetestUpdateForm):
@@ -534,16 +536,13 @@ class CustomStatementCheckResultRetestUpdateView(UpdateView):
         return f"{url}#{custom_issue.issue_identifier}"
 
 
-class AuditRetestNew12WeekCustomIssueCreateView(CreateView):
-    """
-    View to create new 12-week custom issue
-    """
+class AuditRetestCustomStatementIssueCreateView(CreateView):
 
     model: type[CustomStatementCheckResult] = CustomStatementCheckResult
     form_class: type[CustomStatementCheckResultRetestCreateForm] = (
         CustomStatementCheckResultRetestCreateForm
     )
-    template_name: str = "audits/forms/twelve_week_custom_issue_create.html"
+    template_name: str = "audits/forms/custom_statement_issue_twelve_week_create.html"
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
@@ -582,24 +581,27 @@ class AuditRetestNew12WeekCustomIssueCreateView(CreateView):
         return f"{url}#{custom_issue.issue_identifier}"
 
 
-class New12WeekCustomIssueDeleteTemplateView(TemplateView):
-    template_name: str = "audits/statement_checks/new_12_week_custom_issue_delete.html"
+class AuditRetestCustomStatementIssueConfirmDeleteTemplateView(TemplateView):
+    template_name: str = (
+        "audits/statement_checks/custom_statement_issue_twelve_week_confirm_delete.html"
+    )
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add custom issue to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
         custom_issue: StatementCheckResult = get_object_or_404(
-            StatementCheckResult, id=kwargs.get("pk")
+            CustomStatementCheckResult, id=kwargs.get("pk")
         )
         context["custom_issue"] = custom_issue
         return context
 
 
-def delete_new_12_week_custom_issue(request: HttpRequest, pk: int) -> HttpResponse:
-    """Mark new 12-week custom issue (StatementCheckResult) as deleted"""
+def custom_statement_issue_delete_twelve_week(
+    request: HttpRequest, pk: int
+) -> HttpResponse:
     if request.method == "POST":
-        custom_issue: StatementCheckResult = get_object_or_404(
-            StatementCheckResult, id=pk
+        custom_issue: CustomStatementCheckResult = get_object_or_404(
+            CustomStatementCheckResult, id=pk
         )
         custom_issue.is_deleted = True
         record_simplified_model_update_event(

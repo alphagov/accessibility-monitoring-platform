@@ -579,27 +579,23 @@ class AuditStatementDisproportionateFormView(StatementCheckResultFormsetView):
     statement_check_type: str = StatementCheck.Type.DISPROPORTIONATE
 
 
-class AuditStatementCustomFormView(StatementAuditUpdateView):
-    """
-    View to add/update custom statement issues check results
-    """
+class InitialCustomStatementCheckResultsFormView(StatementAuditUpdateView):
 
     form_class: type[StatementAuditStatementCustomUpdateForm] = (
         StatementAuditStatementCustomUpdateForm
     )
-    template_name: str = "audits/statement_checks/statement_custom.html"
+    template_name: str = (
+        "audits/statement_checks/custom_statement_issue_initial_list.html"
+    )
 
 
-class CustomIssueCreateView(CreateView):
-    """
-    View to create custom issue
-    """
+class InitialCustomStatementCheckResultCreateView(CreateView):
 
     model: type[CustomStatementCheckResult] = CustomStatementCheckResult
     form_class: type[CustomStatementCheckResultCreateUpdateForm] = (
         CustomStatementCheckResultCreateUpdateForm
     )
-    template_name: str = "audits/forms/initial_custom_issue_create.html"
+    template_name: str = "audits/forms/custom_statement_issue_initial_create.html"
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
@@ -636,7 +632,7 @@ class CustomIssueCreateView(CreateView):
         return f"{url}#{custom_issue.issue_identifier}"
 
 
-class InitialCustomIssueUpdateView(UpdateView):
+class InitialCustomStatementCheckResultUpdateView(UpdateView):
     """
     View to update a custom issue
     """
@@ -646,7 +642,7 @@ class InitialCustomIssueUpdateView(UpdateView):
     form_class: type[CustomStatementCheckResultCreateUpdateForm] = (
         CustomStatementCheckResultCreateUpdateForm
     )
-    template_name: str = "audits/forms/initial_custom_issue_update.html"
+    template_name: str = "audits/forms/custom_statement_issue_initial_update.html"
 
     def form_valid(self, form: CustomStatementCheckResultCreateUpdateForm):
         """Populate custom issue"""
@@ -668,8 +664,10 @@ class InitialCustomIssueUpdateView(UpdateView):
         return f"{url}#{custom_issue.issue_identifier}"
 
 
-class InitialCustomIssueDeleteTemplateView(TemplateView):
-    template_name: str = "audits/statement_checks/initial_custom_issue_delete.html"
+class InitialCustomStatementCheckResultDeleteConfirmTemplateView(TemplateView):
+    template_name: str = (
+        "audits/statement_checks/custom_statement_issue_initial_confirm_delete.html"
+    )
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add custom issue to context"""
@@ -681,7 +679,9 @@ class InitialCustomIssueDeleteTemplateView(TemplateView):
         return context
 
 
-def delete_custom_issue(request: HttpRequest, pk: int) -> HttpResponse:
+def custom_statement_issue_delete_initial(
+    request: HttpRequest, pk: int
+) -> HttpResponse:
     """Mark custom issue as deleted"""
     if request.method == "POST":
         custom_issue: CustomStatementCheckResult = get_object_or_404(

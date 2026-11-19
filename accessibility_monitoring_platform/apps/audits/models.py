@@ -1670,7 +1670,7 @@ class CustomStatementCheckResult(models.Model):
         ]
 
     def __str__(self) -> str:
-        return f"{self.simplified_case} | Custom [{self.issue_identifier}]"
+        return f"{self.statement_audit} | Custom [{self.issue_identifier}]"
 
     def save(self, *args, **kwargs) -> None:
         if not self.id and not self.issue_identifier:

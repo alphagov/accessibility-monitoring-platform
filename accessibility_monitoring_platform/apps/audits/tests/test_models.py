@@ -2414,7 +2414,10 @@ def test_statement_check_result_round_string():
         CustomStatementCheckResult.objects.get()
     )
 
-    assert str(custom_statement_check_result_round) == "#S-1 | Custom [1-SC-1]"
+    assert (
+        str(custom_statement_check_result_round)
+        == "#S-1 StatementAudit Initial test (1 April 2021) | Custom [1-SC-1]"
+    )
 
     statement_check: StatementCheck = StatementCheck.objects.all().first()
     statement_check_result_round: StatementCheckResult = (

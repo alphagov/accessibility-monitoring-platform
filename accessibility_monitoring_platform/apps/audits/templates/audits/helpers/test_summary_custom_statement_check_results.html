@@ -15,7 +15,7 @@
         <span class="govuk-body amp-disabled">Edit 12-week test</span>
     {% endif %}
 </p>
-{% if case.audit_overview.custom_statement_check_results %}
+{% if custom_statement_check_results %}
     <table class="govuk-table">
         <thead class="govuk-table__head">
             <tr class="govuk-table__row">
@@ -23,19 +23,28 @@
             </tr>
         </thead>
         <tbody class="govuk-table__body">
-            {% for custom_statement_check_result in case.audit_overview.custom_statement_check_results %}
+            {% for custom_statement_check_result in custom_statement_check_results %}
                 <tr class="govuk-table__row ">
-                    <td class="govuk-table__cell amp-notes">
-                        {% if custom_statement_check_result.public_comment %}
-                            {{ custom_statement_check_result.public_comment|markdown_to_html }}
-                        {% endif %}
-                        {% if custom_statement_check_result.retest_comment %}
-                            {{ custom_statement_check_result.retest_comment|markdown_to_html }}
-                        {% endif %}
-                        {% if custom_statement_check_result.auditor_information %}
-                            {{ custom_statement_check_result.auditor_information|markdown_to_html }}
-                        {% endif %}
+                    <td class="govuk-table__cell">
+                        <div class="amp-notes">
+                            {% if custom_statement_check_result.public_comment %}
+                                {{ custom_statement_check_result.public_comment|markdown_to_html }}
+                            {% endif %}
+                            {% if custom_statement_check_result.retest_comment %}
+                                {{ custom_statement_check_result.retest_comment|markdown_to_html }}
+                            {% endif %}
+                            {% if custom_statement_check_result.auditor_information %}
+                                {{ custom_statement_check_result.auditor_information|markdown_to_html }}
+                            {% endif %}
+                        </div>
                         [{{ custom_statement_check_result.issue_identifier }}]
+                        {% if enable_12_week_ui %}
+                            <a href="{% url 'audits:edit-retest-custom-issue-update' custom_statement_check_result.id %}" class="govuk-link govuk-link--no-visited-state">
+                                Edit initial</a>
+                        {% else %}
+                            <a href="{% url 'audits:edit-custom-issue-update' custom_statement_check_result.id %}" class="govuk-link govuk-link--no-visited-state">
+                                Edit retest</a>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}
