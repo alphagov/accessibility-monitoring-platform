@@ -23,6 +23,7 @@ from ...simplified.utils import (
 from ..forms import (
     AuditStatementSummaryUpdateForm,
     CheckResultFilterForm,
+    CustomStatementCheckResultCreateUpdateForm,
     StatementAuditComplianceUpdateForm,
     StatementAuditInitialDisproportionateBurdenUpdateForm,
     StatementAuditStatementBackupUpdateForm,
@@ -35,7 +36,6 @@ from ..forms import (
     StatementAuditStatementPagesUpdateForm,
     StatementAuditStatementPreparationUpdateForm,
     StatementAuditStatementWebsiteUpdateForm,
-    StatementCheckResultCreateUpdateForm,
     StatementCheckResultFormset,
     WcagAuditComplianceUpdateForm,
     WcagAuditMetadataUpdateForm,
@@ -50,6 +50,7 @@ from ..forms import (
 )
 from ..models import (
     AuditOverview,
+    CustomStatementCheckResult,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
@@ -578,27 +579,23 @@ class AuditStatementDisproportionateFormView(StatementCheckResultFormsetView):
     statement_check_type: str = StatementCheck.Type.DISPROPORTIONATE
 
 
-class AuditStatementCustomFormView(StatementAuditUpdateView):
-    """
-    View to add/update custom statement issues check results
-    """
+class InitialCustomStatementCheckResultsFormView(StatementAuditUpdateView):
 
     form_class: type[StatementAuditStatementCustomUpdateForm] = (
         StatementAuditStatementCustomUpdateForm
     )
-    template_name: str = "audits/statement_checks/statement_custom.html"
-
-
-class CustomIssueCreateView(CreateView):
-    """
-    View to create custom issue
-    """
-
-    model: type[StatementCheckResult] = StatementCheckResult
-    form_class: type[StatementCheckResultCreateUpdateForm] = (
-        StatementCheckResultCreateUpdateForm
+    template_name: str = (
+        "audits/statement_checks/custom_statement_issue_initial_list.html"
     )
-    template_name: str = "audits/forms/initial_custom_issue_create.html"
+
+
+class InitialCustomStatementCheckResultCreateView(CreateView):
+
+    model: type[CustomStatementCheckResult] = CustomStatementCheckResult
+    form_class: type[CustomStatementCheckResultCreateUpdateForm] = (
+        CustomStatementCheckResultCreateUpdateForm
+    )
+    template_name: str = "audits/forms/custom_statement_issue_initial_create.html"
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
@@ -608,13 +605,16 @@ class CustomIssueCreateView(CreateView):
         )
         return context
 
-    def form_valid(self, form: StatementCheckResultCreateUpdateForm):
+    def form_valid(self, form: CustomStatementCheckResultCreateUpdateForm):
         """Populate custom issue"""
         statement_audit: StatementAudit = get_object_or_404(
             StatementAudit, id=self.kwargs.get("statement_audit_id")
         )
-        statement_check_result_initial: StatementCheckResult = form.save(commit=False)
-        statement_check_result_initial.statement_audit = statement_audit
+        custom_statement_check_result: CustomStatementCheckResult = form.save(
+            commit=False
+        )
+        custom_statement_check_result.statement_audit = statement_audit
+        custom_statement_check_result.simplified_case = statement_audit.simplified_case
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
@@ -632,31 +632,31 @@ class CustomIssueCreateView(CreateView):
         return f"{url}#{custom_issue.issue_identifier}"
 
 
-class InitialCustomIssueUpdateView(UpdateView):
+class InitialCustomStatementCheckResultUpdateView(UpdateView):
     """
     View to update a custom issue
     """
 
-    model: type[StatementCheckResult] = StatementCheckResult
+    model: type[CustomStatementCheckResult] = CustomStatementCheckResult
     context_object_name: str = "custom_issue"
-    form_class: type[StatementCheckResultCreateUpdateForm] = (
-        StatementCheckResultCreateUpdateForm
+    form_class: type[CustomStatementCheckResultCreateUpdateForm] = (
+        CustomStatementCheckResultCreateUpdateForm
     )
-    template_name: str = "audits/forms/initial_custom_issue_update.html"
+    template_name: str = "audits/forms/custom_statement_issue_initial_update.html"
 
-    def form_valid(self, form: StatementCheckResultCreateUpdateForm):
+    def form_valid(self, form: CustomStatementCheckResultCreateUpdateForm):
         """Populate custom issue"""
-        custom_issue: StatementCheckResult = form.save(commit=False)
+        custom_issue: CustomStatementCheckResult = form.save(commit=False)
         record_simplified_model_update_event(
             user=self.request.user,
             model_object=custom_issue,
-            simplified_case=custom_issue.statement_audit.simplified_case,
+            simplified_case=custom_issue.simplified_case,
         )
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
         """Return to the list of custom issues"""
-        custom_issue: StatementCheckResult = self.object
+        custom_issue: CustomStatementCheckResult = self.object
         url: str = reverse(
             "audits:edit-statement-custom",
             kwargs={"pk": custom_issue.statement_audit.id},
@@ -664,30 +664,34 @@ class InitialCustomIssueUpdateView(UpdateView):
         return f"{url}#{custom_issue.issue_identifier}"
 
 
-class InitialCustomIssueDeleteTemplateView(TemplateView):
-    template_name: str = "audits/statement_checks/initial_custom_issue_delete.html"
+class InitialCustomStatementCheckResultDeleteConfirmTemplateView(TemplateView):
+    template_name: str = (
+        "audits/statement_checks/custom_statement_issue_initial_confirm_delete.html"
+    )
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         """Add custom issue to context"""
         context: dict[str, Any] = super().get_context_data(**kwargs)
-        custom_issue: StatementCheckResult = get_object_or_404(
-            StatementCheckResult, id=kwargs.get("pk")
+        custom_issue: CustomStatementCheckResult = get_object_or_404(
+            CustomStatementCheckResult, id=kwargs.get("pk")
         )
         context["custom_issue"] = custom_issue
         return context
 
 
-def delete_custom_issue(request: HttpRequest, pk: int) -> HttpResponse:
-    """Mark custom issue (StatementCheckResult) as deleted"""
+def custom_statement_issue_delete_initial(
+    request: HttpRequest, pk: int
+) -> HttpResponse:
+    """Mark custom issue as deleted"""
     if request.method == "POST":
-        custom_issue: StatementCheckResult = get_object_or_404(
-            StatementCheckResult, id=pk
+        custom_issue: CustomStatementCheckResult = get_object_or_404(
+            CustomStatementCheckResult, id=pk
         )
         custom_issue.is_deleted = True
         record_simplified_model_update_event(
             user=request.user,
             model_object=custom_issue,
-            simplified_case=custom_issue.statement_audit.simplified_case,
+            simplified_case=custom_issue.simplified_case,
         )
         custom_issue.save()
     return redirect(

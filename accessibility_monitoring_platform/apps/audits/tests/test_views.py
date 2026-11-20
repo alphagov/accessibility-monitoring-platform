@@ -25,6 +25,7 @@ from ...reports.models import Report
 from ...simplified.models import CaseEvent, SimplifiedCase, SimplifiedEventHistory
 from ..models import (
     AuditOverview,
+    CustomStatementCheckResult,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
@@ -264,7 +265,7 @@ def test_twelve_week_wcag_audit_specific_page_loads(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_wcag_audit_pk: dict[str, int] = {
-        "pk": simplified_case.audit_overview.first_twelve_week_wcag_audit.id
+        "pk": simplified_case.audit_overview.last_twelve_week_wcag_audit.id
     }
 
     response: HttpResponse = admin_client.get(
@@ -294,7 +295,7 @@ def test_twelve_week_statement_audit_specific_page_loads(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
-        "pk": simplified_case.audit_overview.first_twelve_week_statement_audit.id
+        "pk": simplified_case.audit_overview.last_twelve_week_statement_audit.id
     }
 
     response: HttpResponse = admin_client.get(
@@ -347,7 +348,7 @@ def test_twelve_week_audit_statement_check_specific_page_loads(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
-        "pk": simplified_case.audit_overview.first_twelve_week_statement_audit.id
+        "pk": simplified_case.audit_overview.last_twelve_week_statement_audit.id
     }
 
     response: HttpResponse = admin_client.get(
@@ -505,7 +506,7 @@ def test_initial_statement_audit_edit_redirects_based_on_button_pressed(
         (
             "audits:edit-audit-retest-website-decision",
             "save_continue",
-            "audits:edit-audit-retest-statement-pages",
+            "audits:next-twelve-week-wcag-retest",
         ),
     ],
 )
@@ -523,7 +524,7 @@ def test_twelve_week_wcag_audit_edit_redirects_based_on_button_pressed(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_wcag_audit: WcagAudit = (
-        simplified_case.audit_overview.first_twelve_week_wcag_audit
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
     )
     twelve_week_wcag_audit_pk: dict[str, int] = {"pk": twelve_week_wcag_audit.id}
 
@@ -543,7 +544,7 @@ def test_twelve_week_wcag_audit_edit_redirects_based_on_button_pressed(
 
     if expected_redirect_path_name == "audits:edit-audit-retest-statement-pages":
         twelve_week_statement_audit: StatementAudit = (
-            simplified_case.audit_overview.first_twelve_week_statement_audit
+            simplified_case.audit_overview.last_twelve_week_statement_audit
         )
         twelve_week_statement_audit_pk: dict[str, int] = {
             "pk": twelve_week_statement_audit.id
@@ -558,20 +559,184 @@ def test_twelve_week_wcag_audit_edit_redirects_based_on_button_pressed(
     assert response.url == expected_path
 
 
+def test_twelve_week_wcag_audit_is_retest_complete_labels(admin_client):
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:edit-audit-retest-website-decision",
+            kwargs={"pk": twelve_week_wcag_audit.id},
+        ),
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        f"""<span class="govuk-label"><b>WCAG retest #{twelve_week_wcag_audit.round_number} complete</b></span>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        f"""<label class="govuk-label govuk-checkboxes__label" for="id_is_retest_complete">
+                WCAG retest #{twelve_week_wcag_audit.round_number} complete
+            </label>""",
+        html=True,
+    )
+
+
+def test_next_twelve_week_wcag_audit_is_retest_complete_false(admin_client):
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:next-twelve-week-wcag-retest",
+            kwargs={"pk": twelve_week_wcag_audit.id},
+        ),
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        "The current WCAG retest is incomplete.",
+    )
+    assertNotContains(
+        response,
+        f"WCAG retest #{twelve_week_wcag_audit.round_number} is complete and a new WCAG retest can be started.",
+    )
+    assertNotContains(
+        response,
+        """<input
+            type="submit"
+            value="Start new WCAG retest"
+            name="start_new_retest"
+            class="govuk-button"
+            data-module="govuk-button"
+        />""",
+        html=True,
+    )
+
+
+def test_next_twelve_week_wcag_audit_is_retest_complete_true(admin_client):
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
+    )
+    twelve_week_wcag_audit.is_retest_complete = True
+    twelve_week_wcag_audit.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:next-twelve-week-wcag-retest",
+            kwargs={"pk": twelve_week_wcag_audit.id},
+        ),
+    )
+
+    assert response.status_code == 200
+    assertNotContains(
+        response,
+        "The current WCAG retest is incomplete.",
+    )
+    assertContains(
+        response,
+        f"WCAG retest #{twelve_week_wcag_audit.round_number} is complete and a new WCAG retest can be started.",
+    )
+    assertContains(
+        response,
+        """<input
+            type="submit"
+            value="Start new WCAG retest"
+            name="start_new_retest"
+            class="govuk-button"
+            data-module="govuk-button"
+        />""",
+        html=True,
+    )
+
+
+def test_next_twelve_week_wcag_audit_creates_wcag_audit(admin_client):
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
+    )
+
+    assert (
+        WcagAudit.objects.filter(
+            simplified_case=simplified_case,
+            audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        ).count()
+        == 1
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "audits:next-twelve-week-wcag-retest",
+            kwargs={"pk": twelve_week_wcag_audit.id},
+        ),
+        {
+            "version": twelve_week_wcag_audit.version,
+            "start_new_retest": "Start new retest",
+        },
+    )
+
+    assert response.status_code == 302
+    assert (
+        WcagAudit.objects.filter(
+            simplified_case=simplified_case,
+            audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        ).count()
+        == 2
+    )
+
+    new_twelve_week_wcag_audit: WcagAudit = WcagAudit.objects.filter(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    ).last()
+
+    assert (
+        new_twelve_week_wcag_audit.round_number
+        == twelve_week_wcag_audit.round_number + 1
+    )
+    assert response.url == reverse(
+        "audits:edit-audit-retest-metadata",
+        kwargs={"pk": new_twelve_week_wcag_audit.id},
+    )
+
+    simplified_event_histories: QuerySet[SimplifiedEventHistory] = (
+        SimplifiedEventHistory.objects.filter(simplified_case=simplified_case)
+    )
+    assert simplified_event_histories.count() == 1
+
+    simplified_event_history: SimplifiedEventHistory = simplified_event_histories[0]
+    assert simplified_event_history.event_type == SimplifiedEventHistory.Type.CREATE
+
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(
+        simplified_case=simplified_case
+    )
+    assert case_events.count() == 1
+
+    case_event: CaseEvent = case_events[0]
+    assert case_event.event_type == CaseEvent.EventType.START_RETEST
+    assert case_event.message == "Started WCAG retest"
+
+
 @pytest.mark.parametrize(
     "path_name, button_name, expected_redirect_path_name",
     [
         (
-            "audits:edit-audit-retest-statement-decision",
-            "save",
-            "audits:edit-audit-retest-statement-decision",
-        ),
-        (
-            "audits:edit-audit-retest-statement-decision",
-            "save_continue",
-            "simplified:edit-review-changes",
-        ),
-        (
             "audits:edit-audit-retest-statement-summary",
             "save",
             "audits:edit-audit-retest-statement-summary",
@@ -580,6 +745,16 @@ def test_twelve_week_wcag_audit_edit_redirects_based_on_button_pressed(
             "audits:edit-audit-retest-statement-summary",
             "save_continue",
             "audits:edit-audit-retest-statement-decision",
+        ),
+        (
+            "audits:edit-audit-retest-statement-decision",
+            "save",
+            "audits:edit-audit-retest-statement-decision",
+        ),
+        (
+            "audits:edit-audit-retest-statement-decision",
+            "save_continue",
+            "audits:next-twelve-week-statement-retest",
         ),
     ],
 )
@@ -597,7 +772,7 @@ def test_twelve_week_statement_audit_edit_redirects_based_on_button_pressed(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.first_twelve_week_statement_audit
+        simplified_case.audit_overview.last_twelve_week_statement_audit
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": twelve_week_statement_audit.id
@@ -638,7 +813,7 @@ def test_audit_statement_decision_page_redirect_when_report_exists(admin_client)
     )
     case_pk: dict[str, int] = {"pk": simplified_case.id}
     twelve_week_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.first_twelve_week_statement_audit
+        simplified_case.audit_overview.last_twelve_week_statement_audit
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": twelve_week_statement_audit.id
@@ -712,7 +887,7 @@ def test_audit_statement_pages_edit_redirects_based_on_button_pressed(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.first_twelve_week_statement_audit
+        simplified_case.audit_overview.last_twelve_week_statement_audit
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": twelve_week_statement_audit.id
@@ -1153,7 +1328,7 @@ def test_twelve_week_audit_statement_edit_redirects_based_on_button_pressed(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.first_twelve_week_statement_audit
+        simplified_case.audit_overview.last_twelve_week_statement_audit
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": twelve_week_statement_audit.id
@@ -1390,7 +1565,7 @@ def test_audit_retest_statement_overview_updates_statement_checkresult(
     simplified_case.auditor = user
     simplified_case.save()
     twelve_week_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.first_twelve_week_statement_audit
+        simplified_case.audit_overview.last_twelve_week_statement_audit
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": twelve_week_statement_audit.id
@@ -1454,7 +1629,7 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
     simplified_case.auditor = user
     simplified_case.save()
     twelve_week_statement_audit: StatementAudit = (
-        simplified_case.audit_overview.first_twelve_week_statement_audit
+        simplified_case.audit_overview.last_twelve_week_statement_audit
     )
     twelve_week_statement_audit_pk: dict[str, int] = {
         "pk": twelve_week_statement_audit.id
@@ -1503,6 +1678,180 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
     assert statement_checkresult_2.check_result_state == StatementCheckResult.Result.NO
 
 
+def test_twelve_week_statement_audit_is_retest_complete_labels(admin_client):
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    twelve_week_statement_audit: StatementAudit = (
+        simplified_case.audit_overview.last_twelve_week_statement_audit
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:edit-audit-retest-statement-decision",
+            kwargs={"pk": twelve_week_statement_audit.id},
+        ),
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        f"""<span class="govuk-label"><b>Statement retest #{twelve_week_statement_audit.round_number} complete</b></span>""",
+        html=True,
+    )
+    assertContains(
+        response,
+        f"""<label class="govuk-label govuk-checkboxes__label" for="id_is_retest_complete">
+                Statement retest #{twelve_week_statement_audit.round_number} complete
+            </label>""",
+        html=True,
+    )
+
+
+def test_next_twelve_week_statement_audit_is_retest_complete_false(admin_client):
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    twelve_week_statement_audit: StatementAudit = (
+        simplified_case.audit_overview.last_twelve_week_statement_audit
+    )
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:next-twelve-week-statement-retest",
+            kwargs={"pk": twelve_week_statement_audit.id},
+        ),
+    )
+
+    assert response.status_code == 200
+    assertContains(
+        response,
+        "The current statement retest is incomplete.",
+    )
+    assertNotContains(
+        response,
+        f"Statement retest #{twelve_week_statement_audit.round_number} is complete and a new statement retest can be started.",
+    )
+    assertNotContains(
+        response,
+        """<input
+            type="submit"
+            value="Start new statement retest"
+            name="start_new_retest"
+            class="govuk-button"
+            data-module="govuk-button"
+        />""",
+        html=True,
+    )
+
+
+def test_next_twelve_week_statement_audit_is_retest_complete_true(admin_client):
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    twelve_week_statement_audit: StatementAudit = (
+        simplified_case.audit_overview.last_twelve_week_statement_audit
+    )
+    twelve_week_statement_audit.is_retest_complete = True
+    twelve_week_statement_audit.save()
+
+    response: HttpResponse = admin_client.get(
+        reverse(
+            "audits:next-twelve-week-statement-retest",
+            kwargs={"pk": twelve_week_statement_audit.id},
+        ),
+    )
+
+    assert response.status_code == 200
+    assertNotContains(
+        response,
+        "The current statement retest is incomplete.",
+    )
+    assertContains(
+        response,
+        f"Statement retest #{twelve_week_statement_audit.round_number} is complete and a new statement retest can be started.",
+    )
+    assertContains(
+        response,
+        """<input
+            type="submit"
+            value="Start new statement retest"
+            name="start_new_retest"
+            class="govuk-button"
+            data-module="govuk-button"
+        />""",
+        html=True,
+    )
+
+
+def test_next_twelve_week_statement_audit_creates_statement_audit(admin_client):
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
+    )
+    twelve_week_statement_audit: StatementAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
+    )
+
+    assert (
+        StatementAudit.objects.filter(
+            simplified_case=simplified_case,
+            audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        ).count()
+        == 1
+    )
+
+    response: HttpResponse = admin_client.post(
+        reverse(
+            "audits:next-twelve-week-statement-retest",
+            kwargs={"pk": twelve_week_statement_audit.id},
+        ),
+        {
+            "version": twelve_week_statement_audit.version,
+            "start_new_retest": "Start new retest",
+        },
+    )
+
+    assert response.status_code == 302
+    assert (
+        StatementAudit.objects.filter(
+            simplified_case=simplified_case,
+            audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        ).count()
+        == 2
+    )
+
+    new_twelve_week_statement_audit: StatementAudit = StatementAudit.objects.filter(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    ).last()
+
+    assert (
+        new_twelve_week_statement_audit.round_number
+        == twelve_week_statement_audit.round_number + 1
+    )
+    assert response.url == reverse(
+        "audits:edit-audit-retest-statement-pages",
+        kwargs={"pk": new_twelve_week_statement_audit.id},
+    )
+
+    simplified_event_histories: QuerySet[SimplifiedEventHistory] = (
+        SimplifiedEventHistory.objects.filter(simplified_case=simplified_case)
+    )
+    assert simplified_event_histories.count() == 1
+
+    simplified_event_history: SimplifiedEventHistory = simplified_event_histories[0]
+    assert simplified_event_history.event_type == SimplifiedEventHistory.Type.CREATE
+
+    case_events: QuerySet[CaseEvent] = CaseEvent.objects.filter(
+        simplified_case=simplified_case
+    )
+    assert case_events.count() == 1
+
+    case_event: CaseEvent = case_events[0]
+    assert case_event.event_type == CaseEvent.EventType.START_RETEST
+    assert case_event.message == "Started statement retest"
+
+
 def test_retest_date_change_creates_case_event(admin_client):
     """Test that changing the retest date creates a case event"""
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
@@ -1545,10 +1894,10 @@ def test_retest_metadata_skips_to_statement_when_no_psb_response(admin_client):
     simplified_case.no_psb_contact = Boolean.YES
     simplified_case.save()
     twelve_week_wcag_audit: WcagAudit = (
-        simplified_case.audit_overview.first_twelve_week_wcag_audit
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
     )
     twelve_week_statement_audit: WcagAudit = (
-        simplified_case.audit_overview.first_twelve_week_statement_audit
+        simplified_case.audit_overview.last_twelve_week_statement_audit
     )
 
     response: HttpResponse = admin_client.post(
@@ -2360,44 +2709,10 @@ def test_website_decision_field_updates_report_content(
         assert updated_audit_overview.published_report_data_updated_time is None
 
 
-def test_add_custom_statement_check_result_form_appears(admin_client):
-    """
-    Test that pressing the create issue button adds a new custom statement issue form
-    """
-    statement_audit: StatementAudit = create_initial_statement_audit()
-
-    response: HttpResponse = admin_client.post(
-        reverse("audits:edit-statement-custom", kwargs={"pk": statement_audit.id}),
-        {
-            "form-TOTAL_FORMS": "0",
-            "form-INITIAL_FORMS": "0",
-            "form-MIN_NUM_FORMS": "0",
-            "form-MAX_NUM_FORMS": "1000",
-            "version": statement_audit.version,
-            "add_custom": "Create issue",
-        },
-        follow=True,
-    )
-    assert response.status_code == 200
-    assertContains(response, "Custom issue")
-
-    statement_audit_from_db: StatementAudit = StatementAudit.objects.get(
-        id=statement_audit.id
-    )
-    custom_statment_check_result: StatementCheckResult | None = (
-        statement_audit_from_db.custom_statement_check_results.first()
-    )
-
-    assert custom_statment_check_result is not None
-    assertContains(response, custom_statment_check_result.issue_identifier)
-
-
 def test_add_custom_statement_check_result(admin_client):
     """Test adding a custom statement issue"""
     statement_audit: StatementAudit = create_initial_statement_audit()
-    StatementCheckResult.objects.filter(
-        statement_audit=statement_audit, type=StatementCheck.Type.CUSTOM
-    ).delete()
+    CustomStatementCheckResult.objects.filter(statement_audit=statement_audit).delete()
 
     response: HttpResponse = admin_client.post(
         reverse(
@@ -2413,10 +2728,8 @@ def test_add_custom_statement_check_result(admin_client):
     )
     assert response.status_code == 200
 
-    custom_statement_check_result: StatementCheckResult = (
-        StatementCheckResult.objects.get(
-            statement_audit=statement_audit, type=StatementCheck.Type.CUSTOM
-        )
+    custom_statement_check_result: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.get(statement_audit=statement_audit)
     )
 
     assert custom_statement_check_result.public_comment == CUSTOM_STATEMENT_ISSUE
@@ -2427,8 +2740,8 @@ def test_delete_custom_statement_check_result(admin_client):
     Test that pressing the remove issue button deletes the custom statement issue
     """
     statement_audit: StatementAudit = create_initial_statement_audit()
-    custom_issue: StatementCheckResult = StatementCheckResult.objects.get(
-        statement_audit=statement_audit, type=StatementCheck.Type.CUSTOM
+    custom_issue: CustomStatementCheckResult = CustomStatementCheckResult.objects.get(
+        statement_audit=statement_audit
     )
 
     response: HttpResponse = admin_client.post(
@@ -2443,8 +2756,8 @@ def test_delete_custom_statement_check_result(admin_client):
 
     assertContains(response, "No custom statement issues have been entered")
 
-    result_on_database: StatementCheckResult = StatementCheckResult.objects.get(
-        statement_audit=statement_audit, type=StatementCheck.Type.CUSTOM
+    result_on_database: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.get(statement_audit=statement_audit)
     )
     assert result_on_database.is_deleted is True
 
@@ -2457,11 +2770,14 @@ def test_delete_custom_retest_statement_check_result_on_retest(admin_client):
     statement_audit: StatementAudit = StatementAudit.objects.get(
         audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY
     )
-    custom_statement_check_result: StatementCheckResult = (
-        StatementCheckResult.objects.filter(
-            statement_audit=statement_audit, statement_check=None
+    custom_statement_check_result: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.filter(
+            statement_audit=statement_audit
         ).first()
     )
+    CustomStatementCheckResult.objects.filter(
+        simplified_case=statement_audit.simplified_case
+    ).exclude(id=custom_statement_check_result.id).delete()
 
     response: HttpResponse = admin_client.post(
         reverse(
@@ -2482,8 +2798,8 @@ def test_delete_custom_retest_statement_check_result_on_retest(admin_client):
     assert response.status_code == 200
     assertContains(response, "No custom statement issues have been entered")
 
-    result_on_database: StatementCheckResult = StatementCheckResult.objects.get(
-        id=custom_statement_check_result.id
+    result_on_database: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.get(id=custom_statement_check_result.id)
     )
 
     assert result_on_database.is_deleted is True
@@ -2503,7 +2819,7 @@ def test_start_retest_redirects(admin_client):
 
     assert response.url == reverse(
         "audits:edit-audit-retest-metadata",
-        kwargs={"pk": audit_overview.first_twelve_week_wcag_audit.id},
+        kwargs={"pk": audit_overview.last_twelve_week_wcag_audit.id},
     )
 
 
@@ -2877,11 +3193,8 @@ def test_retest_statement_custom_no_initial(admin_client):
     twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
     )
-    StatementCheckResult.objects.filter(
-        statement_audit=twelve_week_statement_audit, type=StatementCheck.Type.CUSTOM
-    ).delete()
-    StatementCheckResult.objects.filter(
-        statement_audit=initial_statement_audit, type=StatementCheck.Type.CUSTOM
+    CustomStatementCheckResult.objects.filter(
+        simplified_case=initial_statement_audit.simplified_case
     ).delete()
 
     response: HttpResponse = admin_client.get(
@@ -2893,25 +3206,6 @@ def test_retest_statement_custom_no_initial(admin_client):
 
     assert response.status_code == 200
     assertContains(response, "No custom statement issues were initially entered")
-
-
-def test_retest_statement_custom_with_initial(admin_client):
-    """Test that a retest statement custom with an initial failure shows it"""
-    initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
-        initial_statement_audit=initial_statement_audit
-    )
-
-    response: HttpResponse = admin_client.get(
-        reverse(
-            "audits:edit-retest-statement-custom",
-            kwargs={"pk": twelve_week_statement_audit.id},
-        ),
-    )
-
-    assert response.status_code == 200
-    assertNotContains(response, "No custom statement issues found in initial test.")
-    assertContains(response, "Custom statement issue")
 
 
 def test_wcag_definition_list_view_shows_all(admin_client):
@@ -3255,7 +3549,7 @@ def test_summary_page_context(rf):
     )
     assert (
         context["wcag_audit_12_week"]
-        == simplified_case.audit_overview.first_twelve_week_wcag_audit
+        == simplified_case.audit_overview.last_twelve_week_wcag_audit
     )
     assert (
         context["initial_statement_audit"]
@@ -3263,11 +3557,11 @@ def test_summary_page_context(rf):
     )
     assert (
         context["statement_audit_12_week"]
-        == simplified_case.audit_overview.first_twelve_week_statement_audit
+        == simplified_case.audit_overview.last_twelve_week_statement_audit
     )
     assert (
         context["statement_audit"]
-        == simplified_case.audit_overview.first_twelve_week_statement_audit
+        == simplified_case.audit_overview.last_twelve_week_statement_audit
     )
 
 
@@ -3275,7 +3569,7 @@ def test_summary_page_context(rf):
     "url_name, audit_overview_attr",
     [
         ("audits:edit-audit-wcag-summary", "initial_wcag_audit"),
-        ("audits:edit-audit-retest-wcag-summary", "first_twelve_week_wcag_audit"),
+        ("audits:edit-audit-retest-wcag-summary", "last_twelve_week_wcag_audit"),
     ],
 )
 def test_summary_page_view(url_name, audit_overview_attr, admin_client):
@@ -3308,7 +3602,7 @@ def test_summary_page_view(url_name, audit_overview_attr, admin_client):
     "url_name, audit_overview_attr",
     [
         ("audits:edit-audit-wcag-summary", "initial_wcag_audit"),
-        ("audits:edit-audit-retest-wcag-summary", "first_twelve_week_wcag_audit"),
+        ("audits:edit-audit-retest-wcag-summary", "last_twelve_week_wcag_audit"),
     ],
 )
 def test_summary_wcag_view(url_name, audit_overview_attr, admin_client):
@@ -3340,7 +3634,7 @@ def test_summary_wcag_view(url_name, audit_overview_attr, admin_client):
     "url_name, audit_overview_attr",
     [
         ("audits:edit-audit-wcag-summary", "initial_wcag_audit"),
-        ("audits:edit-audit-retest-wcag-summary", "first_twelve_week_wcag_audit"),
+        ("audits:edit-audit-retest-wcag-summary", "last_twelve_week_wcag_audit"),
     ],
 )
 def test_summary_page_view_unfixed(url_name, audit_overview_attr, admin_client):
@@ -3399,7 +3693,7 @@ def test_summary_page_view_unfixed(url_name, audit_overview_attr, admin_client):
     "url_name, audit_overview_attr",
     [
         ("audits:edit-audit-wcag-summary", "initial_wcag_audit"),
-        ("audits:edit-audit-retest-wcag-summary", "first_twelve_week_wcag_audit"),
+        ("audits:edit-audit-retest-wcag-summary", "last_twelve_week_wcag_audit"),
     ],
 )
 def test_summary_page_view_show_all(url_name, audit_overview_attr, admin_client):
@@ -3460,7 +3754,7 @@ def test_summary_page_view_show_all(url_name, audit_overview_attr, admin_client)
         ("audits:edit-audit-statement-summary", "initial_statement_audit"),
         (
             "audits:edit-audit-retest-statement-summary",
-            "first_twelve_week_statement_audit",
+            "last_twelve_week_statement_audit",
         ),
     ],
 )
@@ -3473,7 +3767,7 @@ def test_test_statement_summary_page_view(url_name, audit_overview_attr, admin_c
         simplified_case.audit_overview.initial_statement_audit
     )
     statement_audit_12_week: StatementAudit = (
-        simplified_case.audit_overview.first_twelve_week_statement_audit
+        simplified_case.audit_overview.last_twelve_week_statement_audit
     )
     statement_audit_for_url: StatementAudit = getattr(
         simplified_case.audit_overview, audit_overview_attr
@@ -3506,24 +3800,22 @@ def test_test_statement_summary_page_view(url_name, audit_overview_attr, admin_c
     website_statement_check_result.check_result_state = StatementCheckResult.Result.NO
     website_statement_check_result.public_comment = STATEMENT_CHECK_INITIAL_COMMENT
     website_statement_check_result.save()
-    custom_statement_check_result: StatementCheckResult = (
-        StatementCheckResult.objects.get(
-            type=StatementCheck.Type.CUSTOM,
+    custom_statement_check_result: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.get(
             statement_audit=initial_statement_audit,
         )
     )
     custom_statement_check_result.public_comment = STATEMENT_CHECK_CUSTOM_COMMENT
     custom_statement_check_result.save()
-    twelve_week_statement_check_result: StatementCheckResult = (
-        StatementCheckResult.objects.get(
-            type=StatementCheck.Type.RETEST,
+    twelve_week_custom_statement_check_result: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.get(
             statement_audit=statement_audit_12_week,
         )
     )
-    twelve_week_statement_check_result.public_comment = (
+    twelve_week_custom_statement_check_result.retest_comment = (
         NEW_12_WEEK_CUSTOM_RETEST_COMMENT
     )
-    twelve_week_statement_check_result.save()
+    twelve_week_custom_statement_check_result.save()
 
     response: HttpResponse = admin_client.get(
         reverse(url_name, kwargs={"pk": statement_audit_for_url.id})
@@ -3542,7 +3834,7 @@ def test_test_statement_summary_page_view(url_name, audit_overview_attr, admin_c
         ("audits:edit-audit-statement-summary", "initial_statement_audit"),
         (
             "audits:edit-audit-retest-statement-summary",
-            "first_twelve_week_statement_audit",
+            "last_twelve_week_statement_audit",
         ),
     ],
 )
@@ -3557,7 +3849,7 @@ def test_test_statement_summary_page_summary(
         create_simplified_case_with_initial_and_12_week_audits()
     )
     statement_audit_12_week: StatementAudit = (
-        simplified_case.audit_overview.first_twelve_week_statement_audit
+        simplified_case.audit_overview.last_twelve_week_statement_audit
     )
     statement_audit_for_url: StatementAudit = getattr(
         simplified_case.audit_overview, audit_overview_attr
@@ -4511,6 +4803,7 @@ def test_initial_statement_audit_next_page_name(
     statement_audit: StatementAudit = StatementAudit.objects.create(
         simplified_case=simplified_case
     )
+    AuditOverview.objects.create(simplified_case=simplified_case)
     url: str = reverse(f"audits:{path_name}", kwargs={"pk": statement_audit.id})
 
     response: HttpResponse = admin_client.get(url)
@@ -4523,8 +4816,8 @@ def test_initial_statement_audit_next_page_name(
 @pytest.mark.parametrize(
     "path_name, expected_next_page",
     [
-        ("edit-audit-retest-metadata", "12-week WCAG test | Update page links"),
-        ("edit-audit-retest-pages", "12-week WCAG test | WCAG summary"),
+        ("edit-audit-retest-metadata", "WCAG retest #0 | Update page links"),
+        ("edit-audit-retest-pages", "WCAG retest #0 | Test comparison"),
     ],
 )
 def test_twelve_week_wcag_audit_next_page_name(
@@ -4535,6 +4828,7 @@ def test_twelve_week_wcag_audit_next_page_name(
         simplified_case=simplified_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
     )
+    AuditOverview.objects.create(simplified_case=simplified_case)
     url: str = reverse(f"audits:{path_name}", kwargs={"pk": wcag_audit.id})
 
     response: HttpResponse = admin_client.get(url)
@@ -4547,10 +4841,13 @@ def test_twelve_week_wcag_audit_next_page_name(
 @pytest.mark.parametrize(
     "path_name, expected_next_page",
     [
-        ("edit-retest-statement-overview", "12-week statement | Statement information"),
         (
             "edit-retest-statement-overview",
-            "12-week statement | Custom issues",
+            "Statement retest #0 | Statement information",
+        ),
+        (
+            "edit-retest-statement-overview",
+            "Statement retest #0 | Custom issues",
         ),
     ],
 )
@@ -4562,6 +4859,7 @@ def test_twelve_week_statement_audit_next_page_name(
         simplified_case=simplified_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
     )
+    AuditOverview.objects.create(simplified_case=simplified_case)
     url: str = reverse(f"audits:{path_name}", kwargs={"pk": statement_audit.id})
 
     response: HttpResponse = admin_client.get(url)
@@ -4726,7 +5024,7 @@ def test_equality_body_retest_statement_page_removal(admin_client):
     assert events[0].event_type == SimplifiedEventHistory.Type.UPDATE
 
 
-def test_create_initial_custom_issue_redirects(admin_client):
+def test_create_custom_statement_check_result_redirects(admin_client):
     """
     Test that statement initial custom issue create redirects to initial statement
     custom issues page.
@@ -4748,7 +5046,7 @@ def test_create_initial_custom_issue_redirects(admin_client):
 
     assert response.status_code == 302
 
-    custom_issue: StatementCheckResult = StatementCheckResult.objects.get(
+    custom_issue: CustomStatementCheckResult = CustomStatementCheckResult.objects.get(
         statement_audit=statement_audit
     )
     response_url: str = reverse(
@@ -4764,7 +5062,7 @@ def test_create_initial_custom_issue_redirects(admin_client):
     assert events[0].event_type == SimplifiedEventHistory.Type.CREATE
 
 
-def test_update_initial_custom_issue_redirects(admin_client):
+def test_update_custom_statement_check_result_redirects(admin_client):
     """
     Test that statement initial custom issue update redirects to initial statement
     custom issues page.
@@ -4773,8 +5071,10 @@ def test_update_initial_custom_issue_redirects(admin_client):
     statement_audit: StatementAudit = StatementAudit.objects.create(
         simplified_case=simplified_case
     )
-    custom_issue: StatementCheckResult = StatementCheckResult.objects.create(
-        statement_audit=statement_audit
+    custom_issue: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.create(
+            statement_audit=statement_audit, simplified_case=simplified_case
+        )
     )
 
     response: HttpResponse = admin_client.post(
@@ -4800,7 +5100,7 @@ def test_update_initial_custom_issue_redirects(admin_client):
     assert events[0].event_type == SimplifiedEventHistory.Type.UPDATE
 
 
-def test_delete_initial_custom_issue_redirects(admin_client):
+def test_delete_custom_statement_check_result_redirects(admin_client):
     """
     Test that statement initial custom issue delete redirects to initial statement
     custom issues page.
@@ -4809,8 +5109,10 @@ def test_delete_initial_custom_issue_redirects(admin_client):
     statement_audit: StatementAudit = StatementAudit.objects.create(
         simplified_case=simplified_case
     )
-    custom_issue: StatementCheckResult = StatementCheckResult.objects.create(
-        statement_audit=statement_audit
+    custom_issue: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.create(
+            statement_audit=statement_audit, simplified_case=simplified_case
+        )
     )
 
     response: HttpResponse = admin_client.post(
@@ -4831,9 +5133,9 @@ def test_delete_initial_custom_issue_redirects(admin_client):
     assert events[0].event_type == SimplifiedEventHistory.Type.UPDATE
 
 
-def test_update_at_12_week_initial_custom_issue_redirects(admin_client):
+def test_update_at_12_week_custom_statement_check_result_redirects(admin_client):
     """
-    Test that statement initial custom issue update at 12-weeks redirects to 12-week
+    Test that statement custom issue update at 12-weeks redirects to 12-week
     statement custom issues page.
     """
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
@@ -4841,21 +5143,20 @@ def test_update_at_12_week_initial_custom_issue_redirects(admin_client):
         simplified_case=simplified_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
     )
-    custom_issue_initial: StatementCheckResult = StatementCheckResult.objects.create(
-        statement_audit=statement_audit
-    )
-    custom_issue_retest: StatementCheckResult = StatementCheckResult.objects.create(
-        statement_audit=statement_audit,
-        statement_check_result_initial=custom_issue_initial,
+    AuditOverview.objects.create(simplified_case=simplified_case)
+    custom_issue: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.create(
+            statement_audit=statement_audit, simplified_case=simplified_case
+        )
     )
 
     response: HttpResponse = admin_client.post(
         reverse(
-            "audits:edit-retest-initial-custom-issue-update",
-            kwargs={"pk": custom_issue_retest.id},
+            "audits:edit-retest-custom-issue-update",
+            kwargs={"pk": custom_issue.id},
         ),
         {
-            "check_result_state": "yes",
+            "retest_state": "yes",
             "auditor_information": "Made a change",
             "save": "Save and return",
         },
@@ -4867,16 +5168,16 @@ def test_update_at_12_week_initial_custom_issue_redirects(admin_client):
         "audits:edit-retest-statement-custom", kwargs={"pk": statement_audit.id}
     )
 
-    assert response.url == f"{response_url}#{custom_issue_retest.issue_identifier}"
+    assert response.url == f"{response_url}#{custom_issue.issue_identifier}"
 
     events: QuerySet[SimplifiedEventHistory] = SimplifiedEventHistory.objects.all()
 
     assert events.count() == 1
-    assert events[0].parent == custom_issue_retest
+    assert events[0].parent == custom_issue
     assert events[0].event_type == SimplifiedEventHistory.Type.UPDATE
 
 
-def test_create_new_12_week_custom_issue_redirects(admin_client):
+def test_create_new_12_week_custom_statement_check_result_redirects(admin_client):
     """
     Test that statement new 12-week custom issue create redirects to 12-week statement
     custom issues page.
@@ -4886,6 +5187,7 @@ def test_create_new_12_week_custom_issue_redirects(admin_client):
         simplified_case=simplified_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
     )
+    AuditOverview.objects.create(simplified_case=simplified_case)
 
     response: HttpResponse = admin_client.post(
         reverse(
@@ -4899,7 +5201,7 @@ def test_create_new_12_week_custom_issue_redirects(admin_client):
 
     assert response.status_code == 302
 
-    custom_issue: StatementCheckResult = StatementCheckResult.objects.get(
+    custom_issue: CustomStatementCheckResult = CustomStatementCheckResult.objects.get(
         statement_audit=statement_audit
     )
     response_url: str = reverse(
@@ -4913,81 +5215,6 @@ def test_create_new_12_week_custom_issue_redirects(admin_client):
     assert events.count() == 1
     assert events[0].parent == custom_issue
     assert events[0].event_type == SimplifiedEventHistory.Type.CREATE
-
-
-def test_update_new_12_week_custom_issue_redirects(admin_client):
-    """
-    Test that statement new 12-week custom issue update redirects to 12-week statement
-    custom issues page.
-    """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case,
-        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-    )
-    custom_issue: StatementCheckResult = StatementCheckResult.objects.create(
-        statement_audit=statement_audit
-    )
-
-    response: HttpResponse = admin_client.post(
-        reverse(
-            "audits:edit-retest-new-12-week-custom-issue-update",
-            kwargs={"pk": custom_issue.id},
-        ),
-        {
-            "auditor_information": "Made a change",
-            "save": "Save and return",
-        },
-    )
-
-    assert response.status_code == 302
-
-    response_url: str = reverse(
-        "audits:edit-retest-statement-custom", kwargs={"pk": statement_audit.id}
-    )
-
-    assert response.url == f"{response_url}#{custom_issue.issue_identifier}"
-
-    events: QuerySet[SimplifiedEventHistory] = SimplifiedEventHistory.objects.all()
-
-    assert events.count() == 1
-    assert events[0].parent == custom_issue
-    assert events[0].event_type == SimplifiedEventHistory.Type.UPDATE
-
-
-def test_delete_new_12_week_custom_issue_redirects(admin_client):
-    """
-    Test that statement new 12-week custom issue delete redirects to 12-week statement
-    custom issues page.
-    """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case,
-        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-    )
-    custom_issue: StatementCheckResult = StatementCheckResult.objects.create(
-        statement_audit=statement_audit
-    )
-
-    response: HttpResponse = admin_client.post(
-        reverse(
-            "audits:edit-retest-12-week-custom-issue-delete",
-            kwargs={"pk": custom_issue.id},
-        ),
-        {},
-    )
-
-    assert response.status_code == 302
-
-    assert response.url == reverse(
-        "audits:edit-retest-statement-custom", kwargs={"pk": statement_audit.id}
-    )
-
-    events: QuerySet[SimplifiedEventHistory] = SimplifiedEventHistory.objects.all()
-
-    assert events.count() == 1
-    assert events[0].parent == custom_issue
-    assert events[0].event_type == SimplifiedEventHistory.Type.UPDATE
 
 
 def test_equality_body_retest_statement_page_removal_renders(admin_client):

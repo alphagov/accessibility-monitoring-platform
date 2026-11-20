@@ -1242,6 +1242,11 @@ def test_updating_case_creates_case_event(admin_client):
             "save",
             "simplified:edit-twelve-week-retest",
         ),
+        (
+            "simplified:edit-twelve-week-retest",
+            "save_continue",
+            "simplified:edit-review-changes",
+        ),
         ("simplified:edit-review-changes", "save", "simplified:edit-review-changes"),
         (
             "simplified:edit-review-changes",
@@ -1363,7 +1368,7 @@ def test_platform_case_with_audit_edit_redirects_based_on_button_pressed(
     assert response.status_code == 302
     if expected_redirect_path.startswith("audits"):
         wcag_audit: WcagAudit = (
-            simplified_case.audit_overview.first_twelve_week_wcag_audit
+            simplified_case.audit_overview.last_twelve_week_wcag_audit
         )
         assert (
             response.url
@@ -1950,7 +1955,7 @@ def test_no_psb_response_redirects_to_12_week_retest_statement_links(admin_clien
     assert response.status_code == 302
     assert (
         response.url
-        == f'{reverse("audits:edit-audit-retest-statement-pages", kwargs={"pk": simplified_case.audit_overview.first_twelve_week_statement_audit.id})}'
+        == f'{reverse("audits:edit-audit-retest-statement-pages", kwargs={"pk": simplified_case.audit_overview.last_twelve_week_statement_audit.id})}'
     )
 
 
@@ -2010,8 +2015,8 @@ def test_case_navigation_shown_on_case_pages(case_page_url, admin_client):
     """
     Test that the case navigation sections appear on all case pages
     """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create(
-        enable_correspondence_process=True
+    simplified_case: SimplifiedCase = (
+        create_simplified_case_with_initial_and_12_week_audits()
     )
 
     case_key: str = (
@@ -2032,7 +2037,7 @@ def test_case_navigation_shown_on_case_pages(case_page_url, admin_client):
     assert response.status_code == 200
 
     assertContains(response, "Case details 0/1", html=True)
-    assertContains(response, "Contact details 0/4", html=True)
+    assertContains(response, "Contact details 0/1", html=True)
     assertContains(response, "Report correspondence 0/4", html=True)
     assertContains(response, "12-week correspondence 0/3", html=True)
     assertContains(response, "Closing the case 0/3", html=True)
@@ -2869,6 +2874,10 @@ def test_platform_shows_notification_if_fully_compliant(
     simplified_case: SimplifiedCase = create_case_and_compliance(
         website_compliance_state_initial=WcagAudit.WebsiteCompliance.COMPLIANT,
         statement_compliance_state_initial=StatementAudit.StatementCompliance.COMPLIANT,
+    )
+    WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
     )
 
     response: HttpResponse = admin_client.get(
@@ -3975,7 +3984,7 @@ def test_case_overview(admin_client):
     )
     assertContains(
         response,
-        """<p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">Initial test: 3</p>""",
+        """<p class="govuk-body-s amp-margin-bottom-10 govuk-!-font-size-16">Initial test: 2</p>""",
         html=True,
     )
     assertContains(
@@ -4247,7 +4256,7 @@ def test_next_page_name(path_name, expected_next_page, admin_client):
         ("edit-case-metadata", "Initial WCAG test | Initial test metadata"),
         (
             "edit-12-week-update-request-ack",
-            "12-week WCAG test | 12-week retest metadata",
+            "WCAG retest #1 | 12-week retest metadata",
         ),
     ],
 )

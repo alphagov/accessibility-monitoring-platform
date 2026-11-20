@@ -11,6 +11,7 @@ from .models import (
     CheckResult,
     CheckResultNotesHistory,
     CheckResultRetestNotesHistory,
+    CustomStatementCheckResult,
     Page,
     Retest,
     RetestCheckResult,
@@ -327,6 +328,48 @@ class StatementCheckResultAdmin(admin.ModelAdmin):
     show_facets = admin.ShowFacets.ALWAYS
 
 
+class CustomStatementCheckResultAdmin(admin.ModelAdmin):
+
+    search_fields = (
+        "issue_identifier",
+        "simplified_case__organisation_name",
+        "simplified_case__case_identifier",
+    )
+    list_display = (
+        "issue_identifier",
+        "simplified_case",
+        "statement_audit",
+        "retest_state",
+        "is_deleted",
+    )
+    list_filter = (
+        "retest_state",
+        "is_deleted",
+    )
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    ("issue_identifier",),
+                    ("statement_audit",),
+                    ("retest_state",),
+                    ("public_comment",),
+                    ("retest_comment",),
+                    ("auditor_information",),
+                    ("is_deleted", "updated"),
+                )
+            },
+        ),
+    )
+    readonly_fields = (
+        "statement_audit",
+        "simplified_case",
+        "issue_identifier",
+    )
+    show_facets = admin.ShowFacets.ALWAYS
+
+
 class RetestAdmin(admin.ModelAdmin):
 
     search_fields = (
@@ -436,6 +479,7 @@ admin.site.register(CheckResultRetestNotesHistory, CheckResultRetestNotesHistory
 admin.site.register(WcagDefinition, WcagDefinitionAdmin)
 admin.site.register(StatementCheck, StatementCheckAdmin)
 admin.site.register(StatementCheckResult, StatementCheckResultAdmin)
+admin.site.register(CustomStatementCheckResult, CustomStatementCheckResultAdmin)
 admin.site.register(Retest, RetestAdmin)
 admin.site.register(RetestPage, RetestPageAdmin)
 admin.site.register(RetestCheckResult, RetestCheckResultAdmin)

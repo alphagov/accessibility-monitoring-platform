@@ -261,10 +261,23 @@ class AuditOverview(models.Model):
         ).first()
 
     @property
-    def first_twelve_week_wcag_audit(self) -> WcagAudit | None:
+    def twelve_week_wcag_audits(self) -> WcagAudit | None:
         return self.wcag_audits.filter(
             audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK
-        ).first()
+        )
+
+    @property
+    def last_twelve_week_wcag_audit(self) -> WcagAudit | None:
+        return self.twelve_week_wcag_audits.last()
+
+    @property
+    def fixed_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
+        return WcagCheckResultRetest.objects.filter(
+            wcag_check_result_initial__wcag_audit=self.initial_wcag_audit,
+            wcag_check_result_initial__check_result_state=WcagCheckResultInitial.Result.ERROR,
+            wcag_page_retest__page_missing_date=None,
+            retest_state=WcagCheckResultRetest.RetestResult.FIXED,
+        )
 
     @property
     def equality_body_wcag_audits(self) -> WcagAudit | None:
@@ -283,11 +296,11 @@ class AuditOverview(models.Model):
     @property
     def website_compliance_display(self) -> str:
         if (
-            self.first_twelve_week_wcag_audit is not None
-            and self.first_twelve_week_wcag_audit.compliance_state
+            self.last_twelve_week_wcag_audit is not None
+            and self.last_twelve_week_wcag_audit.compliance_state
             != WcagAudit.WebsiteCompliance.UNKNOWN
         ):
-            return self.first_twelve_week_wcag_audit.get_compliance_state_display()
+            return self.last_twelve_week_wcag_audit.get_compliance_state_display()
         return self.initial_wcag_audit.get_compliance_state_display()
 
     @property
@@ -353,6 +366,11 @@ class AuditOverview(models.Model):
         )
 
     @property
+    def last_twelve_week_statement_audit(self) -> StatementAudit | None:
+        if self.twelve_week_statement_audits is not None:
+            return self.twelve_week_statement_audits.last()
+
+    @property
     def equality_body_statement_audits(self) -> StatementAudit | None:
         return self.statement_audits.filter(
             audit_round_type=StatementAudit.AuditRoundType.EQUALITY_BODY
@@ -361,11 +379,6 @@ class AuditOverview(models.Model):
     @property
     def last_statement_audit(self) -> StatementAudit | None:
         return self.statement_audits.last()
-
-    @property
-    def first_twelve_week_statement_audit(self) -> StatementAudit | None:
-        if self.twelve_week_statement_audits is not None:
-            return self.twelve_week_statement_audits.first()
 
     @property
     def last_equality_body_statement_audit(self) -> WcagAudit | None:
@@ -381,7 +394,7 @@ class AuditOverview(models.Model):
             == 0
         ):
             return False
-        if self.first_twelve_week_statement_audit is None:
+        if self.last_twelve_week_statement_audit is None:
             return (
                 self.initial_statement_audit.overview_statement_check_results.exclude(
                     check_result_state=StatementCheckResult.Result.YES
@@ -393,10 +406,26 @@ class AuditOverview(models.Model):
                 check_result_state=StatementCheckResult.Result.YES
             ).count()
             == 0
-            and self.first_twelve_week_statement_audit.overview_statement_check_results.exclude(
+            and self.last_twelve_week_statement_audit.overview_statement_check_results.exclude(
                 check_result_state=StatementCheckResult.Result.YES
             ).count()
             == 0
+        )
+
+    @property
+    def custom_statement_check_results(
+        self,
+    ) -> QuerySet[CustomStatementCheckResult]:
+        return self.simplified_case.customstatementcheckresult_set.exclude(
+            is_deleted=True
+        )
+
+    @property
+    def outstanding_custom_statement_check_results(
+        self,
+    ) -> QuerySet[CustomStatementCheckResult]:
+        return self.custom_statement_check_results.exclude(
+            retest_state=CustomStatementCheckResult.Result.YES
         )
 
     @property
@@ -530,6 +559,7 @@ class WcagAudit(AuditRound):
         choices=WebsiteCompliance.choices,
         default=WebsiteCompliance.UNKNOWN,
     )
+    is_retest_complete = models.BooleanField(default=False)
     compliance_notes = models.TextField(default="", blank=True)
     compliance_decision_complete_date = models.DateField(null=True, blank=True)
 
@@ -543,14 +573,6 @@ class WcagAudit(AuditRound):
 
     def get_absolute_url(self) -> str:
         return reverse("audits:edit-audit-metadata", kwargs={"pk": self.pk})
-
-    @property
-    def equivalent_statement_audit(self) -> StatementAudit:
-        """Return matching statement audit"""
-        return StatementAudit.objects.get(
-            simplified_case=self.simplified_case,
-            round_number=self.round_number,
-        )
 
     @property
     def equality_body_previous_retest_wcag_audit(self) -> WcagAudit | None:
@@ -567,7 +589,7 @@ class WcagAudit(AuditRound):
     @property
     def equality_body_retest_name(self) -> str:
         retest_number: int = self.round_number
-        if self.simplified_case.audit_overview.first_twelve_week_wcag_audit is not None:
+        if self.simplified_case.audit_overview.last_twelve_week_wcag_audit is not None:
             retest_number -= 1
         return f"Retest #{retest_number}"
 
@@ -659,12 +681,6 @@ class WcagAudit(AuditRound):
         )
 
     @property
-    def fixed_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
-        return self.wcag_check_result_retests.filter(
-            retest_state=WcagCheckResultRetest.RetestResult.FIXED,
-        )
-
-    @property
     def unfixed_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
         return self.wcag_check_result_retests.filter(
             wcag_check_result_initial__check_result_state=WcagCheckResultInitial.Result.ERROR,
@@ -711,7 +727,7 @@ class WcagAudit(AuditRound):
     def percentage_wcag_issues_fixed(self) -> int:
         return calculate_percentage(
             total=self.simplified_case.audit_overview.initial_wcag_audit.failed_wcag_check_result_initials.count(),
-            partial=self.fixed_wcag_check_result_retests.count(),
+            partial=self.simplified_case.audit_overview.fixed_wcag_check_result_retests.count(),
         )
 
     @property
@@ -793,6 +809,7 @@ class StatementAudit(AuditRound):
         choices=StatementCompliance.choices,
         default=StatementCompliance.UNKNOWN,
     )
+    is_retest_complete = models.BooleanField(default=False)
     compliance_notes = models.TextField(default="", blank=True)
     compliance_complete_date = models.DateField(null=True, blank=True)
 
@@ -817,7 +834,9 @@ class StatementAudit(AuditRound):
     def statement_check_results(
         self,
     ) -> QuerySet[StatementCheckResult]:
-        return self.statementcheckresult_set.exclude(is_deleted=True)
+        return self.statementcheckresult_set.exclude(is_deleted=True).exclude(
+            statement_check=None
+        )
 
     @property
     def overview_statement_check_results(self) -> QuerySet[StatementCheckResult]:
@@ -858,10 +877,6 @@ class StatementAudit(AuditRound):
         )
 
     @property
-    def custom_statement_check_results(self) -> QuerySet[StatementCheckResult]:
-        return self.statement_check_results.filter(type=StatementCheck.Type.CUSTOM)
-
-    @property
     def statement_found_check(self) -> StatementCheckResult | None:
         return self.overview_statement_check_results.first()
 
@@ -869,12 +884,6 @@ class StatementAudit(AuditRound):
     def statement_structure_check(self):
         """Only worked prior to 30 July 2025 when there was a second overview check"""
         return self.overview_statement_check_results.last()
-
-    @property
-    def new_12_week_custom_statement_check_results(
-        self,
-    ) -> QuerySet[StatementCheckResult]:
-        return self.statement_check_results.filter(type=StatementCheck.Type.RETEST)
 
     @property
     def failed_statement_check_results(self) -> QuerySet[StatementCheckResult]:
@@ -934,6 +943,12 @@ class StatementAudit(AuditRound):
             ).count()
             == 0
         )
+
+    @property
+    def custom_statement_check_results(
+        self,
+    ) -> QuerySet[CustomStatementCheckResult]:
+        return self.customstatementcheckresult_set.exclude(is_deleted=True)
 
 
 class Page(models.Model):
@@ -1304,10 +1319,11 @@ class WcagCheckResultInitial(models.Model):
         return f"{self.issue_identifier} ({self.wcag_page_initial})"
 
     @property
-    def twelve_week_wcag_check_result_retest(self) -> WcagCheckResultRetest | None:
+    def last_twelve_week_wcag_check_result_retest(self) -> WcagCheckResultRetest | None:
         return WcagCheckResultRetest.objects.filter(
-            wcag_check_result_initial=self
-        ).first()
+            wcag_check_result_initial=self,
+            wcag_audit__audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+        ).last()
 
 
 class WcagCheckResultRetest(models.Model):
@@ -1590,14 +1606,10 @@ class StatementCheckResult(models.Model):
 
     @property
     def edit_initial_url_name(self) -> str:
-        if self.statement_check is None:
-            return "audits:edit-statement-custom"
         return f"audits:edit-statement-{self.statement_check.type}"
 
     @property
     def edit_12_week_url_name(self) -> str:
-        if self.statement_check is None or self.type == StatementCheck.Type.RETEST:
-            return "audits:edit-retest-statement-custom"
         return f"audits:edit-retest-statement-{self.type}"
 
     @property
@@ -1612,6 +1624,58 @@ class StatementCheckResult(models.Model):
             .exclude(statement_check=None)
             .first()
         )
+
+
+class CustomStatementCheckResult(models.Model):
+    """Model for accessibility statement-specific custom check result"""
+
+    class Result(models.TextChoices):
+        YES = "yes", "Yes"
+        NO = "no", "No"
+        NOT_TESTED = "not-tested", "Not tested"
+
+    simplified_case = models.ForeignKey(SimplifiedCase, on_delete=models.PROTECT)
+    statement_audit = models.ForeignKey(StatementAudit, on_delete=models.PROTECT)
+    id_within_case = models.IntegerField(default=0, blank=True)
+    issue_identifier = models.CharField(max_length=20, default="")
+    retest_state = models.CharField(
+        max_length=10,
+        choices=Result.choices,
+        default=Result.NOT_TESTED,
+    )
+    auditor_information = models.TextField(default="", blank=True)
+    public_comment = models.TextField(default="", blank=True)
+    retest_comment = models.TextField(default="", blank=True)
+    is_deleted = models.BooleanField(default=False)
+    updated = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["id"]
+        indexes = [
+            models.Index(
+                fields=[
+                    "issue_identifier",
+                ]
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.statement_audit} | Custom [{self.issue_identifier}]"
+
+    def save(self, *args, **kwargs) -> None:
+        if not self.id and not self.issue_identifier:
+            custom_suffix: str = "C"
+            issue_number: int = (
+                self.simplified_case.customstatementcheckresult_set.all().count() + 1
+            )
+            case_number: int = self.simplified_case.case_number
+            self.issue_identifier = f"{case_number}-{ISSUE_IDENTIFIER_STATEMENT}{custom_suffix}-{issue_number}"
+        self.updated = timezone.now()
+        super().save(*args, **kwargs)
+
+    @property
+    def label(self):
+        return "Custom"
 
 
 class Retest(VersionModel):

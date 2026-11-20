@@ -1307,7 +1307,7 @@ def test_get_audit_summary_context_issue_counts(rf):
     assert "number_of_wcag_issues" in context
     assert context["number_of_wcag_issues"] == 1
     assert "number_of_statement_issues" in context
-    assert context["number_of_statement_issues"] == 1
+    assert context["number_of_statement_issues"] == 3
 
     for statement_check_result_initial in StatementCheckResult.objects.filter(
         type=StatementCheck.Type.OVERVIEW
@@ -1627,8 +1627,8 @@ def test_build_equality_body_retest_context_data():
     initial_statement_audit: StatementAudit = (
         simplified_case.audit_overview.initial_statement_audit
     )
-    first_twelve_week_wcag_audit: WcagAudit = (
-        simplified_case.audit_overview.first_twelve_week_wcag_audit
+    last_twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
     )
     wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit,
@@ -1649,8 +1649,7 @@ def test_build_equality_body_retest_context_data():
     assert wcag_audit_context == statement_audit_context
     assert wcag_audit_context["initial_wcag_audit"] == initial_wcag_audit
     assert (
-        wcag_audit_context["first_twelve_week_wcag_audit"]
-        == first_twelve_week_wcag_audit
+        wcag_audit_context["last_twelve_week_wcag_audit"] == last_twelve_week_wcag_audit
     )
     assert wcag_audit_context["statement_audit"] == statement_audit
     assert wcag_audit_context["wcag_audit"] == wcag_audit

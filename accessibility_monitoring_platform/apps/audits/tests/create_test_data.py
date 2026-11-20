@@ -8,6 +8,7 @@ from django.utils import timezone
 from ...simplified.models import SimplifiedCase
 from ..models import (
     AuditOverview,
+    CustomStatementCheckResult,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
@@ -143,8 +144,9 @@ def create_initial_statement_audit(
             type=statement_check.type,
             statement_check=statement_check,
         )
-    StatementCheckResult.objects.create(
+    CustomStatementCheckResult.objects.create(
         statement_audit=initial_statement_audit,
+        simplified_case=simplified_case,
         public_comment="Custom statement issue",
     )
     return initial_statement_audit
@@ -170,22 +172,15 @@ def create_retest_statement_audit(
         for (
             statement_check_result_initial
         ) in initial_statement_audit.statement_check_results:
-            if statement_check_result_initial.statement_check is None:
-                StatementCheckResult.objects.create(
-                    statement_audit=retest_statement_audit,
-                    statement_check_result_initial=statement_check_result_initial,
-                    public_comment="Custom statement issue",
-                )
-            else:
-                StatementCheckResult.objects.create(
-                    statement_audit=retest_statement_audit,
-                    statement_check_result_initial=statement_check_result_initial,
-                    type=statement_check_result_initial.type,
-                    statement_check=statement_check_result_initial.statement_check,
-                )
-        StatementCheckResult.objects.create(
+            StatementCheckResult.objects.create(
+                statement_audit=retest_statement_audit,
+                statement_check_result_initial=statement_check_result_initial,
+                type=statement_check_result_initial.type,
+                statement_check=statement_check_result_initial.statement_check,
+            )
+        CustomStatementCheckResult.objects.create(
             statement_audit=retest_statement_audit,
-            type=StatementCheck.Type.RETEST,
+            simplified_case=retest_statement_audit.simplified_case,
             public_comment="Custom statement issue in retest",
         )
     return retest_statement_audit

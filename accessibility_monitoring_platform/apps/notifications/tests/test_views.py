@@ -4,6 +4,7 @@ from datetime import date, timedelta
 
 import pytest
 from django.contrib.auth.models import User
+from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse
 from django.urls import reverse
 from pytest_django.asserts import assertContains, assertNotContains
@@ -540,6 +541,14 @@ def test_task_mark_as_read(rf):
     task_from_db: Task = Task.objects.get(id=task.id)
 
     assert task_from_db.read is True
+
+    simplified_event_histories: QuerySet[SimplifiedEventHistory] = (
+        SimplifiedEventHistory.objects.filter(simplified_case=simplified_case)
+    )
+    assert simplified_event_histories.count() == 1
+
+    simplified_event_history: SimplifiedEventHistory = simplified_event_histories[0]
+    assert simplified_event_history.event_type == SimplifiedEventHistory.Type.UPDATE
 
 
 @pytest.mark.django_db
