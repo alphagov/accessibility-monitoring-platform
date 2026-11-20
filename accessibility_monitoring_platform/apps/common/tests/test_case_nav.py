@@ -484,7 +484,7 @@ def test_start_12_week_retest_page_shown(admin_client):
 
     assertContains(
         response,
-        OTHER_PAGE_GROUP.format(name="Start 12-week retest"),
+        OTHER_PAGE_GROUP.format(name="Start 12-week retest 0/1"),
         html=True,
     )
     assertNotContains(
@@ -520,7 +520,7 @@ def test_start_12_week_retest_page_hidden(admin_client):
 
     assertNotContains(
         response,
-        OTHER_PAGE_GROUP.format(name="Start 12-week retest"),
+        OTHER_PAGE_GROUP.format(name="Start 12-week retest 0/1"),
         html=True,
     )
     assertContains(

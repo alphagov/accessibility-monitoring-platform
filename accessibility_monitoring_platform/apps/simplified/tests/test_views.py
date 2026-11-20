@@ -1242,6 +1242,11 @@ def test_updating_case_creates_case_event(admin_client):
             "save",
             "simplified:edit-twelve-week-retest",
         ),
+        (
+            "simplified:edit-twelve-week-retest",
+            "save_continue",
+            "simplified:edit-review-changes",
+        ),
         ("simplified:edit-review-changes", "save", "simplified:edit-review-changes"),
         (
             "simplified:edit-review-changes",

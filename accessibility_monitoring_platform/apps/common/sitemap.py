@@ -1359,7 +1359,8 @@ SIMPLIFIED_CASE_PAGE_GROUPS: list[PlatformPageGroup] = [
             SimplifiedCasePlatformPage(
                 name="Start 12-week retest",
                 url_name="simplified:edit-twelve-week-retest",
-                next_page_url_name="audits:edit-audit-retest-metadata",
+                complete_flag_name="twelve_week_retest_complete_date",
+                next_page_url_name="simplified:edit-review-changes",
             ),
         ],
     ),
