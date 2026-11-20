@@ -886,12 +886,6 @@ class StatementAudit(AuditRound):
         return self.overview_statement_check_results.last()
 
     @property
-    def new_12_week_custom_statement_check_results(
-        self,
-    ) -> QuerySet[StatementCheckResult]:
-        return self.statement_check_results.filter(type=StatementCheck.Type.RETEST)
-
-    @property
     def failed_statement_check_results(self) -> QuerySet[StatementCheckResult]:
         return self.statement_check_results.filter(
             check_result_state=StatementCheckResult.Result.NO
@@ -1612,14 +1606,10 @@ class StatementCheckResult(models.Model):
 
     @property
     def edit_initial_url_name(self) -> str:
-        if self.statement_check is None:
-            return "audits:edit-statement-custom"
         return f"audits:edit-statement-{self.statement_check.type}"
 
     @property
     def edit_12_week_url_name(self) -> str:
-        if self.statement_check is None or self.type == StatementCheck.Type.RETEST:
-            return "audits:edit-retest-statement-custom"
         return f"audits:edit-retest-statement-{self.type}"
 
     @property

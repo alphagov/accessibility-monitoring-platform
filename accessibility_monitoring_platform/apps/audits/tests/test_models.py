@@ -547,6 +547,61 @@ def test_audit_overview_all_overview_statement_checks_have_passed():
 
 
 @pytest.mark.django_db
+def test_audit_overview_custom_statement_check_results():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.custom_statement_check_results.count() == 0
+
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+    custom_statement_check_result: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.create(
+            statement_audit=statement_audit, simplified_case=simplified_case
+        )
+    )
+
+    assert audit_overview.custom_statement_check_results.count() == 1
+    assert (
+        audit_overview.custom_statement_check_results.first()
+        == custom_statement_check_result
+    )
+
+
+@pytest.mark.django_db
+def test_audit_overview_outstanding_custom_statement_check_results():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.outstanding_custom_statement_check_results.count() == 0
+
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+    custom_statement_check_result: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.create(
+            statement_audit=statement_audit, simplified_case=simplified_case
+        )
+    )
+
+    assert audit_overview.outstanding_custom_statement_check_results.count() == 1
+    assert (
+        audit_overview.outstanding_custom_statement_check_results.first()
+        == custom_statement_check_result
+    )
+
+    custom_statement_check_result.retest_state = CustomStatementCheckResult.Result.YES
+    custom_statement_check_result.save()
+
+    assert audit_overview.outstanding_custom_statement_check_results.count() == 0
+
+
+@pytest.mark.django_db
 def test_audit_overview_last_edited():
     """
     Create the AuditOverview and related data with known advancing datetimes and
@@ -1513,6 +1568,31 @@ def test_statement_audit_overview_statement_checks_complete():
         break
 
     assert statement_audit.overview_statement_checks_complete is False
+
+
+@pytest.mark.django_db
+def test_audit_statement_custom_statement_check_results():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    # audit_overview: AuditOverview = AuditOverview.objects.create(
+    #     simplified_case=simplified_case
+    # )
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert statement_audit.custom_statement_check_results.count() == 0
+
+    custom_statement_check_result: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.create(
+            statement_audit=statement_audit, simplified_case=simplified_case
+        )
+    )
+
+    assert statement_audit.custom_statement_check_results.count() == 1
+    assert (
+        statement_audit.custom_statement_check_results.first()
+        == custom_statement_check_result
+    )
 
 
 @pytest.mark.django_db

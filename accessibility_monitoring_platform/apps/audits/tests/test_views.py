@@ -5217,43 +5217,6 @@ def test_create_new_12_week_custom_statement_check_result_redirects(admin_client
     assert events[0].event_type == SimplifiedEventHistory.Type.CREATE
 
 
-def test_delete_new_12_week_custom_issue_redirects(admin_client):
-    """
-    Test that statement new 12-week custom issue delete redirects to 12-week statement
-    custom issues page.
-    """
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case,
-        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-    )
-    custom_issue: CustomStatementCheckResult = (
-        CustomStatementCheckResult.objects.create(
-            statement_audit=statement_audit, simplified_case=simplified_case
-        )
-    )
-
-    response: HttpResponse = admin_client.post(
-        reverse(
-            "audits:edit-retest-12-week-custom-issue-delete",
-            kwargs={"pk": custom_issue.id},
-        ),
-        {},
-    )
-
-    assert response.status_code == 302
-
-    assert response.url == reverse(
-        "audits:edit-retest-statement-custom", kwargs={"pk": statement_audit.id}
-    )
-
-    events: QuerySet[SimplifiedEventHistory] = SimplifiedEventHistory.objects.all()
-
-    assert events.count() == 1
-    assert events[0].parent == custom_issue
-    assert events[0].event_type == SimplifiedEventHistory.Type.UPDATE
-
-
 def test_equality_body_retest_statement_page_removal_renders(admin_client):
     """Test that equality body retest remove statement link page renders"""
     wcag_audit: WcagAudit = create_equality_body_audits()

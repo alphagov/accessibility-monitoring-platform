@@ -155,14 +155,6 @@ def test_count_statement_issues(
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    StatementCheckResult.objects.filter(type=StatementCheck.Type.CUSTOM).exclude(
-        statement_check_result_initial=None
-    ).delete()
-    StatementCheckResult.objects.filter(type=StatementCheck.Type.RETEST).exclude(
-        statement_check_result_initial=None
-    ).delete()
-    StatementCheckResult.objects.filter(type=StatementCheck.Type.CUSTOM).delete()
-    StatementCheckResult.objects.filter(type=StatementCheck.Type.RETEST).delete()
     last_statement_audit: StatementAudit = (
         simplified_case.audit_overview.last_statement_audit
     )
