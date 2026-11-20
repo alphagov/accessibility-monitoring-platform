@@ -1161,3 +1161,99 @@ svg {
         width: 100px;
     }
 }
+
+.amp-collapsable-card {
+    --card-colour: #2374b8; // Default blue
+
+    border: 2px solid var(--card-colour);
+
+    &:focus-within {
+        outline: 5px solid govuk-colour("yellow");
+        outline-offset: 0px;
+    }
+
+    &__summary {
+        cursor: pointer;
+        list-style: none;
+
+        &::-webkit-details-marker {
+        display: none;
+        }
+
+        margin-bottom: 0px;
+        &:focus,
+        &:focus-visible {
+        outline: none;
+        }
+    }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background: var(--card-colour);
+        transition: background-color 0.2s ease;
+
+        &:hover {
+            background: color-mix(
+                in srgb,
+                var(--card-colour) 90%,
+                black
+            );
+        }
+        color: white;
+
+        &::before {
+            content: "›";
+            display: inline-block;
+            width: 20px;
+            flex-shrink: 0;
+            margin-right: 12px;
+            font-size: 28px;
+            line-height: 1;
+            text-align: center;
+
+            transform: rotate(0deg);
+            transition: transform 0.2s ease;
+        }
+
+        span:first-child {
+        flex: 1;
+        }
+
+    }
+
+    &__preview,
+    &__content {
+        padding: 0px 15px 0px 15px;
+        margin: 10px 0px 10px 0px;
+    }
+
+    &__preview p {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1; // Maximum 2 lines
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &[open] {
+        .amp-collapsable-card__header::before {
+        transform: rotate(90deg);
+        }
+
+        .amp-collapsable-card__preview {
+        display: none;
+        }
+    }
+
+    // Colour variants
+    &--blue {
+        --card-colour: #{govuk-colour("blue")};
+    }
+
+    &--green {
+        --card-colour: #{govuk-colour("green")};
+    }
+}
