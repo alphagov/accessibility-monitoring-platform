@@ -2606,6 +2606,10 @@ SITE_MAP: list[PlatformPageGroup] = (
                     url_name="tech:reference-implementation",
                 ),
                 PlatformPage(
+                    name="Custom statement check results",
+                    url_name="tech:custom-statement-check-results",
+                ),
+                PlatformPage(
                     name="Email templates",
                     url_name="tech:email-templates",
                 ),
