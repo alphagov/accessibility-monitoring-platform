@@ -1838,10 +1838,8 @@ class RetestStatementCheckResult(models.Model):
 
     def __str__(self) -> str:
         if self.statement_check is None:
-            return f"{self.statement_audit} | Custom [{self.issue_identifier}]"
-        return (
-            f"{self.statement_audit} | {self.statement_check} [{self.issue_identifier}]"
-        )
+            return f"{self.retest} | Custom [{self.issue_identifier}]"
+        return f"{self.retest} | {self.statement_check} [{self.issue_identifier}]"
 
 
 class StatementPage(models.Model):

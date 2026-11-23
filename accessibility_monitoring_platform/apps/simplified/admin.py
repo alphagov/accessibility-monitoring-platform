@@ -186,6 +186,7 @@ class SimplifiedEventHistoryAdmin(admin.ModelAdmin):
     search_fields = (
         "simplified_case__organisation_name",
         "simplified_case__case_number",
+        "difference",
     )
     list_display = (
         "simplified_case",

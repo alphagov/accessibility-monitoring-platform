@@ -245,8 +245,8 @@
                                 <th scope="col" class="govuk-table__header amp-width-one-third">WCAG issue</th>
                                 <th scope="col" class="govuk-table__header amp-width-one-third">Initial test</th>
                                 <th scope="col" class="govuk-table__header amp-width-one-third{% if not enable_12_week_ui %} amp-disabled{% endif %}">
-                                    {% if summary_wcag_check_results.0.retest_result %}
-                                        Retest #{{ wcag_audit.round_number }}
+                                    {% if wcag_audit_12_week %}
+                                        Retest #{{ wcag_audit_12_week.round_number }}
                                     {% else %}
                                         12-week retest
                                     {% endif %}
@@ -325,8 +325,8 @@
                                 <th scope="col" class="govuk-table__header amp-width-one-third">Page</th>
                                 <th scope="col" class="govuk-table__header amp-width-one-third">Initial test</th>
                                 <th scope="col" class="govuk-table__header amp-width-one-third{% if not enable_12_week_ui %} amp-disabled{% endif %}">
-                                    {% if summary_wcag_check_results.0.retest_result %}
-                                        Retest #{{ wcag_audit.round_number }}
+                                    {% if wcag_audit_12_week %}
+                                        Retest #{{ wcag_audit_12_week.round_number }}
                                     {% else %}
                                         12-week retest
                                     {% endif %}
