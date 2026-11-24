@@ -182,7 +182,74 @@ describe('Create simplified case, tests and report', () => {
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | + Start new WCAG retest`)
+    cy.contains('.govuk-button', 'Start new WCAG retest').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | 12-week retest metadata`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Update page links`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Home page retest`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Accessibility statement page retest`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Test comparison`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | WCAG compliance`)
+    cy.get('[name="is_retest_complete"]').check({ force: true })
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | + Start new WCAG retest`)
     cy.contains('Continue to statement retest').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement links`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement backups`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement overview`)
+    cy.get('[name="form-0-check_result_state"]').check('yes')
+    cy.get('[name="form-1-check_result_state"]').check('yes')
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement information`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Compliance status`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Non-accessible content`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement preparation`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Feedback and enforcement procedure`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Disproportionate burden claim`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Custom issues`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Disproportionate burden`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement summary`)
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement compliance`)
+    cy.get('[name="is_retest_complete"]').check({ force: true })
+    cy.contains('Save and continue').click()
+
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | + Start new statement retest`)
+    cy.contains('.govuk-button', 'Start new statement retest').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement links`)
     cy.contains('Save and continue').click()
@@ -244,19 +311,19 @@ describe('Create simplified case, tests and report', () => {
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Retest overview`)
     cy.contains('New retest').click()
 
-    cy.title().should('eq', 'Retest #1 | Retest metadata')
+    cy.title().should('eq', 'Retest #2 | Retest metadata')
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Retest #1 | Home`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Retest #2 | Home`)
     cy.contains('Save and next page').click()
 
-    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Retest #1 | Accessibility statement`)
+    cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Retest #2 | Accessibility statement`)
     cy.contains('Save and next page').click()
 
-    cy.title().should('eq', 'Retest #1 | Comparison')
+    cy.title().should('eq', 'Retest #2 | Comparison')
     cy.contains('Save and continue').click()
 
-    cy.title().should('eq', 'Retest #1 | Compliance decision')
+    cy.title().should('eq', 'Retest #2 | Compliance decision')
     cy.contains('Save and continue').click()
 
     cy.title().should('eq', `${newDomain} · ${newOrganisationName} | Statement links`)

@@ -286,8 +286,8 @@ class AuditOverview(models.Model):
         )
 
     @property
-    def first_equality_body_wcag_audit(self) -> WcagAudit | None:
-        return self.equality_body_wcag_audits.first()
+    def last_equality_body_wcag_audit(self) -> WcagAudit | None:
+        return self.equality_body_wcag_audits.last()
 
     @property
     def last_equality_body_wcag_audit(self) -> WcagAudit | None:
@@ -820,15 +820,6 @@ class StatementAudit(AuditRound):
         if self.id is None:
             self.round_number = self.simplified_case.statementaudit_set.all().count()
         super().save(*args, **kwargs)
-
-    @property
-    def equivalent_equality_body_wcag_audit(self) -> WcagAudit | None:
-        """Return matching equality body wcag retest"""
-        return WcagAudit.objects.filter(
-            simplified_case=self.simplified_case,
-            audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
-            round_number=self.round_number,
-        ).first()
 
     @property
     def statement_check_results(

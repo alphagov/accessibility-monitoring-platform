@@ -713,7 +713,9 @@ def build_equality_body_retest_context_data(
             wcag_audit.simplified_case.audit_overview.last_statement_audit
         )
     else:
-        wcag_audit: WcagAudit = statement_audit.equivalent_equality_body_wcag_audit
+        wcag_audit: WcagAudit = (
+            statement_audit.simplified_case.audit_overview.last_equality_body_wcag_audit
+        )
 
     audit_overview: AuditOverview = statement_audit.simplified_case.audit_overview
 
