@@ -55,6 +55,27 @@
                         before starting a new test.
                     </p>
                 {% endif %}
+                {% if wcag_audit.simplified_case.audit_overview.twelve_week_wcag_audits %}
+                    <h2 class="govuk-heading-m">All 12-week WCAG retests</h2>
+                    <table class="govuk-table">
+                        <thead class="govuk-table__head">
+                            <tr class="govuk-table__row">
+                                <th scope="col" class="govuk-table__header">Retest #</th>
+                                <th scope="col" class="govuk-table__header">Start date</th>
+                                <th scope="col" class="govuk-table__header">Compliance</th>
+                            </tr>
+                        </thead>
+                        <tbody class="govuk-table__body">
+                            {% for wcag_audit in wcag_audit.simplified_case.audit_overview.twelve_week_wcag_audits %}
+                                <tr class="govuk-table__row">
+                                    <td class="govuk-table__cell">Retest #{{ wcag_audit.round_number }}</td>
+                                    <td class="govuk-table__cell">{{ wcag_audit.date_of_test|amp_date }}</td>
+                                    <td class="govuk-table__cell">{{ wcag_audit.get_compliance_state_display }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
             </div>
         </div>
     </main>

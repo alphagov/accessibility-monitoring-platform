@@ -52,6 +52,27 @@
                         before starting a new test.
                     </p>
                 {% endif %}
+                {% if statement_audit.simplified_case.audit_overview.twelve_week_statement_audits %}
+                    <h2 class="govuk-heading-m">All 12-week statement retests</h2>
+                    <table class="govuk-table">
+                        <thead class="govuk-table__head">
+                            <tr class="govuk-table__row">
+                                <th scope="col" class="govuk-table__header">Retest #</th>
+                                <th scope="col" class="govuk-table__header">Start date</th>
+                                <th scope="col" class="govuk-table__header">Compliance</th>
+                            </tr>
+                        </thead>
+                        <tbody class="govuk-table__body">
+                            {% for statement_audit in statement_audit.simplified_case.audit_overview.twelve_week_statement_audits %}
+                                <tr class="govuk-table__row">
+                                    <td class="govuk-table__cell">Retest #{{ statement_audit.round_number }}</td>
+                                    <td class="govuk-table__cell">{{ statement_audit.date_of_test|amp_date }}</td>
+                                    <td class="govuk-table__cell">{{ statement_audit.get_compliance_state_display }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
             </div>
         </div>
     </main>
