@@ -1086,8 +1086,12 @@ class WcagPageInitial(models.Model):
         }
 
     @property
+    def twelve_week_wcag_page_retests(self) -> QuerySet[WcagPageRetest]:
+        return self.wcagpageretest_set.filter(is_deleted=False)
+
+    @property
     def twelve_week_wcag_page_retest(self) -> WcagPageRetest | None:
-        return self.wcagpageretest_set.all().first()
+        return self.twelve_week_wcag_page_retests.first()
 
 
 class WcagPageRetest(models.Model):
@@ -1310,11 +1314,15 @@ class WcagCheckResultInitial(models.Model):
         return f"{self.issue_identifier} ({self.wcag_page_initial})"
 
     @property
-    def last_twelve_week_wcag_check_result_retest(self) -> WcagCheckResultRetest | None:
+    def twelve_week_wcag_check_result_retests(self) -> QuerySet[WcagCheckResultRetest]:
         return WcagCheckResultRetest.objects.filter(
             wcag_check_result_initial=self,
             wcag_audit__audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
-        ).last()
+        ).order_by("id")
+
+    @property
+    def last_twelve_week_wcag_check_result_retest(self) -> WcagCheckResultRetest | None:
+        return self.twelve_week_wcag_check_result_retests.last()
 
 
 class WcagCheckResultRetest(models.Model):

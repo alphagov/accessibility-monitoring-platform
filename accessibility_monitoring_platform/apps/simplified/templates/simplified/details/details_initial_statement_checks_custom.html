@@ -1,1 +1,29 @@
-{% include 'simplified/details/details_initial_statement_checks.html' with statement_check_results=case.audit_overview.initial_statement_audit.custom_statement_check_results %}
+{% extends 'cases/details/details.html' %}
+
+{% block table %}
+    {% if case.audit_overview.custom_statement_check_results %}
+        <table class="govuk-table" data-search-target-page-name="{{ case_detail_page.platform_page.platform_page_group.get_name }}" data-search-target-label="{{ case_detail_page.platform_page.get_name }}" data-search-target-url="{{ case_detail_page.platform_page.url }}">
+            <tbody class="govuk-table__body">
+                {% for custom_statement_check_result in case.audit_overview.custom_statement_check_results %}
+                    <tr class="govuk-table__row ">
+                        <th scope="row" class="govuk-table__cell amp-font-weight-normal amp-width-one-half">
+                            {{ custom_statement_check_result.label }}<br>
+                            {% include 'audits/helpers/issue_identifier.html' with issue=custom_statement_check_result %}
+                            {% if custom_statement_check_result.auditor_information  %}
+                                {{ custom_statement_check_result.auditor_information|markdown_to_html }}
+                            {% endif %}
+                        </th>
+                        <td class="govuk-table__cell amp-width-one-half amp-notes">
+                            <p>{{ custom_statement_check_result.get_check_result_state_display }}</p>
+                            {% if custom_statement_check_result.public_comment %}
+                                {{ custom_statement_check_result.public_comment|markdown_to_html }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="govuk-body-m">No statement issues have been entered</p>
+    {% endif %}
+{% endblock %}

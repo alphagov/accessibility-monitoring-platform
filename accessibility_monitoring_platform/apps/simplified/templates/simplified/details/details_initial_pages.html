@@ -20,6 +20,20 @@
                         {{ wcag_page_initial.location }}
                     </p>
                 {% endif %}
+                {% for wcag_page_retest in wcag_page_initial.twelve_week_wcag_page_retests %}
+                    {% if wcag_page_retest.url or wcag_page_retest.location %}
+                        <p class="govuk-body-m amp-margin-bottom-0">
+                            <b>Retest #{{ wcag_page_retest.wcag_audit.round_number }}</b>:
+                            {% if wcag_page_retest.url %}
+                                <a href="{{ wcag_page_retest.url }}" rel="noreferrer noopener" target="_blank" class="govuk-link">
+                                    {{ wcag_page_retest.url }}</a>
+                            {% endif %}
+                            {% if wcag_page_retest.location %}
+                                {{ wcag_page_retest.location }}
+                            {% endif %}
+                        </p>
+                    {% endif %}
+                {% endfor %}
             </td>
         </tr>
     {% endfor %}
