@@ -1590,10 +1590,10 @@ def test_audit_retest_statement_overview_updates_statement_checkresult(
             "form-MAX_NUM_FORMS": "1000",
             "form-0-id": f"{FIRST_STATEMENT_CHECK_RESULT_ID}",
             "form-0-check_result_state": "yes",
-            "form-0-auditor_information": f"{STATEMENT_CHECK_RESULT_COMMENT}",
+            "form-0-public_comment": f"{STATEMENT_CHECK_RESULT_COMMENT}",
             "form-1-id": f"{SECOND_STATEMENT_CHECK_RESULT_ID}",
             "form-1-check_result_state": "no",
-            "form-1-auditor_information": "",
+            "form-1-public_comment": "",
         },
     )
 
@@ -1604,7 +1604,7 @@ def test_audit_retest_statement_overview_updates_statement_checkresult(
     )
 
     assert statement_checkresult_1.check_result_state == StatementCheckResult.Result.YES
-    assert statement_checkresult_1.auditor_information == STATEMENT_CHECK_RESULT_COMMENT
+    assert statement_checkresult_1.public_comment == STATEMENT_CHECK_RESULT_COMMENT
 
     statement_checkresult_2: StatementCheckResult = StatementCheckResult.objects.get(
         id=SECOND_STATEMENT_CHECK_RESULT_ID
@@ -1655,10 +1655,10 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
             "form-MAX_NUM_FORMS": "1000",
             "form-0-id": f"{FIRST_STATEMENT_CHECK_RESULT_ID}",
             "form-0-check_result_state": "yes",
-            "form-0-auditor_information": f"{STATEMENT_CHECK_RESULT_COMMENT}",
+            "form-0-public_comment": f"{STATEMENT_CHECK_RESULT_COMMENT}",
             "form-1-id": f"{SECOND_STATEMENT_CHECK_RESULT_ID}",
             "form-1-check_result_state": "no",
-            "form-1-auditor_information": "",
+            "form-1-public_comment": "",
         },
     )
 
@@ -1669,7 +1669,7 @@ def test_audit_retest_statement_overview_updates_statement_checkresult_no_initia
     )
 
     assert statement_checkresult_1.check_result_state == StatementCheckResult.Result.YES
-    assert statement_checkresult_1.auditor_information == STATEMENT_CHECK_RESULT_COMMENT
+    assert statement_checkresult_1.public_comment == STATEMENT_CHECK_RESULT_COMMENT
 
     statement_checkresult_2: StatementCheckResult = StatementCheckResult.objects.get(
         id=SECOND_STATEMENT_CHECK_RESULT_ID

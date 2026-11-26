@@ -412,13 +412,13 @@ class StatementCheckResultRetestForm(forms.ModelForm):
         choices=StatementCheckResult.Result.choices,
         widget=AMPRadioSelectWidget(),
     )
-    auditor_information = AMPTextField(label="Retest information")
+    public_comment = AMPTextField(label="Comments for email")
 
     class Meta:
         model = StatementCheckResult
         fields = [
             "check_result_state",
-            "auditor_information",
+            "public_comment",
         ]
 
 

@@ -406,7 +406,7 @@ class TwelveWeekStatementAuditOverviewUpdateView(StatementCheckResultRetestForms
             "statement_check_results_formset"
         ]
         for form in statement_check_results_formset.forms:
-            form.fields["auditor_information"].label = "12-week retest information"
+            form.fields["public_comment"].label = "12-week email comment"
 
         statement_audit: StatementAudit = self.object
         context["next_platform_pages"] = [
