@@ -11,7 +11,12 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
-from ..audits.models import StatementCheck, StatementCheckResult, WcagCheckResultInitial
+from ..audits.models import (
+    CustomStatementCheckResult,
+    StatementCheck,
+    StatementCheckResult,
+    WcagCheckResultInitial,
+)
 from ..cases.models import BaseCase
 from ..common.utils import replace_whole_words, undo_double_escapes
 
@@ -28,6 +33,25 @@ def get_initial_check_result_url_from_issue_identifier(issue_identifier: str) ->
             kwargs={"pk": wcag_check_result_initial.wcag_page_initial.id},
         )
     except WcagCheckResultInitial.DoesNotExist:
+        url: str = ""
+    return url
+
+
+def get_custom_statement_check_result_url_from_issue_identifier(
+    issue_identifier: str,
+) -> str:
+    try:
+        custom_statement_check_result: CustomStatementCheckResult = (
+            CustomStatementCheckResult.objects.get(
+                issue_identifier=issue_identifier,
+                is_deleted=False,
+            )
+        )
+        url: str = reverse(
+            "audits:edit-statement-custom",
+            kwargs={"pk": custom_statement_check_result.statement_audit.id},
+        )
+    except CustomStatementCheckResult.DoesNotExist:
         url: str = ""
     return url
 
@@ -105,6 +129,10 @@ class Comment(models.Model):
             url: str = ""
             if issue_identifier.startswith(f"{self.base_case.case_number}-A-"):
                 url: str = get_initial_check_result_url_from_issue_identifier(
+                    issue_identifier=issue_identifier
+                )
+            elif issue_identifier.startswith(f"{self.base_case.case_number}-SC"):
+                url: str = get_custom_statement_check_result_url_from_issue_identifier(
                     issue_identifier=issue_identifier
                 )
             elif issue_identifier.startswith(f"{self.base_case.case_number}-S"):

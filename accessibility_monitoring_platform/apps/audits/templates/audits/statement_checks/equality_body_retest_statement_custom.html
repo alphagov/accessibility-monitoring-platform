@@ -39,8 +39,20 @@
                                                 {% include 'audits/helpers/issue_identifier.html' with issue=statement_check_result_form.instance %}
                                             </label>
                                         {% endif %}
+                                        <h3 class="govuk-heading-s amp-margin-bottom-0">Comments for report</h3>
+                                        {% if statement_check_result_form.instance.public_comment %}
+                                            <div class="govuk-body amp-notes amp-margin-bottom-15">
+                                                {{ statement_check_result_form.instance.public_comment|markdown_to_html }}
+                                            </div>
+                                        {% else %}
+                                            <p class="govuk-body">None</p>
+                                        {% endif %}
+                                        <h3 class="govuk-heading-s amp-margin-bottom-0">Added</h3>
+                                        <p class="govuk-body amp-margin-bottom-20">{{ statement_check_result_form.instance.statement_audit.get_audit_round_type_display }}</p>
                                         {% include 'common/form_hidden_fields.html' with hidden_fields=statement_check_result_form.hidden_fields %}
-                                        {% include 'common/amp_field.html' with field=statement_check_result_form.public_comment %}
+                                        {% include 'common/amp_field.html' with field=statement_check_result_form.retest_state %}
+                                        {% include 'common/amp_field.html' with field=statement_check_result_form.retest_comment %}
+                                        {% include 'common/amp_field.html' with field=statement_check_result_form.auditor_information %}
                                     </div>
                                 </div>
                                 {% if statement_check_result_form.instance.id %}

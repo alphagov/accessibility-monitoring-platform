@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path
 
 from .views import (
+    CustomStatementCheckResultsView,
     EmailTemplatesView,
     EqualityBodyCsvMetadataView,
     PlatformCheckingView,
@@ -17,6 +18,11 @@ urlpatterns = [
         "",
         login_required(ReferenceImplementaionView.as_view()),
         name="reference-implementation",
+    ),
+    path(
+        "custom-statement-check-results/",
+        login_required(CustomStatementCheckResultsView.as_view()),
+        name="custom-statement-check-results",
     ),
     path(
         "email-templates/",

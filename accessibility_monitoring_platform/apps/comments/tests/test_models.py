@@ -8,6 +8,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from ...audits.models import (
+    CustomStatementCheckResult,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
@@ -178,17 +179,20 @@ def test_body_html_with_issue_identifier_initial_links_matching_custom_statement
     """
     statement_audit: StatementAudit = create_initial_statement_audit()
     simplified_case: SimplifiedCase = statement_audit.simplified_case
-    statement_check_result: StatementCheckResult = StatementCheckResult.objects.create(
-        statement_audit=statement_audit,
+    custom_statement_check_result: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.create(
+            statement_audit=statement_audit,
+            simplified_case=statement_audit.simplified_case,
+        )
     )
     body: str = (
-        f"{simplified_case.case_number}-A-2 {simplified_case.case_number}-S-2 {statement_check_result.issue_identifier}"
+        f"{simplified_case.case_number}-A-2 {simplified_case.case_number}-S-2 {custom_statement_check_result.issue_identifier}"
     )
     comment: Comment = Comment.objects.create(base_case=simplified_case, body=body)
 
     assert (
         comment.body_html_with_issue_identifier_initial_links
-        == '<p>1-A-2 1-S-2 <a href="/audits/1/edit-statement-custom/#1-SC-44" class="govuk-link govuk-link--no-visited-state" target="_blank">1-SC-44</a></p>'
+        == '<p>1-A-2 1-S-2 <a href="/audits/1/edit-statement-custom/#1-SC-2" class="govuk-link govuk-link--no-visited-state" target="_blank">1-SC-2</a></p>'
     )
 
 

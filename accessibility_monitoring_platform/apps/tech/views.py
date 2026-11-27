@@ -5,10 +5,12 @@ from typing import Any
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import BadRequest, PermissionDenied
+from django.db.models.query import QuerySet
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
+from ..audits.models import CustomStatementCheckResult
 from ..cases.models import CASE_STATUSES
 from ..common.models import EmailTemplate
 from ..detailed.csv_export import (
@@ -77,6 +79,41 @@ class ReferenceImplementaionView(CaseContextMixin, StaffRequiredMixin, TemplateV
             archive=""
         ).first()
         context["case_statuses"] = CASE_STATUSES
+        return context
+
+
+class CustomStatementCheckResultsView(StaffRequiredMixin, TemplateView):
+    """View showing custom statement check results"""
+
+    template_name: str = "tech/custom_statement_check_results.html"
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Get context data for template rendering"""
+        context: dict[str, Any] = super().get_context_data(**kwargs)
+        custom_statement_check_results: QuerySet[CustomStatementCheckResult] = (
+            CustomStatementCheckResult.objects.filter(is_deleted=False)
+        )
+        no_initial_param: str | None = self.request.GET.get("no_initial")
+        if no_initial_param:
+            custom_statement_check_results = custom_statement_check_results.filter(
+                public_comment=""
+            )
+        twelve_week_param: str | None = self.request.GET.get("twelve_week")
+        if twelve_week_param:
+            custom_statement_check_results = custom_statement_check_results.exclude(
+                retest_comment=""
+            )
+        auditor_text_param: str | None = self.request.GET.get("auditor_text")
+        if auditor_text_param:
+            custom_statement_check_results = custom_statement_check_results.exclude(
+                auditor_information=""
+            )
+        context["custom_statement_check_results"] = (
+            custom_statement_check_results.order_by("-simplified_case_id", "id")
+        )
+        context["no_initial_param"] = no_initial_param
+        context["twelve_week_param"] = twelve_week_param
+        context["auditor_text_param"] = auditor_text_param
         return context
 
 

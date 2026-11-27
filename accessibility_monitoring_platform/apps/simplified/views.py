@@ -631,7 +631,7 @@ class CaseNoPSBResponseUpdateView(
             return reverse(
                 "audits:edit-audit-retest-statement-pages",
                 kwargs={
-                    "pk": simplified_case.audit_overview.first_twelve_week_statement_audit.id
+                    "pk": simplified_case.audit_overview.last_twelve_week_statement_audit.id
                 },
             )
         return super().get_success_url()
@@ -754,7 +754,7 @@ class CaseTwelveWeekUpdateAcknowledgedUpdateView(CaseUpdateView):
                 )
             else:
                 wcag_audit_12_week: WcagAudit = (
-                    simplified_case.audit_overview.first_twelve_week_wcag_audit
+                    simplified_case.audit_overview.last_twelve_week_wcag_audit
                 )
                 return get_platform_page_by_url_name(
                     url_name="audits:edit-audit-retest-metadata",

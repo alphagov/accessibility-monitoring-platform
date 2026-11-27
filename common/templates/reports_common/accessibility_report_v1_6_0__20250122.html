@@ -172,7 +172,7 @@
 </p>
 <p>
 {% if audit_overview.accessibility_statement_found and statement_audit.overview_statement_checks_complete %}
-    {% if statement_audit.failed_statement_check_results %}
+    {% if statement_audit.failed_statement_check_results or statement_audit.custom_statement_check_results %}
         <p>
             An accessibility statement for the website was found but we found the following issues.
         </p>
@@ -192,6 +192,16 @@
                                 {{ statement_check_result.public_comment|markdown_to_html }}
                             {% endif %}
                             [{{ statement_check_result.issue_identifier }}]
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% for custom_statement_check_result in statement_audit.custom_statement_check_results %}
+                    <tr valign="top">
+                        <td headers="statement-issues" class="amp-notes">
+                            <b>Issue {{ custom_statement_check_result.issue_identifier }}</b>
+                            {% if custom_statement_check_result.public_comment %}
+                                {{ custom_statement_check_result.public_comment|markdown_to_html }}
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

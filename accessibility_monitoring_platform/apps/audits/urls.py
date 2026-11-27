@@ -22,11 +22,11 @@ from .views.equality_body import (
     RetestAddStatementPageUpdateView,
     RetestComparisonUpdateView,
     RetestComplianceUpdateView,
+    RetestCustomStatementCheckResultFormView,
     RetestDeleteStatementPageUpdateView,
     RetestDisproportionateBurdenUpdateView,
     RetestStatementBackupUpdateView,
     RetestStatementComplianceFormView,
-    RetestStatementCustomFormView,
     RetestStatementDecisionUpdateView,
     RetestStatementDisproportionateFormView,
     RetestStatementFeedbackFormView,
@@ -40,17 +40,17 @@ from .views.equality_body import (
 from .views.initial import (
     AuditCaseComplianceStatementInitialUpdateView,
     AuditStatementComplianceFormView,
-    AuditStatementCustomFormView,
     AuditStatementDisproportionateFormView,
     AuditStatementFeedbackFormView,
     AuditStatementNonAccessibleFormView,
     AuditStatementOverviewFormView,
     AuditStatementPreparationFormView,
     AuditStatementWebsiteFormView,
-    CustomIssueCreateView,
     InitialAddStatementPageUpdateView,
-    InitialCustomIssueDeleteTemplateView,
-    InitialCustomIssueUpdateView,
+    InitialCustomStatementCheckResultCreateView,
+    InitialCustomStatementCheckResultDeleteConfirmTemplateView,
+    InitialCustomStatementCheckResultsFormView,
+    InitialCustomStatementCheckResultUpdateView,
     InitialDeleteStatementPageUpdateView,
     InitialDisproportionateBurdenUpdateView,
     InitialStatementBackupUpdateView,
@@ -61,20 +61,21 @@ from .views.initial import (
     WcagAuditPagesUpdateView,
     WcagPageChecksFormView,
     clear_published_report_data_updated_time,
-    delete_custom_issue,
+    custom_statement_issue_delete_initial,
 )
 from .views.twelve_week import (
-    AuditRetestNew12WeekCustomIssueCreateView,
-    AuditRetestNew12WeekCustomIssueUpdateView,
+    AuditRetestCustomStatementIssueConfirmDeleteTemplateView,
+    AuditRetestCustomStatementIssueCreateView,
+    AuditRetestCustomStatementIssueFormView,
+    AuditRetestCustomStatementIssueUpdateView,
     AuditRetestStatementComplianceFormView,
-    AuditRetestStatementCustomFormView,
     AuditRetestStatementDisproportionateFormView,
     AuditRetestStatementFeedbackFormView,
     AuditRetestStatementNonAccessibleFormView,
     AuditRetestStatementPreparationFormView,
     AuditRetestStatementWebsiteFormView,
-    New12WeekCustomIssueDeleteTemplateView,
-    StatementCheckResultRetestCustomUpdateView,
+    NextTwelveWeekStatementAuditUpdateView,
+    NextTwelveWeekWcagAuditUpdateView,
     TwelveWeekAddStatementPageUpdateView,
     TwelveWeekDeleteStatementPageUpdateView,
     TwelveWeekDisproportionateBurdenUpdateView,
@@ -87,7 +88,7 @@ from .views.twelve_week import (
     WcagAuditRetestMetadataUpdateView,
     WcagAuditRetestPagesView,
     WcagPageRetestCheckResultsUpdateView,
-    delete_new_12_week_custom_issue,
+    custom_statement_issue_delete_twelve_week,
     start_retest,
 )
 
@@ -180,27 +181,29 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-statement-custom/",
-        login_required(AuditStatementCustomFormView.as_view()),
+        login_required(InitialCustomStatementCheckResultsFormView.as_view()),
         name="edit-statement-custom",
     ),
     path(
         "<int:statement_audit_id>/edit-custom-issue-create/",
-        login_required(CustomIssueCreateView.as_view()),
+        login_required(InitialCustomStatementCheckResultCreateView.as_view()),
         name="edit-custom-issue-create",
     ),
     path(
         "<int:pk>/edit-custom-issue-update/",
-        login_required(InitialCustomIssueUpdateView.as_view()),
+        login_required(InitialCustomStatementCheckResultUpdateView.as_view()),
         name="edit-custom-issue-update",
     ),
     path(
         "<int:pk>/edit-custom-issue-delete-confirm/",
-        login_required(InitialCustomIssueDeleteTemplateView.as_view()),
+        login_required(
+            InitialCustomStatementCheckResultDeleteConfirmTemplateView.as_view()
+        ),
         name="edit-custom-issue-delete-confirm",
     ),
     path(
         "<int:pk>/edit-custom-issue-delete/",
-        login_required(delete_custom_issue),
+        login_required(custom_statement_issue_delete_initial),
         name="edit-custom-issue-delete",
     ),
     path(
@@ -247,6 +250,11 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-retest-website-decision/",
         login_required(WcagAuditComplianceRetestUpdateView.as_view()),
         name="edit-audit-retest-website-decision",
+    ),
+    path(
+        "<int:pk>/next-twelve-week-wcag-retest/",
+        login_required(NextTwelveWeekWcagAuditUpdateView.as_view()),
+        name="next-twelve-week-wcag-retest",
     ),
     path(
         "<int:pk>/edit-audit-retest-statement-pages/",
@@ -300,32 +308,29 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "<int:pk>/edit-retest-statement-custom/",
-        login_required(AuditRetestStatementCustomFormView.as_view()),
+        login_required(AuditRetestCustomStatementIssueFormView.as_view()),
         name="edit-retest-statement-custom",
     ),
     path(
-        "<int:pk>/edit-retest-initial-custom-issue-update/",
-        login_required(StatementCheckResultRetestCustomUpdateView.as_view()),
-        name="edit-retest-initial-custom-issue-update",
+        "<int:pk>/edit-retest-custom-issue-update/",
+        login_required(AuditRetestCustomStatementIssueUpdateView.as_view()),
+        name="edit-retest-custom-issue-update",
     ),
     path(
         "<int:statement_audit_id>/edit-retest-12-week-custom-issue-create/",
-        login_required(AuditRetestNew12WeekCustomIssueCreateView.as_view()),
+        login_required(AuditRetestCustomStatementIssueCreateView.as_view()),
         name="edit-retest-12-week-custom-issue-create",
     ),
     path(
-        "<int:pk>/edit-retest-new-12-week-custom-issue-update/",
-        login_required(AuditRetestNew12WeekCustomIssueUpdateView.as_view()),
-        name="edit-retest-new-12-week-custom-issue-update",
-    ),
-    path(
         "<int:pk>/edit-retest-new-12-week-custom-issue-delete-confirm/",
-        login_required(New12WeekCustomIssueDeleteTemplateView.as_view()),
+        login_required(
+            AuditRetestCustomStatementIssueConfirmDeleteTemplateView.as_view()
+        ),
         name="edit-retest-new-12-week-custom-issue-delete-confirm",
     ),
     path(
         "<int:pk>/edit-retest-12-week-custom-issue-delete/",
-        login_required(delete_new_12_week_custom_issue),
+        login_required(custom_statement_issue_delete_twelve_week),
         name="edit-retest-12-week-custom-issue-delete",
     ),
     path(
@@ -342,6 +347,11 @@ urlpatterns: list[URLPattern] = [
         "<int:pk>/edit-audit-retest-statement-decision/",
         login_required(TwelveWeekStatementComplianceStatementUpdateView.as_view()),
         name="edit-audit-retest-statement-decision",
+    ),
+    path(
+        "<int:pk>/next-twelve-week-statement-retest/",
+        login_required(NextTwelveWeekStatementAuditUpdateView.as_view()),
+        name="next-twelve-week-statement-retest",
     ),
     path(
         "wcag-definition-list/",
@@ -455,7 +465,7 @@ urlpatterns: list[URLPattern] = [
     ),
     path(
         "retests/<int:pk>/edit-equality-body-statement-custom/",
-        login_required(RetestStatementCustomFormView.as_view()),
+        login_required(RetestCustomStatementCheckResultFormView.as_view()),
         name="edit-equality-body-statement-custom",
     ),
     path(

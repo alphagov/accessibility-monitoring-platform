@@ -50,6 +50,7 @@ from ..forms import (
 )
 from ..models import (
     AuditOverview,
+    CustomStatementCheckResult,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
@@ -169,11 +170,11 @@ class EqualityBodyWcagPageRetestChecksFormView(NextPlatformPageMixin, UpdateView
         audit_overview: AuditOverview = wcag_audit.simplified_case.audit_overview
 
         context["initial_wcag_audit"] = audit_overview.initial_wcag_audit
-        context["first_twelve_week_wcag_audit"] = (
-            audit_overview.first_twelve_week_wcag_audit
+        context["last_twelve_week_wcag_audit"] = (
+            audit_overview.last_twelve_week_wcag_audit
         )
         context["wcag_audit"] = wcag_audit
-        context["statement_audit"] = wcag_audit.equivalent_statement_audit
+        context["statement_audit"] = audit_overview.last_statement_audit
 
         if self.request.POST:
             retest_check_results_formset: WcagCheckResultRetestFormset = (
@@ -292,7 +293,7 @@ class RetestComplianceUpdateView(EqualityBodyRetestWcagAuditUpdateView):
         wcag_audit: WcagAudit = self.object
         return get_platform_page_by_url_name(
             url_name="audits:edit-equality-body-statement-pages",
-            instance=wcag_audit.equivalent_statement_audit,
+            instance=wcag_audit.simplified_case.audit_overview.last_statement_audit,
         )
 
 
@@ -573,7 +574,7 @@ class RetestStatementDisproportionateFormView(EqualityBodyRetestStatementCheckin
     statement_check_type: str = StatementCheck.Type.DISPROPORTIONATE
 
 
-class RetestStatementCustomFormView(StatementAuditUpdateView):
+class RetestCustomStatementCheckResultFormView(StatementAuditUpdateView):
     """
     View to update statement custom check results retest
     """
@@ -582,7 +583,6 @@ class RetestStatementCustomFormView(StatementAuditUpdateView):
     template_name: str = (
         "audits/statement_checks/equality_body_retest_statement_custom.html"
     )
-    statement_check_type: str = StatementCheck.Type.CUSTOM
 
     def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
         """Get context data for template rendering"""
@@ -593,8 +593,8 @@ class RetestStatementCustomFormView(StatementAuditUpdateView):
                 EqualityBodyRetestCustomStatementCheckResultFormset(self.request.POST)
             )
         else:
-            retest_statement_check_results: QuerySet[StatementCheckResult] = (
-                statement_audit.custom_statement_check_results
+            retest_statement_check_results: QuerySet[CustomStatementCheckResult] = (
+                statement_audit.simplified_case.audit_overview.custom_statement_check_results
             )
             if "add_custom" in self.request.GET:
                 retest_statement_check_results_formset = (
@@ -624,34 +624,34 @@ class RetestStatementCustomFormView(StatementAuditUpdateView):
         ]
         statement_audit: StatementAudit = form.save(commit=False)
         if statement_check_results_formset.is_valid():
-            statement_check_results: list[StatementCheckResult] = (
+            custom_statement_check_results: list[CustomStatementCheckResult] = (
                 statement_check_results_formset.save(commit=False)
             )
-            for statement_check_result in statement_check_results:
-                if not statement_check_result.id:
-                    statement_check_result.statement_audit = statement_audit
-                    statement_check_result.check_result_state = (
-                        StatementCheckResult.Result.NO
+            for custom_statement_check_result in custom_statement_check_results:
+                if not custom_statement_check_result.id:
+                    custom_statement_check_result.statement_audit = statement_audit
+                    custom_statement_check_result.simplified_case = (
+                        statement_audit.simplified_case
                     )
-                    statement_check_result.save()
+                    custom_statement_check_result.save()
                     record_simplified_model_create_event(
                         user=self.request.user,
-                        model_object=statement_check_result,
+                        model_object=custom_statement_check_result,
                         simplified_case=statement_audit.simplified_case,
                     )
                 else:
                     record_simplified_model_update_event(
                         user=self.request.user,
-                        model_object=statement_check_result,
+                        model_object=custom_statement_check_result,
                         simplified_case=statement_audit.simplified_case,
                     )
-                    statement_check_result.save()
+                    custom_statement_check_result.save()
         else:
             return super().form_invalid(form)
         mark_object_as_deleted(
             request=self.request,
             delete_button_prefix="remove_custom_",
-            object_to_delete_model=StatementCheckResult,
+            object_to_delete_model=CustomStatementCheckResult,
         )
         return super().form_valid(form)
 

@@ -1,2 +1,43 @@
-{% include 'simplified/details/details_twelve_week_statement_checks.html' with statement_check_results=case.audit_overview.first_twelve_week_statement_audit.custom_statement_check_results %}
-{% include 'simplified/details/details_new_12_week_custom_statement_checks.html' %}
+{% extends 'cases/details/details.html' %}
+
+{% block table %}
+    {% if case.audit_overview.custom_statement_check_results %}
+        <table class="govuk-table" data-search-target-page-name="{{ case_detail_page.platform_page.platform_page_group.get_name }}" data-search-target-label="{{ case_detail_page.platform_page.get_name }}" data-search-target-url="{{ case_detail_page.platform_page.url }}">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header amp-width-one-third">Question</th>
+                    <th scope="col" class="govuk-table__header amp-width-one-third">Initial</th>
+                    <th scope="col" class="govuk-table__header amp-width-one-third">12-week assessment</th>
+                </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+                {% for custom_statement_check_result in case.audit_overview.custom_statement_check_results %}
+                    <tr class="govuk-table__row ">
+                        <td class="govuk-table__cell amp-width-one-third">
+                            {{ custom_statement_check_result.label }}<br>
+                            {% include 'audits/helpers/issue_identifier.html' with issue=custom_statement_check_result %}
+                            {% if custom_statement_check_result.auditor_information %}
+                                <br><br>
+                                {{ custom_statement_check_result.auditor_information }}
+                            {% endif %}
+                        </td>
+                        <td class="govuk-table__cell amp-width-one-third">
+                            {% if custom_statement_check_result.public_comment %}
+                                {{ custom_statement_check_result.public_comment }}
+                            {% endif %}
+                        </td>
+                        <td class="govuk-table__cell amp-width-one-third">
+                            {{ custom_statement_check_result.get_retest_state_display }}
+                            {% if custom_statement_check_result.retest_comment %}
+                                <br><br>
+                                {{ custom_statement_check_result.retest_comment }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="govuk-body-m">No custom statement issues found in 12-week retest.</p>
+    {% endif %}
+{% endblock %}

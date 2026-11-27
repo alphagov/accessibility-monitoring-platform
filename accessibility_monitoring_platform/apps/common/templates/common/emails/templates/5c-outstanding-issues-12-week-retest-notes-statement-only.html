@@ -7,7 +7,7 @@ Please review the issues listed below and provide an update.
 <br>
 <h2>Your statement</h2>
 <br>
-{% if case.audit_overview.first_twelve_week_statement_audit.outstanding_statement_check_results %}
+{% if case.audit_overview.last_twelve_week_statement_audit.outstanding_statement_check_results or case.audit_overview.outstanding_custom_statement_check_results %}
     <table id="email-statement-issues-table">
         <thead>
             <tr>
@@ -17,7 +17,7 @@ Please review the issues listed below and provide an update.
             </tr>
         </thead>
         <tbody>
-            {% for statement_check_result in case.audit_overview.first_twelve_week_statement_audit.outstanding_statement_check_results %}
+            {% for statement_check_result in case.audit_overview.last_twelve_week_statement_audit.outstanding_statement_check_results %}
                 <tr valign="top">
                     <td headers="statement-issue" width=33%>
                         <p><b>Issue {{ statement_check_result.issue_identifier }}</b></p>
@@ -25,7 +25,20 @@ Please review the issues listed below and provide an update.
                     </td>
                     <td headers="statement-issue" width=33%>
                         {{ statement_check_result.statement_check_result_initial.public_comment|markdown_to_html }}
-                        {{ statement_check_result.auditor_information|markdown_to_html }}
+                        {{ statement_check_result.public_comment|markdown_to_html }}
+                    </td>
+                    <td headers="statement-12-week-update" width=33%>
+                    </td>
+                </tr>
+            {% endfor %}
+            {% for custom_statement_check_result in case.audit_overview.outstanding_custom_statement_check_results %}
+                <tr valign="top">
+                    <td headers="statement-issue" width=33%>
+                        <p><b>Issue {{ custom_statement_check_result.issue_identifier }}</b></p>
+                        {{ custom_statement_check_result.public_comment|markdown_to_html }}
+                    </td>
+                    <td headers="statement-12-week-update" width=33%>
+                        {{ custom_statement_check_result.retest_comment|markdown_to_html }}
                     </td>
                     <td headers="statement-12-week-update" width=33%>
                     </td>

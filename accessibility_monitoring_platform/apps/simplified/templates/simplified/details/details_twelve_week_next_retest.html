@@ -1,0 +1,27 @@
+{% extends 'cases/details/details.html' %}
+
+{% block table %}
+    {% if case.audit_overview.twelve_week_wcag_audits %}
+        <p class="govuk-body">12-week WCAG retests:</p>
+        <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">Retest #</th>
+                    <th scope="col" class="govuk-table__header">Start date</th>
+                    <th scope="col" class="govuk-table__header">Compliance</th>
+                </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+                {% for wcag_audit in case.audit_overview.twelve_week_wcag_audits %}
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">Retest #{{ wcag_audit.round_number }}</td>
+                        <td class="govuk-table__cell">{{ wcag_audit.date_of_test|amp_date }}</td>
+                        <td class="govuk-table__cell">{{ wcag_audit.get_compliance_state_display }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="govuk-body">No 12-week WCAG retests</p>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'tech/base.html' %}
+
+{% load humanize %}
+
+{% block content %}
+<div class="govuk-width-container">
+    {% include 'tech/breadcrumbs.html' %}
+    <main id="main-content" class="govuk-main-wrapper amp-padding-top-0">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                <h1 class="govuk-heading-xl amp-margin-bottom-15">{{ sitemap.current_platform_page.get_name }}</h1>
+                <p class="govuk-body">
+                    Showing {{ custom_statement_check_results.count|intcomma }} custom statement check results
+                    {% if not no_initial_param and not twelve_week_param and not auditor_text_param %}
+                        (no filters).
+                    {% endif %}
+                    {% if no_initial_param %}
+                        (with no initial text).
+                    {% endif %}
+                    {% if twelve_week_param %}
+                        (with 12-week text).
+                    {% endif %}
+                    {% if auditor_text_param %}
+                        (with auditor text).
+                    {% endif %}
+                </p>
+                <p class="govuk-body">
+                    Filter to show:
+                    <a href="{{ sitemap.current_platform_page.url }}" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+                        All</a>;
+                    <a href="{{ sitemap.current_platform_page.url }}?no_initial=true" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+                        No initial text</a>;
+                    <a href="{{ sitemap.current_platform_page.url }}?twelve_week=true" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+                        With 12-week text</a>;
+                    <a href="{{ sitemap.current_platform_page.url }}?auditor_text=true" rel="noreferrer noopener" class="govuk-link govuk-link--no-visited-state">
+                        With auditor text</a>.
+                </p>
+            </div>
+        </div>
+        <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th class="govuk-table__header">Issue and text</th>
+                <tr>
+            </thead>
+            <tbody class="govuk-table__body">
+                {% for custom_statement_check_result in custom_statement_check_results %}
+                    <tr class="govuk-table__row">
+                        <td>
+                            [{{custom_statement_check_result.issue_identifier }}]:
+                            Added in {{ custom_statement_check_result.statement_audit.get_audit_round_type_display }};
+                            Resolved? {{ custom_statement_check_result.get_retest_state_display }};
+                            {% if custom_statement_check_result.public_comment %}
+                                <a href="{% url 'audits:edit-custom-issue-update' custom_statement_check_result.id %}" rel="noreferrer noopener" target="_blank" class="govuk-link govuk-link--no-visited-state">
+                                Edit initial</a>
+                            {% endif %}
+                            {% if custom_statement_check_result.retest_comment %}
+                                <a href="{% url 'audits:edit-retest-custom-issue-update' custom_statement_check_result.id %}" rel="noreferrer noopener" target="_blank" class="govuk-link govuk-link--no-visited-state">
+                                Edit 12-week</a>
+                            {% endif %}
+                            <br>
+                            {{ custom_statement_check_result.simplified_case }}
+                        </td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">
+                            <p><b>Initial:</b> {{custom_statement_check_result.public_comment }}</p>
+                            <p><b>12-week:</b> {{custom_statement_check_result.retest_comment }}</p>
+                            <p><b>Auditor:</b> {{custom_statement_check_result.auditor_information }}</p>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+</div>
+{% endblock %}

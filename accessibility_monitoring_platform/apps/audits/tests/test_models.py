@@ -14,6 +14,7 @@ from ...simplified.models import SimplifiedCase
 from ..models import (
     AuditOverview,
     AuditRound,
+    CustomStatementCheckResult,
     StatementAudit,
     StatementCheck,
     StatementCheckResult,
@@ -103,20 +104,27 @@ def test_audit_overview_initial_wcag_audit():
 
 
 @pytest.mark.django_db
-def test_audit_overview_first_twelve_week_wcag_audit():
+def test_audit_overview_last_twelve_week_wcag_audit():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit_overview: AuditOverview = AuditOverview.objects.create(
         simplified_case=simplified_case
     )
 
-    assert audit_overview.first_twelve_week_wcag_audit is None
+    assert audit_overview.last_twelve_week_wcag_audit is None
 
     wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=simplified_case,
         audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
     )
 
-    assert audit_overview.first_twelve_week_wcag_audit == wcag_audit
+    assert audit_overview.last_twelve_week_wcag_audit == wcag_audit
+
+    new_wcag_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
+
+    assert audit_overview.last_twelve_week_wcag_audit == new_wcag_audit
 
 
 @pytest.mark.django_db
@@ -137,13 +145,13 @@ def test_audit_overview_equality_body_wcag_audits():
 
 
 @pytest.mark.django_db
-def test_audit_overview_first_equality_body_wcag_audit():
+def test_audit_overview_last_equality_body_wcag_audit():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit_overview: AuditOverview = AuditOverview.objects.create(
         simplified_case=simplified_case
     )
 
-    assert audit_overview.first_equality_body_wcag_audit is None
+    assert audit_overview.last_equality_body_wcag_audit is None
 
     first_wcag_audit: WcagAudit = WcagAudit.objects.create(
         simplified_case=simplified_case,
@@ -154,7 +162,7 @@ def test_audit_overview_first_equality_body_wcag_audit():
         audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
     )
 
-    assert audit_overview.first_equality_body_wcag_audit == first_wcag_audit
+    assert audit_overview.last_equality_body_wcag_audit == first_wcag_audit
 
 
 @pytest.mark.django_db
@@ -445,24 +453,24 @@ def test_audit_overview_last_statement_audit():
 
 
 @pytest.mark.django_db
-def test_audit_overview_first_twelve_week_statement_audit():
+def test_audit_overview_last_twelve_week_statement_audit():
     simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
     audit_overview: AuditOverview = AuditOverview.objects.create(
         simplified_case=simplified_case
     )
 
-    assert audit_overview.first_twelve_week_statement_audit is None
+    assert audit_overview.last_twelve_week_statement_audit is None
 
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case,
-        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-    )
     StatementAudit.objects.create(
         simplified_case=simplified_case,
         audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
     )
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case,
+        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
+    )
 
-    assert audit_overview.first_twelve_week_statement_audit == statement_audit
+    assert audit_overview.last_twelve_week_statement_audit == statement_audit
 
 
 @pytest.mark.django_db
@@ -536,6 +544,61 @@ def test_audit_overview_all_overview_statement_checks_have_passed():
     twelve_week_statement_check_result.save()
 
     assert audit_overview.all_overview_statement_checks_have_passed is True
+
+
+@pytest.mark.django_db
+def test_audit_overview_custom_statement_check_results():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.custom_statement_check_results.count() == 0
+
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+    custom_statement_check_result: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.create(
+            statement_audit=statement_audit, simplified_case=simplified_case
+        )
+    )
+
+    assert audit_overview.custom_statement_check_results.count() == 1
+    assert (
+        audit_overview.custom_statement_check_results.first()
+        == custom_statement_check_result
+    )
+
+
+@pytest.mark.django_db
+def test_audit_overview_outstanding_custom_statement_check_results():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    audit_overview: AuditOverview = AuditOverview.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert audit_overview.outstanding_custom_statement_check_results.count() == 0
+
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+    custom_statement_check_result: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.create(
+            statement_audit=statement_audit, simplified_case=simplified_case
+        )
+    )
+
+    assert audit_overview.outstanding_custom_statement_check_results.count() == 1
+    assert (
+        audit_overview.outstanding_custom_statement_check_results.first()
+        == custom_statement_check_result
+    )
+
+    custom_statement_check_result.retest_state = CustomStatementCheckResult.Result.YES
+    custom_statement_check_result.save()
+
+    assert audit_overview.outstanding_custom_statement_check_results.count() == 0
 
 
 @pytest.mark.django_db
@@ -693,19 +756,6 @@ def test_wcag_audit_get_absolute_url():
 
 
 @pytest.mark.django_db
-def test_wcag_audit_equivalent_statement_audit():
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    WcagAudit.objects.create(simplified_case=simplified_case)
-    wcag_audit: WcagAudit = WcagAudit.objects.create(simplified_case=simplified_case)
-    StatementAudit.objects.create(simplified_case=simplified_case)
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case
-    )
-
-    assert wcag_audit.equivalent_statement_audit == statement_audit
-
-
-@pytest.mark.django_db
 def test_wcag_audit_equality_body_previous_retest_wcag_audit():
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
 
@@ -718,13 +768,13 @@ def test_wcag_audit_equality_body_previous_retest_wcag_audit():
 
     assert twelve_week_wcag_audit.equality_body_previous_retest_wcag_audit is None
 
-    first_equality_body_wcag_audit: WcagAudit = create_retest_wcag_audit(
+    last_equality_body_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit,
         audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
     )
 
     assert (
-        first_equality_body_wcag_audit.equality_body_previous_retest_wcag_audit
+        last_equality_body_wcag_audit.equality_body_previous_retest_wcag_audit
         == twelve_week_wcag_audit
     )
 
@@ -735,7 +785,7 @@ def test_wcag_audit_equality_body_previous_retest_wcag_audit():
 
     assert (
         second_equality_body_wcag_audit.equality_body_previous_retest_wcag_audit
-        == first_equality_body_wcag_audit
+        == last_equality_body_wcag_audit
     )
 
 
@@ -856,14 +906,14 @@ def test_wcag_audit_wcag_page_retests():
         create_simplified_case_with_initial_and_12_week_audits()
     )
     initial_wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
-    first_twelve_week_wcag_audit: WcagAudit = (
-        simplified_case.audit_overview.first_twelve_week_wcag_audit
+    last_twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
     )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
         wcag_audit=initial_wcag_audit, url="https://example.com"
     )
     WcagPageRetest.objects.create(
-        wcag_audit=first_twelve_week_wcag_audit,
+        wcag_audit=last_twelve_week_wcag_audit,
         wcag_page_initial=wcag_page_initial,
         is_deleted=True,
     )
@@ -871,12 +921,12 @@ def test_wcag_audit_wcag_page_retests():
         wcag_audit=initial_wcag_audit
     )
     WcagPageRetest.objects.create(
-        wcag_audit=first_twelve_week_wcag_audit,
+        wcag_audit=last_twelve_week_wcag_audit,
         wcag_page_initial=wcag_page_initial,
     )
 
     assert initial_wcag_audit.wcag_page_retests.count() == 0
-    assert first_twelve_week_wcag_audit.wcag_page_retests.count() == 6
+    assert last_twelve_week_wcag_audit.wcag_page_retests.count() == 6
 
 
 @pytest.mark.django_db
@@ -886,20 +936,20 @@ def test_wcag_audit_retestable_wcag_page_retests():
         create_simplified_case_with_initial_and_12_week_audits()
     )
     initial_wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
-    first_twelve_week_wcag_audit: WcagAudit = (
-        simplified_case.audit_overview.first_twelve_week_wcag_audit
+    last_twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
     )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.create(
         wcag_audit=initial_wcag_audit, url="https://example.com"
     )
     WcagPageRetest.objects.create(
-        wcag_audit=first_twelve_week_wcag_audit,
+        wcag_audit=last_twelve_week_wcag_audit,
         wcag_page_initial=wcag_page_initial,
         page_missing_date=date.today(),
     )
 
     assert initial_wcag_audit.retestable_wcag_page_retests.count() == 0
-    assert first_twelve_week_wcag_audit.retestable_wcag_page_retests.count() == 6
+    assert last_twelve_week_wcag_audit.retestable_wcag_page_retests.count() == 6
 
 
 @pytest.mark.django_db
@@ -1016,7 +1066,7 @@ def test_wcag_audit_wcag_check_result_retests():
         create_simplified_case_with_initial_and_12_week_audits()
     )
     twelve_week_wcag_audit: WcagAudit = (
-        simplified_case.audit_overview.first_twelve_week_wcag_audit
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
     )
 
     assert twelve_week_wcag_audit.wcag_check_result_retests.count() == 11
@@ -1043,13 +1093,14 @@ def test_wcag_audit_wcag_check_result_retests():
 
 
 @pytest.mark.django_db
-def test_wcag_audit_fixed_wcag_check_result_retests():
+def test_audit_overview_fixed_wcag_check_result_retests():
     initial_wcag_audit: WcagAudit = create_initial_wcag_audit()
     twelve_week_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit
     )
+    audit_overview: AuditOverview = initial_wcag_audit.simplified_case.audit_overview
 
-    assert twelve_week_wcag_audit.fixed_wcag_check_result_retests.count() == 0
+    assert audit_overview.fixed_wcag_check_result_retests.count() == 0
 
     wcag_check_result_retest: WcagCheckResultRetest = (
         WcagCheckResultRetest.objects.filter(wcag_audit=twelve_week_wcag_audit).first()
@@ -1063,11 +1114,25 @@ def test_wcag_audit_fixed_wcag_check_result_retests():
     wcag_check_result_initial.check_result_state = WcagCheckResultInitial.Result.ERROR
     wcag_check_result_initial.save()
 
-    assert twelve_week_wcag_audit.fixed_wcag_check_result_retests.count() == 1
+    assert audit_overview.fixed_wcag_check_result_retests.count() == 1
     assert (
-        twelve_week_wcag_audit.fixed_wcag_check_result_retests[0].id
+        audit_overview.fixed_wcag_check_result_retests[0].id
         == wcag_check_result_retest.id
     )
+
+    next_wcag_audit: WcagAudit = WcagAudit.objects.create(
+        simplified_case=initial_wcag_audit.simplified_case,
+        audit_round_type=WcagAudit.AuditRoundType.TWELVE_WEEK,
+    )
+    WcagCheckResultRetest.objects.create(
+        wcag_audit=next_wcag_audit,
+        wcag_page_retest=wcag_check_result_retest.wcag_page_retest,
+        wcag_check_result_initial=wcag_check_result_retest.wcag_check_result_initial,
+        wcag_definition=wcag_check_result_retest.wcag_definition,
+        retest_state=WcagCheckResultRetest.RetestResult.FIXED,
+    )
+
+    assert audit_overview.fixed_wcag_check_result_retests.count() == 2
 
 
 @pytest.mark.django_db
@@ -1125,8 +1190,8 @@ def test_wcag_audit_percentage_wcag_issues_fixed():
         create_simplified_case_with_initial_and_12_week_audits()
     )
     initial_wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
-    first_twelve_week_wcag_audit: WcagAudit = (
-        simplified_case.audit_overview.first_twelve_week_wcag_audit
+    last_twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         WcagCheckResultInitial.objects.filter(wcag_audit=initial_wcag_audit).first()
@@ -1137,12 +1202,12 @@ def test_wcag_audit_percentage_wcag_issues_fixed():
         wcag_check_result_initial=wcag_check_result_initial
     )
 
-    assert first_twelve_week_wcag_audit.percentage_wcag_issues_fixed == 0
+    assert last_twelve_week_wcag_audit.percentage_wcag_issues_fixed == 0
 
     wcag_check_result_retest.retest_state = WcagCheckResultRetest.RetestResult.FIXED
     wcag_check_result_retest.save()
 
-    assert first_twelve_week_wcag_audit.percentage_wcag_issues_fixed == 100
+    assert last_twelve_week_wcag_audit.percentage_wcag_issues_fixed == 100
 
 
 @pytest.mark.django_db
@@ -1150,11 +1215,11 @@ def test_wcag_audit_missing_wcag_page_retests():
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    first_twelve_week_wcag_audit: WcagAudit = (
-        simplified_case.audit_overview.first_twelve_week_wcag_audit
+    last_twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
     )
 
-    assert first_twelve_week_wcag_audit.missing_wcag_page_retests.count() == 0
+    assert last_twelve_week_wcag_audit.missing_wcag_page_retests.count() == 0
 
     wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
         wcag_page_initial__page_type=WcagPageInitial.Type.HOME
@@ -1162,9 +1227,9 @@ def test_wcag_audit_missing_wcag_page_retests():
     wcag_page_retest.page_missing_date = date.today()
     wcag_page_retest.save()
 
-    assert first_twelve_week_wcag_audit.missing_wcag_page_retests.count() == 1
+    assert last_twelve_week_wcag_audit.missing_wcag_page_retests.count() == 1
     assert (
-        first_twelve_week_wcag_audit.missing_wcag_page_retests.first()
+        last_twelve_week_wcag_audit.missing_wcag_page_retests.first()
         == wcag_page_retest
     )
 
@@ -1174,11 +1239,11 @@ def test_wcag_audit_missing_at_retest_check_results():
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    first_twelve_week_wcag_audit: WcagAudit = (
-        simplified_case.audit_overview.first_twelve_week_wcag_audit
+    last_twelve_week_wcag_audit: WcagAudit = (
+        simplified_case.audit_overview.last_twelve_week_wcag_audit
     )
 
-    assert first_twelve_week_wcag_audit.missing_at_retest_check_results.count() == 0
+    assert last_twelve_week_wcag_audit.missing_at_retest_check_results.count() == 0
 
     wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
         wcag_page_initial__page_type=WcagPageInitial.Type.HOME
@@ -1186,7 +1251,7 @@ def test_wcag_audit_missing_at_retest_check_results():
     wcag_page_retest.page_missing_date = date.today()
     wcag_page_retest.save()
 
-    assert first_twelve_week_wcag_audit.missing_at_retest_check_results.count() == 2
+    assert last_twelve_week_wcag_audit.missing_at_retest_check_results.count() == 2
 
 
 @pytest.mark.django_db
@@ -1208,30 +1273,6 @@ def test_statement_audit_save_populates_round_number():
     statement_audit.save()
 
     assert statement_audit.round_number == 1
-
-
-@pytest.mark.django_db
-def test_statement_audit_equivalent_equality_body_wcag_audit():
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    AuditOverview.objects.create(simplified_case=simplified_case)
-    WcagAudit.objects.create(simplified_case=simplified_case)
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case
-    )
-
-    assert statement_audit.equivalent_equality_body_wcag_audit is None
-
-    equality_body_wcag_audit: WcagAudit = WcagAudit.objects.create(
-        simplified_case=simplified_case,
-        audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
-    )
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case
-    )
-
-    assert (
-        statement_audit.equivalent_equality_body_wcag_audit == equality_body_wcag_audit
-    )
 
 
 @pytest.mark.django_db
@@ -1262,7 +1303,6 @@ def test_statement_audit_statement_check_results():
         ("preparation", "preparation"),
         ("feedback", "feedback"),
         ("disproportionate", "disproportionate"),
-        ("custom", "custom"),
     ],
 )
 @pytest.mark.django_db
@@ -1344,28 +1384,6 @@ def test_statement_audit_statement_structure_check():
 
 
 @pytest.mark.django_db
-def test_statement_audit_new_12_week_custom_statement_check_results():
-    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
-    statement_audit: StatementAudit = StatementAudit.objects.create(
-        simplified_case=simplified_case,
-        audit_round_type=StatementAudit.AuditRoundType.TWELVE_WEEK,
-    )
-    new_12_week_custom_check_result: StatementCheckResult = (
-        StatementCheckResult.objects.create(
-            statement_audit=statement_audit,
-            type=StatementCheck.Type.RETEST,
-            public_comment="12-week custom statement issue",
-        )
-    )
-
-    assert statement_audit.new_12_week_custom_statement_check_results.count() == 1
-    assert (
-        statement_audit.new_12_week_custom_statement_check_results.first()
-        == new_12_week_custom_check_result
-    )
-
-
-@pytest.mark.django_db
 def test_statement_audit_failed_statement_check_results():
     statement_audit: StatementAudit = create_initial_statement_audit()
     failed_statement_check_results: QuerySet[StatementCheckResult] = (
@@ -1375,7 +1393,7 @@ def test_statement_audit_failed_statement_check_results():
         )
     )
 
-    assert failed_statement_check_results.count() == 1  # Custom issue
+    assert failed_statement_check_results.count() == 0
     assertQuerySetEqual(
         statement_audit.failed_statement_check_results, failed_statement_check_results
     )
@@ -1394,7 +1412,7 @@ def test_statement_audit_failed_statement_check_results():
         )
     )
 
-    assert failed_statement_check_results.count() > 1
+    assert failed_statement_check_results.count() > 0
     assertQuerySetEqual(
         statement_audit.failed_statement_check_results, failed_statement_check_results
     )
@@ -1443,14 +1461,8 @@ def test_statement_audit_fixed_statement_check_results():
 @pytest.mark.django_db
 def test_statement_audit_outstanding_statement_check_results():
     initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    initial_custom: StatementCheckResult = StatementCheckResult.objects.get(
-        statement_check=None
-    )
     twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
         initial_statement_audit=initial_statement_audit
-    )
-    retest_custom: StatementCheckResult = StatementCheckResult.objects.get(
-        statement_check=None, type=StatementCheck.Type.RETEST
     )
     initial_no_not_retested: StatementCheckResult = StatementCheckResult.objects.filter(
         statement_audit=twelve_week_statement_audit,
@@ -1481,15 +1493,7 @@ def test_statement_audit_outstanding_statement_check_results():
     initial_no_retest_yes.check_result_state = StatementCheckResult.Result.YES
     initial_no_retest_yes.save()
 
-    assert initial_custom in initial_statement_audit.outstanding_statement_check_results
-    assert twelve_week_statement_audit.outstanding_statement_check_results.count() == 4
-    assert (
-        initial_custom
-        not in twelve_week_statement_audit.outstanding_statement_check_results
-    )
-    assert (
-        retest_custom in twelve_week_statement_audit.outstanding_statement_check_results
-    )
+    assert twelve_week_statement_audit.outstanding_statement_check_results.count() == 2
     assert (
         initial_no_not_retested
         in twelve_week_statement_audit.outstanding_statement_check_results
@@ -1501,30 +1505,6 @@ def test_statement_audit_outstanding_statement_check_results():
     assert (
         initial_no_retest_yes
         not in twelve_week_statement_audit.outstanding_statement_check_results
-    )
-
-
-@pytest.mark.django_db
-def test_statement_audit_outstanding_statement_check_results_includes_new_failures():
-    """
-    Tests specific statement_audit outstanding_statement_check_results property
-    includes new custom errors found for the first time on 12-week retest.
-    """
-    initial_statement_audit: StatementAudit = create_initial_statement_audit()
-    twelve_week_statement_audit: StatementAudit = create_retest_statement_audit(
-        initial_statement_audit=initial_statement_audit
-    )
-    twelve_week_statement_check_result_retest: StatementCheckResult = (
-        StatementCheckResult.objects.create(
-            statement_audit=twelve_week_statement_audit,
-            type=StatementCheck.Type.RETEST,
-            public_comment="Custom issue found at 12-weeks",
-        )
-    )
-
-    assert (
-        twelve_week_statement_check_result_retest
-        in twelve_week_statement_audit.outstanding_statement_check_results
     )
 
 
@@ -1588,6 +1568,31 @@ def test_statement_audit_overview_statement_checks_complete():
         break
 
     assert statement_audit.overview_statement_checks_complete is False
+
+
+@pytest.mark.django_db
+def test_audit_statement_custom_statement_check_results():
+    simplified_case: SimplifiedCase = SimplifiedCase.objects.create()
+    # audit_overview: AuditOverview = AuditOverview.objects.create(
+    #     simplified_case=simplified_case
+    # )
+    statement_audit: StatementAudit = StatementAudit.objects.create(
+        simplified_case=simplified_case
+    )
+
+    assert statement_audit.custom_statement_check_results.count() == 0
+
+    custom_statement_check_result: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.create(
+            statement_audit=statement_audit, simplified_case=simplified_case
+        )
+    )
+
+    assert statement_audit.custom_statement_check_results.count() == 1
+    assert (
+        statement_audit.custom_statement_check_results.first()
+        == custom_statement_check_result
+    )
 
 
 @pytest.mark.django_db
@@ -1705,11 +1710,11 @@ def test_wcag_page_initial_unfixed_wcag_check_result_initials():
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    first_twelve_week_wcag_audit: WcagAudit = (
+    last_twelve_week_wcag_audit: WcagAudit = (
         simplified_case.audit_overview.initial_wcag_audit
     )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
-        wcag_audit=first_twelve_week_wcag_audit, page_type=WcagPageInitial.Type.HOME
+        wcag_audit=last_twelve_week_wcag_audit, page_type=WcagPageInitial.Type.HOME
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         wcag_page_initial.wcag_check_result_initials.first()
@@ -1864,11 +1869,11 @@ def test_wcag_page_retest_unfixed_wcag_check_result_initials():
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
-    first_twelve_week_wcag_audit: WcagAudit = (
+    last_twelve_week_wcag_audit: WcagAudit = (
         simplified_case.audit_overview.initial_wcag_audit
     )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
-        wcag_audit=first_twelve_week_wcag_audit, page_type=WcagPageInitial.Type.HOME
+        wcag_audit=last_twelve_week_wcag_audit, page_type=WcagPageInitial.Type.HOME
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         wcag_page_initial.wcag_check_result_initials.first()
@@ -1896,11 +1901,11 @@ def test_wcag_page_retest_first_equality_body_wcag_check_result_retests():
         create_simplified_case_with_initial_and_12_week_audits()
     )
     initial_wcag_audit: WcagAudit = simplified_case.audit_overview.initial_wcag_audit
-    first_twelve_week_wcag_audit: WcagAudit = (
+    last_twelve_week_wcag_audit: WcagAudit = (
         simplified_case.audit_overview.initial_wcag_audit
     )
     wcag_page_initial: WcagPageInitial = WcagPageInitial.objects.get(
-        wcag_audit=first_twelve_week_wcag_audit, page_type=WcagPageInitial.Type.HOME
+        wcag_audit=last_twelve_week_wcag_audit, page_type=WcagPageInitial.Type.HOME
     )
     wcag_check_result_initial: WcagCheckResultInitial = (
         wcag_page_initial.wcag_check_result_initials.first()
@@ -1916,12 +1921,12 @@ def test_wcag_page_retest_first_equality_body_wcag_check_result_retests():
         WcagCheckResultRetest.objects.none(),
     )
 
-    first_equality_body_wcag_audit: WcagAudit = create_retest_wcag_audit(
+    last_equality_body_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit,
         audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
     )
     first_equality_body_wcag_page_retest: WcagPageRetest = WcagPageRetest.objects.get(
-        wcag_audit=first_equality_body_wcag_audit, wcag_page_initial=wcag_page_initial
+        wcag_audit=last_equality_body_wcag_audit, wcag_page_initial=wcag_page_initial
     )
 
     assert (
@@ -2161,7 +2166,7 @@ def test_wcag_check_result_initial_string():
 
 
 @pytest.mark.django_db
-def test_wcag_check_result_initial_twelve_week_wcag_check_result_retest():
+def test_wcag_check_result_initial_last_twelve_week_wcag_check_result_retest():
     simplified_case: SimplifiedCase = (
         create_simplified_case_with_initial_and_12_week_audits()
     )
@@ -2183,7 +2188,7 @@ def test_wcag_check_result_initial_twelve_week_wcag_check_result_retest():
     )
 
     assert (
-        wcag_check_result_initial.twelve_week_wcag_check_result_retest
+        wcag_check_result_initial.last_twelve_week_wcag_check_result_retest
         == wcag_check_result_retest
     )
 
@@ -2446,14 +2451,14 @@ def test_wcag_check_result_retest_previous_wcag_check_result_retest():
         twelve_week_wcag_check_result_retest.previous_wcag_check_result_retest is None
     )
 
-    first_equality_body_wcag_audit: WcagAudit = create_retest_wcag_audit(
+    last_equality_body_wcag_audit: WcagAudit = create_retest_wcag_audit(
         initial_wcag_audit=initial_wcag_audit,
         audit_round_type=WcagAudit.AuditRoundType.EQUALITY_BODY,
     )
 
     first_equality_body_wcag_check_result_retest: WcagCheckResultRetest = (
         WcagCheckResultRetest.objects.get(
-            wcag_audit=first_equality_body_wcag_audit,
+            wcag_audit=last_equality_body_wcag_audit,
             wcag_check_result_initial=wcag_check_result_initial,
         )
     )
@@ -2485,13 +2490,13 @@ def test_wcag_check_result_retest_previous_wcag_check_result_retest():
 def test_statement_check_result_round_string():
     with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_CREATED)):
         create_initial_statement_audit()
-    custom_statement_check_result_round: StatementCheckResult = (
-        StatementCheckResult.objects.get(statement_check=None)
+    custom_statement_check_result_round: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.get()
     )
 
     assert (
         str(custom_statement_check_result_round)
-        == "#S-1 StatementAudit Initial test (1 April 2021) | Custom [1-SC-43]"
+        == "#S-1 StatementAudit Initial test (1 April 2021) | Custom [1-SC-1]"
     )
 
     statement_check: StatementCheck = StatementCheck.objects.all().first()
@@ -2509,11 +2514,11 @@ def test_statement_check_result_round_string():
 def test_statement_check_result_round_issue_identifier():
     with patch("django.utils.timezone.now", Mock(return_value=DATETIME_AUDIT_CREATED)):
         create_initial_statement_audit()
-    custom_statement_check_result_round: StatementCheckResult = (
-        StatementCheckResult.objects.get(statement_check=None)
+    custom_statement_check_result_round: CustomStatementCheckResult = (
+        CustomStatementCheckResult.objects.get()
     )
 
-    assert custom_statement_check_result_round.issue_identifier == "1-SC-43"
+    assert custom_statement_check_result_round.issue_identifier == "1-SC-1"
 
     statement_check: StatementCheck = StatementCheck.objects.all().first()
     statement_check_result_round: StatementCheckResult = (
@@ -2523,20 +2528,6 @@ def test_statement_check_result_round_issue_identifier():
     assert (
         statement_check_result_round.issue_identifier
         == f"1-S-{statement_check.issue_number}"
-    )
-
-
-@pytest.mark.django_db
-def test_statement_check_result_round_custom_state_default():
-    """Test that custom statement check results default to check result state of NO"""
-    create_initial_statement_audit()
-    custom_statement_check_result_round: StatementCheckResult = (
-        StatementCheckResult.objects.get(statement_check=None)
-    )
-
-    assert (
-        custom_statement_check_result_round.check_result_state
-        == StatementCheckResult.Result.NO
     )
 
 
@@ -2638,16 +2629,16 @@ def test_statement_check_result_round_edit_12_week_url_name():
         compliance_statement_check_result_round.edit_12_week_url_name
         == "audits:edit-retest-statement-compliance"
     )
-    retest_custom_statement_check_result_round: StatementCheckResult = (
+    retest_feedback_statement_check_result_round: StatementCheckResult = (
         StatementCheckResult.objects.filter(
             statement_audit=twelve_week_statement_audit,
-            type=StatementCheck.Type.RETEST,
+            type=StatementCheck.Type.FEEDBACK,
         ).first()
     )
 
     assert (
-        retest_custom_statement_check_result_round.edit_12_week_url_name
-        == "audits:edit-retest-statement-custom"
+        retest_feedback_statement_check_result_round.edit_12_week_url_name
+        == "audits:edit-retest-statement-feedback"
     )
 
 
